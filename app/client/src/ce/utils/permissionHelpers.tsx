@@ -69,6 +69,12 @@ export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
   return isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKSPACE);
 };
 
+export const hasInviteUserToApplicationPermission = (
+  permissions: string[] = [],
+) => {
+  return isPermitted(permissions, PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE);
+};
+
 export const hasCreateWorkspacePermission = (_permissions?: string[]) => true;
 
 export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;

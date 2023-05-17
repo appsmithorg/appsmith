@@ -62,6 +62,23 @@
           "placeholderText": "Awesome email subject"
         },
         {
+          "label": "Body Type",
+          "configProperty": "actionConfiguration.formData.send.bodyType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "text/plain",
+          "options": [
+            {
+              "label": "Plain Text",
+              "value": "text/plain"
+            },
+            {
+              "label": "HTML",
+              "value": "text/html"
+            }
+          ],
+          "evaluationSubstitutionType": "TEMPLATE"
+        },
+        {
           "label": "Body",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
@@ -73,7 +90,7 @@
           "configProperty": "actionConfiguration.formData.send.attachments",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{{Filepicker.files[0]}}"
+          "placeholderText": "{{Filepicker.files}}"
         }
       ]
     }

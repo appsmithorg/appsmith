@@ -1,20 +1,21 @@
 import { call, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "RouteBuilder";
 import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { NavigateActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
 import { isValidURL } from "utils/URLUtils";
+import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
+import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 
-export enum NavigationTargetType {
+export enum NavigationTargetType_Dep {
   SAME_WINDOW = "SAME_WINDOW",
   NEW_WINDOW = "NEW_WINDOW",
 }
@@ -39,16 +40,10 @@ const isValidPageName = (
   return _.find(pageList, (page: Page) => page.pageName === pageNameOrUrl);
 };
 
-export default function* navigateActionSaga(
-  action: NavigateActionDescription["payload"],
-) {
+export default function* navigateActionSaga(action: TNavigateToDescription) {
+  const { payload } = action;
   const pageList: Page[] = yield select(getPageList);
-
-  const {
-    pageNameOrUrl,
-    params,
-    target = NavigationTargetType.SAME_WINDOW,
-  } = action;
+  const { pageNameOrUrl, params, target } = payload;
 
   const page = isValidPageName(pageNameOrUrl, pageList);
 

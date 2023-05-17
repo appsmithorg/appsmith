@@ -7,13 +7,17 @@ import {
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
-import { ReactTableColumnProps } from "../../Constants";
+import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
 import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
-import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
+import { importSvg } from "design-system-old";
+
+const DownloadIcon = importSvg(
+  () => import("assets/icons/control/download-data-icon.svg"),
+);
 
 const DropDownWrapper = styled.div`
   display: flex;

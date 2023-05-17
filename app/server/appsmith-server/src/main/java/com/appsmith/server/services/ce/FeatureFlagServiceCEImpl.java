@@ -28,20 +28,21 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     }
 
     @Override
-    public Boolean check(FeatureFlagEnum featureEnum, User user) {
+    public Mono<Boolean> check(FeatureFlagEnum featureEnum, User user) {
         if (featureEnum == null) {
-            return false;
+            return Mono.just(false);
         }
-        return check(featureEnum.toString(), user);
+        return Mono.just(check(featureEnum.toString(), user));
     }
 
     @Override
     public Mono<Boolean> check(FeatureFlagEnum featureEnum) {
         return sessionUserService.getCurrentUser()
-                .map(user -> check(featureEnum, user));
+                .flatMap(user -> check(featureEnum, user));
     }
 
-    private Boolean check(String featureName, User user) {
+    @Override
+    public Boolean check(String featureName, User user) {
         return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.USER, user)));
     }
 

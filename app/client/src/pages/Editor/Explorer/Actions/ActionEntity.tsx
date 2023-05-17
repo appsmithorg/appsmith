@@ -9,7 +9,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
-import { Action, PluginType } from "entities/Action";
+import type { Action, PluginType } from "entities/Action";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -81,7 +81,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       action={switchToAction}
       active={props.isActive}
       canEditEntityName={canManageAction}
-      className="action"
+      className="action t--action-entity"
       contextMenu={contextMenu}
       entityId={action.id}
       icon={icon}

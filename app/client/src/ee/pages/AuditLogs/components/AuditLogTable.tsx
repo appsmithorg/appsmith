@@ -3,7 +3,7 @@ import AuditLogsTableRow from "@appsmith/pages/AuditLogs/components/AuditLogsTab
 import LoadingAuditLogs from "./LoadingAuditLogs";
 import NoAuditLogs from "./NoAuditLogs";
 import useIntersectionObserver from "../hooks/useIntersectionObserver";
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 import { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
 import { Icon, IconSize } from "design-system-old";
 import { StyledAuditLogsTableContainer as Table } from "../styled-components/container";

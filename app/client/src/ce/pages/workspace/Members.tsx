@@ -3,10 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  // getCurrentWorkspace,
+  getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import { RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Table } from "design-system-old";
 import {
@@ -22,8 +23,6 @@ import {
   HighlightText,
   Icon,
   IconSize,
-  TableDropdown,
-  TableDropdownOption,
   Text,
   TextType,
 } from "design-system-old";
@@ -32,15 +31,20 @@ import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
-import { USER_PHOTO_URL } from "constants/userConstants";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
-import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -85,6 +89,9 @@ export const MembersWrapper = styled.div<{
       tr {
         td {
           word-break: break-word;
+          padding: 0 var(--ads-spaces-9);
+          border-bottom: none;
+          line-height: 2.9;
 
           &:first-child {
             text-align: left;
@@ -104,6 +111,26 @@ export const MembersWrapper = styled.div<{
             text-align: left;
           }
 
+          .bp3-popover-target {
+            display: flex;
+
+            > * {
+              flex-grow: 0;
+            }
+
+            .t--user-status {
+              border: none;
+              padding: 0;
+              background: none;
+            }
+
+            .cs-text {
+              width: 100%;
+              margin-right: 10px;
+              color: var(--ads-text-color);
+            }
+          }
+
           .bp3-overlay {
             position: relative;
 
@@ -113,7 +140,7 @@ export const MembersWrapper = styled.div<{
 
               .bp3-popover-content {
                 > div {
-                  width: 440px;
+                  width: 340px;
                 }
               }
             }
@@ -220,6 +247,18 @@ export const NoResultsText = styled.div`
   color: var(--appsmith-color-black-700);
 `;
 
+export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
+  display: flex;
+
+  ${({ isSubRow }) => (isSubRow ? `padding-left: 12px;` : ``)}
+
+  .cs-icon {
+    margin: 0 4px 0 0;
+    position: relative;
+    left: -4px;
+  }
+`;
+
 export default function MemberSettings(props: PageProps) {
   const {
     match: {
@@ -231,6 +270,7 @@ export default function MemberSettings(props: PageProps) {
   } = props;
 
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
@@ -238,10 +278,8 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchWorkspace(workspaceId));
   }, [dispatch, workspaceId]);
 
-  const [
-    showMemberDeletionConfirmation,
-    setShowMemberDeletionConfirmation,
-  ] = useState(false);
+  const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
+    useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>
@@ -281,9 +319,18 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  // const currentWorkspace = useSelector(getCurrentWorkspace).filter(
-  //   (el) => el.id === workspaceId,
-  // )[0];
+  const currentWorkspace = useSelector(getCurrentWorkspace).find(
+    (el) => el.id === workspaceId,
+  );
+
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
 
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
@@ -300,11 +347,22 @@ export default function MemberSettings(props: PageProps) {
     }
   }, [allUsers]);
 
+  useEffect(() => {
+    if (
+      currentWorkspace &&
+      (!isMemberofTheWorkspace || !hasManageWorkspacePermissions)
+    ) {
+      history.replace(APPLICATIONS_URL);
+    }
+  }, [currentWorkspace, isMemberofTheWorkspace, hasManageWorkspacePermissions]);
+
   const membersData = useMemo(
     () =>
       allUsers.map((user) => ({
         ...user,
         isCurrentUser: user.username === currentUser?.username,
+        permissionGroupId: user.roles?.[0]?.id || "",
+        permissionGroupName: user.roles?.[0]?.name || "",
       })),
     [allUsers, currentUser],
   );
@@ -342,12 +400,30 @@ export default function MemberSettings(props: PageProps) {
               <ProfileImage
                 className="user-icons"
                 size={20}
-                source={`/api/v1/users/photo/${member.username}`}
+                source={
+                  member.photoId
+                    ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
+                    : undefined
+                }
                 userName={member.username}
               />
               <HighlightText highlight={searchValue} text={member.username} />
             </>
           </EachUser>
+        );
+      },
+    },
+    {
+      Header: "Resource",
+      accessor: "resource",
+      Cell: function ResourceCell(cellProps: any) {
+        return (
+          <RowWrapper>
+            <div className="resource-name">
+              {cellProps.cell.row.original.roles?.[0]?.entityType ||
+                "Workspace"}
+            </div>
+          </RowWrapper>
         );
       },
     },
@@ -361,33 +437,37 @@ export default function MemberSettings(props: PageProps) {
           ? allRoles.map((role: any) => {
               return {
                 id: role.id,
-                name: role.name?.split(" - ")[0],
-                desc: role.description,
+                value: role.name?.split(" - ")[0],
+                label: role.description,
               };
             })
           : [];
-        const index = roles.findIndex(
-          (role: { id: string; name: string; desc: string }) =>
-            role.name?.split(" - ")[0] ===
+        const selectedRole = roles.find(
+          (role: { id: string; value: string; label: string }) =>
+            role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
         if (data.username === currentUser?.username) {
           return cellProps.cell.value?.split(" - ")[0];
         }
         return (
-          <TableDropdown
+          <Dropdown
+            boundary="viewport"
+            className="t--user-status"
+            defaultIcon="downArrow"
+            dontUsePortal
+            height="31px"
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username === data.username
             }
-            onSelect={(option: TableDropdownOption) => {
+            onSelect={(_value: string, option: any) => {
               dispatch(
                 changeWorkspaceUserRole(workspaceId, option.id, data.username),
               );
             }}
             options={roles}
-            selectedIndex={index}
-            selectedTextWidth="90px"
+            selected={selectedRole}
           />
         );
       },
@@ -456,7 +536,8 @@ export default function MemberSettings(props: PageProps) {
             {filteredData.map((member, index) => {
               const role =
                 roles.find(
-                  (role: any) => role.value === member.permissionGroupName,
+                  (role: any) =>
+                    role.value === member.permissionGroupName.split(" - ")[0],
                 ) || roles[0];
               const isOwner = member.username === currentUser?.username;
               return (
@@ -465,7 +546,11 @@ export default function MemberSettings(props: PageProps) {
                     <ProfileImage
                       className="avatar"
                       size={71}
-                      source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                      source={
+                        member.photoId
+                          ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
+                          : undefined
+                      }
                       userName={member.username}
                     />
                     <HighlightText
@@ -514,14 +599,15 @@ export default function MemberSettings(props: PageProps) {
             })}
           </UserCardContainer>
         )}
-        <DeleteConfirmationModal
-          isDeletingUser={isDeletingUser}
-          isOpen={showMemberDeletionConfirmation}
-          name={userToBeDeleted && userToBeDeleted.name}
-          onClose={onCloseConfirmationModal}
-          onConfirm={onDeleteMember}
-          username={userToBeDeleted && userToBeDeleted.username}
-        />
+        {userToBeDeleted && (
+          <DeleteConfirmationModal
+            isDeletingUser={isDeletingUser}
+            isOpen={showMemberDeletionConfirmation}
+            onClose={onCloseConfirmationModal}
+            onConfirm={onDeleteMember}
+            userToBeDeleted={userToBeDeleted}
+          />
+        )}
       </>
     </MembersWrapper>
   );

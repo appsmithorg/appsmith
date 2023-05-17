@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
@@ -55,7 +56,7 @@ public class PermissionGroupUtils {
     public Mono<Boolean> isAutoCreated(PermissionGroup permissionGroup) {
         return getAutoCreatedPermissionGroupIds().map(autoCreatedPermissionGroupIdSet ->
                 autoCreatedPermissionGroupIdSet.contains(permissionGroup.getId())
-                        || StringUtils.hasLength(permissionGroup.getDefaultWorkspaceId()));
+                        || Objects.nonNull(permissionGroup.getDefaultDomainType()));
     }
 
     public Flux<PermissionGroupInfoDTO> mapToPermissionGroupInfoDto(Flux<PermissionGroup> permissionGroupFlux) {

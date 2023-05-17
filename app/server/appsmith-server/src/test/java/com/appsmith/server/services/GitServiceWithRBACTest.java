@@ -20,6 +20,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -42,6 +43,7 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -154,6 +156,12 @@ public class GitServiceWithRBACTest {
 
     @Autowired
     UserDataService userDataService;
+
+    @Autowired
+    ThemeService themeService;
+
+    @Autowired
+    ThemeRepository themeRepository;
 
     @MockBean
     GitExecutor gitExecutor;
@@ -1012,6 +1020,215 @@ public class GitServiceWithRBACTest {
                         && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application.getId()));
                 })
                 .verify();
+    }
+
+    /**
+     * Test case: Flow the policies from Branched application to all it's Themes (Edited / Published / Persisted).
+     * <br>
+     * Steps:
+     * <ol>
+     *     <li>Create custom themes for git and branched application</li>
+     *     <li>Create persisted themes for git and branched application</li>
+     *     <li>Create a custom permission group.</li>
+     *     <li>Update the created permission group with CRUD policies for main application.</li>
+     *     <li>Fetch the above created resources from DB.</li>
+     * </ol>
+     * Observations:
+     * <ol>
+     *     <li>Before role update, system / custom / persisted themes don't contain the permission group in policies</li>
+     *     <li>After role update, system themes don't contain the permission group in policies</li>
+     *     <li>After role update, custom / persisted themes contains the permission group in policies</li>
+     * </ol>
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdatePoliciesForApplication_validateRelatedThemesInheritPolicies() {
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+        String branchName = "testUpdatePoliciesForApplication_validateRelatedThemesInheritPolicies";
+
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetchResult"));
+        Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just("testBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(List.of()));
+
+        Application branchedApplication = runAs(gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/" + branchName), api_user)
+                .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(branchName, gitConnectedApplication.getId(), READ_APPLICATIONS))
+                .block();
+
+        /*
+         * Here we are checking for System themes, which already exists in application entity's
+         * editModeThemeId and publishedModeThemeId.
+         * We create 2 un-named custom themes, and update themes with specific applications.
+         * This will populate the application.editModeThemeId for respective applications.
+         * We create 2 persisted themes with specific applications.
+         * This will populate theme.applicationId with respective applications' id.
+         */
+
+        Theme systemTheme = themeService.getSystemTheme("Classic").block();
+        Theme systemTheme2 = themeService.getSystemTheme("Sharp").block();
+        Theme systemThemeForGitApp = themeRepository.findById(gitConnectedApplication.getPublishedModeThemeId()).block();
+        Theme systemThemeForBranchedApp = themeRepository.findById(branchedApplication.getPublishedModeThemeId()).block();
+        /*
+         * Creating custom unnamed themes from system theme.
+         * themeService.updateTheme will create a custom theme and add it to the application.editModeThemeId for
+         * applications it is being updated for.
+         */
+        Theme customThemeForGitApp = themeService.updateTheme(gitConnectedApplication.getId(), null, systemTheme).block();
+        Theme customThemeForBranchedApp = themeService.updateTheme(gitConnectedApplication.getId(), branchName, systemTheme).block();
+        /*
+         * Creating persisted themes from system theme.
+         * themeService.persistCurrentTheme will create persisted themes and populate theme.applicationId in created
+         * theme.
+         */
+        Theme persistedThemeForGitApp = themeService.persistCurrentTheme(gitConnectedApplication.getId(), null, systemTheme2).block();
+        Theme persistedThemeForBranchedApp = themeService.persistCurrentTheme(gitConnectedApplication.getId(), branchName, systemTheme2).block();
+
+
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for testUpdatePoliciesForApplication_validateRelatedThemesInheritPolicies");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        PermissionGroup finalPermissionGroup = permissionGroup;
+        gitConnectedApplication.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        branchedApplication.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        systemThemeForGitApp.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        systemThemeForBranchedApp.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        customThemeForGitApp.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        customThemeForBranchedApp.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        persistedThemeForGitApp.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        persistedThemeForBranchedApp.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                workspaceId,
+                permissionGroup.getId(),
+                List.of(AclPermission.READ_WORKSPACES
+                ),
+                List.of(),
+                Workspace.class).block();
+
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                gitConnectedApplication.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.APPLICATION_CREATE_PAGES,
+                        AclPermission.DELETE_APPLICATIONS,
+                        AclPermission.READ_APPLICATIONS,
+                        AclPermission.MANAGE_APPLICATIONS
+                ),
+                List.of(),
+                Application.class).block();
+
+        Application gitApplicationPostUpdatePolicy = applicationRepository.findById(gitConnectedApplication.getId()).block();
+        Application branchedApplicationPostUpdatePolicy = applicationRepository.findById(branchedApplication.getId()).block();
+
+        Theme systemThemeForGitAppPostUpdatePolicy = themeRepository.findById(systemThemeForGitApp.getId()).block();
+        Theme systemThemeForBranchedAppPostUpdatePolicy = themeRepository.findById(systemThemeForBranchedApp.getId()).block();
+
+        Theme customThemeForGitAppPostUpdatePolicy = themeRepository.findById(customThemeForGitApp.getId()).block();
+        Theme customThemeForBranchedAppPostUpdatePolicy = themeRepository.findById(customThemeForBranchedApp.getId()).block();
+
+        Theme persistedThemeForGitAppPostUpdatePolicy = themeRepository.findById(persistedThemeForGitApp.getId()).block();
+        Theme persistedThemeForBranchedAppPostUpdatePolicy = themeRepository.findById(persistedThemeForBranchedApp.getId()).block();
+
+
+
+        gitApplicationPostUpdatePolicy.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(AclPermission.EXPORT_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.READ_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.MANAGE_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.DELETE_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.PUBLISH_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.MAKE_PUBLIC_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.APPLICATION_CREATE_PAGES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+        });
+        branchedApplicationPostUpdatePolicy.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(AclPermission.EXPORT_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.READ_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.MANAGE_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.DELETE_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.PUBLISH_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.MAKE_PUBLIC_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.APPLICATION_CREATE_PAGES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+        });
+
+        systemThemeForGitAppPostUpdatePolicy.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        systemThemeForBranchedAppPostUpdatePolicy.getPolicies().forEach(policy ->
+                assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId()));
+        customThemeForGitAppPostUpdatePolicy.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(AclPermission.MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+        });
+        customThemeForBranchedAppPostUpdatePolicy.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(AclPermission.MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+        });
+        persistedThemeForGitAppPostUpdatePolicy.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(AclPermission.MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+        });
+        persistedThemeForBranchedAppPostUpdatePolicy.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(AclPermission.MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(AclPermission.READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(finalPermissionGroup.getId());
+            }
+        });
     }
 
     @Test

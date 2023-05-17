@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -32,7 +33,6 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -53,7 +53,6 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -62,6 +61,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,6 +71,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 
@@ -92,7 +93,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
-    private final CommentThreadRepository commentThreadRepository;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -195,7 +195,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     });
         } else {
-            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id " + page.getId()));
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, page.getId()));
         }
 
     }
@@ -337,7 +337,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         application1.setEditModeThemeId(themeId);
                         application1.setPublishedModeThemeId(themeId);
                         return themeId;
-                    }).then(applicationService.createDefault(application1));
+                    }).then(applicationService.createDefaultApplication(application1));
                 })
                 .flatMap(savedApplication -> {
 
@@ -765,7 +765,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(applicationUserTuple2 -> {
                                 Application application1 = applicationUserTuple2.getT1();
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
-                                return applicationService.createDefault(application1);
+                                return applicationService.createDefaultApplication(application1);
                             })
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
@@ -803,6 +803,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
+                            .flatMap(application -> publish(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
@@ -899,10 +900,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
-                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
-                            id, ApplicationMode.EDIT
-                    );
-
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
@@ -913,7 +910,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             }).collectList();
 
                     // Page is deleted only after other resources are deleted
-                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
+                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono)
                             .map(tuple -> {
                                 List<ActionDTO> actions = tuple.getT1();
                                 final List<ActionCollectionDTO> actionCollections = tuple.getT2();
@@ -1001,9 +998,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<List<NewPage>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
-                                        .then(newPageService.archiveById(id))
-                                )
+                                .flatMap(newPageService::archiveById)
                                 .collectList();
                     } else {
                         archivePageListMono = Mono.just(new ArrayList<>());
@@ -1012,8 +1007,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-                    application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
-                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
+                    application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
+
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
@@ -1038,7 +1033,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .collectList()
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<List<NewAction>> publishedActionsListMono = newActionService
+        Mono<Map<PluginType, Collection<NewAction>>> publishedActionsListMono = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
                 .flatMap(newAction -> {
                     // If the action was deleted in edit mode, now this document can be safely archived
@@ -1051,7 +1046,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Mono.just(newAction);
                 })
                 .flatMap(newActionService::save)
-                .collectList()
+                .collectMultimap(newAction -> newAction.getPluginType())
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
@@ -1077,8 +1072,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         isPublishedManually));
     }
 
+    private int getActionCount(Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap, PluginType pluginType) {
+        if (pluginTypeCollectionMap.containsKey(pluginType)) {
+            return pluginTypeCollectionMap.get(pluginType).size();
+        }
+        return 0;
+    }
+
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
-                                                            Mono<List<NewAction>> publishedActionsFlux,
+                                                            Mono<Map<PluginType, Collection<NewAction>>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
                                                             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
                                                             String applicationId, boolean isPublishedManually) {
@@ -1094,7 +1096,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application application = objects.getT4();
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
-                    extraProperties.put("queryCount", objects.getT2().size());
+                    Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
+                    Integer dbQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.DB);
+                    Integer apiCount = getActionCount(pluginTypeCollectionMap, PluginType.API);
+                    Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
+                    Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
+                    Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
+
+                    extraProperties.put("dbQueryCount", dbQueryCount);
+                    extraProperties.put("apiCount", apiCount);
+                    extraProperties.put("jsFuncCount", jsFuncCount);
+                    extraProperties.put("saasQueryCount", saasQueryCount);
+                    extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("queryCount", (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount));
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
@@ -1175,22 +1189,25 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
+        Mono<Application> applicationMono = applicationService.findByNameAndWorkspaceId(actualName, application.getWorkspaceId(), MANAGE_APPLICATIONS);
 
-        return applicationWithPoliciesMono
-                .zipWith(userMono)
-                .flatMap(tuple -> {
-                    Application application1 = tuple.getT1();
-                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                    // We can't use create or createApplication method here as we are expecting update operation if the
-                    // _id is available with application object
-                    return applicationService.save(application);
-                })
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null) {
-                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
+        // We are taking pessimistic approach as this flow is used in import application where we are using transactions
+        // which creates problem if we hit duplicate key exception
+        return applicationMono
+                .flatMap(application1 ->
+                    this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
+                )
+                .switchIfEmpty(Mono.defer(() ->
+                    applicationWithPoliciesMono
+                            .zipWith(userMono)
+                            .flatMap(tuple -> {
+                                Application application1 = tuple.getT1();
+                                application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                                // We can't use create or createApplication method here as we are expecting update operation if the
+                                // _id is available with application object
+                                return applicationService.save(application);
+                            })
+                ));
     }
 
     /**

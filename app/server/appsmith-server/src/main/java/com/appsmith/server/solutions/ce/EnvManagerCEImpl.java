@@ -123,15 +123,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final ObjectMapper objectMapper;
 
-    private final AssetService assetService;
-
-    private static final Set<String> ASSET_VALUE_KEYS = Set.of(
-            "APPSMITH_BRAND_LOGO",
-            "APPSMITH_BRAND_FAVICON"
-    );
-
-    private static final int MAX_LOGO_SIZE_KB = 1024;
-
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -160,8 +151,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             ConfigService configService,
                             UserUtils userUtils,
                             TenantService tenantService,
-                            ObjectMapper objectMapper,
-                            AssetService assetService) {
+                            ObjectMapper objectMapper) {
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.analyticsService = analyticsService;
@@ -178,7 +168,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
-        this.assetService = assetService;
     }
 
     /**
@@ -385,8 +374,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes, String origin) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
-        return verifyCurrentUserIsSuper().
-                flatMap(user -> validateChanges(user, changes).thenReturn(user))
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;
@@ -527,12 +516,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     @NotNull
     public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
-        if (!ASSET_VALUE_KEYS.contains(key)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, key));
-        }
-        // TODO: Delete existing/previous logo, if present.
-        return assetService.upload(parts, MAX_LOGO_SIZE_KB, false)
-                .map(asset -> Map.entry(key, "asset:" + asset.getId()));
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION, "File upload is not supported"));
     }
 
     /**

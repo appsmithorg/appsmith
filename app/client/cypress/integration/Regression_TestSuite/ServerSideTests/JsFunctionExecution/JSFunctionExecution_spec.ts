@@ -7,14 +7,15 @@ const jsEditor = ObjectsRegistry.JSEditor,
   table = ObjectsRegistry.Table,
   agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
   functionsLength: number,
   jsObj: string;
 
-describe("JS Function Execution", function() {
+describe("JS Function Execution", function () {
   interface IFunctionSettingData {
     name: string;
     onPageLoad: boolean;
@@ -59,7 +60,7 @@ describe("JS Function Execution", function() {
     // sorts functions alphabetically
     const sortFunctions = (data: IFunctionSettingData[]) =>
       data.sort((a, b) => a.name.localeCompare(b.name));
-    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
+    cy.get(jsEditor._asyncJSFunctionSettings).then(function ($lis) {
       const asyncFunctionLength = $lis.length;
       // Assert number of async functions
       expect(asyncFunctionLength).to.equal(functionsLength);
@@ -72,7 +73,7 @@ describe("JS Function Execution", function() {
     });
   }
 
-  it("1. Allows execution of js function when lint warnings(not errors) are present in code", function() {
+  it("1. Allows execution of js function when lint warnings(not errors) are present in code", function () {
     jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>{
@@ -89,11 +90,11 @@ describe("JS Function Execution", function() {
       },
     );
 
-    jsEditor.AssertParseError(false, false);
+    jsEditor.AssertParseError(false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("2. Prevents execution of js function when parse errors are present in code", function() {
+  it("2. Prevents execution of js function when parse errors are present in code", function () {
     jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>>{
@@ -108,12 +109,17 @@ describe("JS Function Execution", function() {
         prettify: false,
       },
     );
-
-    jsEditor.AssertParseError(true, false);
+    //Debugger shouldn't open when there is a parse error.
+    //It should open only in case of execution error.
+    debuggerHelper.AssertClosed();
+    //Verify there is no error shown in the response tab.
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickResponseTab();
+    jsEditor.AssertParseError(false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function() {
+  it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function () {
     const JSObjectWithFunctionExecutionParseErrors = `export default {
       myFun1 :()=>{
         return f
@@ -136,7 +142,7 @@ describe("JS Function Execution", function() {
     });
 
     // Assert presence of function execution parse error callout
-    jsEditor.AssertParseError(true, true);
+    jsEditor.AssertParseError(true);
 
     // Add parse error that renders JS Object invalid in code
     jsEditor.CreateJSObject(JSObjectWithParseErrors, {
@@ -150,7 +156,7 @@ describe("JS Function Execution", function() {
     agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
 
     // Assert presence of parse error callout (entire JS Object is invalid)
-    jsEditor.AssertParseError(true, false);
+    jsEditor.AssertParseError(true);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
@@ -242,7 +248,7 @@ describe("JS Function Execution", function() {
     // Deploy App and test that table loads properly
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
-    table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
@@ -317,12 +323,13 @@ describe("JS Function Execution", function() {
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
-    onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
-      (func) => func.onPageLoad && func.confirmBeforeExecute,
-    ).length;
+    onPageLoadAndConfirmExecuteFunctionsLength =
+      FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
+        (func) => func.onPageLoad && func.confirmBeforeExecute,
+      ).length;
 
     getJSObject = (data: IFunctionSettingData[]) => {
       let JS_OBJECT_BODY = `export default`;
@@ -414,11 +421,14 @@ describe("JS Function Execution", function() {
 
     // clone page and assert order of functions
     ee.ClonePage();
+    agHelper.Sleep();
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.Sleep();
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
       agHelper.ClickButton("Yes");
-      agHelper.Sleep();
+      agHelper.Sleep(); //for current pop up to close & next to appear!
     }
 
     ee.SelectEntityByName(jsObj, "Queries/JS");
@@ -500,28 +510,36 @@ return "yes";`;
     });
 
     // Assert that there is a function execution parse error
-    jsEditor.AssertParseError(true, true);
-    // click the debug icon
-    agHelper.GetNClick(jsEditor._debugCTA);
-    // Assert that errors tab is not empty
+    jsEditor.AssertParseError(true);
+    // Assert that response tab is not empty
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
-    // Assert presence of typeError
+    // Assert presence of typeError in response tab
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "Cannot read properties of undefined (reading 'id')",
       "exist",
     );
+    agHelper.AssertContains("TypeError", "exist");
+
+    // click the error tab
+    agHelper.GetNClick(locator._errorTab);
+    // Assert that errors tab is not empty
+    agHelper.AssertContains("No signs of trouble here!", "not.exist");
+    // Assert presence of typeError in error tab
+    agHelper.AssertContains(
+      "Cannot read properties of undefined (reading 'id')",
+      "exist",
+    );
+    agHelper.AssertContains("TypeError", "exist");
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
-    agHelper.WaitUntilAllToastsDisappear(); //for 'Resource not found'
     agHelper.RefreshPage();
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
     agHelper.AssertElementAbsence(locator._runBtnSpinner, 10000);
-    jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
 
@@ -531,14 +549,14 @@ return "yes";`;
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false, false);
     jsEditor.RunJSObj();
     // Assert that there is a function execution parse error
-    jsEditor.AssertParseError(true, true);
+    jsEditor.AssertParseError(true);
 
     // Delete function
     jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
     agHelper.ActionContextMenuWithInPane("Delete", "", true);

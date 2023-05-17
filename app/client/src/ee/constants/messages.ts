@@ -5,6 +5,10 @@ import {
   INVITE_USERS_PLACEHOLDER as CE_INVITE_USERS_PLACEHOLDER,
   INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
   MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE,
+  SEARCH_USERS as CE_SEARCH_USERS,
+  PAGE_SERVER_UNAVAILABLE_TITLE as CE_PAGE_SERVER_UNAVAILABLE_TITLE,
+  INVITE_USERS_SUBMIT_SUCCESS as CE_INVITE_USERS_SUBMIT_SUCCESS,
+  INVITE_USER_SUBMIT_SUCCESS as CE_INVITE_USER_SUBMIT_SUCCESS,
 } from "ce/constants/messages";
 
 // GAC begin
@@ -44,7 +48,8 @@ export const NO_PERMISSION_TO_UNASSIGN = () =>
   `You do not have permission to unassign this role.`;
 export const DEFAULT_ROLES_PILL = () => `D`;
 export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default Roles`;
-export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the users ability to interact with various
+export const BOTTOM_BAR_SAVE_MESSAGE =
+  () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
 export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
@@ -67,6 +72,16 @@ export const MEMBERS_TAB_TITLE = (length: number, cloudHosting?: boolean) =>
   cloudHosting
     ? createMessage(CE_MEMBERS_TAB_TITLE, length)
     : `Users / User Groups (${length})`;
+export const SEARCH_USERS = (cloudHosting?: boolean) =>
+  cloudHosting ? createMessage(CE_SEARCH_USERS) : `Search for users or groups`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS)
+    : `The users/groups have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USER_SUBMIT_SUCCESS)
+    : `The user/group have been invited successfully`;
 export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
   "Group Details page > Top bar";
 export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
@@ -117,20 +132,22 @@ export const LICENSE_KEY_FORM_INPUT_LABEL = () =>
   "If you already have a license, please enter the key to continue";
 export const LICENSE_KEY_CTA_LABEL = () =>
   "If you do not have a license key, please visit our customer portal to start trial or buy a subscription";
-export const TRIAL_EXPIRY_WARNING = (gracePeriod: number | string) =>
-  `Your trial will expire in <span>${gracePeriod}</span> days.`;
+export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
+  `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
 export const CONTINUE_USING_FEATURES = () =>
-  `to continue using all the features.`;
+  `to continue using Appsmith Business. `;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
-  `Please contact your administrator to upgrade and continue using all the features.`;
+  `Please contact your administrator to upgrade and continue using Appsmith Business. `;
 export const TOTAL_USERS_MESSAGE = () => `Total Users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
 export const BILLING_AND_USAGE = () => `Billing & Usage`;
 export const OPEN_CUSTOMER_PORTAL = () => `Open Customer Portal`;
 export const BE_WELCOME_MESSAGE = () => "Welcome to Appsmith Business Edition";
-export const BE_TRIAL_BANNER_EXPIRY_MESSAGE = (gracePeriod: number | string) =>
-  `Trial ends in <span>${gracePeriod}</span> days`;
+export const BE_TRIAL_BANNER_EXPIRY_MESSAGE = (
+  gracePeriod: number,
+  suffix: string,
+) => `Trial ends in <span>${gracePeriod}</span> ${suffix}`;
 export const UPGRADE_NOW = () => `Upgrade Now`;
 export const CLOSE = () => `Close`;
 export const UPGRADE_TO_BUSINESS = () => `Upgrade to Business`;
@@ -151,3 +168,30 @@ export const UPDATE = () => "UPDATE";
 export const LICENSE_ERROR_TITLE = () => `No Active Subscription`;
 export const LICENSE_ERROR_DESCRIPTION = () =>
   `You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.`;
+export const VISIT_CUSTOMER_PORTAL = () => `VISIT CUSTOMER PORTAL`;
+export const LICENSE_UPDATED_SUCCESSFULLY = () =>
+  `Your license has been updated successfully`;
+export const NOT_AVAILABLE = () => `Not Available`;
+export const ACTIVE = () => `Active`;
+export const TRIAL = () => `Trial`;
+export const PORTAL = () => `Portal`;
+export const LICENSE_KEY = () => `License Key`;
+export const ALREADY_UPGRADED = () => `Already upgraded?`;
+export const PAYMENT_FAILED = () => `Your last payment has failed.`;
+export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
+  `your payment methods to continue using Appsmith, else all your instances will shut down in ${count} ${suffix}.`;
+
+// Welcome form EE
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
+
+// Auth pages
+export const SIGNUP_PAGE_TITLE = () => `Create your account`;
+
+// error pages
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
+  if (cloudHosting) {
+    return CE_PAGE_SERVER_UNAVAILABLE_TITLE(cloudHosting);
+  } else {
+    return "Server unavailable";
+  }
+};

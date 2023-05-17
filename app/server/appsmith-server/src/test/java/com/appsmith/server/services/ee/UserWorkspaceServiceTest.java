@@ -6,8 +6,10 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
@@ -17,6 +19,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -49,6 +53,7 @@ public class UserWorkspaceServiceTest {
     @Autowired UserGroupRepository userGroupRepository;
     @Autowired WorkspaceRepository workspaceRepository;
     @Autowired UserUtils userUtils;
+    @Autowired UserService userService;
 
     private User apiUser;
     private User testUser;
@@ -71,7 +76,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -81,44 +86,41 @@ public class UserWorkspaceServiceTest {
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
-        List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = userWorkspaceService
+        List<MemberInfoDTO> memberInfoDTOList = userWorkspaceService
                 .getWorkspaceMembers(createdWorkspace.getId())
                 .block();
 
         // For a newly created workspace, only 1 member exists, the one who created the workspace.
-        assertThat(workspaceMemberInfoDTOList).hasSize(1);
-        assertThat(workspaceMemberInfoDTOList.get(0).getUserId()).isEqualTo(apiUser.getId());
+        assertThat(memberInfoDTOList).hasSize(1);
+        assertThat(memberInfoDTOList.get(0).getUserId()).isEqualTo(apiUser.getId());
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
-                .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
+                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
+
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
                 .findFirst().get();
 
         // Assign permissions to a UserGroup created above
-        PermissionGroup permissionGroupWithUserGroupAssigned1 = permissionGroupService
-                .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
-                .block();
-        PermissionGroup permissionGroupWithUserGroupAssigned2 = permissionGroupService
+        PermissionGroup permissionGroupWithUserGroupAssigned = permissionGroupService
                 .assignToUserGroup(developerPermissionGroup, createdUserGroup)
                 .block();
 
-        workspaceMemberInfoDTOList = userWorkspaceService
+        memberInfoDTOList = userWorkspaceService
                 .getWorkspaceMembers(createdWorkspace.getId())
                 .block();
 
-        // Now the workspace will contain 3 members, 2 UserGroup and 1 User
-        // Also tested that the UserGroup members will come before User members.
-        //
-        // This test is also to show that we are not filtering any user group based on any duplication happening
-        // due to having assigned to multiple auto created permission groups of the same workspace.
-        assertThat(workspaceMemberInfoDTOList).hasSize(3);
-        assertThat(workspaceMemberInfoDTOList.get(0).getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(workspaceMemberInfoDTOList.get(0).getPermissionGroupId()).isEqualTo(administratorPermissionGroup.getId());
-        assertThat(workspaceMemberInfoDTOList.get(1).getUserId()).isEqualTo(apiUser.getId());
-        assertThat(workspaceMemberInfoDTOList.get(2).getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(workspaceMemberInfoDTOList.get(2).getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        // Now the workspace will contain 2 members, 1 UserGroup and 1 User
+        assertThat(memberInfoDTOList).hasSize(2);
+        MemberInfoDTO memberInfoDTO1 = memberInfoDTOList.get(0);
+        assertThat(memberInfoDTO1.getUserId()).isEqualTo(apiUser.getId());
+        assertThat(memberInfoDTO1.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO1.getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
+        MemberInfoDTO memberInfoDTO2 = memberInfoDTOList.get(1);
+        assertThat(memberInfoDTO2.getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTO2.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO2.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
     }
 
     @Test
@@ -131,14 +133,14 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUserGroupId("Random User Group Id");
         updatePermissionGroupDTO.setNewPermissionGroupId("Random Permission Group Id");
 
-        Mono<WorkspaceMemberInfoDTO> mono = userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
+        Mono<MemberInfoDTO> mono = userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
 
         StepVerifier.create(mono)
                 .expectErrorMatches(throwable ->
@@ -157,7 +159,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -179,26 +181,29 @@ public class UserWorkspaceServiceTest {
                 .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
                 .block();
 
-        List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = userWorkspaceService
+        List<MemberInfoDTO> memberInfoDTOList = userWorkspaceService
                 .getWorkspaceMembers(createdWorkspace.getId())
                 .block();
         // Now the workspace will contain 2 members, 1 UserGroup and 1 User
-        // Also tested that the UserGroup members will come before User members.
-        assertThat(workspaceMemberInfoDTOList).hasSize(2);
-        assertThat(workspaceMemberInfoDTOList.get(0).getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(workspaceMemberInfoDTOList.get(0).getPermissionGroupId()).isEqualTo(administratorPermissionGroup.getId());
+        // When comparing between user and user group, we compare with the name, given that both of them have the
+        // admin role assigned. Hence, user group will come after user according to lexicographical order.
+        assertThat(memberInfoDTOList).hasSize(2);
+        assertThat(memberInfoDTOList.get(1).getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTOList.get(1).getRoles()).hasSize(1);
+        assertThat(memberInfoDTOList.get(1).getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUserGroupId(createdUserGroup.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        WorkspaceMemberInfoDTO workspaceMemberInfoDTO = userWorkspaceService
+        MemberInfoDTO memberInfoDTO = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "")
                 .block();
 
-        assertThat(workspaceMemberInfoDTO).isNotNull();
-        assertThat(workspaceMemberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(workspaceMemberInfoDTO.getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTO).isNotNull();
+        assertThat(memberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTO.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
 
         PermissionGroup administratorPermissionGroupUpdated = permissionGroupRepository
                 .findById(administratorPermissionGroup.getId())
@@ -211,15 +216,16 @@ public class UserWorkspaceServiceTest {
         assertThat(developerPermissionGroupUpdated.getAssignedToGroupIds()).hasSize(1);
         assertThat(developerPermissionGroupUpdated.getAssignedToGroupIds().contains(createdUserGroup.getId())).isTrue();
 
-        workspaceMemberInfoDTOList = userWorkspaceService
+        memberInfoDTOList = userWorkspaceService
                 .getWorkspaceMembers(createdWorkspace.getId())
                 .block();
         // Now the workspace will contain 2 members, 1 UserGroup and 1 User
         // Also tested that the UserGroup members will come before User members.
-        assertThat(workspaceMemberInfoDTOList).hasSize(2);
-        assertThat(workspaceMemberInfoDTOList.get(0).getUserId()).isEqualTo(apiUser.getId());
-        assertThat(workspaceMemberInfoDTOList.get(1).getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(workspaceMemberInfoDTOList.get(1).getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTOList).hasSize(2);
+        assertThat(memberInfoDTOList.get(0).getUserId()).isEqualTo(apiUser.getId());
+        assertThat(memberInfoDTOList.get(1).getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTOList.get(1).getRoles()).hasSize(1);
+        assertThat(memberInfoDTOList.get(1).getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
     }
 
     @Test
@@ -232,7 +238,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -244,10 +250,10 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUsername(apiUser.getUsername());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        Mono<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOMono = userWorkspaceService
+        Mono<MemberInfoDTO> memberInfoDTOMono = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
 
-        StepVerifier.create(workspaceMemberInfoDTOMono)
+        StepVerifier.create(memberInfoDTOMono)
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 throwable.getMessage().contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
@@ -264,7 +270,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -295,10 +301,10 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUserGroupId(createdUserGroup.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        Mono<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOMono = userWorkspaceService
+        Mono<MemberInfoDTO> memberInfoDTOMono = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
 
-        StepVerifier.create(workspaceMemberInfoDTOMono)
+        StepVerifier.create(memberInfoDTOMono)
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 throwable.getMessage().contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
@@ -315,7 +321,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -342,12 +348,13 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUserGroupId(createdUserGroup.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        WorkspaceMemberInfoDTO workspaceMemberInfoDTO = userWorkspaceService
+        MemberInfoDTO memberInfoDTO = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "")
                 .block();
 
-        assertThat(workspaceMemberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(workspaceMemberInfoDTO.getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTO.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
     }
 
     @Test
@@ -360,7 +367,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -387,12 +394,13 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUsername(apiUser.getUsername());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        WorkspaceMemberInfoDTO workspaceMemberInfoDTO = userWorkspaceService
+        MemberInfoDTO memberInfoDTO = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "")
                 .block();
 
-        assertThat(workspaceMemberInfoDTO.getUsername()).isEqualTo(apiUser.getUsername());
-        assertThat(workspaceMemberInfoDTO.getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTO.getUsername()).isEqualTo(apiUser.getUsername());
+        assertThat(memberInfoDTO.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
     }
 
     @Test
@@ -405,7 +413,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -442,12 +450,13 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUserGroupId(createdUserGroup1.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        WorkspaceMemberInfoDTO workspaceMemberInfoDTO = userWorkspaceService
+        MemberInfoDTO memberInfoDTO = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "")
                 .block();
 
-        assertThat(workspaceMemberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup1.getId());
-        assertThat(workspaceMemberInfoDTO.getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup1.getId());
+        assertThat(memberInfoDTO.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
     }
 
     @Test
@@ -460,7 +469,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -480,11 +489,63 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUsername(apiUser.getUsername());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        WorkspaceMemberInfoDTO workspaceMemberInfoDTO = userWorkspaceService
+        MemberInfoDTO memberInfoDTO = userWorkspaceService
                 .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "")
                 .block();
 
-        assertThat(workspaceMemberInfoDTO.getUsername()).isEqualTo(apiUser.getUsername());
-        assertThat(workspaceMemberInfoDTO.getPermissionGroupId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTO.getUsername()).isEqualTo(apiUser.getUsername());
+        assertThat(memberInfoDTO.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void leaveWorkspace_WhenUserExistsInUserGroup() {
+        // Make api_user SUPER ADMIN
+        User api_user = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(api_user)).block();
+        PermissionGroup adminPermissionGroup = userUtils.getSuperAdminPermissionGroup().block();
+        System.out.println("Admin Permission Group");
+        System.out.println(adminPermissionGroup.getId());
+
+        // Create a new User Group
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("UserGroup - leaveWorkspace_WhenUserExistsInUserGroup");
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+
+        UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
+        usersForGroupDTO.setUsernames(Set.of("api_user"));
+        usersForGroupDTO.setGroupIds(Set.of(createdUserGroup.getId()));
+        List<UserGroupDTO> userGroupDTOList = userGroupService.inviteUsers(usersForGroupDTO, "").block();
+        assertThat(userGroupDTOList).hasSize(1);
+
+        // Create Workspace
+        Workspace workspace1 = new Workspace();
+        workspace1.setName("Workspace - leaveWorkspace_WhenUserExistsInUserGroup");
+        Workspace createdWorkspace = workspaceService.create(workspace1).block();
+        String workspaceId = createdWorkspace.getId();
+
+        PermissionGroup workspaceAdminPermissionGroup = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
+                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
+                .blockFirst();
+
+        // Create another user which can be made Workspace Admin
+        User user1 = new User();
+        user1.setEmail("leaveWorkspace_WhenUserExistsInUserGroup@test.com");
+        user1.setPassword("leaveWorkspace_WhenUserExistsInUserGroup");
+        User anotherWorkspaceAdmin = userService.create(user1).block();
+
+        // Assign Admin Workspace PG to User and UserGroup
+        workspaceAdminPermissionGroup = permissionGroupService.assignToUser(workspaceAdminPermissionGroup, anotherWorkspaceAdmin).block();
+        workspaceAdminPermissionGroup = permissionGroupService.assignToUserGroup(workspaceAdminPermissionGroup, createdUserGroup).block();
+
+        Mono<User> leaveWorkspaceTwiceMono = userWorkspaceService.leaveWorkspace(workspaceId).then(userWorkspaceService.leaveWorkspace(workspaceId));
+        StepVerifier.create(leaveWorkspaceTwiceMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Workspace is not assigned to the user.")))
+                .verify();
     }
 }

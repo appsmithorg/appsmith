@@ -1,4 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export enum CursorPositionOrigin {
@@ -42,7 +43,6 @@ export type EditorContextState = {
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
-  selectedDebuggerTab: string;
   propertyPanelState: PropertyPanelState;
 };
 
@@ -50,23 +50,22 @@ const initialState: EditorContextState = {
   codeEditorHistory: {},
   propertySectionState: {},
   selectedPropertyTabIndex: 0,
-  selectedDebuggerTab: "",
   propertyPanelState: {},
   entityCollapsibleFields: {},
   subEntityCollapsibleFields: {},
   explorerSwitchIndex: 0,
 };
 
-const entitySections = [
-  "Pages",
-  "Widgets",
-  "Queries/JS",
-  "Datasources",
-  "Libraries",
-];
+const entitySections = {
+  Pages: "Pages",
+  Widgets: "Widgets",
+  ["Queries/JS"]: "Queries/JS",
+  Datasources: "Datasources",
+  Libraries: "Libraries",
+};
 
 export const isSubEntities = (name: string): boolean => {
-  return entitySections.indexOf(name) < 0;
+  return !(name in entitySections);
 };
 
 /**
@@ -131,12 +130,6 @@ export const editorContextReducer = createImmerReducer(initialState, {
     if (action.payload?.index !== undefined)
       state.selectedPropertyTabIndex = action.payload.index;
   },
-  [ReduxActionTypes.SET_CANVAS_DEBUGGER_SELECTED_TAB]: (
-    state: EditorContextState,
-    action: { payload: string },
-  ) => {
-    state.selectedDebuggerTab = action.payload;
-  },
   [ReduxActionTypes.SET_PANEL_SELECTED_PROPERTY_TAB_INDEX]: (
     state: EditorContextState,
     action: { payload: { index: number; panelPropertyPath: string } },
@@ -148,9 +141,8 @@ export const editorContextReducer = createImmerReducer(initialState, {
         selectedPropertyTabIndex: index,
       };
     } else {
-      state.propertyPanelState[
-        panelPropertyPath
-      ].selectedPropertyTabIndex = index;
+      state.propertyPanelState[panelPropertyPath].selectedPropertyTabIndex =
+        index;
     }
   },
   [ReduxActionTypes.SET_PANEL_PROPERTY_SECTION_STATE]: (
@@ -169,9 +161,8 @@ export const editorContextReducer = createImmerReducer(initialState, {
       };
     }
 
-    state.propertyPanelState[panelPropertyPath].propertySectionState[
-      key
-    ] = isOpen;
+    state.propertyPanelState[panelPropertyPath].propertySectionState[key] =
+      isOpen;
   },
   [ReduxActionTypes.SET_PANEL_PROPERTIES_STATE]: (
     state: EditorContextState,
@@ -186,6 +177,18 @@ export const editorContextReducer = createImmerReducer(initialState, {
     const { isOpen, name } = action.payload;
     if (isSubEntities(name)) state.subEntityCollapsibleFields[name] = isOpen;
     else state.entityCollapsibleFields[name] = isOpen;
+  },
+  [ReduxActionTypes.WIDGET_ADD_CHILD]: (state: EditorContextState) => {
+    state.entityCollapsibleFields[entitySections.Widgets] = true;
+  },
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (state: EditorContextState) => {
+    state.entityCollapsibleFields[entitySections["Queries/JS"]] = true;
+  },
+  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (state: EditorContextState) => {
+    state.entityCollapsibleFields[entitySections["Queries/JS"]] = true;
+  },
+  [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (state: EditorContextState) => {
+    state.entityCollapsibleFields[entitySections.Datasources] = true;
   },
   [ReduxActionTypes.SET_ALL_ENTITY_COLLAPSIBLE_STATE]: (
     state: EditorContextState,
@@ -204,5 +207,11 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: number },
   ) => {
     state.explorerSwitchIndex = action.payload;
+  },
+  [ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN]: (
+    state: EditorContextState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.explorerSwitchIndex = action.payload ? 1 : 0;
   },
 });

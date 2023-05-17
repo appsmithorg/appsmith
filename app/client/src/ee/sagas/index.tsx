@@ -7,8 +7,15 @@ import * as sentry from "@sentry/react";
 import AclSagas from "./AclSagas";
 import AuditLogsSagas from "@appsmith/sagas/AuditLogsSagas";
 import EnvironmentSagas from "./EnvironmentSagas";
+import AISagas from "./aiSagas";
 
-const sagasArr = [...CE_Sagas, AclSagas, AuditLogsSagas, EnvironmentSagas];
+const sagasArr = [
+  ...CE_Sagas,
+  AclSagas,
+  AuditLogsSagas,
+  EnvironmentSagas,
+  AISagas,
+];
 
 export function* rootSaga(sagasToRun = sagasArr): any {
   // This race effect ensures that we fail as soon as the first safe crash is dispatched.
@@ -16,7 +23,7 @@ export function* rootSaga(sagasToRun = sagasArr): any {
   const result = yield race({
     running: all(
       sagasToRun.map((saga) =>
-        spawn(function*() {
+        spawn(function* () {
           while (true) {
             try {
               yield call(saga);

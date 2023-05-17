@@ -1,7 +1,12 @@
 import React from "react";
-import { Button, Category, SearchInput, Toggle } from "design-system-old";
+import {
+  Button,
+  Category,
+  SearchInput,
+  Toggle,
+  Spinner,
+} from "design-system-old";
 import styled, { createGlobalStyle } from "styled-components";
-import { Spinner } from "@blueprintjs/core";
 import {
   createMessage,
   BOTTOM_BAR_CLEAR_BTN,
@@ -123,23 +128,15 @@ export const StyledSearchInput = styled(SearchInput)`
 `;
 
 const StyledButton = styled(Button)`
-  height: 24px;
   display: inline-block;
 `;
 
 const StyledSaveButton = styled(StyledButton)`
-  width: 128px;
-  height: 38px;
   margin-right: 16px;
 
   & .cs-spinner {
     top: 11px;
   }
-`;
-
-const StyledClearButton = styled(StyledButton)`
-  width: 68px;
-  height: 38px;
 `;
 
 const SaveButtonBarText = styled.div`
@@ -174,23 +171,27 @@ export function SaveButtonBar({
           className="t--admin-settings-save-button"
           data-testid="t--admin-settings-save-button"
           disabled={false}
+          height="38"
           isLoading={isLoading || false}
           onClick={() => {
             onSave();
           }}
           tag="button"
           text={createMessage(BOTTOM_BAR_SAVE_BTN)}
+          width="128px"
         />
-        <StyledClearButton
+        <StyledButton
           category={Category.secondary}
           className="t--admin-settings-reset-button"
           data-testid="t--admin-settings-reset-button"
           disabled={false}
+          height="38"
           onClick={() => {
             onClear();
           }}
           tag="button"
           text={createMessage(BOTTOM_BAR_CLEAR_BTN)}
+          width="68px"
         />
       </ButtonsWrapper>
     </SaveButtonBarWrapper>
@@ -204,11 +205,9 @@ export const LoaderContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  .bp3-spinner {
-    svg {
-      width: 24px;
-      height: 24px;
-    }
+  .cs-spinner {
+    width: 24px;
+    height: 24px;
   }
 `;
 

@@ -3,6 +3,9 @@ import {
   ButtonVariantTypes,
   RecaptchaTypes,
 } from "components/constants";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -27,6 +30,8 @@ export const CONFIG = {
     resetFormOnClick: false,
     recaptchaType: RecaptchaTypes.V3,
     version: 1,
+    responsiveBehavior: ResponsiveBehavior.Hug,
+    minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -36,6 +41,31 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  autoLayout: {
+    defaults: {
+      rows: 4,
+      columns: 6.453,
+    },
+    autoDimension: {
+      width: true,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+            maxWidth: "360px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      horizontal: true,
+      vertical: true,
+    },
   },
 };
 

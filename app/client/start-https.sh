@@ -153,6 +153,11 @@ rts="http://$rts_host:$rts_port"
 http_listen_port="${http_listen_port-80}"
 https_listen_port="${https_listen_port-443}"
 
+if [[ $backend =~ /$ ]]; then
+    echo "The backend endpoint ($backend) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
+    echo "Exiting. Please run again, removing the trailing slash(es) for the backend." >&2
+    exit 1
+fi
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
     echo "I got --env-file as '$env_file', but I cannot access it." >&2
@@ -234,7 +239,18 @@ $(if [[ $use_https == 1 ]]; then echo "
     server {
         listen $http_listen_port default_server;
         server_name $domain;
-        return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
+
+        location / {
+            return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
+        }
+
+        location /auth {
+            proxy_pass $backend;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
     }
 "; fi)
 
@@ -249,7 +265,7 @@ $(if [[ $use_https == 1 ]]; then echo "
         server_name _;
 "; fi)
 
-        client_max_body_size 100m;
+        client_max_body_size 150m;
         gzip on;
 
         proxy_ssl_server_name on;
@@ -262,13 +278,16 @@ $(if [[ $use_https == 1 ]]; then echo "
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
         add_header Content-Security-Policy \"frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}\";
 
+        # Disable caching completely. This is dev-time config, caching causes more problems than it solves.
+        # Taken from <https://stackoverflow.com/a/2068407/151048>.
+        add_header Cache-Control 'no-store, must-revalidate' always;
+        proxy_hide_header Cache-Control;  # Hide it, if present in upstream's response.
+
         sub_filter_once off;
         location / {
             proxy_pass $frontend;
             sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN-}';
             sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID-}';
-            sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID-}';
-            sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID-}';
             sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '${APPSMITH_MARKETPLACE_ENABLED-}';
             sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY-}';
             sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID-}';
@@ -282,17 +301,13 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE-}';
             sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID-}';
             sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED-}';
-            sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY-}';
             sub_filter __APPSMITH_CLOUD_SERVICES_BASE_URL__ '${APPSMITH_CLOUD_SERVICES_BASE_URL-}';
             sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '${APPSMITH_RECAPTCHA_SITE_KEY-}';
             sub_filter __APPSMITH_DISABLE_INTERCOM__ '${APPSMITH_DISABLE_INTERCOM-}';
-            sub_filter __APPSMITH_SSO_SAML_ENABLED__ '${APPSMITH_SSO_SAML_ENABLED-}';
-            sub_filter __APPSMITH_OAUTH2_OIDC_CLIENT_ID__ '${APPSMITH_OAUTH2_OIDC_CLIENT_ID-}';
-            sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '${APPSMITH_FORM_LOGIN_DISABLED-}';
-            sub_filter __APPSMITH_SIGNUP_DISABLED__ '${APPSMITH_SIGNUP_DISABLED-}';
             sub_filter __APPSMITH_ZIPY_SDK_KEY__ '${APPSMITH_ZIPY_SDK_KEY-}';
             sub_filter __APPSMITH_HIDE_WATERMARK__ '${APPSMITH_HIDE_WATERMARK-}';
             sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}';
+            sub_filter __APPSMITH_AIRGAP_ENABLED__ '${APPSMITH_AIRGAP_ENABLED-}';
         }
 
         location /api {
@@ -316,9 +331,14 @@ $(if [[ $use_https == 1 ]]; then echo "
         }
 
         location /auth {
-            proxy_set_header X-Forwarded-Proto \$scheme;
-            proxy_set_header X-Forwarded-Host \$host;
             proxy_pass $backend;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$origin_scheme;
+            proxy_set_header X-Forwarded-Host \$host;
+            # Keycloak sticks big long JWTs in cookies, which makes headers too big. This throws 502 error, unless we have the below.
+            proxy_buffer_size 8k;
         }
     }
 }

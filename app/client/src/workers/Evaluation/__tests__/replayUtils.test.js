@@ -2,7 +2,7 @@ import { processDiff, TOASTS, FOCUSES, UPDATES, WIDGETS } from "../replayUtils";
 
 describe("check processDiff from replayUtils for type of update", () => {
   const dsl = {
-    "0": {},
+    0: {},
     abcde: {
       widgetName: "abcde",
     },

@@ -1,10 +1,31 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { buildChildWidgetTree } from "./widgetRenderUtils";
 
 describe("test EditorUtils methods", () => {
   describe("should test buildChildWidgetTree method", () => {
-    const canvasWidgets = ({
+    const metaWidgets = {
+      "1_meta": {
+        children: ["2_meta"],
+        type: "CANVAS",
+        widgetId: "1_meta",
+        parentId: "2",
+        topRow: 0,
+        bottomRow: 100,
+        widgetName: "meta_one",
+      },
+      "2_meta": {
+        children: [],
+        type: "INPUT_WIDGET",
+        widgetId: "2_meta",
+        parentId: "1_meta",
+        topRow: 0,
+        bottomRow: 10,
+        widgetName: "meta_two",
+      },
+    } as unknown as MetaWidgetsReduxState;
+    const canvasWidgets = {
       "1": {
         children: ["2"],
         type: "FORM_WIDGET",
@@ -15,7 +36,7 @@ describe("test EditorUtils methods", () => {
         widgetName: "one",
       },
       "2": {
-        children: ["3", "4"],
+        children: ["3", "4", "1_meta"],
         type: "CANVAS",
         widgetId: "2",
         parentId: "1",
@@ -41,9 +62,9 @@ describe("test EditorUtils methods", () => {
         bottomRow: 18,
         widgetName: "four",
       },
-    } as unknown) as CanvasWidgetsReduxState;
+    } as unknown as CanvasWidgetsReduxState;
 
-    const dataTree = ({
+    const dataTree = {
       one: {
         children: ["2"],
         type: "FORM_WIDGET",
@@ -58,7 +79,7 @@ describe("test EditorUtils methods", () => {
         isValid: true,
       },
       two: {
-        children: ["3", "4"],
+        children: ["3", "4", "1_meta"],
         type: "CANVAS",
         widgetId: "2",
         parentId: "1",
@@ -96,7 +117,30 @@ describe("test EditorUtils methods", () => {
         isDirty: true,
         isValid: true,
       },
-    } as unknown) as DataTree;
+      meta_one: {
+        skipForFormWidget: "test",
+        children: ["1_meta"],
+        type: "CANVAS",
+        widgetId: "1_meta",
+        parentId: "2",
+        topRow: 0,
+        bottomRow: 100,
+        widgetName: "meta_one",
+      },
+      meta_two: {
+        children: [],
+        type: "INPUT_WIDGET",
+        widgetId: "meta_two",
+        parentId: "meta_1",
+        topRow: 0,
+        bottomRow: 10,
+        widgetName: "two",
+        skipForFormWidget: "test",
+        value: "test",
+        isDirty: true,
+        isValid: true,
+      },
+    } as unknown as DataTree;
 
     it("should return a complete childwidgets Tree", () => {
       const childWidgetTree = [
@@ -128,13 +172,41 @@ describe("test EditorUtils methods", () => {
           widgetId: "4",
           widgetName: "four",
         },
+        {
+          type: "CANVAS",
+          isLoading: false,
+          widgetId: "1_meta",
+          parentId: "2",
+          topRow: 0,
+          bottomRow: 100,
+          widgetName: "meta_one",
+          skipForFormWidget: "test",
+          children: [
+            {
+              isDirty: true,
+              isLoading: false,
+              isValid: true,
+              value: "test",
+              children: [],
+              type: "INPUT_WIDGET",
+              widgetId: "2_meta",
+              parentId: "1_meta",
+              topRow: 0,
+              bottomRow: 10,
+              widgetName: "meta_two",
+              skipForFormWidget: "test",
+            },
+          ],
+        },
       ];
 
       expect(
         buildChildWidgetTree(
           canvasWidgets,
+          metaWidgets,
           dataTree,
           new Set<string>("one"),
+          {},
           "2",
         ),
       ).toEqual(childWidgetTree);
@@ -171,6 +243,30 @@ describe("test EditorUtils methods", () => {
               widgetId: "4",
               widgetName: "four",
             },
+            {
+              isLoading: false,
+              parentId: "2",
+              topRow: 0,
+              type: "CANVAS",
+              widgetId: "1_meta",
+              bottomRow: 100,
+              widgetName: "meta_one",
+              children: [
+                {
+                  isDirty: true,
+                  isLoading: false,
+                  isValid: true,
+                  value: "test",
+                  children: [],
+                  type: "INPUT_WIDGET",
+                  widgetId: "2_meta",
+                  parentId: "1_meta",
+                  topRow: 0,
+                  bottomRow: 10,
+                  widgetName: "meta_two",
+                },
+              ],
+            },
           ],
           isDirty: true,
           isLoading: false,
@@ -187,8 +283,10 @@ describe("test EditorUtils methods", () => {
       expect(
         buildChildWidgetTree(
           canvasWidgets,
+          metaWidgets,
           dataTree,
           new Set<string>("two"),
+          {},
           "1",
         ),
       ).toEqual(childWidgetTree);
@@ -241,6 +339,47 @@ describe("test EditorUtils methods", () => {
               widgetId: "4",
               widgetName: "four",
             },
+            {
+              ENTITY_TYPE: "WIDGET",
+              bindingPaths: {},
+              bottomRow: 100,
+              isLoading: false,
+              logBlackList: {},
+              meta: {},
+              overridingPropertyPaths: {},
+              parentId: "2",
+              privateWidgets: {},
+              propertyOverrideDependency: {},
+              reactivePaths: {},
+              topRow: 0,
+              triggerPaths: {},
+              type: undefined,
+              validationPaths: {},
+              widgetId: "1_meta",
+              widgetName: "meta_one",
+              children: [
+                {
+                  ENTITY_TYPE: "WIDGET",
+                  bindingPaths: {},
+                  bottomRow: 10,
+                  children: [],
+                  isLoading: false,
+                  logBlackList: {},
+                  meta: {},
+                  overridingPropertyPaths: {},
+                  parentId: "1_meta",
+                  privateWidgets: {},
+                  propertyOverrideDependency: {},
+                  reactivePaths: {},
+                  topRow: 0,
+                  triggerPaths: {},
+                  type: undefined,
+                  validationPaths: {},
+                  widgetId: "2_meta",
+                  widgetName: "meta_two",
+                },
+              ],
+            },
           ],
           isLoading: false,
           logBlackList: {},
@@ -259,7 +398,14 @@ describe("test EditorUtils methods", () => {
         },
       ];
       expect(
-        buildChildWidgetTree(canvasWidgets, {}, new Set<string>("one"), "1"),
+        buildChildWidgetTree(
+          canvasWidgets,
+          metaWidgets,
+          {},
+          new Set<string>("one"),
+          {},
+          "1",
+        ),
       ).toEqual(childWidgetTree);
     });
   });

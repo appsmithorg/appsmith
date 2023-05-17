@@ -7,7 +7,7 @@ import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ListingType } from "./types";
-import { MenuItemProps } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -92,7 +92,7 @@ describe("<Listing />", () => {
   it("should render table with given data", () => {
     const { getAllByTestId } = renderUserListing();
     const actual = getAllByTestId("user-listing-userCell").map(
-      (cell: HTMLElement) => cell.textContent,
+      (cell: HTMLElement) => cell.getElementsByTagName("span")[1].textContent,
     );
     const expected = userListingProps.data.map((user) => user.username);
     expect(actual).toEqual(expected);

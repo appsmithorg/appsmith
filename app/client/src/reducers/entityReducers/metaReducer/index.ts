@@ -1,18 +1,20 @@
 import { set } from "lodash";
 import { createReducer } from "utils/ReducerUtils";
-import {
+import type {
   UpdateWidgetMetaPropertyPayload,
   ResetWidgetMetaPayload,
+  BatchUpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
 
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { getMetaWidgetResetObj } from "./metaReducerUtils";
+import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -47,6 +49,20 @@ export const metaReducer = createReducer(initialState, {
         `${action.payload.widgetId}.${action.payload.propertyName}`,
         action.payload.propertyValue,
       );
+      return draftMetaState;
+    });
+
+    return nextState;
+  },
+  [ReduxActionTypes.BATCH_UPDATE_META_PROPS]: (
+    state: MetaState,
+    action: ReduxAction<BatchUpdateWidgetMetaPropertyPayload>,
+  ) => {
+    const nextState = produce(state, (draftMetaState) => {
+      const { batchMetaUpdates } = action.payload;
+      batchMetaUpdates.forEach(({ propertyName, propertyValue, widgetId }) => {
+        set(draftMetaState, `${widgetId}.${propertyName}`, propertyValue);
+      });
       return draftMetaState;
     });
 
@@ -100,11 +116,17 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<ResetWidgetMetaPayload>,
   ) => {
-    const { evaluatedWidget, widgetId } = action.payload;
+    const { evaluatedWidget, evaluatedWidgetConfig, widgetId } = action.payload;
 
     if (widgetId in state) {
       // only reset widgets whose meta properties were changed.
-      state = { ...state, [widgetId]: getMetaWidgetResetObj(evaluatedWidget) };
+      state = {
+        ...state,
+        [widgetId]: getMetaWidgetResetObj(
+          evaluatedWidget,
+          evaluatedWidgetConfig as WidgetEntityConfig,
+        ),
+      };
     }
     return state;
   },

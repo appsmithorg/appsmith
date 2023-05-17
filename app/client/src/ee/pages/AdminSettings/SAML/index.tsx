@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import ReadMetadata from "./ReadMetadata";
 import { RaisedCard, HeaderSecondary } from "./components";
@@ -17,7 +17,6 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import RestartBanner from "pages/Settings/RestartBanner";
 import { DisconnectService } from "pages/Settings/DisconnectService";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
-import { connectedMethods } from "@appsmith/utils/adminSettingsHelpers";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
@@ -26,6 +25,10 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 export function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
@@ -51,7 +54,9 @@ export function Saml() {
     details?.title || (subCategory ?? category),
   );
   const dispatch = useDispatch();
-  const saved = details?.isConnected ? true : false;
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const socialLoginList = useSelector(getThirdPartyAuths);
+  const isConnected = socialLoginList.includes("saml");
 
   const saveBlocked = () => {
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
@@ -64,7 +69,9 @@ export function Saml() {
   };
 
   const disconnect = () => {
-    if (connectedMethods.length >= 2) {
+    const connectedMethodsCount =
+      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+    if (connectedMethodsCount >= 2) {
       dispatch(fetchSamlMetadata({ isEnabled: false }));
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
         method: pageTitle,
@@ -85,8 +92,8 @@ export function Saml() {
               <SettingsSubHeader>{details.subText}</SettingsSubHeader>
             )}
           </HeaderWrapper>
-          {!saved && <ReadMetadata />}
-          {saved && (
+          {!isConnected && <ReadMetadata />}
+          {isConnected && (
             <>
               <SamlAuthTest />
               <DisconnectService

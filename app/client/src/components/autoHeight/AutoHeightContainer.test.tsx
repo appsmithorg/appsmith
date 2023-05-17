@@ -1,10 +1,10 @@
-import React from "react";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
-import AutoHeightContainer from "./AutoHeightContainer";
 import "jest-styled-components";
+import React from "react";
 import renderer from "react-test-renderer";
 import { RenderModes } from "constants/WidgetConstants";
+import AutoHeightContainer from "./AutoHeightContainer";
 
 const onHeightUpdate = jest.fn();
 const DUMMY_WIDGET = {

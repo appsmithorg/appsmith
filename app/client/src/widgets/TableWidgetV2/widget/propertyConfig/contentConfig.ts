@@ -1,25 +1,23 @@
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  InlineEditingSaveOptions,
-  TableWidgetProps,
-} from "widgets/TableWidgetV2/constants";
-import {
-  totalRecordsCountValidation,
-  uniqueColumnNameValidation,
-  updateColumnOrderHook,
-  updateInlineEditingSaveOptionHook,
-  updateInlineEditingOptionDropdownVisibilityHook,
-  updateCustomColumnAliasOnLabelChange,
-} from "../propertyUtils";
 import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
-import panelConfig from "./PanelConfig";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import {
+  totalRecordsCountValidation,
+  uniqueColumnNameValidation,
+  updateColumnOrderHook,
+  updateCustomColumnAliasOnLabelChange,
+  updateInlineEditingOptionDropdownVisibilityHook,
+  updateInlineEditingSaveOptionHook,
+} from "../propertyUtils";
+import panelConfig from "./PanelConfig";
 
 export default [
   {
@@ -54,6 +52,7 @@ export default [
           updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
+          "primaryColumns",
           "columnOrder",
           "childStylesheet",
           "inlineEditingSaveOption",
@@ -171,7 +170,7 @@ export default [
         dependencies: ["serverSidePaginationEnabled"],
       },
       {
-        helpText: "Triggers an action when a table page is changed",
+        helpText: "when a table page is changed",
         propertyName: "onPageChange",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
@@ -182,7 +181,7 @@ export default [
         dependencies: ["serverSidePaginationEnabled"],
       },
       {
-        helpText: "Triggers an action when a table page size is changed",
+        helpText: "when a table page size is changed",
         propertyName: "onPageSizeChange",
         label: "onPageSizeChange",
         controlType: "ACTION_SELECTOR",
@@ -232,7 +231,7 @@ export default [
       {
         propertyName: "onSearchTextChanged",
         label: "onSearchTextChanged",
-        helpText: "Triggers an action when search text is modified by the user",
+        helpText: "when search text is modified by the user",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
@@ -309,7 +308,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText: "Triggers an action when a table row is selected",
+        helpText: "when a table row is selected",
         propertyName: "onRowSelected",
         label: "onRowSelected",
         controlType: "ACTION_SELECTOR",
@@ -338,7 +337,7 @@ export default [
         },
       },
       {
-        helpText: "Triggers an action when a table column is sorted",
+        helpText: "when a table column is sorted",
         propertyName: "onSort",
         label: "onSort",
         controlType: "ACTION_SELECTOR",
@@ -367,8 +366,7 @@ export default [
       },
       {
         propertyName: "onAddNewRowSave",
-        helpText:
-          "Triggers an action when a add new row save button is clicked",
+        helpText: "when a add new row save button is clicked",
         label: "onSave",
         controlType: "ACTION_SELECTOR",
         hidden: (props: TableWidgetProps) => {
@@ -396,8 +394,7 @@ export default [
       },
       {
         propertyName: "onAddNewRowDiscard",
-        helpText:
-          "Triggers an action when a add new row discard button is clicked",
+        helpText: "when a add new row discard button is clicked",
         label: "onDiscard",
         controlType: "ACTION_SELECTOR",
         hidden: (props: TableWidgetProps) => {
@@ -459,6 +456,17 @@ export default [
         helpText: "Toggle visibility of the data download",
         label: "Allow Download",
         controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "canFreezeColumn",
+        helpText: "Controls whether the user can freeze columns",
+        label: "Allow Column Freeze",
+        controlType: "SWITCH",
+        defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,

@@ -1,18 +1,19 @@
-import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
+import type { WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import { Toaster } from "design-system-old";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -20,21 +21,34 @@ import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
+  executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  GRID_DENSITY_MIGRATION_V1,
+  BlueprintOperationTypes,
+} from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -59,20 +73,16 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, newWidgetId, topRow, type } = params;
-  let {
-    columns,
-    parentColumnSpace,
-    parentRowSpace,
-    props,
-    rows,
-    widgetName,
-  } = params;
+  let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
+    params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -101,6 +111,11 @@ function* getChildWidgetProps(
     }
   }
 
+  const isAutoLayout = isStack(widgets, parent);
+  const isFillWidget =
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+  if (isAutoLayout && isFillWidget) columns = 64;
+
   const widgetProps = {
     ...restDefaultConfig,
     ...props,
@@ -111,6 +126,17 @@ function* getChildWidgetProps(
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
   };
+
+  const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+    widgetProps,
+    mainCanvasWidth,
+  );
+
+  // If the width of new widget is less than min width, set the width to min width
+  if (minWidth && columns * parentColumnSpace < minWidth) {
+    columns = minWidth / parentColumnSpace;
+  }
+
   const widget = generateWidgetProps(
     parent,
     type,
@@ -122,6 +148,24 @@ function* getChildWidgetProps(
     widgetProps,
     restDefaultConfig.version,
   );
+
+  let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(type);
+  if (isFunction(disableResizeHandles)) {
+    disableResizeHandles = disableResizeHandles(widget);
+  }
+
+  if (isAutoLayout) {
+    // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      }
+    }
+  }
 
   widget.widgetId = newWidgetId;
   /**
@@ -138,11 +182,21 @@ function* getChildWidgetProps(
     widget,
     themeConfigWithoutChildStylesheet,
   );
-  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+
+  if (params.dynamicBindingPathList) {
+    const mergedDynamicBindingPathLists = [
+      ...dynamicBindingPathList,
+      ...params.dynamicBindingPathList,
+    ];
+    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
+  } else {
+    widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+  }
+
   return widget;
 }
 
-function* generateChildWidgets(
+export function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -298,6 +352,20 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const { newWidgetId, type, widgetId } = addChildAction.payload;
+
+    yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.BEFORE_ADD,
+      {
+        parentId: widgetId,
+        widgetId: newWidgetId,
+        widgets: stateWidgets,
+        widgetType: type,
+      },
+    );
+
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
@@ -388,9 +456,10 @@ function* addNewTabChildSaga(
     label: newTabLabel,
     widgetId: newTabWidgetId,
   });
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
-    newTabProps,
+    isAutoLayout ? { ...newTabProps, topRow: 0 } : newTabProps,
   );
   updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));

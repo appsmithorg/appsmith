@@ -106,12 +106,16 @@ jobs:
             yarn build
           ls -l build
 
+      - name: Pack the client build directory
+        run: |
+          tar -cvf ./build.tar -C build .
+
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
           name: client-build
-          path: app/client/build/
+          path: app/client/build.tar
 
   server-build:
     needs:
@@ -266,7 +270,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push client image latest
@@ -276,7 +280,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest
 
       - name: Build and push fat image
         uses: depot/build-push-action@v1
@@ -287,7 +291,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{needs.prelude.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push fat image latest
@@ -300,7 +304,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest
 
       - name: Build and push server image
         uses: depot/build-push-action@v1
@@ -310,7 +314,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push server image latest
@@ -322,24 +326,4 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest
-
-      - name: Build and push RTS image
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{needs.prelude.outputs.tag}}
-
-      # Only build & tag with latest if the tag doesn't contain beta
-      - name: Build and push RTS image latest
-        if: needs.prelude.outputs.is_beta == 'false'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:latest
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest

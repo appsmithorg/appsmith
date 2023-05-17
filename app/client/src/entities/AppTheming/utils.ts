@@ -9,8 +9,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 /**
  * get properties to update for reset
@@ -119,9 +119,8 @@ export const getPropertiesToUpdateForReset = (
                   isDynamicValue(fieldStylesheetValue) &&
                   fieldStylesheetValue !== get(schemaItem, fieldPropertyKey)
                 ) {
-                  modifications[
-                    `${[propertyPath]}.${fieldPropertyKey}`
-                  ] = fieldStylesheetValue;
+                  modifications[`${[propertyPath]}.${fieldPropertyKey}`] =
+                    fieldStylesheetValue;
                 }
               });
             },
@@ -146,9 +145,8 @@ export const getPropertiesToUpdateForReset = (
                     widget[buttonStyleKey][propertyKey] &&
                   buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
                 ) {
-                  modifications[
-                    `${buttonStyleKey}.${propertyKey}`
-                  ] = buttonStylesheetValue;
+                  modifications[`${buttonStyleKey}.${propertyKey}`] =
+                    buttonStylesheetValue;
                 }
               },
             );

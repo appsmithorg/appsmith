@@ -1,8 +1,13 @@
 export * from "ce/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
-import { AppState } from "@appsmith/reducers";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import type { AppState } from "@appsmith/reducers";
+import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { createSelector } from "reselect";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 export const isValidLicense = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license?.active;
@@ -35,35 +40,33 @@ export const getLicenseDetails = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license;
 };
 
-export const getRemainingDays = (state: AppState) => {
-  const presentDate = new Date();
-  const expiryDate = getLicenseExpiry(state);
-
-  const expiryTimeStamp = new Date(expiryDate).getTime();
-  const presentTimeStamp = presentDate.getTime();
-
-  const diffTime = Math.abs(expiryTimeStamp - presentTimeStamp);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
+export const getExpiry = (state: AppState) => {
+  return state.tenant?.tenantConfiguration?.license?.expiry;
 };
 
-export const isTrialLicense = (state: AppState) => {
-  return state.tenant?.tenantConfiguration?.license?.type === "TRIAL";
-};
+export const getRemainingDays = createSelector(getExpiry, (expiry) => {
+  const timeStamp = expiry * 1000;
+  return getRemainingDaysFromTimestamp(timeStamp);
+});
+
+export const isTrialLicense = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.type === LICENSE_TYPE.TRIAL;
+
+export const isLicensePaymentFailed = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.status ===
+  LICENSE_TYPE.PAYMENT_FAILED;
 
 export const isBEBannerVisible = (state: AppState) => {
-  const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING
-    ? state.tenant?.tenantConfiguration?.license?.showBEBanner &&
-        !state.tenant?.tenantConfiguration?.license?.closedBannerAlready
-    : false;
+  const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
+  return value;
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {
-  const trialLicense = isTrialLicense(state);
+  const isTrialLicenseOrFailed =
+    isTrialLicense(state) ||
+    (isLicensePaymentFailed(state) && isAdminUser(state));
   const isBEBanner = isBEBannerVisible(state);
-  const featureFlags = selectFeatureFlags(state);
-  return featureFlags.USAGE_AND_BILLING ? !isBEBanner && trialLicense : false;
+  return !isBEBanner && isTrialLicenseOrFailed;
 };
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {
@@ -87,3 +90,25 @@ export const getLicenseStatus = (state: AppState) => {
 
 export const isAdminUser = (state: AppState) =>
   state.tenant?.userPermissions?.includes(EE_PERMISSION_TYPE.MANAGE_TENANTS);
+
+export const isLicenseValidating = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.validatingLicense;
+
+export const getLicenseOrigin = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.origin;
+
+export const isLicenseModalOpen = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.showLicenseModal;
+
+/**
+ * selects the tenant brand colors
+ *
+ * @returns
+ */
+export const getBrandColors = (state: AppState) => {
+  if (!cloudHosting) {
+    return state.tenant?.tenantConfiguration?.brandColors || {};
+  }
+
+  return {};
+};

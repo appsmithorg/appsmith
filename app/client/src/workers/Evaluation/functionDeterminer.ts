@@ -1,17 +1,25 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import userLogs from "./UserLog";
+import type { EvalContext } from "./evaluate";
+import { setEvalContext } from "./evaluate";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import userLogs from "./fns/overrides/console";
+import ExecutionMetaData from "./fns/utils/ExecutionMetaData";
+import { dataTreeEvaluator } from "./handlers/evalTree";
 
 class FunctionDeterminer {
-  private evalContext: EvalContext = {};
+  evalContext: EvalContext = {};
 
-  setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
+  setupEval(dataTree: DataTree) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
-      ALLOW_SYNC: true,
-      IS_SYNC: true,
+      $isDataField: true,
+      $isAsync: false,
     };
+
+    ExecutionMetaData.setExecutionMetaData({
+      enableJSVarUpdateTracking: false,
+      enableJSFnPostProcessors: false,
+    });
 
     addDataTreeToContext({
       dataTree,
@@ -19,53 +27,53 @@ class FunctionDeterminer {
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(evalContext, resolvedFunctions);
-
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
     Object.assign(self, evalContext);
 
-    this.evalContext = evalContext;
     userLogs.disable();
   }
 
   close() {
     userLogs.enable();
-    for (const entityName in this.evalContext) {
-      if (this.evalContext.hasOwnProperty(entityName)) {
-        // @ts-expect-error: Types are not available
-        delete self[entityName];
-      }
-    }
+    ExecutionMetaData.setExecutionMetaData({
+      enableJSVarUpdateTracking: true,
+      enableJSFnPostProcessors: true,
+    });
+
+    if (!dataTreeEvaluator) return;
+    const dataTree = dataTreeEvaluator?.getEvalTree();
+    setEvalContext({
+      dataTree,
+      isTriggerBased: true,
+      isDataField: false,
+    });
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
-    self.TRIGGER_COLLECTOR = [];
-    self.IS_SYNC = true;
+    self["$isDataField"] = true;
+    self["$isAsync"] = false;
 
-    return (function() {
+    return (function () {
       try {
         if (typeof userFunction === "function") {
           if (userFunction.constructor.name === "AsyncFunction") {
             // functions declared with an async keyword
-            self.IS_SYNC = false;
+            self["$isAsync"] = true;
           } else {
             const returnValue = userFunction();
             if (!!returnValue && returnValue instanceof Promise) {
-              self.IS_SYNC = false;
-            }
-            if (self.TRIGGER_COLLECTOR.length) {
-              self.IS_SYNC = false;
+              self["$isAsync"] = true;
             }
           }
         }
       } catch (e) {
         // We do not want to throw errors for internal operations, to users.
         // logLevel should help us in debugging this.
-        logs.push({ error: "Error when determining async function" + e });
+        logs.push({ error: "Error when determining async function " + e });
       }
-      const isAsync = !self.IS_SYNC;
+      const isAsync = !!self["$isAsync"];
 
       return isAsync;
     })();

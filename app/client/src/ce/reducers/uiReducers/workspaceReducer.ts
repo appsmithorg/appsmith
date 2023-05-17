@@ -1,13 +1,14 @@
 import { createImmerReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   WorkspaceRole,
   Workspace,
   WorkspaceUser,
+  WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 
 export const initialState: WorkspaceReduxState = {
@@ -24,6 +25,20 @@ export const initialState: WorkspaceReduxState = {
     name: "",
   },
 };
+
+export interface WorkspaceReduxState {
+  list?: Workspace[];
+  roles?: WorkspaceRole[];
+  loadingStates: {
+    fetchingRoles: boolean;
+    isFetchAllRoles: boolean;
+    isFetchAllUsers: boolean;
+    isFetchingWorkspace: boolean;
+  };
+  workspaceUsers: WorkspaceUser[];
+  workspaceRoles: any;
+  currentWorkspace: Workspace;
+}
 
 export const handlers = {
   [ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT]: (
@@ -73,14 +88,12 @@ export const handlers = {
       userId: string;
       username: string;
       name: string;
-      permissionGroupId: string;
-      permissionGroupName: string;
+      roles: WorkspaceUserRoles[];
     }>,
   ) => {
     draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
       if (user.username === action.payload.username) {
-        user.permissionGroupId = action.payload.permissionGroupId;
-        user.permissionGroupName = action.payload.permissionGroupName;
+        user.roles = action.payload.roles;
         user.isChangingRole = false;
       }
     });
@@ -161,19 +174,5 @@ export const handlers = {
 };
 
 const workspaceReducer = createImmerReducer(initialState, handlers);
-
-export interface WorkspaceReduxState {
-  list?: Workspace[];
-  roles?: WorkspaceRole[];
-  loadingStates: {
-    fetchingRoles: boolean;
-    isFetchAllRoles: boolean;
-    isFetchAllUsers: boolean;
-    isFetchingWorkspace: boolean;
-  };
-  workspaceUsers: WorkspaceUser[];
-  workspaceRoles: any;
-  currentWorkspace: Workspace;
-}
 
 export default workspaceReducer;

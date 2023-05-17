@@ -3,8 +3,9 @@ import {
   WidgetFeatureProps,
 } from "utils/WidgetFeatures";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { DSLWidget, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
   /*  const widgetsWithDynamicHeight = compact(

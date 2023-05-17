@@ -68,4 +68,6 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String,
             Object> fieldNameValueMap, String branchName, String branchNamePath, AclPermission permission);
+
+    Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 }

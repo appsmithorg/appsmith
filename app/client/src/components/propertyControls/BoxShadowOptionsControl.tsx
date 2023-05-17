@@ -1,15 +1,20 @@
 import * as React from "react";
 
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { ButtonGroup, TooltipComponent } from "design-system-old";
 import { boxShadowOptions } from "constants/ThemeConstants";
-import CloseLineIcon from "remixicon-react/CloseLineIcon";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import { importRemixIcon } from "design-system-old";
+
+const CloseLineIcon = importRemixIcon(
+  () => import("remixicon-react/CloseLineIcon"),
+);
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -36,9 +41,7 @@ const options = Object.keys(boxShadowOptions).map((optionKey) => ({
 
 const optionsValues = new Set(Object.values(boxShadowOptions));
 
-class BoxShadowOptionsControl extends BaseControl<
-  BoxShadowOptionsControlProps
-> {
+class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {

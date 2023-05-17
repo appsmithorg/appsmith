@@ -1,4 +1,5 @@
-import React, { memo, MutableRefObject, useCallback, useRef } from "react";
+import type { MutableRefObject } from "react";
+import React, { memo, useCallback, useRef } from "react";
 import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
@@ -14,8 +15,10 @@ import { TooltipComponent } from "design-system-old";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import CollapseToggle from "./CollapseToggle";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importSvg } from "design-system-old";
+
+const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
 
 const Wrapper = styled.div<{ step: number }>`
   &&&& {

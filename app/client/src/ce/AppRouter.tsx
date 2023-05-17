@@ -14,7 +14,6 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  LICENSE_CHECK_PATH,
   PROFILE,
   SETUP,
   SIGNUP_SUCCESS_URL,
@@ -39,9 +38,8 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
-import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
@@ -54,11 +52,10 @@ import {
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import FeatureFlags from "entities/FeatureFlags";
-import WDSPage from "components/wds/Showcase";
+import type FeatureFlags from "entities/FeatureFlags";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
@@ -68,13 +65,6 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
-import { Spinner } from "design-system-old";
-
-/*
-    We use this polyfill to show emoji flags
-    on windows devices, this polyfill loads a font family
-  */
-polyfillCountryFlagEmojis();
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -92,7 +82,6 @@ export function Routes() {
       <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
       <SentryRoute component={Users} exact path={USERS_URL} />
       <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
-      <SentryRoute component={WDSPage} path="/wds" />
       <SentryRoute
         component={ApplicationListLoader}
         exact
@@ -135,7 +124,6 @@ export function Routes() {
        */}
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
-      <SentryRoute component={Spinner} path={LICENSE_CHECK_PATH} />
       <SentryRoute component={PageNotFound} />
     </Switch>
   );
@@ -174,7 +162,7 @@ function AppRouter(props: {
         });
       }
     }
-  }, [tenantIsLoading]);
+  }, [tenantIsLoading, currentUserIsLoading]);
 
   if (tenantIsLoading || currentUserIsLoading) return null;
 

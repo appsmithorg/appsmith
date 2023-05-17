@@ -1,15 +1,19 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { locators } from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
-describe("Git Bugs", function() {
+describe("Git Bugs", function () {
   before(() => {
     _.homePage.NavigateToHome();
-    _.homePage.CreateNewWorkspace("GitBugs1 workspace");
-    _.homePage.CreateAppInWorkspace("GitBugs1 workspace");
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("GitBugs" + uid);
+      _.homePage.CreateAppInWorkspace("GitBugs" + uid);
+    });
   });
 
-  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
+  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const largeResponseApiUrl = "https://jsonplaceholder.typicode.com/users";
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
@@ -21,7 +25,7 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateNetworkStatus("@postExecute");
   });
 
-  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
+  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
     _.gitSync.CreateNConnectToGit();
     _.gitSync.CreateGitBranch();
     _.dataSources.NavigateToDSCreateNew();
@@ -34,21 +38,25 @@ describe("Git Bugs", function() {
   });
 
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
-    _.ee.AddNewPage();
-    _.ee.DragDropWidgetNVerify(WIDGET.TEXT);
-    _.ee.SelectEntityByName("Page1", "Pages");
-    _.ee.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.SelectPropertiesDropDown("onClick", "Navigate to");
+    _.entityExplorer.AddNewPage();
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
+    _.propPane.EnterJSContext(
+      "onClick",
+      "{{navigateTo('Page2', {testQP: 'Yes'}, 'SAME_WINDOW')}}",
+      true,
+      true,
+    );
+    _.jsEditor.DisableJSContext("onClick");
     _.agHelper.Sleep(500);
-    _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
-    _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
-    _.ee.SelectEntityByName("Page2", "Pages");
-    _.ee.SelectEntityByName("Text1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Page2", "Pages");
+    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "{{appsmith.URL.queryParams.testQP}}",
     );
-    _.ee.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.agHelper.ClickButton("Submit");
     _.agHelper.Sleep(500);
     _.agHelper
@@ -57,6 +65,16 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateURL("branch=" + repoName); //Validate we are still in Git branch
     _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
+
+  // it.only("4. Import application json and validate headers", () => {
+  //   _.homePage.NavigateToHome();
+  //   _.homePage.ImportApp("DeleteGitRepos.json");
+  //   _.deployMode.DeployApp();
+  //   _.agHelper.Sleep(2000);
+  //   for (let i = 0; i < 100; i++) {
+  //     _.agHelper.ClickButton("Delete");
+  //   }
+  // });
 
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);

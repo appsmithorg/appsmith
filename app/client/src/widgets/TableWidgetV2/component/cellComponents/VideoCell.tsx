@@ -1,6 +1,6 @@
 import React from "react";
 
-import { BaseCellComponentProps } from "../Constants";
+import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";

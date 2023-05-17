@@ -1,8 +1,5 @@
-import {
-  NotificationBanner,
-  NotificationBannerProps,
-  NotificationVariant,
-} from "design-system-old";
+import type { NotificationBannerProps } from "design-system-old";
+import { NotificationBanner, NotificationVariant } from "design-system-old";
 import React from "react";
 import {
   createMessage,
@@ -49,9 +46,9 @@ export default function DiscardChangesWarning({
   onCloseDiscardChangesWarning,
 }: any) {
   const currentPageName = useSelector(getCurrentPageName) || "";
-  const modifiedPageList = useSelector(
-    getGitStatus,
-  )?.modified.map((page: string) => page.toLocaleLowerCase());
+  const modifiedPageList = useSelector(getGitStatus)?.modified.map(
+    (page: string) => page.toLocaleLowerCase(),
+  );
   const isCurrentPageDiscardable =
     modifiedPageList?.some((page: string) =>
       page.includes(currentPageName.toLocaleLowerCase()),

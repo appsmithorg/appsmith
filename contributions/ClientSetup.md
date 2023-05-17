@@ -62,8 +62,13 @@ sudo mv mkcert /usr/local/bin
 
    ```bash
    cd app/client
-   ./start-https.sh https://release.app.appsmith.com
+   ./start-https.sh
    ```
+   
+   Note:
+
+   - If you want to use the backend server running on your local, you do not need to pass a parameter when running `start-https.sh`. 
+   - If you want to use release.app.appsmith as your backend server, please check out the section - [If you would like to hit a different Appsmith server](#if-you-would-like-to-hit-a-different-appsmith-server)
 
 ### Steps to build & run the code:
 
@@ -125,7 +130,7 @@ This error occurs because the node version is not compatible with the app enviro
    docker pull appsmith/test-event-driver
    ```
    ```
-   docker run --name appsmithted -d -p 2222:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -v `pwd`/git-server/keys:/git-server/keys -v `pwd`/git-server/repos:/git-server/repo appsmith/test-event-driver
+   docker run --name appsmithted -d -p 2222:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -p 5000:5000 -p 3000:3000 -v `pwd`/git-server/keys:/git-server/keys -v `pwd`/git-server/repos:/git-server/repo appsmith/test-event-driver
    ```
    Note : You need to have client and server running locally to run TED
 
@@ -138,11 +143,22 @@ This error occurs because the node version is not compatible with the app enviro
 
 Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
 
-2. To run the Jest unit tests, run:
+4. To run the Jest unit tests, run:
 
 ```bash
   cd app/client
   yarn run test:unit
+```
+
+To run a single jest test,
+```bash
+  cd app/client
+  npx jest <file_path/file_name>
+```
+
+To run a single jest test in watch mode,
+```bash
+  npx jest --watch <file_path/file_name>
 ```
 
 ### Windows WSL2 Setup

@@ -1,7 +1,5 @@
-import {
-  AuditLogsFiltersReduxState,
-  DATE_SORT_ORDER,
-} from "@appsmith/reducers/auditLogsReducer";
+import type { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
+import { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
 
 export function areSearchFiltersDefault(
   searchFilters: AuditLogsFiltersReduxState,

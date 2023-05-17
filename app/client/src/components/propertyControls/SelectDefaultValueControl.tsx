@@ -1,17 +1,17 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 export const getBindingTemplate = (widgetName: string) => {
   const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
@@ -68,7 +68,8 @@ function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
@@ -86,9 +87,7 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class SelectDefaultValueControl extends BaseControl<
-  SelectDefaultValueControlProps
-> {
+class SelectDefaultValueControl extends BaseControl<SelectDefaultValueControlProps> {
   render() {
     const {
       dataTreePath,

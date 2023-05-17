@@ -35,9 +35,6 @@ public class ApplicationPageServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    CommentService commentService;
-
-    @Autowired
     ApplicationRepository applicationRepository;
 
     @Autowired
@@ -82,6 +79,17 @@ public class ApplicationPageServiceTest {
             assertThat(application.getLastEditedAt()).isNotNull();
             Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
             assertThat(application.getLastEditedAt()).isAfter(yesterday);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void cloneApplication_WhenClonedSuccessfully_ApplicationIsPublished() {
+        Mono<Application> applicationMono = createPageMono(UUID.randomUUID().toString())
+                .flatMap(pageDTO -> applicationPageService.cloneApplication(pageDTO.getApplicationId(), null));
+
+        StepVerifier.create(applicationMono).assertNext(application -> {
+            assertThat(application.getPages().size()).isEqualTo(application.getPublishedPages().size());
         }).verifyComplete();
     }
 }

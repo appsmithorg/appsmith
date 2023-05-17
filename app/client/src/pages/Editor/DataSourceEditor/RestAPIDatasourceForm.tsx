@@ -3,20 +3,17 @@ import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
-import { Datasource } from "entities/Datasource";
-import {
-  getFormMeta,
-  getFormValues,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { Datasource } from "entities/Datasource";
+import type { InjectedFormProps } from "redux-form";
+import { getFormMeta, getFormValues, reduxForm } from "redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { ApiActionConfig, PluginType } from "entities/Action";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { AppState } from "@appsmith/reducers";
+import type { ApiActionConfig } from "entities/Action";
+import { PluginType } from "entities/Action";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Button, Category, Toaster, Variant } from "design-system-old";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
@@ -27,13 +24,13 @@ import {
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
 } from "transformers/RestAPIDatasourceFormTransformer";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import {
-  ApiDatasourceForm,
   ApiKeyAuthType,
   AuthType,
   GrantType,
@@ -60,6 +57,18 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import type {
+  ClientCredentials,
+  AuthorizationCode,
+} from "entities/Datasource/RestAPIForm";
+import { getPlugin } from "../../../selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "./Debugger";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -79,11 +88,13 @@ interface DatasourceRestApiEditorProps {
     search: string;
   };
   datasource: Datasource;
+  plugin: Plugin | undefined;
   formData: ApiDatasourceForm;
   actions: ActionDataState;
   formMeta: any;
   messages?: Array<string>;
   hiddenHeader?: boolean;
+  showDebugger: boolean;
   responseStatus?: string;
   responseMessage?: string;
   datasourceName: string;
@@ -102,6 +113,9 @@ type Props = DatasourceRestApiEditorProps &
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
+  .t--save-and-authorize-datasource {
+    margin-left: 20px;
+  }
 `;
 
 const StyledButton = styled(Button)`
@@ -252,6 +266,8 @@ class DatasourceRestAPIEditor extends React.Component<
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
+      pluginName: this.props?.plugin?.name || "",
+      pluginPackageName: this?.props?.plugin?.packageName || "",
     });
 
     if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
@@ -328,7 +344,8 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, hiddenHeader, pageId } = this.props;
+    const { datasource, formData, hiddenHeader, pageId, showDebugger } =
+      this.props;
 
     return (
       <FormContainer>
@@ -341,21 +358,26 @@ class DatasourceRestAPIEditor extends React.Component<
             }}
           >
             {this.renderHeader()}
-            {this.renderEditor()}
-            <DatasourceAuth
-              datasource={datasource}
-              datasourceButtonConfiguration={[
-                DatasourceButtonType.DELETE,
-                DatasourceButtonType.SAVE,
-              ]}
-              datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
-              formData={formData}
-              getSanitizedFormData={this.getSanitizedFormData}
-              isFormDirty={this.props.isFormDirty}
-              isInvalid={this.validate()}
-              pageId={pageId}
-              shouldRender
-            />
+            <ResizerMainContainer>
+              <ResizerContentContainer className="api-datasource-content-container">
+                {this.renderEditor()}
+                <DatasourceAuth
+                  datasource={datasource}
+                  datasourceButtonConfiguration={[
+                    DatasourceButtonType.DELETE,
+                    DatasourceButtonType.SAVE,
+                  ]}
+                  datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
+                  formData={formData}
+                  getSanitizedFormData={this.getSanitizedFormData}
+                  isFormDirty={this.props.isFormDirty}
+                  isInvalid={this.validate()}
+                  pageId={pageId}
+                  shouldRender
+                />
+              </ResizerContentContainer>
+              {showDebugger && <Debugger />}
+            </ResizerMainContainer>
           </form>
         </FormContainerBody>
       </FormContainer>
@@ -377,7 +399,7 @@ class DatasourceRestAPIEditor extends React.Component<
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
-          <PluginImage alt="Datasource" src={pluginImage} />
+          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
           <FormTitle
             disabled={!createMode && !canManageDatasource}
             focusOnMount={isNewDatasource}
@@ -388,14 +410,8 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderEditor = () => {
-    const {
-      datasource,
-      datasourceId,
-      formData,
-      isSaving,
-      messages,
-      pageId,
-    } = this.props;
+    const { datasource, datasourceId, formData, isSaving, messages, pageId } =
+      this.props;
     const isAuthorized = _.get(
       datasource,
       "datasourceConfiguration.authentication.isAuthorized",
@@ -450,7 +466,11 @@ class DatasourceRestAPIEditor extends React.Component<
     const { formData } = this.props;
 
     return (
-      <section data-cy="section-General" data-replay-id="section-General">
+      <section
+        className="t--section-general"
+        data-cy="section-General"
+        data-replay-id="section-General"
+      >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "url",
@@ -691,10 +711,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2 = () => {
-    const { authentication } = this.props.formData;
+    const authentication = this.props.formData.authentication as
+      | ClientCredentials
+      | AuthorizationCode
+      | undefined;
     if (!authentication) return;
     let content;
-    switch (_.get(authentication, "grantType")) {
+    switch (authentication.grantType) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;
@@ -1179,18 +1202,25 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
+
+  const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
+
   const hintMessages = datasource && datasource.messages;
 
   return {
     initialValues: datasourceToFormValues(datasource),
     datasource: datasource,
     actions: state.entities.actions,
+    plugin,
     formData: getFormValues(DATASOURCE_REST_API_FORM)(
       state,
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
+    showDebugger,
   };
 };
 

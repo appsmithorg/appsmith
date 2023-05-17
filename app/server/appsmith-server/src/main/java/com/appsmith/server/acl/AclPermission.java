@@ -3,11 +3,12 @@ package com.appsmith.server.acl;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AuditLog;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -93,6 +94,8 @@ public enum AclPermission {
     WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
 
+    // global permission on workspace level to give create actions on all datasources
+    WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS("create:workspaceDatasourceActions", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -109,6 +112,9 @@ public enum AclPermission {
     // Can the user create a comment thread on a given application?
     @Deprecated
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
+
+    // Gives users permission to invite users to application.
+    INVITE_USERS_APPLICATIONS("inviteUsers:applications", Application.class),
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
 
@@ -128,13 +134,6 @@ public enum AclPermission {
     EXECUTE_DATASOURCES("execute:datasources", Datasource.class),
     DELETE_DATASOURCES("delete:datasources", Datasource.class),
     CREATE_DATASOURCE_ACTIONS("create:datasourceActions", Datasource.class),
-
-    COMMENT_ON_THREADS("canComment:commentThreads", CommentThread.class),
-    READ_THREADS("read:commentThreads", CommentThread.class),
-    MANAGE_THREADS("manage:commentThreads", CommentThread.class),
-
-    READ_COMMENTS("read:comments", Comment.class),
-    MANAGE_COMMENTS("manage:comments", Comment.class),
 
     READ_THEMES("read:themes", Theme.class),
     MANAGE_THEMES("manage:themes", Theme.class),
@@ -156,8 +155,6 @@ public enum AclPermission {
     REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
 
     // Environment Permissions
-    MANAGE_ENVIRONMENTS("manage:environments", Environment.class),
-    READ_ENVIRONMENTS("read:environments", Environment.class),
     EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
 
     // Manage tenant permissions
@@ -183,5 +180,22 @@ public enum AclPermission {
             }
         }
         return null;
+    }
+
+    public static boolean isPermissionForEntity(AclPermission aclPermission, Class clazz) {
+        Class entityClass = clazz;
+        /*
+         * Action class has been deprecated, and we have started using NewAction class instead.
+         * Page class has been deprecated, and we have started using NewPage class instead.
+         * NewAction and ActionCollection are similar entities w.r.t. AclPermissions.
+         * Hence, whenever we want to check for any Permission w.r.t. NewAction or Action Collection, we use Action, and
+         * whenever we want to check for any Permission w.r.t. NewPage, we use Page.
+         */
+        if (entityClass.equals(NewAction.class) || entityClass.equals(ActionCollection.class)) {
+            entityClass = Action.class;
+        } else if (entityClass.equals(NewPage.class)) {
+            entityClass = Page.class;
+        }
+        return aclPermission.getEntity().equals(entityClass);
     }
 }

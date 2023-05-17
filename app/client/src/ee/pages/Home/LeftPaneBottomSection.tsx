@@ -13,10 +13,10 @@ import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,
   DOCUMENTATION,
-  UPGRADE_TO_BUSINESS,
+  UPGRADE,
   WELCOME_TOUR,
 } from "@appsmith/constants/messages";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -27,7 +27,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getDefaultAdminSettingsPath,
   showAdminSettings,
@@ -38,14 +38,24 @@ import {
   isTrialLicense,
 } from "@appsmith/selectors/tenantSelectors";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
+import capitalize from "lodash/capitalize";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledWrapper = styled(Wrapper)`
   .business-plan-menu-option {
     .cs-text {
-      color: var(--appsmith-color-orange-700);
+      color: var(--appsmith-color-orange-500);
     }
     svg path {
-      fill: var(--appsmith-color-orange-700);
+      fill: var(--appsmith-color-orange-500);
+    }
+    &:hover {
+      .cs-text {
+        color: var(--appsmith-color-orange-800);
+      }
+      svg path {
+        fill: var(--appsmith-color-orange-800);
+      }
     }
   }
 `;
@@ -60,17 +70,17 @@ function LeftPaneBottomSection() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const isTrial = useSelector(isTrialLicense);
   const isAdmin = useSelector(isAdminUser);
-  const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
-    ?.USAGE_AND_BILLING;
+  const isAirgappedInstance = isAirgapped();
 
   return (
     <StyledWrapper>
-      {isUsageAndBillingEnabled && isTrial && isAdmin && (
+      {isTrial && isAdmin && !isAirgappedInstance && (
         <MenuItem
           className="business-plan-menu-option"
+          data-testid="t--upgrade-to-business"
           icon="upload-cloud"
           onSelect={goToCustomerPortal}
-          text={createMessage(UPGRADE_TO_BUSINESS)}
+          text={capitalize(createMessage(UPGRADE))}
         />
       )}
       {showAdminSettings(user) && !isFetchingApplications && (
@@ -88,40 +98,44 @@ function LeftPaneBottomSection() {
           text={createMessage(ADMIN_SETTINGS)}
         />
       )}
-      <MenuItem
-        className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-        icon="discord"
-        onSelect={() => {
-          window.open("https://discord.gg/rBTTVJp", "_blank");
-        }}
-        text={"Join our Discord"}
-      />
-      <MenuItem
-        containerClassName={
-          isFetchingApplications ? BlueprintClasses.SKELETON : ""
-        }
-        icon="book"
-        onSelect={() => {
-          window.open("https://docs.appsmith.com/", "_blank");
-        }}
-        text={createMessage(DOCUMENTATION)}
-      />
-      {!!onboardingWorkspaces.length && (
-        <MenuItem
-          containerClassName={
-            isFetchingApplications
-              ? BlueprintClasses.SKELETON
-              : "t--welcome-tour"
-          }
-          icon="guide"
-          onSelect={() => {
-            AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-            dispatch(onboardingCreateApplication());
-          }}
-          text={createMessage(WELCOME_TOUR)}
-        />
+      {!isAirgappedInstance && (
+        <>
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="discord"
+            onSelect={() => {
+              window.open("https://discord.gg/rBTTVJp", "_blank");
+            }}
+            text={"Join our Discord"}
+          />
+          <MenuItem
+            containerClassName={
+              isFetchingApplications ? BlueprintClasses.SKELETON : ""
+            }
+            icon="book"
+            onSelect={() => {
+              window.open("https://docs.appsmith.com/", "_blank");
+            }}
+            text={createMessage(DOCUMENTATION)}
+          />
+          {!!onboardingWorkspaces.length && (
+            <MenuItem
+              containerClassName={
+                isFetchingApplications
+                  ? BlueprintClasses.SKELETON
+                  : "t--welcome-tour"
+              }
+              icon="guide"
+              onSelect={() => {
+                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+                dispatch(onboardingCreateApplication());
+              }}
+              text={createMessage(WELCOME_TOUR)}
+            />
+          )}
+          <ProductUpdatesModal />
+        </>
       )}
-      <ProductUpdatesModal />
       <LeftPaneVersionData>
         <span>
           {createMessage(

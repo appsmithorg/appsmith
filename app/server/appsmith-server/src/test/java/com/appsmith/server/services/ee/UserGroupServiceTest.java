@@ -4,17 +4,21 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
+import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -31,7 +35,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -66,6 +72,11 @@ public class UserGroupServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+    @Autowired
+    UserGroupRepository userGroupRepository;
+
+    @Autowired
+    UserDataService userDataService;
 
     User api_user = null;
     User admin_user = null;
@@ -407,7 +418,7 @@ public class UserGroupServiceTest {
                                         permissionGroupInfoDTO.setId(role.getId());
                                         permissionGroupInfoDTO.setName(role.getName());
                                         permissionGroupInfoDTO.setDescription(role.getDescription());
-                                        permissionGroupInfoDTO.setUserPermissions(Set.of());
+                                        permissionGroupInfoDTO.setUserPermissions(role.getUserPermissions());
                                         return permissionGroupInfoDTO;
                                     })
                                     .collect(Collectors.toList())
@@ -749,7 +760,127 @@ public class UserGroupServiceTest {
                 .verifyComplete();
     }
 
-    // TODO: Add tests for groups with roles and then adding users to the group.
+    /**
+     * This test has been added, because there now exists a feature on UI
+     * which disables the Roles in the Active Roles tab in User Group Description page
+     * if the user doesn't have permission to un-assign a role which has been already assigned to the User Group.
+     * The UI feature is dependent on the User Permission present inside Roles DTO inside Group DTO.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetUserGroup_roleHaveUserPermission() {
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("Test Group : testGetUserGroup_roleHaveUserPermission");
+        userGroup.setDescription("Test Group Description : testGetUserGroup_roleHaveUserPermission");
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+        assertThat(createdUserGroup.getId()).isNotNull();
 
+        PermissionGroup permissionGroup = new PermissionGroup();
+        userGroup.setName("Test Role : testGetUserGroup_roleHaveUserPermission");
+        userGroup.setDescription("Test Role Description : testGetUserGroup_roleHaveUserPermission");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        assertThat(createdPermissionGroup.getId()).isNotNull();
 
+        permissionGroupService.assignToUserGroup(createdPermissionGroup, createdUserGroup).block();
+
+        UserGroupDTO updatedUserGroup = userGroupService.getGroupById(createdUserGroup.getId()).block();
+        assertThat(updatedUserGroup.getRoles()).hasSize(1);
+        assertThat(updatedUserGroup.getRoles().get(0).getUserPermissions()).isNotEmpty();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetUserGroup_assertPhotoIdForUser() {
+        String testName = "testGetUserGroup_assertPhotoIdForUser";
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        userGroup.setDescription(testName);
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+        assertThat(createdUserGroup.getId()).isNotNull();
+
+        User user1 = new User();
+        user1.setEmail(testName);
+        user1.setPassword(testName);
+        User createdUser1 = userService.userCreate(user1, false).block();
+        UserData userData1 = userDataService.getForUser(createdUser1).block();
+        userData1.setProfilePhotoAssetId(testName);
+        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+
+        // First add the user to toRemove user group
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdUserGroup.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of(createdUser1.getUsername()));
+        userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block();
+
+        UserGroupDTO userGroupDTO = userGroupService.getGroupById(createdUserGroup.getId()).block();
+        List<UserCompactDTO> users = userGroupDTO.getUsers();
+        Optional<UserCompactDTO> user = users.stream().filter(_user -> createdUser1.getId().equals(_user.getId())).findFirst();
+        assertThat(user.isPresent()).isTrue();
+        assertThat(user.get().getPhotoId()).isEqualTo(testName);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testGetAllReadableGroups() {
+        String testName = "testGetAllReadableGroups";
+
+        PermissionGroup role = new PermissionGroup();
+        role.setName(testName);
+        role.setAssignedToUserIds(Set.of(api_user.getId()));
+        PermissionGroup createdRole = permissionGroupService.create(role).block();
+
+        UserGroup group1 = new UserGroup();
+        group1.setName(testName + 1);
+        group1.setDescription(testName);
+        // Policy of this group have been updated to only be read by createdRole.
+        UserGroup createdGroup1 = userGroupService.createGroup(group1)
+                .flatMap(groupDTO -> userGroupRepository.findById(groupDTO.getId()))
+                .flatMap(group -> {
+                    Set<Policy> policies = group.getPolicies();
+                    Optional<Policy> optionalReadGroupPolicy = policies.stream()
+                            .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue())).findFirst();
+                    if (optionalReadGroupPolicy.isPresent()) {
+                        Policy readGroupPolicy = optionalReadGroupPolicy.get();
+                        readGroupPolicy.setPermissionGroups(Set.of(createdRole.getId()));
+                    } else {
+                        Policy readGroupPolicy = Policy.builder()
+                                .permission(READ_USER_GROUPS.getValue())
+                                .permissionGroups(Set.of(createdRole.getId()))
+                                .build();
+                        policies.add(readGroupPolicy);
+                    }
+                    return userGroupRepository.save(group);
+                })
+                .block();
+
+        UserGroup group2 = new UserGroup();
+        group2.setName(testName + 2);
+        group2.setDescription(testName);
+        UserGroup createdGroup2 = userGroupService.createGroup(group2)
+                .flatMap(groupDTO -> userGroupRepository.findById(groupDTO.getId()))
+                .block();
+
+        List<UserGroupCompactDTO> readableGroups = userGroupService.getAllReadableGroups().block();
+        assertThat(readableGroups).isNotEmpty();
+        // Assert that api_user can read createdGroup1. (Read User Group ability provided only to createdRole.)
+        Optional<UserGroupCompactDTO> groupCompactDTOReadable1 = readableGroups.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group1.getId())).findFirst();
+        assertThat(groupCompactDTOReadable1.isPresent()).isTrue();
+        assertThat(groupCompactDTOReadable1.get().getName()).isEqualTo(createdGroup1.getName());
+
+        // Assert that api_user can read createdGroup2. (api_user is super admin.)
+        Optional<UserGroupCompactDTO> groupCompactDTOReadable2 = readableGroups.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group2.getId())).findFirst();
+        assertThat(groupCompactDTOReadable2.isPresent()).isTrue();
+        assertThat(groupCompactDTOReadable2.get().getName()).isEqualTo(createdGroup2.getName());
+
+        // Test cleanup
+        userGroupRepository.delete(createdGroup1).block();
+        userGroupRepository.delete(createdGroup2).block();
+
+    }
 }

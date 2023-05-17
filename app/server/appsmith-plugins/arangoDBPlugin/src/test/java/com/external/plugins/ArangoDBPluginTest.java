@@ -17,6 +17,7 @@ import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.Permissions;
 import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.CollectionSchema;
+import com.external.plugins.exceptions.ArangoDBPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,8 +32,10 @@ import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -298,5 +301,15 @@ public class ArangoDBPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfArangoDBPluginErrorCode() {
+        assert (Arrays.stream(ArangoDBPluginError.values()).map(ArangoDBPluginError::getAppErrorCode).distinct().count() == ArangoDBPluginError.values().length);
+
+        assert (Arrays.stream(ArangoDBPluginError.values()).map(ArangoDBPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ARN"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

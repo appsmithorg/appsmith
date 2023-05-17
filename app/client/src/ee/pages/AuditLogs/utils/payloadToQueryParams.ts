@@ -1,5 +1,5 @@
-import { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
-import { DropdownOption } from "design-system-old";
+import type { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
+import type { DropdownOption } from "design-system-old";
 
 export function payloadToQueryParams(
   payload: AuditLogsFiltersReduxState & { cursor: string },

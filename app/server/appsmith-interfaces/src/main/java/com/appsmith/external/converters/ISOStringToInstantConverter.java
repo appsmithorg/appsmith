@@ -11,11 +11,14 @@ import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class ISOStringToInstantConverter implements JsonSerializer<Instant>, JsonDeserializer<Instant> {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX").withZone(ZoneOffset.UTC);
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
 
     @Override
     public Instant deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
@@ -56,8 +59,13 @@ public class ISOStringToInstantConverter implements JsonSerializer<Instant>, Jso
                 }
             }
         }
-
-        return Instant.parse(jsonElement.getAsString());
+        try {
+            return Instant.parse(jsonElement.getAsString());
+        } catch (DateTimeParseException e) {
+            // Fallback if the input string is of the format yyyy-MM-dd
+            LocalDate localDate = LocalDate.parse(jsonElement.getAsString());
+            return localDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        }
     }
 
     @Override

@@ -1,5 +1,5 @@
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationConfig } from "./PropertyControlConstants";
+import type { ValidationConfig } from "./PropertyControlConstants";
 
 // Always add a validator function in ./worker/validation for these types
 export enum ValidationTypes {
@@ -21,7 +21,7 @@ export enum ValidationTypes {
 export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
-  messages?: string[];
+  messages?: Array<Error>;
   transformed?: any;
 };
 
@@ -403,7 +403,6 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
 
   // Identifiers added to worker scope by Appsmith
   evaluationVersion: "evaluationVersion",
-  ALLOW_SYNC: "ALLOW_SYNC",
-  IS_SYNC: "IS_SYNC",
-  TRIGGER_COLLECTOR: "TRIGGER_COLLECTOR",
+  $isDataField: "$isDataField",
+  $isAsync: "$isAsync",
 };

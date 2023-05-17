@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.AirgapInstanceConfig;
+import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Plugin;
@@ -19,6 +21,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -30,6 +33,8 @@ import jakarta.validation.Validator;
 @Service
 public class PluginServiceImpl extends PluginServiceCEImpl implements PluginService {
 
+    private final AirgapInstanceConfig airgapInstanceConfig;
+
     public PluginServiceImpl(Scheduler scheduler,
                              Validator validator,
                              MongoConverter mongoConverter,
@@ -40,9 +45,12 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper,
+                             AirgapInstanceConfig airgapInstanceConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
+
+        this.airgapInstanceConfig = airgapInstanceConfig;
     }
 
     /**
@@ -97,6 +105,18 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
     public Mono<PluginDTO> getPluginIconLocation(String pluginId) {
         return this.repository.findById(pluginId).map(this::makePluginDTO);
+    }
+
+    @Override
+    public Flux<Plugin> get(MultiValueMap<String, String> params) {
+
+        Flux<Plugin> pluginFlux = super.get(params);
+        // Filter out unsupported plugins for air-gap instance
+        if (airgapInstanceConfig.isAirgapEnabled()) {
+            return pluginFlux
+                .filter(Plugin::isSupportedForAirGap);
+        }
+        return pluginFlux;
     }
 
     private PluginDTO makePluginDTO(Plugin plugin) {

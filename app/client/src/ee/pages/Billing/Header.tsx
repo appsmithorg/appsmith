@@ -1,13 +1,13 @@
 import React from "react";
 import { Text, TextType } from "design-system-old";
-import { HeaderProps } from "./types";
+import type { HeaderProps } from "./types";
 import { PageHeader } from "./styles";
 
 export function BillingPageHeader(props: HeaderProps) {
   const { subtitle, title } = props;
   return (
-    <PageHeader>
-      <Text className="header-text" type={TextType.H1} weight="500">
+    <PageHeader data-testid="t--billing-header">
+      <Text className="header-text" type={TextType.H1} weight="600">
         {title}
       </Text>
       {subtitle && (

@@ -1,20 +1,12 @@
 import moment from "moment";
-import { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
+import type { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
 import { initialAuditLogsDateFilter as initial } from "@appsmith/reducers/auditLogsReducer";
 
 const getStartOfDayUnix = (date: Date) => {
-  return (
-    moment(date)
-      .startOf("day")
-      .unix() * 1000
-  );
+  return moment(date).startOf("day").unix() * 1000;
 };
 const getEndOfDayUnix = (date: Date) => {
-  return (
-    moment(date)
-      .endOf("day")
-      .unix() * 1000
-  );
+  return moment(date).endOf("day").unix() * 1000;
 };
 export const parseDateFilterInput = ([start, end]: DateRange): [
   number,

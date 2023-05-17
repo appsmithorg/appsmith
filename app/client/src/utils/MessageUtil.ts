@@ -23,7 +23,8 @@ type TResponseMessage<TBody> = {
   messageType: MessageType.RESPONSE;
 };
 
-type TDefaultMessage<TBody> = {
+export type TDefaultMessage<TBody> = {
+  messageId?: string;
   body: TBody;
   messageType: MessageType.DEFAULT;
 };

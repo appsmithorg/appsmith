@@ -1,4 +1,4 @@
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 
 export type TemplateList = {
   id: string;

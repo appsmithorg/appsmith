@@ -1,10 +1,11 @@
-import {
+import type {
   AuditLogType,
   AuthenticationType,
   DescriptionDataType,
   PermissionGroupType,
 } from "../types";
-import { EVENT_ICON_MAP, IconInfo } from "./icons";
+import type { IconInfo } from "./icons";
+import { EVENT_ICON_MAP } from "./icons";
 import { splitJoin } from "./splitJoin";
 import { titleCase } from "./titleCase";
 import { ellipsis } from "./ellipsis";
@@ -179,9 +180,9 @@ export function generateDescription(log: AuditLogType): MultilineDescription {
     // Special case: role associated has "x user(s)/group(s) associated/removed" structure
     const { permissionGroup = {} } = log;
     const users =
-      permissionGroup[
-        camelCase(action) as keyof PermissionGroupType
-      ]?.map((user) => ellipsis(user)) || [];
+      permissionGroup[camelCase(action) as keyof PermissionGroupType]?.map(
+        (user) => ellipsis(user),
+      ) || [];
     return getGroupandRoleActionDescription(
       ACTION_MAP[action],
       users,

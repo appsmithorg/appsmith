@@ -9,14 +9,14 @@ import lombok.Setter;
 @Setter
 public class AppsmithPluginException extends BaseException {
     private final Throwable externalError;
-    private final AppsmithPluginError error;
+    private final BasePluginError error;
     private final Object[] args;
 
-    public AppsmithPluginException(AppsmithPluginError error, Object... args) {
+    public AppsmithPluginException(BasePluginError error, Object... args) {
         this(null, error, args);
     }
 
-    public AppsmithPluginException(Throwable externalError, AppsmithPluginError error, Object... args) {
+    public AppsmithPluginException(Throwable externalError, BasePluginError error, Object... args) {
         super(error.getMessage(args));
         this.externalError = externalError;
         this.error = error;
@@ -32,15 +32,26 @@ public class AppsmithPluginException extends BaseException {
         return this.error.getMessage(args);
     }
 
-    public Integer getAppErrorCode() {
-        return this.error == null ? 0 : this.error.getAppErrorCode();
-    }
-
     public AppsmithErrorAction getErrorAction() {
         return this.error.getErrorAction();
     }
 
     public String getTitle() { return this.error.getTitle(); }
 
+    @Override
     public String getErrorType() { return this.error.getErrorType(); }
+
+    @Override
+    public String getDownstreamErrorMessage() {
+        return this.error.getDownstreamErrorMessage(args);
+    }
+
+    @Override
+    public String getDownstreamErrorCode() {
+        return this.error.getDownstreamErrorCode(args);
+    }
+
+    public String getAppErrorCode() {
+        return this.error == null ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode() : this.error.getAppErrorCode();
+    }
 }

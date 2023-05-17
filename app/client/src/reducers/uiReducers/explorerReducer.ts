@@ -1,11 +1,11 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import get from "lodash/get";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 
 export enum ExplorerPinnedState {
@@ -126,21 +126,28 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: setUpdatingDatasourceEntity,
-  [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]:
+    setUpdatingDatasourceEntity,
+  [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]:
+    setEntityUpdateError,
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: setUpdatingDatasourceEntity,
-  [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
-  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]:
+    setUpdatingDatasourceEntity,
+  [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]:
+    setEntityUpdateError,
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]:
+    setEntityUpdateSuccess,
 
   [ReduxActionTypes.UPDATE_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT]: setUpdatingEntity,
-  [ReduxActionErrorTypes.SET_DEFAULT_APPLICATION_PAGE_ERROR]: setEntityUpdateError,
-  [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS]: setEntityUpdateSuccess,
+  [ReduxActionErrorTypes.SET_DEFAULT_APPLICATION_PAGE_ERROR]:
+    setEntityUpdateError,
+  [ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS]:
+    setEntityUpdateSuccess,
 
   [ReduxActionTypes.UPDATE_WIDGET_NAME_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR]: setEntityUpdateError,

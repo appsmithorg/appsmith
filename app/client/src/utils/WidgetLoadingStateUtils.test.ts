@@ -1,10 +1,7 @@
 import { PluginType } from "entities/Action";
-import {
-  DataTreeAction,
-  DataTreeJSAction,
-  DataTreeWidget,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,
   getEntityDependantPaths,
@@ -12,7 +9,7 @@ import {
 } from "utils/WidgetLoadingStateUtils";
 import WidgetFactory from "./WidgetFactory";
 
-const JS_object_tree: DataTreeJSAction = {
+const JS_object_tree: JSActionEntity = {
   pluginType: PluginType.JS,
   name: "",
   ENTITY_TYPE: ENTITY_TYPE.JSACTION,
@@ -27,16 +24,8 @@ const JS_object_tree: DataTreeJSAction = {
 };
 
 // @ts-expect-error: meta property not provided
-const Select_tree: DataTreeWidget = {
+const Select_tree: WidgetEntity = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-  bindingPaths: {},
-  reactivePaths: {},
-  triggerPaths: {},
-  validationPaths: {},
-  logBlackList: {},
-  propertyOverrideDependency: {},
-  overridingPropertyPaths: {},
-  privateWidgets: {},
   widgetId: "",
   type: "",
   widgetName: "",
@@ -52,21 +41,13 @@ const Select_tree: DataTreeWidget = {
   animateLoading: true,
 };
 
-const Query_tree: DataTreeAction = {
+const Query_tree: ActionEntity = {
   data: {},
   actionId: "",
   config: {},
-  pluginType: PluginType.DB,
-  pluginId: "",
-  name: "",
   run: {},
   clear: {},
-  dynamicBindingPathList: [],
-  bindingPaths: {},
-  reactivePaths: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
-  dependencyMap: {},
-  logBlackList: {},
   datasourceUrl: "",
   responseMeta: {
     isExecutionSuccess: true,
@@ -74,37 +55,22 @@ const Query_tree: DataTreeAction = {
   isLoading: false,
 };
 
-const Api_tree: DataTreeAction = {
+const Api_tree: ActionEntity = {
   data: {},
   actionId: "",
   config: {},
-  pluginType: PluginType.API,
-  pluginId: "",
-  name: "",
   run: {},
   clear: {},
-  dynamicBindingPathList: [],
-  bindingPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
-  dependencyMap: {},
-  logBlackList: {},
   datasourceUrl: "",
   responseMeta: {
     isExecutionSuccess: true,
   },
   isLoading: false,
-  reactivePaths: {},
 };
 
-const Table_tree: DataTreeWidget = {
+const Table_tree: WidgetEntity = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-  bindingPaths: {},
-  triggerPaths: {},
-  validationPaths: {},
-  logBlackList: {},
-  propertyOverrideDependency: {},
-  overridingPropertyPaths: {},
-  privateWidgets: {},
   widgetId: "",
   type: "TABLE_WIDGET",
   widgetName: "",
@@ -118,7 +84,6 @@ const Table_tree: DataTreeWidget = {
   bottomRow: 0,
   isLoading: false,
   animateLoading: true,
-  reactivePaths: {},
   meta: {},
 };
 

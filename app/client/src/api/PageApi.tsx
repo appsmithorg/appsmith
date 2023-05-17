@@ -1,16 +1,17 @@
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
-import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import {
+import type { ApiResponse } from "./ApiResponses";
+import type { AxiosPromise, CancelTokenSource } from "axios";
+import axios from "axios";
+import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { DSLWidget } from "widgets/constants";
-import {
+import type { DSLWidget } from "widgets/constants";
+import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
 } from "actions/pageActions";
-import { FetchApplicationResponse } from "./ApplicationApi";
+import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
 
 export type FetchPageRequest = {
   id: string;
@@ -37,6 +38,14 @@ export type PageLayout = {
   layoutActions: PageAction[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
+
+export interface PageLayoutsRequest {
+  layoutId: string;
+  pageId: string;
+  layout: {
+    dsl: DSLWidget;
+  };
+}
 
 export type FetchPageResponseData = {
   id: string;
@@ -149,15 +158,13 @@ export type FetchPageListResponse = ApiResponse<FetchPageListResponseData>;
 
 export type UpdateWidgetNameResponse = ApiResponse<PageLayout>;
 
-export type GenerateTemplatePageRequestResponse = ApiResponse<
-  GenerateTemplatePageResponseData
->;
+export type GenerateTemplatePageRequestResponse =
+  ApiResponse<GenerateTemplatePageResponseData>;
 
 export type FetchPageResponse = ApiResponse<FetchPageResponseData>;
 
-export type FetchPublishedPageResponse = ApiResponse<
-  FetchPublishedPageResponseData
->;
+export type FetchPublishedPageResponse =
+  ApiResponse<FetchPublishedPageResponseData>;
 
 class PageApi extends Api {
   static url = "v1/pages";
@@ -178,6 +185,10 @@ class PageApi extends Api {
   static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
     const url = `v1/pages/${pageId}/view`;
     return !!bustCache ? url + "?v=" + +new Date() : url;
+  };
+
+  static getSaveAllPagesURL = (applicationId: string) => {
+    return `v1/layouts/application/${applicationId}`;
   };
 
   static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
@@ -211,6 +222,15 @@ class PageApi extends Api {
       undefined,
       { cancelToken: PageApi.pageUpdateCancelTokenSource.token },
     );
+  }
+
+  static saveAllPages(
+    applicationId: string,
+    pageLayouts: PageLayoutsRequest[],
+  ) {
+    return Api.put(PageApi.getSaveAllPagesURL(applicationId), {
+      pageLayouts,
+    });
   }
 
   static fetchPublishedPage(

@@ -1,8 +1,6 @@
 export * from "ce/constants/SocialLogin";
-import {
-  SocialLoginButtonProps as CE_SocialLoginButtonProps,
-  SocialLoginButtonPropsList as CE_SocialLoginButtonPropsList,
-} from "ce/constants/SocialLogin";
+import type { SocialLoginButtonProps as CE_SocialLoginButtonProps } from "ce/constants/SocialLogin";
+import { SocialLoginButtonPropsList as CE_SocialLoginButtonPropsList } from "ce/constants/SocialLogin";
 import { KeycloakOAuthURL, OIDCOAuthURL } from "./ApiConstants";
 import KeyLogo from "assets/icons/ads/key-2-line.svg";
 

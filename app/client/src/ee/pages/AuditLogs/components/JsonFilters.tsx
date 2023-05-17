@@ -1,5 +1,5 @@
 import React from "react";
-import { AuditLogType } from "@appsmith/pages/AuditLogs/types";
+import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
 import {
   StyledPill,
   StyledPillLabel,
@@ -18,7 +18,7 @@ import {
   selectAuditLogsSearchFilters,
 } from "@appsmith/selectors/auditLogsSelectors";
 import { getJsonFilterData, JSON_FILTER_KEYS_ENUM } from "../utils/jsonFilter";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { toEvent, toUserEmail } from "../utils/toDropdownOption";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

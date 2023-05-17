@@ -8,19 +8,15 @@ import {
   IconBadge,
   StyledCard,
 } from "./styles";
-import { BillingDashboardCard } from "./types";
+import type { BillingDashboardCard } from "./types";
 
 export function DashboardCard(props: BillingDashboardCard) {
-  const { content, icon, subtitle, title, value } = props;
+  const { action, content, icon, subtitle, title } = props;
   return (
-    <StyledCard>
-      <CardLeftContent>
+    <StyledCard data-testid="t--dashboard-card">
+      <CardLeftContent data-testid="t--dashboard-card-left-content">
         <IconBadge>
-          <Icon
-            fillColor={Colors.CTA_PURPLE}
-            name={icon}
-            size={IconSize.XXXXL}
-          />
+          <Icon fillColor={Colors.SCORPION} name={icon} size={IconSize.XXXXL} />
         </IconBadge>
         <CardTextWrapper>
           {title}
@@ -28,7 +24,11 @@ export function DashboardCard(props: BillingDashboardCard) {
           {subtitle}
         </CardTextWrapper>
       </CardLeftContent>
-      {value && <CardRightContent>{value}</CardRightContent>}
+      {action && (
+        <CardRightContent data-testid="t--dashboard-card-right-content">
+          {action}
+        </CardRightContent>
+      )}
     </StyledCard>
   );
 }

@@ -1,22 +1,22 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { setSelectedPropertyPanel } from "actions/propertyPaneActions";
-import {
+import type {
   BaseItemProps,
-  DroppableComponent,
   DroppableComponentProps,
 } from "components/propertyControls/DraggableListComponent";
+import { DroppableComponent } from "components/propertyControls/DraggableListComponent";
 import debounce from "lodash/debounce";
 import React, { useCallback } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyPanelIndex } from "selectors/propertyPaneSelectors";
 
-export type DraggableListControlProps<
-  TItem extends BaseItemProps
-> = DroppableComponentProps<TItem> & {
-  defaultPanelIndex?: number;
-  propertyPath: string | undefined;
-};
+export type DraggableListControlProps<TItem extends BaseItemProps> =
+  DroppableComponentProps<TItem> & {
+    defaultPanelIndex?: number;
+    propertyPath: string | undefined;
+    keyAccessor?: string;
+  };
 export const DraggableListControl = <TItem extends BaseItemProps>(
   props: DraggableListControlProps<TItem>,
 ) => {

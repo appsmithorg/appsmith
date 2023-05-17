@@ -7,8 +7,12 @@ import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.filters.AirgapUnsupportedPathFilter;
+import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +24,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.client.oidc.authentication.ReactiveOidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -38,12 +43,14 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
+import reactor.core.scheduler.Scheduler;
 
 import java.time.Duration;
 import java.util.HashSet;
 
 import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
+import static com.appsmith.server.constants.Url.ANALYTICS_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.ASSET_URL;
 import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
@@ -51,9 +58,8 @@ import static com.appsmith.server.constants.Url.PAGE_URL;
 import static com.appsmith.server.constants.Url.PLUGIN_URL;
 import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
-import static com.appsmith.server.constants.Url.USER_URL;
-import static com.appsmith.server.constants.Url.ANALYTICS_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
+import static com.appsmith.server.constants.Url.USER_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
@@ -91,6 +97,9 @@ public class SecurityConfig {
     @Autowired
     private RedirectHelper redirectHelper;
 
+    @Autowired
+    AirgapInstanceConfig airgapInstanceConfig;
+
     @Value("${appsmith.oidc.jwt-signing-algo}")
     private String oidcJwtSigningAlgorithm;
 
@@ -123,8 +132,10 @@ public class SecurityConfig {
         ServerAuthenticationEntryPointFailureHandler failureHandler = new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
         return http
-                // This picks up the configurationSource from the bean corsConfigurationSource()
+                // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
                 .csrf().disable()
+                .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
+                .addFilterAfter(new AirgapUnsupportedPathFilter(airgapInstanceConfig), SecurityWebFiltersOrder.CSRF)
                 .anonymous().principal(createAnonymousUser())
                 .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required

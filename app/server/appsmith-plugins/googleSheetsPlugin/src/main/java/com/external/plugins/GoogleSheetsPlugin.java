@@ -19,11 +19,14 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.util.WebClientUtils;
 import com.external.config.ExecutionMethod;
+import com.external.config.GetDatasourceMetadataMethod;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.MethodConfig;
 import com.external.config.TemplateMethod;
 import com.external.config.TriggerMethod;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +52,7 @@ import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.utils.SheetsUtil.getUserAuthorizedSheetIds;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -123,7 +127,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
             } catch (AppsmithPluginException e) {
                 // Initializing object for error condition
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setErrorInfo(e);
                 return Mono.just(errorResult);
@@ -140,7 +143,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
-            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+            errorResult.setStatusCode(GSheetsPluginError.QUERY_EXECUTION_FAILED.getAppErrorCode());
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
@@ -152,7 +155,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             if (executionMethod == null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing Google Sheets method."
+                        ErrorMessages.MISSING_GSHEETS_METHOD_ERROR_MSG
                 ));
             }
 
@@ -169,6 +172,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
+
+            // This will get list of authorised sheet ids from datasource config, and transform execution response to contain only authorised files
+            final Set<String> userAuthorizedSheetIds = getUserAuthorizedSheetIds(datasourceConfiguration);
 
             // Triggering the actual REST API call
             return executionMethod.executePrerequisites(methodConfig, oauth2)
@@ -195,7 +201,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         headerInJsonString = objectMapper.writeValueAsString(headers);
                                     } catch (JsonProcessingException e) {
                                         throw Exceptions.propagate(
-                                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                                new AppsmithPluginException(GSheetsPluginError.RESPONSE_PROCESSING_ERROR, e));
                                     }
 
                                     // Set headers in the result now
@@ -221,7 +227,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
-                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig));
+                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig, userAuthorizedSheetIds));
                                         } else {
                                             result.setBody(jsonNodeBody
                                                     .get("error")
@@ -243,6 +249,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
                                     log.debug("Received error on Google Sheets action execution", e);
+                                    if (! (e instanceof AppsmithPluginException)) {
+                                        e = new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e);
+                                    }
+                                    errorResult.setErrorInfo(e);
                                     return Mono.just(errorResult);
                                 });
                     })
@@ -264,7 +274,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Mono<ActionExecutionResult> execute(Void connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -320,6 +330,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
 
+            // This will get list of authorised sheet ids from datasource config, and transform trigger response to contain only authorised files
+            Set<String> userAuthorizedSheetIds = getUserAuthorizedSheetIds(datasourceConfiguration);
+
             return triggerMethod.getTriggerClient(client, methodConfig)
                     .headers(headers -> headers.set(
                             "Authorization",
@@ -347,18 +360,20 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         }
 
                         if (response.getStatusCode().is2xxSuccessful()) {
-                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig);
+                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig, userAuthorizedSheetIds);
                             final TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                             triggerResultDTO.setTrigger(triggerResponse);
                             return triggerResultDTO;
                         } else {
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                            ErrorMessages.UNSUCCESSFUL_RESPONSE_ERROR_MSG,
                                             jsonNodeBody
                                                     .get("error")
                                                     .get("message")
-                                                    .asText())
+                                                    .asText(),
+                                            "HTTP " + response.getStatusCode())
                             );
                         }
                     });
@@ -383,5 +398,11 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             templateMethod.replaceMethodConfigTemplate(formData, mappedColumns);
         }
+
+        @Override
+        public Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
+            return GetDatasourceMetadataMethod.getDatasourceMetadata(datasourceConfiguration);
+        }
+
     }
 }

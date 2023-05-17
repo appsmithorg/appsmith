@@ -1,12 +1,16 @@
-import { ColumnProperties, TableStyles } from "../component/Constants";
+import type { ColumnProperties, TableStyles } from "../component/Constants";
+import { StickyType } from "../component/Constants";
 import { ColumnTypes } from "../constants";
 import {
   escapeString,
+  generateNewColumnOrderFromStickyValue,
   getAllTableColumnKeys,
   getArrayPropertyValue,
   getColumnType,
   getDerivedColumns,
+  getHeaderClassNameOnDragDirection,
   getOriginalRowIndex,
+  getSelectOptions,
   getSelectRowIndex,
   getSelectRowIndices,
   getSourceDataAndCaluclateKeysForEventAutoComplete,
@@ -148,8 +152,8 @@ describe("getOriginalRowIndex", () => {
     const newTableData = undefined;
     const selectedRowIndex = 1;
     const result = getOriginalRowIndex(
-      (oldTableData as any) as Array<Record<string, unknown>>,
-      (newTableData as any) as Array<Record<string, unknown>>,
+      oldTableData as any as Array<Record<string, unknown>>,
+      newTableData as any as Array<Record<string, unknown>>,
       selectedRowIndex,
       "step",
     );
@@ -949,9 +953,7 @@ describe("getAllTableColumnKeys - ", () => {
 
   it("should test with undefined", () => {
     expect(
-      getAllTableColumnKeys(
-        (undefined as any) as Array<Record<string, unknown>>,
-      ),
+      getAllTableColumnKeys(undefined as any as Array<Record<string, unknown>>),
     ).toEqual([]);
   });
 });
@@ -959,14 +961,14 @@ describe("getAllTableColumnKeys - ", () => {
 describe("getTableStyles - ", () => {
   it("should test with valid values", () => {
     expect(
-      (getTableStyles({
+      getTableStyles({
         textColor: "#fff",
         textSize: "HEADING1",
         fontStyle: "12",
         cellBackground: "#f00",
         verticalAlignment: "TOP",
         horizontalAlignment: "CENTER",
-      }) as any) as TableStyles,
+      }) as any as TableStyles,
     ).toEqual({
       textColor: "#fff",
       textSize: "HEADING1",
@@ -997,7 +999,7 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
-        (primaryColumns as any) as Record<string, ColumnProperties>,
+        primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({});
   });
@@ -1020,7 +1022,7 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
-        (primaryColumns as any) as Record<string, ColumnProperties>,
+        primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({
       column1: {
@@ -1048,7 +1050,7 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
-        (primaryColumns as any) as Record<string, ColumnProperties>,
+        primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({
       column1: {
@@ -1068,19 +1070,19 @@ describe("getDerivedColumns - ", () => {
 
   it("should check with undefined", () => {
     expect(
-      getDerivedColumns((undefined as any) as Record<string, ColumnProperties>),
+      getDerivedColumns(undefined as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 
   it("should check with simple string", () => {
     expect(
-      getDerivedColumns(("test" as any) as Record<string, ColumnProperties>),
+      getDerivedColumns("test" as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 
   it("should check with number", () => {
     expect(
-      getDerivedColumns((1 as any) as Record<string, ColumnProperties>),
+      getDerivedColumns(1 as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 });
@@ -2335,6 +2337,336 @@ describe("getArrayPropertyValue", () => {
       {
         label: "test2",
         value: "test2",
+      },
+    ]);
+  });
+});
+
+describe("generateNewColumnOrderFromStickyValue", () => {
+  const baseTableConfig: {
+    primaryColumns: Record<string, Pick<ColumnProperties, "sticky">>;
+    columnOrder: string[];
+    columnName: string;
+    sticky?: string;
+  } = {
+    primaryColumns: {
+      step: {
+        sticky: StickyType.NONE,
+      },
+      task: {
+        sticky: StickyType.NONE,
+      },
+      status: {
+        sticky: StickyType.NONE,
+      },
+      action: {
+        sticky: StickyType.NONE,
+      },
+    },
+    columnOrder: ["step", "task", "status", "action"],
+    columnName: "",
+    sticky: "",
+  };
+
+  let tableConfig: {
+    primaryColumns: any;
+    columnOrder: any;
+    columnName?: string;
+    sticky?: string | undefined;
+  };
+  let newColumnOrder;
+
+  const resetValues = (config: {
+    primaryColumns: any;
+    columnOrder: any;
+    columnName?: string;
+    sticky?: string | undefined;
+  }) => {
+    config.primaryColumns = {
+      step: {
+        sticky: "",
+        id: "step",
+      },
+      task: {
+        sticky: "",
+        id: "task",
+      },
+      status: {
+        sticky: "",
+        id: "status",
+      },
+      action: {
+        sticky: "",
+        id: "action",
+      },
+    };
+    config.columnOrder = ["step", "task", "status", "action"];
+    config.columnName = "";
+    config.sticky = "";
+    return config;
+  };
+
+  test("Column order should remain same when leftmost or the right-most columns are frozen", () => {
+    tableConfig = { ...baseTableConfig };
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "left",
+    );
+    tableConfig.primaryColumns.step.sticky = "left";
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "right",
+    );
+    tableConfig.primaryColumns.action.sticky = "right";
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+  });
+
+  test("Column that is frozen to left should appear first in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "left",
+    );
+    expect(newColumnOrder).toEqual(["action", "step", "task", "status"]);
+  });
+
+  test("Column that is frozen to right should appear last in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "right",
+    );
+    expect(newColumnOrder).toEqual(["task", "status", "action", "step"]);
+  });
+
+  test("Column that is frozen to left should appear after the last left frozen column in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be already frozen to left.
+    tableConfig.primaryColumns.step.sticky = "left";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "left",
+    );
+    expect(newColumnOrder).toEqual(["step", "action", "task", "status"]);
+  });
+
+  test("Column that is frozen to right should appear before the first right frozen column in the column order", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder action to be already frozen to right.
+    tableConfig.primaryColumns.action.sticky = "right";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "right",
+    );
+    expect(newColumnOrder).toEqual(["task", "status", "step", "action"]);
+  });
+
+  test("When leftmost and rightmost columns are only frozen, then on unfreeze left column should be first and right most column should at last", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be left frozen and action to be frozen to right.
+    tableConfig.primaryColumns.step.sticky = "left";
+    tableConfig.primaryColumns.action.sticky = "right";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "step",
+      "",
+    );
+    tableConfig.primaryColumns.step.sticky = "";
+
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      tableConfig.columnOrder,
+      "action",
+      "",
+    );
+
+    expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
+  });
+
+  test("Unfreezing first column from multiple left frozen columns, should place the unfrozen column after the last frozen column", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be left frozen and action to be frozen to right.
+    tableConfig.primaryColumns.step.sticky = "left";
+    tableConfig.primaryColumns.action.sticky = "left";
+    tableConfig.primaryColumns.task.sticky = "left";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      ["step", "action", "task", "status"],
+      "step",
+      "",
+    );
+    tableConfig.primaryColumns.step.sticky = "";
+
+    expect(newColumnOrder).toEqual(["action", "task", "step", "status"]);
+  });
+
+  test("Unfreezing last column from multiple right frozen columns, should place the unfrozen column before the first frozen column", () => {
+    tableConfig = resetValues(baseTableConfig);
+    // Consisder step to be left frozen and action to be frozen to right.
+    tableConfig.primaryColumns.step.sticky = "right";
+    tableConfig.primaryColumns.action.sticky = "right";
+    tableConfig.primaryColumns.task.sticky = "right";
+
+    newColumnOrder = generateNewColumnOrderFromStickyValue(
+      tableConfig.primaryColumns as any,
+      ["status", "step", "action", "task"],
+      "task",
+      "",
+    );
+    tableConfig.primaryColumns.step.sticky = "";
+
+    expect(newColumnOrder).toEqual(["status", "task", "step", "action"]);
+  });
+});
+
+describe("getHeaderClassNameOnDragDirection", () => {
+  test("Should return left highlight class when dragging from right to left", () => {
+    expect(getHeaderClassNameOnDragDirection(3, 2)).toEqual(
+      "th header-reorder highlight-left",
+    );
+  });
+
+  test("Should return right highlight class when dragging from left to right", () => {
+    expect(getHeaderClassNameOnDragDirection(1, 2)).toEqual(
+      "th header-reorder highlight-right",
+    );
+  });
+});
+
+describe("getSelectOptions", () => {
+  it("Should return select options when user is not adding a new row", () => {
+    const columnProperties = {
+      allowSameOptionsInNewRow: true,
+      selectOptions: [
+        {
+          label: "male",
+          value: "male",
+        },
+        {
+          label: "female",
+          value: "female",
+        },
+      ],
+    };
+    expect(
+      getSelectOptions(false, 0, columnProperties as ColumnProperties),
+    ).toEqual([
+      {
+        label: "male",
+        value: "male",
+      },
+      {
+        label: "female",
+        value: "female",
+      },
+    ]);
+
+    // Check when select options are inside dynamic binding
+    const columnPropertiesDynamicSelectOptions = {
+      allowSameOptionsInNewRow: true,
+      selectOptions: [
+        [
+          {
+            label: "abc",
+            value: "abc",
+          },
+        ],
+        [
+          {
+            label: "efg",
+            value: "efg",
+          },
+        ],
+        [
+          {
+            label: "xyz",
+            value: "xyz",
+          },
+        ],
+      ],
+    };
+    expect(
+      getSelectOptions(
+        false,
+        0,
+        columnPropertiesDynamicSelectOptions as ColumnProperties,
+      ),
+    ).toEqual([
+      {
+        label: "abc",
+        value: "abc",
+      },
+    ]);
+  });
+
+  it("Should return select options while adding a new row and when 'Same options in new row' option is turned on", () => {
+    const columnProperties = {
+      allowSameOptionsInNewRow: true,
+      selectOptions: [
+        {
+          label: "male",
+          value: "male",
+        },
+        {
+          label: "female",
+          value: "female",
+        },
+      ],
+    };
+
+    expect(
+      getSelectOptions(true, -1, columnProperties as ColumnProperties),
+    ).toEqual([
+      {
+        label: "male",
+        value: "male",
+      },
+      {
+        label: "female",
+        value: "female",
+      },
+    ]);
+  });
+
+  it("Should return new row options", () => {
+    const columnProperties = {
+      allowSameOptionsInNewRow: false,
+      newRowSelectOptions: [
+        {
+          label: "abc",
+          value: "abc",
+        },
+      ],
+    };
+
+    expect(
+      getSelectOptions(true, -1, columnProperties as ColumnProperties),
+    ).toEqual([
+      {
+        label: "abc",
+        value: "abc",
       },
     ]);
   });

@@ -24,6 +24,7 @@ export default {
   bodyType: ".t--apiFormPostBodyType",
   bodyTypeSelected: '[data-cy="t--api-body-tab-switch"] .t--tab-selected',
   bodyTab: "Body",
+  jsonBodyTab: "[data-cy=tab--JSON]",
   headersTab: "Header",
   jsonResponseTab: "[data-cy=t--tab-JSON]",
   tableResponseTab: "[data-cy=t--tab-TABLE]",

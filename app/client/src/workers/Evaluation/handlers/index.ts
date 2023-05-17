@@ -1,15 +1,14 @@
 import noop from "lodash/noop";
-import {
-  EVAL_WORKER_ACTIONS,
+import type {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
 } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import type { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
 import evalTree, { clearCache } from "./evalTree";
 import evalTrigger from "./evalTrigger";
-import executeSyncJS from "./executeSyncJS";
 import initFormEval from "./initFormEval";
 import { installLibrary, loadLibraries, uninstallLibrary } from "./jsLibrary";
 import { redo, undo, updateReplayObject } from "./replay";
@@ -24,7 +23,6 @@ const syncHandlerMap: Record<
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS]: evalActionBindings,
   [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTree,
-  [EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS]: executeSyncJS,
   [EVAL_WORKER_ACTIONS.UNDO]: undo,
   [EVAL_WORKER_ACTIONS.REDO]: redo,
   [EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT]: updateReplayObject,

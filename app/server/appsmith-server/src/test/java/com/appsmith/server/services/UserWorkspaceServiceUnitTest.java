@@ -4,7 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -77,15 +77,16 @@ public class UserWorkspaceServiceUnitTest {
          */
         Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .flatMap(permissionGroup -> {
-                    permissionGroup.setDefaultWorkspaceId(null);
+                    permissionGroup.setDefaultDomainId(null);
+                    permissionGroup.setDefaultDomainType(null);
                     return permissionGroupRepository.save(permissionGroup);
                 })
                 .collectList()
                 .block();
 
-        Mono<List<WorkspaceMemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
                 .create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
@@ -97,7 +98,7 @@ public class UserWorkspaceServiceUnitTest {
     @Test
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
         String sampleWorkspaceId = "test-org-id";
-        Mono<List<WorkspaceMemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
+        Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))
@@ -112,7 +113,7 @@ public class UserWorkspaceServiceUnitTest {
         workspace.setName("workspace_" + UUID.randomUUID());
         Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
-        Mono<List<WorkspaceMemberInfoDTO>> listMono = userDataService.getForCurrentUser().flatMap(userData -> {
+        Mono<List<MemberInfoDTO>> listMono = userDataService.getForCurrentUser().flatMap(userData -> {
                     userData.setProfilePhotoAssetId("sample-photo-id");
                     return userDataRepository.save(userData);
                 }).then(workspaceMono)
@@ -139,7 +140,7 @@ public class UserWorkspaceServiceUnitTest {
                 workspaceService.create(secondWorkspace)
         );
 
-        Mono<Map<String, List<WorkspaceMemberInfoDTO>>> mapMono = userDataService.getForCurrentUser()
+        Mono<Map<String, List<MemberInfoDTO>>> mapMono = userDataService.getForCurrentUser()
                 .flatMap(userData -> {
                     userData.setProfilePhotoAssetId("sample-photo-id");
                     return userDataRepository.save(userData);
@@ -157,7 +158,7 @@ public class UserWorkspaceServiceUnitTest {
             assertThat(workspaceMemberInfoDTOSMap.size()).isEqualTo(2); // should have 2 entries for 2 workspaces
             workspaceMemberInfoDTOSMap.values().forEach(workspaceMemberInfoDTOS -> {
                 // should have one entry for the creator member only, get that
-                WorkspaceMemberInfoDTO workspaceMemberInfoDTO = workspaceMemberInfoDTOS.get(0);
+                MemberInfoDTO workspaceMemberInfoDTO = workspaceMemberInfoDTOS.get(0);
                 // we already set profile photo for the current user, check it exists in response
                 assertThat(workspaceMemberInfoDTO.getPhotoId()).isEqualTo("sample-photo-id");
             });

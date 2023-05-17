@@ -1,12 +1,27 @@
-import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import React from "react";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import IframeComponent from "../component";
-import { IframeWidgetProps } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { IframeWidgetProps } from "../constants";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: IframeWidgetProps) => ({
+      "!doc": "Iframe widget is used to display iframes in your app.",
+      "!url": "https://docs.appsmith.com/widget-reference/iframe",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      source: "string",
+      title: "string",
+      message: generateTypeDef(widget.message),
+      messageMetadata: generateTypeDef(widget.messageMetadata),
+    });
+  }
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -71,7 +86,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the source URL is changed",
+            helpText: "when the source URL is changed",
             propertyName: "onURLChanged",
             label: "onURLChanged",
             controlType: "ACTION_SELECTOR",
@@ -80,7 +95,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the srcDoc is changed",
+            helpText: "when the srcDoc is changed",
             propertyName: "onSrcDocChanged",
             label: "onSrcDocChanged",
             controlType: "ACTION_SELECTOR",
@@ -89,7 +104,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when a message event is received",
+            helpText: "when a message event is received",
             propertyName: "onMessageReceived",
             label: "onMessageReceived",
             controlType: "ACTION_SELECTOR",

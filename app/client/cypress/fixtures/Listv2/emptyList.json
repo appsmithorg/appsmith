@@ -1,0 +1,208 @@
+
+
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 560,
+    "containerStyle": "none",
+    "snapRows": 52,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 73,
+    "minHeight": 530,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+        {
+            "currentItemsView": "{{[]}}",
+            "triggeredItemView": "{{{}}}",
+            "widgetName": "List1",
+            "requiresFlatWidgetChildren": true,
+            "listData": [
+                {
+                    "id": "001",
+                    "name": "Blue",
+                    "img": "https://assets.appsmith.com/widgets/default.png"
+                },
+                {
+                    "id": "002",
+                    "name": "Green",
+                    "img": "https://assets.appsmith.com/widgets/default.png"
+                },
+                {
+                    "id": "003",
+                    "name": "Red",
+                    "img": "https://assets.appsmith.com/widgets/default.png"
+                }
+            ],
+            "isCanvas": true,
+            "displayName": "List V2",
+            "iconSVG": "/static/media/icon.9925ee17dee37bf1ba7374412563a8a7.svg",
+            "topRow": 8,
+            "bottomRow": 48,
+            "pageSize": 3,
+            "parentRowSpace": 10,
+            "type": "LIST_WIDGET_V2",
+            "hideCard": false,
+            "templateBottomRow": 16,
+            "mainContainerId": "7umhfhpt84",
+            "animateLoading": true,
+            "primaryKeys": "{{List1.listData.map((currentItem, currentIndex) => currentItem[\"id\"] )}}",
+            "parentColumnSpace": 18.0625,
+            "dynamicTriggerPathList": [],
+            "dynamicBindingPathList": [
+                {
+                    "key": "currentItemsView"
+                },
+                {
+                    "key": "selectedItemView"
+                },
+                {
+                    "key": "triggeredItemView"
+                },
+                {
+                    "key": "primaryKeys"
+                }
+            ],
+            "leftColumn": 6,
+            "gridType": "vertical",
+            "enhancements": true,
+            "children": [
+                {
+                    "widgetName": "Canvas1",
+                    "displayName": "Canvas",
+                    "topRow": 0,
+                    "bottomRow": 400,
+                    "parentRowSpace": 1,
+                    "type": "CANVAS_WIDGET",
+                    "canExtend": false,
+                    "hideCard": true,
+                    "dropDisabled": true,
+                    "openParentPropertyPane": true,
+                    "minHeight": 400,
+                    "noPad": true,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "dynamicBindingPathList": [],
+                    "children": [
+                        {
+                            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                            "widgetName": "Container1",
+                            "borderColor": "#E0DEDE",
+                            "disallowCopy": true,
+                            "isCanvas": true,
+                            "displayName": "Container",
+                            "iconSVG": "/static/media/icon.1977dca3370505e2db3a8e44cfd54907.svg",
+                            "searchTags": [
+                                "div",
+                                "parent",
+                                "group"
+                            ],
+                            "topRow": 0,
+                            "bottomRow": 12,
+                            "dragDisabled": true,
+                            "type": "CONTAINER_WIDGET",
+                            "hideCard": false,
+                            "shouldScrollContents": false,
+                            "isDeletable": false,
+                            "animateLoading": true,
+                            "leftColumn": 0,
+                            "dynamicBindingPathList": [
+                                {
+                                    "key": "borderRadius"
+                                },
+                                {
+                                    "key": "boxShadow"
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "widgetName": "Canvas2",
+                                    "displayName": "Canvas",
+                                    "topRow": 0,
+                                    "bottomRow": 380,
+                                    "parentRowSpace": 1,
+                                    "type": "CANVAS_WIDGET",
+                                    "canExtend": false,
+                                    "hideCard": true,
+                                    "parentColumnSpace": 1,
+                                    "leftColumn": 0,
+                                    "dynamicBindingPathList": [],
+                                    "children": [],
+                                    "key": "sy5b4y6285",
+                                    "isDeprecated": false,
+                                    "detachFromLayout": true,
+                                    "widgetId": "21xwelebbn",
+                                    "containerStyle": "none",
+                                    "isVisible": true,
+                                    "version": 1,
+                                    "parentId": "7umhfhpt84",
+                                    "renderMode": "CANVAS",
+                                    "isLoading": false
+                                }
+                            ],
+                            "borderWidth": "1",
+                            "key": "ez435od3vw",
+                            "backgroundColor": "white",
+                            "isDeprecated": false,
+                            "rightColumn": 64,
+                            "dynamicHeight": "FIXED",
+                            "widgetId": "7umhfhpt84",
+                            "containerStyle": "card",
+                            "isVisible": true,
+                            "version": 1,
+                            "parentId": "d406dnjtcs",
+                            "renderMode": "CANVAS",
+                            "isLoading": false,
+                            "disabledWidgetFeatures": [
+                                "dynamicHeight"
+                            ],
+                            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                            "maxDynamicHeight": 9000,
+                            "minDynamicHeight": 10
+                        }
+                    ],
+                    "key": "sy5b4y6285",
+                    "isDeprecated": false,
+                    "rightColumn": 433.5,
+                    "detachFromLayout": true,
+                    "widgetId": "d406dnjtcs",
+                    "containerStyle": "none",
+                    "isVisible": true,
+                    "version": 1,
+                    "parentId": "a7cialjjpe",
+                    "renderMode": "CANVAS",
+                    "isLoading": false
+                }
+            ],
+            "passThroughPropsKeys": [
+                "level",
+                "levelData",
+                "prefixMetaWidgetId"
+            ],
+            "key": "dohmr2cbc6",
+            "itemGap": 0,
+            "backgroundColor": "transparent",
+            "isDeprecated": false,
+            "rightColumn": 59,
+            "itemBackgroundColor": "#FFFFFF",
+            "widgetId": "a7cialjjpe",
+            "isVisible": true,
+            "parentId": "0",
+            "hasMetaWidgets": true,
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mainCanvasId": "d406dnjtcs",
+            "selectedItemView": "{{{}}}"
+        }
+    ]
+  }
+}

@@ -1,17 +1,12 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import {
-  Icon,
-  IconSize,
-  MenuItem,
-  MenuItemProps,
-  Menu,
-  Table,
-} from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { Icon, IconSize, MenuItem, Menu, Table } from "design-system-old";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-import { ListingProps, ListingType } from "./types";
+import type { ListingProps } from "./types";
+import { ListingType } from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -23,6 +18,7 @@ const ListingWrapper = styled.div`
   table {
     border-collapse: separate;
     table-layout: fixed;
+    height: 100%;
     thead {
       background: var(--appsmith-color-black-0);
       z-index: 1;
@@ -58,10 +54,6 @@ const ListingWrapper = styled.div`
           border-bottom: 1px solid var(--appsmith-color-black-200);
           word-break: break-all;
 
-          &:first-child {
-            color: var(--appsmith-color-black-800);
-          }
-
           span.bp3-popover-target > * {
             justify-content: end;
           }
@@ -87,6 +79,11 @@ const ListingWrapper = styled.div`
             &.active {
               visibility: visible;
             }
+          }
+
+          .user-email-link {
+            display: block;
+            height: 100%;
           }
         }
 

@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -84,7 +85,7 @@ public class Aggregate extends MongoCommand {
                     commandDocument.put("pipeline", arrayListFromInput);
                 }
             } catch (JsonParseException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Array of Pipelines could not be parsed into expected Mongo BSON Array format.");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.PIPELINE_ARRAY_PARSING_FAILED_ERROR_MSG, e.getMessage());
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array
@@ -92,7 +93,7 @@ public class Aggregate extends MongoCommand {
             // check for enclosing curly bracket to make json validation more strict
             final String jsonObject = this.pipeline.trim();
             if (jsonObject.charAt(jsonObject.length() - 1) != '}') {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Pipeline stage is not a valid JSON object.");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
             }
 
             Document document = parseSafely("Array of Pipelines", this.pipeline);

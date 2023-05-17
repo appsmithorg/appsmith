@@ -5,16 +5,17 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Icon, IconSize, Text, TextType } from "design-system-old";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { Template as TemplateInterface } from "api/TemplatesApi";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   getActiveTemplateSelector,
+  getForkableWorkspaces,
   isFetchingTemplateSelector,
 } from "selectors/templatesSelectors";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
@@ -148,6 +149,7 @@ function TemplateView() {
     (state: AppState) => state.ui.templates.similarTemplates,
   );
   const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
+  const workspaceList = useSelector(getForkableWorkspaces);
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -219,6 +221,7 @@ function TemplateView() {
           </TemplateViewWrapper>
           <SimilarTemplates
             breakpointCols={breakpointColumnsObject}
+            isForkingEnabled={!!workspaceList.length}
             onBackPress={goToTemplateListView}
             onClick={onSimilarTemplateClick}
             similarTemplates={similarTemplates}

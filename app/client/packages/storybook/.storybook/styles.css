@@ -1,0 +1,17 @@
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+*,
+:after,
+:before {
+  border: 0 solid #e4e4e7;
+  box-sizing: border-box;
+}
+
+.innerZoomElementWrapper > * {
+  overflow: hidden;
+}

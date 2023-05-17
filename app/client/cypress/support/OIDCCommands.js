@@ -53,9 +53,7 @@ Cypress.Commands.add("fillOIDCform", () => {
       deleteScope(N);
     });
   cy.get(oidcform.scope).type(oidcData.scope);
-  cy.get(oidcform.userAttribute)
-    .clear()
-    .type(oidcData.userAttribute);
+  cy.get(oidcform.userAttribute).clear().type(oidcData.userAttribute);
   cy.get(".openid_tag").within(() => {
     cy.get("button.bp3-tag-remove").should("not.be.visible");
   });

@@ -1,5 +1,5 @@
-import { extractIdentifierInfoFromCode } from "../src/index";
-import { parseJSObjectWithAST } from "../src/jsObject";
+import { parseJSObject } from "../index";
+import { extractIdentifierInfoFromCode, isFunctionPresent } from "../src/index";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
@@ -306,7 +306,7 @@ describe("getAllIdentifiers", () => {
       const { references } = extractIdentifierInfoFromCode(
         perCase.script,
         2,
-        perCase.invalidIdentifiers
+        perCase.invalidIdentifiers,
       );
       expect(references).toStrictEqual(perCase.expectedResults);
     });
@@ -315,7 +315,7 @@ describe("getAllIdentifiers", () => {
 
 describe("parseJSObjectWithAST", () => {
   it("parse js object", () => {
-    const body = `{
+    const body = `export default{
 	myVar1: [],
 	myVar2: {},
 	myFun1: () => {
@@ -325,36 +325,84 @@ describe("parseJSObjectWithAST", () => {
 		//use async-await or promises
 	}
 }`;
-    const parsedObject = [
+
+    const expectedParsedObject = [
       {
         key: "myVar1",
         value: "[]",
+        rawContent: "myVar1: []",
         type: "ArrayExpression",
+        position: {
+          startLine: 2,
+          startColumn: 1,
+          endLine: 2,
+          endColumn: 11,
+          keyStartLine: 2,
+          keyEndLine: 2,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
       },
       {
         key: "myVar2",
         value: "{}",
+        rawContent: "myVar2: {}",
         type: "ObjectExpression",
+        position: {
+          startLine: 3,
+          startColumn: 1,
+          endLine: 3,
+          endColumn: 11,
+          keyStartLine: 3,
+          keyEndLine: 3,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
       },
       {
         key: "myFun1",
         value: "() => {}",
+        rawContent: "myFun1: () => {\n\t\t//write code here\n\t}",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 4,
+          startColumn: 1,
+          endLine: 6,
+          endColumn: 2,
+          keyStartLine: 4,
+          keyEndLine: 4,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
         arguments: [],
+        isMarkedAsync: false,
       },
       {
         key: "myFun2",
         value: "async () => {}",
+        rawContent:
+          "myFun2: async () => {\n\t\t//use async-await or promises\n\t}",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 7,
+          startColumn: 1,
+          endLine: 9,
+          endColumn: 2,
+          keyStartLine: 7,
+          keyEndLine: 7,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
         arguments: [],
+        isMarkedAsync: true,
       },
     ];
-    const resultParsedObject = parseJSObjectWithAST(body);
-    expect(resultParsedObject).toStrictEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with literal", () => {
-    const body = `{
+    const body = `export default{
 	myVar1: [],
 	myVar2: {
 		"a": "app",
@@ -366,36 +414,83 @@ describe("parseJSObjectWithAST", () => {
 		//use async-await or promises
 	}
 }`;
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myVar1",
         value: "[]",
+        rawContent: "myVar1: []",
         type: "ArrayExpression",
+        position: {
+          startLine: 2,
+          startColumn: 1,
+          endLine: 2,
+          endColumn: 11,
+          keyStartLine: 2,
+          keyEndLine: 2,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
       },
       {
         key: "myVar2",
         value: '{\n  "a": "app"\n}',
+        rawContent: 'myVar2: {\n\t\t"a": "app",\n\t}',
         type: "ObjectExpression",
+        position: {
+          startLine: 3,
+          startColumn: 1,
+          endLine: 5,
+          endColumn: 2,
+          keyStartLine: 3,
+          keyEndLine: 3,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
       },
       {
         key: "myFun1",
         value: "() => {}",
+        rawContent: "myFun1: () => {\n\t\t//write code here\n\t}",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 6,
+          startColumn: 1,
+          endLine: 8,
+          endColumn: 2,
+          keyStartLine: 6,
+          keyEndLine: 6,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
         arguments: [],
+        isMarkedAsync: false,
       },
       {
         key: "myFun2",
         value: "async () => {}",
+        rawContent:
+          "myFun2: async () => {\n\t\t//use async-await or promises\n\t}",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 9,
+          startColumn: 1,
+          endLine: 11,
+          endColumn: 2,
+          keyStartLine: 9,
+          keyEndLine: 9,
+          keyStartColumn: 1,
+          keyEndColumn: 7,
+        },
         arguments: [],
+        isMarkedAsync: true,
       },
     ];
-    const resultParsedObject = parseJSObjectWithAST(body);
-    expect(resultParsedObject).toStrictEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with variable declaration inside function", () => {
-    const body = `{
+    const body = `export default{
       myFun1: () => {
         const a = {
           conditions: [],
@@ -408,89 +503,190 @@ describe("parseJSObjectWithAST", () => {
         //use async-await or promises
       }
     }`;
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myFun1",
-        value: `() => {
-  const a = {
-    conditions: [],
-    requires: 1,
-    testFunc: () => {},
-    testFunc2: function () {}
-  };
-}`,
+        value:
+          "() => {\n" +
+          "  const a = {\n" +
+          "    conditions: [],\n" +
+          "    requires: 1,\n" +
+          "    testFunc: () => {},\n" +
+          "    testFunc2: function () {}\n" +
+          "  };\n" +
+          "}",
+        rawContent:
+          "myFun1: () => {\n" +
+          "        const a = {\n" +
+          "          conditions: [],\n" +
+          "          requires: 1,\n" +
+          "          testFunc: () => {},\n" +
+          "          testFunc2: function(){}\n" +
+          "        };\n" +
+          "      }",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 2,
+          startColumn: 6,
+          endLine: 9,
+          endColumn: 7,
+          keyStartLine: 2,
+          keyEndLine: 2,
+          keyStartColumn: 6,
+          keyEndColumn: 12,
+        },
         arguments: [],
+        isMarkedAsync: false,
       },
       {
         key: "myFun2",
         value: "async () => {}",
+        rawContent:
+          "myFun2: async () => {\n        //use async-await or promises\n      }",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 10,
+          startColumn: 6,
+          endLine: 12,
+          endColumn: 7,
+          keyStartLine: 10,
+          keyEndLine: 10,
+          keyStartColumn: 6,
+          keyEndColumn: 12,
+        },
         arguments: [],
+        isMarkedAsync: true,
       },
     ];
-    const resultParsedObject = parseJSObjectWithAST(body);
-    expect(resultParsedObject).toStrictEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with params of all types", () => {
-    const body = `{
+    const body = `export default{
       myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {
         //use async-await or promises
       },
     }`;
 
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myFun2",
         value:
           'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue()) => {}',
+        rawContent:
+          'myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {\n' +
+          "        //use async-await or promises\n" +
+          "      }",
         type: "ArrowFunctionExpression",
+        position: {
+          startLine: 2,
+          startColumn: 6,
+          endLine: 4,
+          endColumn: 7,
+          keyStartLine: 2,
+          keyEndLine: 2,
+          keyStartColumn: 6,
+          keyEndColumn: 12,
+        },
         arguments: [
-          {
-            paramName: "a",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "b",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "c",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "d",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "e",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "f",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "g",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "h",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "i",
-            defaultValue: undefined,
-          },
-          {
-            paramName: "j",
-            defaultValue: undefined,
-          },
+          { paramName: "a", defaultValue: undefined },
+          { paramName: "b", defaultValue: undefined },
+          { paramName: "c", defaultValue: undefined },
+          { paramName: "d", defaultValue: undefined },
+          { paramName: "e", defaultValue: undefined },
+          { paramName: "f", defaultValue: undefined },
+          { paramName: "g", defaultValue: undefined },
+          { paramName: "h", defaultValue: undefined },
+          { paramName: "i", defaultValue: undefined },
+          { paramName: "j", defaultValue: undefined },
         ],
+        isMarkedAsync: true,
       },
     ];
-    const resultParsedObject = parseJSObjectWithAST(body);
-    expect(resultParsedObject).toEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
+  });
+});
+
+describe("isFunctionPresent", () => {
+  it("should return true if function is present", () => {
+    const code = "function myFun(){}";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true if arrow function is present", () => {
+    const code = "const myFun = () => {}";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return false if function is absent", () => {
+    const code = "const a = { key: 'value' }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(false);
+  });
+
+  it("should return false for a string", () => {
+    const code = "Hello world {{appsmith.store.name}}!!";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(false);
+  });
+
+  it("should return true for shorthand arrow function", () => {
+    const code = "const myFun = () => 'value'";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for IFFE function", () => {
+    const code = "(function myFun(){ console.log('hello') })()";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with parameters", () => {
+    const code = "function myFun(arg1, arg2){ console.log(arg1, arg2); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with parameters", () => {
+    const code = "function myFun(arg1, arg2){ console.log(arg1, arg2); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for higher order functions", () => {
+    const code = "function myFun(cb){ const val = cb(); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with promises", () => {
+    const code = "async function myFun(promise){ const val = await promise; }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
   });
 });

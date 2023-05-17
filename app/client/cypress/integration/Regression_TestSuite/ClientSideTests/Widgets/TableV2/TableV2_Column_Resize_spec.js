@@ -1,12 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../../fixtures/tableV2ResizedColumnsDsl.json");
 
-describe("Table Widget V2 Functionality with Hidden and Resized Columns", function() {
+describe("Table Widget V2 Functionality with Hidden and Resized Columns", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Table Widget Functionality with Hidden and Resized Columns", function() {
+  it("1. Table Widget Functionality with Hidden and Resized Columns", function () {
     cy.PublishtheApp();
     // Verify column header width should be equal to table width
     cy.get(".t--widget-tablewidgetv2")

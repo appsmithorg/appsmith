@@ -5,7 +5,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let propPane = ObjectsRegistry.PropertyPane,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Binding the list widget with text widget", function() {
+describe("Binding the list widget with text widget", function () {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
@@ -13,7 +13,7 @@ describe("Binding the list widget with text widget", function() {
     cy.wait(3000); //for dsl to settle
   });
 
-  it("1. Validate text widget data based on changes in list widget Data1", function() {
+  it("1. Validate text widget data based on changes in list widget Data1", function () {
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
@@ -35,7 +35,7 @@ describe("Binding the list widget with text widget", function() {
     );
   });
 
-  it("2. Validate text widget data based on changes in list widget Data2", function() {
+  it("2. Validate text widget data based on changes in list widget Data2", function () {
     cy.SearchEntityandOpen("List1");
     propPane.UpdatePropertyFieldValue(
       "Items",
@@ -70,7 +70,7 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("3. Validate text widget data based on changes in list widget Data3", function() {
+  it("3. Validate text widget data based on changes in list widget Data3", function () {
     cy.SearchEntityandOpen("List1");
     propPane.UpdatePropertyFieldValue(
       "Items",
@@ -102,7 +102,7 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  after(function() {
+  after(function () {
     //-- Deleting the application by Api---//
     cy.DeleteAppByApi();
     //-- LogOut Application---//

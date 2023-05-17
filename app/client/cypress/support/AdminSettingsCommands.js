@@ -9,7 +9,9 @@ const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
 const oidcform = require("../locators/OIDCForm.json");
 const oidcData = require("../fixtures/oidcSource.json");
-const adminSettings = require("../locators/AdminsSettings");
+import adminSettings from "../locators/AdminsSettings";
+
+const BASE_URL = Cypress.config().baseUrl;
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
   cy.get(googleForm.googleClientId)
@@ -22,15 +24,19 @@ Cypress.Commands.add("fillGoogleFormPartly", () => {
 });
 
 Cypress.Commands.add("fillGoogleForm", () => {
-  cy.get(googleForm.googleClientId)
-    .clear()
-    .type(Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"));
-  cy.get(googleForm.googleClientSecret)
-    .clear()
-    .type(Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET"));
-  cy.get(googleForm.googleAllowedDomains)
-    .clear()
-    .type(googleData.googleAllowedDomains);
+  const baseUrl = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
+  cy.get(googleForm.googleJSOriginUrl).should("have.value", `${baseUrl}`);
+  cy.get(googleForm.googleRedirectUrl).should(
+    "have.value",
+    `${baseUrl}/login/oauth2/code/google`,
+  );
+  cy.get(googleForm.googleClientId).type(
+    Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"),
+  );
+  cy.get(googleForm.googleClientSecret).type(
+    Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET"),
+  );
+  cy.get(googleForm.googleAllowedDomains).type(googleData.googleAllowedDomains);
   cy.get(googleForm.saveBtn).click({ force: true });
 });
 

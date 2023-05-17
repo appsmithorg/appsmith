@@ -2,7 +2,7 @@ const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
-describe("MultiSelect Widget Functionality", function() {
+describe("MultiSelect Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

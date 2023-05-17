@@ -5,7 +5,7 @@ const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Others tab permission Tests", function() {
+describe("Others tab permission Tests", function () {
   let workspaceName;
   let appName;
   let newWorkspaceName;
@@ -45,19 +45,13 @@ describe("Others tab permission Tests", function() {
       cy.EditWorkspaceRole(EditWorkspaceRole, workspaceName);
       cy.DeleteWorkspaceRole(DeleteWorkspaceRole, workspaceName);
       // add delete app permission
-      cy.get(RBAC.roleRow)
-        .first()
-        .click();
+      cy.get(RBAC.roleRow).first().click();
       cy.wait("@fetchRoles").should(
         "have.nested.property",
         "response.body.responseMeta.status",
         200,
       );
-      cy.contains("td", `${workspaceName}`)
-        .next()
-        .next()
-        .next()
-        .click();
+      cy.contains("td", `${workspaceName}`).next().next().next().click();
       cy.get(RBAC.saveButton).click();
       // save api call
       cy.wait(2000);
@@ -78,7 +72,7 @@ describe("Others tab permission Tests", function() {
     });
   });
 
-  it("1. Verify user with ViewAuditlogsRole is able to view audit logs", function() {
+  it("1. Verify user with ViewAuditlogsRole is able to view audit logs", function () {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
@@ -97,7 +91,7 @@ describe("Others tab permission Tests", function() {
     );
   });
 
-  it("2. Verify user with ViewAuditlogsRole is able to view audit logs and verify logs", function() {
+  it("2. Verify user with ViewAuditlogsRole is able to view audit logs and verify logs", function () {
     cy.get(locators.RowsContainer)
       .children()
       .should("have.length.greaterThan", 1)
@@ -113,7 +107,7 @@ describe("Others tab permission Tests", function() {
       });
   });
 
-  it("3. Verify user with CreateWorkspaceRole is able to create new workspace ", function() {
+  it("3. Verify user with CreateWorkspaceRole is able to create new workspace ", function () {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -122,7 +116,7 @@ describe("Others tab permission Tests", function() {
     cy.LogOut();
   });
 
-  it("4. Verify user with EditWorkspaceRole is able to edit workspace ", function() {
+  it("4. Verify user with EditWorkspaceRole is able to edit workspace ", function () {
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
@@ -137,7 +131,7 @@ describe("Others tab permission Tests", function() {
     cy.get(locators.AdminSettingsEntryLink).should("not.exist");
   });
 
-  it("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function() {
+  it("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function () {
     cy.visit("/applications");
     cy.wait(2000);
     cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
@@ -179,7 +173,7 @@ describe("Others tab permission Tests", function() {
     );
   });
 
-  it("6. Verify user with EditWorkspaceRole is able to edit general settings", function() {
+  it("6. Verify user with EditWorkspaceRole is able to edit general settings", function () {
     const fixturePath = "appsmithlogo.png";
     cy.xpath(homePage.uploadLogo).attachFile(fixturePath);
     cy.wait("@updateLogo").should(
@@ -212,18 +206,14 @@ describe("Others tab permission Tests", function() {
     cy.LogOut();
   });
 
-  it("7. Verify user with DeleteWorkspaceRole is able to delete workspace ", function() {
+  it("7. Verify user with DeleteWorkspaceRole is able to delete workspace ", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
     cy.visit("/applications");
     // delete app
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.wait(2000);
     cy.get(homePage.appMoreIcon)
       .should("have.length", 1)
@@ -232,9 +222,7 @@ describe("Others tab permission Tests", function() {
     cy.get(homePage.deleteAppConfirm)
       .should("be.visible")
       .click({ force: true });
-    cy.get(homePage.deleteApp)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(homePage.deleteApp).should("be.visible").click({ force: true });
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
     // delete workspace

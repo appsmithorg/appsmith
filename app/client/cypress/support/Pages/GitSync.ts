@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
-const GITEA_API_BASE = "http://35.154.225.218";
+//const GITEA_API_BASE = "http://35.154.225.218";
+
 import datasourceFormData from "../../fixtures/datasources.json";
 
 export class GitSync {
@@ -34,7 +35,7 @@ export class GitSync {
   }
 
   CreateNConnectToGit(
-    repoName: string = "Test",
+    repoName = "Test",
     assertConnect = true,
     privateFlag = false,
   ) {
@@ -51,10 +52,21 @@ export class GitSync {
     });
   }
 
+  public CreateTestGiteaRepo(repo: string, privateFlag = false) {
+    cy.request({
+      method: "POST",
+      url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/org/Cypress/repos`,
+      headers: {
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+      },
+      body: {
+        name: repo,
+        private: privateFlag,
+      },
+    });
+  }
+
   public AuthorizeKeyToGitea(repo: string, assertConnect = true) {
-    // const testEmail = "test@test.com";
-    // const testUsername = "testusername";
-    const owner = Cypress.env("TEST_GITHUB_USER_NAME");
     let generatedKey;
     this.OpenGitSyncModal();
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
@@ -68,7 +80,7 @@ export class GitSync {
     );
     this.agHelper.TypeText(
       this._gitRepoInput,
-      `git@35.154.225.218:CI-Gitea/${repo}.git`,
+      `${datasourceFormData["GITEA_API_URL_TED"]}/${repo}.git`,
       //`git@github.com:${owner}/${repo}.git`,
     );
 
@@ -80,7 +92,7 @@ export class GitSync {
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
-        url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}/keys`,
+        url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}/keys`,
         headers: {
           Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
@@ -100,12 +112,44 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo", 200, 40000);//Increasing wait time for GitRepo to create in Gitea
+        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
     });
   }
+
+  DeleteTestGithubRepo(repo: any) {
+    cy.request({
+      method: "DELETE",
+      url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}`,
+      headers: {
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+      },
+    });
+  }
+
+  CreateGitBranch(branch = "Test", toUseNewGuid = false) {
+    if (toUseNewGuid) this.agHelper.GenerateUUID();
+    this.agHelper.AssertElementExist(this._bottomBarCommit);
+    this.agHelper.GetNClick(this._branchButton);
+    this.agHelper.Sleep(2000); //branch pop up to open
+    cy.get("@guid").then((uid) => {
+      //using the same uid as generated during CreateNConnectToGit
+      this.agHelper.TypeText(
+        this._branchSearchInput,
+        `{selectall}` + `${branch + uid}` + `{enter}`,
+        0,
+        true,
+      );
+      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
+      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
+      cy.wrap(branch + uid).as("gitbranchName");
+    });
+  }
+
+  //#region Unused methods
 
   private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
     let generatedKey;
@@ -122,13 +166,13 @@ export class GitSync {
     cy.wait(`@generateKey`).then((result: any) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-      var formdata = new FormData();
+      let formdata = new FormData();
       cy.log("generatedKey is " + generatedKey);
       formdata.set("sshkey", generatedKey);
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
-        url: `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addgitssh`,
+        url: `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addgitssh`,
         //body: formdata,
         body: {
           sshkey: generatedKey,
@@ -184,26 +228,12 @@ export class GitSync {
     });
   }
 
-  public CreateTestGiteaRepo(repo: string, privateFlag = false) {
-    cy.request({
-      method: "POST",
-      url: `${GITEA_API_BASE}:3000/api/v1/org/CI-Gitea/repos`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-      },
-      body: {
-        name: repo,
-        private: privateFlag,
-      },
-    });
-  }
-
   private CreateLocalGithubRepo(repo: string) {
-    let remoteUrl: string = "";
+    let remoteUrl = "";
     cy.request({
       method: "GET",
       url:
-        `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addrepo?reponame=` +
+        `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addrepo?reponame=` +
         repo,
     }).then((response) => {
       remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");
@@ -213,33 +243,5 @@ export class GitSync {
     });
   }
 
-  DeleteTestGithubRepo(repo: any) {
-    cy.request({
-      method: "DELETE",
-      url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-      },
-    });
-  }
-
-  CreateGitBranch(branch: string = "Test", toUseNewGuid = false) {
-    if (toUseNewGuid) this.agHelper.GenerateUUID();
-    this.agHelper.AssertElementExist(this._bottomBarCommit);
-    this.agHelper.GetNClick(this._branchButton);
-    this.agHelper.Sleep(2000); //branch pop up to open
-    cy.get("@guid").then((uid) => {
-      //using the same uid as generated during CreateNConnectToGit
-      this.agHelper.TypeText(
-        this._branchSearchInput,
-        `{selectall}` + `${branch + uid}` + `{enter}`,
-        0,
-        true,
-      );
-      this.agHelper.AssertElementExist(this.locator._runBtnSpinner);
-      this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 70000); //Since page taking more time to laod in some cases
-      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
-      cy.wrap(branch + uid).as("gitbranchName");
-    });
-  }
+  //#endregion
 }

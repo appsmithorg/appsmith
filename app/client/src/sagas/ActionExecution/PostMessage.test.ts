@@ -6,9 +6,12 @@ describe("PostMessageSaga", () => {
   describe("postMessageSaga function", () => {
     const generator = postMessageSaga(
       {
-        message: "hello world",
-        source: "window",
-        targetOrigin: "https://dev.appsmith.com",
+        type: "POST_MESSAGE",
+        payload: {
+          message: "hello world",
+          source: "window",
+          targetOrigin: "https://dev.appsmith.com",
+        },
       },
       {},
     );

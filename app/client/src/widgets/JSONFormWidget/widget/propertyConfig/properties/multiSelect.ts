@@ -1,26 +1,27 @@
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
-import { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { JSONFormWidgetProps } from "../..";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import type { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
   props: JSONFormWidgetProps,
   _: any,
 ): ValidationResponse {
-  const DEFAULT_ERROR_MESSAGE =
-    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-  const UNIQUE_ERROR_MESSAGE = "value must be unique. Duplicate values found";
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    message:
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+  };
+  const UNIQUE_ERROR_MESSAGE = {
+    name: "ValidationError",
+    message: "value must be unique. Duplicate values found",
+  };
 
   const hasUniqueValues = (arr: unknown[]) => {
     const uniqueValues = new Set(arr);
@@ -64,7 +65,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -115,7 +116,7 @@ export function defaultOptionValueValidation(
   return {
     isValid: true,
     parsed: values,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 
@@ -202,7 +203,7 @@ const PROPERTIES = {
   actions: [
     {
       propertyName: "onOptionChange",
-      helpText: "Triggers an action when a user selects an option",
+      helpText: "when a user selects an option",
       label: "onOptionChange",
       controlType: "ACTION_SELECTOR",
       isJSConvertible: true,
@@ -292,7 +293,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onOptionChange",
-        helpText: "Triggers an action when a user selects an option",
+        helpText: "when a user selects an option",
         label: "onOptionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

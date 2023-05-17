@@ -1,28 +1,28 @@
 import React from "react";
 import { isString } from "lodash";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
-import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import type { Schema, SchemaItem } from "widgets/JSONFormWidget/constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FIELD_TYPE_TO_POTENTIAL_DATA,
   getBindingTemplate,
   ROOT_SCHEMA_KEY,
-  Schema,
-  SchemaItem,
 } from "widgets/JSONFormWidget/constants";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -125,7 +125,8 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

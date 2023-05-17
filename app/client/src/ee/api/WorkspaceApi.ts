@@ -1,7 +1,7 @@
 export * from "ce/api/WorkspaceApi";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
-import { AxiosPromise } from "axios";
+import type { ApiResponse } from "api/ApiResponses";
+import type { AxiosPromise } from "axios";
 import { default as CE_WorkspaceApi } from "ce/api/WorkspaceApi";
 
 export interface ChangeUserRoleRequest {

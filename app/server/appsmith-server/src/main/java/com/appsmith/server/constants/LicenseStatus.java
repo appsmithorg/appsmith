@@ -2,5 +2,6 @@ package com.appsmith.server.constants;
 
 public enum LicenseStatus {
     ACTIVE,
-    EXPIRED
+    EXPIRED,
+    IN_GRACE_PERIOD
 }

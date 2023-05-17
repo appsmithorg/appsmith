@@ -11,6 +11,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.external.plugins.exceptions.S3ErrorMessages;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError.PLUGIN_ERROR;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_INDEX;
 import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
@@ -78,9 +78,7 @@ public class DatasourceUtils {
                 }
             }
 
-            throw new AppsmithPluginException(PLUGIN_ERROR, "Appsmith S3 plugin service has " +
-                    "failed to identify the S3 service provider type. Please reach out to Appsmith customer support" +
-                    " to resolve this");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, S3ErrorMessages.S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG);
         }
     }
 
@@ -105,8 +103,8 @@ public class DatasourceUtils {
         } catch (IllegalArgumentException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    "Appsmith server has encountered an error when parsing AWS credentials from datasource: "
-                            + e.getMessage()
+                    S3ErrorMessages.AWS_CREDENTIALS_PARSING_ERROR_MSG,
+                    e.getMessage()
             );
         }
 
@@ -128,8 +126,7 @@ public class DatasourceUtils {
                 || StringUtils.isEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    "Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please reach out to" +
-                            " Appsmith customer support to resolve this."
+                    S3ErrorMessages.DS_S3_SERVICE_PROVIDER_PROPERTIES_FETCHING_ERROR_MSG
             );
         }
 
@@ -243,9 +240,7 @@ public class DatasourceUtils {
 
         /* endpoint is expected to be non-null at this point */
         if (!endpoint.matches(regex)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Your S3 endpoint" +
-                    " URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL " +
-                    "and the selected S3 service provider.");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
         }
 
         Pattern pattern = Pattern.compile(regex);
@@ -255,8 +250,6 @@ public class DatasourceUtils {
         }
 
         /* Code flow is never expected to reach here. */
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Your S3 endpoint URL seems to be " +
-                "incorrect for the selected S3 service provider. Please contact Appsmith customer " +
-                "support to resolve this.");
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
     }
 }

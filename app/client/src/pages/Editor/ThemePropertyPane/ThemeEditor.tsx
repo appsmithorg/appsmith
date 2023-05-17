@@ -1,10 +1,7 @@
 import styled, { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
-import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useState } from "react";
-import Save2LineIcon from "remixicon-react/Save2LineIcon";
-import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
 
 import ThemeCard from "./ThemeCard";
 import {
@@ -25,7 +22,7 @@ import {
 } from "actions/appThemingActions";
 import SettingSection from "./SettingSection";
 import SaveThemeModal from "./SaveThemeModal";
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
@@ -40,6 +37,15 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
 import { Colors } from "constants/Colors";
+import { importRemixIcon } from "design-system-old";
+
+const MoreIcon = importRemixIcon(() => import("remixicon-react/MoreFillIcon"));
+const Save2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Save2LineIcon"),
+);
+const ArrowGoBackIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowGoBackFillIcon"),
+);
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
 
@@ -189,7 +195,7 @@ function ThemeEditor() {
                     options={get(
                       selectedTheme,
                       `config.fontFamily.${fontFamilySectionName}`,
-                      {},
+                      [],
                     )}
                     sectionName={fontFamilySectionName}
                     selectedOption={get(

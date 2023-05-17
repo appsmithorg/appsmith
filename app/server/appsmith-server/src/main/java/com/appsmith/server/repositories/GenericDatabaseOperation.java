@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -10,10 +11,11 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.helpers.CollectionUtils;
 
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -23,11 +25,14 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.isPermissionForEntity;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -39,6 +44,49 @@ public class GenericDatabaseOperation {
     public GenericDatabaseOperation(ReactiveMongoOperations mongoOperations, PolicyGenerator policyGenerator) {
         this.mongoOperations = mongoOperations;
         this.policyGenerator = policyGenerator;
+    }
+
+    /**
+     * The method is responsible for flowing the policies present for the application to all the themes which
+     * are related to all the branched applications.
+     * @param application
+     * @return
+     */
+    public Mono<Long> inheritPoliciesFromApplicationForAllRelatedThemes(Application application) {
+        Set<Policy> inheritedThemePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+        Flux<Application> allBranchedApplicationFlux = mongoOperations.query(Application.class)
+                .matching(getBranchedApplicationQuery(application))
+                .all();
+        return allBranchedApplicationFlux
+                .collectList()
+                .flatMap(allBranchedApplications -> {
+                    Set<String> applicationIds = allBranchedApplications.stream()
+                            .map(Application::getId)
+                            .filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
+                    Set<String> editModeThemeIds = allBranchedApplications.stream()
+                            .map(Application::getEditModeThemeId)
+                            .filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
+                    Set<String> publishedModeModeThemeIds = allBranchedApplications.stream()
+                            .map(Application::getPublishedModeThemeId)
+                            .filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
+
+                    List<Criteria> themeIdCriteriaList = new ArrayList<>();
+                    themeIdCriteriaList.add(Criteria.where("applicationId").in(applicationIds));
+                    if (StringUtils.isNotEmpty(application.getPublishedModeThemeId())) {
+                        themeIdCriteriaList.add(Criteria.where("id").in(publishedModeModeThemeIds));
+                    }
+                    if (StringUtils.isNotEmpty(application.getEditModeThemeId())) {
+                        themeIdCriteriaList.add(Criteria.where("id").in(editModeThemeIds));
+                    }
+                    Criteria isNotSystemTheme = Criteria.where("isSystemTheme").is(false);
+
+                    Criteria themeOrOperatorCriteria = new Criteria().orOperator(themeIdCriteriaList);
+                    Criteria requiredThemeCriteria = new Criteria().andOperator(themeOrOperatorCriteria, notDeleted(), isNotSystemTheme);
+                    return mongoOperations.updateMulti(Query.query(requiredThemeCriteria),
+                                    Update.update("policies", inheritedThemePolicies),
+                                    Theme.class)
+                            .thenReturn(1L);
+                });
     }
 
     /**
@@ -213,8 +261,11 @@ public class GenericDatabaseOperation {
     private boolean isConnectedToGit(BaseDomain domain) {
         if(domain instanceof Application) {
             return ((Application) domain).getGitApplicationMetadata() != null && StringUtils.isNotEmpty(((Application) domain).getGitApplicationMetadata().getDefaultApplicationId());
+        } else if (domain instanceof BranchAwareDomain) {
+            BranchAwareDomain branchAwareDomain = (BranchAwareDomain) domain;
+            return branchAwareDomain.getDefaultResources() != null && StringUtils.isNotEmpty(branchAwareDomain.getDefaultResources().getBranchName());
         } else {
-            return domain.getDefaultResources() != null && StringUtils.isNotEmpty(domain.getDefaultResources().getBranchName());
+            return false;
         }
     }
 
@@ -248,6 +299,7 @@ public class GenericDatabaseOperation {
                     Set<Policy> policies = obj.getPolicies();
                     if (!CollectionUtils.isNullOrEmpty(added)) {
                         added.stream()
+                                .filter(aclPermission -> isPermissionForEntity(aclPermission, clazz))
                                 .forEach(aclPermission -> {
                                     Optional<Policy> interestedPolicyOptional = policies.stream().filter(policy -> policy.getPermission().equals(aclPermission.getValue()))
                                             .findFirst();
@@ -267,6 +319,7 @@ public class GenericDatabaseOperation {
 
                     if (!CollectionUtils.isNullOrEmpty(removed)) {
                         removed.stream()
+                                .filter(aclPermission -> isPermissionForEntity(aclPermission, clazz))
                                 .forEach(aclPermission -> {
                                     Optional<Policy> interestedPolicyOptional = policies.stream().filter(policy -> policy.getPermission().equals(aclPermission.getValue()))
                                             .findFirst();
@@ -285,24 +338,28 @@ public class GenericDatabaseOperation {
 
                         // If it is a application, then inherit policies from Application to invisible the pages
                         if(obj instanceof Application) {
-                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(((Application)obj).getGitApplicationMetadata().getDefaultApplicationId())), Update.update("policies", policies), clazz)
-                                    .then(inheritPoliciesForBranchedOnlyPagesFromApplication((Application) obj))
+                            Mono<UpdateResult> updateBranchedApplicationPolicies = mongoOperations.updateMulti(getBranchedApplicationQuery((Application) obj),
+                                    Update.update("policies", policies), clazz);
+                            Mono<Long> inheritPoliciesForInvisibleBranchedPages = inheritPoliciesForBranchedOnlyPagesFromApplication((Application) obj);
+                            Mono<Long> inheritPoliciesFromApplicationForAllRelatedThemes = inheritPoliciesFromApplicationForAllRelatedThemes((Application) obj);
+                            return Mono.when(updateBranchedApplicationPolicies, inheritPoliciesForInvisibleBranchedPages, inheritPoliciesFromApplicationForAllRelatedThemes)
                                     .thenReturn(1L);
                         // If it is a page, then inherit policies from Page to invisible the actions
                         } else if(obj instanceof NewPage) {
-                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(obj.getDefaultResources().getPageId())), Update.update("policies", policies), clazz)
-                                    .then(inheritPoliciesForBranchedOnlyActionsFromPage(((NewPage) obj)))
-                                    .then(inheritPoliciesForBranchedOnlyActionCollectionsFromPage(((NewPage) obj)))
+                            Mono<UpdateResult> updateBranchedPagePolicies = mongoOperations.updateMulti(getBranchedPageQuery((NewPage) obj), Update.update("policies", policies), clazz);
+                            Mono<Long> inheritPoliciesForInvisibleActions = inheritPoliciesForBranchedOnlyActionsFromPage(((NewPage) obj));
+                            Mono<Long> inheritPoliciesForInvisibleActionCollection = inheritPoliciesForBranchedOnlyActionCollectionsFromPage(((NewPage) obj));
+                            return Mono.when(updateBranchedPagePolicies, inheritPoliciesForInvisibleActions, inheritPoliciesForInvisibleActionCollection)
                                     .thenReturn(1L);
                         } else if(obj instanceof NewAction) {
-                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(obj.getDefaultResources().getActionId())), Update.update("policies", policies), clazz)
+                            return mongoOperations.updateMulti(getBranchedActionQuery((NewAction) obj), Update.update("policies", policies), clazz)
                                     .then(Mono.just(1L));
                         } else if(obj instanceof ActionCollection) {
-                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(obj.getDefaultResources().getCollectionId())), Update.update("policies", policies), clazz)
+                            return mongoOperations.updateMulti(getBranchedActionCollectionQuery((ActionCollection) obj), Update.update("policies", policies), clazz)
                                     .then(Mono.just(1L));
                         }
                     }
-                    
+
                     return mongoOperations.save(obj)
                             .thenReturn(1L);
                 });
@@ -353,5 +410,33 @@ public class GenericDatabaseOperation {
 //        }
 //
 //        return Mono.just(0L);
+    }
+
+    private Query getBranchedApplicationQuery(Application application) {
+        Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(application))
+                .is(application.getGitApplicationMetadata().getDefaultApplicationId());
+        Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
+        return Query.query(criteria);
+    }
+
+    private Query getBranchedPageQuery(NewPage newPage) {
+        Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(newPage))
+                .is(newPage.getDefaultResources().getPageId());
+        Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
+        return Query.query(criteria);
+    }
+
+    private Query getBranchedActionQuery(NewAction newAction) {
+        Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(newAction))
+                .is(newAction.getDefaultResources().getActionId());
+        Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
+        return Query.query(criteria);
+    }
+
+    private Query getBranchedActionCollectionQuery(ActionCollection actionCollection) {
+        Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(actionCollection))
+                .is(actionCollection.getDefaultResources().getCollectionId());
+        Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
+        return Query.query(criteria);
     }
 }

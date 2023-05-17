@@ -1,10 +1,10 @@
-import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxActionTypes,
+import type {
   ReduxAction,
   ShowPropertyPanePayload,
 } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export type SelectedPropertyPanel = { [path: string]: number };
 

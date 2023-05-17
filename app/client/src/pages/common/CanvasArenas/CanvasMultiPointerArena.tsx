@@ -118,8 +118,8 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const previousAnimationStep = useRef<number>();
 
   const drawPointers = (animationStep: number) => {
-    const pointerData: PointerDataType = store.getState().ui.appCollab
-      .pointerData;
+    const pointerData: PointerDataType =
+      store.getState().ui.appCollab.pointerData;
     if (previousAnimationStep.current === animationStep) return;
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();

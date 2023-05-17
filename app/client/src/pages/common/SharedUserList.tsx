@@ -1,14 +1,14 @@
 import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
-import UserApi from "@appsmith/api/UserApi";
 import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
 import { ScrollIndicator } from "design-system-old";
-import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
-import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
+import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -22,6 +22,7 @@ const UserImageContainer = styled.div<{ isMobile?: boolean }>`
     border: 1px solid ${(props) => props.theme.colors.homepageBackground};
     display: inline-flex;
   }
+
   div.bp3-popover-arrow {
     display: inline-block;
     transform: translate(3px, 0px);
@@ -40,11 +41,13 @@ const ProfileImageListPopover = styled.ul`
   padding: 5px;
   max-height: 40vh;
   overflow-y: auto;
+
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
   }
+
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 0;
   }
 `;
 
@@ -92,7 +95,11 @@ export default function SharedUserList(props: any) {
         >
           <ProfileImage
             className="workspace-share-user-icons"
-            source={`/api/${UserApi.photoURL}/${el.username}`}
+            source={
+              el.photoId
+                ? `/api/${USER_PHOTO_ASSET_URL}/${el.photoId}`
+                : undefined
+            }
             userName={el.name ? el.name : el.username}
           />
           <ProfileImagePopover>
@@ -118,7 +125,11 @@ export default function SharedUserList(props: any) {
               <ProfileImageListItem key={el.username}>
                 <ProfileImage
                   className="workspace-share-user-icons"
-                  source={`/api/${UserApi.photoURL}/${el.username}`}
+                  source={
+                    el.photoId
+                      ? `/api/${USER_PHOTO_ASSET_URL}/${el.photoId}`
+                      : undefined
+                  }
                   userName={el.name ? el.name : el.username}
                 />
                 <ProfileImageListName>{el.username}</ProfileImageListName>

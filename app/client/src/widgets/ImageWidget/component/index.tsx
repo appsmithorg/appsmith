@@ -1,11 +1,19 @@
 import * as React from "react";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
-import { ReactComponent as RotateLeftIcon } from "assets/icons/widget/image/rotate-left.svg";
-import { ReactComponent as RotateRightIcon } from "assets/icons/widget/image/rotate-right.svg";
-import { ReactComponent as DownloadIcon } from "assets/icons/widget/image/download.svg";
+import { importSvg } from "design-system-old";
+
+const RotateLeftIcon = importSvg(
+  () => import("assets/icons/widget/image/rotate-left.svg"),
+);
+const RotateRightIcon = importSvg(
+  () => import("assets/icons/widget/image/rotate-right.svg"),
+);
+const DownloadIcon = importSvg(
+  () => import("assets/icons/widget/image/download.svg"),
+);
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -170,6 +178,24 @@ class ImageComponent extends React.Component<
     }
     if (this.props.onClick) cursor = "pointer";
 
+    const hasOnClick = Boolean(zoomActive || this.props.onClick);
+
+    const onClick = (
+      event: React.MouseEvent<HTMLElement>,
+      zoomIn: any,
+      zoomOut: any,
+    ) => {
+      if (!this.isPanning) {
+        if (isZoomingIn) {
+          zoomIn(event);
+        } else {
+          zoomOut(event);
+        }
+        this.props.onClick && this.props.onClick(event);
+      }
+      this.isPanning = false;
+    };
+
     if (imageUrl && imageError)
       return (
         <ErrorContainer data-testid="error-container">
@@ -241,17 +267,9 @@ class ImageComponent extends React.Component<
                   imageError={this.state.imageError}
                   {...this.props}
                   data-testid="styledImage"
-                  onClick={(event: React.MouseEvent<HTMLElement>) => {
-                    if (!this.isPanning) {
-                      if (isZoomingIn) {
-                        zoomIn(event);
-                      } else {
-                        zoomOut(event);
-                      }
-                      this.props.onClick && this.props.onClick(event);
-                    }
-                    this.isPanning = false;
-                  }}
+                  onClick={
+                    hasOnClick ? (e) => onClick(e, zoomIn, zoomOut) : undefined
+                  }
                   // Checking if onClick event is associated, changing cursor to pointer.
                   style={{
                     cursor: cursor,

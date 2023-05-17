@@ -1,4 +1,4 @@
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 import { removeEmptyNestedObjects } from "./removeEmptyNestedObjects";
 
 /**

@@ -214,7 +214,7 @@ Note: When a new value of `defaultText` is provided, it overrides the `text` val
 
 Meta properties are properties whose values are transient and not persisted in the application. For example, the user-provided content (*text* property) in the Rich Text Editor Widget is not persisted. However, this content is stored in memory and can be used in bindings.
 
-We can configure these using the `getDefaultPropertiesMap` API.
+We can configure these using the `getMetaPropertiesMap` API.
 
 ```
   static getMetaPropertiesMap(): Record<string, any> {

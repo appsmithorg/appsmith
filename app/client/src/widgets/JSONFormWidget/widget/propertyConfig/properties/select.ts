@@ -1,25 +1,23 @@
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
-import { JSONFormWidgetProps } from "../..";
-import { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import type { JSONFormWidgetProps } from "../..";
+import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
   props: JSONFormWidgetProps,
   _: any,
 ): ValidationResponse {
-  const DEFAULT_ERROR_MESSAGE =
-    'value should match: string | { "label": "label1", "value": "value1" }';
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    message:
+      'value should match: string | { "label": "label1", "value": "value1" }',
+  };
   let value = inputValue;
 
   const hasLabelValueProperties = (
@@ -40,7 +38,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: inputValue,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -55,7 +53,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -64,7 +62,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -121,7 +119,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onOptionChange",
-        helpText: "Triggers an action when a user selects an option",
+        helpText: "when a user selects an option",
         label: "onOptionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

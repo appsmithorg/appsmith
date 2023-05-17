@@ -1,14 +1,12 @@
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { ApiResponse } from "api/ApiResponses";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApiResponse } from "api/ApiResponses";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
-import FeatureFlags from "entities/FeatureFlags";
+import type FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
 // Saga to handle fetching the environment configs

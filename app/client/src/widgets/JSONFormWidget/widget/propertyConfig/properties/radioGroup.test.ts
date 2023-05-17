@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { JSONFormWidgetProps } from "../..";
+import type { JSONFormWidgetProps } from "../..";
 import { optionsValidation } from "./radioGroup";
 
 /**
@@ -21,7 +21,12 @@ describe(".optionsValidation", () => {
     const expectedOutput = {
       isValid: false,
       parsed: [],
-      messages: ["path:value must be unique. Duplicate values found"],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "path:value must be unique. Duplicate values found",
+        },
+      ],
     };
 
     const response = optionsValidation(input, {} as JSONFormWidgetProps, _);
@@ -35,7 +40,12 @@ describe(".optionsValidation", () => {
     const expectedOutput = {
       isValid: false,
       parsed: [],
-      messages: ["Invalid entry at index: 0. Missing required key: label"],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Invalid entry at index: 0. Missing required key: label",
+        },
+      ],
     };
 
     const response = optionsValidation(input, {} as JSONFormWidgetProps, _);
@@ -51,7 +61,12 @@ describe(".optionsValidation", () => {
     const expectedOutput = {
       isValid: false,
       parsed: [],
-      messages: ["All value properties in options must have the same type"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "All value properties in options must have the same type",
+        },
+      ],
     };
 
     const response = optionsValidation(input, {} as JSONFormWidgetProps, _);
@@ -75,7 +90,11 @@ describe(".optionsValidation", () => {
       isValid: false,
       parsed: [],
       messages: [
-        'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+        {
+          name: "TypeError",
+          message:
+            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+        },
       ],
     };
 
@@ -103,7 +122,7 @@ describe(".optionsValidation", () => {
       const expectedOutput = {
         isValid: true,
         parsed: input,
-        messages: [""],
+        messages: [{ name: "", message: "" }],
       };
 
       expect(response).toEqual(expectedOutput);

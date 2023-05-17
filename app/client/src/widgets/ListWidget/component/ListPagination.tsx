@@ -2,7 +2,7 @@ import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
 
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "@design-system/widgets-old";
 
 const locale = {
   // Options.jsx
@@ -431,8 +431,9 @@ export function ServerSideListPagination(props: any) {
       disabled={props.disabled}
     >
       <li
-        className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===
-          1 && "rc-pagination-disabled"}`}
+        className={`t--list-widget-prev-page rc-pagination-prev ${
+          props.pageNo === 1 && "rc-pagination-disabled"
+        }`}
         title="Previous Page"
       >
         <button

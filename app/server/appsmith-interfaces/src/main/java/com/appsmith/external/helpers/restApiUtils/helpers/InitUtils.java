@@ -13,11 +13,11 @@ public class InitUtils {
     public String initializeRequestUrl(ActionConfiguration actionConfiguration,
                                             DatasourceConfiguration datasourceConfiguration ) {
         String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
-        return datasourceConfiguration.getUrl() + path;
+        return datasourceConfiguration.getUrl().trim() + path;
     }
 
     public void initializeResponseWithError(ActionExecutionResult result) {
-        result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+        result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode());
         result.setIsExecutionSuccess(false);
         result.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
     }

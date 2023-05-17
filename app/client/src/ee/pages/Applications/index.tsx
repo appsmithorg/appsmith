@@ -14,7 +14,7 @@ import { resetEditorRequest } from "actions/initActions";
 import { setHeaderMeta } from "actions/themeActions";
 import { createMessage, SEARCH_APPS } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import SubHeader from "pages/common/SubHeader";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
@@ -27,7 +27,7 @@ import {
   getIsDuplicatingApplication,
   getUserApplicationsWorkspacesList,
   getApplicationSearchKeyword,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 
@@ -39,7 +39,7 @@ export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
 export type EE_ApplicationState = CE_Applications.ApplicationState;
 
 const UpgradeBannerWrapper = styled.div`
-  margin: 68px 24px 0 16px;
+  margin: 62px 24px 0 16px;
 `;
 
 export class Applications extends CE_AppClass<
@@ -67,9 +67,11 @@ export class Applications extends CE_AppClass<
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
           {(matches: boolean) => (
             <CE_Applications.ApplicationsWrapper isMobile={matches}>
-              <UpgradeBannerWrapper>
-                {this.props.showBanner && <BEBanner />}
-              </UpgradeBannerWrapper>
+              {this.props.showBanner && (
+                <UpgradeBannerWrapper>
+                  <BEBanner />
+                </UpgradeBannerWrapper>
+              )}
               <SubHeader
                 isBannerVisible={this.props.showWarningBanner}
                 search={{

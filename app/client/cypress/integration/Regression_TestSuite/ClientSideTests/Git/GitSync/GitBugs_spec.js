@@ -5,14 +5,17 @@ const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../../locators/Pages.json");
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../../../fixtures/datasources.json";
+
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
+
 let repoName;
 
-describe("Git sync Bug #10773", function() {
+describe("Git sync Bug #10773", function () {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });
@@ -79,7 +82,7 @@ describe("Git sync Bug #10773", function() {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    _.ee.ExpandCollapseEntity("Queries/JS", true);
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -123,9 +126,7 @@ describe("Git sync Bug #10773", function() {
       "be.visible",
     );
     // switch to Page1 and validate data binding
-    cy.get(".t--page-switch-tab")
-      .contains("Page1")
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -169,7 +170,7 @@ describe("Git sync Bug #10773", function() {
     _.gitSync.DeleteTestGithubRepo(repoName);
   });
 
-  it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+  it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function () {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -177,7 +178,7 @@ describe("Git sync Bug #10773", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    _.ee.ExpandCollapseEntity("Queries/JS", true);
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -265,7 +266,6 @@ describe("Git sync Bug #10773", function() {
           );
         });
       _.gitSync.DeleteTestGithubRepo(repoName);
-      //cy.deleteTestGithubRepo(repoName);
     });
   });
 
@@ -299,7 +299,7 @@ describe("Git sync Bug #10773", function() {
           `generateKey-${repoName}`,
         );
         cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`,
+          `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
         );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();

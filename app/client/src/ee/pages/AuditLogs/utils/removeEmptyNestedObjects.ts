@@ -3,7 +3,7 @@
  * @param object
  */
 export function removeEmptyNestedObjects<
-  T extends Partial<Record<keyof T, unknown>>
+  T extends Partial<Record<keyof T, unknown>>,
 >(object: T): Partial<T> {
   const newObject = { ...object };
 

@@ -27,6 +27,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -148,7 +149,10 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             Map.entry(MANAGE_PERMISSION_GROUPS, EDIT),
             Map.entry(DELETE_PERMISSION_GROUPS, DELETE),
             Map.entry(READ_PERMISSION_GROUPS, VIEW),
-            Map.entry(ASSIGN_PERMISSION_GROUPS, ASSOCIATE_ROLE)
+            Map.entry(ASSIGN_PERMISSION_GROUPS, ASSOCIATE_ROLE),
+
+            //Environment level permissions
+            Map.entry(EXECUTE_ENVIRONMENTS, EXECUTE)
 
     );
 

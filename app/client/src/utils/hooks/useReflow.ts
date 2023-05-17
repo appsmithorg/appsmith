@@ -1,11 +1,14 @@
+import type { AppState } from "@appsmith/reducers";
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
 import { reflow } from "reflow";
-import {
+import type {
   BlockSpace,
   CollidingSpace,
   CollidingSpaceMap,
@@ -23,10 +26,11 @@ import {
   getSpacesMapFromArray,
   willItCauseUndroppableState,
 } from "reflow/reflowUtils";
-import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { AppState } from "@appsmith/reducers";
 import { isCurrentCanvasDragging } from "sagas/selectors";
+import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { getIsResizing } from "selectors/widgetSelectors";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
@@ -67,6 +71,7 @@ export const useReflow = (
   OGPositions: OccupiedSpace[],
   parentId: string,
   gridProps: GridProps,
+  shouldResize = true,
 ): { reflowSpaces: ReflowInterface; resetReflow: () => void } => {
   const dispatch = useDispatch();
   const isReflowingGlobal = useSelector(getIsReflowing);
@@ -74,14 +79,16 @@ export const useReflow = (
   const isDraggingCanvas = useSelector((state: AppState) =>
     isCurrentCanvasDragging(state, parentId),
   );
+  const isResizing = useSelector(getIsResizing);
+
+  const isCanvasDraggingOrResizing = isDraggingCanvas || isResizing;
 
   const throttledDispatch = throttle(dispatch, 50);
 
   const isReflowing = useRef<boolean>(false);
 
-  const reflowSpacesSelector = getContainerWidgetSpacesSelectorWhileMoving(
-    parentId,
-  );
+  const reflowSpacesSelector =
+    getContainerWidgetSpacesSelectorWhileMoving(parentId);
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
   // Store previous values of reflow results
@@ -102,7 +109,7 @@ export const useReflow = (
 
   useEffect(() => {
     //only have it run when the user has completely stopped dragging and stopped Reflowing
-    if (!isReflowingGlobal && !isDraggingCanvas) {
+    if (!isReflowingGlobal && !isCanvasDraggingOrResizing) {
       isReflowing.current = false;
       prevPositions.current = [...OGPositions];
       prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
@@ -111,15 +118,14 @@ export const useReflow = (
       shouldReflowDropTargets.current = false;
     }
 
-    if (!isDraggingCanvas) {
+    if (!isCanvasDraggingOrResizing) {
       clearTimeout(timeOutFunction.current);
       exitContainer.current = undefined;
       mousePointerAtContainerExit.current = undefined;
     }
-  }, [isReflowingGlobal, isDraggingCanvas]);
+  }, [isReflowingGlobal, isCanvasDraggingOrResizing]);
 
   // will become a state if we decide that resize should be a "toggle on-demand" feature
-  const shouldResize = true;
   return {
     reflowSpaces: (
       newPositions: BlockSpace[],
@@ -166,7 +172,8 @@ export const useReflow = (
       );
 
       prevPositions.current = newPositions;
-      prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
+      prevCollidingSpaces.current =
+        collidingSpaceMap as WidgetCollidingSpaceMap;
       prevSecondOrderCollisionMap.current = secondOrderCollisionMap || {};
 
       //store exit container and mouse pointer if we are not reflowing drop targets and it doesn't already have a value
@@ -235,7 +242,8 @@ export const useReflow = (
                   movementLimitMap,
                 });
 
-              prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
+              prevCollidingSpaces.current =
+                collidingSpaceMap as WidgetCollidingSpaceMap;
               prevSecondOrderCollisionMap.current =
                 secondOrderCollisionMap || {};
               prevMovementMap.current = movementMap || {};

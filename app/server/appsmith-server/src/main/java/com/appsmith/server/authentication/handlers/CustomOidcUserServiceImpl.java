@@ -7,9 +7,11 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -36,6 +38,11 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
         this.repository = repository;
         this.userService = userService;
         this.userDataService = userDataService;
+
+        // Override the `webClient` used, for Proxy support.
+        final DefaultReactiveOAuth2UserService defaultUserService = new DefaultReactiveOAuth2UserService();
+        defaultUserService.setWebClient(WebClientUtils.create());
+        setOauth2UserService(defaultUserService);
     }
 
     @Override

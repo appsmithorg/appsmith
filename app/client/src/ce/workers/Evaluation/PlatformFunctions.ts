@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import type { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { ExecutionType } from "@appsmith/workers/Evaluation/Actions";
 import _ from "lodash";
 import uniqueId from "lodash/uniqueId";
-import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
+import type { NavigationTargetType_Dep } from "sagas/ActionExecution/NavigateActionSaga";
 
 export type ActionDescriptionWithExecutionType = ActionDescription & {
   executionType: ExecutionType;
@@ -17,10 +17,10 @@ export const PLATFORM_FUNCTIONS: Record<
   string,
   ActionDispatcherWithExecutionType
 > = {
-  navigateTo: function(
+  navigateTo: function (
     pageNameOrUrl: string,
     params: Record<string, string>,
-    target?: NavigationTargetType,
+    target?: NavigationTargetType_Dep,
   ) {
     return {
       type: "NAVIGATE_TO",
@@ -28,7 +28,7 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
-  showAlert: function(
+  showAlert: function (
     message: string,
     style: "info" | "success" | "warning" | "error" | "default",
   ) {
@@ -38,21 +38,21 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
-  showModal: function(modalName: string) {
+  showModal: function (modalName: string) {
     return {
       type: "SHOW_MODAL_BY_NAME",
       payload: { modalName },
       executionType: ExecutionType.PROMISE,
     };
   },
-  closeModal: function(modalName: string) {
+  closeModal: function (modalName: string) {
     return {
       type: "CLOSE_MODAL",
       payload: { modalName },
       executionType: ExecutionType.PROMISE,
     };
   },
-  storeValue: function(key: string, value: string, persist = true) {
+  storeValue: function (key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
     _.set(self, ["appsmith", "store", key], value);
     return {
@@ -66,28 +66,28 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
-  removeValue: function(key: string) {
+  removeValue: function (key: string) {
     return {
       type: "REMOVE_VALUE",
       payload: { key },
       executionType: ExecutionType.PROMISE,
     };
   },
-  clearStore: function() {
+  clearStore: function () {
     return {
       type: "CLEAR_STORE",
       executionType: ExecutionType.PROMISE,
       payload: null,
     };
   },
-  download: function(data: string, name: string, type: string) {
+  download: function (data: string, name: string, type: string) {
     return {
       type: "DOWNLOAD",
       payload: { data, name, type },
       executionType: ExecutionType.PROMISE,
     };
   },
-  copyToClipboard: function(
+  copyToClipboard: function (
     data: string,
     options?: { debug?: boolean; format?: string },
   ) {
@@ -100,14 +100,14 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
-  resetWidget: function(widgetName: string, resetChildren = true) {
+  resetWidget: function (widgetName: string, resetChildren = true) {
     return {
       type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
       payload: { widgetName, resetChildren },
       executionType: ExecutionType.PROMISE,
     };
   },
-  setInterval: function(callback: Function, interval: number, id?: string) {
+  setInterval: function (callback: Function, interval: number, id?: string) {
     return {
       type: "SET_INTERVAL",
       payload: {
@@ -118,7 +118,7 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.TRIGGER,
     };
   },
-  clearInterval: function(id: string) {
+  clearInterval: function (id: string) {
     return {
       type: "CLEAR_INTERVAL",
       payload: {
@@ -127,7 +127,7 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.TRIGGER,
     };
   },
-  postWindowMessage: function(
+  postWindowMessage: function (
     message: unknown,
     source: string,
     targetOrigin: string,

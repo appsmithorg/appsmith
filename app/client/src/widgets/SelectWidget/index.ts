@@ -1,8 +1,11 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
+
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   features: {
@@ -39,6 +42,8 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     labelTextSize: "0.875rem",
+    responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -48,6 +53,32 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  autoLayout: {
+    disabledPropsDefaults: {
+      labelPosition: LabelPosition.Top,
+      labelTextSize: "0.875rem",
+    },
+    defaults: {
+      rows: 6.6,
+    },
+    autoDimension: {
+      height: true,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

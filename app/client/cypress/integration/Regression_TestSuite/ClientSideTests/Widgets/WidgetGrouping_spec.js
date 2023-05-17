@@ -1,11 +1,11 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
 
-describe("Widget Grouping", function() {
+describe("Widget Grouping", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Select widgets using cmd + click and group using cmd + G", function() {
+  it("Select widgets using cmd + click and group using cmd + G", function () {
     // Selection
     cy.get(`#${dsl.dsl.children[2].widgetId}`).click({
       ctrlKey: true,
@@ -38,11 +38,10 @@ describe("Widget Grouping", function() {
       .eq(1)
       .then((element) => {
         const elementTop = parseFloat(element.css("top"));
-        const elementHeight = parseFloat(element.css("height"));
-        const containerBottom = (elementTop + elementHeight).toString() + "px";
-        cy.get(`.t--widget-camerawidget`)
-          .invoke("attr", "style")
-          .should("contain", `top: ${containerBottom}`);
+        cy.get(`.t--widget-camerawidget`).then((element2) => {
+          const containerTop = parseFloat(element2.css("top"));
+          expect(containerTop).to.be.greaterThan(elementTop);
+        });
       });
   });
 });

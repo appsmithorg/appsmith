@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
 import { PopoverPosition, Position } from "@blueprintjs/core";
+import type { MenuItemProps } from "design-system-old";
 import {
   Button,
   IconSize,
   MenuItem,
-  MenuItemProps,
   Icon,
   Menu,
   SearchVariant,
@@ -29,7 +29,7 @@ import {
   ENTER_ENTITY_DESC,
   ENTER_ENTITY_NAME,
 } from "@appsmith/constants/messages";
-import { PageHeaderProps } from "./types";
+import type { PageHeaderProps } from "./types";
 
 const Container = styled.div<{
   isHeaderEditable?: boolean;

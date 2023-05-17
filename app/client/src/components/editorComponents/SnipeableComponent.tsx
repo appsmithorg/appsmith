@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";

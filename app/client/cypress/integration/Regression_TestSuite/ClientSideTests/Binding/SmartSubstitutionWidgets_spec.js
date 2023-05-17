@@ -3,7 +3,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableAndChart.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 
-describe("Text-Table Binding Functionality", function() {
+describe("Text-Table Binding Functionality", function () {
   const updateData = `[
   {
     "x": "Product1",
@@ -22,9 +22,8 @@ describe("Text-Table Binding Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Update table data and assert", function() {
+  it("1. Update table data and assert", function () {
     cy.openPropertyPane("tablewidget");
-
     cy.get(widgetLocators.tabedataField).then(($el) => {
       cy.updateCodeInput($el, updateData);
       cy.readTabledata("1", "0").then((cellData) => {
@@ -33,7 +32,7 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
 
-  it("Update chart data and assert", function() {
+  it("2. Update chart data and assert", function () {
     cy.openPropertyPane("chartwidget");
     cy.get(".t--property-control-chart-series-data-control").then(($el) => {
       cy.updateCodeInput($el, updateData);
@@ -49,8 +48,8 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
 
-  it("Publish and assert", function() {
-    cy.PublishtheApp();
+  it("3. Publish and assert", function () {
+    cy.PublishtheApp(false);
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");
     });

@@ -1,5 +1,6 @@
-import lottie, { AnimationItem } from "lottie-web";
-import indicator from "assets/lottie/guided-tour-indicator.json";
+import type { LazyAnimationItem } from "utils/lazyLottie";
+import lazyLottie from "utils/lazyLottie";
+import indicatorAnimationURL from "assets/lottie/guided-tour-indicator.json.txt";
 import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
 import {
   setExplorerActiveAction,
@@ -12,7 +13,7 @@ import {
 class IndicatorHelper {
   timerId!: ReturnType<typeof setTimeout>;
   indicatorWrapper!: HTMLDivElement;
-  animationItem!: AnimationItem;
+  animationItem!: LazyAnimationItem;
   indicatorHeightOffset: number;
   indicatorWidthOffset: number;
 
@@ -103,8 +104,8 @@ class IndicatorHelper {
       GuidedTourClasses.GUIDED_TOUR_INDICATOR,
     );
     document.body.append(this.indicatorWrapper);
-    this.animationItem = lottie.loadAnimation({
-      animationData: indicator,
+    this.animationItem = lazyLottie.loadAnimation({
+      path: indicatorAnimationURL,
       autoplay: true,
       container: this.indicatorWrapper,
       renderer: "svg",

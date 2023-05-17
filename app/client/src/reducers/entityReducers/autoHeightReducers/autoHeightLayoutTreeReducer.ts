@@ -1,9 +1,7 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { TreeNode } from "utils/autoHeight/constants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
 
 export type AutoHeightLayoutTreePayload = {
@@ -22,8 +20,8 @@ const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
     action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { tree } = action.payload;
-    const diff = xor(Object.keys(state), [...Object.keys(tree)]);
-    for (const widgetId in diff) {
+    const diff: string[] = xor(Object.keys(state), [...Object.keys(tree)]);
+    for (const widgetId of diff) {
       delete state[widgetId];
     }
     for (const widgetId in tree) {

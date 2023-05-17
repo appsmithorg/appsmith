@@ -6,7 +6,9 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -16,9 +18,11 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -44,21 +48,32 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
+import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
+import static com.appsmith.server.constants.FieldName.CLOUD_HOSTED_EXTRA_PROPS;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static java.lang.Boolean.TRUE;
 
 @Component
 @Slf4j
 public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementService {
+
+    private String instanceAdminRoleId = null;
     
     private final UserGroupService userGroupService;
     private final PermissionGroupService permissionGroupService;
@@ -71,6 +86,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final UserDataRepository userDataRepository;
     private final PermissionGroupPermission permissionGroupPermission;
     private final PermissionGroupUtils permissionGroupUtils;
+    private final EnvManager envManager;
+    private final ConfigRepository configRepository;
 
     public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
                                               PermissionGroupService permissionGroupService,
@@ -85,7 +102,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               UserGroupRepository userGroupRepository,
                                               PermissionGroupPermission permissionGroupPermission,
                                               UserDataRepository userDataRepository,
-                                              PermissionGroupUtils permissionGroupUtils) {
+                                              PermissionGroupUtils permissionGroupUtils,
+                                              EnvManager envManager,
+                                              ConfigRepository configRepository) {
 
         super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
                 permissionGroupPermission);
@@ -100,6 +119,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.userDataRepository = userDataRepository;
         this.permissionGroupPermission = permissionGroupPermission;
         this.permissionGroupUtils = permissionGroupUtils;
+        this.envManager = envManager;
+        this.configRepository = configRepository;
     }
 
 
@@ -114,7 +135,41 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 // Remove the auto generated anonymous user from this list
                 .filter(user -> !user.getEmail().equals(ANONYMOUS_USER))
                 .flatMap(this::addGroupsAndRolesForUser)
-                .collectList();
+                .sort(AppsmithComparators.managementUserComparator())
+                .collectList()
+                .flatMap(this::addPhotoIdForUsers);
+
+    }
+
+    private Mono<List<UserForManagementDTO>> addPhotoIdForUsers(List<UserForManagementDTO> userForManagementDTOList) {
+        List<String> userIds = userForManagementDTOList.stream()
+                .map(UserForManagementDTO::getId).toList();
+        Mono<Map<String, UserData>> userDataMapMono = userDataRepository.findPhotoAssetsByUserIds(userIds)
+                .collectMap(UserData::getUserId);
+
+        return Mono.zip(Mono.just(userForManagementDTOList), userDataMapMono)
+                .map(pair -> {
+                    List<UserForManagementDTO> userForManagementDTOList1 = pair.getT1();
+                    Map<String, UserData> userIdUserDataMap = pair.getT2();
+                    userForManagementDTOList1.forEach(userForManagementDTO -> {
+                        String userId = userForManagementDTO.getId();
+                        if (userIdUserDataMap.containsKey(userId)
+                                && StringUtils.hasLength(userIdUserDataMap.get(userId).getProfilePhotoAssetId())) {
+                            userForManagementDTO.setPhotoId(userIdUserDataMap.get(userId).getProfilePhotoAssetId());
+                        }
+                    });
+                    return userForManagementDTOList1;
+                });
+    }
+
+    private Mono<UserForManagementDTO> addPhotoIdForUser(UserForManagementDTO userForManagementDTO) {
+        return addPhotoIdForUsers(List.of(userForManagementDTO))
+                .map(userForManagementDTOList -> {
+                    if (userForManagementDTOList.isEmpty()) {
+                        return userForManagementDTO;
+                    }
+                    return userForManagementDTOList.get(0);
+                });
     }
 
     @Override
@@ -125,6 +180,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(tenant -> userRepository.findById(userId))
                 // Add the name of the user in response.
                 .flatMap(user -> addGroupsAndRolesForUser(user)
+                        .flatMap(this::addPhotoIdForUser)
                         .map(dto -> {
                             String name = user.getName();
                             if (StringUtils.hasLength(name)) {
@@ -148,7 +204,6 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .map(tuple -> {
                     List<PermissionGroupInfoDTO> rolesInfo = tuple.getT1();
                     List<UserGroupCompactDTO> groupsInfo = tuple.getT2();
-
                     return new UserForManagementDTO(user.getId(), user.getUsername(), groupsInfo, rolesInfo);
                 });
     }
@@ -197,6 +252,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Set<UserGroupCompactDTO> groupDTOs = updateRoleAssociationDTO.getGroups();
         Set<PermissionGroupCompactDTO> rolesAddedDTOs = updateRoleAssociationDTO.getRolesAdded();
         Set<PermissionGroupCompactDTO> rolesRemovedDTOs = updateRoleAssociationDTO.getRolesRemoved();
+        Set<String> roleIdsToBeUpdated = new HashSet<>();
 
         Flux<User> userFlux = Flux.empty();
         Flux<UserGroup> groupFlux = Flux.empty();
@@ -205,23 +261,10 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Mono<Boolean> isMultipleRolesFromWorkspacePresentMono = Mono.just(TRUE);
         Mono<Boolean> rolesFromSameWorkspaceExistsInUsersMono;
         Mono<Boolean> rolesFromSameWorkspaceExistsInUserGroupsMono;
+        Mono<Boolean> instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono = Mono.just(TRUE);
 
-        if (!CollectionUtils.isEmpty(userDTOs)) {
-            userFlux = Flux.fromIterable(userDTOs.stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet()))
-                    .flatMap(username -> {
-                        User newUser = new User();
-                        newUser.setEmail(username.toLowerCase());
-                        newUser.setIsEnabled(false);
-                        return userService.findByEmail(username)
-                                .switchIfEmpty(userService.userCreate(newUser, false));
-                    });
-
-        }
-        if (!CollectionUtils.isEmpty(groupDTOs)) {
-            groupFlux = userGroupRepository.findAllById(groupDTOs.stream().map(UserGroupCompactDTO::getId).collect(Collectors.toSet()))
-                    .cache();
-        }
         if (!CollectionUtils.isEmpty(rolesAddedDTOs)) {
+            roleIdsToBeUpdated.addAll(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()));
             Flux<PermissionGroup> rolesToBeAddedFlux = permissionGroupRepository.findAllById(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet())).cache();
             rolesAddedFlux = UserPermissionUtils
                     .validateDomainObjectPermissionsOrError(
@@ -235,6 +278,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     .flatMap(this::containsPermissionGroupsFromSameWorkspace);
         }
         if (!CollectionUtils.isEmpty(rolesRemovedDTOs)) {
+            roleIdsToBeUpdated.addAll(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()));
             Flux<PermissionGroup> rolesToBeRemovedFlux = permissionGroupRepository.findAllById(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet())).cache();
             rolesRemovedFlux = UserPermissionUtils
                     .validateDomainObjectPermissionsOrError(
@@ -244,6 +288,21 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                             permissionGroupPermission.getUnAssignPermission(),
                             AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
                     ).thenMany(rolesToBeRemovedFlux);
+        }
+        if (!CollectionUtils.isEmpty(userDTOs)) {
+            userFlux = Flux.fromIterable(userDTOs.stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet()))
+                    .flatMap(username -> {
+                        User newUser = new User();
+                        newUser.setEmail(username.toLowerCase());
+                        newUser.setIsEnabled(false);
+                        return userService.findByEmail(username)
+                                .switchIfEmpty(userService.userCreate(newUser, false));
+                    });
+            instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono = this.checkInstanceAdminUpdatedAndUpdateAdminEmails(roleIdsToBeUpdated);
+        }
+        if (!CollectionUtils.isEmpty(groupDTOs)) {
+            groupFlux = userGroupRepository.findAllById(groupDTOs.stream().map(UserGroupCompactDTO::getId).collect(Collectors.toSet()))
+                    .cache();
         }
 
         // Checks and throws error, if 2 or more permission groups from the same Default Workspace ID are present
@@ -296,7 +355,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .then(Mono.when(rolesFromSameWorkspaceExistsInUsersMono, rolesFromSameWorkspaceExistsInUserGroupsMono))
                 .then(Mono.when(bulkAssignToRolesFlux.collectList(), bulkUnassignFromRolesFlux.collectList()))
                 .then(cleanCacheForUsersMono)
-                .thenReturn(TRUE);
+                .then(instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono);
     }
 
     private Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup permissionGroup, List<User> users, List<UserGroup> groups) {
@@ -314,6 +373,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(permissionGroup1 -> {
                     Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
                             FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
+                            FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USERS, usernames.size(),
+                            NUMBER_OF_ASSIGNED_USER_GROUPS, userGroupNames.size(),
+                            EVENT_DATA, eventData,
+                            CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                     AnalyticsEvents assignedEvent;
                     if (! usernames.isEmpty() && ! userGroupNames.isEmpty()) {
                         assignedEvent = AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP;
@@ -322,7 +387,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     } else {
                         assignedEvent = AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP;
                     }
-                    return analyticsService.sendObjectEvent(assignedEvent, permissionGroup1, eventData);
+                    return analyticsService.sendObjectEvent(assignedEvent, permissionGroup1, analyticsProperties);
                 });
 
     }
@@ -342,6 +407,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(pg -> {
                     Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames,
                             FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames,
+                            FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_UNASSIGNED_USERS, usernames.size(),
+                            NUMBER_OF_UNASSIGNED_USER_GROUPS, userGroupNames.size(),
+                            EVENT_DATA, eventData,
+                            CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                     AnalyticsEvents unassignedEvent;
                     if (! usernames.isEmpty() && ! userGroupNames.isEmpty())
                         unassignedEvent = AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP;
@@ -350,7 +421,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     else
                         unassignedEvent = AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP;
                     return analyticsService.sendObjectEvent(unassignedEvent,
-                            pg, eventData);
+                            pg, analyticsProperties);
                 });
     }
 
@@ -408,13 +479,13 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     // send only ONE
     private List<PermissionGroup> prunePermissionGroups(List<PermissionGroup> permissionGroups) {
         List<PermissionGroup> nonAutoCreatedPermissionGroups = permissionGroups.stream()
-                .filter(pg -> ! StringUtils.hasLength(pg.getDefaultWorkspaceId()))
+                .filter(pg -> Objects.isNull(pg.getDefaultDomainType()))
                 .collect(Collectors.toList());
         List<PermissionGroup> highestOrderAutoCreatedPgs = permissionGroups.stream()
-                .filter(pg -> StringUtils.hasLength(pg.getDefaultWorkspaceId()))
-                .collect(Collectors.toList())
+                .filter(pg -> Objects.nonNull(pg.getDefaultDomainType()))
+                .toList()
                 .stream()
-                .collect(Collectors.groupingBy(PermissionGroup::getDefaultWorkspaceId))
+                .collect(Collectors.groupingBy(PermissionGroup::getDefaultDomainId))
                 .values().stream()
                 .map(pgList -> {
                     pgList.sort(permissionGroupComparator());
@@ -477,5 +548,33 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .filter(noDuplicateExists -> ! noDuplicateExists)
                 .hasElements()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ROLES_FROM_SAME_WORKSPACE)));
+    }
+
+    private Mono<Boolean> checkInstanceAdminUpdatedAndUpdateAdminEmails(Set<String> permissionGroupIdSet) {
+        return getInstanceAdminRoleId()
+                .flatMap(id -> {
+                    Mono<EnvChangesResponseDTO> updateAdminEmailsInEnvMono = Mono.empty();
+                    if (permissionGroupIdSet.contains(id)) {
+                        updateAdminEmailsInEnvMono = permissionGroupRepository.findById(id)
+                                .flatMapMany(instanceAdminRole -> userRepository.findAllById(instanceAdminRole.getAssignedToUserIds()))
+                                .collectList()
+                                .flatMap(userList -> {
+                                    String adminEmails = String.join(",", userList.stream().map(User::getEmail).toList());
+                                    Map<String, String> envUpdateInstanceAdminUserEmails = Map.of(APPSMITH_ADMIN_EMAILS.name(), adminEmails);
+                                    return envManager.applyChanges(envUpdateInstanceAdminUserEmails, "");
+                                });
+                    }
+                    return updateAdminEmailsInEnvMono.thenReturn(TRUE);
+                });
+    }
+
+    private Mono<String> getInstanceAdminRoleId() {
+        if (StringUtils.hasText(instanceAdminRoleId)) {
+            return Mono.just(instanceAdminRoleId);
+        }
+        return configRepository.findByName(INSTANCE_CONFIG)
+                .map(configObj -> configObj.getConfig().getAsString(DEFAULT_PERMISSION_GROUP))
+                .doOnNext(id -> instanceAdminRoleId = id);
+
     }
 }

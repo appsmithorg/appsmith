@@ -1,8 +1,10 @@
 export * from "ce/pages/AdminSettings/config/types";
-import {
+import type {
   AdminConfigType as CE_AdminConfigType,
   Category as CE_Category,
   Setting as CE_Setting,
+} from "ce/pages/AdminSettings/config/types";
+import {
   SettingCategories as CE_SettingCategories,
   SettingSubCategories as CE_SettingSubCategories,
   SettingSubtype,

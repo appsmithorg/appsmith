@@ -1,9 +1,8 @@
-import { DataTreeWidget } from "./dataTreeFactory";
-import {
+import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
-  OverridingPropertyType,
 } from "./types";
+import { OverridingPropertyType } from "./types";
 
 type SetOverridingPropertyParams = {
   key: string;
@@ -28,15 +27,13 @@ export const setOverridingProperty = ({
   }
   switch (type) {
     case OverridingPropertyType.DEFAULT:
-      propertyOverrideDependency[propertyName][
-        OverridingPropertyType.DEFAULT
-      ] = overridingPropertyKey;
+      propertyOverrideDependency[propertyName][OverridingPropertyType.DEFAULT] =
+        overridingPropertyKey;
       break;
 
     case OverridingPropertyType.META:
-      propertyOverrideDependency[propertyName][
-        OverridingPropertyType.META
-      ] = overridingPropertyKey;
+      propertyOverrideDependency[propertyName][OverridingPropertyType.META] =
+        overridingPropertyKey;
 
       break;
     default:
@@ -57,19 +54,4 @@ export const setOverridingProperty = ({
   if (type === OverridingPropertyType.META && defaultPropertyName) {
     overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
   }
-};
-
-export const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
-  return !!widget.siblingMetaWidgets;
-};
-
-export const isWidgetDefaultPropertyPath = (
-  widget: DataTreeWidget,
-  propertyPath: string,
-) => {
-  for (const property of Object.keys(widget.propertyOverrideDependency)) {
-    const overrideDependency = widget.propertyOverrideDependency[property];
-    if (overrideDependency.DEFAULT === propertyPath) return true;
-  }
-  return false;
 };

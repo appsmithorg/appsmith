@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -17,6 +18,8 @@ import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.PostgresErrorMessages;
+import com.external.plugins.exceptions.PostgresPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -87,9 +90,9 @@ public class PostgresPluginTest {
     @Container
     public static final PostgreSQLContainer pgsqlContainerNoPwdAuth =
             new PostgreSQLContainer<>("postgres:alpine")
-            .withExposedPorts(5432)
-            .withUsername("postgres_no_pwd_auth")
-            .withEnv("POSTGRES_HOST_AUTH_METHOD","trust");
+                    .withExposedPorts(5432)
+                    .withUsername("postgres_no_pwd_auth")
+                    .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
 
     private static String address;
     private static Integer port;
@@ -319,18 +322,12 @@ public class PostgresPluginTest {
     }
 
     @Test
-    public void testTestDatasource_withCorrectCredentialsNoPwd_returnsWithoutInvalids() {
+    public void validateDatasource_withCorrectCredentialsNoPwd_returnsWithoutInvalids() {
         DatasourceConfiguration dsConfig = createDatasourceConfigurationWithoutPwd();
 
-        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+        final Set<String> datasourceValidationInvalids = pluginExecutor.validateDatasource(dsConfig);
 
-        StepVerifier.create(testDatasourceMono)
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertTrue(datasourceTestResult.isSuccess());
-                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
-                })
-                .verifyComplete();
+        assertTrue(datasourceValidationInvalids.size() == 0);
 
     }
 
@@ -361,7 +358,7 @@ public class PostgresPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
 
-        assertEquals(Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
+        assertEquals(Set.of(String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, hostname)),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -391,6 +388,32 @@ public class PostgresPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testApplicationName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT COUNT(*) FROM pg_stat_activity WHERE application_name='Appsmith JDBC Driver';");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertTrue(node.get("count").asInt() > 0);
                 })
                 .verifyComplete();
     }
@@ -1040,11 +1063,9 @@ public class PostgresPluginTest {
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
-                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource " +
-                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> expectedError.equals(error))
+                            .anyMatch(error -> PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG.equals(error))
                     );
                 })
                 .verifyComplete();
@@ -1105,7 +1126,7 @@ public class PostgresPluginTest {
                      * - This error message indicates that the client was trying to establish an SSL connection but
                      *   could not because the testcontainer server does not have SSL enabled.
                      */
-                    assertTrue(error.getMessage().contains("The server does not support SSL"));
+                    assertTrue(((AppsmithPluginException) error).getDownstreamErrorMessage().contains("The server does not support SSL"));
                 });
     }
 
@@ -1182,7 +1203,7 @@ public class PostgresPluginTest {
                     );
 
                     /*
-                     * - Check if all of the duplicate column names are reported.
+                     * - Check if all the duplicate column names are reported.
                      */
                     Set<String> expectedColumnNames = Stream.of("id", "password")
                             .collect(Collectors.toCollection(HashSet::new));
@@ -1460,7 +1481,7 @@ public class PostgresPluginTest {
                     assertNotNull(result);
 
                     String expectedBody = "ERROR: cannot execute UPDATE in a read-only transaction";
-                    assertEquals(expectedBody, result.getBody());
+                    assertEquals(expectedBody, result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -1584,5 +1605,15 @@ public class PostgresPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfPostgresPluginErrorCode() {
+        assert (Arrays.stream(PostgresPluginError.values()).map(PostgresPluginError::getAppErrorCode).distinct().count() == PostgresPluginError.values().length);
+
+        assert (Arrays.stream(PostgresPluginError.values()).map(PostgresPluginError::getAppErrorCode)
+                .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-PGS"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

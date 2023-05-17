@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
-import { Datasource } from "entities/Datasource";
-import { Plugin } from "api/PluginApi";
+import type { Datasource } from "entities/Datasource";
+import type { Plugin } from "api/PluginApi";
 import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { getQueryIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -12,7 +12,7 @@ import {
   updateDatasourceName,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { getAction } from "selectors/entitiesSelector";
@@ -52,6 +52,9 @@ const ExplorerDatasourceEntity = React.memo(
           pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
+          params: {
+            viewMode: true,
+          },
         });
       } else {
         url = datasourcesEditorIdURL({

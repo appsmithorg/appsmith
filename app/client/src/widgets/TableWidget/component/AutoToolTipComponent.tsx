@@ -1,10 +1,15 @@
 import React, { createRef, memo, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
-import { CellLayoutProperties, ColumnTypes } from "./Constants";
-import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
+import type { CellLayoutProperties } from "./Constants";
+import { ColumnTypes } from "./Constants";
 import styled from "styled-components";
 import equal from "fast-deep-equal/es6";
+import { importSvg } from "design-system-old";
+
+const OpenNewTabIcon = importSvg(
+  () => import("assets/icons/control/open-new-tab.svg"),
+);
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;

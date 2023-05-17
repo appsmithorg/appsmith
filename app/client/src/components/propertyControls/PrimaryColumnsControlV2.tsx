@@ -1,34 +1,33 @@
 import React, { Component } from "react";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import { Placement } from "popper.js";
+import type { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
 import _, { toString } from "lodash";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
-import { Indices } from "constants/Layers";
+import type { Indices } from "constants/Layers";
 import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 import {
   createColumn,
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   getDataTreeForAutocomplete,
   getPathEvalErrors,
 } from "selectors/dataTreeSelectors";
-import {
-  EvaluationError,
-  getEvalValuePath,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system-old";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -124,18 +123,29 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       hasScrollableList: false,
     };
   }
-
   componentDidMount() {
     this.checkAndUpdateIfEditableColumnPresent();
   }
 
   componentDidUpdate(prevProps: ControlProps): void {
-    //on adding a new column last column should get focused
+    /**
+     * On adding a new column the last column should get focused.
+     * If frozen columns are present then the focus should be on the newly added column
+     */
     if (
       Object.keys(prevProps.propertyValue).length + 1 ===
       Object.keys(this.props.propertyValue).length
     ) {
-      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+      const columns = Object.keys(this.props.propertyValue);
+
+      const frozenColumnIndex = Object.keys(prevProps.propertyValue)
+        .map((column) => prevProps.propertyValue[column])
+        .filter((column) => column.sticky !== StickyType.RIGHT).length;
+
+      this.updateFocus(
+        frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex,
+        true,
+      );
       this.checkAndUpdateIfEditableColumnPresent();
     }
 
@@ -189,6 +199,9 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             isColumnTypeEditable(column.columnType) && column.isEditable,
           isCheckboxDisabled:
             !isColumnTypeEditable(column.columnType) || column.isDerived,
+          isDragDisabled:
+            column.sticky === StickyType.LEFT ||
+            column.sticky === StickyType.RIGHT,
         };
       },
     );
@@ -231,6 +244,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               focusedIndex={this.state.focusedIndex}
               itemHeight={45}
               items={draggableComponentColumns}
+              keyAccessor="id"
               onEdit={this.onEdit}
               propertyPath={this.props.dataTreePath}
               renderComponent={(props: any) =>
@@ -307,6 +321,36 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     }
   };
 
+  getToggleColumnEditablityUpdates = (
+    column: ColumnProperties,
+    propertyName: string,
+    checked: boolean,
+  ): {
+    propertyName: string;
+    propertyValue: string;
+  }[] => {
+    const updates: {
+      propertyName: string;
+      propertyValue: any;
+    }[] = [];
+    updates.push({
+      propertyName: `${propertyName}.${column.id}.isEditable`,
+      propertyValue: checked,
+    });
+
+    /*
+     * Check whether isCellEditable property of the column has dynamic value
+     * if not, toggle isCellEditable value as well. We're doing this to smooth
+     * the user experience.
+     */
+    if (!isDynamicValue(toString(column.isCellEditable))) {
+      updates.push({
+        propertyName: `${propertyName}.${column.id}.isCellEditable`,
+        propertyValue: checked,
+      });
+    }
+    return updates;
+  };
   toggleCheckbox = (index: number, checked: boolean) => {
     const columns: ColumnsType = this.props.propertyValue || {};
     const originalColumn = getOriginalColumn(
@@ -316,22 +360,13 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     );
 
     if (originalColumn) {
-      this.updateProperty(
-        `${this.props.propertyName}.${originalColumn.id}.isEditable`,
-        checked,
-      );
-
-      /*
-       * Check whether isCellEditable property of the column has dynamic value
-       * if not, toggle isCellEditable value as well. We're doing this to smooth
-       * the user experience.
-       */
-      if (!isDynamicValue(toString(originalColumn.isCellEditable))) {
-        this.updateProperty(
-          `${this.props.propertyName}.${originalColumn.id}.isCellEditable`,
+      this.batchUpdatePropertiesWithAssociatedUpdates(
+        this.getToggleColumnEditablityUpdates(
+          originalColumn,
+          this.props.propertyName,
           checked,
-        );
-      }
+        ),
+      );
     }
   };
 
@@ -409,27 +444,20 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   toggleAllColumnsEditability = () => {
     const isEditable = this.isAllColumnsEditable();
     const columns: ColumnsType = this.props.propertyValue || {};
-
-    Object.values(columns).forEach((column) => {
-      if (isColumnTypeEditable(column.columnType) && !column.isDerived) {
-        this.updateProperty(
-          `${this.props.propertyName}.${column.id}.isEditable`,
+    //consolidate all column editability updates
+    const allUpdates = Object.values(columns)
+      .filter(
+        (column) =>
+          isColumnTypeEditable(column.columnType) && !column.isDerived,
+      )
+      .flatMap((column) =>
+        this.getToggleColumnEditablityUpdates(
+          column,
+          this.props.propertyName,
           !isEditable,
-        );
-
-        /*
-         * Check whether isCellEditable property of the column has dynamic value.
-         * if not, toggle isCellEditable value as well. We're doing this to smooth
-         * the user experience.
-         */
-        if (!isDynamicValue(toString(column.isCellEditable))) {
-          this.updateProperty(
-            `${this.props.propertyName}.${column.id}.isCellEditable`,
-            !isEditable,
-          );
-        }
-      }
-    });
+        ),
+      );
+    this.batchUpdatePropertiesWithAssociatedUpdates(allUpdates);
 
     if (isEditable) {
       const columnOrder = this.props.widgetProperties.columnOrder || [];
@@ -444,10 +472,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   checkAndUpdateIfEditableColumnPresent = () => {
-    const hasEditableColumn = !!Object.values(
-      this.props.propertyValue,
-    ).find((column) =>
-      isColumnTypeEditable((column as ColumnProperties).columnType),
+    const hasEditableColumn = !!Object.values(this.props.propertyValue).find(
+      (column) => isColumnTypeEditable((column as ColumnProperties).columnType),
     );
 
     if (hasEditableColumn !== this.state.hasEditableColumn) {
@@ -469,9 +495,7 @@ export default PrimaryColumnsControlV2;
  * render popup if primary column labels are not unique
  * show unique name error in PRIMARY_COLUMNS
  */
-class EvaluatedValuePopupWrapperClass extends Component<
-  EvaluatedValuePopupWrapperProps
-> {
+class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapperProps> {
   getPropertyValidation = (
     dataTree: DataTree,
     dataTreePath?: string,
@@ -507,11 +531,8 @@ class EvaluatedValuePopupWrapperClass extends Component<
       hideEvaluatedValue,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const { errors, isInvalid, pathEvaluatedValue } =
+      this.getPropertyValidation(dynamicData, dataTreePath);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;

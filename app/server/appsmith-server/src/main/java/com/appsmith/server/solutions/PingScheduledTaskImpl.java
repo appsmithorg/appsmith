@@ -1,7 +1,8 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -28,9 +29,8 @@ import reactor.core.scheduler.Schedulers;
 @Component
 public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements PingScheduledTask {
 
-    private final LicenseValidator licenseValidator;
     private final TenantService tenantService;
-    private final LicenseConfig licenseConfig;
+    private final AirgapInstanceConfig airgapInstanceConfig;
     private final UsagePulseService usagePulseService;
 
     public PingScheduledTaskImpl(
@@ -43,9 +43,9 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NewActionRepository newActionRepository,
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
-            LicenseValidator licenseValidator,
+            ProjectProperties projectProperties,
             TenantService tenantService,
-            LicenseConfig licenseConfig,
+            AirgapInstanceConfig airgapInstanceConfig,
             UsagePulseService usagePulseService) {
 
         super(
@@ -57,30 +57,21 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 newPageRepository,
                 newActionRepository,
                 datasourceRepository,
-                userRepository
+                userRepository,
+                projectProperties
         );
-        this.licenseValidator = licenseValidator;
         this.tenantService = tenantService;
-        this.licenseConfig = licenseConfig;
+        this.airgapInstanceConfig = airgapInstanceConfig;
         this.usagePulseService = usagePulseService;
     }
 
-    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 12 * 60 * 60 * 1000 /* twelve hours */)
-    public void licenseCheck() {
-        licenseValidator.check();
-    }
 
     @Scheduled(initialDelay =  3 * 60 * 1000 /* three minutes */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
-    public void newLicenseCheck() {
-        // Only run scheduled tasks with feature flag
-        // TODO: Remove this check when usage and billing feature is ready to ship
-        Boolean licenseDbEnabled = licenseConfig.getLicenseDbEnabled();
-        if (Boolean.TRUE.equals(licenseDbEnabled)) {
-            log.debug("Initiating Periodic License Check");
-            tenantService.checkAndUpdateDefaultTenantLicense()
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .block();
-        }
+    public void licenseCheck() {
+        log.debug("Initiating Periodic License Check");
+        tenantService.checkAndUpdateDefaultTenantLicense()
+                .subscribeOn(Schedulers.boundedElastic())
+                .block();
     }
 
     /**
@@ -88,19 +79,18 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
      */
     @Scheduled(initialDelay = 4 * 60 * 1000 /* four minutes */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
     public void sendUsagePulse() throws InterruptedException {
-        // Only run scheduled tasks with feature flag
-        // TODO: Remove this check when usage and billing feature is ready to ship
-        Boolean licenseDbEnabled = licenseConfig.getLicenseDbEnabled();
-        if (Boolean.TRUE.equals(licenseDbEnabled)) {
-            log.debug("Sending Usage Pulse");
-            while(Boolean.TRUE.equals(usagePulseService.sendAndUpdateUsagePulse()
-                .subscribeOn(Schedulers.boundedElastic())
-                .block())) {
-                // Sleep to delay continues requests
-                Thread.sleep(2000);
-            }
-            log.debug("Completed Sending Usage Pulse");
+        // Disable usage pulse reporting for airgapped instances
+        if (airgapInstanceConfig.isAirgapEnabled()) {
+            return;
         }
+        log.debug("Sending Usage Pulse");
+        while(Boolean.TRUE.equals(usagePulseService.sendAndUpdateUsagePulse()
+            .subscribeOn(Schedulers.boundedElastic())
+            .block())) {
+            // Sleep to delay continues requests
+            Thread.sleep(2000);
+        }
+        log.debug("Completed Sending Usage Pulse");
     }
 
 }

@@ -5,7 +5,8 @@ import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { HighlightText, MenuItemProps } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { HighlightText, Spinner } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
@@ -44,13 +45,16 @@ import {
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
-import { BaseAclProps, ListingType, UserProps } from "./types";
+import type { BaseAclProps, UserProps } from "./types";
+import { ListingType } from "./types";
 import { getCurrentUser } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { LoaderContainer } from "pages/Settings/components";
 
 export const CellContainer = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
 
   &.user-email-column > span {
     text-decoration: underline;
@@ -107,10 +111,11 @@ export function UserListing() {
   const dispatch = useDispatch();
 
   const aclUsers = useSelector(getAllAclUsers);
-  const selectedUser = useSelector(getSelectedUser);
+  const selUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
   const inviteViaRoles = useSelector(getRolesForInvite);
   const inviteViaGroups = useSelector(getGroupsForInvite);
+  const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
 
   const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -131,7 +136,12 @@ export function UserListing() {
   }, [aclUsers]);
 
   useEffect(() => {
+    setSelectedUser(selUser);
+  }, [selUser]);
+
+  useEffect(() => {
     if (selectedUserId && selectedUser?.id !== selectedUserId) {
+      setSelectedUser(null);
       dispatch(getUserById({ id: selectedUserId }));
     } else if (!selectedUserId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
@@ -154,7 +164,7 @@ export function UserListing() {
       }));
       AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
         origin: createMessage(EVENT_USER_INVITE),
-        groups: groupsAdded,
+        groups: groupsAdded.map((group: any) => group.id),
         roles: [],
         numberOfUsersInvited: usernames.length,
       });
@@ -172,7 +182,7 @@ export function UserListing() {
       AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
         origin: createMessage(EVENT_USER_INVITE),
         groups: [],
-        roles: rolesAdded,
+        roles: rolesAdded.map((role: any) => role.id),
         numberOfUsersInvited: users.length,
       });
       dispatch(inviteUsersViaRoles(users, rolesAdded, values.selectedTab));
@@ -186,18 +196,20 @@ export function UserListing() {
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
         const { username } = cellProps.cell.row.values;
+        const { id, photoId } = cellProps.cell.row.original;
         return (
           <Link
+            className="user-email-link"
             data-testid="acl-user-listing-link"
             onClick={() =>
               AnalyticsUtil.logEvent("GAC_USER_CLICK", {
                 origin: createMessage(EVENT_USERS_PAGE),
-                email: username,
+                clicked_user_id: id,
               })
             }
             to={adminSettingsCategoryUrl({
               category: SettingCategories.USER_LISTING,
-              selected: cellProps.cell.row.original.id,
+              selected: id,
             })}
           >
             <CellContainer
@@ -207,7 +219,11 @@ export function UserListing() {
               <ProfileImage
                 className="user-icons"
                 size={20}
-                source={`/api/v1/users/photo/${username}`}
+                source={
+                  photoId
+                    ? `/api/${USER_PHOTO_ASSET_URL}/${photoId}`
+                    : undefined
+                }
                 userName={username}
               />
               <HighlightText highlight={searchValue} text={username} />
@@ -449,14 +465,20 @@ export function UserListing() {
 
   return (
     <AclWrapper data-testid="user-listing-wrapper">
-      {selectedUserId && selectedUser ? (
-        <UserEdit
-          data-testid="acl-user-edit"
-          isLoading={isLoading}
-          onDelete={onDeleteHandler}
-          searchPlaceholder="Search"
-          selectedUser={selectedUser}
-        />
+      {selectedUserId ? (
+        selectedUser ? (
+          <UserEdit
+            data-testid="acl-user-edit"
+            isLoading={isLoading}
+            onDelete={onDeleteHandler}
+            searchPlaceholder="Search"
+            selectedUser={selectedUser}
+          />
+        ) : (
+          <LoaderContainer>
+            <Spinner />
+          </LoaderContainer>
+        )
       ) : (
         <>
           <PageHeader

@@ -3,12 +3,12 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
-import {
+import type {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   VerifyTokenRequest,
 } from "@appsmith/api/UserApi";
-import FeatureFlags from "entities/FeatureFlags";
+import type FeatureFlags from "entities/FeatureFlags";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -66,6 +66,10 @@ export const invitedUserSignupError = (error: any) => ({
 export const updateUserDetails = (payload: UpdateUserRequest) => ({
   type: ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
   payload,
+});
+
+export const updateIntercomConsent = () => ({
+  type: ReduxActionTypes.UPDATE_USER_INTERCOM_CONSENT,
 });
 
 export const updatePhoto = (payload: {

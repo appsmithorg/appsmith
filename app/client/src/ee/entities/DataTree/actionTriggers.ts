@@ -1,10 +1,10 @@
 export * from "ce/entities/DataTree/actionTriggers";
 
-import {
+import type {
   ActionTriggerKeys as CE_ActionTriggerKeys,
-  ActionTriggerFunctionNames as CE_ActionTriggerFunctionNames,
   ActionDescription as CE_ActionDescription,
 } from "ce/entities/DataTree/actionTriggers";
+import { ActionTriggerFunctionNames as CE_ActionTriggerFunctionNames } from "ce/entities/DataTree/actionTriggers";
 
 type EE_ActionTriggerKeys =
   | "WINDOW_MESSAGE_LISTENER"

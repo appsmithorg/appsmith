@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.configurations.LicenseConfig;
@@ -9,12 +10,8 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
-import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.EnvironmentVariable;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUsagePulse;
@@ -31,13 +28,11 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import io.changock.migration.api.annotations.NonLockGuarded;
-import io.mongock.api.annotations.ChangeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.StringUtils;
@@ -46,6 +41,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,7 +60,6 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 @ChangeLog(order = "100")
@@ -182,11 +177,13 @@ public class DatabaseChangelogEE {
 
         // Find al the administrator permission groups and give make public to the default workspace
         Query adminPermissionGroupQuery = new Query().addCriteria(where("name").regex("^Administrator - .*"));
-        adminPermissionGroupQuery.fields().include("_id", "defaultWorkspaceId");
+        adminPermissionGroupQuery.fields().include("_id", "defaultWorkspaceId", "defaultDomainId", "defaultDomainType");
         List<PermissionGroup> permissionGroups = mongoTemplate.find(adminPermissionGroupQuery, PermissionGroup.class);
 
         permissionGroups.forEach(permissionGroup -> {
-            String defaultWorkspaceId = permissionGroup.getDefaultWorkspaceId();
+            String defaultWorkspaceId = Objects.nonNull(permissionGroup.getDefaultDomainType())
+                    ? permissionGroup.getDefaultDomainId()
+                    : permissionGroup.getDefaultWorkspaceId();
             if (defaultWorkspaceId != null) {
 
                 Policy makePublicPolicy = Policy.builder()
@@ -224,7 +221,6 @@ public class DatabaseChangelogEE {
         Index createdAt = makeIndex("createdAt");
 
         ensureIndexes(mongoTemplate, Environment.class, createdAt, environmentUniqueness);
-        ensureIndexes(mongoTemplate, EnvironmentVariable.class, createdAt);
     }
 
     @ChangeSet(order = "009", id = "remove-default-logo-urls", author = "")
@@ -377,7 +373,7 @@ public class DatabaseChangelogEE {
      * Discussion on why @Value is not supported in Mongock: https://github.com/mongock/mongock/discussions/525
      * @param mongoTemplate
      */
-    @ChangeSet(order = "013", id = "move-license-key-to-db", author = "")
+    @ChangeSet(order = "013", id = "move-license-key-to-db", author = "", runAlways = true)
     public void moveLicenseKeyToDB(MongoTemplate mongoTemplate, @NonLockGuarded LicenseConfig licenseConfig) {
 
         // Get default tenant as we only have single entry in tenant collection (before multi-tenancy is introduced)
@@ -387,8 +383,12 @@ public class DatabaseChangelogEE {
                 ? new TenantConfiguration()
                 : tenant.getTenantConfiguration();
 
-        if (tenantConfiguration.getLicense() == null || !StringUtils.hasText(tenantConfiguration.getLicense().getKey())) {
-                String licenseKey = licenseConfig.getLicenseKey();
+        String licenseKey = licenseConfig.getLicenseKey();
+        if (StringUtils.hasLength(licenseKey)
+            && (tenantConfiguration.getLicense() == null
+                || !StringUtils.hasText(tenantConfiguration.getLicense().getKey()))) {
+
+                log.info("Moving license key to DB");
                 TenantConfiguration.License license = new TenantConfiguration.License();
                 license.setActive(true);
                 license.setStatus(LicenseStatus.ACTIVE);
@@ -397,6 +397,10 @@ public class DatabaseChangelogEE {
                 tenantConfiguration.setLicense(license);
                 tenant.setTenantConfiguration(tenantConfiguration);
                 mongoTemplate.save(tenant);
+        }
+
+        if (!StringUtils.hasLength(licenseKey)) {
+            log.info("Unable to find license key in docker.env");
         }
     }
 

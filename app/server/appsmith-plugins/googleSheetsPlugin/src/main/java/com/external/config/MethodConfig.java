@@ -4,7 +4,9 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.TriggerRequestDTO;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -99,7 +101,7 @@ public class MethodConfig {
         if (matcher.find()) {
             this.spreadsheetId = matcher.group(1);
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.SPREADSHEET_ID_NOT_FOUND_IN_URL_ERROR_MSG);
         }
     }
 

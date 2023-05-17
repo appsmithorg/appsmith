@@ -1,13 +1,10 @@
 import React from "react";
-import {
-  Field,
-  WrappedFieldMetaProps,
-  WrappedFieldInputProps,
-} from "redux-form";
+import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
+import { Field } from "redux-form";
 import { TagInput } from "design-system-old";
 import { FormGroup } from "./Common";
-import { Intent } from "constants/DefaultTheme";
-import { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import type { Intent } from "constants/DefaultTheme";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 
 const renderComponent = (
   componentProps: TagListFieldProps & {
@@ -18,8 +15,9 @@ const renderComponent = (
   const setting = componentProps.setting;
   return (
     <FormGroup
-      className={`tag-input t--admin-settings-tag-input t--admin-settings-${setting.name ||
-        setting.id}`}
+      className={`tag-input t--admin-settings-tag-input t--admin-settings-${
+        setting.name || setting.id
+      }`}
       setting={setting}
     >
       <TagInput {...componentProps} />

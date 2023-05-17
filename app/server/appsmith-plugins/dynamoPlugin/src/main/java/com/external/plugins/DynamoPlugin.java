@@ -13,6 +13,8 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.plugins.exceptions.DynamoErrorMessages;
+import com.external.plugins.exceptions.DynamoPluginError;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -196,10 +198,10 @@ public class DynamoPlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
 
                         final String action = actionConfiguration.getPath();
-                        if (StringUtils.isEmpty(action)) {
+                        if (! StringUtils.hasLength(action)) {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Missing action name (like `ListTables`, `GetItem` etc.)."
+                                    DynamoErrorMessages.MISSING_ACTION_NAME_ERROR_MSG
                             );
                         }
                         requestData.put("action", action);
@@ -208,13 +210,13 @@ public class DynamoPlugin extends BasePlugin {
 
                         Map<String, Object> parameters = null;
                         try {
-                            if (!StringUtils.isEmpty(body)) {
+                            if (StringUtils.hasLength(body)) {
                                 parameters = objectMapper.readValue(body, HashMap.class);
                             }
                         } catch (IOException e) {
                             final String message = "Error parsing the JSON body: " + e.getMessage();
                             log.warn(message, e);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, body, e.getMessage());
                         }
                         requestData.put("parameters", parameters);
 
@@ -223,8 +225,9 @@ public class DynamoPlugin extends BasePlugin {
                             requestClass = Class.forName("software.amazon.awssdk.services.dynamodb.model." + action + "Request");
                         } catch (ClassNotFoundException e) {
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Unknown action: `" + action + "`. Note that action names are case-sensitive."
+                                    DynamoPluginError.UNKNOWN_ACTION_NAME,
+                                    String.format(DynamoErrorMessages.UNKNOWN_ACTION_NAME_ERROR_MSG, action),
+                                    e.getMessage()
                             );
                         }
 
@@ -239,11 +242,11 @@ public class DynamoPlugin extends BasePlugin {
                             Object rawResponse = sdkToPlain(response);
                             Object transformedResponse = getTransformedResponse((Map<String, Object>) rawResponse, action);
                             result.setBody(transformedResponse);
-                        } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException |
+                        } catch (InvocationTargetException | IllegalAccessException |
                                  NoSuchMethodException | ClassNotFoundException e) {
-                            final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
-                            log.warn(message, e);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message);
+                            final String errorMessage = (e.getCause() == null ? e : e.getCause()).getMessage();
+                            log.warn("Error executing the DynamoDB Action: {}", errorMessage, e);
+                            throw new AppsmithPluginException(DynamoPluginError.QUERY_EXECUTION_FAILED, DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, errorMessage);
                         }
 
                         result.setIsExecutionSuccess(true);
@@ -253,10 +256,13 @@ public class DynamoPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(DynamoPluginError.QUERY_EXECUTION_FAILED, DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error.getMessage());
+                        }
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setProperties(requestData);
@@ -280,10 +286,10 @@ public class DynamoPlugin extends BasePlugin {
                         }
 
                         final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                        if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
+                        if (authentication == null || ! StringUtils.hasLength(authentication.getDatabaseName())) {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Missing region in datasource."
+                                    DynamoErrorMessages.MISSING_REGION_ERROR_MSG
                             );
                         }
 
@@ -407,7 +413,7 @@ public class DynamoPlugin extends BasePlugin {
                     if (setterMethod == null) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Invalid attribute/value by name " + entry.getKey()
+                                String.format(DynamoErrorMessages.INVALID_ATTRIBUTE_ERROR_MSG, entry.getKey())
                         );
                     }
                     if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
@@ -473,8 +479,8 @@ public class DynamoPlugin extends BasePlugin {
 
                 } else {
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Unknown value type while deserializing:" + value.getClass().getName()
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(DynamoErrorMessages.UNKNOWN_TYPE_DURING_DESERIALIZATION_ERROR_MSG, value.getClass().getName())
                     );
 
                 }
@@ -507,8 +513,8 @@ public class DynamoPlugin extends BasePlugin {
         }
 
         throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_ERROR,
-                "Unknown type to convert to SDK style " + type.getTypeName()
+                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                String.format(DynamoErrorMessages.UNKNOWN_TYPE_FOUND_TO_CONVERT_TO_SDK_STYLE_ERROR_MSG, type.getTypeName())
         );
     }
 

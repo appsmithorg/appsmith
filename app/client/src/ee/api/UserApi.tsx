@@ -1,8 +1,8 @@
 export * from "ce/api/UserApi";
 import { UserApi as CE_UserApi } from "ce/api/UserApi";
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 export interface FetchSamlMetadataPayload {
   isEnabled: boolean;
   importFromUrl?: string;

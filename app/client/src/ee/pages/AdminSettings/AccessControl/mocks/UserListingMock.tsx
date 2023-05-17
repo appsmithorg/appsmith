@@ -1,4 +1,4 @@
-import { UserProps } from "../types";
+import type { UserProps } from "../types";
 
 export const allUsers: UserProps[] = [
   {

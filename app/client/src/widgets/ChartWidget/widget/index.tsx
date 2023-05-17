@@ -1,31 +1,46 @@
 import React, { lazy, Suspense } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import {
+import type {
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
   ChartSelectedDataPoint,
 } from "../constants";
 
-import { WidgetType } from "constants/WidgetConstants";
-import { ChartComponentProps } from "../component";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ChartComponent = lazy(() =>
-  retryPromise(() =>
-    import(
-      /* webpackPrefetch: true, webpackChunkName: "charts" */ "../component"
-    ),
-  ),
+  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Chart widget is used to view the graphical representation of your data. Chart is the go-to widget for your data visualisation needs.",
+      "!url": "https://docs.appsmith.com/widget-reference/chart",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      chartData: {
+        seriesName: "string",
+        data: "[$__chartDataPoint__$]",
+      },
+      xAxisName: "string",
+      yAxisName: "string",
+      selectedDataPoint: "$__chartDataPoint__$",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedDataPoint: undefined,
@@ -75,6 +90,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
           fontFamily={this.props.fontFamily ?? "Nunito Sans"}
+          hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
           isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}

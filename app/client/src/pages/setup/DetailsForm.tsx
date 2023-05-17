@@ -24,7 +24,7 @@ import {
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { SetupFormProps } from "./SetupForm";
+import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import {
   Button,
@@ -33,6 +33,7 @@ import {
   Size,
 } from "design-system-old";
 import { roleOptions, useCaseOptions } from "./constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -49,6 +50,8 @@ export default function DetailsForm(
   props: SetupFormProps & { onNext?: () => void },
 ) {
   const ref = React.createRef<HTMLDivElement>();
+
+  const isAirgappedInstance = isAirgapped();
 
   return (
     <DetailsFormWrapper ref={ref}>
@@ -95,7 +98,7 @@ export default function DetailsForm(
           <FormTextField
             data-testid="verifyPassword"
             name="verifyPassword"
-            placeholder="Type correctly"
+            placeholder="Re-enter Password"
             type="password"
           />
         </StyledFormGroup>
@@ -144,11 +147,11 @@ export default function DetailsForm(
             category={Category.secondary}
             className="t--welcome-form-next-button"
             disabled={props.invalid}
-            onClick={props.onNext}
+            onClick={!isAirgappedInstance ? props.onNext : undefined}
             size={Size.medium}
             tag="button"
             text="Next"
-            type="button"
+            type={!isAirgappedInstance ? "button" : "submit"}
           />
         </ButtonWrapper>
       </StyledFormBodyWrapper>

@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.caching.annotations.Cache;
+import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
@@ -19,9 +20,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.userAcl;
 
 @Component
 public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelper{
@@ -95,5 +98,22 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
 
     }
 
+    @Override
+    @Cache(cacheName = "readablePermissionGroupCountForUser", key = "{#user.email + #user.tenantId}")
+    public Mono<Long> getAllReadablePermissionGroupsForUser(User user) {
+        // The below call doesn't hit the case, but instead hits the whole function flow.
+        Mono<Set<String>> permissionGroupsMono = getPermissionGroupsOfUser(user);
+        return permissionGroupsMono.map(permissionGroups -> {
+                    Query queryWithPermissions = new Query();
+                    queryWithPermissions.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, READ_PERMISSION_GROUPS)));
+                    return queryWithPermissions;
+                })
+                .flatMap(query -> mongoOperations.count(query, PermissionGroup.class));
+    }
 
+    @Override
+    @CacheEvict(cacheName = "readablePermissionGroupCountForUser", key = "{#email + #tenantId}")
+    public Mono<Void> evictGetAllReadablePermissionGroupsForUser(String email, String tenantId) {
+        return Mono.empty();
+    }
 }

@@ -1,4 +1,4 @@
-import { RoleProps } from "../types";
+import type { RoleProps } from "../types";
 
 export const rolesTableData: RoleProps[] = [
   {

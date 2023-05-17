@@ -1,4 +1,6 @@
 {
+  "googleJSOriginUrl": "[name='js-origin-url-form']",
+  "googleRedirectUrl": "[name='redirect-url-form']",
   "googleClientId": "[name='APPSMITH_OAUTH2_GOOGLE_CLIENT_ID']",
   "googleClientSecret": "[name='APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET']",
   "googleAllowedDomains": "[name='APPSMITH_SIGNUP_ALLOWED_DOMAINS']",

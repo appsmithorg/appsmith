@@ -1,17 +1,21 @@
 import {
   createMessage,
   ERROR_0,
+  ERROR_413,
   ERROR_500,
+  GENERIC_API_EXECUTION_ERROR,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 import {
   API_STATUS_CODES,
+  DEFAULT_ENV_NAME,
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "@appsmith/constants/ApiConstants";
 import log from "loglevel";
-import { ActionExecutionResponse } from "api/ActionAPI";
+import type { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -19,12 +23,28 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import * as Sentry from "@sentry/react";
+import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const appsmithConfig = getAppsmithConfigs();
+
+export const BLOCKED_ROUTES = [
+  "v1/app-templates",
+  "v1/marketplace",
+  "v1/datasources/mocks",
+  "v1/usage-pulse",
+  "v1/applications/releaseItems",
+  "v1/saas",
+];
+
+export const BLOCKED_ROUTES_REGEX = new RegExp(
+  `^(${BLOCKED_ROUTES.join("|")})($|/)`,
+);
 
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
@@ -39,11 +59,30 @@ const is404orAuthPath = () => {
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
 };
 
+export const blockedApiRoutesForAirgapInterceptor = (
+  config: AxiosRequestConfig,
+) => {
+  const { url } = config;
+
+  const isAirgappedInstance = isAirgapped();
+  if (isAirgappedInstance && url && BLOCKED_ROUTES_REGEX.test(url)) {
+    return Promise.resolve({ data: null, status: 200 });
+  }
+  return config;
+};
+
 // Request interceptor will add a timer property to the request.
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   config.headers = config.headers ?? {};
+
+  // Add header for CSRF protection.
+  const methodUpper = config.method?.toUpperCase();
+  if (methodUpper && methodUpper !== "GET" && methodUpper !== "HEAD") {
+    config.headers["X-Requested-By"] = "Appsmith";
+  }
+
   const branch =
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch && config.headers) {
@@ -51,6 +90,14 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
+  }
+
+  // Add header for environment name
+  let activeEnv = getQueryParamsObject().environment;
+  if (activeEnv === undefined || activeEnv === null || activeEnv === "")
+    activeEnv = DEFAULT_ENV_NAME;
+  if (activeEnv.length > 0 && config.headers) {
+    config.headers.environmentName = activeEnv;
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
@@ -72,11 +119,36 @@ export const apiSuccessResponseInterceptor = (
       return makeExecuteActionResponse(response);
     }
   }
+  if (
+    response.headers[CONTENT_TYPE_HEADER_KEY] === "application/json" &&
+    !response.data.responseMeta
+  ) {
+    Sentry.captureException(new Error("Api responded without response meta"), {
+      contexts: { response: response.data },
+    });
+  }
   return response.data;
 };
 
 // Handle different api failure scenarios
 export const apiFailureResponseInterceptor = (error: any) => {
+  // this can be extended to other errors we want to catch.
+  // in this case it is 413.
+  if (error && error?.response && error?.response.status === 413) {
+    return Promise.reject({
+      ...error,
+      clientDefinedError: true,
+      statusCode: "AE-APP-4013",
+      message: createMessage(ERROR_413, 100),
+      pluginErrorDetails: {
+        appsmithErrorCode: "AE-APP-4013",
+        appsmithErrorMessage: createMessage(ERROR_413, 100),
+        errorType: "INTERNAL_ERROR", // this value is from the server, hence cannot construct enum type.
+        title: createMessage(GENERIC_API_EXECUTION_ERROR),
+      },
+    });
+  }
+
   // Return error when there is no internet
   if (!window.navigator.onLine) {
     return Promise.reject({
@@ -135,11 +207,11 @@ export const apiFailureResponseInterceptor = (error: any) => {
           show: false,
         });
       }
-      const errorData = error.response.data.responseMeta;
+      const errorData = error.response.data.responseMeta ?? {};
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-        (errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND ||
-          errorData.error.code === SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE)
+        (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error.code) ||
+          SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData.error.code))
       ) {
         return Promise.reject({
           code: ERROR_CODES.PAGE_NOT_FOUND,
@@ -151,6 +223,9 @@ export const apiFailureResponseInterceptor = (error: any) => {
     if (error.response.data.responseMeta) {
       return Promise.resolve(error.response.data);
     }
+    Sentry.captureException(new Error("Api responded without response meta"), {
+      contexts: { response: error.response.data },
+    });
     return Promise.reject(error.response.data);
   } else if (error.request) {
     // The request was made but no response was received

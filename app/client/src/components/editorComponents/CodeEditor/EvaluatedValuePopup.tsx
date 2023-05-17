@@ -4,12 +4,10 @@ import { isObject, isString } from "lodash";
 import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import {
-  EditorTheme,
-  FieldEntityInformation,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
-import { Placement } from "popper.js";
+import type { Placement } from "popper.js";
 import {
   ScrollIndicator,
   Toaster,
@@ -18,27 +16,31 @@ import {
 } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import {
-  Button,
-  Classes,
-  Collapse,
-  Icon,
-  IPopoverSharedProps,
-} from "@blueprintjs/core";
+import type { IPopoverSharedProps } from "@blueprintjs/core";
+import { Button, Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
-import { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
-import { Indices, Layers } from "constants/Layers";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import type { Indices } from "constants/Layers";
+import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
+import { Link } from "react-router-dom";
+import { showDebugger } from "actions/debuggerActions";
+import { modText } from "utils/helpers";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
+import { importSvg } from "design-system-old";
+
+const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -68,9 +70,9 @@ type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
   [EditorTheme.LIGHT]: {
-    backgroundColor: "#EBEBEB",
+    backgroundColor: "#F8F8F8",
     textColor: "#4B4848",
-    editorBackground: "#FAFAFA",
+    editorBackground: "#FFFFFF",
     editorColor: "#1E242B",
   },
   [EditorTheme.DARK]: {
@@ -92,8 +94,11 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   background-color: ${(props) => THEMES[props.colorTheme].backgroundColor};
   color: ${(props) => THEMES[props.colorTheme].textColor};
   padding: 10px;
-  box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  // box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.1),
+    0px 2px 4px -2px rgba(0, 0, 0, 0.06);
   border-radius: 0px;
+  pointer-events: all;
 `;
 
 const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
@@ -121,6 +126,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
       display: flex;
     }
   }
+  border: 1px solid #b3b3b3;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -133,7 +139,11 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   word-break: break-all;
 `;
 
-const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
+const TypeText = styled.pre<{
+  colorTheme: EditorTheme;
+  padded?: boolean;
+  addBorder?: boolean;
+}>`
   padding: ${(props) => (props.padded ? "8px" : 0)};
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
@@ -141,6 +151,7 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
   margin: 5px 0;
   -ms-overflow-style: none;
   white-space: pre-wrap;
+  ${(props) => props?.addBorder && "border: 1px solid #b3b3b3;"}
 `;
 
 const ErrorText = styled.p`
@@ -148,12 +159,13 @@ const ErrorText = styled.p`
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[5]}px;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 19px;
   letter-spacing: -0.24px;
   background-color: rgba(226, 44, 44, 0.08);
   border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
   color: ${(props) => props.theme.colors.errorMessage};
+  margin-top: 15px;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -165,10 +177,36 @@ const StyledIcon = styled(Icon)`
 
 const StyledTitle = styled.p`
   margin: 8px 0;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
   cursor: pointer;
+`;
+
+const StyledTitleName = styled.p`
+  margin: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 12px;
+  cursor: pointer;
+`;
+
+const AsyncFunctionErrorLink = styled(Link)`
+  color: ${(props) => props.theme.colors.debugger.entityLink};
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 14px;
+  cursor: pointer;
+  letter-spacing: 0.6px;
+  &:hover {
+    color: ${(props) => props.theme.colors.debugger.entityLink};
+  }
+`;
+
+const AsyncFunctionErrorView = styled.div`
+  display: flex;
+  margin-top: 12px;
+  justify-content: space-between;
 `;
 
 function CollapseToggle(props: { isOpen: boolean }) {
@@ -211,6 +249,8 @@ interface Props {
   entity?: FieldEntityInformation;
   popperZIndex?: Indices;
   dataTreePath?: string;
+  evaluatedPopUpLabel?: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface PopoverContentProps {
@@ -226,6 +266,8 @@ interface PopoverContentProps {
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
   dataTreePath?: string;
+  evaluatedPopUpLabel?: string;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -439,29 +481,45 @@ function PopoverContent(props: PopoverContentProps) {
     !!popupContext?.type,
   );
   const [openExpectedExample, setOpenExpectedExample] = useState(
-    !!popupContext?.example,
+    props.expected?.openExampleTextByDefault || !!popupContext?.example,
   );
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(
     popupContext && popupContext.value !== undefined
       ? popupContext.value
       : true,
   );
+  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
+    props;
+  const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
+  const JSFunctionInvocationError = errors.find(
+    ({ kind }) =>
+      kind &&
+      kind.category ===
+        PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD &&
+      kind.rootcause,
+  );
+  const errorNavigationUrl = useSelector((state: AppState) =>
+    getJSFunctionNavigationUrl(
+      state,
+      entityName,
+      JSFunctionInvocationError?.kind?.rootcause,
+    ),
+  );
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const {
-    errors,
-    expected,
-    hasError,
-    onMouseEnter,
-    onMouseLeave,
-    theme,
-  } = props;
+
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
   }
+  const openDebugger = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(showDebugger());
+  };
 
   useEffect(() => {
     dispatch(
@@ -473,24 +531,50 @@ function PopoverContent(props: PopoverContentProps) {
     );
   }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
 
+  const getErrorMessage = (error: Error) => {
+    return error
+      ? error.message
+      : `This value does not evaluate to type "${expected?.type}".`;
+  };
   return (
     <ContentWrapper
-      className="t--CodeEditor-evaluatedValue"
+      className="t--CodeEditor-evaluatedValue evaluated-value-popup"
       colorTheme={theme}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {props?.entity && props.entity?.entityName && (
+        <StyledTitleName>
+          {props?.evaluatedPopUpLabel
+            ? props?.evaluatedPopUpLabel
+            : props?.entity?.entityName}
+        </StyledTitleName>
+      )}
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
             {/* errorMessage could be an empty string */}
-            {error.errorMessage ||
-              `This value does not evaluate to type "${expected?.type}".`}
+            {getErrorMessage(error.errorMessage)}
           </span>
-          <EvaluatedValueDebugButton
-            entity={props.entity}
-            error={{ type: error.errorType, message: error.errorMessage }}
-          />
+
+          {errorNavigationUrl ? (
+            <AsyncFunctionErrorView>
+              <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
+                See Error ({modText()} D)
+              </AsyncFunctionErrorLink>
+              <AsyncFunctionErrorLink to={errorNavigationUrl}>
+                View Source
+              </AsyncFunctionErrorLink>
+            </AsyncFunctionErrorView>
+          ) : (
+            <EvaluatedValueDebugButton
+              entity={props.entity}
+              error={{
+                type: error.errorType,
+                message: error.errorMessage,
+              }}
+            />
+          )}
         </ErrorText>
       )}
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
@@ -500,7 +584,12 @@ function PopoverContent(props: PopoverContentProps) {
             <CollapseToggle isOpen={openExpectedDataType} />
           </StyledTitle>
           <Collapse isOpen={openExpectedDataType}>
-            <TypeText colorTheme={props.theme} padded ref={typeTextRef}>
+            <TypeText
+              addBorder
+              colorTheme={props.theme}
+              padded
+              ref={typeTextRef}
+            >
               {props.expected.type}
             </TypeText>
           </Collapse>
@@ -541,6 +630,8 @@ function PopoverContent(props: PopoverContentProps) {
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
+  const [position, setPosition] = useState(undefined);
+  const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -557,16 +648,25 @@ function EvaluatedValuePopup(props: Props) {
   return (
     <Wrapper ref={wrapperRef}>
       <Popper
-        isOpen={props.isOpen || contentHovered}
+        customParent={document.body}
+        editorRef={props?.editorRef}
+        isDraggable
+        isDragging={isDragging}
+        isOpen={props.isOpen || contentHovered || isDragging}
         modifiers={modifiers}
         placement={placement}
+        position={position}
+        setIsDragging={setIsDragging}
+        setPosition={setPosition}
         targetNode={wrapperRef.current || undefined}
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
           dataTreePath={props.dataTreePath}
+          editorRef={props?.editorRef}
           entity={props.entity}
           errors={props.errors}
+          evaluatedPopUpLabel={props?.evaluatedPopUpLabel}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}
           hasError={props.hasError}

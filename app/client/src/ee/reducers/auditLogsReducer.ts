@@ -1,10 +1,8 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import { DropdownOption } from "design-system-old";
-import { AuditLogType } from "@appsmith/pages/AuditLogs/types";
+import type { DropdownOption } from "design-system-old";
+import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
 import union from "lodash/union";
 import { unionWith, uniqWith } from "lodash";
 import { AUDIT_LOGS_PAGE_SIZE } from "@appsmith/pages/AuditLogs/config/audit-logs-config";

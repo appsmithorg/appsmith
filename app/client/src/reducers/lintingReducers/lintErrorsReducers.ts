@@ -1,25 +1,24 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "utils/DynamicBindingUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
-import { SetLintErrorsAction } from "actions/lintingActions";
+import type { SetLintErrorsAction } from "actions/lintingActions";
 import { isEqual } from "lodash";
 
-export interface LintErrors {
-  [entityName: string]: LintError[];
-}
+export type LintErrorsStore = Record<string, LintError[]>;
 
-const initialState: LintErrors = {};
+const initialState: LintErrorsStore = {};
 
 export const lintErrorReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
   [ReduxActionTypes.SET_LINT_ERRORS]: (
-    state: LintErrors,
+    state: LintErrorsStore,
     action: SetLintErrorsAction,
   ) => {
     const { errors } = action.payload;
-    for (const entityName of Object.keys(errors)) {
-      if (isEqual(state[entityName], errors[entityName])) continue;
-      state[entityName] = errors[entityName];
+    for (const entityPath of Object.keys(errors)) {
+      const entityPathLintErrors = errors[entityPath];
+      if (isEqual(entityPathLintErrors, state[entityPath])) continue;
+      state[entityPath] = entityPathLintErrors;
     }
   },
 });

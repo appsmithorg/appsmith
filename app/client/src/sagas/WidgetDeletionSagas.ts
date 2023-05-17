@@ -1,12 +1,12 @@
-import {
+import type {
   MultipleWidgetDeletePayload,
-  updateAndSaveLayout,
   WidgetDelete,
 } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
@@ -14,20 +14,29 @@ import {
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import {
+  getCanvasWidth,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { WidgetProps } from "widgets/BaseWidget";
-import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
+import type { WidgetProps } from "widgets/BaseWidget";
+import {
+  getSelectedWidget,
+  getWidget,
+  getWidgets,
+  getWidgetsMeta,
+} from "./selectors";
+import type { WidgetsInTree } from "./WidgetOperationUtils";
 import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
-  WidgetsInTree,
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
@@ -38,6 +47,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -90,7 +100,21 @@ function* deleteTabChildSaga(
           tabsObj: updatedObj,
         },
       };
-      yield put(updateAndSaveLayout(parentUpdatedWidgets));
+      // Update flex layers of a canvas upon deletion of a widget.
+      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+      const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState =
+        yield call(
+          updateFlexLayersOnDelete,
+          parentUpdatedWidgets,
+          widgetId,
+          tabWidget.parentId,
+          isMobile,
+          mainCanvasWidth,
+          metaProps,
+        );
+      yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -162,11 +186,8 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       widgetName = widget.tabName;
     }
 
-    let finalWidgets: CanvasWidgetsReduxState = updateListWidgetPropertiesOnChildDelete(
-      widgets,
-      widgetId,
-      widgetName,
-    );
+    let finalWidgets: CanvasWidgetsReduxState =
+      updateListWidgetPropertiesOnChildDelete(widgets, widgetId, widgetName);
 
     finalWidgets = omit(
       finalWidgets,
@@ -184,6 +205,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
 function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { parentId, widgetId } = deleteAction.payload;
+
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
@@ -202,14 +224,29 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+
       const updatedObj: UpdatedDSLPostDelete = yield call(
         getUpdatedDslAfterDeletingWidget,
         widgetId,
         parentId,
       );
+
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        yield put(updateAndSaveLayout(finalWidgets));
+        const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+        const mainCanvasWidth: number = yield select(getCanvasWidth);
+        const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+        // Update flex layers of a canvas upon deletion of a widget.
+        const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState =
+          updateFlexLayersOnDelete(
+            finalWidgets,
+            widgetId,
+            parentId,
+            isMobile,
+            mainCanvasWidth,
+            metaProps,
+          );
+        yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
@@ -255,6 +292,7 @@ function* deleteAllSelectedWidgetsSaga(
       }),
     );
     const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
+
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
@@ -275,8 +313,46 @@ function* deleteAllSelectedWidgetsSaga(
       parentUpdatedWidgets,
       flattenedWidgets.map((widgets: any) => widgets.widgetId),
     );
+    // assuming only widgets with same parent can be selected
+    const parentId = widgets[selectedWidgets[0]].parentId;
+    let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
+    if (parentId) {
+      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+      for (const widgetId of selectedWidgets) {
+        widgetsAfterUpdatingFlexLayers = yield call(
+          updateFlexLayersOnDelete,
+          widgetsAfterUpdatingFlexLayers,
+          widgetId,
+          parentId,
+          isMobile,
+          mainCanvasWidth,
+          metaProps,
+        );
+      }
+    }
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    // let mainCanvasMinHeight;
+    // if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+    //   const mainCanvasProps: MainCanvasReduxState = yield select(
+    //     getMainCanvasProps,
+    //   );
+    //   mainCanvasMinHeight = mainCanvasProps?.height;
+    // }
 
-    yield put(updateAndSaveLayout(finalWidgets));
+    // if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
+    //   widgetsAfterUpdatingFlexLayers[
+    //     parentId
+    //   ].bottomRow = resizePublishedMainCanvasToLowestWidget(
+    //     widgetsAfterUpdatingFlexLayers,
+    //     parentId,
+    //     finalWidgets[parentId].bottomRow,
+    //     mainCanvasMinHeight,
+    //   );
+    // }
+
+    yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));

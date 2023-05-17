@@ -1,12 +1,12 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { omit } from "lodash";
-import { Action } from "entities/Action";
-import { ActionResponse } from "api/ActionAPI";
+import type { Action } from "entities/Action";
+import type { ActionResponse } from "api/ActionAPI";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: QueryPaneReduxState = {
@@ -19,7 +19,6 @@ const initialState: QueryPaneReduxState = {
   lastUsed: "", // NR
   responseTabHeight: ActionExecutionResizerHeight,
   selectedConfigTabIndex: 0,
-  selectedResponseTab: "",
 };
 
 export interface QueryPaneReduxState {
@@ -31,7 +30,6 @@ export interface QueryPaneReduxState {
   lastUsed: string; // NR
   isCreating: boolean; // RR
   selectedConfigTabIndex: number;
-  selectedResponseTab: string;
   responseTabHeight: number;
 }
 
@@ -187,26 +185,6 @@ const queryPaneReducer = createReducer(initialState, {
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_SELECTED_TAB]: (
-    state: QueryPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
-  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: QueryPaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
     };
   },
 });

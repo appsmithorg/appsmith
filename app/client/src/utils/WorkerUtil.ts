@@ -1,8 +1,10 @@
 import { cancelled, delay, put, take } from "redux-saga/effects";
-import { channel, Channel, buffers } from "redux-saga";
+import type { Channel } from "redux-saga";
+import { channel, buffers } from "redux-saga";
 import { uniqueId } from "lodash";
 import log from "loglevel";
-import { TMessage, MessageType, sendMessage } from "./MessageUtil";
+import type { TMessage } from "./MessageUtil";
+import { MessageType, sendMessage } from "./MessageUtil";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -58,6 +60,7 @@ export class GracefulWorkerService {
     this._broker = this._broker.bind(this);
     this.request = this.request.bind(this);
     this.respond = this.respond.bind(this);
+    this.ping = this.ping.bind(this);
 
     // Do not buffer messages on this channel
     this._readyChan = channel(buffers.none());
@@ -122,6 +125,17 @@ export class GracefulWorkerService {
       body: {
         data,
       },
+      messageId,
+      messageType,
+    });
+  }
+
+  *ping(data = {}, messageId?: string): any {
+    yield this.ready(true);
+    if (!this._Worker) return;
+    const messageType = MessageType.DEFAULT;
+    sendMessage.call(this._Worker, {
+      body: data,
       messageId,
       messageType,
     });

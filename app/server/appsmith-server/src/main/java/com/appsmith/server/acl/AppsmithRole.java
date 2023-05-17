@@ -1,24 +1,34 @@
 package com.appsmith.server.acl;
 
+import com.appsmith.server.constants.FieldName;
 import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
+import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
@@ -38,8 +48,6 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTI
 
 @Getter
 public enum AppsmithRole {
-    APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
-    APPLICATION_VIEWER("Application Viewer", "", Set.of(READ_APPLICATIONS)),
     ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
             Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
                     WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS, DELETE_WORKSPACES, WORKSPACE_MAKE_PUBLIC_APPLICATIONS)),
@@ -60,6 +68,27 @@ public enum AppsmithRole {
                     READ_TENANT_AUDIT_LOGS, MANAGE_TENANT, TENANT_MANAGE_ALL_USERS
             )
     ),
+    /**
+     * Default Application Developer Role
+     * The role's name will be of format <b>Developer - application_name</b>
+     * The User with this role will be able to Edit, Delete and Read respective Application.
+     */
+    APPLICATION_DEVELOPER(
+            FieldName.APPLICATION_DEVELOPER,
+            FieldName.APPLICATION_DEVELOPER_DESCRIPTION,
+            Set.of(MANAGE_APPLICATIONS, DELETE_APPLICATIONS, READ_APPLICATIONS, APPLICATION_CREATE_PAGES,
+                    WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS, INVITE_USERS_APPLICATIONS)
+    ),
+    /**
+     * Default Application Viewer Role
+     * The role's name will be of format <b>App Viewer - application_name</b>
+     * The User with this role will be able to Read respective Application.
+     */
+    APPLICATION_VIEWER(
+            FieldName.APPLICATION_VIEWER,
+            FieldName.APPLICATION_VIEWER_DESCRIPTION,
+            Set.of(READ_APPLICATIONS, EXECUTE_DATASOURCES, INVITE_USERS_APPLICATIONS)
+    )
     ;
 
     private Set<AclPermission> permissions;

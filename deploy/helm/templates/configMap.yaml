@@ -21,7 +21,7 @@ data:
   {{- end }}
 
   {{- if and (eq "APPSMITH_KEYCLOAK_DB_URL" $key) ( not $value) }}
-  {{ $key }}: {{ $.Values.postgresql.enabled | ternary (printf "%s-postgresql.%s.svc.cluster.local:5432" $name $nameSpace) "${jboss.server.data.dir}" | quote }}
+  {{ $key }}: {{ $.Values.postgresql.enabled | ternary (printf "%s-postgresql.%s.svc.cluster.local:5432/%s" $name $nameSpace $postgresqlDatabase) "${jboss.server.data.dir}" | quote }}
   {{- end }}
 
   {{- if and (eq "APPSMITH_KEYCLOAK_DB_USERNAME" $key) ( not $value) }}

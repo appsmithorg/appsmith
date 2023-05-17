@@ -1,5 +1,5 @@
 import { DATASOURCE_NAME_DEFAULT_PREFIX } from "constants/Datasource";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 
 /**
  *

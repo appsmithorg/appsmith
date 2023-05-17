@@ -1,4 +1,4 @@
-import AclApi, {
+import type {
   FetchSingleDataPayload,
   GroupResponse,
   RoleResponse,
@@ -6,16 +6,17 @@ import AclApi, {
   UpdateRolesInGroupRequestPayload,
   UpdateRolesInUserRequestPayload,
 } from "@appsmith/api/AclApi";
+import AclApi from "@appsmith/api/AclApi";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ApiResponse } from "api/ApiResponses";
-import { User } from "constants/userConstants";
-import { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
+import type { ApiResponse } from "api/ApiResponses";
+import type { User } from "constants/userConstants";
+import type { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";
@@ -31,6 +32,7 @@ import {
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "actions/authActions";
+import omit from "lodash/omit";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -119,20 +121,30 @@ export function* fetchAclUserByIdSaga(
         if (action.payload.updatePayload.tab === "roles") {
           AnalyticsUtil.logEvent("GAC_USER_ROLE_UPDATE", {
             origin: createMessage(EVENT_USER_ROLES_TAB),
-            email: data.username,
-            rolesAdded: action.payload.updatePayload.rolesAdded,
-            rolesRemoved: action.payload.updatePayload.rolesRemoved,
-            roles: data.roles,
+            updated_user_id: data.id,
+            rolesAdded: action.payload.updatePayload.rolesAdded.map(
+              (role: any) => role.id,
+            ),
+            rolesRemoved: action.payload.updatePayload.rolesRemoved.map(
+              (role: any) => role.id,
+            ),
+            roles: data.roles.map((role: any) =>
+              omit(role, ["name", "description"]),
+            ),
           });
         }
 
         if (action.payload.updatePayload.tab === "groups") {
           AnalyticsUtil.logEvent("GAC_USER_GROUP_UPDATE", {
             origin: createMessage(EVENT_USER_GROUPS_TAB),
-            email: data.username,
-            groupsAdded: action.payload.updatePayload.groupsAdded,
-            groupsRemoved: action.payload.updatePayload.groupsRemoved,
-            groups: data.groups,
+            updated_user_id: data.id,
+            groupsAdded: action.payload.updatePayload.groupsAdded.map(
+              (grp: any) => grp.id,
+            ),
+            groupsRemoved: action.payload.updatePayload.groupsRemoved.map(
+              (grp: any) => grp.id,
+            ),
+            groups: data.groups.map((grp: any) => grp.id),
           });
         }
       }
@@ -293,10 +305,16 @@ export function* fetchAclGroupSagaById(
       if (action.payload.triggerUpdateEvent && action.payload.updatePayload) {
         AnalyticsUtil.logEvent("GAC_GROUP_ROLE_UPDATE", {
           origin: createMessage(EVENT_GROUP_ROLES_TAB),
-          name: data.name,
-          rolesAdded: action.payload.updatePayload.rolesAdded,
-          rolesRemoved: action.payload.updatePayload.rolesRemoved,
-          roles: data.roles,
+          group_id: data.id,
+          rolesAdded: action.payload.updatePayload.rolesAdded.map(
+            (role: any) => role.id,
+          ),
+          rolesRemoved: action.payload.updatePayload.rolesRemoved.map(
+            (role: any) => role.id,
+          ),
+          roles: data.roles.map((role: any) =>
+            omit(role, ["name", "description"]),
+          ),
         });
       }
       yield put({

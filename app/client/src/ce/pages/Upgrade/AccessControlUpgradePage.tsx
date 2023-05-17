@@ -1,5 +1,5 @@
 import React from "react";
-import { Carousel, Header } from "./types";
+import type { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
 import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
 import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";
@@ -22,7 +22,7 @@ import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
-    logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
+    logEventName: "GAC_UPGRADE_CLICK_ADMIN_SETTINGS",
     logEventData: { source: "Granular Access Control" },
     intercomMessage: createMessage(
       UPGRADE_TO_EE_FEATURE,

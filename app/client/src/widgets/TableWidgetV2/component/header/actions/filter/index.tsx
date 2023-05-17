@@ -5,18 +5,22 @@ import { Colors } from "constants/Colors";
 import { TableIconWrapper } from "../../../TableStyledWrappers";
 import TableFilterPane from "./FilterPane";
 
-import {
+import type {
   ReactTableColumnProps,
   ReactTableFilter,
-  OperatorTypes,
 } from "../../../Constants";
+import { DEFAULT_FILTER } from "../../../Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import ActionItem from "../ActionItem";
+import { importSvg } from "design-system-old";
+
+const FilterIcon = importSvg(
+  () => import("assets/icons/control/filter-icon.svg"),
+);
 
 export interface DropdownOption {
   label: string;
@@ -44,12 +48,7 @@ function TableFilters(props: TableFilterProps) {
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
     if (filters.length === 0) {
-      filters.push({
-        column: "",
-        operator: OperatorTypes.OR,
-        value: "",
-        condition: "",
-      });
+      filters.push({ ...DEFAULT_FILTER });
     }
     updateFilters(filters);
   }, [props.filters]);
@@ -110,5 +109,5 @@ function TableFilters(props: TableFilterProps) {
     </>
   );
 }
-
-export default TableFilters;
+const TableFiltersMemoised = React.memo(TableFilters);
+export default TableFiltersMemoised;

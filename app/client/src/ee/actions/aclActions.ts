@@ -1,6 +1,6 @@
-import { FetchSingleDataPayload } from "@appsmith/api/AclApi";
+import type { FetchSingleDataPayload } from "@appsmith/api/AclApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   BaseAclProps,
   GroupProps,
   RoleProps,

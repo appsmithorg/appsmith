@@ -1,10 +1,11 @@
 import React from "react";
-import { IconProps } from "constants/IconConstants";
+import type { IconProps } from "constants/IconConstants";
 import {
   createMessage,
   LIGHTNING_MENU_DATA_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Theme, Skin } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import { TooltipComponent as Tooltip } from "design-system-old";
@@ -55,9 +56,8 @@ export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
       menuState = "default";
     }
 
-    const { background, color } = props.theme.lightningMenu[props.skin][
-      menuState
-    ];
+    const { background, color } =
+      props.theme.lightningMenu[props.skin][menuState];
     const iconProps: IconProps = {
       width: 18,
       height: 18,

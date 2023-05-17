@@ -1,10 +1,8 @@
-import { takeLeading, all, put, select, call } from "redux-saga/effects";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import { all, call, put, select, takeLeading } from "redux-saga/effects";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snipingModeBindToSelector } from "selectors/editorSelectors";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
@@ -19,8 +17,10 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { setSnipingMode } from "actions/propertyPaneActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -84,6 +84,10 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.LIST_WIDGET:
+      propertyPath = "listData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.LIST_WIDGET_V2:
       propertyPath = "listData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
@@ -152,15 +156,8 @@ export function* bindDataToWidgetSaga(
     yield put(
       updateWidgetPropertyRequest(widgetId, propertyPath, propertyValue),
     );
-    yield put({
-      type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-      payload: {
-        widgetId: widgetId,
-        callForDragOrResize: undefined,
-        force: true,
-      },
-    });
     yield call(resetSnipingModeSaga);
+    yield put(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
   } else {
     queryId &&
       Toaster.show({

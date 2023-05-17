@@ -5,11 +5,8 @@ import {
   getConnectingErrorDocUrl,
   getGitConnectError,
 } from "selectors/gitSyncSelectors";
-import {
-  NotificationBanner,
-  NotificationBannerProps,
-  NotificationVariant,
-} from "design-system-old";
+import type { NotificationBannerProps } from "design-system-old";
+import { NotificationBanner, NotificationVariant } from "design-system-old";
 
 const NotificationContainer = styled.div`
   margin-top: 16px;

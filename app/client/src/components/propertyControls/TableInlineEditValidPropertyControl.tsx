@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ORIGINAL_INDEX_KEY,
@@ -7,13 +7,16 @@ import {
 } from "widgets/TableWidgetV2/constants";
 import TableInlineEditValidationControlProperty, {
   CurlyBraces,
+  StyledCode,
   InputText,
+  PromptMessage,
 } from "./TableInlineEditValidationControl";
 import { isString } from "lodash";
+import { JSToString, stringToJS } from "./utils";
 import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
+  createMessage,
+  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
+} from "@appsmith/constants/messages";
 
 const bindingPrefix = `{{
   (
@@ -81,11 +84,12 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
         label={label}
         onChange={this.onTextChange}
         promptMessage={
-          <>
-            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentRow.columnName
+          <PromptMessage>
+            {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
+            <CurlyBraces>{"{{"}</CurlyBraces>
+            <StyledCode>currentRow.columnName</StyledCode>
             <CurlyBraces>{"}}"}</CurlyBraces>
-          </>
+          </PromptMessage>
         }
         theme={theme}
         value={value}

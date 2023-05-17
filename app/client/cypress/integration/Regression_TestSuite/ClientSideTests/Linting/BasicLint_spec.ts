@@ -35,6 +35,8 @@ const clickButtonAndAssertLintError = (
 
   //Reload and Check for presence/ absence of lint error
   agHelper.RefreshPage();
+  // agHelper.AssertElementVisible(locator._visibleTextDiv("Explorer"));
+  // agHelper.Sleep(2500);
   ee.SelectEntityByName("Button1", "Widgets");
   shouldExist
     ? agHelper.AssertElementExist(locator._lintErrorElement)
@@ -55,7 +57,7 @@ describe("Linting", () => {
     ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
-      dsName = ($dsName as unknown) as string;
+      dsName = $dsName as unknown as string;
     });
   });
 
@@ -73,7 +75,7 @@ describe("Linting", () => {
       }()}}`,
     );
 
-    propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.name}}");
+    propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.config.httpMethod}}");
     clickButtonAndAssertLintError(true);
 
     // create Api1
@@ -191,7 +193,7 @@ describe("Linting", () => {
       }
     }()}}`,
     );
-    propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
+    propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.ENTITY_TYPE}}`);
     clickButtonAndAssertLintError(true);
 
     createMySQLDatasourceQuery();
@@ -238,7 +240,7 @@ describe("Linting", () => {
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
-      `{{Api1.name + JSObject1.myVar1 + Query1.name}}`,
+      `{{Api1.config.httpMethod + JSObject1.myVar1 + Query1.ENTITY_TYPE}}`,
     );
 
     clickButtonAndAssertLintError(false);
@@ -293,47 +295,51 @@ describe("Linting", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 
-  it("9. Shows lint errors for usage of library that are not installed yet", () => {
-    const JS_OBJECT_WITH_LIB_API = `export default {
+  it(
+    "excludeForAirgap",
+    "9. Shows lint errors for usage of library that are not installed yet",
+    () => {
+      const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {
         return UUID.generate();
       },
     }`;
-    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-    });
+      jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      });
 
-    agHelper.AssertElementExist(locator._lintErrorElement);
-    ee.ExpandCollapseEntity("Libraries");
-    // install the library
-    installer.openInstaller();
-    installer.installLibrary("uuidjs", "UUID");
-    installer.closeInstaller();
+      agHelper.AssertElementExist(locator._lintErrorElement);
+      ee.ExpandCollapseEntity("Libraries");
+      // install the library
+      installer.openInstaller();
+      installer.installLibrary("uuidjs", "UUID");
+      installer.closeInstaller();
 
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+      agHelper.AssertElementAbsence(locator._lintErrorElement);
 
-    installer.uninstallLibrary("uuidjs");
+      installer.uninstallLibrary("uuidjs");
 
-    agHelper.AssertElementExist(locator._lintErrorElement);
-    agHelper.Sleep(2000);
-    installer.openInstaller();
-    installer.installLibrary("uuidjs", "UUID");
-    installer.closeInstaller();
+      agHelper.AssertElementExist(locator._lintErrorElement);
+      agHelper.Sleep(2000);
+      installer.openInstaller();
+      installer.installLibrary("uuidjs", "UUID");
+      installer.closeInstaller();
 
-    home.NavigateToHome();
+      home.NavigateToHome();
 
-    home.CreateNewApplication();
+      home.CreateNewApplication();
 
-    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-    });
+      jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      });
 
-    agHelper.AssertElementExist(locator._lintErrorElement);
-  });
+      agHelper.AssertElementExist(locator._lintErrorElement);
+    },
+  );
 });

@@ -1,29 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  createMessage,
   ACTION_OPERATION_DESCRIPTION,
+  createMessage,
   DOC_DESCRIPTION,
   NAV_DESCRIPTION,
   SNIPPET_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { Datasource } from "entities/Datasource";
-import { useEffect, useState } from "react";
+import type { ValidationTypes } from "constants/WidgetValidation";
+import type { Datasource } from "entities/Datasource";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { WidgetType } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   CurlIconV2,
-  JsFileIconV2,
   GraphQLIconV2,
+  JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "utils/AnalyticsUtil";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
@@ -317,18 +316,25 @@ export const attachKind = (source: any[], kind: string) => {
   }));
 };
 
-export const getEntityId = (entity: any) => {
+export const getEntityId = (entity: {
+  entityType: FocusEntity;
+  [key: string]: any;
+}) => {
   const { entityType } = entity;
   switch (entityType) {
-    case "page":
-      return entity.pageId;
-    case "datasource":
+    case FocusEntity.DATASOURCE:
       return entity.id;
-    case "widget":
-      return entity.widgetId;
-    case "action":
-    case "jsAction":
+    case FocusEntity.API:
+    case FocusEntity.QUERY:
+    case FocusEntity.JS_OBJECT:
       return entity.config?.id;
+    case FocusEntity.PROPERTY_PANE:
+      return entity.widgetId;
+    case FocusEntity.CANVAS:
+    case FocusEntity.PAGE:
+      return entity.pageId;
+    case FocusEntity.NONE:
+      break;
   }
 };
 
@@ -362,7 +368,7 @@ export const actionOperations: ActionOperation[] = [
     title: "New JS Object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
-    icon: JsFileIconV2,
+    icon: JsFileIconV2(),
     action: (pageId: string, from: EventLocation) =>
       createNewJSCollection(pageId, from),
   },

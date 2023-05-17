@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
@@ -118,16 +119,17 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         ArrayList<String> includedFields = new ArrayList<>(List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
-                "unpublishedPage.name",
-                "unpublishedPage.icon",
-                "unpublishedPage.isHidden",
-                "unpublishedPage.slug",
-                "unpublishedPage.customSlug",
-                "publishedPage.name",
-                "publishedPage.icon",
-                "publishedPage.isHidden",
-                "publishedPage.slug",
-                "publishedPage.customSlug"
+                fieldName(QNewPage.newPage.policies),
+                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name)),
+                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.icon)),
+                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.isHidden)),
+                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.slug)),
+                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.customSlug)),
+                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name)),
+                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.icon)),
+                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.isHidden)),
+                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.slug)),
+                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.customSlug))
         ));
 
         Criteria idsCriterion = where("id").in(ids);
@@ -197,5 +199,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 aclPermission,
                 null
         );
+    }
+
+    @Override
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
 }

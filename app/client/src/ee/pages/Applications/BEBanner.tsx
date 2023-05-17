@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, Category, Size, Text, TextType } from "design-system-old";
-import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getRemainingDays,
@@ -22,25 +21,29 @@ import {
   BannerTextWrapper,
   BannerCtaWrapper,
 } from "./styles";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export function BEBanner() {
-  const daysLeft = useSelector(getRemainingDays);
+  const { days, suffix } = useSelector(getRemainingDays);
   const dispatch = useDispatch();
   const isAdmin = useSelector(isAdminUser);
+  const isAirgappedInstance = isAirgapped();
 
   const handleClose = () => {
+    localStorage.setItem("showLicenseBanner", JSON.stringify(false));
     dispatch(setBEBanner(false));
   };
 
   return (
-    <BannerWrapper>
+    <BannerWrapper data-testid="t--welcome-banner">
       <BannerContentWrapper>
         <img
           alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
           className="no-sub-img"
-          height="176px"
-          src={BECtaImage}
-          width="176px"
+          height="180px"
+          src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
+          width="180px"
         />
         <BannerTextWrapper>
           <Text className="main-text" type={TextType.H1} weight="700">
@@ -50,21 +53,21 @@ export function BEBanner() {
             className="sub-text"
             dangerouslySetInnerHTML={{
               __html: createMessage(() =>
-                BE_TRIAL_BANNER_EXPIRY_MESSAGE(daysLeft),
+                BE_TRIAL_BANNER_EXPIRY_MESSAGE(days, suffix),
               ),
             }}
-            type={TextType.P0}
-            weight="700"
+            type={TextType.P1}
+            weight="600"
           />
         </BannerTextWrapper>
       </BannerContentWrapper>
       <BannerCtaWrapper>
-        {isAdmin && (
+        {isAdmin && !isAirgappedInstance && (
           <Button
             className="upgrade-button"
             fill
             onClick={goToCustomerPortal}
-            size={Size.large}
+            size={Size.medium}
             tag="button"
             text={createMessage(UPGRADE_NOW)}
           />
@@ -73,7 +76,7 @@ export function BEBanner() {
           category={Category.secondary}
           className="close-button"
           onClick={handleClose}
-          size={Size.large}
+          size={Size.medium}
           tag="button"
           text={createMessage(CLOSE)}
         />

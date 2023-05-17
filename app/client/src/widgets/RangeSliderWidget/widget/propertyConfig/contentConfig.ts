@@ -1,16 +1,17 @@
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { RangeSliderWidgetProps } from "..";
 import {
-  maxValueValidation,
-  minValueValidation,
-  minRangeValidation,
-  stepSizeValidation,
-  startValueValidation,
   endValueValidation,
+  maxValueValidation,
+  minRangeValidation,
+  minValueValidation,
+  startValueValidation,
+  stepSizeValidation,
 } from "../../validations";
-import { RangeSliderWidgetProps } from "..";
 
 export default [
   {
@@ -157,6 +158,7 @@ export default [
         label: "Position",
         controlType: "ICON_TABS",
         fullWidth: true,
+        hidden: isAutoLayout,
         options: [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
@@ -320,7 +322,7 @@ export default [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onStartValueChange",
         label: "onStartValueChange",
         controlType: "ACTION_SELECTOR",
@@ -329,7 +331,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onEndValueChange",
         label: "onEndValueChange",
         controlType: "ACTION_SELECTOR",

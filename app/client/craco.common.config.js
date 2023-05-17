@@ -1,4 +1,7 @@
 const CracoAlias = require("craco-alias");
+const CracoBabelLoader = require("craco-babel-loader");
+const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
   devServer: {
@@ -11,9 +14,15 @@ module.exports = {
       },
     },
   },
+  babel: {
+    plugins: ["babel-plugin-lodash"],
+  },
   webpack: {
     configure: {
       resolve: {
+        alias: {
+          "lodash-es": "lodash",
+        },
         fallback: {
           assert: false,
           stream: false,
@@ -41,6 +50,16 @@ module.exports = {
           );
         },
       ],
+      plugins: [
+        // Replace BlueprintJS’s icon component with our own implementation
+        // that code-splits icons away
+        new webpack.NormalModuleReplacementPlugin(
+          /@blueprintjs\/core\/lib\/\w+\/components\/icon\/icon\.\w+/,
+          require.resolve(
+            "./src/components/designSystems/blueprintjs/icon/index.js",
+          ),
+        ),
+      ],
     },
   },
   plugins: [
@@ -56,12 +75,32 @@ module.exports = {
       },
     },
     {
+      plugin: CracoBabelLoader,
+      options: {
+        includes: [path.resolve("packages")],
+      },
+    },
+    {
       plugin: "prismjs",
       options: {
         languages: ["javascript"],
         plugins: [],
         theme: "twilight",
         css: false,
+      },
+    },
+    {
+      // Prioritize the local src directory over node_modules.
+      // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
+      // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
+      plugin: {
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          webpackConfig.resolve.modules = [
+            path.resolve(__dirname, "src"),
+            ...webpackConfig.resolve.modules,
+          ];
+          return webpackConfig;
+        },
       },
     },
   ],

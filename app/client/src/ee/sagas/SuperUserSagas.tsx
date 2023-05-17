@@ -7,17 +7,18 @@ import {
   RestryRestartServerPoll,
   SendTestEmail,
 } from "ce/sagas/SuperUserSagas";
-import UserApi, { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
+import type { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import { Toaster, Variant } from "design-system-old";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 
 export function* FetchSamlMetadataSaga(
   action: ReduxAction<FetchSamlMetadataPayload>,

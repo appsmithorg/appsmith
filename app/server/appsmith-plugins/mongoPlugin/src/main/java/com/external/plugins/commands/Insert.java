@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -78,7 +79,7 @@ public class Insert extends MongoCommand {
                     commandDocument.put("documents", arrayListFromInput);
                 }
             } catch (JsonParseException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Documents" + " could not be parsed into expected JSON Array format.");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.DOCUMENTS_NOT_PARSABLE_INTO_JSON_ARRAY_ERROR_MSG, e.getMessage());
             }
         } else {
             // The command expects the documents to be sent in an array. Parse and create a single element array

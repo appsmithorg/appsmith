@@ -2,7 +2,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { UserProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
+import type { UserProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 export const userReducers = {
   [ReduxActionTypes.FETCH_ACL_USERS]: (state: any) => ({

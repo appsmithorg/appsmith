@@ -49,6 +49,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -305,7 +306,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     public Mono<ExportFileDTO> exportAuditLogs(MultiValueMap<String, String> params) {
         return this.getAuditLogRecords(params, EXPORT_RECORD_LIMIT).map(
             records -> {
-                records.forEach(BaseDomain::sanitiseToExportBaseObject);
+                records.forEach(BaseDomain::sanitiseToExportDBObject);
 
                 AuditLogExportDTO exportContent = new AuditLogExportDTO(records, params);
 
@@ -383,9 +384,6 @@ public class AuditLogServiceImpl implements AuditLogService {
         Map<String, Object> eventData = new HashMap<>();
         if (properties != null && properties.containsKey(FieldName.EVENT_DATA) && properties.get(FieldName.EVENT_DATA) != null) {
             eventData.putAll((Map) properties.get(FieldName.EVENT_DATA));
-            if (properties.containsKey(FieldName.INVITED_USERS)) {
-                eventData.put(FieldName.INVITED_USERS, properties.get(FieldName.INVITED_USERS));
-            }
         }
 
         if (AnalyticsEvents.EXECUTE_INVITE_USERS.equals(event)) {
@@ -409,10 +407,10 @@ public class AuditLogServiceImpl implements AuditLogService {
             auditLogMono = setResourceProperties((NewAction) resource, auditLog, auditLogResource, properties, event, eventData);
         }
         else if (resource instanceof UserGroup) {
-            auditLogMono = setResourceProperties((UserGroup) resource, auditLog, auditLogResource, properties);
+            auditLogMono = setResourceProperties((UserGroup) resource, auditLog, auditLogResource, eventData);
         }
         else if (resource instanceof PermissionGroup) {
-            auditLogMono = setResourceProperties((PermissionGroup) resource, auditLog, auditLogResource, properties);
+            auditLogMono = setResourceProperties((PermissionGroup) resource, auditLog, auditLogResource, eventData);
         } else if (resource instanceof User && event.equals(AnalyticsEvents.DELETE)) {
             auditLogMono = setResourceProperties((User) resource, auditLog, auditLogResource);
         }
@@ -597,7 +595,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         auditLogResource.setName(userGroup.getName());
         auditLog.setResource(auditLogResource);
 
-        if (null != properties) {
+        if (MapUtils.isNotEmpty(properties)) {
             AuditLogUserGroupMetadata userGroupMetadata = new AuditLogUserGroupMetadata();
             if (properties.containsKey(FieldName.INVITED_USERS_TO_USER_GROUPS)) {
                 userGroupMetadata.setInvitedUsers((Set) properties.get(FieldName.INVITED_USERS_TO_USER_GROUPS));
@@ -621,7 +619,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         auditLogResource.setId(permissionGroup.getId());
         auditLogResource.setName(permissionGroup.getName());
         auditLog.setResource(auditLogResource);
-        if (null != properties) {
+        if (MapUtils.isNotEmpty(properties)) {
             AuditLogPermissionGroupMetadata permissionGroupMetadata = new AuditLogPermissionGroupMetadata();
             if (properties.containsKey(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS))
                 permissionGroupMetadata.setAssignedUsers((List) properties.get(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS));

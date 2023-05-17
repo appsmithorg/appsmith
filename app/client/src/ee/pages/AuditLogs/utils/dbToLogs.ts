@@ -1,4 +1,4 @@
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 
 export function dbToLogs(serverLogs: any[]): AuditLogType[] {
   return serverLogs.map((serverLog: any) => ({
@@ -11,8 +11,8 @@ export function dbToLogs(serverLogs: any[]): AuditLogType[] {
     application: serverLog.application || {},
     workspace: serverLog.workspace || {},
     user: serverLog.user || {},
-    userGroup: serverLog.userGroup || {},
-    permissionGroup: serverLog.permissionGroup || {},
+    userGroup: serverLog.group || {},
+    permissionGroup: serverLog.role || {},
     instanceSettings: serverLog.instanceSettings || [],
     metadata: serverLog.metadata || {},
     userPermissions: serverLog.userPermissions || [],

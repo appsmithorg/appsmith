@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.UsagePulseExportDTO;
 import com.appsmith.server.dtos.UsagePulseReportDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.HmacHashUtils;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.UsagePulseRepository;
 import com.appsmith.server.services.ce.UsagePulseServiceCEImpl;
 import com.appsmith.server.solutions.UsageReporter;
@@ -39,8 +40,9 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
                                  UserService userService,
                                  TenantService tenantService,
                                  ConfigService configService,
-                                 UsageReporter usageReporter) {
-        super(repository, sessionUserService, userService, tenantService, configService);
+                                 UsageReporter usageReporter,
+                                 CommonConfig commonConfig) {
+        super(repository, sessionUserService, userService, tenantService, configService, commonConfig);
         this.repository = repository;
         this.tenantService = tenantService;
         this.usageReporter = usageReporter;

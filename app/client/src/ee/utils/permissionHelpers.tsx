@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export * from "ce/utils/permissionHelpers";
 import {
   isPermitted,
@@ -23,6 +24,7 @@ export enum EE_PERMISSION_TYPE {
   /* Application permissions */
   CREATE_APPLICATION = "create:applications",
   DELETE_APPLICATION = "delete:applications",
+  INVITE_USER_TO_APPLICATION = "inviteUsers:applications",
   /* User Permissions */
   MANAGE_USERS = "manage:users",
   DELETE_USERS = "delete:users",
@@ -59,6 +61,12 @@ export const hasCreateNewAppPermission = (permissions: string[] = []) => {
 
 export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
   return isPermitted(permissions, PERMISSION_TYPE.DELETE_WORKSPACE);
+};
+
+export const hasInviteUserToApplicationPermission = (
+  permissions: string[] = [],
+) => {
+  return isPermitted(permissions, PERMISSION_TYPE.INVITE_USER_TO_APPLICATION);
 };
 
 export const hasCreateWorkspacePermission = (permissions: string[] = []) => {

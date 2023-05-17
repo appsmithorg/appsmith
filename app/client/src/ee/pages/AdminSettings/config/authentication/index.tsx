@@ -1,12 +1,16 @@
+import { useSelector } from "react-redux";
+
 export * from "ce/pages/AdminSettings/config/authentication";
 import {
   config as CE_config,
   FormAuthCallout,
   GithubAuthCallout,
+  GithubAuth,
   GoogleAuthCallout,
+  GoogleAuth,
 } from "ce/pages/AdminSettings/config/authentication";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubCategories,
   SettingTypes,
@@ -14,15 +18,18 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import { Saml } from "@appsmith/pages/AdminSettings/SAML";
 import Oidc from "@appsmith/pages/AdminSettings/OIDC";
-import { AuthMethodType, AuthPage } from "./AuthPage";
+import type { AuthMethodType } from "./AuthPage";
+import { AuthPage } from "./AuthPage";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import React from "react";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
-
-const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
@@ -30,9 +37,8 @@ const SsoAuth: AdminConfigType = {
   title: "SAML 2.0",
   component: Saml,
   subText:
-    "Enable your organization to sign in with your preferred SAML2 compliant provider.",
+    "Enable your workspace to sign in with your preferred SAML2 compliant provider.",
   canSave: true,
-  isConnected: enableSamlOAuth,
 };
 
 const OidcAuth: AdminConfigType = {
@@ -41,9 +47,8 @@ const OidcAuth: AdminConfigType = {
   title: "OpenID Connect",
   component: Oidc,
   subText:
-    "Enable your organization to sign in with your preferred OIDC compliant provider.",
+    "Enable your workspace to sign in with your preferred OIDC compliant provider.",
   canSave: true,
-  isConnected: enableOidcOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_OIDC_READ_MORE",
@@ -182,7 +187,6 @@ export const SamlAuthCallout: AuthMethodType = {
   subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
   type: "LINK",
-  isConnected: enableSamlOAuth,
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -192,8 +196,9 @@ export const OidcAuthCallout: AuthMethodType = {
   subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
   image: OIDC,
   type: "LINK",
-  isConnected: enableOidcOAuth,
 };
+
+const isAirgappedInstance = isAirgapped();
 
 const AuthMethods = [
   OidcAuthCallout,
@@ -201,16 +206,35 @@ const AuthMethods = [
   GoogleAuthCallout,
   GithubAuthCallout,
   FormAuthCallout,
-];
+].filter((method) =>
+  isAirgappedInstance
+    ? method !== GoogleAuthCallout && method !== GithubAuthCallout
+    : true,
+);
 
 function AuthMain() {
+  FormAuthCallout.isConnected = useSelector(getIsFormLoginEnabled);
+  const socialLoginList = useSelector(getThirdPartyAuths);
+  GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
+    socialLoginList.includes("google");
+  GithubAuth.isConnected = GithubAuthCallout.isConnected =
+    socialLoginList.includes("github");
+  OidcAuth.isConnected = OidcAuthCallout.isConnected =
+    socialLoginList.includes("oidc");
+  SsoAuth.isConnected = SamlAuthCallout.isConnected =
+    socialLoginList.includes("saml");
   return <AuthPage authMethods={AuthMethods} />;
 }
 
 export const config: AdminConfigType = {
   ...CE_config,
   children: Array.isArray(CE_config.children)
-    ? [...CE_config.children, SsoAuth, OidcAuth]
+    ? [...CE_config.children, SsoAuth, OidcAuth].filter((method) =>
+        isAirgappedInstance
+          ? method.type !== SettingCategories.GOOGLE_AUTH &&
+            method.type !== SettingCategories.GITHUB_AUTH
+          : true,
+      )
     : [],
   component: AuthMain,
 };

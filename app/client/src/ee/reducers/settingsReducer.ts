@@ -1,8 +1,8 @@
 export * from "ce/reducers/settingsReducer";
+import type { SettingsReduxState } from "ce/reducers/settingsReducer";
 import {
   handlers as CE_handlers,
   initialState,
-  SettingsReduxState,
 } from "ce/reducers/settingsReducer";
 import {
   ReduxActionErrorTypes,

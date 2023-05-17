@@ -25,7 +25,7 @@ export const BannerContentWrapper = styled.div`
   gap: 30px;
   img {
     position: relative;
-    transform: translateY(-18px);
+    transform: translateY(-26px);
   }
 `;
 
@@ -35,16 +35,17 @@ export const BannerTextWrapper = styled.div`
   align-items: flex-start;
   gap: 12px;
   .main-text {
-    font-size: 24px;
+    font-size: 22px;
     color: ${Colors.CTA_PURPLE};
+    letter-spacing: normal;
   }
   .sub-text {
-    font-size: 20px;
-    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: normal;
     span {
       color: var(--appsmith-color-orange-500);
       font-weight: 700;
-      font-size: 24px;
+      font-size: 22px;
     }
   }
 `;
@@ -57,5 +58,9 @@ export const BannerCtaWrapper = styled.div`
   .close-button {
     background: transparent;
     border: 1px solid var(--appsmith-color-black-800);
+    &:hover {
+      background-color: var(--ads-color-black-50);
+      color: var(--ads-color-black-700);
+    }
   }
 `;

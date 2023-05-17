@@ -1,13 +1,13 @@
-import {
-  CloseModalActionDescription,
-  ShowModalActionDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
 import { put } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
+import type {
+  TCloseModalDescription,
+  TShowModalDescription,
+} from "workers/Evaluation/fns/modalFns";
 
-export function* openModalSaga(action: ShowModalActionDescription) {
+export function* openModalSaga(action: TShowModalDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
@@ -23,7 +23,7 @@ export function* openModalSaga(action: ShowModalActionDescription) {
   });
 }
 
-export function* closeModalSaga(action: CloseModalActionDescription) {
+export function* closeModalSaga(action: TCloseModalDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(

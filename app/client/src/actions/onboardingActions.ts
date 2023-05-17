@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const enableGuidedTour = (payload: boolean) => {
   return {
@@ -14,6 +14,21 @@ export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
   return {
     type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
     payload,
+  };
+};
+
+export const removeFirstTimeUserOnboardingApplicationId = (
+  applicationId: string,
+) => {
+  return {
+    type: ReduxActionTypes.REMOVE_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    payload: applicationId,
+  };
+};
+
+export const disableStartSignpostingAction = () => {
+  return {
+    type: ReduxActionTypes.DISABLE_START_SIGNPOSTING,
   };
 };
 

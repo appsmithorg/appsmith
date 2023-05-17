@@ -1,15 +1,14 @@
 export * from "ce/configs/index";
-import { AppsmithUIConfigs } from "./types";
+import type { AppsmithUIConfigs } from "./types";
+import type { INJECTED_CONFIGS as CE_INJECTED_CONFIGS } from "ce/configs/index";
 import {
-  INJECTED_CONFIGS as CE_INJECTED_CONFIGS,
   getAppsmithConfigs as CE_getAppsmithConfigs,
   getConfigsFromEnvVars as CE_getConfigsFromEnvVars,
 } from "ce/configs/index";
-import { EvaluationVersion } from "api/ApplicationApi";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
 export interface INJECTED_CONFIGS extends CE_INJECTED_CONFIGS {
-  enableSamlOAuth: boolean;
-  enableOidcOAuth: boolean;
+  airGapped: boolean;
 }
 
 declare global {
@@ -21,27 +20,55 @@ declare global {
   }
 }
 
+const airGapConfigVars = () => {
+  const { segment, sentry, smartLook } = CE_getAppsmithConfigs();
+  return {
+    ...CE_getAppsmithConfigs(),
+    sentry: {
+      ...sentry,
+      enabled: false,
+      dsn: "",
+      release: "",
+      environment: "",
+      integrations: [],
+    },
+    segment: {
+      ...segment,
+      enabled: false,
+      apiKey: "",
+      ceKey: "",
+    },
+    enableMixpanel: false,
+    smartLook: {
+      ...smartLook,
+      enabled: false,
+      id: "",
+    },
+  };
+};
+
 export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   return {
     ...CE_getConfigsFromEnvVars(),
-    enableSamlOAuth: process.env.REACT_APP_SSO_SAML_ENABLED
-      ? process.env.REACT_APP_SSO_SAML_ENABLED.length > 0
-      : false,
-    enableOidcOAuth: process.env.REACT_APP_OAUTH2_OIDC_CLIENT_ID
-      ? process.env.REACT_APP_OAUTH2_OIDC_CLIENT_ID.length > 0
+    airGapped: process.env.REACT_APP_AIRGAP_ENABLED
+      ? process.env.REACT_APP_AIRGAP_ENABLED.length > 0
       : false,
   };
 };
 
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
-  const { APPSMITH_FEATURE_CONFIGS } = window;
+  const APPSMITH_FEATURE_CONFIGS =
+    // This code might be called both from the main thread and a web worker
+    typeof window === "undefined" ? undefined : window.APPSMITH_FEATURE_CONFIGS;
   const ENV_CONFIG = getConfigsFromEnvVars();
+
+  const airGapped =
+    ENV_CONFIG.airGapped || APPSMITH_FEATURE_CONFIGS?.airGapped || false;
+  const airGappedConfigs = airGapped ? airGapConfigVars() : {};
   return {
     ...CE_getAppsmithConfigs(),
-    enableSamlOAuth:
-      ENV_CONFIG.enableSamlOAuth || APPSMITH_FEATURE_CONFIGS.enableSamlOAuth,
-    enableOidcOAuth:
-      ENV_CONFIG.enableOidcOAuth || APPSMITH_FEATURE_CONFIGS.enableOidcOAuth,
+    ...airGappedConfigs,
     enableAuditLogs: false,
+    airGapped,
   };
 };

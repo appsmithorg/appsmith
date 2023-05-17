@@ -1,7 +1,18 @@
-import {
+import { pick } from "lodash";
+
+import type {
   CanvasStructure,
   DSL,
 } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type {
+  CanvasWidgetStructure,
+  FlattenedWidgetProps,
+} from "widgets/constants";
+import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
+
+type DenormalizeOptions = {
+  widgetTypeForHaltingRecursion?: string;
+};
 
 export const compareAndGenerateImmutableCanvasStructure = (
   original: CanvasStructure,
@@ -42,3 +53,38 @@ const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
       children?.filter(Boolean).map(getCanvasStructureFromDSL),
   };
 };
+
+/**
+ * Generate dsl type skeletal structure from widgets
+ * @param rootWidgetId
+ * @param widgets
+ * @returns
+ */
+export function denormalize(
+  rootWidgetId: string,
+  widgets: Record<string, FlattenedWidgetProps>,
+  options?: DenormalizeOptions,
+): CanvasWidgetStructure {
+  const { widgetTypeForHaltingRecursion } = options || {};
+  const rootWidget = widgets[rootWidgetId];
+  let children;
+
+  /**
+   * For certain widget, we do not want to denormalize further,
+   * like for the List v2, where a another inner list widget is encountered
+   * we would want to halt the recursion.
+   *  */
+  if (widgetTypeForHaltingRecursion !== rootWidget?.type) {
+    children = (rootWidget?.children || []).map((childId) =>
+      denormalize(childId, widgets, options),
+    );
+  }
+
+  const staticProps = Object.keys(WIDGET_DSL_STRUCTURE_PROPS);
+
+  const structure = pick(rootWidget, staticProps) as CanvasWidgetStructure;
+
+  structure.children = children;
+
+  return structure;
+}

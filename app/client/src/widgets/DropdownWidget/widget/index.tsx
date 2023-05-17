@@ -1,20 +1,21 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";
 import _ from "lodash";
-import { DropdownOption } from "../constants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { DropdownOption } from "../constants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -22,12 +23,42 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     return {
       isValid: false,
       parsed: "",
-      messages: ["This value does not evaluate to type: string"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string",
+        },
+      ],
     };
   return { isValid: true, parsed: value };
 }
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      filterText: {
+        "!type": "string",
+        "!doc": "The filter text for Server side filtering",
+      },
+      selectedOptionValue: {
+        "!type": "string",
+        "!doc": "The value selected in a single select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      selectedOptionLabel: {
+        "!type": "string",
+        "!doc": "The selected option label in a single select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      isDisabled: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -319,7 +350,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         sectionName: "Actions",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",

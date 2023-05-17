@@ -1,4 +1,4 @@
-import { BaseAclProps } from "../types";
+import type { BaseAclProps } from "../types";
 
 /**
  * Generate filtered data

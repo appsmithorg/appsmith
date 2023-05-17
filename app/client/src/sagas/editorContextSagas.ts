@@ -1,7 +1,5 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
@@ -9,13 +7,13 @@ import {
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 
-import { all, put, takeLatest } from "redux-saga/effects";
+import type { CodeEditorFocusState } from "actions/editorContextActions";
 import {
-  CodeEditorFocusState,
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { all, put, takeLatest } from "redux-saga/effects";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
@@ -24,10 +22,7 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
   const { cursorPosition, key } = action.payload;
 
-  const entityInfo = identifyEntityFromPath(
-    window.location.pathname,
-    window.location.hash,
-  );
+  const entityInfo = identifyEntityFromPath(window.location.pathname);
   const ignoredEntities = [FocusEntity.DATASOURCE, FocusEntity.PROPERTY_PANE];
 
   if (key) {

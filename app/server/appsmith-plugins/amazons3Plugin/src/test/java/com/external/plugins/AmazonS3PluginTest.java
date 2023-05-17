@@ -26,6 +26,8 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.constants.AmazonS3Action;
+import com.external.plugins.exceptions.S3ErrorMessages;
+import com.external.plugins.exceptions.S3PluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -42,11 +44,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
@@ -169,7 +168,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Secret Key' is empty"));
+                    assertTrue(errorList.get(0).equals(S3ErrorMessages.DS_MANDATORY_PARAMETER_SECRET_KEY_MISSING_ERROR_MSG));
                 })
                 .verifyComplete();
     }
@@ -223,9 +222,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Required parameter 'Endpoint URL' is empty. Did you forget " +
-                            "to edit the 'Endpoint URL' field in the datasource creation form ? You need to fill it " +
-                            "with the endpoint URL of your S3 instance."));
+                    assertTrue(errorList.get(0).equals(S3ErrorMessages.DS_MANDATORY_PARAMETER_ENDPOINT_URL_MISSING_ERROR_MSG));
                 })
                 .verifyComplete();
     }
@@ -359,10 +356,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -400,10 +397,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -446,10 +443,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -483,7 +480,9 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = (String) result.getBody();
-                    assertTrue(message.contains("Unable to parse content"));
+                    assertTrue(message.contains("Unrecognized token 'erroneousBody': was expecting " +
+                                                        "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n" +
+                                                        " at [Source: (String)\"erroneousBody\"; line: 1, column: 14]"));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*
@@ -532,7 +531,9 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = (String) result.getBody();
-                    assertTrue(message.contains("File content is not base64 encoded"));
+                    assertTrue(message.contains("File content is not base64 encoded. " +
+                                                        "File content needs to be base64 encoded when the " +
+                                                        "'File Data Type: Base64/Text' field is selected 'Yes'."));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*
@@ -586,10 +587,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -1475,5 +1476,15 @@ public class AmazonS3PluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfAmazonS3PluginErrorCode() {
+        assert (Arrays.stream(S3PluginError.values()).map(S3PluginError::getAppErrorCode).distinct().count() == S3PluginError.values().length);
+
+        assert (Arrays.stream(S3PluginError.values()).map(S3PluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-AS3"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

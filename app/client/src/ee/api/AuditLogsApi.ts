@@ -1,5 +1,5 @@
 import Api from "api/Api";
-import { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
+import type { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
 import { payloadToQueryParams } from "@appsmith/pages/AuditLogs/utils/payloadToQueryParams";
 
 export class AuditLogsApi extends Api {

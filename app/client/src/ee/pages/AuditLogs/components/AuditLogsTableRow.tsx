@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CollapsibleLog as Collapsible } from "@appsmith/pages/AuditLogs/components/CollapsibleLog";
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAuditLogsLogsInit as fetchLogsInit,
@@ -125,7 +125,7 @@ export default function AuditLogsTableRow({
               />
             ) : null}
             <Description>
-              <MainDescription>
+              <MainDescription data-testid="t--audit-logs-table-row-description-content">
                 {description.mainDescription.resourceType}{" "}
                 <span>{description.mainDescription.actionType}</span>
               </MainDescription>

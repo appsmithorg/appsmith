@@ -93,34 +93,34 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 2, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("EMMA MAERSK");
     });
-    table.ReadTableRowColumnData(1, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("ECLIPSE");
     });
-    table.ReadTableRowColumnData(2, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("QUEEN ELIZABETH");
     });
-    table.ReadTableRowColumnData(3, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("QUEEN MARY 2");
     });
-    table.ReadTableRowColumnData(4, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("OASIS OF THE SEAS");
     });
-    table.ReadTableRowColumnData(5, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("TIME BANDIT");
     });
-    table.ReadTableRowColumnData(6, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("PAUL R TREGURTHA");
     });
-    table.ReadTableRowColumnData(7, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("WIZARD");
     });
-    table.ReadTableRowColumnData(8, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(8, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("NORTHWESTERN");
     });
-    table.ReadTableRowColumnData(9, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(9, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("EVER GIVEN");
     });
 
@@ -140,7 +140,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
     // //Delete the test data
     // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
-    // agHelper.ValidateNetworkStatus("@deletePage", 200);
+    // agHelper.ValidateNetworkStatus("@deletePage" , 200);
   });
 
   it("5. Update the UpdateQuery to update all columns from UI", () => {
@@ -242,40 +242,40 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("7. Verify Update data from Deploy page - on Vessels - existing record", () => {
     updateNVerify(5, 2, "DISNEY DREAM");
-    table.ReadTableRowColumnData(5, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("France");
     });
-    table.ReadTableRowColumnData(5, 4, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 4, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("SYDNEY");
     });
-    table.ReadTableRowColumnData(5, 5, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 5, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("FR BAY");
     });
-    table.ReadTableRowColumnData(5, 6, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 6, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("Pleasure Craft");
     });
-    table.ReadTableRowColumnData(5, 7, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 7, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("-7");
     });
-    table.ReadTableRowColumnData(5, 8, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 8, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("Underway by Sail");
     });
-    table.ReadTableRowColumnData(5, 9, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 9, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("2017");
     });
-    table.ReadTableRowColumnData(5, 10, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 10, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("BSEA - Black Sea");
     });
-    table.ReadTableRowColumnData(5, 11, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 11, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("17.6");
     });
-    table.ReadTableRowColumnData(5, 12, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 12, "v1", 100).then(($cellData) => {
       expect($cellData).to.contain(23);
     });
-    table.ReadTableRowColumnData(5, 13, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 13, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("303");
     });
-    table.ReadTableRowColumnData(5, 14, 100).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 14, "v1", 100).then(($cellData) => {
       expect($cellData).to.eq("BAYONNE");
     });
   });
@@ -300,16 +300,26 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Current Port");
 
     agHelper.ClickButton("Update");
-    agHelper.AssertContains(
-      `null value in column "vessel_type" violates not-null constraint`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: null value in column "vessel_type" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , null, null, , null, , null, null, 0, ).',
+      );
+    });
     deployMode.SelectJsonFormDropDown("Passenger");
 
     deployMode.ClearJSONFieldValue("Distance To Go");
     agHelper.ClickButton("Update");
-    agHelper.AssertContains(
-      `null value in column "distance_to_go" violates not-null constraint`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: null value in column "distance_to_go" violates not-null constraint\n  Detail: Failing row contains (442329, WDE5199, NORTHWESTERN, , , , Passenger, null, , null, , null, null, null, ).',
+      );
+    });
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
     agHelper.WaitUntilAllToastsDisappear(); //for previous case toasts for next Update to be Success!!
 
@@ -347,14 +357,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(7, 3, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 3, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(7, 4, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
 
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).not.eq("371584"); //Deleted record ship_id should not be present anymore!
     });
 
@@ -438,12 +448,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
-    deployMode.ClearJSONFieldValue("Shipname", 1);
+    deployMode.ClearJSONFieldValue("Shipname", 0);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "not.have.attr",
       "disabled",
@@ -459,59 +469,59 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("14. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
-    deployMode.ClearJSONFieldValue("Callsign", 1);
-    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
+    deployMode.ClearJSONFieldValue("Callsign", 0);
+    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 0);
 
-    deployMode.ClearJSONFieldValue("Country", 1);
-    deployMode.EnterJSONInputValue("Country", "Malta", 1);
+    deployMode.ClearJSONFieldValue("Country", 0);
+    deployMode.EnterJSONInputValue("Country", "Malta", 0);
 
-    deployMode.ClearJSONFieldValue("Next Port Name", 1);
-    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 1);
+    deployMode.ClearJSONFieldValue("Next Port Name", 0);
+    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 0);
 
-    deployMode.ClearJSONFieldValue("Destination", 1);
-    deployMode.EnterJSONInputValue("Destination", "CORFU", 1);
+    deployMode.ClearJSONFieldValue("Destination", 0);
+    deployMode.EnterJSONInputValue("Destination", "CORFU", 0);
 
-    deployMode.SelectJsonFormDropDown("Special Craft", 1);
+    deployMode.SelectJsonFormDropDown("Special Craft", 0);
 
-    deployMode.ClearJSONFieldValue("Timezone", 1);
-    deployMode.EnterJSONInputValue("Timezone", "-12", 1);
+    deployMode.ClearJSONFieldValue("Timezone", 0);
+    deployMode.EnterJSONInputValue("Timezone", "-12", 0);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("Not a valid timezone!"),
     );
-    deployMode.ClearJSONFieldValue("Timezone", 1);
-    deployMode.EnterJSONInputValue("Timezone", "-2", 1);
+    deployMode.ClearJSONFieldValue("Timezone", 0);
+    deployMode.EnterJSONInputValue("Timezone", "-2", 0);
 
-    deployMode.ClearJSONFieldValue("Status Name", 1);
-    deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
+    deployMode.ClearJSONFieldValue("Status Name", 0);
+    deployMode.EnterJSONInputValue("Status Name", "Moored", 0);
 
-    deployMode.ClearJSONFieldValue("Year Built", 1);
-    deployMode.EnterJSONInputValue("Year Built", "1967", 1);
+    deployMode.ClearJSONFieldValue("Year Built", 0);
+    deployMode.EnterJSONInputValue("Year Built", "1967", 0);
 
-    deployMode.ClearJSONFieldValue("Area Code", 1);
-    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 1);
+    deployMode.ClearJSONFieldValue("Area Code", 0);
+    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 0);
 
-    deployMode.ClearJSONFieldValue("Speed", 1);
-    deployMode.EnterJSONInputValue("Speed", "0.6", 1);
+    deployMode.ClearJSONFieldValue("Speed", 0);
+    deployMode.EnterJSONInputValue("Speed", "0.6", 0);
 
     agHelper.GetNClick(
       deployMode._jsonFormDatepickerFieldByName("Eta Updated"),
-      1,
+      0,
     );
     agHelper.GetNClick(locator._datePicker(2));
-    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 1);
+    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 0);
 
-    deployMode.ClearJSONFieldValue("Distance To Go", 1);
-    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);
+    deployMode.ClearJSONFieldValue("Distance To Go", 0);
+    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 0);
 
-    deployMode.ClearJSONFieldValue("Current Port", 1);
-    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
+    deployMode.ClearJSONFieldValue("Current Port", 0);
+    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 0);
 
     cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
       .eq(1)
       .invoke("attr", "type")
       .should("eq", "password");
 
-    deployMode.ClearJSONFieldValue("Shipname", 1);
+    deployMode.ClearJSONFieldValue("Shipname", 0);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("This field is required"),
     );
@@ -519,12 +529,17 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
 
     agHelper.ClickButton("Submit");
-    agHelper.AssertContains(
-      `duplicate key value violates unique constraint "vessels_pkey"`,
-    );
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(
+        'ERROR: duplicate key value violates unique constraint "vessels_pkey"\n  Detail: Key (ship_id)=(159196) already exists.',
+      );
+    });
 
     deployMode.ClearJSONFieldValue("Ship Id");
     deployMode.EnterJSONInputValue("Ship Id", "159180");
@@ -541,7 +556,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("15. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
-    agHelper.Sleep(2000);//since table taking time to display JSON form
+    agHelper.Sleep(2000); //since table taking time to display JSON form
 
     //validating update happened fine!
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180"); //Validaing new record got inserted in 1st position due to id used
@@ -575,7 +590,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(0); //Control going back to 1st row in table
 
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.eq("159180"); //Deleted record Store_ID
     });
   });
@@ -607,14 +622,15 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
   });
 
-  it("18. Verify application does not break when user runs the query with wrong table name", function() {
+  it("18. Verify application does not break when user runs the query with wrong table name", function () {
     ee.SelectEntityByName("DropVessels", "Queries/JS");
-    dataSources.RunQuery(false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.contain(`table "vessels" does not exist`),
-      );
+    dataSources.RunQuery({ toValidateResponse: false });
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains(`table "vessels" does not exist`);
+    });
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
@@ -642,13 +658,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1, 4000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 4, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
@@ -666,22 +682,28 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   function generateCallsignInfo(rowIndex: number) {
     //let callSign: string = "";
-    table.ReadTableRowColumnData(rowIndex, 9, 200).then(($yearBuilt: any) => {
-      table.ReadTableRowColumnData(rowIndex, 11, 200).then(($areaCode: any) => {
-        table.ReadTableRowColumnData(rowIndex, 3, 200).then(($country: any) => {
-          const callSign =
-            ($country as string).slice(0, 2) +
-            ($areaCode as string).slice(0, 3) +
-            ($yearBuilt as string).slice(0, 2); //(/(?<=\()).+?(?=\))/g)
-          deployMode.ClearJSONFieldValue("Callsign");
-          deployMode.EnterJSONInputValue("Callsign", callSign);
-          cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
-            .invoke("attr", "type")
-            .should("eq", "password");
-          cy.wrap(callSign).as("Callsign");
-        });
+    table
+      .ReadTableRowColumnData(rowIndex, 9, "v1", 200)
+      .then(($yearBuilt: any) => {
+        table
+          .ReadTableRowColumnData(rowIndex, 11, "v1", 200)
+          .then(($areaCode: any) => {
+            table
+              .ReadTableRowColumnData(rowIndex, 3, "v1", 200)
+              .then(($country: any) => {
+                const callSign =
+                  ($country as string).slice(0, 2) +
+                  ($areaCode as string).slice(0, 3) +
+                  ($yearBuilt as string).slice(0, 2); //(/(?<=\()).+?(?=\))/g)
+                deployMode.ClearJSONFieldValue("Callsign");
+                deployMode.EnterJSONInputValue("Callsign", callSign);
+                cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
+                  .invoke("attr", "type")
+                  .should("eq", "password");
+                cy.wrap(callSign).as("Callsign");
+              });
+          });
       });
-    });
   }
 
   function updateNVerify(
@@ -691,15 +713,17 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    agHelper.AssertElementAbsence(locator._spinner, 10000);//10 secs for update to reflect!
+    agHelper.AssertElementAbsence(locator._spinner, 10000); //10 secs for update to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection
 
     //validating update happened fine!
-    table.ReadTableRowColumnData(rowIndex, colIndex, 200).then(($cellData) => {
-      expect($cellData).to.eq(expectedTableData);
-    });
+    table
+      .ReadTableRowColumnData(rowIndex, colIndex, "v1", 200)
+      .then(($cellData) => {
+        expect($cellData).to.eq(expectedTableData);
+      });
   }
 
   function updatingVesselsJSONPropertyFileds() {

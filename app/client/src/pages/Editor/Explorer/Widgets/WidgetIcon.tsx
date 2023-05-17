@@ -1,5 +1,5 @@
 import { IconWrapper } from "constants/IconConstants";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getWidgetConfigs } from "selectors/editorSelectors";

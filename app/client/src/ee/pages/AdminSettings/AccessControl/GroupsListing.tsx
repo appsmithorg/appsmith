@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { HighlightText, MenuItemProps } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { HighlightText, Spinner } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
@@ -30,13 +31,15 @@ import {
   getGroups,
   getSelectedGroup,
 } from "@appsmith/selectors/aclSelectors";
-import { GroupProps, ListingType } from "./types";
+import type { GroupProps } from "./types";
+import { ListingType } from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { LoaderContainer } from "pages/Settings/components";
 
 const CellContainer = styled.div`
   display: flex;
@@ -82,6 +85,7 @@ export function GroupListing() {
 
   useEffect(() => {
     if (selectedUserGroupId && selectedGroup?.id !== selectedUserGroupId) {
+      setSelectedUserGroup(null);
       dispatch(getGroupById({ id: selectedUserGroupId }));
     } else if (!selectedUserGroupId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
@@ -193,12 +197,18 @@ export function GroupListing() {
 
   return (
     <AclWrapper data-testid="t--group-listing-wrapper">
-      {selectedUserGroupId && selectedUserGroup ? (
-        <GroupAddEdit
-          isLoading={isLoading}
-          onDelete={onDeleteHandler}
-          selected={selectedUserGroup}
-        />
+      {selectedUserGroupId ? (
+        selectedUserGroup ? (
+          <GroupAddEdit
+            isLoading={isLoading}
+            onDelete={onDeleteHandler}
+            selected={selectedUserGroup}
+          />
+        ) : (
+          <LoaderContainer>
+            <Spinner />
+          </LoaderContainer>
+        )
       ) : (
         <>
           <PageHeader

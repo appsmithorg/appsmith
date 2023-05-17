@@ -1,4 +1,4 @@
-import { NumberSliderWidgetProps } from "./widget";
+import type { NumberSliderWidgetProps } from "./widget";
 
 export function minValueValidation(
   min: unknown,
@@ -9,7 +9,12 @@ export function minValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value is required"],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "This value is required",
+        },
+      ],
     };
   }
 
@@ -20,7 +25,12 @@ export function minValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be a number",
+        },
+      ],
     };
   }
 
@@ -28,14 +38,24 @@ export function minValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be less than max value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be less than max value",
+        },
+      ],
     };
   }
 
   return {
     isValid: true,
     parsed: minValue,
-    messages: [""],
+    messages: [
+      {
+        name: "",
+        message: "",
+      },
+    ],
   };
 }
 
@@ -48,7 +68,12 @@ export function maxValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value is required"],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "This value is required",
+        },
+      ],
     };
   }
 
@@ -59,7 +84,12 @@ export function maxValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be a number",
+        },
+      ],
     };
   }
 
@@ -67,14 +97,24 @@ export function maxValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than min value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be greater than min value",
+        },
+      ],
     };
   }
 
   return {
     isValid: true,
     parsed: maxValue,
-    messages: [""],
+    messages: [
+      {
+        name: "",
+        message: "",
+      },
+    ],
   };
 }
 
@@ -87,7 +127,12 @@ export function defaultValueValidation(
     return {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [
+        {
+          name: "",
+          message: "",
+        },
+      ],
     };
   }
 
@@ -99,7 +144,12 @@ export function defaultValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be a number",
+        },
+      ],
     };
   }
 
@@ -107,7 +157,12 @@ export function defaultValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than or equal to the min value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be greater than or equal to the min value",
+        },
+      ],
     };
   }
 
@@ -115,14 +170,24 @@ export function defaultValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be less than or equal to the max value"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be less than or equal to the max value",
+        },
+      ],
     };
   }
 
   return {
     isValid: true,
     parsed: defaultValue,
-    messages: [""],
+    messages: [
+      {
+        name: "",
+        message: "",
+      },
+    ],
   };
 }
 
@@ -135,7 +200,12 @@ export function stepSizeValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value is required"],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "This value is required",
+        },
+      ],
     };
   }
 
@@ -145,7 +215,12 @@ export function stepSizeValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be a number",
+        },
+      ],
     };
   }
 
@@ -153,7 +228,12 @@ export function stepSizeValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than 0.1"],
+      messages: [
+        {
+          name: "RangeError",
+          message: "This value must be greater than 0.1",
+        },
+      ],
     };
   }
 
@@ -166,13 +246,23 @@ export function stepSizeValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: [`This value must be less than ${sliderRange}`],
+      messages: [
+        {
+          name: "RangeError",
+          message: `This value must be less than ${sliderRange}`,
+        },
+      ],
     };
   }
 
   return {
     isValid: true,
     parsed: stepValue,
-    messages: [""],
+    messages: [
+      {
+        name: "",
+        message: "",
+      },
+    ],
   };
 }

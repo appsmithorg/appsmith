@@ -1,7 +1,7 @@
 const dsl = require("../../../fixtures/tableWidgetDsl.json");
 
-describe("Table functionality ", function() {
-  it("Adding background Colour to table", function() {
+describe("Table functionality ", function () {
+  it("Adding background Colour to table", function () {
     // Add a table
     // Click on the property pane
     // Scroll Styles
@@ -12,12 +12,12 @@ describe("Table functionality ", function() {
     // Navigate to add background colour and Text colour
     // Ensure the row colour gets overlapped on table colour
   });
-  it("Collapse the tabs of Property pane", function() {
+  it("Collapse the tabs of Property pane", function () {
     // Add a table
     // Click on the property pane
     // Collapse the General ,Action and Tab option
   });
-  it("Bind the column with same name", function() {
+  it("Bind the column with same name", function () {
     // Add a table
     // Click on the property pane
     // Click on the Add new column
@@ -28,7 +28,7 @@ describe("Table functionality ", function() {
     // Select the row from the binded table
   });
 
-  it("Hide and created custom column ", function() {
+  it("Hide and created custom column ", function () {
     // Add a table
     // Click on the property pane
     // Click on the Add new column
@@ -41,7 +41,7 @@ describe("Table functionality ", function() {
     // Ensure the hidden column is not displayed and custom column is disaplyed to user
   });
 
-  it("Binding a widget to additional column ", function() {
+  it("Binding a widget to additional column ", function () {
     // Add an date widget
     // Add a table
     // Click on the property pane

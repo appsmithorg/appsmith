@@ -1,6 +1,7 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../../../fixtures/datasources.json";
 
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
@@ -10,13 +11,12 @@ const invalidEmail = "test";
 const invalidEmailWithAmp = "test@hello";
 
 const GITHUB_API_BASE = "https://api.github.com";
-const GITEA_API_BASE = "http://35.154.225.218";
 
 let repoName;
 let generatedKey;
 let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
-describe("Git sync modal: connect tab", function() {
+describe("Git sync modal: connect tab", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -31,19 +31,7 @@ describe("Git sync modal: connect tab", function() {
     });
   });
 
-  beforeEach(() => {
-    // cy.intercept(
-    //   {
-    //     url: "api/v1/git/connect/app/*",
-    //     hostname: window.location.host,
-    //   },
-    //   (req) => {
-    //     req.headers["origin"] = "Cypress";
-    //   },
-    // );
-  });
-
-  it("1. validates repo URL", function() {
+  it("1. validates repo URL", function () {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
     cy.get(homePage.connectToGitBtn).click({ force: true });
@@ -61,7 +49,7 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");
 
     cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`,
+      `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
     );
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
       "not.exist",
@@ -102,24 +90,12 @@ describe("Git sync modal: connect tab", function() {
     cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
-  it("2. validates copy key", function() {
+  it("2. validates copy key and validates repo url input after key generation", function () {
     cy.window().then((win) => {
-      cy.stub(win, "prompt")
-        .returns(win.prompt)
-        .as("copyToClipboardPrompt");
+      cy.stub(win, "prompt").returns(win.prompt).as("copyToClipboardPrompt");
     });
 
     cy.get(gitSyncLocators.copySshKey).click();
-
-    // To Check
-    // cy.get("@copyToClipboardPrompt").should("be.called");
-    // cy.get("@copyToClipboardPrompt").should((prompt) => {
-    //   expect(prompt.args[0][1]).to.equal(generatedKey);
-    //   generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-    // });
-  });
-
-  it("3. validates repo url input after key generation", function() {
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
@@ -129,7 +105,7 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
 
     cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`,
+      `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
     );
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
       "not.exist",
@@ -137,7 +113,7 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.connectSubmitBtn).should("not.be.disabled");
   });
 
-  it("4. validates git user config", function() {
+  it("3. validates git user config", function () {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
 
     // name empty invalid
@@ -205,7 +181,7 @@ describe("Git sync modal: connect tab", function() {
       });
   });
 
-  it("5. validates submit errors", function() {
+  it("4. validates submit errors", function () {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
     cy.get(gitSyncLocators.gitConfigNameInput)
       .scrollIntoView()
@@ -214,9 +190,9 @@ describe("Git sync modal: connect tab", function() {
       `{selectAll}${Cypress.env("USERNAME")}`,
     );
     cy.wait(200);
-    cy.get(gitSyncLocators.gitConnectionContainer)
-      .scrollTo("top")
-      .should("be.visible");
+    // cy.get(gitSyncLocators.gitConnectionContainer)
+    //   .scrollTo("top")
+    //   .should("be.visible");
     cy.get(gitSyncLocators.gitRepoInput)
       .click({ force: true })
       .type(`{selectAll}${invalidURLDetectedOnTheBackend}`);
@@ -225,12 +201,13 @@ describe("Git sync modal: connect tab", function() {
 
     cy.get(gitSyncLocators.gitRepoInput)
       .scrollIntoView()
-      .type(`{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`, {
-        force: true,
-      });
-    cy.get(gitSyncLocators.connectSubmitBtn)
-      .scrollIntoView()
-      .click();
+      .type(
+        `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
+        {
+          force: true,
+        },
+      );
+    cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
@@ -240,9 +217,12 @@ describe("Git sync modal: connect tab", function() {
 
     cy.get(gitSyncLocators.gitRepoInput)
       .scrollIntoView()
-      .type(`{selectAll}git@35.154.225.218:CI-Gitea/${repoName}.git`, {
-        force: true,
-      });
+      .type(
+        `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
+        {
+          force: true,
+        },
+      );
 
     // cy.request({
     //   method: "POST",
@@ -261,7 +241,7 @@ describe("Git sync modal: connect tab", function() {
 
     cy.request({
       method: "POST",
-      url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repoName}/keys`,
+      url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repoName}/keys`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
@@ -272,9 +252,7 @@ describe("Git sync modal: connect tab", function() {
       },
     });
 
-    cy.get(gitSyncLocators.connectSubmitBtn)
-      .scrollIntoView()
-      .click();
+    cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;

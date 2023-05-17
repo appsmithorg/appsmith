@@ -1,6 +1,7 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.ConditionalOperator;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.Condition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,4 +212,8 @@ public class PluginUtilsTest {
         assertEquals(Map.of("key", Map.of("innerKey", Map.of("data", "value"))), dataMap);
     }
 
+    @Test
+    public void verifyUniquenessOfCommonPluginErrorCode() {
+        assert (Arrays.stream(AppsmithPluginError.values()).map(AppsmithPluginError::getAppErrorCode).distinct().count() == AppsmithPluginError.values().length);
+    }
 }

@@ -3,6 +3,8 @@ package com.appsmith.server.solutions.roles.constants;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import java.util.Set;
+
 @Getter
 public enum PermissionViewableName {
     /*
@@ -41,5 +43,13 @@ public enum PermissionViewableName {
     @Override
     public String toString() {
         return name;
+    }
+
+    public static Set<PermissionViewableName> getAllRoleRelatedPermission() {
+        return Set.of(CREATE, EDIT, DELETE, VIEW, ASSOCIATE_ROLE);
+    }
+
+    public static Set<PermissionViewableName> getAllGroupRelatedPermission() {
+        return Set.of(CREATE, EDIT, DELETE, VIEW, INVITE_USER, REMOVE_USER);
     }
 }

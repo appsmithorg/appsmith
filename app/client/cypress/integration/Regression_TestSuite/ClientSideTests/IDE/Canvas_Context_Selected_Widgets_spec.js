@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import explorer from "../../../../locators/explorerlocators.json";
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
 
@@ -9,7 +10,7 @@ const api1 = "API1";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const ee = ObjectsRegistry.EntityExplorer;
 
-describe("Canvas context widget selection", function() {
+describe("Canvas context widget selection", function () {
   before(() => {
     cy.addDsl(dsl);
     cy.Createpage(page2);
@@ -23,9 +24,13 @@ describe("Canvas context widget selection", function() {
 
   beforeEach(() => {
     agHelper.RefreshPage();
+    // Deselect all widgets
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
   });
 
-  it("1. Widget should be selected while switching back and forth between pages", function() {
+  it("1. Widget should be selected while switching back and forth between pages", function () {
     //select widget in page1
     ee.SelectEntityByName("Camera1", "Widgets");
 
@@ -54,7 +59,7 @@ describe("Canvas context widget selection", function() {
     cy.isInViewport(`//*[@id="${dsl.dsl.children[0].widgetId}"]`);
   });
 
-  it("2. Widget should be selected while switching back to page from API pane", function() {
+  it("2. Widget should be selected while switching back to page from API pane", function () {
     //select widget in page1
     ee.SelectEntityByName("Camera1", "Widgets");
 
@@ -77,7 +82,7 @@ describe("Canvas context widget selection", function() {
     //cy.isInViewport(`//*[@id="${dsl.dsl.children[0].widgetId}"]`);
   });
 
-  it("3. Multiple widgets should be selected while switching back and forth between pages", function() {
+  it("3. Multiple widgets should be selected while switching back and forth between pages", function () {
     //select widgets in page1
     ee.SelectEntityByName("Camera1", "Widgets", true);
     ee.SelectEntityByName("Button1", "Widgets", true);
@@ -103,7 +108,7 @@ describe("Canvas context widget selection", function() {
     cy.get(`.t--multi-selection-box`).should("have.length", 1);
   });
 
-  it("4. Multiple widgets should be selected while switching back to page from API pane", function() {
+  it("4. Multiple widgets should be selected while switching back to page from API pane", function () {
     //select widgets in page1
     ee.SelectEntityByName("Camera1", "Widgets", true);
     ee.SelectEntityByName("Button1", "Widgets", true);
@@ -124,7 +129,7 @@ describe("Canvas context widget selection", function() {
     cy.get(`.t--multi-selection-box`).should("have.length", 1);
   });
 
-  it("5. Modal widget should be selected and open while switching back and forth between pages", function() {
+  it("5. Modal widget should be selected and open while switching back and forth between pages", function () {
     //select widget in page1
     ee.SelectEntityByName("Modal1", "Widgets");
 
@@ -149,7 +154,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Modal1");
   });
 
-  it("6. Modal widget should be selected and open while switching back to page from API pane", function() {
+  it("6. Modal widget should be selected and open while switching back to page from API pane", function () {
     //select widget in page1
     ee.SelectEntityByName("Modal1", "Widgets");
 
@@ -170,7 +175,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Modal1");
   });
 
-  it("7. Widget inside modal should be selected and modal should be open while switching back and forth between pages", function() {
+  it("7. Widget inside modal should be selected and modal should be open while switching back and forth between pages", function () {
     //select widget in page1
     ee.SelectEntityInModal("Modal1", "Widgets");
 
@@ -197,7 +202,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Text1");
   });
 
-  it("8. Widget inside modal should be selected and modal should be open while switching back to page from API pane", function() {
+  it("8. Widget inside modal should be selected and modal should be open while switching back to page from API pane", function () {
     //select widget in page1
     ee.SelectEntityInModal("Modal1", "Widgets");
 
@@ -220,7 +225,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Text1");
   });
 
-  it.skip("9. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back and forth between pages", function() {
+  it("9. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back and forth between pages", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     cy.SearchEntityandOpen("Button4", "Widgets");
@@ -246,7 +251,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Button4");
   });
 
-  it.skip("10. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back to page from API pane", function() {
+  it("10. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back to page from API pane", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     cy.SearchEntityandOpen("Button4", "Widgets");

@@ -1,10 +1,10 @@
-import { AuditLogType } from "@appsmith/pages/AuditLogs/types";
-import {
+import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
+import type {
   DATE_SORT_ORDER,
   AuditLogsFiltersReduxState,
   AuditLogsDateFilter,
 } from "@appsmith/reducers/auditLogsReducer";
-import { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const setUserCanAccessAuditLogs = () => ({

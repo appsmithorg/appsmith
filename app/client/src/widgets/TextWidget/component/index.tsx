@@ -1,20 +1,17 @@
 import * as React from "react";
 import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import {
-  DEFAULT_FONT_SIZE,
-  FontStyleTypes,
-  TextSize,
-} from "constants/WidgetConstants";
-import { Icon, IconSize } from "design-system-old";
+import type { TextSize } from "constants/WidgetConstants";
+import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
-import { Color, Colors } from "constants/Colors";
-import FontLoader from "./FontLoader";
+import type { Color } from "constants/Colors";
+import { Colors } from "constants/Colors";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
@@ -23,7 +20,9 @@ export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 const ELLIPSIS_HEIGHT = 15;
 
-export const TextContainer = styled.div`
+export const TextContainer = styled.div<{
+  fontFamily?: string;
+}>`
   & {
     height: 100%;
     width: 100%;
@@ -84,6 +83,12 @@ export const TextContainer = styled.div`
       text-decoration: underline;
     }
   }
+
+  ${(props) =>
+    props.fontFamily &&
+    `
+    font-family: ${props.fontFamily};
+  `}
 `;
 
 const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
@@ -148,6 +153,9 @@ export const StyledText = styled(Text)<StyledTextProps>`
     white-space: pre-wrap;
     text-align: ${(props) => props.textAlign.toLowerCase()};
   }
+  .auto-layout & span {
+    min-height: 32px;
+  }
 `;
 
 const ModalContent = styled.div<{
@@ -184,7 +192,7 @@ const Content = styled.div<{
   color: ${(props) => props?.textColor};
   max-height: 70vh;
   overflow: auto;
-  word-break: break-all;
+  overflow-wrap: break-word;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
@@ -281,6 +289,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       backgroundColor,
       disableLink,
       ellipsize,
+      fontFamily,
       fontSize,
       fontStyle,
       overflow,
@@ -292,43 +301,44 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
     return (
       <>
-        <FontLoader fontFamily={this.props.fontFamily}>
-          <TextContainer>
-            <StyledText
+        <TextContainer
+          fontFamily={fontFamily !== "System Default" ? fontFamily : undefined}
+        >
+          <StyledText
+            backgroundColor={backgroundColor}
+            className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
+            ellipsize={ellipsize}
+            fontSize={fontSize}
+            fontStyle={fontStyle}
+            isTruncated={this.state.isTruncated}
+            overflow={overflow}
+            ref={this.textRef}
+            textAlign={textAlign}
+            textColor={textColor}
+          >
+            <Interweave
+              content={text}
+              filters={[new LinkFilter()]}
+              matchers={
+                disableLink
+                  ? []
+                  : [new EmailMatcher("email"), new UrlMatcher("url")]
+              }
+              newWindow
+            />
+          </StyledText>
+          {this.state.isTruncated && (
+            <StyledIcon
               backgroundColor={backgroundColor}
-              className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
-              ellipsize={ellipsize}
-              fontSize={fontSize}
-              fontStyle={fontStyle}
-              isTruncated={this.state.isTruncated}
-              overflow={overflow}
-              ref={this.textRef}
-              textAlign={textAlign}
-              textColor={textColor}
-            >
-              <Interweave
-                content={text}
-                filters={[new LinkFilter()]}
-                matchers={
-                  disableLink
-                    ? []
-                    : [new EmailMatcher("email"), new UrlMatcher("url")]
-                }
-                newWindow
-              />
-            </StyledText>
-            {this.state.isTruncated && (
-              <StyledIcon
-                backgroundColor={backgroundColor}
-                className="t--widget-textwidget-truncate"
-                fillColor={truncateButtonColor || accentColor}
-                name="context-menu"
-                onClick={this.handleModelOpen}
-                size={IconSize.XXXL}
-              />
-            )}
-          </TextContainer>
-        </FontLoader>
+              className="t--widget-textwidget-truncate"
+              fillColor={truncateButtonColor || accentColor}
+              name="context-menu"
+              onClick={this.handleModelOpen}
+              size={IconSize.XXXL}
+            />
+          )}
+        </TextContainer>
+
         <ModalComponent
           canEscapeKeyClose
           canOutsideClickClose

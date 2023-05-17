@@ -10,20 +10,25 @@ import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.OAuthResponseDTO;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -85,6 +90,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
     private final PagePermission pagePermission;
+    private final PluginExecutorHelper pluginExecutorHelper;
+    private final FeatureFlagService featureFlagService;
+    private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+    private static final String ACCESS_TOKEN_KEY = "access_token";
 
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
@@ -385,7 +394,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 }));
     }
 
-    public Mono<Datasource> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
+    public Mono<OAuthResponseDTO> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource
@@ -422,10 +431,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
-                                datasource
-                                        .getDatasourceConfiguration()
-                                        .getAuthentication()
-                                        .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
@@ -437,10 +442,48 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return Mono.just(datasource);
+
+                                // When authentication scope is for specific sheets, we need to send token and project id
+                                String accessToken = "";
+                                String projectID = "";
+                                if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                    accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
+                                    if (authenticationResponse.getProjectID() != null) {
+                                        projectID = authenticationResponse.getProjectID();
+                                    }
+                                }
+
+                                // when authentication scope is other than specific sheets, we need to set authentication status as success
+                                // for specific sheets, it needs to remain in as in progress until files are selected
+                                // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
+                                // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
+                                if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+                                }
+
+                                Mono<String> accessTokenMono = Mono.just(accessToken);
+                                Mono<String> projectIdMono = Mono.just(projectID);
+
+                                return pluginExecutorHelper
+                                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
+                                        .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
                             });
                 })
-                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource))
+                .flatMap(tuple -> {
+                    Datasource datasource = tuple.getT1();
+                    String accessToken = tuple.getT2();
+                    String projectID = tuple.getT3();
+                    OAuthResponseDTO response = new OAuthResponseDTO();
+                    response.setDatasource(datasource);
+                    response.setToken(accessToken);
+                    response.setProjectID(projectID);
+                    return datasourceService.update(datasource.getId(), datasource).thenReturn(response);
+                })
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,

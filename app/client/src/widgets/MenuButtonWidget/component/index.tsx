@@ -9,15 +9,12 @@ import {
   Classes as BlueprintClasses,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import {
-  ButtonPlacement,
-  ButtonVariant,
-  ButtonVariantTypes,
-} from "components/constants";
+import type { ButtonPlacement, ButtonVariant } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -28,15 +25,15 @@ import {
   WidgetContainerDiff,
   lightenColor,
 } from "widgets/WidgetUtils";
-import { RenderMode } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import {
+import type {
   MenuButtonComponentProps,
   MenuItem,
   PopoverContentProps,
 } from "../constants";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -53,7 +50,8 @@ const PopoverStyles = createGlobalStyle<{
     margin-bottom: 8px !important;
     border-radius: ${({ borderRadius }) =>
       borderRadius >= THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius};
-    overflow: hidden;
+    overflow-y: scroll;
+    max-height: 384px;
   }
 
   .menu-button-popover .${BlueprintClasses.MENU_ITEM} {
@@ -148,14 +146,14 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
-    & > span {
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
 
-      max-height: 100%;
+    & > span {
+      display: inline-block;
+      text-overflow: ellipsis;
       overflow: hidden;
+      white-space: nowrap;
+      line-height: normal;
+
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
           ? getComplementaryGrayscaleColor(buttonColor)
@@ -170,7 +168,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   `}
 
   border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => boxShadow}  !important;
+  box-shadow: ${({ boxShadow }) => boxShadow} !important;
   ${({ placement }) =>
     placement
       ? `

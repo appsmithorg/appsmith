@@ -13,7 +13,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { isArray, uniqueId } from "lodash";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
   data: Record<string, any>[];

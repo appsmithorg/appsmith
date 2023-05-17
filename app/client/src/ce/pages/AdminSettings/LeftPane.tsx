@@ -2,14 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { Category } from "@appsmith/pages/AdminSettings/config/types";
+import type { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system-old";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { UPGRADE } from "@appsmith/constants/messages";
-import { useSelector } from "react-redux";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import camelCase from "lodash/camelCase";
 
@@ -136,7 +134,6 @@ export function Categories({
 }
 
 export default function LeftPane() {
-  const features = useSelector(selectFeatureFlags);
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
 
@@ -184,21 +181,19 @@ export default function LeftPane() {
               <div>Audit logs</div>
             </StyledLink>
           </CategoryItem>
-          {features.USAGE_AND_BILLING && (
-            <CategoryItem>
-              <StyledLink
-                $active={category === "business-edition"}
-                data-testid="t--enterprise-settings-category-item-be"
-                onClick={() => triggerAnalytics("BusinessEdition")}
-                to="/settings/business-edition"
-              >
-                <div>
-                  <Icon name="arrow-right-up-line" size={IconSize.XL} />
-                </div>
-                <div>{camelCase(createMessage(UPGRADE))}</div>
-              </StyledLink>
-            </CategoryItem>
-          )}
+          <CategoryItem>
+            <StyledLink
+              $active={category === "business-edition"}
+              data-testid="t--enterprise-settings-category-item-be"
+              onClick={() => triggerAnalytics("BusinessEdition")}
+              to="/settings/business-edition"
+            >
+              <div>
+                <Icon name="arrow-up-line" size={IconSize.XL} />
+              </div>
+              <div>{camelCase(createMessage(UPGRADE))}</div>
+            </StyledLink>
+          </CategoryItem>
         </CategoryList>
       </HeaderContainer>
     </Wrapper>

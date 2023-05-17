@@ -1,9 +1,9 @@
 import { get } from "lodash";
-import { TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ButtonVariantTypes } from "components/constants";
 import {
   updateDerivedColumnsHook,
@@ -372,6 +372,7 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: [
+                          "YYYY-MM-DDTHH:mm:ss.SSSZ",
                           "Epoch",
                           "Milliseconds",
                           "YYYY-MM-DD",
@@ -509,6 +510,7 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: [
+                          "YYYY-MM-DDTHH:mm:ss.SSSZ",
                           "Epoch",
                           "Milliseconds",
                           "YYYY-MM-DD",
@@ -1124,7 +1126,7 @@ export default [
                   },
                 },
                 {
-                  helpText: "Triggers an action when the button is clicked",
+                  helpText: "when the button is clicked",
                   propertyName: "onClick",
                   label: "onClick",
                   controlType: "ACTION_SELECTOR",
@@ -1339,8 +1341,7 @@ export default [
                         sectionName: "Events",
                         children: [
                           {
-                            helpText:
-                              "Triggers an action when the menu item is clicked",
+                            helpText: "when the menu item is clicked",
                             propertyName: "onClick",
                             label: "onItemClick",
                             controlType: "ACTION_SELECTOR",
@@ -1517,7 +1518,7 @@ export default [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a table row is selected",
+        helpText: "when a table row is selected",
         propertyName: "onRowSelected",
         label: "onRowSelected",
         controlType: "ACTION_SELECTOR",
@@ -1526,7 +1527,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a table page is changed",
+        helpText: "when a table page is changed",
         propertyName: "onPageChange",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
@@ -1535,7 +1536,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a table page size is changed",
+        helpText: "when a table page size is changed",
         propertyName: "onPageSizeChange",
         label: "onPageSizeChange",
         controlType: "ACTION_SELECTOR",
@@ -1552,7 +1553,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a table column is sorted",
+        helpText: "when a table column is sorted",
         propertyName: "onSort",
         label: "onSort",
         controlType: "ACTION_SELECTOR",

@@ -7,7 +7,7 @@ import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockUserPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
-import { BaseGroupRoleProps } from "./types";
+import type { BaseGroupRoleProps } from "./types";
 
 let container: any = null;
 
@@ -280,8 +280,8 @@ describe("<UserEdit />", () => {
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
     let saveButton;
-    await waitFor(async () => {
-      saveButton = screen.getAllByTestId("t--admin-settings-save-button");
+    waitFor(async () => {
+      saveButton = await screen.getAllByTestId("t--admin-settings-save-button");
       expect(saveButton).toHaveLength(1);
       await fireEvent.click(saveButton[0]);
       const errorMessage = document.getElementsByClassName("cs-text");

@@ -1,24 +1,24 @@
-import React, { useState, useEffect, ReactElement, useMemo } from "react";
+import type { ReactElement } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Classes, Intent, TagInput } from "@blueprintjs/core";
+import type { Intent } from "@blueprintjs/core";
+import { Classes, TagInput } from "@blueprintjs/core";
 import _ from "lodash";
 import {
   createMessage,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
 } from "@appsmith/constants/messages";
 import { HighlightText } from "design-system-old";
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { Colors } from "constants/Colors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 export const isEmail = (value: string) => {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(value);
 };
 
@@ -69,7 +69,6 @@ const TagInputWrapper = styled.div`
 const SuggestionsWrapper = styled.div`
   margin-top: 4px;
   position: relative;
-  left: 4px;
   width: 100%;
 
   svg {

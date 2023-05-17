@@ -4,6 +4,8 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
+import com.external.constants.ErrorMessages;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,6 +21,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public interface ExecutionMethod {
 
@@ -44,14 +47,14 @@ public interface ExecutionMethod {
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                 return uriBuilder.uri(uri);
             } catch (URISyntaxException | MalformedURLException e) {
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.UNABLE_TO_CREATE_URI_ERROR_MSG, e.getMessage()));
             }
         } else {
             try {
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                 return uriBuilder.uri(new URI(baseUri + path));
             } catch (URISyntaxException e) {
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.UNABLE_TO_CREATE_URI_ERROR_MSG, e.getMessage()));
             }
         }
     }
@@ -64,11 +67,11 @@ public interface ExecutionMethod {
 
     WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig);
 
-    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw Exceptions.propagate(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing a valid response object."));
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG));
         }
         // By default, no transformation takes place
         return response;

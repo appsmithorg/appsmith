@@ -1,31 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { IconSize, Text, TextType } from "design-system-old";
+import React from "react";
+import { Category, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
-import BECtaImage from "assets/images/upgrade/be-cta/be-box-image.png";
-// import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
-  ADMIN_BILLING_SETTINGS_SUBTITLE,
+  ACTIVE,
   ADMIN_BILLING_SETTINGS_TITLE,
   BILLING_AND_USAGE,
   createMessage,
   LICENSE_EXPIRY_DATE,
-  // NUMBER_OF_SELF_HOSTED_USERS,
-  OPEN_CUSTOMER_PORTAL,
   PASTE_LICENSE_KEY,
-  PREV_LICENSE_INVALID,
+  PORTAL,
+  TRIAL,
   UPDATE,
-  // TOTAL_USERS_MESSAGE,
   UPDATE_LICENSE,
-  YOUR_LICENSE_KEY,
+  LICENSE_KEY,
 } from "@appsmith/constants/messages";
 import { BillingPageHeader } from "./Header";
 import {
   BillingPageWrapper,
-  HeaderText,
-  // UserCount,
   StyledDialog,
   DialogWrapper,
   FlexWrapper,
@@ -33,111 +27,123 @@ import {
 } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
 import { CtaText } from "./CTAText";
-import { BillingDashboardCard, CTATextType } from "./types";
-import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
+import {
+  getDateString,
+  goToCustomerPortal,
+} from "@appsmith/utils/billingUtils";
+import type { BillingDashboardCard, CTAButtonType } from "./types";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
   getLicenseKey,
   isTrialLicense,
-  getLicenseExpiry,
   getLicenseStatus,
+  isLicenseModalOpen,
+  getExpiry,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
+import { showLicenseModal } from "@appsmith/actions/tenantActions";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
-  subtitle: createMessage(ADMIN_BILLING_SETTINGS_SUBTITLE),
 };
 
-const CtaConfig: CTATextType = {
+const CtaConfig: CTAButtonType = {
   action: goToCustomerPortal,
-  icon: {
-    fillColor: Colors.PURPLE,
-    name: "arrow-forward",
-    size: IconSize.XXL,
-  },
-  text: createMessage(OPEN_CUSTOMER_PORTAL).toLocaleUpperCase(),
+  text: createMessage(PORTAL).toLocaleUpperCase(),
 };
 
 const statusTextMap: Partial<Record<Status, string>> = {
-  [Status.ACTIVE]: "Active subscription",
-  [Status.INACTIVE]: "Inactive",
-  [Status.TRIAL]: "Trial version",
+  [Status.ACTIVE]: createMessage(ACTIVE),
+  [Status.TRIAL]: createMessage(TRIAL),
 };
 
 export function Billing() {
-  const dispatch = useDispatch();
   const licenseKey = useSelector(getLicenseKey);
   const isTrial = useSelector(isTrialLicense);
-  const expiryDate = useSelector(getLicenseExpiry);
+  const expiry = useSelector(getExpiry);
+  const expiryDate = getDateString(expiry * 1000);
   const licenseStatus = useSelector(getLicenseStatus);
-  const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    // API call to get the total users
-    dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
-  }, []);
-
-  // We will need this later, for now just commenting this out.
-  // const TOTAL_USERS = useSelector(getAllAclUsers)?.length;
+  const isOpen = useSelector(isLicenseModalOpen);
+  const dispatch = useDispatch();
+  const isAirgappedInstance = isAirgapped();
 
   const cards: BillingDashboardCard[] = [
-    /* {
-      icon: "group-line",
+    {
+      name: "portal-card",
+      icon: "money-dollar-circle-line",
       title: (
-        <HeaderText type={TextType.H3} weight="700">
-          {createMessage(TOTAL_USERS_MESSAGE)}
-        </HeaderText>
-      ),
-      subtitle: (
-        <Text type={TextType.P1}>
-          {createMessage(NUMBER_OF_SELF_HOSTED_USERS)}
+        <Text
+          color={Colors.SCORPION}
+          data-testid="t--card-title"
+          type={TextType.P0}
+          weight="500"
+        >
+          {createMessage(BILLING_AND_USAGE)}
         </Text>
       ),
-      value: (
-        <UserCount type={TextType.H1} weight="600">
-          {TOTAL_USERS}
-        </UserCount>
+      action: (
+        <CtaText
+          category={Category.tertiary}
+          className="portal-btn"
+          icon="share-2"
+          tag={"a"}
+          {...CtaConfig}
+        />
       ),
-    },*/
-    {
-      icon: "upgrade",
-      title: (
-        <HeaderText type={TextType.H3} weight="700">
-          {createMessage(BILLING_AND_USAGE)}
-        </HeaderText>
-      ),
-      subtitle: <CtaText {...CtaConfig} />,
     },
     {
+      name: "license-key-card",
       icon: "key-2-line",
       title: (
         <FlexWrapper align="center" dir="row">
-          <HeaderText type={TextType.H3} weight="700">
-            {createMessage(YOUR_LICENSE_KEY)}
-          </HeaderText>
+          <Text
+            color={Colors.SCORPION}
+            data-testid="t--card-title"
+            type={TextType.P0}
+            weight="500"
+          >
+            {createMessage(LICENSE_KEY)}
+          </Text>
           <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
         </FlexWrapper>
       ),
       content: (
         <FlexWrapper dir="column">
-          <Text type={TextType.H2}>{licenseKey}</Text>
+          <Text
+            color={Colors.GRAY_500}
+            data-testid="t--license-key"
+            type={TextType.P3}
+            weight="500"
+          >
+            {licenseKey}
+          </Text>
           {isTrial && (
-            <Text color={Colors.GREEN} type={TextType.P1} weight="500">
+            <Text
+              color={Colors.GREEN}
+              data-testid="t--license-expiry"
+              type={TextType.P3}
+              weight="500"
+            >
               {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
             </Text>
           )}
         </FlexWrapper>
       ),
-      subtitle: (
+      action: (
         <CtaText
-          {...CtaConfig}
-          action={() => setIsOpen(true)}
+          action={() => dispatch(showLicenseModal(true))}
+          category={Category.secondary}
+          className="update-license-btn"
+          tag={"button"}
           text={createMessage(UPDATE)}
         />
       ),
     },
-  ];
+  ].filter((card) =>
+    isAirgappedInstance ? card.name !== "portal-card" : true,
+  );
 
   return (
     <BillingPageWrapper>
@@ -146,18 +152,17 @@ export function Billing() {
       <StyledDialog
         canOutsideClickClose
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => dispatch(showLicenseModal(false))}
         title=""
-        width="455"
+        width="456px"
       >
         <DialogWrapper>
           <DialogHeaderImg
             className="no-sub-img"
             loading="lazy"
-            src={BECtaImage}
+            src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
           />
           <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
-          <Text type={TextType.P1}>{createMessage(PREV_LICENSE_INVALID)}</Text>
           <LicenseForm
             actionBtnText={createMessage(ACTIVATE)}
             placeholder={createMessage(PASTE_LICENSE_KEY)}

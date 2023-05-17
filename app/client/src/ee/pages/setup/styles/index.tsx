@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Button, TextInput } from "design-system-old";
 import { IntentColors } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export const StyledPageWrapper = styled.div`
   display: flex;
@@ -60,6 +61,7 @@ export const IconBadge = styled.div`
   height: 48px;
   border-radius: 50%;
   background-color: var(--appsmith-color-black-100);
+  pointer-events: none;
 
   svg {
     fill: var(--appsmith-color-black-700);
@@ -77,6 +79,10 @@ export const StyledContent = styled.div`
 
 export const StyledButton = styled(Button)`
   width: 100%;
+  gap: 10px;
+  svg path {
+    fill: ${Colors.GRAY};
+  }
 `;
 
 export const StyledBannerWrapper = styled.div`

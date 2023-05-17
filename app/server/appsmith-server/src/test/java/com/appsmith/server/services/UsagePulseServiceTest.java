@@ -1,25 +1,20 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.solutions.UsageReporter;
+import com.appsmith.server.repositories.UsagePulseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,12 +28,16 @@ public class UsagePulseServiceTest {
     @Autowired
     private UsagePulseService usagePulseService;
 
-    @MockBean
-    private UsageReporter usageReporter;
+    @Autowired
+    private CommonConfig commonConfig;
 
-    @SpyBean
-    private TenantService tenantService;
+    @Autowired
+    private UsagePulseRepository repository;
 
+    @BeforeEach
+    public void setup() {
+        commonConfig.setCloudHosting(false);
+    }
     /**
      * To verify anonymous user usage pulses are logged properly
      */
@@ -113,34 +112,26 @@ public class UsagePulseServiceTest {
                 .verify();
     }
 
-
-    /**
-     * To verify usage pulses are sent to Cloud Services properly
-     */
     @Test
     @WithUserDetails(value = "anonymousUser")
-    public void test_sendUsagePulse_ToCloudServices() {
-
-        Tenant testTenant = new Tenant();
-        TenantConfiguration testTenantConfiguration = new TenantConfiguration();
-        TenantConfiguration.License testLicense = new TenantConfiguration.License();
-        testLicense.setKey("testLicenseKey");
-        testTenantConfiguration.setLicense(testLicense);
-        testTenant.setTenantConfiguration(testTenantConfiguration);
-
-        Mockito.when(usageReporter.reportUsage(Mockito.any())).thenReturn(Mono.just(true));
-        Mockito.when(tenantService.getDefaultTenant()).thenReturn(Mono.just(testTenant));
-        Mockito.when(tenantService.getDefaultTenantId()).thenReturn(Mono.just("testTenantId"));
-
+    public void createUsagePulse_forAppsmithCloud_pulseNotSavedInDB() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
-        usagePulseDTO.setAnonymousUserId("testUser");
-        usagePulseDTO.setViewMode(true);
+        String anonymousUserId = "testAnonymousUserId";
+        usagePulseDTO.setViewMode(false);
+        usagePulseDTO.setAnonymousUserId(anonymousUserId);
 
-        Mono<UsagePulse> createUsagePulseMono = usagePulseService.createPulse(usagePulseDTO);
+        usagePulseService.createPulse(usagePulseDTO).block();
+        Long usagePulseCount = repository.count().block();
+        usagePulseService.createPulse(usagePulseDTO).block();
+        Long usagePulseCountForSelfHostedInstance = repository.count().block();
 
-        StepVerifier.create(createUsagePulseMono.then(usagePulseService.sendAndUpdateUsagePulse()))
-                .expectNext(true)
-                .verifyComplete();
+        commonConfig.setCloudHosting(true);
+        usagePulseService.createPulse(usagePulseDTO).block();
+        Long usagePulseCountForCloud = repository.count().block();
+
+        assertThat(usagePulseCount).isNotNull();
+        assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCount + 1);
+        assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCountForCloud);
 
     }
 }

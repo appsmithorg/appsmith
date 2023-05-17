@@ -11,7 +11,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
   });
 
-  it("1. Validation of default displayed in Select widget based on row selected", function() {
+  it("1. Validation of default displayed in Select widget based on row selected", function () {
     deployMode.DeployApp();
 
     //Verify Default selected row is selected by default
@@ -46,7 +46,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
   });
 
   //Till bug fixed
-  it.skip("2. Validation of default displayed in Select widget based on row selected + Bug 12531", function() {
+  it.skip("2. Validation of default displayed in Select widget based on row selected + Bug 12531", function () {
     table.SelectTableRow(1);
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("#2");
@@ -75,8 +75,8 @@ describe("Validate basic binding of Input widget to Input widget", () => {
   });
 
   it("3. Verify Selecting the already selected row deselects it", () => {
-    table.SelectTableRow(0);//select here
-    table.SelectTableRow(0, 0, false);//deselect here
+    table.SelectTableRow(0); //select here
+    table.SelectTableRow(0, 0, false); //deselect here
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Select option");
     });

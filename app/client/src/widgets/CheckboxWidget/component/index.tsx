@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { Classes } from "@blueprintjs/core";
 import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { Checkbox } from "components/wds/Checkbox";
+import { Checkbox } from "components/wds";
 
 type StyledCheckboxContainerProps = {
   isValid: boolean;
@@ -24,6 +24,10 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     height: 100%;
     justify-content: start;
     width: 100%;
+
+    .auto-layout & {
+      min-height: 32px;
+    }
 
     .${Classes.CHECKBOX} {
       width: 100%;
@@ -56,6 +60,13 @@ export const CheckboxLabel = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
+
+  .auto-layout & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+  }
 `;
 
 export const StyledCheckbox = styled(Checkbox)`

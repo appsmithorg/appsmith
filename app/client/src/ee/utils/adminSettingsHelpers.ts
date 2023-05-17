@@ -1,6 +1,5 @@
 export * from "ce/utils/adminSettingsHelpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import {
   ADMIN_SETTINGS_CATEGORY_ACL_PATH,
   ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH,
@@ -11,45 +10,42 @@ import {
   LOGIC_FILTER,
   isPermitted,
 } from "@appsmith/utils/permissionHelpers";
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-  enableOidcOAuth,
-  enableSamlOAuth,
-} = getAppsmithConfigs();
+import {
+  OIDCOAuthURL,
+  KeycloakOAuthURL,
+  GoogleOAuthURL,
+  GithubOAuthURL,
+} from "@appsmith/constants/ApiConstants";
 
-export const connectedMethods = [
-  enableGoogleOAuth,
-  enableGithubOAuth,
-  enableOidcOAuth,
-  enableSamlOAuth,
-  !disableLoginForm,
-].filter(Boolean);
-
-export const saveAllowed = (settings: any) => {
-  if (connectedMethods.length === 1) {
-    const checkFormLogin = !(
-        "APPSMITH_FORM_LOGIN_DISABLED" in settings || disableLoginForm
-      ),
+export const saveAllowed = (
+  settings: any,
+  isFormLoginEnabled: boolean,
+  socialLoginList: string[],
+) => {
+  const connectedMethodsCount =
+    socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+  if (connectedMethodsCount === 1) {
+    const checkFormLogin =
+        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
-        enableGoogleOAuth,
+        socialLoginList.includes("google"),
       checkGithubAuth =
         settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
-        enableGithubOAuth,
+        socialLoginList.includes("github"),
       checkOidcAuth =
-        settings["APPSMITH_OAUTH2_OIDC_CLIENT_ID"] !== "" && enableOidcOAuth;
+        settings["APPSMITH_OAUTH2_OIDC_CLIENT_ID"] !== "" &&
+        socialLoginList.includes("oidc");
 
     return (
       checkFormLogin ||
       checkGoogleAuth ||
       checkGithubAuth ||
       checkOidcAuth ||
-      enableSamlOAuth
+      socialLoginList.includes("saml")
     );
   } else {
-    return connectedMethods.length >= 2;
+    return connectedMethodsCount >= 2;
   }
 };
 
@@ -80,3 +76,14 @@ export const getDefaultAdminSettingsPath = ({
 
 export const showAdminSettings = (user?: User): boolean =>
   user?.adminSettingsVisible || false;
+
+export const getLoginUrl = (method: string): string => {
+  const urls: Record<string, string> = {
+    oidc: OIDCOAuthURL,
+    saml: KeycloakOAuthURL,
+    google: GoogleOAuthURL,
+    github: GithubOAuthURL,
+  };
+
+  return urls[method];
+};

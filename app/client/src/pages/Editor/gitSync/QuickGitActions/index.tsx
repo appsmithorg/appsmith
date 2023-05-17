@@ -22,7 +22,6 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
@@ -39,17 +38,22 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import type { IconName } from "design-system-old";
 import {
   Button,
   Category,
   getTypographyByKey,
   Icon,
-  IconName,
   IconSize,
   Size,
   TooltipComponent as Tooltip,
 } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importSvg } from "design-system-old";
+
+const GitCommitLine = importSvg(
+  () => import("assets/icons/ads/git-commit-line.svg"),
+);
 
 type QuickActionButtonProps = {
   className?: string;
@@ -292,10 +296,8 @@ export default function QuickGitActions() {
   const gitStatus = useSelector(getGitStatus);
   const pullFailed = useSelector(getPullFailed);
 
-  const {
-    disabled: pullDisabled,
-    message: pullTooltipMessage,
-  } = getPullBtnStatus(gitStatus, !!pullFailed);
+  const { disabled: pullDisabled, message: pullTooltipMessage } =
+    getPullBtnStatus(gitStatus, !!pullFailed);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);

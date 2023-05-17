@@ -1,5 +1,6 @@
 import classNames from "classnames";
-import { Icon, IconName, IconSize } from "design-system-old";
+import type { IconName } from "design-system-old";
+import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 

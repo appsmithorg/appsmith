@@ -16,69 +16,83 @@ beforeEach(() => {
     .click({ force: true });
 });
 
-describe("Fork a template to the current app from new page popover", () => {
-  it("1. Fork template from page section", () => {
-    cy.wait(5000);
-    cy.AddPageFromTemplate();
-    cy.wait(5000);
-    cy.get(template.templateDialogBox).should("be.visible");
-    cy.wait(4000);
-    cy.xpath(
-      "//div[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
-    )
-      .scrollIntoView()
-      .wait(500)
-      .click();
-    cy.wait(1000);
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(6000);
-    _.agHelper.CheckForErrorToast(
-      "Internal server error while processing request",
-    );
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetLocators.toastAction).length <= 0) {
-        if ($ele.find(template.templateViewForkButton).length > 0) {
-          cy.get(template.templateViewForkButton).click();
+describe(
+  "excludeForAirgap",
+  "Fork a template to the current app from new page popover",
+  () => {
+    it("1. Fork template from page section", () => {
+      //Fork template button to be visible always
+      _.agHelper.RefreshPage();
+      cy.wait(5000);
+      cy.AddPageFromTemplate();
+      cy.wait(5000);
+      _.agHelper.AssertElementExist(_.templates.locators._forkApp);
+      cy.get(template.templateDialogBox).should("be.visible");
+      cy.wait(4000);
+      cy.xpath(
+        "//div[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
+      )
+        .scrollIntoView()
+        .wait(500)
+        .click();
+      cy.wait(1000);
+      _.agHelper.CheckForErrorToast(
+        "Internal server error while processing request",
+      );
+      cy.get("body").then(($ele) => {
+        if ($ele.find(widgetLocators.toastAction).length <= 0) {
+          if ($ele.find(template.templateViewForkButton).length > 0) {
+            cy.get(template.templateViewForkButton).click();
+          }
         }
-      }
+      });
+      cy.get(widgetLocators.toastAction).should(
+        "contain",
+        "template added successfully",
+      );
     });
-    cy.get(widgetLocators.toastAction).should(
-      "contain",
-      "template added successfully",
-    );
-  });
 
-  it("2. Add selected page of template from page section", () => {
-    cy.AddPageFromTemplate();
-    cy.wait(5000);
-    cy.get(template.templateDialogBox).should("be.visible");
-    cy.wait(4000);
-    cy.xpath("//div[text()='Meeting Scheduler']").click();
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.xpath(template.selectAllPages)
-      .next()
-      .click();
-    cy.xpath("//span[text()='CALENDAR MOBILE']")
-      .parent()
-      .next()
-      .click();
-    cy.get(template.templateViewForkButton).click();
-    cy.wait("@fetchTemplate").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get(widgetLocators.toastAction).should(
-      "contain",
-      "template added successfully",
-    );
-  });
-});
+    it("2. Add selected page of template from page section", () => {
+      cy.AddPageFromTemplate();
+      cy.wait(5000);
+      cy.get(template.templateDialogBox).should("be.visible");
+      cy.wait(4000);
+      cy.xpath("//div[text()='Meeting Scheduler']").click();
+      cy.wait("@getTemplatePages").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.xpath(template.selectAllPages).next().click();
+      cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
+      cy.get(template.templateViewForkButton).click();
+      cy.wait("@fetchTemplate").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.get(widgetLocators.toastAction).should(
+        "contain",
+        "template added successfully",
+      );
+    });
+
+    it("Fork template button should take user to 'select pages from template' page", () => {
+      _.agHelper.RefreshPage();
+      cy.AddPageFromTemplate();
+      cy.get(_.templates.locators._forkApp).first().click();
+      cy.get(template.templateViewForkButton).should("be.visible");
+    });
+
+    it("Similar templates add icon should take user to 'select pages from template' page", () => {
+      _.agHelper.RefreshPage();
+      cy.AddPageFromTemplate();
+      // We are currentlyon on templates list page
+      cy.get(_.templates.locators._forkApp).first().click();
+      // Here we are on template detail page, with similar templates at the bottom
+      cy.get(_.templates.locators._forkApp).first().click();
+
+      cy.get(template.templateViewForkButton).should("be.visible");
+    });
+  },
+);

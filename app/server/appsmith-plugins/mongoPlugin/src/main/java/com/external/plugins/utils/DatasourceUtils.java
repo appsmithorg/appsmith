@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -169,15 +170,13 @@ public class DatasourceUtils {
                 } else {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
-                                    "if the URI has the correct format."
+                            MongoPluginErrorMessages.CONNECTION_STRING_PARSING_FAILED_ERROR_MSG
                     );
                 }
             } else {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
-                                " URI' field to provide the URI to connect to."
+                        MongoPluginErrorMessages.NO_CONNECTION_STRING_URI_ERROR_MSG
                 );
             }
         }
@@ -239,9 +238,8 @@ public class DatasourceUtils {
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                            "Please reach out to Appsmith customer support to resolve this."
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    MongoPluginErrorMessages.DS_SSL_CONFIGURATION_FETCHING_ERROR_MSG
             );
         }
 
@@ -264,9 +262,8 @@ public class DatasourceUtils {
                 break;
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                " Appsmith customer support to resolve this."
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        MongoPluginErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG
                 );
         }
 

@@ -8,32 +8,39 @@ import FormTitle from "./FormTitle";
 import { Callout, Category, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
-import { Datasource } from "entities/Datasource";
-import { reduxForm, InjectedFormProps } from "redux-form";
+import type { Datasource } from "entities/Datasource";
+import type { InjectedFormProps } from "redux-form";
+import { reduxForm } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
+import type { JSONtoFormProps } from "./JSONtoForm";
 import {
   EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
-  JSONtoFormProps,
   PluginImage,
 } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "./Debugger";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import DatasourceInformation from "./DatasourceSection";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   datasourceId: string;
   applicationId: string;
   pageId: string;
@@ -47,6 +54,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   hiddenHeader?: boolean;
   canManageDatasource?: boolean;
   datasourceName?: string;
+  showDebugger: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
   datasourceDeleteTrigger: () => void;
@@ -62,8 +70,28 @@ const StyledOpenDocsIcon = styled(Icon)`
   }
 `;
 
+const CalloutWrapper = styled.div`
+  padding: 0 20px;
+`;
+
 const CollapsibleWrapper = styled.div`
   width: max-content;
+  padding: 0 20px;
+`;
+
+export const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
+  overflow: hidden;
+  flex: 1;
+`;
+
+const ViewModeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #d0d7dd;
+  padding: 24px 20px;
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -80,10 +108,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     });
   };
 
-  openOmnibarReadMore = () => {
-    const { openOmnibarReadMore } = this.props;
-    openOmnibarReadMore("connect to databases");
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
+  openDocumentation = () => {
+    openDoc(DocsLink.WHITELIST_IP);
   };
 
   render() {
@@ -107,16 +133,17 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceButtonConfiguration,
       datasourceDeleteTrigger,
       datasourceId,
+      formConfig,
       formData,
       messages,
       pluginType,
+      showDebugger,
       viewMode,
     } = this.props;
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
-
     return (
-      <form
+      <Form
         onSubmit={(e) => {
           e.preventDefault();
         }}
@@ -124,7 +151,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         {!this.props.hiddenHeader && (
           <Header>
             <FormTitleContainer>
-              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <PluginImage
+                alt="Datasource"
+                src={getAssetUrl(this.props.pluginImage)}
+              />
               <FormTitle
                 disabled={!createFlow && !canManageDatasource}
                 focusOnMount={this.props.isNewDatasource}
@@ -142,56 +172,75 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             )}
           </Header>
         )}
-        {messages &&
-          messages.map((msg, i) => (
-            <Callout
-              addMarginTop
-              fill
-              key={i}
-              text={msg}
-              variant={Variant.warning}
-            />
-          ))}
-        {!this.props.hiddenHeader &&
-          cloudHosting &&
-          pluginType === PluginType.DB &&
-          !viewMode && (
-            <CollapsibleWrapper>
-              <CollapsibleHelp>
-                <span>{`Whitelist the IP ${convertArrayToSentence(
-                  APPSMITH_IP_ADDRESSES,
-                )}  on your database instance to connect to it. `}</span>
-                <a onClick={this.openOmnibarReadMore}>
-                  {"Learn more "}
-                  <StyledOpenDocsIcon icon="document-open" />
-                </a>
-              </CollapsibleHelp>
-            </CollapsibleWrapper>
-          )}
-        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
-          <>
-            {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
-              : undefined}
-            {""}
-          </>
-        )}
-        {viewMode && <Connected />}
-        {/* Render datasource form call-to-actions */}
-        {datasource && (
-          <DatasourceAuth
-            datasource={datasource}
-            datasourceButtonConfiguration={datasourceButtonConfiguration}
-            datasourceDeleteTrigger={datasourceDeleteTrigger}
-            formData={formData}
-            getSanitizedFormData={_.memoize(this.getSanitizedData)}
-            isFormDirty={this.props.isFormDirty}
-            isInvalid={this.validate()}
-            shouldRender={!viewMode}
-            triggerSave={this.props.isDatasourceBeingSavedFromPopup}
-          />
-        )}
-      </form>
+        <ResizerMainContainer>
+          <ResizerContentContainer className="db-form-resizer-content">
+            {messages &&
+              messages.map((msg, i) => (
+                <CalloutWrapper key={i}>
+                  <Callout
+                    addMarginTop
+                    fill
+                    text={msg}
+                    variant={Variant.warning}
+                  />
+                </CalloutWrapper>
+              ))}
+            {!this.props.hiddenHeader &&
+              cloudHosting &&
+              pluginType === PluginType.DB &&
+              !viewMode && (
+                <CollapsibleWrapper>
+                  <CollapsibleHelp>
+                    <span>{`Whitelist the IP ${convertArrayToSentence(
+                      APPSMITH_IP_ADDRESSES,
+                    )}  on your database instance to connect to it. `}</span>
+                    <a onClick={this.openDocumentation}>
+                      {"Learn more "}
+                      <StyledOpenDocsIcon icon="document-open" />
+                    </a>
+                  </CollapsibleHelp>
+                </CollapsibleWrapper>
+              )}
+            {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
+              <>
+                {!_.isNil(sections)
+                  ? _.map(sections, this.renderMainSection)
+                  : undefined}
+                {""}
+              </>
+            )}
+            {viewMode && (
+              <ViewModeWrapper>
+                <Connected />
+                <div style={{ marginTop: "30px" }}>
+                  {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                    <DatasourceInformation
+                      config={formConfig[0]}
+                      datasource={datasource}
+                      viewMode={viewMode}
+                    />
+                  ) : undefined}
+                </div>
+              </ViewModeWrapper>
+            )}
+            {/* Render datasource form call-to-actions */}
+            {datasource && (
+              <DatasourceAuth
+                datasource={datasource}
+                datasourceButtonConfiguration={datasourceButtonConfiguration}
+                datasourceDeleteTrigger={datasourceDeleteTrigger}
+                formData={formData}
+                getSanitizedFormData={_.memoize(this.getSanitizedData)}
+                isFormDirty={this.props.isFormDirty}
+                isInvalid={this.validate()}
+                shouldRender={!viewMode}
+                triggerSave={this.props.isDatasourceBeingSavedFromPopup}
+              />
+            )}
+          </ResizerContentContainer>
+          {showDebugger && <Debugger />}
+        </ResizerMainContainer>
+      </Form>
     );
   };
 }
@@ -202,6 +251,9 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
+
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
@@ -223,6 +275,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourceName: datasource?.name ?? "",
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
+    showDebugger,
   };
 };
 

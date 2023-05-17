@@ -10,13 +10,22 @@ import {
   Wrapper,
 } from "ce/pages/AdminSettings/LeftPane";
 import { AclFactory, OthersFactory } from "./config";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
-import { Category } from "./config/types";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import type { Category } from "./config/types";
+import {
+  getLicenseOrigin,
+  getTenantPermissions,
+} from "@appsmith/selectors/tenantSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import {
+  ADMIN_BILLING_SETTINGS_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { LICENSE_ORIGIN } from "../Billing/types";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 function getAclCategory() {
   return Array.from(AclFactory.categories);
@@ -37,14 +46,23 @@ export default function LeftPane() {
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
-  const isUsageandBillingEnabled = useSelector(selectFeatureFlags)
-    ?.USAGE_AND_BILLING;
-
+  const isEnterpriseLicense =
+    useSelector(getLicenseOrigin) === LICENSE_ORIGIN.ENTERPRISE;
   const tenantPermissions = useSelector(getTenantPermissions);
   const isAuditLogsEnabled = isPermitted(
     tenantPermissions,
     PERMISSION_TYPE.READ_AUDIT_LOGS,
   );
+  const isAirgappedInstance = isAirgapped();
+
+  const filteredGeneralCategories = categories
+    ?.map((category) => {
+      if (isAirgappedInstance && category.slug === "google-maps") {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
 
   const filteredAclCategories = aclCategories
     ?.map((category) => {
@@ -57,7 +75,10 @@ export default function LeftPane() {
 
   const filteredOthersCategories = othersCategories
     ?.map((category) => {
-      if (category.title === "Billing" && !isUsageandBillingEnabled) {
+      if (
+        category.title === createMessage(ADMIN_BILLING_SETTINGS_TITLE) &&
+        isEnterpriseLicense
+      ) {
         return null;
       }
       return category;
@@ -70,7 +91,7 @@ export default function LeftPane() {
         <HeaderContainer>
           <StyledHeader>Admin Settings</StyledHeader>
           <Categories
-            categories={categories}
+            categories={filteredGeneralCategories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />

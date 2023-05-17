@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions.roles;
 
+import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.ActionCollection;
@@ -32,6 +34,8 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -65,6 +69,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,11 +84,18 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
+import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -98,6 +110,9 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    EnvironmentService environmentService;
 
     @Autowired
     TenantResources tenantResources;
@@ -152,6 +167,9 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     NewActionRepository newActionRepository;
+
+    @MockBean
+    FeatureFlagService featureFlagService;
 
     User api_user = null;
 
@@ -220,6 +238,9 @@ public class WorkspaceResourcesTest {
         actionToCreate.setPluginId(restApiPlugin.getId());
 
         createdActionDto = layoutActionService.createAction(actionToCreate).block();
+
+        // This stub has been added for featureflag placed for multiple environments
+        doReturn(Mono.just(TRUE)).when(featureFlagService).check(Mockito.any());
     }
 
     @Test
@@ -520,6 +541,8 @@ public class WorkspaceResourcesTest {
         workspace.setName("testApplicationResourcesTab_testHoverMap workspace");
         Workspace createdWorkspace1 = workspaceService.create(workspace).block();
 
+        List<Environment> environmentList = environmentService.findByWorkspaceId(createdWorkspace1.getId()).collectList().block();
+
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(createdWorkspace1.getId());
@@ -573,7 +596,9 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT)
         )));
         assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceExecute, Set.of(
-                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE)
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(environmentList.get(0).getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(environmentList.get(1).getId(), PermissionViewableName.EXECUTE)
         )));
         assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceView, Set.of(
                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
@@ -581,8 +606,6 @@ public class WorkspaceResourcesTest {
         )));
 
         assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdDatasourceCreate, Set.of(
-                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.DELETE),
-                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT),
                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW)
         )));
@@ -621,11 +644,17 @@ public class WorkspaceResourcesTest {
 
         RoleTabDTO roleTabDTO = tenantResources.createGroupsAndRolesTab(additionalPg.getId()).block();
 
-        String tenantAssociateRoleKey = tenantId + "_Associate Role";
-        String tenantCreateKey = tenantId + "_Create";
-        String tenantDeleteKey = tenantId + "_Delete";
-        String tenantEditKey = tenantId + "_Edit";
-        String tenantViewKey = tenantId + "_View";
+        String tenantAssociateRoleKey = tenantId + "_Associate Role_" + TENANT_ROLE;
+        String tenantCreateRoleKey = tenantId + "_Create_" + TENANT_ROLE;
+        String tenantDeleteRoleKey = tenantId + "_Delete_" + TENANT_ROLE;
+        String tenantEditRoleKey = tenantId + "_Edit_" + TENANT_ROLE;
+        String tenantViewRoleKey = tenantId + "_View_" + TENANT_ROLE;
+        String tenantCreateGroupKey = tenantId + "_Create_" + TENANT_GROUP;
+        String tenantDeleteGroupKey = tenantId + "_Delete_" + TENANT_GROUP;
+        String tenantEditGroupKey = tenantId + "_Edit_" + TENANT_GROUP;
+        String tenantViewGroupKey = tenantId + "_View_" + TENANT_GROUP;
+        String tenantInviteUserGroupKey = tenantId + "_Invite User_" + TENANT_GROUP;
+        String tenantRemoveUserGroupKey = tenantId + "_Remove User_" + TENANT_GROUP;
         String adminPgEditKey = adminPg.getId() + "_Edit";
         String adminPgDeleteKey = adminPg.getId() + "_Delete";
         String adminPgViewKey = adminPg.getId() + "_View";
@@ -640,14 +669,16 @@ public class WorkspaceResourcesTest {
         String additionalPgViewKey = additionalPg.getId() + "_View";
 
 
-        assertThat(roleTabDTO.getHoverMap()).containsKeys(tenantAssociateRoleKey, tenantCreateKey, tenantDeleteKey,
-                tenantEditKey, tenantViewKey, adminPgViewKey, devPgViewKey, viewPgViewKey, additionalPgDeleteKey,
-                additionalPgEditKey, additionalPgViewKey);
+        assertThat(roleTabDTO.getHoverMap()).containsKeys(tenantAssociateRoleKey, tenantCreateRoleKey,
+                tenantDeleteRoleKey, tenantEditRoleKey, tenantViewRoleKey, tenantCreateGroupKey, tenantDeleteGroupKey,
+                tenantEditGroupKey, tenantViewGroupKey, tenantInviteUserGroupKey, tenantRemoveUserGroupKey,
+                adminPgViewKey, devPgViewKey, viewPgViewKey, additionalPgDeleteKey, additionalPgEditKey,
+                additionalPgViewKey);
 
         assertThat(roleTabDTO.getHoverMap()).doesNotContainKeys(adminPgDeleteKey, adminPgEditKey, devPgDeleteKey,
                 devPgEditKey, viewPgDeleteKey, viewPgEditKey);
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantCreateKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantCreateRoleKey)).contains(
                 new IdPermissionDTO(tenantId, PermissionViewableName.ASSOCIATE_ROLE),
                 new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
                 new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
@@ -663,7 +694,7 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.ASSOCIATE_ROLE)
         );
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantDeleteKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantDeleteRoleKey)).contains(
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
@@ -673,7 +704,7 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.DELETE)
         );
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantEditKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantEditRoleKey)).contains(
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
@@ -683,7 +714,7 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.EDIT)
         );
 
-        assertThat(roleTabDTO.getHoverMap().get(tenantViewKey)).contains(
+        assertThat(roleTabDTO.getHoverMap().get(tenantViewRoleKey)).contains(
                 new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(devPg.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(viewPg.getId(), PermissionViewableName.VIEW),
@@ -714,16 +745,27 @@ public class WorkspaceResourcesTest {
 
         assertThat(rolesView.getId()).isEqualTo(tenantId);
 
-        BaseView adminPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView defaultRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(DEFAULT_ROLES))
+                .findAny().get();
+        BaseView customRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(CUSTOM_ROLES))
+                .findAny().get();
+
+        BaseView adminPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(adminPg.getId()))
                 .findFirst().get();
-        BaseView devPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView devPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(devPg.getId()))
                 .findFirst().get();
-        BaseView viewPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView viewPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(viewPg.getId()))
                 .findFirst().get();
-        BaseView additionalPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView additionalPgBaseView = customRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(additionalPg.getId()))
                 .findFirst().get();
 
@@ -774,11 +816,30 @@ public class WorkspaceResourcesTest {
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream().findFirst().get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
-                    // Assert that two kinds of children exist in header in this tab : aka datasource and application
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
+                    // Assert that three kinds of children exist in header in this tab : aka datasource, application, and Environments
+                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(3);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Datasources")).findFirst().get().getChildren().stream().findFirst().get();
                     EntityView ApplicationsEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Applications")).findFirst().get().getChildren().stream().findFirst().get();
+
+                    EntityView environmentsEntityView =
+                            createdHeaderEntityView.getEntities()
+                                    .stream()
+                                    .filter(entity -> entity.getName().equals("Environments"))
+                                    .findFirst()
+                                    .get()
+                                    .getChildren()
+                                    .stream()
+                                    .findFirst()
+                                    .get();
+
+                    // Two default environments are created implicitly when we create workspaces.
+
+                    List<? extends BaseView> environmentBaseViewList = environmentsEntityView.getEntities();
+                    environmentBaseViewList.sort(Comparator.comparing(BaseView::getName));
+                    assertThat(environmentBaseViewList.size()).isEqualTo(2);
+                    assertThat(environmentBaseViewList.get(0).getName()).isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
+                    assertThat(environmentBaseViewList.get(1).getName()).isEqualTo(CommonFieldName.STAGING_ENVIRONMENT);
 
                     // Only one datasource was created in this workspace
                     assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
@@ -867,11 +928,29 @@ public class WorkspaceResourcesTest {
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream().findFirst().get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
-                    // Assert that two kinds of children exist in header in this tab : aka datasource and application
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
+                    // Assert that three kinds of children exist in header in this tab : aka datasource, application, and default environments
+                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(3);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Datasources")).findFirst().get().getChildren().stream().findFirst().get();
                     EntityView ApplicationsEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Applications")).findFirst().get().getChildren().stream().findFirst().get();
+                    EntityView environmentsEntityView =
+                            createdHeaderEntityView.getEntities()
+                                    .stream()
+                                    .filter(entity -> entity.getName().equals("Environments"))
+                                    .findFirst()
+                                    .get()
+                                    .getChildren()
+                                    .stream()
+                                    .findFirst()
+                                    .get();
+
+                    // Two default environments are created implicitly when we create workspaces.
+
+                    List<? extends BaseView> environmentBaseViewList = environmentsEntityView.getEntities();
+                    environmentBaseViewList.sort(Comparator.comparing(BaseView::getName));
+                    assertThat(environmentBaseViewList.size()).isEqualTo(2);
+                    assertThat(environmentBaseViewList.get(0).getName().equals(CommonFieldName.PRODUCTION_ENVIRONMENT));
+                    assertThat(environmentBaseViewList.get(1).getName().equals(CommonFieldName.STAGING_ENVIRONMENT));
 
                     // Only one datasource was created in this workspace
                     assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
@@ -1491,10 +1570,24 @@ public class WorkspaceResourcesTest {
         themeCustomization.setDisplayName("Updated name");
         Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), null, themeCustomization);
 
+        Theme theme1 = themeService.getSystemTheme("Classic")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication.getId(), null, persistedTheme))
+                .block();
+        Theme theme2 = themeService.getSystemTheme("Sharp")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication.getId(), null, persistedTheme))
+                .block();
+        Theme theme3 = themeService.getSystemTheme("Rounded")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication.getId(), null, persistedTheme))
+                .block();
+
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
         PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        PermissionGroup permissionGroup2 = new PermissionGroup();
+        permissionGroup2.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup2 = permissionGroupService.create(permissionGroup2).block();
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
 
@@ -1503,7 +1596,7 @@ public class WorkspaceResourcesTest {
         UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
                 Application.class.getSimpleName(),
                 createdApplication.getId(),
-                List.of(0, 1, 0, 1, 0, 0),
+                List.of(1, 1, 1, 1, 1, 1),
                 createdApplication.getName()
         );
         updateRoleConfigDTO.setEntitiesChanged(Set.of(
@@ -1513,6 +1606,7 @@ public class WorkspaceResourcesTest {
 
         // Make the role configuration changes in a blocking manner
         roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+        roleConfigurationSolution.updateRoles(createdPermissionGroup2.getId(), updateRoleConfigDTO).block();
 
         // Fetch the application again to ensure the changes are persisted
         // Fetch the themes : 1. Edit mode theme is custom, so we should hav gotten edit and view theme permissions. 2. View mode theme is system default, so we should not have updated the policies.
@@ -1523,14 +1617,18 @@ public class WorkspaceResourcesTest {
 
         Theme publishedModeTheme = themeRepository.findById(updatedApplication.getPublishedModeThemeId(), READ_THEMES).block();
 
+        Theme themePostUpdate1 = themeRepository.findById(theme1.getId()).block();
+        Theme themePostUpdate2 = themeRepository.findById(theme2.getId()).block();
+        Theme themePostUpdate3 = themeRepository.findById(theme3.getId()).block();
+
 
         // Assert that application policy update happened
         updatedApplication.getPolicies().stream().forEach(
                 policy -> {
                     if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     }
                 }
         );
@@ -1539,9 +1637,9 @@ public class WorkspaceResourcesTest {
         editModeTheme.getPolicies().stream().forEach(
                 policy -> {
                     if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     }
                 }
         );
@@ -1551,6 +1649,138 @@ public class WorkspaceResourcesTest {
         publishedModeTheme.getPolicies().stream().forEach(
                 policy -> {
                     if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+                    }
+                }
+        );
+
+        themePostUpdate1.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+            }
+        });
+
+        themePostUpdate2.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+            }
+        });
+
+        themePostUpdate3.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
+            }
+        });
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DirtiesContext
+    public void testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application1 = new Application();
+        application1.setName("testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp application - 1");
+        Application createdApplication1 = applicationPageService.createApplication(application1, createdWorkspace.getId()).block();
+
+        Application application2 = new Application();
+        application2.setName("testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp application - 2");
+        Application createdApplication2 = applicationPageService.createApplication(application2, createdWorkspace.getId()).block();
+        // publish the app to ensure system theme gets set
+        applicationPageService.publish(createdApplication1.getId(), TRUE).block();
+        applicationPageService.publish(createdApplication2.getId(), TRUE).block();
+
+        // Create and apply custom theme in edit mode.
+        Theme customThemeForApp1 = new Theme();
+        customThemeForApp1.setDisplayName("Custom Theme - App 1");
+        themeService.persistCurrentTheme(createdApplication1.getId(), null, customThemeForApp1)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), createdApplication1.getId(), null))
+                .block();
+        Theme customThemeForApp2 = new Theme();
+        customThemeForApp2.setDisplayName("Custom Theme - App 2");
+        themeService.persistCurrentTheme(createdApplication2.getId(), null, customThemeForApp2)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), createdApplication2.getId(), null))
+                .block();
+
+        Theme themeForApp1 = themeService.getSystemTheme("Classic")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication1.getId(), null, persistedTheme))
+                .block();
+        Theme themeForApp2 = themeService.getSystemTheme("Sharp")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication2.getId(), null, persistedTheme))
+                .block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Application : Give all permissions to the application - 1
+        UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(), createdApplication1.getId(), List.of(1, 1, 1, 1, 1, 1), createdApplication1.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationEntity));
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+
+        // Make the role configuration changes in a blocking manner
+        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+
+        // Fetch the application again to ensure the changes are persisted
+        // Fetch the themes : 1. Edit mode theme is custom, so we should hav gotten edit and view theme permissions. 2. View mode theme is system default, so we should not have updated the policies.
+
+        Application updatedApplication1 = applicationRepository.findById(createdApplication1.getId()).block();
+        Theme editModeThemeForApp1 = themeRepository.findById(updatedApplication1.getEditModeThemeId(), READ_THEMES).block();
+        Theme publishedModeThemeForApp1 = themeRepository.findById(updatedApplication1.getPublishedModeThemeId(), READ_THEMES).block();
+        Theme themeForApp1PostUpdate = themeRepository.findById(themeForApp1.getId()).block();
+
+        Application updatedApplication2 = applicationRepository.findById(createdApplication2.getId()).block();
+        Theme editModeThemeForApp2 = themeRepository.findById(updatedApplication2.getEditModeThemeId(), READ_THEMES).block();
+        Theme publishedModeThemeForApp2 = themeRepository.findById(updatedApplication2.getPublishedModeThemeId(), READ_THEMES).block();
+        Theme themeForApp2PostUpdate = themeRepository.findById(themeForApp2.getId()).block();
+
+        // Assert that application 1 policy update happened
+        updatedApplication1.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that edit mode theme policy update happened for application 1
+        editModeThemeForApp1.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that published mode theme policy update did not happen for application 1
+        assertThat(publishedModeThemeForApp1.isSystemTheme()).isTrue();
+        publishedModeThemeForApp1.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
                         assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
                     } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
                         assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
@@ -1558,6 +1788,59 @@ public class WorkspaceResourcesTest {
                 }
         );
 
+        // Assert that persisted theme policy update happened for application 1
+        themeForApp1PostUpdate.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+        });
+
+        // Assert that application 2 policy update did not happen
+        updatedApplication2.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that edit mode theme policy update did not happen for application 2
+        editModeThemeForApp2.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that published mode theme policy update did not happen for application 2
+        assertThat(publishedModeThemeForApp2.isSystemTheme()).isTrue();
+        publishedModeThemeForApp2.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that persisted theme policy update did not happen for application 2
+        themeForApp2PostUpdate.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+            }
+        });
     }
 
     @Test
@@ -1700,16 +1983,28 @@ public class WorkspaceResourcesTest {
         BaseView rolesView = groupsAndRolesView.getEntities().stream()
                 .filter(entity -> entity.getName().equals("Roles")).findFirst().get();
 
-        BaseView adminPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView defaultRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(DEFAULT_ROLES))
+                .findAny().get();
+        BaseView customRolesBaseView = rolesView.getChildren().stream()
+                .filter(roleView -> roleView.getType().equals("Header"))
+                .findAny().get()
+                .getEntities().stream().filter(roleBaseView -> roleBaseView.getName().equals(CUSTOM_ROLES))
+                .findAny().get();
+
+
+        BaseView adminPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(adminPg.getId()))
                 .findFirst().get();
-        BaseView devPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView devPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(devPg.getId()))
                 .findFirst().get();
-        BaseView viewPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView viewPgBaseView = defaultRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(viewPg.getId()))
                 .findFirst().get();
-        BaseView createdPgBaseView = rolesView.getChildren().stream().findAny().get()
+        BaseView createdPgBaseView = customRolesBaseView.getChildren().stream().findAny().get()
                 .getEntities().stream().filter(entity -> entity.getId().equals(createdPg.getId()))
                 .findFirst().get();
 
@@ -1825,6 +2120,447 @@ public class WorkspaceResourcesTest {
                 .findFirst();
         assertThat(manageActionPolicyAfterRoleUpdate.isPresent()).isTrue();
         assertThat(manageActionPolicyAfterRoleUpdate.get().getPermissionGroups()).contains(createdPermissionGroup.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGiveWorkspaceApplicationPermission_roleShouldHaveReadWorkspacePermission() {
+        String testName = "testGiveWorkspaceApplicationPermission_roleShouldHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithOneWorkspaceApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceApplicationPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 1, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceRoleEntityWithWorkspaceApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithOneWorkspaceApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(WORKSPACE_READ_APPLICATIONS.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).contains(customRoleWithOneWorkspaceApplicationPermission.getId());
+
+        Optional<Policy> readWorkspacePolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspacePolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspacePolicyOptional.get().getPermissionGroups()).contains(customRoleWithOneWorkspaceApplicationPermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRemoveAllWorkspaceApplicationPermission_roleShouldNotHaveReadWorkspacePermission() {
+        String testName = "testRemoveAllWorkspaceApplicationPermission_roleShouldNotHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithNoWorkspaceApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithNoWorkspaceApplicationPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceRoleEntityWithNoWorkspaceApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithNoWorkspaceApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(WORKSPACE_READ_APPLICATIONS.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithNoWorkspaceApplicationPermission.getId());
+
+        Optional<Policy> readWorkspacePolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspacePolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspacePolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithNoWorkspaceApplicationPermission.getId());
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGiveWorkspaceDatasourcePermission_roleShouldNotHaveReadWorkspacePermission() {
+        String testName = "testGiveWorkspaceDatasourcePermission_roleShouldNotHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithOneWorkspaceDatasourcePermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceDatasourcePermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(1, 0, 0, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceRoleEntityWithWorkspaceDatasourcePermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithOneWorkspaceDatasourcePermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(WORKSPACE_EXECUTE_DATASOURCES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).contains(customRoleWithOneWorkspaceDatasourcePermission.getId());
+
+        Optional<Policy> readWorkspacePolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspacePolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspacePolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithOneWorkspaceDatasourcePermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRemoveAllWorkspaceDatasourcePermission_roleShouldNotHaveReadWorkspacePermission() {
+        String testName = "testRemoveAllWorkspaceDatasourcePermission_roleShouldNotHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithNoWorkspaceDatasourcePermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithNoWorkspaceDatasourcePermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceRoleEntityWithNoWorkspaceDatasourcePermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithNoWorkspaceDatasourcePermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(WORKSPACE_EXECUTE_DATASOURCES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithNoWorkspaceDatasourcePermission.getId());
+
+        Optional<Policy> readWorkspacePolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspacePolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspacePolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithNoWorkspaceDatasourcePermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGiveApplicationPermission_roleShouldHaveReadWorkspacePermission() {
+        String testName = "testGiveApplicationPermission_roleShouldHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithOneApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO applicationRoleEntityWithApplicationPermission = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 0, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationRoleEntityWithApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithOneApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).contains(customRoleWithOneApplicationPermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRemoveApplicationPermission_roleShouldNotHaveReadWorkspacePermission() {
+        String testName = "testRemoveApplicationPermission_roleShouldNotHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithOneApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO applicationRoleEntityWithApplicationPermission = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdApplication.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationRoleEntityWithApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithOneApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithOneApplicationPermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGiveWorkspaceApplicationPermission_giveApplicationPermission_roleShouldHaveReadWorkspacePermission() {
+        String testName = "testGiveWorkspaceApplicationPermission_giveApplicationPermission_roleShouldHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithOneApplicationOneWorkspaceApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO applicationRoleEntityWithApplicationPermission = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 0, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceApplicationPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 1, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationRoleEntityWithApplicationPermission, workspaceRoleEntityWithWorkspaceApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithOneApplicationOneWorkspaceApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).contains(customRoleWithOneApplicationOneWorkspaceApplicationPermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGiveWorkspaceApplicationPermission_removeApplicationPermission_roleShouldHaveReadWorkspacePermission() {
+        String testName = "testGiveWorkspaceApplicationPermission_removeApplicationPermission_roleShouldHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithNoApplicationOneWorkspaceApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO applicationRoleEntityWithApplicationPermission = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdApplication.getName()
+        );
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceApplicationPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 1, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationRoleEntityWithApplicationPermission, workspaceRoleEntityWithWorkspaceApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithNoApplicationOneWorkspaceApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).contains(customRoleWithNoApplicationOneWorkspaceApplicationPermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRemoveWorkspaceApplicationPermission_giveApplicationPermission_roleShouldHaveReadWorkspacePermission() {
+        String testName = "testRemoveWorkspaceApplicationPermission_giveApplicationPermission_roleShouldHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithOneApplicationNoWorkspaceApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO applicationRoleEntityWithApplicationPermission = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 0, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceApplicationPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationRoleEntityWithApplicationPermission, workspaceRoleEntityWithWorkspaceApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithOneApplicationNoWorkspaceApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).contains(customRoleWithOneApplicationNoWorkspaceApplicationPermission.getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRemoveWorkspaceApplicationPermission_removeApplicationPermission_roleShouldNotHaveReadWorkspacePermission() {
+        String testName = "testRemoveWorkspaceApplicationPermission_removeApplicationPermission_roleShouldNotHaveReadWorkspacePermission";
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup customRole = new PermissionGroup();
+        customRole.setName(testName);
+        PermissionGroup customRoleWithNoApplicationNoWorkspaceApplicationPermission = permissionGroupService.create(customRole).block();
+
+        UpdateRoleEntityDTO applicationRoleEntityWithApplicationPermission = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdApplication.getName()
+        );
+
+        UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceApplicationPermission = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 0, 0, 0, 0, 0),
+                createdWorkspace.getName()
+        );
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationRoleEntityWithApplicationPermission, workspaceRoleEntityWithWorkspaceApplicationPermission));
+
+        roleConfigurationSolution.updateRoles(customRoleWithNoApplicationNoWorkspaceApplicationPermission.getId(), updateRoleConfigDTO).block();
+        Workspace workspaceWithUpdatedPermission = workspaceService.findById(createdWorkspace.getId(), Optional.empty()).block();
+        Optional<Policy> readWorkspaceApplicationPolicyOptional = workspaceWithUpdatedPermission.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(READ_WORKSPACES.getValue()))
+                .findFirst();
+
+        assertThat(readWorkspaceApplicationPolicyOptional.isPresent()).isTrue();
+        assertThat(readWorkspaceApplicationPolicyOptional.get().getPermissionGroups()).doesNotContain(customRoleWithNoApplicationNoWorkspaceApplicationPermission.getId());
     }
 
 }

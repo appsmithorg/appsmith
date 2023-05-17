@@ -48,4 +48,9 @@ export const LoaderContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
+  align-items: center;
+  .cs-spinner {
+    width: 32px;
+    height: 32px;
+  }
 `;

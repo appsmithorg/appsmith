@@ -7,7 +7,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -16,7 +15,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -55,7 +53,6 @@ public class PolicyUtils {
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
-    private final CommentThreadRepository commentThreadRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ThemeRepository themeRepository;
     private final DatasourcePermission datasourcePermission;
@@ -321,30 +318,6 @@ public class PolicyUtils {
                 })
                 .collectList()
                 .flatMapMany(themeRepository::saveAll);
-    }
-
-    public Flux<CommentThread> updateCommentThreadPermissions(
-            String applicationId, Map<String, Policy> commentThreadPolicyMap, String username, boolean addPolicyToObject) {
-
-        return
-                // fetch comment threads with read permissions
-                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREADS)
-                .switchIfEmpty(Mono.empty())
-                .map(thread -> {
-                    if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
-                        if (addPolicyToObject) {
-                            return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
-                        } else {
-                            if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
-                                thread.getSubscribers().remove(username);
-                            }
-                            return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
-                        }
-                    }
-                    return thread;
-                })
-                .collectList()
-                .flatMapMany(commentThreadRepository::saveAll);
     }
 
     /**

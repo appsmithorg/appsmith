@@ -22,6 +22,7 @@ import org.springframework.data.convert.SimpleTypeInformationMapper;
 import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
+import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
 import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -32,6 +33,8 @@ import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
+import org.springframework.transaction.ReactiveTransactionManager;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -125,4 +128,13 @@ public class MongoConfig {
         return new EncryptionMongoEventListener(encryptionService);
     }
 
+    @Bean
+    public ReactiveTransactionManager reactiveTransactionManager(ReactiveMongoDatabaseFactory factory) {
+        return new ReactiveMongoTransactionManager(factory);
+    }
+
+    @Bean
+    public TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
+        return TransactionalOperator.create(transactionManager);
+    }
 }

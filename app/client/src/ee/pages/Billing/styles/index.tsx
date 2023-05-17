@@ -4,7 +4,7 @@ import { Button, DialogComponent, Text, TextInput } from "design-system-old";
 import { IntentColors } from "constants/DefaultTheme";
 
 export const BillingPageWrapper = styled.div`
-  padding: 40px 20px;
+  padding: 48px 48px;
   width: 100%;
   overflow: auto;
 `;
@@ -24,7 +24,7 @@ export const PageContent = styled.div`
   flex-direction: column;
   gap: 30px;
   width: 100%;
-  margin-top: 60px;
+  margin-top: 24px;
 `;
 
 export const StyledCard = styled.div`
@@ -32,11 +32,31 @@ export const StyledCard = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  border-radius: 8px;
+  border: 1px solid ${Colors.GRAY_200};
+  width: 70%;
+  min-width: 500px;
   padding: 30px;
   gap: 20px;
-  box-shadow: 0 1px 6px rgb(0 0 0 / 0.2);
+  .portal-btn {
+    border: none;
+    border-bottom: 1px solid ${Colors.SCORPION};
+    border-radius: 5px 5px 0 0;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 4px;
+    svg path {
+      fill: ${Colors.SCORPION};
+    }
+    :hover {
+      cursor: pointer;
+      background-color: transparent;
+    }
+  }
+  .update-license-btn {
+    border: 1.2px solid ${Colors.SCORPION};
+    padding: 1px 14px;
+  }
 `;
 
 export const CardLeftContent = styled.div`
@@ -44,12 +64,16 @@ export const CardLeftContent = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 20px;
+  overflow: hidden;
+  .cs-text {
+    word-break: break-word;
+  }
 `;
 
 export const CardTextWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 `;
 
 export const IconBadge = styled.div`
@@ -59,17 +83,15 @@ export const IconBadge = styled.div`
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: rgba(94, 93, 193, 0.15);
+  background-color: ${Colors.GRAY_100};
+  pointer-events: none;
+  min-width: 48px;
 `;
 
 export const CardRightContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-export const HeaderText = styled(Text)`
-  font-size: 24px;
 `;
 
 export const UserCount = styled(Text)`
@@ -100,7 +122,7 @@ export const FlexWrapper = styled.div<{
   align-items: ${(props) => props.align ?? "initial"};
   justify-content: ${(props) => props.justify ?? "initial"};
   flex-direction: ${(props) => props.dir};
-  gap: 12px;
+  gap: 8px;
 `;
 
 export const StyledButton = styled(Button)`
@@ -118,15 +140,14 @@ export const DialogWrapper = styled.div`
   align-items: center;
   gap: 16px;
   width: 100%;
-  margin-top: 36px;
+  margin-top: 32px;
 `;
 
 export const DialogHeaderImg = styled.img`
   position: fixed;
   transform: translateY(-96%);
   z-index: 1;
-  width: 180px;
-  height: 180px;
+  width: 190px;
 `;
 
 export const StyledInput = styled(TextInput)`

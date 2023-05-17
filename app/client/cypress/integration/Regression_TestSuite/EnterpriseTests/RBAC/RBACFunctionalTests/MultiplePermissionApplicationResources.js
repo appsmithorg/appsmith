@@ -12,7 +12,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   homePage1 = ObjectsRegistry.HomePage;
 
-describe("Multiple Permission flow ", function() {
+describe("Multiple Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;
@@ -96,9 +96,7 @@ describe("Multiple Permission flow ", function() {
           cy.visit("settings/general");
           cy.CreatePermissionWorkspaceLevel(CreatePermission, workspaceName);
           // Add create datasource at workspace level role
-          cy.get(RBAC.roleRow)
-            .first()
-            .click();
+          cy.get(RBAC.roleRow).first().click();
           cy.wait("@fetchRoles").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -106,10 +104,7 @@ describe("Multiple Permission flow ", function() {
           );
           // check the create datasource role
           cy.get(RBAC.dataSourcesandQueriesTab).click();
-          cy.contains("td", `${workspaceName}`)
-            .next()
-            .next()
-            .click();
+          cy.contains("td", `${workspaceName}`).next().next().click();
           // save role
           cy.get(RBAC.saveButton).click();
           cy.wait("@saveRole").should(
@@ -133,7 +128,7 @@ describe("Multiple Permission flow ", function() {
     });
   });
 
-  it("1. Verify user with edit permission is able to fork application in workspace for which they have create permission ", function() {
+  it("1. Verify user with edit permission is able to fork application in workspace for which they have create permission ", function () {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
@@ -142,12 +137,8 @@ describe("Multiple Permission flow ", function() {
     cy.wait(2000);
     cy.get(homePage.searchInput).type(appName2);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
     cy.xpath("//span[@name='expand-more']").click();
     cy.get(`[data-cy='t--dropdown-option-${workspaceName}']`).click();
@@ -159,16 +150,12 @@ describe("Multiple Permission flow ", function() {
     });
   });
 
-  it("2. Verify user with multiple permission(create for workspace1 and edit for workspace2) works as expected", function() {
+  it("2. Verify user with multiple permission(create for workspace1 and edit for workspace2) works as expected", function () {
     // verify user has create permission for workspace1
     cy.get(homePage.homeIcon).click({ force: true });
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("page2");
@@ -186,34 +173,24 @@ describe("Multiple Permission flow ", function() {
     });
     // verify user has edit permission for workspace 2
     cy.get(homePage.homeIcon).click({ force: true });
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName2);
+    cy.get(homePage.searchInput).clear().type(appName2);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
   });
 
-  it.skip("3. Verify when user has edit role and delete role it works as expected", function() {
+  it.skip("3. Verify when user has edit role and delete role it works as expected", function () {
     // verify user is able to export the app
     cy.NavigateToHome();
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.exportAppFromMenu).should("be.visible");
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.toastMessage).should("contain", "Successfully exported");
   });
-  it("4. Verify when user has appsmith provided role along with custom role it works as expected ", function() {
+  it("4. Verify when user has appsmith provided role along with custom role it works as expected ", function () {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
@@ -225,9 +202,7 @@ describe("Multiple Permission flow ", function() {
     // verify create new app button is not visible to user
     cy.get(homePage.createNewAppButton).should("not.exist");
     // verify user don't see create new CTAs
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
     // verify user is able to edit exisitng api
@@ -246,9 +221,7 @@ describe("Multiple Permission flow ", function() {
       .type("{downarrow}{downarrow}{downarrow}  ")
       .type("testJSFunction:()=>{},");
     cy.wait(1000);
-    cy.get(jsEditorLocators.runButton)
-      .first()
-      .click();
+    cy.get(jsEditorLocators.runButton).first().click();
   });
   after(() => {
     cy.LogOut();
