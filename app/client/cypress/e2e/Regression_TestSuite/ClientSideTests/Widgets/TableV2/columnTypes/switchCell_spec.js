@@ -69,8 +69,10 @@ describe("Switch column type funtionality test", () => {
   it("3. Check the horizontal, vertical alignment of switch, and the cell background color", () => {
     cy.get(".t--propertypane").contains("Style").click({ force: true });
     // Check horizontal alignment
-    cy.get(".t--property-control-horizontalalignment .t--button-group-CENTER")
-      .first()
+    cy.get(
+      ".t--property-control-horizontalalignment .ads-v2-segmented-control__segments-container",
+    )
+      .eq(1)
       .click();
 
     cy.getTableV2DataSelector("0", "4").then((selector) => {
@@ -78,8 +80,10 @@ describe("Switch column type funtionality test", () => {
     });
 
     // Check vertical alignment
-    cy.get(".t--property-control-verticalalignment .t--button-group-BOTTOM")
-      .first()
+    cy.get(
+      ".t--property-control-verticalalignment .ads-v2-segmented-control__segments-container",
+    )
+      .eq(2)
       .click();
 
     cy.getTableV2DataSelector("0", "4").then((selector) => {
