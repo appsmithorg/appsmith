@@ -8,7 +8,6 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.TenantUtils;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -22,6 +21,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.constants.ce.FieldNameCE.TENANT_ID;
 
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
@@ -37,7 +37,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                TenantRepository repository,
                                AnalyticsService analyticsService,
-                               ConfigService configService, SessionUserService sessionUserService) {
+                               ConfigService configService,
+                               SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
         this.sessionUserService = sessionUserService;
@@ -77,7 +78,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
         return repository.findById(tenantId, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, TENANT_ID, tenantId)));
     }
 
     /*
@@ -124,8 +125,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         // Remove fields which should not be updated from client
-        TenantUtils.removeRestrictedFieldFromClientUpdate(tenant);
-        return repository.findById(id, MANAGE_TENANT)
+        tenant.excludeRestrictedFieldFromClientUpdate();
+        return this.findById(id, MANAGE_TENANT)
                 .flatMap(dbTenant -> {
                     // As tenant configuration object have sensitive fields/secrets we might not send these to client
                     // side. Copying all the available fields in DB manually not to get deleted by update operation

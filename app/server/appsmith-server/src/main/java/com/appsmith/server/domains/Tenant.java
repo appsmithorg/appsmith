@@ -29,4 +29,11 @@ public class Tenant extends BaseDomain {
     TenantConfiguration tenantConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration
+
+    public void excludeRestrictedFieldFromClientUpdate() {
+        this.setSlug(null);
+        if (this.getTenantConfiguration() != null) {
+            this.getTenantConfiguration().excludeRestrictedFieldFromClientUpdate();
+        }
+    }
 }

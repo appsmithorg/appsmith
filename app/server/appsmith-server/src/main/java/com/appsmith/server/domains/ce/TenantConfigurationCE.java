@@ -28,4 +28,6 @@ public class TenantConfigurationCE {
         thirdPartyAuths.add(auth);
     }
 
+    public void excludeRestrictedFieldFromClientUpdate() {}
+
 }

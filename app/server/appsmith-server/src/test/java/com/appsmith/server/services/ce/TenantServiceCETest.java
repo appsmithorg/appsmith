@@ -21,6 +21,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.UUID;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.TENANT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor
@@ -118,6 +119,22 @@ class TenantServiceCETest {
                     assertThat(updated.getSlug()).isNotEqualTo(slug);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "developer@solutiontest.com")
+    public void updateTenant_userWithoutManageTenantPermission_throwACLException() {
+        Tenant update = new Tenant();
+        String slug = UUID.randomUUID().toString();
+        update.setSlug(slug);
+        String tenantId = sessionUserService.getCurrentUser().map(User::getTenantId).block();
+        Mono<Tenant> tenantMono = tenantService.update(tenantId, update);
+
+        StepVerifier
+                .create(tenantMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.NO_RESOURCE_FOUND.getMessage(TENANT_ID, tenantId)))
+                .verify();
     }
 
 }
