@@ -40,31 +40,31 @@ describe("Theme validation for default data", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover(0, "none");
-    cy.shadowMouseover(1, "S");
-    cy.shadowMouseover(2, "M");
-    cy.shadowMouseover(3, "L");
+    cy.shadowMouseover("none");
+    cy.shadowMouseover("S");
+    cy.shadowMouseover("M");
+    cy.shadowMouseover("L");
     cy.contains("Shadow").click({ force: true });
 
     //Font
     //cy.contains("Font").click({ force: true });
-    cy.get("span[name='expand-more']").then(($elem) => {
-      cy.get($elem).click({ force: true });
-      cy.wait(250);
+    // cy.get("span[name='expand-more']").then(($elem) => {
+    //   cy.get($elem).click({ force: true });
+    //   cy.wait(250);
 
-      cy.get(themelocator.fontsSelected)
-        .eq(10)
-        .should("have.text", "Nunito Sans");
-    });
+    cy.get(themelocator.fontsSelected)
+      //.eq(10)
+      .should("have.text", "Nunito Sans");
+    //});
     cy.contains("Font").click({ force: true });
 
     //Color
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
-    cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#553DE9");
-    cy.colorMouseover(1, "Background Color");
-    cy.validateColor(1, "#F8FAFC");
+    cy.colorMouseover(0, "Primary color");
+    cy.validateColor("Primary", "#553DE9");
+    cy.colorMouseover(1, "Background color");
+    cy.validateColor("Background", "#F8FAFC");
     appSettings.ClosePane();
   });
 
