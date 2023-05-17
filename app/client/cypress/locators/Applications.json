@@ -4,6 +4,6 @@
   "shareButton": "button:contains('Share')",
   "placeholderTxt": "//input[@placeholder='Enter email address(es)']",
   "placeholderTxtEE": "//input[@placeholder='Enter email address(es) or group(s)']",
-  "closeModalPopup": ".bp3-dialog-close-button span svg",
+  "closeModalPopup": ".ads-v2-modal__content-header-close-button",
   "closeModalPopupMember": ".ads-v2-modal__content-header-close-button"
 }
