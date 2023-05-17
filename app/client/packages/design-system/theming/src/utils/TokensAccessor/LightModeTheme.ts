@@ -52,7 +52,7 @@ export class LightModeTheme implements ColorModeTheme {
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
-      fgAssistive: this.fgAssistive,
+      fgOnAssistive: this.fgOnAssistive,
       // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
@@ -280,7 +280,7 @@ export class LightModeTheme implements ColorModeTheme {
     return "#d91921";
   }
 
-  private get fgAssistive() {
+  private get fgOnAssistive() {
     return "#fff";
   }
 

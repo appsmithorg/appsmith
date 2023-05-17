@@ -5,7 +5,7 @@ import { TooltipTrigger as HeadlessTooltipTrigger } from "@design-system/headles
 
 export const StyledTooltipContent = styled(HeadlessTooltipContent)`
   background-color: var(--color-bg-assistive);
-  color: var(--color-fg-assistive);
+  color: var(--color-fg-on-assistive);
   padding: var(--spacing-2) var(--spacing-3);
   border-radius: var(--border-radius-1);
 

@@ -17,12 +17,11 @@ export const TooltipContent = React.forwardRef(function TooltipContent(
   propRef: TooltipContentRef,
 ) {
   const context = useTooltipContext();
+  const { portalId, ...rest } = props;
   const ref = useMergeRefs([context.refs.setFloating, propRef]);
+  const { children, ...floatingProps } = context.getFloatingProps(rest);
 
   if (!context.open) return null;
-
-  const { portalId, ...rest } = props;
-  const { children, ...floatingProps } = context.getFloatingProps(rest);
 
   return (
     <FloatingPortal id={portalId}>

@@ -14,15 +14,20 @@ import {
 } from "@floating-ui/react";
 import type { Placement } from "@floating-ui/react";
 
-const TOOLTIP_OFFSET = 8;
+const DEFAULT_TOOLTIP_OFFSET = 10;
+const DEFAULT_TOOLTIP_SHIFT = 5;
+const DEFFAULT_TOOLTIP_PADDING = 5;
 
-interface TooltipOptions {
+export interface TooltipOptions {
   initialOpen?: boolean;
   placement?: Placement;
   open?: boolean;
   openDelay?: number;
   closeDelay?: number;
   onOpenChange?: (open: boolean) => void;
+  offset?: number;
+  shift?: number;
+  padding?: number;
 }
 
 export function useTooltip({
@@ -32,6 +37,9 @@ export function useTooltip({
   open: controlledOpen,
   openDelay = 0,
   placement = "top",
+  offset: offsetProp = DEFAULT_TOOLTIP_OFFSET,
+  shift: shiftProp = DEFAULT_TOOLTIP_SHIFT,
+  padding: paddingProp = DEFFAULT_TOOLTIP_PADDING,
 }: TooltipOptions = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
 
@@ -45,12 +53,12 @@ export function useTooltip({
     onOpenChange: setOpen,
     whileElementsMounted: autoUpdate,
     middleware: [
-      offset(TOOLTIP_OFFSET),
+      offset(offsetProp),
       flip({
         fallbackAxisSideDirection: "start",
-        padding: 5,
+        padding: paddingProp,
       }),
-      shift({ padding: 5 }),
+      shift({ padding: shiftProp }),
       arrow({
         element: arrowRef,
       }),

@@ -27,7 +27,7 @@ export function withTooltip<T extends WithTooltip = WithTooltip>(
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <WrappedComponent {...(rest as T)} />
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>
