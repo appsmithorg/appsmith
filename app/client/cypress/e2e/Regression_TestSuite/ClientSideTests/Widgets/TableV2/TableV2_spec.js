@@ -127,9 +127,7 @@ describe("Table Widget V2 Functionality", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(500);
     PropPane.UpdatePropertyFieldValue("Table data", `{{[{step: 1, task: 1}]}}`);
-    cy.get(
-      ".t--property-control-allowfiltering input",
-    ).click();
+    cy.get(".t--property-control-allowfiltering input").click();
     cy.editColumn("step");
     cy.get(".t--table-filter-toggle-btn").click();
 

@@ -136,24 +136,16 @@ describe("Table Widget text wrapping functionality", function () {
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");
       });
-<<<<<<< HEAD
       cy.get(".t--property-control-cellwrapping input")
         .first()
         .click();
-=======
-      cy.get(".t--property-control-cellwrapping input").first().click();
->>>>>>> f21e63f11d7ce051b666c6981125ab836b506d2c
       cy.wait(1000);
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.not.equal("28px");
       });
-<<<<<<< HEAD
       cy.get(".t--property-control-cellwrapping input")
         .first()
         .click();
-=======
-      cy.get(".t--property-control-cellwrapping input").first().click();
->>>>>>> f21e63f11d7ce051b666c6981125ab836b506d2c
     });
   });
 
@@ -166,13 +158,9 @@ describe("Table Widget text wrapping functionality", function () {
       .then((value) => {
         pageSizeBeforeWrapping = value;
       });
-<<<<<<< HEAD
     cy.get(".t--property-control-cellwrapping input")
       .first()
       .click();
-=======
-    cy.get(".t--property-control-cellwrapping input").first().click();
->>>>>>> f21e63f11d7ce051b666c6981125ab836b506d2c
     cy.wait(1000);
     cy.get(".t--widget-textwidget .bp3-ui-text")
       .invoke("text")
