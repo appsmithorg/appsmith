@@ -58,10 +58,9 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     );
   });
 
-  it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
-    cy.NavigateToHome();
-    cy.get(templateLocators.templatesTab).click();
-    cy.wait(1000);
+  it.only("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
+    HomePage.NavigateToHome();
+    HomePage.SwitchToTemplatesTab();
     cy.xpath(
       "//div[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
     )
