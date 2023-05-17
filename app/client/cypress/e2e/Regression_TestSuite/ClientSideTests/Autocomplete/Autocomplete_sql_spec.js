@@ -14,9 +14,9 @@ describe("SQL Autocompletion", function () {
     cy.generateUUID().then((uid) => {
       datasourceName = `Postgres CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
+      cy.testSaveDatasource();
+      cy.NavigateToActiveDSQueryPane(datasourceName);
     });
-    cy.testSaveDatasource();
-    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.get(".CodeMirror textarea").focus().type("S");
     cy.get(locator._hints).should("exist");
