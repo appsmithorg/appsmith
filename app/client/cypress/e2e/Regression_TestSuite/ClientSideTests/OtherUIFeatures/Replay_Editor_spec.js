@@ -4,6 +4,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -11,7 +12,7 @@ describe("Undo/Redo functionality", function () {
 
   it("1. Checks undo/redo in datasource forms", () => {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
 
@@ -99,33 +100,35 @@ describe("Undo/Redo functionality", function () {
       .within(() => {
         cy.get(".connection-type").should("have.text", "Incoming entities");
       });
-    cy.get(".icon-text")
-      .eq(1)
-      .next()
-      .children()
-      .within(() => {
-        cy.get(".connection").should("have.text", "FirstAPI");
-      });
+
+    cy.get(".connection span").should("have.text", "FirstAPI");
+
     cy.get(".icon-text")
       .last()
       .within(() => {
         cy.get(".connection-type").should("have.text", "Outgoing entities");
       });
+
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
+    cy.get(".CodeEditorTarget textarea").should(
+      "not.have.text",
+      "{{FirstAPI}}",
+    );
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
-    // undo/redo through app menu
+    cy.get(".CodeMirror-code span").contains("{{FirstAPI}}");
+    // undo/edo through app menu
     cy.get(".t--application-name").click({ force: true });
     cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
     cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
       multiple: true,
     });
-    cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
+    cy.get(".CodeMirror-code span")
+      .last()
+      .should("not.have.text", "{{FirstAPI}}");
   });
 
   it("4. Checks undo/redo in JS Objects", () => {
-    cy.NavigateToJSEditor();
+    _.jsEditor.NavigateToNewJSEditor();
     cy.wait(1000);
     cy.get(".CodeMirror textarea")
       .first()
@@ -142,8 +145,10 @@ describe("Undo/Redo functionality", function () {
     cy.contains("testJSFunction").should("exist");
     // performing undo from app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").eq(1).trigger("mouseover");
-    cy.get("li:contains(Undo)").click({ multiple: true });
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+      multiple: true,
+    });
     // cy.get(".function-name").should("not.contain.text", "test");
   });
 
