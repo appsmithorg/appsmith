@@ -460,17 +460,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       pageId={pageId}
                     />
                   ) : null}
-                  <div style={{ marginTop: "30px" }}>
-                    {!_.isNil(formConfig) &&
-                    !_.isNil(datasource) &&
-                    !hideDatasourceSection ? (
-                      <DatasourceInformation
-                        config={formConfig[0]}
-                        datasource={datasource}
-                        viewMode={viewMode}
-                      />
-                    ) : undefined}
-                  </div>
+                  {!_.isNil(formConfig) &&
+                  !_.isNil(datasource) &&
+                  !hideDatasourceSection ? (
+                    <DatasourceInformation
+                      config={formConfig[0]}
+                      datasource={datasource}
+                      viewMode={viewMode}
+                    />
+                  ) : undefined}
                 </ViewModeWrapper>
               )}
             </Form>
