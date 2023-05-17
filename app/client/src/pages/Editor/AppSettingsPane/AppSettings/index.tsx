@@ -11,6 +11,7 @@ import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
+  APP_METADATA_SETTING,
   APP_NAVIGATION_SETTING,
   createMessage,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
@@ -30,6 +31,7 @@ import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ImportAppSettings } from "./ImportAppSettings";
+import { AppMetadataSettings } from "./AppMetadataSettings";
 
 export enum AppSettingsTabs {
   General,
@@ -38,6 +40,7 @@ export enum AppSettingsTabs {
   Navigation,
   Page,
   Import,
+  AppMetadata,
 }
 
 export interface SelectedTab {
@@ -163,6 +166,19 @@ function AppSettings() {
       },
       subText: createMessage(UPDATE_VIA_IMPORT_SETTING.settingDesc),
     },
+    {
+      id: "t--app-metadata-header",
+      icon: "user-2-line",
+      isSelected: selectedTab.type === AppSettingsTabs.AppMetadata,
+      name: createMessage(APP_METADATA_SETTING.sectionHeader),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.AppMetadata });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Metadata",
+        });
+      },
+      subText: createMessage(APP_METADATA_SETTING.sectionHeader),
+    },
   ];
 
   return (
@@ -232,6 +248,8 @@ function AppSettings() {
               return <NavigationSettings />;
             case AppSettingsTabs.Import:
               return <ImportAppSettings />;
+            case AppSettingsTabs.AppMetadata:
+              return <AppMetadataSettings />;
           }
         })()}
       </SectionContent>

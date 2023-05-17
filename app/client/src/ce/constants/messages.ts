@@ -1598,6 +1598,12 @@ export const APP_NAVIGATION_SETTING = {
   showApplicationTitleLabel: () => "Show application title",
 };
 
+export const APP_METADATA_SETTING = {
+  sectionHeader: () => "Metadata",
+  sectionHeaderDesc: () => "Customize if app is template",
+  descriptionLabel: () => "Description",
+};
+
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
