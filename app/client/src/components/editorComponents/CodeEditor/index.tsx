@@ -136,7 +136,6 @@ import {
   PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
-import { SourceType, PeekOverlayExpressionIdentifier } from "@shared/ast";
 import ConfigTreeActions from "utils/configTree";
 import {
   getSaveAndAutoIndentKey,
@@ -152,6 +151,7 @@ import {
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 import { debug } from "loglevel";
+import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -648,6 +648,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleMouseOver = (event: MouseEvent) => {
+    const startTime = performance.now();
     const tokenElement = event.target;
     if (
       tokenElement instanceof Element &&
@@ -663,12 +664,18 @@ class CodeEditor extends Component<Props, State> {
         this.peekOverlayExpressionIdentifier.updateScript(
           this.editor.getValue(),
         );
+        const endTime = performance.now();
+        console.log("ast time - parsing", endTime - startTime);
       }
 
       this.peekOverlayExpressionIdentifier
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
+          console.log("editor mode handle", this.editor.getMode());
           if (lineExpression) {
+            const endTime = performance.now();
+            console.log("ast time - expression extract", endTime - startTime);
+            console.log("---------------------ast time -");
             if (
               // global variables and functions
               // JsObject1, storeValue()
