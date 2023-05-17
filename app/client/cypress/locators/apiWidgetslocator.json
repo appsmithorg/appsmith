@@ -9,7 +9,7 @@
   "moveTo": ".single-select >div:contains('Move to')",
   "copyTo": ".single-select >div:contains('Copy to page')",
   "home": ".single-select >div:contains('Page1')",
-  "delete": ".single-select >div:contains('Delete')",
+  "delete": ".t--entity-context-menu > div.ads-v2-menu__menu-item.error-menuitem",
   "deleteConfirm": ".single-select >div:contains('Are you sure?')",
   "path": ".t--path >div textarea",
   "editResourceUrl": ".t--dataSourceField",

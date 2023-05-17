@@ -44,7 +44,7 @@ describe("1. CommandClickNavigation", function () {
     //Assert link and and style
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.SelectEntityByName("Text1", "Container1");
 
     cy.updateCodeInput(".t--property-control-text", "{{ Graphql_Query.data }}");
 
@@ -119,7 +119,7 @@ describe("1. CommandClickNavigation", function () {
       repoName = repName;
     });
 
-    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.SelectEntityByName("Text1", "Container1");
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
 
     _.agHelper.Sleep();
