@@ -74,7 +74,7 @@ export const getEntitiesForNavigation = createSelector(
     });
 
     jsActions.forEach((jsAction) => {
-      // dataTree for null check and peekData
+      // dataTree for null check
       const result = getJsChildrenNavData(jsAction, pageId, dataTree);
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
@@ -86,7 +86,7 @@ export const getEntitiesForNavigation = createSelector(
     });
 
     Object.values(widgets).forEach((widget) => {
-      // dataTree to get entityDefinitions, for url (can use getWidgetByName?) and peekData
+      // dataTree to get entityDefinitions, for url (can use getWidgetByName?)
       const result = getWidgetChildrenNavData(
         widget.widgetName,
         widget.type,
