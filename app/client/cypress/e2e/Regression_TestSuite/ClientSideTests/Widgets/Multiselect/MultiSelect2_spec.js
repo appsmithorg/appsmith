@@ -125,7 +125,7 @@ describe("MultiSelect Widget Functionality", function () {
   });
 
   it("5. Dropdown Functionality To Validate Options", function () {
-    cy.get(".rc-select-selector").click({ force: true });
+    cy.get(".rc-select-selector").last().click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
   });
 
@@ -169,7 +169,7 @@ describe("MultiSelect Widget Functionality", function () {
     );
     cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "false");
     // Interact with UI
-    cy.get(".rc-select-selector").click({ force: true });
+    cy.get(".rc-select-selector").last().click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
     // Check if isDirty is set to true
     cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "true");
