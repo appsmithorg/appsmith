@@ -109,7 +109,7 @@ Cypress.Commands.add("CheckShareIcon", (workspaceName, count) => {
   cy.get(
     homePage.workspaceList
       .concat(workspaceName)
-      .concat(") .workspace-share-user-icons"),
+      .concat(") .t--workspace-share-user-icons"),
   ).should("have.length", count);
 });
 

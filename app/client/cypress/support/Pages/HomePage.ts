@@ -12,6 +12,7 @@ export class HomePage {
   private _submitBtn = "button[type='submit']";
   private _workspaceCompleteSection = ".t--workspace-section";
   private _workspaceName = ".t--workspace-name";
+  private _workspaceNameText = ".t--workspace-name-text";
   private _optionsIcon = ".t--options-icon";
   private _optionsIconInWorkspace = (workspaceName: string) =>
     "//span[text()='" +
@@ -98,6 +99,8 @@ export class HomePage {
   _welcomeTourBuildingButton = ".t--start-building";
   _reconnectDataSourceModal = "[data-testid='reconnect-datasource-modal']";
   _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
+  _workspaceSettingOption = "[data-testid=t--workspace-setting]";
+  _inviteUserMembersPage = "[data-testid=t--page-header-input]";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -124,13 +127,23 @@ export class HomePage {
       });
   }
 
+  public OpenWorkspaceOptions(workspaceName: string) {
+    this.agHelper.AssertContains(
+      workspaceName,
+      "exist",
+      this._workspaceNameText,
+    );
+    this.agHelper.GetNClick(this._optionsIconInWorkspace(workspaceName));
+  }
+
+  public OpenWorkspaceSettings(workspaceName: string) {
+    this.OpenWorkspaceOptions(workspaceName);
+    this.agHelper.GetNClick(this._workspaceSettingOption);
+  }
+
   public RenameWorkspace(oldName: string, newWorkspaceName: string) {
-    cy.xpath(this._workSpaceByName(oldName))
-      .last()
-      .closest(this._workspaceCompleteSection)
-      .scrollIntoView()
-      .find(this._optionsIcon)
-      .click({ force: true });
+    this.agHelper.AssertContains(oldName, "exist", this._workspaceNameText);
+    this.agHelper.GetNClick(this._optionsIconInWorkspace(oldName));
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
       .type(newWorkspaceName.concat("{enter}"), { delay: 0 });
