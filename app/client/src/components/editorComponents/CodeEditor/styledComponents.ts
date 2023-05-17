@@ -386,7 +386,7 @@ export const EditorWrapper = styled.div<{
 
     &:focus {
       .CodeMirror.cm-s-duotone-light {
-        border: none;
+        border-color: var(--ads-v2-color-border-emphasis-plus);
       }
     }
 
