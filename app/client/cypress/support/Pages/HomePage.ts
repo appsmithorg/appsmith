@@ -174,10 +174,7 @@ export class HomePage {
     cy.wait("@mockPostInvite")
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
-    // cy.contains(email, { matchCase: false });
-    //this.agHelper.ValidateToastMessage(   commenting until method is fixed
-    //  successMessage
-    // );
+    this.agHelper.ValidateToastMessage(successMessage);
   }
 
   public InviteUserToWorkspaceErrorMessage(
