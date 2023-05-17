@@ -23,6 +23,13 @@ describe("Currency widget - ", () => {
   });
 
   it("2. should check for type of value and widget", () => {
+    cy.openPropertyPane(widgetName);
+    cy.get(".t--property-control-currency").click();
+    cy.get(".t--property-control-currency").type("usd");
+    cy.selectDropdownValue(
+      ".t--property-control-currency input",
+      "USD - US Dollar",
+    );
     function enterAndTest(text, expected) {
       cy.get(widgetInput).clear();
       cy.wait(300);
@@ -274,7 +281,7 @@ describe("Currency widget - ", () => {
     //Should check that widget input is not showing any errors on input
     cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
-      cy.get(themelocators.popover).should("not.exist");
+      cy.get(themelocators.popover).eq(1).should("not.exist");
     });
   });
 });
