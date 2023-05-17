@@ -14,5 +14,5 @@ public interface EmailServiceCE {
     EmailDto getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser);
     Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin);
 
-    EmailDto getSubjectAndForgotPasswordEmailTemplate();
+    EmailDto getSubjectAndForgotPasswordEmailTemplate(String instanceName);
 }

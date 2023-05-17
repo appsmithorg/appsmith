@@ -252,10 +252,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     );
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
-
+                    String instanceName = org.apache.commons.lang3.StringUtils.defaultIfEmpty(commonConfig.getInstanceName(), "Appsmith");
                     Map<String, String> params = new HashMap<>();
                     params.put("resetUrl", resetUrl);
-                    EmailDto subjectAndEmailTemplate = emailService.getSubjectAndForgotPasswordEmailTemplate();
+                    EmailDto subjectAndEmailTemplate = emailService.getSubjectAndForgotPasswordEmailTemplate(instanceName);
                     return emailService.updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
                             .flatMap(updatedParams ->
                                     emailSender.sendMail(

@@ -72,7 +72,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     @Override
-    public EmailDto getSubjectAndForgotPasswordEmailTemplate() {
+    public EmailDto getSubjectAndForgotPasswordEmailTemplate(String instanceName) {
         String emailSubject = "Reset your Appsmith password";
         return new EmailDto(emailSubject, FORGOT_PASSWORD_TEMPLATE_CE);
     }
