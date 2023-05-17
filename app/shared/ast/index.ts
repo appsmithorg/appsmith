@@ -16,6 +16,7 @@ import {
   isTypeOfFunction,
   MemberExpressionData,
   IdentifierInfo,
+  isFunctionPresent,
 } from "./src";
 
 // constants
@@ -118,4 +119,5 @@ export {
   checkIfCatchBlockExists,
   checkIfArgumentExistAtPosition,
   isJSFunctionProperty,
+  isFunctionPresent,
 };

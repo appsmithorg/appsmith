@@ -308,6 +308,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     dto.setViewMode(executeActionDTO.getViewMode());
                     dto.setParamProperties(executeActionDTO.getParamProperties());
                     dto.setPaginationField(executeActionDTO.getPaginationField());
+                    dto.setAnalyticsProperties(executeActionDTO.getAnalyticsProperties());
                     return Mono.empty();
                 });
     }
@@ -1043,6 +1044,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         paramsList = new ArrayList<>();
                     }
                     List<String> executionParams = paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
+                    Map<String, Object> analyticsProperties = executeActionDto.getAnalyticsProperties();
+                    if (analyticsProperties == null) {
+                        analyticsProperties = new HashMap<>();
+                    }
 
                     data.putAll(Map.of(
                             "request", request,
@@ -1052,7 +1057,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            "isUserInitiated", ObjectUtils.defaultIfNull(analyticsProperties.get("isUserInitiated"), false)
                     ));
                     data.putAll(Map.of(
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE, executeActionDto.getTotalReadableByteCount(),
