@@ -8,7 +8,7 @@ import { MenuDivider } from "design-system-old";
 import _, { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { filterInternalProperties } from "utils/PeekDataFilters/FilterInternalProperties";
+import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useSelector } from "react-redux";
 import { getJSCollections } from "selectors/entitiesSelector";
