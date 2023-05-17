@@ -31,14 +31,13 @@ function DocsSearchModal({
 }: Props) {
   return (
     <Modal
-      data-testid="t--global-search-modal"
       onOpenChange={() => {
         toggleShow();
         AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
       }}
       open={modalOpen}
     >
-      <StyledDocsSearchModal>
+      <StyledDocsSearchModal data-testid="t--global-search-modal">
         <ModalBody className={`${className}`}>{children}</ModalBody>
       </StyledDocsSearchModal>
     </Modal>
