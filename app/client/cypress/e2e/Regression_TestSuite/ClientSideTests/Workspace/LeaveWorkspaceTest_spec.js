@@ -11,7 +11,7 @@ describe("Leave workspace test spec", function () {
       newWorkspaceName = "LeaveWorkspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
       cy.get(_.homePage._homeIcon).click({ force: true });
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
+      _.homePage.OpenWorkspaceOptions(newWorkspaceName);
       // verify leave workspace is visible
       cy.contains("Leave workspace").click();
       cy.contains("Are you sure").click();
@@ -33,9 +33,13 @@ describe("Leave workspace test spec", function () {
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
-      cy.LogOut();
 
-      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+      _.homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+        "App Viewer",
+      );
+
       cy.visit("/applications");
       _.homePage.LeaveWorkspace(newWorkspaceName);
     });
