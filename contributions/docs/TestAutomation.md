@@ -41,6 +41,27 @@
 If you want to add a new env variable to cypress tests, add it to the `cypress.env.json` file and also in the documentation above.
 
 All ENV variables from your `.env` file and all `APPSMITH_*` env variables from `process.env` are accessible with the `Cypress.env()` method.
+
+## Speeding up debugging/writing tests
+
+- The test suite has a flag to enable rapid mode, which skips a few test environment setup steps if it is already setup.
+- This speeds up the execution of the test run and is helpful during debugging and writing tests. Some of the steps that it skips are,
+   - Creation of a new test app everytime. We can pass an app id to the test so that it can reuse it and avoid creating a new app everytime.
+   - Skip login if the user is already logged in from previous test run session.
+   - Skip multiple visit to the workspace page if a test uses DSL for loading fixtures. If a test uses DSL, a visit to the workspace is mandatory. Thus avoiding multiple visits to the workspace page saves time during test run.
+   - To enable rapid mode for your test, you can add following configuration to your `cypress.env.json` file created above,
+```
+      "RAPID_MODE": {
+        "enabled" : true, // Set it to true to enable rapid mode, otherwise set it to false
+        "appName": "5f8e1666", // Pass your app name here. Given value is a sample value for reference
+        "pageName": "page-1", // Pass your page name here. Given value is a sample value for reference
+        "pageID": "64635173cc2cee025a77f489", // Pass your PageID here. Given value is a sample value for reference
+        "url": "https://dev.appsmith.com/app/5f8e1666/page1-64635173cc2cee025a77f489/edit", // You can choose to pass in url of your app instead of individual parameters above.
+        "usesDSL": true // Set it to false, if your test doesn't use DSL. If your test uses DSL, you can choose to enable this flag to skip multiple visits to the workspace page.
+      }
+```
+- You can either pass in complete url for your app in the test or pass in parameters for your app and the url will be generated on its own.
+
 ## How do I add environment variables required for Cypress tests?
 
 **Note:** This can only be done by the project maintainers. Please contact one of them if you require this step to be accomplished.
