@@ -487,61 +487,63 @@ export default {
       .filter((column) => !column.isVisible)
       .map((column) => column.alias);
 
-    const finalTableData = sortedTableData.filter((row) => {
-      let isSearchKeyFound = true;
+    const finalTableData = sortedTableData
+      .filter((row) => {
+        let isSearchKeyFound = true;
 
-      if (searchKey) {
-        isSearchKeyFound = Object.values(_.omit(row, hiddenColumns))
-          .join(", ")
-          .toLowerCase()
-          .includes(searchKey);
-      }
+        if (searchKey) {
+          isSearchKeyFound = Object.values(_.omit(row, hiddenColumns))
+            .join(", ")
+            .toLowerCase()
+            .includes(searchKey);
+        }
 
-      if (!isSearchKeyFound) {
-        return false;
-      }
+        if (!isSearchKeyFound) {
+          return false;
+        }
 
-      /* when there is no filter defined */
-      if (!props.filters || props.filters.length === 0) {
-        return true;
-      }
+        /* when there is no filter defined */
+        if (!props.filters || props.filters.length === 0) {
+          return true;
+        }
 
-      const filterOperator =
-        props.filters.length >= 2 ? props.filters[1].operator : "OR";
-      let isSatisfyingFilters = filterOperator === "AND";
-      for (let i = 0; i < props.filters.length; i++) {
-        let filterResult = true;
-        try {
-          const conditionFunction =
-            ConditionFunctions[props.filters[i].condition];
-          if (conditionFunction) {
-            filterResult = conditionFunction(
-              row[props.filters[i].column],
-              props.filters[i].value,
-            );
+        const filterOperator =
+          props.filters.length >= 2 ? props.filters[1].operator : "OR";
+        let isSatisfyingFilters = filterOperator === "AND";
+        for (let i = 0; i < props.filters.length; i++) {
+          let filterResult = true;
+          try {
+            const conditionFunction =
+              ConditionFunctions[props.filters[i].condition];
+            if (conditionFunction) {
+              filterResult = conditionFunction(
+                row[props.filters[i].column],
+                props.filters[i].value,
+              );
+            }
+          } catch (e) {
+            filterResult = false;
           }
-        } catch (e) {
-          filterResult = false;
+
+          /* if one filter condition is not satisfied and filter operator is AND, bailout early */
+          if (!filterResult && filterOperator === "AND") {
+            isSatisfyingFilters = false;
+            break;
+          } else if (filterResult && filterOperator === "OR") {
+            /* if one filter condition is satisfied and filter operator is OR, bailout early */
+            isSatisfyingFilters = true;
+            break;
+          }
+
+          isSatisfyingFilters =
+            filterOperator === "AND"
+              ? isSatisfyingFilters && filterResult
+              : isSatisfyingFilters || filterResult;
         }
 
-        /* if one filter condition is not satisfied and filter operator is AND, bailout early */
-        if (!filterResult && filterOperator === "AND") {
-          isSatisfyingFilters = false;
-          break;
-        } else if (filterResult && filterOperator === "OR") {
-          /* if one filter condition is satisfied and filter operator is OR, bailout early */
-          isSatisfyingFilters = true;
-          break;
-        }
-
-        isSatisfyingFilters =
-          filterOperator === "AND"
-            ? isSatisfyingFilters && filterResult
-            : isSatisfyingFilters || filterResult;
-      }
-
-      return isSatisfyingFilters;
-    });
+        return isSatisfyingFilters;
+      })
+      .map((row, index) => ({ ...row, __originalIndex__: index }));
 
     return finalTableData;
   },
