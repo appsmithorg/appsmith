@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import { Button } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 

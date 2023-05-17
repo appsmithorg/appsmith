@@ -35,16 +35,20 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
     @Override
     public Mono<Health> getRedisHealth() {
-        Function<TimeoutException, Throwable> healthTimeout = error -> new AppsmithException(
-                AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
+        Function<TimeoutException, Throwable> healthTimeout = error -> {
+            log.warn("Redis health check timed out: ", error.getMessage());
+            return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
+        };
         RedisReactiveHealthIndicator redisReactiveHealthIndicator = new RedisReactiveHealthIndicator(reactiveRedisConnectionFactory);
         return redisReactiveHealthIndicator.health().timeout(Duration.ofSeconds(3)).onErrorMap(TimeoutException.class, healthTimeout);
     }
 
     @Override
     public Mono<Health> getMongoHealth() {
-        Function<TimeoutException, Throwable> healthTimeout = error -> new AppsmithException(
-                AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
+        Function<TimeoutException, Throwable> healthTimeout = error -> {
+            log.warn("MongoDB health check timed out: ", error.getMessage());
+            return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
+        };
         MongoReactiveHealthIndicator mongoReactiveHealthIndicator = new MongoReactiveHealthIndicator(reactiveMongoTemplate);
         return mongoReactiveHealthIndicator.health().timeout(Duration.ofSeconds(1)).onErrorMap(TimeoutException.class, healthTimeout);
     }
