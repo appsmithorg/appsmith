@@ -7,13 +7,11 @@ describe(
     before(() => {
       cy.visit("/applications");
       cy.get(".admin-settings-menu-option").click();
-      cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY'] > input").should(
-        "be.checked",
-      ); //Bug 21191
-      cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']")
-        .find("span")
-        .last()
-        .click(); //disabling sharing of anonymous data
+      cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").should("be.checked"); //Bug 21191
+      cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").uncheck({
+        force: true,
+      });
+      //disabling sharing of anonymous data
       cy.get(".t--admin-settings-save-button").click();
       cy.wait(2000);
       cy.get(".t--admin-settings-restart-notice", { timeout: 120000 }).should(
