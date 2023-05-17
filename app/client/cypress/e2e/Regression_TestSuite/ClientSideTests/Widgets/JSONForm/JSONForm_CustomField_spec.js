@@ -15,7 +15,7 @@ describe("JSON Form Widget Custom Field", () => {
 
     // Add new custom field
     cy.get(".t--add-column-btn")
-      .contains("Add a new field")
+      .contains("Add new field")
       .click({ force: true });
 
     cy.openFieldConfiguration("customField1");
