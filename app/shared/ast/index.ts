@@ -60,7 +60,6 @@ import {
   checkIfCatchBlockExists,
   checkIfThenBlockExists,
   checkIfArgumentExistAtPosition,
-  compareCodeBlockASTs,
 } from "./src/actionCreator";
 
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
@@ -120,6 +119,5 @@ export {
   checkIfCatchBlockExists,
   checkIfArgumentExistAtPosition,
   isJSFunctionProperty,
-  compareCodeBlockASTs,
   isFunctionPresent,
 };
