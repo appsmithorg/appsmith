@@ -471,12 +471,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<DatasourceDTO> getAll(MultiValueMap<String, String> params) {
+    public Flux<Datasource> getAll(MultiValueMap<String, String> params) {
         String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
         if (workspaceId != null) {
-            return this.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
-                    // TODO: Remove the following snippet after client side API changes
-                    .map(this::convertToDatasourceDTO);
+            return this.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()));
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));

@@ -1618,7 +1618,7 @@ public class DatasourceServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
-        Mono<List<DatasourceDTO>> listMono = datasourceService.getAll(params).collectList();
+        Mono<List<Datasource>> listMono = datasourceService.getAll(params).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(datasources -> {

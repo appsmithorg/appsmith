@@ -68,7 +68,7 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("")
-    public Mono<ResponseDTO<List<DatasourceDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<Datasource>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources from datasource controller {}", params);
         return datasourceService.getAll(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));

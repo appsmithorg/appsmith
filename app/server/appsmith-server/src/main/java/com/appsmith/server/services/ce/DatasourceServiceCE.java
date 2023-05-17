@@ -42,7 +42,7 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> save(Datasource datasource);
 
-    Flux<DatasourceDTO> getAll(MultiValueMap<String, String> params);
+    Flux<Datasource> getAll(MultiValueMap<String, String> params);
 
     Flux<Datasource> getAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
 
