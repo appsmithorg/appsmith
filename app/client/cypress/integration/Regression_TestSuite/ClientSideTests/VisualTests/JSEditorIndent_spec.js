@@ -12,7 +12,7 @@ describe("JSEditor Indendation - Visual tests", () => {
   //  2. Run test in headless mode with any browser except chrome.(to maintain same resolution in CI)
   //  3. New screenshot will be generated in the snapshot folder.
 
-  it.only("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
+  it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
     const appname = localStorage.getItem("AppName");
     jsEditor.CreateJSObject(
       `export default {
@@ -64,7 +64,6 @@ myFun2: async () => {
 
     homePage.NavigateToHome();
     homePage.ForkApplication(appname);
-    agHelper.WaitUntilAllToastsDisappear();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
