@@ -149,14 +149,14 @@ describe("Undo/Redo functionality", function () {
 
     cy.focused().blur();
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(commonlocators.toastmsg).eq(0).contains("is removed");
-    cy.get(commonlocators.toastmsg).contains("REDO");
+    cy.get(commonlocators.toastmsg).contains("is removed");
+    cy.get(commonlocators.toastmsg).contains("redo");
     cy.get(commonlocators.toastBody).first().click({ force: true });
 
     cy.wait(100);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    cy.get(commonlocators.toastmsg).eq(1).contains("is added back");
-    cy.get(commonlocators.toastmsg).contains("UNDO");
+    cy.get(commonlocators.toastmsg).contains("is added back");
+    cy.get(commonlocators.toastmsg).contains("undo");
     cy.deleteWidget(widgetsPage.textWidget);
   });
 
