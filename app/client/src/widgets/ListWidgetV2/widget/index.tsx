@@ -157,34 +157,39 @@ class ListWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => ({
-      "!doc":
-        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
-      "!url": "https://docs.appsmith.com/widget-reference/list",
-      backgroundColor: {
-        "!type": "string",
-        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
-      },
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      itemSpacing: "number",
-      selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
-      selectedItemView: generateTypeDef(
-        widget.selectedItemView,
-        extraDefsToDefine,
-      ),
-      triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
-      triggeredItemView: generateTypeDef(
-        widget.triggeredItemView,
-        extraDefsToDefine,
-      ),
-      listData: generateTypeDef(widget.listData, extraDefsToDefine),
-      pageNo: generateTypeDef(widget.pageNo),
-      pageSize: generateTypeDef(widget.pageSize),
-      currentItemsView: generateTypeDef(
-        widget.currentItemsView,
-        extraDefsToDefine,
-      ),
-    });
+    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      const obj = {
+        "!doc":
+          "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+        "!url": "https://docs.appsmith.com/widget-reference/list",
+        backgroundColor: {
+          "!type": "string",
+          "!url":
+            "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+        },
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        itemSpacing: "number",
+        selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+        selectedItemView: generateTypeDef(
+          widget.selectedItemView,
+          extraDefsToDefine,
+        ),
+        triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
+        triggeredItemView: generateTypeDef(
+          widget.triggeredItemView,
+          extraDefsToDefine,
+        ),
+        listData: generateTypeDef(widget.listData, extraDefsToDefine),
+        pageNo: generateTypeDef(widget.pageNo),
+        pageSize: generateTypeDef(widget.pageSize),
+        currentItemsView: generateTypeDef(
+          widget.currentItemsView,
+          extraDefsToDefine,
+        ),
+      };
+
+      return obj;
+    };
   }
 
   static getDerivedPropertiesMap() {
