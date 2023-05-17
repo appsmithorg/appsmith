@@ -632,7 +632,8 @@ export class AggregateHelper {
     containsText: string,
     index = 0,
   ) {
-    cy.get(selector)
+    return cy
+      .get(selector)
       .contains(containsText)
       .eq(index)
       .click({ force: true })

@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Workspace name validation spec", function () {
   let workspaceId;
@@ -8,17 +9,13 @@ describe("Workspace name validation spec", function () {
   it("1. create workspace with leading space validation", function () {
     cy.NavigateToHome();
     cy.createWorkspace();
+
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
-      cy.NavigateToHome();
-      cy.get(".t--applications-container")
-        .contains(newWorkspaceName)
-        .closest(homePage.workspaceCompleteSection)
-        .find(homePage.workspaceNamePopover)
-        .find(homePage.optionsIcon)
-        .click({ force: true });
+      _.homePage.OpenWorkspaceOptions(newWorkspaceName);
       cy.get(homePage.renameWorkspaceInput).should("be.visible").type(" ");
       cy.get(".error-message").should("be.visible");
+      _.agHelper.ClickOutside();
     });
   });
   it("2. creates workspace and checks that workspace name is editable and create workspace with special characters validation", function () {
@@ -39,7 +36,13 @@ describe("Workspace name validation spec", function () {
           .within(() => {
             cy.get(homePage.shareUserIcons).first().should("be.visible");
           });
-        cy.navigateToWorkspaceSettings(workspaceId);
+        _.agHelper.ClickOutside();
+        _.homePage.OpenWorkspaceSettings(workspaceId);
+        _.agHelper.GetNClickByContains(
+          "[data-testid=t--user-edit-tabs-wrapper]",
+          "Members",
+        );
+        _.agHelper.AssertElementVisible(_.homePage._inviteUserMembersPage);
         // checking parent's(<a></a>) since the child(<span>) inherits css from it
         cy.get(homePage.workspaceHeaderName).should(
           "have.css",
@@ -53,7 +56,8 @@ describe("Workspace name validation spec", function () {
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
-      cy.renameWorkspace(newWorkspaceName, "Test & Workspace");
+      _.agHelper.Sleep();
+      _.homePage.RenameWorkspace(newWorkspaceName, "Test & Workspace");
     });
   });
 });
