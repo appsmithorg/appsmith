@@ -188,7 +188,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.EnterJSContext(
       "onClick",
-      "{{Api1.run().catch(() => { copyToClipboard('hi'); })}}",
+      "{{Api1.run().catch(() => copyToClipboard('hi'))}}",
       true,
       false,
     );
@@ -224,7 +224,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.EnterJSContext(
       "onClick",
-      "{{Api1.run().then(() => { clearStore(); })}}",
+      "{{Api1.run().then(() => clearStore())}}",
       true,
       false,
     );
@@ -522,7 +522,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.propPane.EnterJSContext(
       "onClick",
-      '{{JSObject2.promiseFuncWithArgs().then(() => { showAlert("hi"); }).catch(() => { showAlert("bye") }); }}',
+      '{{JSObject2.promiseFuncWithArgs().then(() => showAlert("hi")).catch(() => showAlert("bye"));}}',
       true,
       false,
     );
