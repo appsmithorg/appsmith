@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -17,10 +18,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.AuthenticationValidator;
-import com.appsmith.server.services.DatasourceConfigurationStructureService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.DatasourceConfigurationStructureService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -45,9 +50,12 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final AuthenticationValidator authenticationValidator;
     private final DatasourcePermission datasourcePermission;
     private final DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+    private final AnalyticsService analyticsService;
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentName) {
         return datasourceService.getById(datasourceId)
+                .flatMap(datasource -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
+                        datasource, getAnalyticsProperties(datasource)).thenReturn(datasource))
                 .flatMap(datasource -> getStructure(datasource, ignoreCache, environmentName))
                 .onErrorMap(
                         IllegalArgumentException.class,
@@ -76,7 +84,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                                   String environmentName) {
 
         if (Boolean.TRUE.equals(datasourceHasInvalids(datasource))) {
-            return Mono.empty();
+            return analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED,
+                    datasource, getAnalyticsPropertiesForTestEventStatus(datasource,false))
+                    .then(Mono.empty());
         }
 
         Mono<DatasourceConfigurationStructure> configurationStructureMono = datasourceConfigurationStructureService.getByDatasourceId(datasource.getId());
@@ -123,17 +133,17 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 )
                 .onErrorMap(e -> {
                     log.error("In the datasource structure error mode.", e);
-
                     if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
 
                     return e;
+
                 })
-                .flatMap(structure -> datasource.getId() == null
-                        ? Mono.empty()
-                        : datasourceConfigurationStructureService.saveStructure(datasource.getId(), structure).thenReturn(structure)
-                );
+                .flatMap(structure -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
+                        datasource, getAnalyticsPropertiesForTestEventStatus(datasource,true,null))
+                        .then(datasource.getId() == null ? Mono.empty() : datasourceConfigurationStructureService.
+                                saveStructure(datasource.getId(), structure)).thenReturn(structure));
 
 
         // This mono, when computed, will load the structure of the datasource by calling the plugin method.
