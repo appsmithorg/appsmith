@@ -891,8 +891,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(tuple -> {
                     Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
-                    action.getDatasource().getMessages().addAll(datasourceHintMessages);
-
+                    action.getDatasource().
+                            getDatasourceStorages()
+                            .get(datasourceService.getTrueEnvironmentId(null))
+                            .getMessages().addAll(datasourceHintMessages);
+                    
                     Set actionHintMessages = ((Tuple2<Set, Set>) tuple).getT2();
                     action.getMessages().addAll(actionHintMessages);
 

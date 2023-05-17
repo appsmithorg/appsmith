@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -8,9 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Transient;
-import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -41,8 +41,12 @@ public class DatasourceDTO {
     @JsonView(Views.Public.class)
     String templateName;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     DatasourceConfiguration datasourceConfiguration;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -57,6 +61,8 @@ public class DatasourceDTO {
     @JsonView(Views.Public.class)
     Set<String> messages;
 
+    @JsonView(Views.Internal.class)
+    protected Set<Policy> policies;
 
     /*
      * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's
@@ -83,12 +89,4 @@ public class DatasourceDTO {
      */
     @JsonView(Views.Public.class)
     Boolean isMock;
-
-    @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
-
-    @JsonView(Views.Public.class)
-    public boolean getIsValid() {
-        return CollectionUtils.isEmpty(invalids);
-    }
 }

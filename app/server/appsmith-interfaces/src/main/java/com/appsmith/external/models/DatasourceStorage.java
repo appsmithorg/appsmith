@@ -97,10 +97,6 @@ public class DatasourceStorage extends BaseDomain {
         this.environmentId = environmentId;
         this.datasourceConfiguration = datasource.getDatasourceConfiguration();
         this.invalids = new HashSet<>();
-        if (datasource.getMessages() != null) {
-            this.messages.addAll(datasource.getMessages());
-        }
-
         this.prepareTransientFields(datasource);
     }
 

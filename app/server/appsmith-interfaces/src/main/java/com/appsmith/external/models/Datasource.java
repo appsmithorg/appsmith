@@ -52,16 +52,18 @@ public class Datasource extends BranchAwareDomain implements Forkable {
     @JsonView(Views.Public.class)
     String templateName;
 
-    @JsonView(Views.Public.class)
+    // After datasource migration, this field will be deprecated
+    @JsonView(Views.Internal.class)
     DatasourceConfiguration datasourceConfiguration;
 
     @Transient
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
 
+    // After datasource migration, this field will be deprecated
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     Set<String> invalids;
 
     /*
@@ -70,7 +72,7 @@ public class Datasource extends BranchAwareDomain implements Forkable {
      */
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     Set<String> messages = new HashSet<>();
 
     /*

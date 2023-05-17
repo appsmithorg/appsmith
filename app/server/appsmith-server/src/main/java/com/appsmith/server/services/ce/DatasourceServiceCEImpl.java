@@ -617,11 +617,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasourceDTO.setPolicies(datasource.getPolicies());
 
         DatasourceStorageDTO datasourceStorageDTO = getFallbackDatasourceStorageDTO(datasource);
-
-        datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO.getDatasourceConfiguration());
-        datasourceDTO.setInvalids(datasourceStorageDTO.getInvalids());
-        datasourceDTO.setMessages(datasourceStorageDTO.getMessages());
-
         return datasourceDTO;
     }
 
@@ -644,9 +639,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        if (datasourceDTO.getDatasourceConfiguration() != null) {
-            storages.put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceDTO, environmentId));
-        }
         datasource.setHasDatasourceStorage(true);
 
         return datasource;
