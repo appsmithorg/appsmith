@@ -117,8 +117,16 @@ export class EntityExplorer {
     }
   }
 
-  public NavigateToSwitcher(navigationTab: "Explorer" | "Widgets") {
-    this.agHelper.GetNClick(this._openNavigationTab(navigationTab));
+  public NavigateToSwitcher(
+    navigationTab: "Explorer" | "Widgets",
+    index = 0,
+    force = false,
+  ) {
+    this.agHelper.GetNClick(
+      this._openNavigationTab(navigationTab),
+      index,
+      force,
+    );
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
