@@ -3,16 +3,17 @@ const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to Table widget V2", function () {
+describe("Test Create Api and Bind to Table widget V2", () => {
   before("Create an API and Execute the API and bind with Table V", () => {
     cy.addDsl(dsl);
-    _.apiPage.CreateAndFillApi(
-      this.data.paginationUrl + this.data.paginationParam,
-    );
+  });
+
+  it("1. Create an API and Execute the API and bind with Table", function () {
+    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("1. Validate Table with API data and then add a column", function () {
+  it("2. Validate Table with API data and then add a column", function () {
     // Open property pane
     _.entityExplorer.SelectEntityByName("Table1");
     // Change the table data to Apil data users
@@ -39,7 +40,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.addColumnV2("CustomColumn");
   });
 
-  it("2. Update table json data and check the column names updated and validate empty value", function () {
+  it("3. Update table json data and check the column names updated and validate empty value", function () {
     // Open property pane
     _.entityExplorer.SelectEntityByName("Table1");
     // Change the table data
@@ -70,7 +71,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     });
   });
 
-  it("3. Check Selected Row(s) Resets When Table data Changes", function () {
+  it("4. Check Selected Row(s) Resets When Table data Changes", function () {
     // Select 1st row
     cy.isSelectRow(1);
     cy.openPropertyPane("tablewidgetv2");
