@@ -72,7 +72,7 @@ describe("Multiple rejection of confirmation for onPageLoad function execution",
     // For as many as the number of actions set to run on page load and should confirm before running,
     // Expect to see confirmation dialogs.
     for (let i = 0; i < numOfOnLoadAndConfirmExecutionActions; i++) {
-      agHelper.AssertContains("Confirmation Dialog");
+      agHelper.AssertContains("Confirmation dialog");
       agHelper.ClickButton("No");
       agHelper.Sleep(3000);
     }
