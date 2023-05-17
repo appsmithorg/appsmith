@@ -2,6 +2,10 @@ package com.appsmith.external.models;
 
 public interface Forkable<T> {
 
+    // checkNameClash
+
+    // checkGitConnectionExists
+
     /**
      * This method defines the behaviour of an object when the application is forked from one workspace to another.
      * If you wish to fork this object with all properties intact, do the following.

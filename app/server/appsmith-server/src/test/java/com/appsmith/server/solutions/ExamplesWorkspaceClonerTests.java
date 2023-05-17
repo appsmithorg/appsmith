@@ -91,7 +91,7 @@ public class ExamplesWorkspaceClonerTests {
     @MockBean
     PluginExecutor pluginExecutor;
     @Autowired
-    private ExamplesWorkspaceCloner examplesWorkspaceCloner;
+    private ForkExamplesWorkspace examplesWorkspaceCloner;
     @Autowired
     private ApplicationService applicationService;
     @Autowired
@@ -167,7 +167,7 @@ public class ExamplesWorkspaceClonerTests {
         final Mono<WorkspaceData> resultMono = workspaceService.create(newWorkspace)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
-                        examplesWorkspaceCloner.cloneWorkspaceForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
+                        examplesWorkspaceCloner.forkWorkspaceForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
                 .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
@@ -211,7 +211,7 @@ public class ExamplesWorkspaceClonerTests {
                                     applicationPageService.createApplication(app2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                    examplesWorkspaceCloner.forkWorkspaceForUser(
                                             workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1()}),
@@ -272,7 +272,7 @@ public class ExamplesWorkspaceClonerTests {
                                     })
                             )
                             .flatMap(tuple1 ->
-                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                    examplesWorkspaceCloner.forkWorkspaceForUser(
                                             workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
@@ -334,7 +334,7 @@ public class ExamplesWorkspaceClonerTests {
                     return Mono.when(
                             applicationPageService.createApplication(app1),
                             applicationPageService.createApplication(app2)
-                    ).then(examplesWorkspaceCloner.cloneWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(examplesWorkspaceCloner.forkWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
                 .flatMap(this::loadWorkspaceData);
 
@@ -390,7 +390,7 @@ public class ExamplesWorkspaceClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{app}), FieldName.UNUSED_ENVIRONMENT_ID))
+                            .flatMap(app -> examplesWorkspaceCloner.forkApplications(workspaceId, Flux.fromArray(new Application[]{app}), FieldName.UNUSED_ENVIRONMENT_ID))
                             .then();
                     // Clone this application into the same workspace thrice.
                     return cloneMono
@@ -449,7 +449,7 @@ public class ExamplesWorkspaceClonerTests {
                     return Mono.when(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).then(examplesWorkspaceCloner.cloneWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(examplesWorkspaceCloner.forkWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
                 .flatMap(this::loadWorkspaceData);
 
@@ -504,7 +504,7 @@ public class ExamplesWorkspaceClonerTests {
                     return Mono.zip(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).flatMap(tuple1 -> examplesWorkspaceCloner.cloneWorkspaceForUser(
+                    ).flatMap(tuple1 -> examplesWorkspaceCloner.forkWorkspaceForUser(
                             workspace.getId(),
                             tuple.getT2(),
                             Flux.empty(),
@@ -576,7 +576,7 @@ public class ExamplesWorkspaceClonerTests {
                                     datasourceService.create(ds2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                    examplesWorkspaceCloner.forkWorkspaceForUser(
                                             workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
@@ -727,7 +727,7 @@ public class ExamplesWorkspaceClonerTests {
         layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
-        final Mono<WorkspaceData> resultMono = examplesWorkspaceCloner.cloneWorkspaceForUser(
+        final Mono<WorkspaceData> resultMono = examplesWorkspaceCloner.forkWorkspaceForUser(
                         workspace.getId(),
                         user,
                         Flux.fromIterable(List.of(app, app2Again)),
@@ -939,7 +939,7 @@ public class ExamplesWorkspaceClonerTests {
                                             app.setName(originalName);
                                             return app;
                                         })
-                                        .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
+                                        .flatMap(app -> examplesWorkspaceCloner.forkApplications(
                                                 targetOrg1.getId(),
                                                 Flux.fromArray(new Application[]{app}),
                                                 FieldName.UNUSED_ENVIRONMENT_ID))
@@ -1169,7 +1169,7 @@ public class ExamplesWorkspaceClonerTests {
                                             app.setName(originalName);
                                             return app;
                                         })
-                                        .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
+                                        .flatMap(app -> examplesWorkspaceCloner.forkApplications(
                                                 targetOrg1.getId(),
                                                 Flux.fromArray(new Application[]{app}),
                                                 FieldName.UNUSED_ENVIRONMENT_ID))

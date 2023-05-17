@@ -10,20 +10,20 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 
-public interface ExamplesWorkspaceClonerCE {
+public interface ForkExamplesWorkspaceCE {
 
-    Mono<Workspace> cloneExamplesWorkspace();
+    Mono<Workspace> forkExamplesWorkspace();
 
-    Mono<Workspace> cloneWorkspaceForUser(
+    Mono<Workspace> forkWorkspaceForUser(
             String templateWorkspaceId,
             User user,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     );
 
-    Mono<List<String>> cloneApplications(String toWorkspaceId, Flux<Application> applicationFlux, String environmentId);
+    Mono<List<String>> forkApplications(String toWorkspaceId, Flux<Application> applicationFlux, String environmentId);
 
-    Mono<List<String>> cloneApplications(
+    Mono<List<String>> forkApplications(
             String toWorkspaceId,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux,

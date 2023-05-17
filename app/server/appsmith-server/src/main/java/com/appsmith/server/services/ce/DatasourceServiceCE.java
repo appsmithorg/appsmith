@@ -72,6 +72,4 @@ public interface DatasourceServiceCE {
 
     // TODO: Remove the following snippet after client side API changes
     String getTrueEnvironmentId(String environmentId);
-
-    String getDefaultEnvironmentId();
 }

@@ -672,8 +672,4 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return FieldName.UNUSED_ENVIRONMENT_ID;
     }
 
-    @Override
-    public String getDefaultEnvironmentId() {
-        return FieldName.UNUSED_ENVIRONMENT_ID;
-    }
 }

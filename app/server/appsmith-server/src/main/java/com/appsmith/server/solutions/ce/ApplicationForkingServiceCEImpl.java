@@ -15,7 +15,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,6 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -35,7 +34,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private final ApplicationService applicationService;
     private final WorkspaceService workspaceService;
-    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
+    private final ForkExamplesWorkspace examplesWorkspaceCloner;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
@@ -45,9 +44,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final DatasourceService datasourceService;
 
     @Override
-    public Mono<ApplicationImportDTO> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId,
-                                                                                String targetWorkspaceId
-            , String environmentId) {
+    public Mono<Application> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId,
+                                                                       String targetWorkspaceId,
+                                                                       String environmentId) {
         final Mono<Application> sourceApplicationMono = applicationService
                 .findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
@@ -62,14 +61,16 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         // For collecting all the possible event data
         Map<String, Object> eventData = new HashMap<>();
-        Mono<ApplicationImportDTO> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
+
+        Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final Workspace targetWorkspace = tuple.getT2();
                     final User user = tuple.getT3();
+
                     eventData.put(FieldName.WORKSPACE, targetWorkspace);
 
-                    //If the forking application is connected to git, do not copy those data to the new forked application
+                    // If the forking application is connected to git, do not copy those data to the new forked application
                     application.setGitApplicationMetadata(null);
 
                     boolean allowFork = (
@@ -82,7 +83,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
                     }
 
-                    return examplesWorkspaceCloner.cloneApplications(
+                    return examplesWorkspaceCloner.forkApplications(
                             targetWorkspace.getId(),
                             Flux.fromIterable(Collections.singletonList(application)),
                             environmentId);
@@ -91,9 +92,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     final String newApplicationId = applicationIds.get(0);
                     return applicationService.getById(newApplicationId)
                             .flatMap(application ->
-                                    sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application, eventData));
-                })
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, environmentId));
+                                    sendForkApplicationAnalyticsEvent(
+                                            srcApplicationId,
+                                            targetWorkspaceId,
+                                            application,
+                                            eventData));
+                });
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
@@ -111,29 +115,46 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                                  String targetWorkspaceId,
                                                                  String branchName) {
 
-        final String defaultEnvironmentId = datasourceService.getDefaultEnvironmentId();
+        // First we try to find the correct database entry of application to fork, based on git
+        Mono<String> applicationIdMono;
+
         if (StringUtils.isEmpty(branchName)) {
-            return applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+            applicationIdMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                            FieldName.APPLICATION, srcApplicationId)))
                     .flatMap(application -> {
                         // For git connected application user can update the default branch
                         // In such cases we should fork the application from the new default branch
-                        if (!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                                && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                        if (!(application.getGitApplicationMetadata() == null)
+                                && !application.getGitApplicationMetadata().getBranchName()
+                                .equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
                             return applicationService.findBranchedApplicationId(
-                                            application.getGitApplicationMetadata().getDefaultBranchName(),
-                                            srcApplicationId,
-                                            applicationPermission.getReadPermission())
-                                    .flatMap(appId -> forkApplicationToWorkspaceWithEnvironment(appId, targetWorkspaceId, defaultEnvironmentId));
+                                    application.getGitApplicationMetadata().getDefaultBranchName(),
+                                    srcApplicationId,
+                                    applicationPermission.getReadPermission());
                         }
-                        return forkApplicationToWorkspaceWithEnvironment(application.getId(), targetWorkspaceId, defaultEnvironmentId);
+                        return Mono.just(application.getId());
                     });
+        } else {
+            applicationIdMono = applicationService
+                    .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission());
         }
-        return applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission())
-                .flatMap(branchedApplicationId -> forkApplicationToWorkspaceWithEnvironment(branchedApplicationId, targetWorkspaceId, defaultEnvironmentId))
-                .map(applicationImportDTO -> responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication()))
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, defaultEnvironmentId));
 
+        return applicationIdMono
+                // We will be forking to the default environment in the new workspace
+                .zipWith(workspaceService.getDefaultEnvironmentId(targetWorkspaceId))
+                .flatMap(tuple -> {
+                    String fromApplicationId = tuple.getT1();
+                    String toEnvironmentId = tuple.getT2();
+                    return forkApplicationToWorkspaceWithEnvironment(fromApplicationId, targetWorkspaceId, toEnvironmentId)
+                            .map(responseUtils::updateApplicationWithDefaultResources)
+                            .flatMap(application -> importExportApplicationService
+                                    .getApplicationImportDTO(
+                                            application.getId(),
+                                            application.getWorkspaceId(),
+                                            application,
+                                            toEnvironmentId));
+                });
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application, Map<String, Object> eventData) {

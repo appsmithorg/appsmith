@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl implements ApplicationForkingService {
     public ApplicationForkingServiceImpl(ApplicationService applicationService,
                                          WorkspaceService workspaceService,
-                                         ExamplesWorkspaceCloner examplesWorkspaceCloner,
+                                         ForkExamplesWorkspace examplesWorkspaceCloner,
                                          SessionUserService sessionUserService,
                                          AnalyticsService analyticsService,
                                          ResponseUtils responseUtils,

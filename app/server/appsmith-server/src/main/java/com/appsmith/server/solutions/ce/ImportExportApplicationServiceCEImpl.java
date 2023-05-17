@@ -11,6 +11,7 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
@@ -776,7 +777,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Application importedApplication = importedDoc.getExportedApplication();
 
-        List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
+        List<DatasourceStorage> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
@@ -804,8 +805,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
-        final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByWorkspaceId(workspaceId, isGitSync ? Optional.empty() : Optional.of(datasourcePermission.getEditPermission()))
+        final Flux<Datasource> existingDatasourceFlux = datasourceService
+                .getAllByWorkspaceId(workspaceId, isGitSync ? Optional.empty() : Optional.of(datasourcePermission.getEditPermission()))
                 .cache();
 
         assert importedApplication != null : "Received invalid application object!";
@@ -853,7 +854,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
                     // Check if the destination org have all the required plugins installed
-                    for (Datasource datasource : importedDatasourceList) {
+                    for (DatasourceStorage datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
                             log.error("Unable to find the plugin: {}, available plugins are: {}", datasource.getPluginId(), pluginMap.keySet());
                             return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
@@ -2138,7 +2139,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Mono<List<Datasource>> listMono = datasourceService
                 .getAllByWorkspaceId(workspaceId, Optional.empty())
                 .collectList();
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getReadPermission(), null)
+        return newActionService.findAllByApplicationIdAndViewMode(
+                        applicationId,
+                        false,
+                        Optional.empty(),
+                        Optional.empty())
                 .collectList()
                 .zipWith(listMono)
                 .flatMap(objects -> {
