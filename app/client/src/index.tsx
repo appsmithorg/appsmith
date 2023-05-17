@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
@@ -20,6 +21,9 @@ import GlobalStyles from "globalStyles";
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
+
+__webpack_public_path__ = window.resourceBaseUrl;
+
 setAutoFreeze(shouldAutoFreeze);
 
 runSagaMiddleware();
