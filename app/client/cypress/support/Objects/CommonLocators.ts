@@ -48,8 +48,12 @@ export class CommonLocators {
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
   _contextMenuInPane = "[data-testid='more-action-trigger']";
-  _contextMenuSubItemDiv = (item: string) =>
-    "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
+  _contextMenuItem = (item: string) =>
+    "//span[text()='" +
+    item +
+    "']/parent::div[@role='menuitem'] | //div[text()='" +
+    item +
+    "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";

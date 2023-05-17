@@ -1,7 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableTextPaginationDsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
@@ -11,7 +10,9 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("1. Create an API and Execute the API and bind with Table", function () {
     // Create and execute an API and bind with table
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    _.apiPage.CreateAndFillApi(
+      this.data.paginationUrl + this.data.paginationParam,
+    );
     cy.RunAPI();
     //Test: Validate Table with API data and then add a column
     // Open property pane
@@ -22,8 +23,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
     _.entityExplorer.SelectEntityByName("Text1");
-    // Change the Text value to selected row url
-    cy.testJsontext("text", "{{Table1.selectedRow.url}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
     // Open Table1 propert pane
     _.entityExplorer.SelectEntityByName("Table1");
     // Compare table 1st index data with itself
@@ -44,12 +44,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Click on cell background JS button
-    cy.get(widgetsPage.toggleJsBcgColor).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    // Change the cell background color to green
-    cy.toggleJsAndUpdate("tabledata", "Green");
-    // Go back to table property pane
+    _.propPane.EnterJSContext("Cell Background", "Green");
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait("@updateLayout");
     // verify the cell background color

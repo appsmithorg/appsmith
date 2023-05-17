@@ -763,12 +763,12 @@ export class AggregateHelper {
     jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
-    this.GetNClick(this.locator._visibleTextSpan(action));
+    this.GetNClick(this.locator._contextMenuItem(action));
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      this.GetNClick(this.locator._visibleTextSpan(subAction), 0, true);
+      this.GetNClick(this.locator._contextMenuItem(subAction));
       this.Sleep(500);
     }
     if (action == "Delete") {
