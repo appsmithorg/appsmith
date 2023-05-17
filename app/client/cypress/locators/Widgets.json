@@ -1,5 +1,5 @@
 {
-  "NavHomePage": "[data-icon='home']",
+  "NavHomePage": "[data-testid='t--default-home-icon']",
   "containerWidget": ".t--draggable-containerwidget",
   "inputWidget": ".t--draggable-inputwidgetv2",
   "multiSelectWidget": ".t--draggable-multiselectwidgetv2",
