@@ -280,7 +280,6 @@ export const responseTabComponent = (
         input={{
           value: isString(output) ? output : JSON.stringify(output, null, 2),
         }}
-        isReadOnly
       />
     ),
     [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
@@ -295,7 +294,6 @@ export const responseTabComponent = (
           value: isString(output) ? output : JSON.stringify(output, null, 2),
         }}
         isRawView
-        isReadOnly
       />
     ),
   }[responseType];
@@ -537,7 +535,6 @@ function ApiResponseView(props: Props) {
                       input={{
                         value: response?.body,
                       }}
-                      isReadOnly
                     />
                   ) : responseTabs &&
                     responseTabs.length > 0 &&
@@ -604,7 +601,6 @@ function ApiResponseView(props: Props) {
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
-                isReadOnly
               />
             )}
           </ResponseDataContainer>

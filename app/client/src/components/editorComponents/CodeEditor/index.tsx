@@ -279,8 +279,8 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  currentLineNumber: number | null = null;
   AIEnabled = false;
-  lineRef: React.MutableRefObject<number | null> = React.createRef();
 
   constructor(props: Props) {
     super(props);
@@ -903,15 +903,15 @@ class CodeEditor extends Component<Props, State> {
       cm.setOption("matchBrackets", false);
     }
     if (!this.props.borderLess) return;
-    if (this.lineRef.current !== null) {
+    if (this.currentLineNumber !== null) {
       cm.removeLineClass(
-        this.lineRef.current,
+        this.currentLineNumber,
         "background",
         "CodeMirror-activeline-background",
       );
     }
     cm.addLineClass(line, "background", "CodeMirror-activeline-background");
-    this.lineRef.current = line;
+    this.currentLineNumber = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -982,13 +982,13 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
-    if (this.lineRef.current !== null) {
+    if (this.currentLineNumber !== null) {
       cm.removeLineClass(
-        this.lineRef.current,
+        this.currentLineNumber,
         "background",
         "CodeMirror-activeline-background",
       );
-      this.lineRef.current = null;
+      this.currentLineNumber = null;
     }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
