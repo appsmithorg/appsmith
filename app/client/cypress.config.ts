@@ -27,8 +27,8 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config);
     },
     env: {
-      USERNAME: "preet.sidhu@appsmith.com",
-      PASSWORD: "appsmith@123",
+      USERNAME: "xxxx",
+      PASSWORD: "xxx",
     },
     baseUrl: "https://dev.appsmith.com/",
     specPattern: "cypress/e2e/**/*.{js,ts}",
