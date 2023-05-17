@@ -136,7 +136,7 @@ const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid #d0d7dd;
-  padding: 24px 20px;
+  padding: 20px 20px;
 `;
 
 type SaasEditorWrappperProps = RouteProps & {
