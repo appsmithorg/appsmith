@@ -237,55 +237,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         }
       }
     }
-    .CodeMirror-Tern-hint-doc {
-      display: none;
-      &.visible {
-        display: block;
-        background-color: ${(props) =>
-          props.editorTheme === EditorTheme.DARK
-            ? "#23292e"
-            : "#fff"} !important;
-        color: ${(props) =>
-          props.editorTheme === EditorTheme.DARK
-            ? "#F4F4F4"
-            : "#1E242B"} !important;
-        max-height: 150px;
-        width: 250px;
-        font-size: 12px;
-        padding: 5px !important;
-        border: 1px solid !important;
-        border-color: ${(props) =>
-          props.editorTheme === EditorTheme.DARK
-            ? "#23292e"
-            : "#DEDEDE"} !important;
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
-        overflow: scroll;
-      }
-    }
-    .CodeMirror-lint-tooltip {
-      border: none;
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"};
-      box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-      padding: 7px 12px;
-      border-radius: 0;
-
-      &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS}{
-      transform: translate(-100%);
-    }
-
-    }
-    .CodeMirror-lint-message {
-      margin-top: 5px;
-      margin-bottom: 5px;
-      font-family: ${(props) => props.theme.fonts.text};
-      color: #4B4848;
-      background-position: 0 2.8px;
-      padding-left: 20px;
-    }
-    .CodeMirror-lint-mark-warning{
-      background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAB1JREFUGFdjZICC/3sY/jO6MDAygvgwDpiGcWAqASvpC745SEL8AAAAAElFTkSuQmCC");
-    }
   }
   .sql-hint-label{
     color: #6D6D6D;
@@ -304,6 +255,58 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   .CodeMirror-hint-active:hover{
     .sql-hint-label{
       color: #fff
+    }
+  }
+  .CodeMirror-Tern-hint-doc {
+    display: none;
+    &.visible {
+      display: block;
+      background-color: ${(props) =>
+        props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"} !important;
+      color: ${(props) =>
+        props.editorTheme === EditorTheme.DARK
+          ? "#F4F4F4"
+          : "#1E242B"} !important;
+      max-height: 150px;
+      width: 250px;
+      font-size: 12px;
+      padding: 5px !important;
+      border: 1px solid !important;
+      border-color: ${(props) =>
+        props.editorTheme === EditorTheme.DARK
+          ? "#23292e"
+          : "#DEDEDE"} !important;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
+      overflow: scroll;
+    }
+  }
+  .CodeMirror-lint-tooltip {
+    && {
+      border: none;
+      background: ${(props) =>
+        props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"};
+      box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+      padding: 7px 12px;
+      border-radius: 0;
+
+      &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS}{
+        transform: translate(-100%);
+      }
+    }
+  }
+  .CodeMirror-lint-message {
+    && {
+      margin-top: 5px;
+      margin-bottom: 5px;
+      font-family: ${(props) => props.theme.fonts.text};
+      color: #4B4848;
+      background-position: 0 2.8px;
+      padding-left: 20px;
+    }
+  }
+  .CodeMirror-lint-mark-warning {
+    && {
+      background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAB1JREFUGFdjZICC/3sY/jO6MDAygvgwDpiGcWAqASvpC745SEL8AAAAAElFTkSuQmCC");
     }
   }
 `;
