@@ -1,4 +1,12 @@
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   executePluginActionError,
   executePluginActionRequest,
@@ -1422,6 +1430,6 @@ export function* watchPluginActionExecutionSagas() {
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
     ),
-    takeLatest(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
+    takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }
