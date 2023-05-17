@@ -41,9 +41,9 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       "{{showAlert('MultiSelect1 dropdown closed', 'success')}}",
     );
 
-    cy.get(formWidgetsPage.multiSelect).click({ force: true });
+    cy.get(formWidgetsPage.multiSelect).first().click({ force: true });
     cy.validateToastMessage("MultiSelect1 dropdown opened");
-    cy.get(formWidgetsPage.multiSelect).click({ force: true });
+    cy.get(formWidgetsPage.multiSelect).first().click({ force: true });
     cy.validateToastMessage("MultiSelect1 dropdown closed");
   });
 
