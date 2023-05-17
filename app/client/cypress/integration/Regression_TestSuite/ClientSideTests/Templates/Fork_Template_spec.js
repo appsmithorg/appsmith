@@ -59,8 +59,8 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
   });
 
   it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
-    HomePage.NavigateToHome();
-    HomePage.SwitchToTemplatesTab();
+    cy.NavigateToHome();
+    cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
       "//div[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
@@ -74,10 +74,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       }
     });
     cy.get(templateLocators.dialogForkButton).click();
-    cy.wait(2000);
-    cy.get(reconnectDatasourceLocators.Modal, { timeout: 40000 }).should(
-      "be.visible",
-    );
+    cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
     cy.get(reconnectDatasourceLocators.ListItemIcon).should("be.visible");
     cy.get(reconnectDatasourceLocators.ListItemIcon, {
       withinSubject: null,
