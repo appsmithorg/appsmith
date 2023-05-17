@@ -23,12 +23,10 @@ export const filterInternalProperties = (
       const jsAction = jsActions.find(
         (jsAction) => jsAction.config.id === data.actionId,
       );
-      // using temp-id because we don't use the nav data here
       return jsAction
-        ? getJsActionPeekData(jsAction, "temp-id", dataTree)?.peekData
+        ? getJsActionPeekData(jsAction, dataTree)?.peekData
         : data;
     case ENTITY_TYPE.WIDGET:
-      // using temp-id because we don't use the nav data here
       return getWidgetChildrenPeekData(objectName, data.type, dataTree)
         ?.peekData;
     default:

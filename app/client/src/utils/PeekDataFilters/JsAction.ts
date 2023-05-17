@@ -4,7 +4,6 @@ import type { JSActionEntity } from "entities/DataTree/types";
 
 export const getJsActionPeekData = (
   jsAction: JSCollectionData,
-  pageId: string,
   dataTree: DataTree,
 ) => {
   const peekData: Record<string, unknown> = {};
@@ -14,7 +13,7 @@ export const getJsActionPeekData = (
   if (dataTreeAction) {
     jsAction.config.actions.forEach((jsChild) => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      peekData[jsChild.name] = function () {}; // can use new Function to parse string
+      peekData[jsChild.name] = function () {};
 
       if (jsAction.data?.[jsChild.id] && jsChild.executeOnLoad) {
         (peekData[jsChild.name] as any).data = jsAction.data[jsChild.id];
