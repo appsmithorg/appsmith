@@ -7,6 +7,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.server.domains.NewAction;
 
+import com.appsmith.server.solutions.ActionExecutionSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActionServiceTest {
 
     @Autowired
-    NewActionService newActionService;
+    ActionExecutionSolution actionExecutionSolution;
 
     @MockBean
     VariableReplacementService variableReplacementService;
@@ -56,7 +57,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId("actionId");
         executeActionDTO.setViewMode(false);
 
-        Mono<ActionDTO> renderedActionMono = newActionService.getValidActionForExecution(executeActionDTO, "actionId", action);
+        Mono<ActionDTO> renderedActionMono = actionExecutionSolution.getValidActionForExecution(executeActionDTO, "actionId", action);
 
         StepVerifier.create(renderedActionMono)
                 .assertNext(actionDTO -> {

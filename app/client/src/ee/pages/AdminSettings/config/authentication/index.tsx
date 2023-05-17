@@ -26,7 +26,10 @@ import React from "react";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
@@ -210,6 +213,7 @@ const AuthMethods = [
 );
 
 function AuthMain() {
+  FormAuthCallout.isConnected = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
     socialLoginList.includes("google");

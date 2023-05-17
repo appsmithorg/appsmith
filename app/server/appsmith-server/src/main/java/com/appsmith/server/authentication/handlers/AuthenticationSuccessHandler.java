@@ -1,22 +1,41 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
+
+    private final TenantService tenantService;
+    private final SessionUserService sessionUserService;
+
+
+
+    // TODO Move this to tenant configuration once we move envs to DB. This is a temporary arrangement hence separate
+    //  config class is not created
+    @Value("${enable.single.session.per.user:false}")
+    private Boolean isSingleSessionPerUserEnabled;
 
     public AuthenticationSuccessHandler(ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                         RedirectHelper redirectHelper,
@@ -27,9 +46,41 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         WorkspaceService workspaceService,
                                         WorkspaceRepository workspaceRepository,
                                         ApplicationPageService applicationPageService,
-                                        WorkspacePermission workspacePermission) {
+                                        WorkspacePermission workspacePermission,
+                                        TenantService tenantService) {
 
         super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
                 userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission);
+        this.tenantService = tenantService;
+        this.sessionUserService = sessionUserService;
     }
+
+    @Override
+    public Mono<Void> onAuthenticationSuccess(
+        WebFilterExchange webFilterExchange,
+        Authentication authentication
+    ) {
+        return super.onAuthenticationSuccess(webFilterExchange, authentication)
+            .then(this.logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, webFilterExchange))
+            .then();
+    }
+
+    private Mono<User> logoutUserFromExistingSessionsBasedOnTenantConfig(Authentication authentication, WebFilterExchange exchange) {
+        User currentUser = (User) authentication.getPrincipal();
+        // TODO update to fetch user specific tenant after multi-tenancy is introduced
+        Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
+        return tenantMono
+            .flatMap(tenant -> {
+                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                if (tenantConfiguration != null && Boolean.TRUE.equals(this.isSingleSessionPerUserEnabled)) {
+                    // In a separate thread, we delete all other active sessions of this user.
+                    sessionUserService.logoutExistingSessions(currentUser.getEmail(), exchange)
+                        .thenReturn(currentUser)
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe();
+                }
+                return Mono.just(currentUser);
+            });
+    }
+
 }

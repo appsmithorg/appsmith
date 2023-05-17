@@ -72,6 +72,7 @@ export const handlers = {
       },
     },
     isLoading: false,
+    instanceId: action.payload.instanceId || state.instanceId || "",
   }),
   [ReduxActionTypes.VALIDATE_LICENSE_KEY]: (
     state: TenantReduxState<License>,

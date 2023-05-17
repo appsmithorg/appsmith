@@ -16,7 +16,8 @@ const MagicIcon = importRemixIcon(
   () => import("remixicon-react/MagicLineIcon"),
 );
 
-export const addAISlashCommand = true;
+export const askAIEnabled = true;
+export const APPSMITH_AI = "AI";
 
 export function GPTTrigger() {
   const dispatch = useDispatch();

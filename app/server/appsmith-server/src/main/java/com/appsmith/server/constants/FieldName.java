@@ -75,6 +75,7 @@ public class FieldName extends FieldNameCE {
     public static final String NUMBER_OF_REMOVED_USERS = "numberOfUsersRemoved";
     public static final String NUMBER_OF_ASSIGNED_USER_GROUPS = "numberOfAssignedGroups";
     public static final String NUMBER_OF_UNASSIGNED_USER_GROUPS = "numberOfUnassignedGroups";
+    public static final String CREATION_TIME = "creationTime";
     /**
      * Below are the Constants which are used for initialising values in Default Application Roles.
      * Note: If at any point, we need to add Application details such as Application name, please add them using

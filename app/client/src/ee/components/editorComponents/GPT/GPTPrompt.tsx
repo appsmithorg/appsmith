@@ -14,10 +14,9 @@ import type {
   TAssistantPrompt,
 } from "./utils";
 import { GPTTask } from "./utils";
-import { GPT_TASKS } from "./utils";
 import { isGPTErrorPrompt } from "./utils";
 import { isUserPrompt, isAssistantPrompt } from "./utils";
-import { Icon, Spinner, AppIcon, importRemixIcon } from "design-system-old";
+import { Spinner, AppIcon, importRemixIcon } from "design-system-old";
 import { selectEvaluatedResult } from "./utils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -70,15 +69,15 @@ const ResultContainer = styled.div`
 `;
 
 export const UserPromptWrapper = styled.div`
-  color: black;
-  font-size: 13px;
+  background: white;
+  font-size: 12px;
   font-weight: 400;
   padding: 8px;
   font-style: normal;
   display: flex;
   align-items: center;
-  justify-content: center;
   position: relative;
+  width: 100%;
 `;
 
 type TGPTPromptProps = {
@@ -97,23 +96,20 @@ export function GPTPrompt(props: TGPTPromptProps) {
   return null;
 }
 
-function UserPrompt(props: { prompt: TUserPrompt }) {
+export function UserPrompt(props: { prompt: TUserPrompt }) {
   const { content } = props.prompt;
   return (
-    <div className="flex w-full justify-end items-center">
-      <UserPromptWrapper className="rounded border border-[#f0f0f0]">
-        {content}
-      </UserPromptWrapper>
+    <div className="flex w-full justify-start items-center">
+      <UserPromptWrapper>{content}</UserPromptWrapper>
     </div>
   );
 }
 
-function ErrorPrompt(props: { prompt: TErrorPrompt }) {
+export function ErrorPrompt(props: { prompt: TErrorPrompt }) {
   const { content } = props.prompt;
   return (
-    <div className="flex w-full justify-end items-center">
-      <UserPromptWrapper className="rounded border border-[#f0f0f0] bg-red-100 gap-2 items-center">
-        <Icon className="flex-shrink-0" name="error" size={16} />
+    <div className="flex w-full justify-end items-center pb-[2px]">
+      <UserPromptWrapper className="!bg-red-100 gap-2 items-center !text-red-600">
         {content}
       </UserPromptWrapper>
     </div>
@@ -200,8 +196,6 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
   const documentObj = domParser.parseFromString(parsedDocument, "text/html");
   const text = documentObj.body.innerText?.trim() || "";
 
-  const tagName = GPT_TASKS.find((t) => t.id === task)?.title;
-
   return (
     <div className="flex flex-col">
       <ResponseContainer
@@ -211,7 +205,6 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
         })}
       >
         <div className="pl-2 font-medium text-xs bg-[#e2e2e2] capitalize flex justify-between items-center">
-          {tagName}
           <div className="flex items-center justify-end gap-[2px]">
             <div
               className=" hover:bg-[#cfcfcf] p-1 gap-[2px] flex text-[10px] items-center cursor-pointer"

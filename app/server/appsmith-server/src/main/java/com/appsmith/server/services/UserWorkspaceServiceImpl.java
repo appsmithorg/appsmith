@@ -111,7 +111,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
         // Unassigned old permission group from userGroup
         Mono<PermissionGroup> permissionGroupUnassignedMono = userGroupMono
                 .zipWhen(userGroup -> oldDefaultPermissionGroupMono)
-                .flatMap(pair -> permissionGroupService.unassignFromUserGroup(pair.getT2(), pair.getT1()));
+                .flatMap(pair -> permissionGroupService.unAssignFromUserGroupAndSendEvent(pair.getT2(), pair.getT1()));
 
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
@@ -127,7 +127,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
         Mono<PermissionGroup> changePermissionGroupsMono = newDefaultPermissionGroupMono
                 .flatMap(newPermissionGroup -> permissionGroupUnassignedMono
                         .then(userGroupMono)
-                        .flatMap(userGroup -> permissionGroupService.assignToUserGroup(newPermissionGroup, userGroup)));
+                        .flatMap(userGroup -> permissionGroupService.assignToUserGroupAndSendEvent(newPermissionGroup, userGroup)));
 
         /*
          * The below operation is responsible for the first DB operation, if workspace role is changed ƒor the user group,

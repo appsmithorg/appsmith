@@ -25,10 +25,10 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
-
-const { disableLoginForm } = getAppsmithConfigs();
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 export function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
@@ -54,6 +54,7 @@ export function Saml() {
     details?.title || (subCategory ?? category),
   );
   const dispatch = useDispatch();
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   const isConnected = socialLoginList.includes("saml");
 
@@ -69,7 +70,7 @@ export function Saml() {
 
   const disconnect = () => {
     const connectedMethodsCount =
-      socialLoginList.length + (disableLoginForm ? 0 : 1);
+      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
     if (connectedMethodsCount >= 2) {
       dispatch(fetchSamlMetadata({ isEnabled: false }));
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {

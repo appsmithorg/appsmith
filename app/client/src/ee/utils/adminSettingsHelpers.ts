@@ -1,5 +1,4 @@
 export * from "ce/utils/adminSettingsHelpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import type { User } from "constants/userConstants";
 import {
   ADMIN_SETTINGS_CATEGORY_ACL_PATH,
@@ -18,15 +17,16 @@ import {
   GithubOAuthURL,
 } from "@appsmith/constants/ApiConstants";
 
-const { disableLoginForm } = getAppsmithConfigs();
-
-export const saveAllowed = (settings: any, socialLoginList: string[]) => {
+export const saveAllowed = (
+  settings: any,
+  isFormLoginEnabled: boolean,
+  socialLoginList: string[],
+) => {
   const connectedMethodsCount =
-    socialLoginList.length + (disableLoginForm ? 0 : 1);
+    socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
   if (connectedMethodsCount === 1) {
-    const checkFormLogin = !(
-        "APPSMITH_FORM_LOGIN_DISABLED" in settings || disableLoginForm
-      ),
+    const checkFormLogin =
+        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
         socialLoginList.includes("google"),

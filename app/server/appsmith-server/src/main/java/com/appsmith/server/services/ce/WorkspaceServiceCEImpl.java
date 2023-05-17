@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
@@ -23,17 +22,16 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.DBObject;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +47,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -175,12 +171,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Does the user have permissions to create a workspace?
         Mono<Boolean> createWorkspaceAllowedMono = isCreateWorkspaceAllowed(isDefault);
 
-        if (workspace.getEmail() == null) {
-            workspace.setEmail(user.getEmail());
-        }
-
-        workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
-        workspace.setTenantId(user.getTenantId());
+        // Populate all the required fields for a valid workspace
+        prepareWorkspaceToCreate(workspace, user);
 
         return createWorkspaceAllowedMono
                 .flatMap(isCreateWorkspaceAllowed -> {
@@ -211,6 +203,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 })
                 .flatMap(this::createWorkspaceDependents)
                 .flatMap(analyticsService::sendCreateEvent);
+    }
+
+    protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
+        if (workspace.getEmail() == null) {
+            workspace.setEmail(user.getEmail());
+        }
+
+        workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
+        workspace.setTenantId(user.getTenantId());
     }
 
     protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
