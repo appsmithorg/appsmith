@@ -60,8 +60,6 @@ export class PropertyPane {
     "//h3[text()='" + option + " Color']//parent::div//input";
   _colorInputField = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div";
-  _rowHeightBtn = (btnType: "SHORT" | "DEFAULT" | "TALL") =>
-    ".t--button-group-" + btnType + " ";
   _actionSelectorPopup = ".t--action-selector-popup";
   _actionSelectorFieldByLabel = (label: string) =>
     `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
