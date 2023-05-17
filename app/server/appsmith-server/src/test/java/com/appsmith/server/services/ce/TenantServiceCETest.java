@@ -123,7 +123,7 @@ class TenantServiceCETest {
 
     @Test
     @WithUserDetails(value = "developer@solutiontest.com")
-    public void updateTenant_userWithoutManageTenantPermission_throwACLException() {
+    public void updateTenant_userWithoutManageTenantPermission_throwException() {
         Tenant update = new Tenant();
         String slug = UUID.randomUUID().toString();
         update.setSlug(slug);
