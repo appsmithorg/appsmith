@@ -11,15 +11,6 @@ const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
   margin-right: ${({ isMobile }) => (isMobile ? 0 : 24)}px;
 
-  .workspace-share-user-icons {
-    cursor: default;
-    margin-right: -6px;
-    width: 24px;
-    height: 24px;
-    border: 1px solid ${(props) => props.theme.colors.homepageBackground};
-    display: inline-flex;
-  }
-
   div.bp3-popover-arrow {
     display: inline-block;
     transform: translate(3px, 0px);
@@ -42,6 +33,7 @@ export default function SharedUserList(props: any) {
           ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
           : undefined,
         firstLetter: name.charAt(0),
+        className: "t--workspace-share-user-icons",
       };
     });
   };
