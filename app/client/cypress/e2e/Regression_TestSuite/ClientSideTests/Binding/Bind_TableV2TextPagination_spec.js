@@ -139,6 +139,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
+    cy.CheckAndUnfoldEntityItem("Widgets");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.ValidatePaginateResponseUrlDataV2(apiPage.apiPaginationNextTest, true);
   });
