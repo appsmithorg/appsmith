@@ -268,6 +268,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   parseInt: "parseInt",
   Path2D: "Path2D",
   PaymentInstruments: "PaymentInstruments",
+  performance: "performance",
   Performance: "Performance",
   PerformanceEntry: "PerformanceEntry",
   PerformanceMark: "PerformanceMark",
