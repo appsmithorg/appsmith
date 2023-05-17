@@ -16,7 +16,7 @@ describe("GlobalSearch", function () {
 
   it("1. Clicking on filter should show the filter menu", () => {
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
-    cy.contains(globalSearchLocators.docHint, "Snippets").click();
+    cy.contains(globalSearchLocators.docHint, "snippets").click();
     cy.get(globalSearchLocators.filterButton).click();
     cy.contains("Reset Filter").should("be.visible");
     cy.get("body").type("{esc}");

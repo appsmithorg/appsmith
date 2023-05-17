@@ -135,7 +135,7 @@
   "jsonFormFieldType": ".t--property-control-fieldtype input",
   "jsonFormAddNewCustomFieldBtn": ".t--property-control-fieldconfiguration .t--add-column-btn",
   "evaluateMsg": ".t--evaluatedPopup-error",
-  "globalSearchModal": ".t--global-search-modal",
+  "globalSearchModal": "[data-testid='t--global-search-modal']",
   "globalSearchInput": ".t--global-search-input",
   "globalSearchTrigger": ".t--global-search-modal-trigger",
   "globalSearchClearInput": ".t--global-clear-input",
