@@ -49,10 +49,9 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.homePage.NavigateToHome();
     _.homePage.DeleteApplication("JSOnloadImportTest");
     _.homePage.DeleteApplication("JSOnloadImportTest (1)");
-    _.homePage.DeleteApplication("JSOnloadImportTest Copy");
+
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.homePage.DeleteApplication("JSOnLoadFailureTest Copy");
     _.agHelper.AssertContains("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });
