@@ -43,7 +43,7 @@ const editorBackground = (theme?: EditorTheme) => {
   return bg;
 };
 
-const codeMirrorColors = {
+export const CodeEditorColors = {
   KEYWORD: "#304eaa",
   FOLD_MARKER: "#442334",
   STRING: "#1659df",
@@ -128,7 +128,7 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       border-radius: 0px;
       font-family: ${(props) => props.theme.fonts.code};
-      font-size: 13px;
+      font-size: ${(props) => (props.isReadOnly ? "12px" : "13px")};
       border: 1px solid
         ${(props) => {
           switch (true) {
@@ -149,14 +149,14 @@ export const EditorWrapper = styled.div<{
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
-          color: ${codeMirrorColors.OPERATOR};
+          color: ${CodeEditorColors.OPERATOR};
         }
       }
       .cm-property {
         color: hsl(21, 70%, 53%);
       }
       .cm-keyword {
-        color: #304eaa;
+        color: ${CodeEditorColors.KEYWORD};
       }
 
       .CodeMirror-foldgutter {
@@ -179,7 +179,7 @@ export const EditorWrapper = styled.div<{
       }
       .cm-string,
       .token.string {
-        color: ${codeMirrorColors.STRING};
+        color: ${CodeEditorColors.STRING};
       }
 
       /* json response in the debugger */
@@ -206,7 +206,7 @@ export const EditorWrapper = styled.div<{
       .cm-def,
       .cm-property + span + .cm-def,
       .cm-def + span + .cm-def {
-        color: ${codeMirrorColors.FUNCTION_ARGS};
+        color: ${CodeEditorColors.FUNCTION_ARGS};
       }
 
       .cm-atom + span + .cm-property,
@@ -225,7 +225,7 @@ export const EditorWrapper = styled.div<{
       }
 
       span.cm-number {
-        color: ${codeMirrorColors.NUMBER};
+        color: ${CodeEditorColors.NUMBER};
       }
 
       .cm-s-duotone-light span.cm-variable-2,
@@ -368,8 +368,18 @@ export const EditorWrapper = styled.div<{
       padding: ${(props) => props.theme.spaces[2]}px 0px;
       background-color: ${(props) => props.disabled && "#eef2f5"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+      pre.CodeMirror-line,
+      pre.CodeMirror-line-like {
+        padding: 0 ${(props) => props.theme.spaces[2]}px;
+      }
     }
   }
+
+  pre.CodeMirror-line,
+  pre.CodeMirror-line-like {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+  }
+
   ${(props) =>
     props.className === "js-editor" &&
     `
@@ -512,34 +522,12 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .commands-button {
-      display: flex;
+    button {
+      visibility: visible;
     }
   }
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
-  }
-  .commands-button {
-    z-index: 2;
-    width: 20px;
-    position: absolute;
-    right: 0;
-    transform: translate(-50%, 50%);
-    height: 20px;
-    background: transparent;
-    display: none;
-    color: #f86a2b;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    padding: 0 0 3px;
-    margin: 0 !important;
-    top: -2px;
-    &:hover {
-      background: #f86a2b;
-      color: white;
-    }
   }
 `;

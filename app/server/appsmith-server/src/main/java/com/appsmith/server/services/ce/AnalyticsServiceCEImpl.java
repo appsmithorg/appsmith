@@ -338,7 +338,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 AnalyticsEvents.EXECUTE_ACTION,
                 AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
                 AnalyticsEvents.EXECUTE_INVITE_USERS,
-                AnalyticsEvents.UPDATE_LAYOUT
+                AnalyticsEvents.UPDATE_LAYOUT,
+                AnalyticsEvents.DS_TEST_EVENT,
+                AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
+                AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED
         );
     }
 
