@@ -41,7 +41,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     cy.addDsl(dsl);
   });
 
-  it("checks entity explorer visibility on unpin", function () {
+  it("1. checks entity explorer visibility on unpin", function () {
     cy.wait(5000);
     cy.get(".t--entity-explorer").should("be.visible");
     cy.get(".t--pin-entity-explorer").click();
@@ -49,14 +49,12 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     cy.get("[data-testid=widgets-editor]").click({ force: true });
     cy.wait(3000);
     cy.get(".t--entity-explorer").should("not.be.visible");
-  });
-
-  it("checks entity explorer visibility on pin", function () {
+    //checks entity explorer visibility on pin
     cy.get(".t--pin-entity-explorer").click();
     cy.get(".t--entity-explorer").should("be.visible");
   });
 
-  it("Widgets visibility in widget pane", function () {
+  it("2. Widgets visibility in widget pane", function () {
     ee.NavigateToSwitcher("Widgets");
     agHelper.ScrollTo(locator._widgetPane, "bottom");
     agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
@@ -68,7 +66,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
 
   it(
     "excludeForAirgap",
-    "Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
+    "3. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
       agHelper.AssertElementVisible(ee._entityExplorer);
       ee.PinUnpinEntityExplorer(true);
@@ -89,7 +87,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
 
   it(
     "airgap",
-    "Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
+    "4. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
       agHelper.AssertElementVisible(ee._entityExplorer);
       ee.PinUnpinEntityExplorer(true);

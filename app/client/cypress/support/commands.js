@@ -1838,7 +1838,6 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .clear()
     .type(`${labelWidth}`);
   cy.wait(300);
-  cy.log(parentColumnSpace).log("albin");
   cy.log(labelWidth).log("labelwidth");
   // Assert the label width
   cy.get(labelContainer)

@@ -9,7 +9,7 @@ describe("Select widget filterText", () => {
     });
   });
 
-  it("default value should be an empty string", () => {
+  it("1. default value should be an empty string", () => {
     agHelper.AssertContains("string");
   });
 });

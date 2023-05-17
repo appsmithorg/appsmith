@@ -17,9 +17,7 @@ describe(
         dataSources._datasourceModalSave,
       );
       cy.get(dataSources._datasourceModalDoNotSave).click();
-    });
-
-    it("2. Create any other datasource, click on back button, discard popup should contain save", function () {
+      //Create any other datasource, click on back button, discard popup should contain save
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.GoBack();
@@ -31,7 +29,7 @@ describe(
       cy.get(dataSources._datasourceModalDoNotSave).click();
     });
 
-    it("3. Bug 19426: Testing empty datasource without saving should not throw 404", function () {
+    it("2. Bug 19426: Testing empty datasource without saving should not throw 404", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("S3");
       dataSources.TestDatasource(false);

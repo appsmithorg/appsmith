@@ -31,11 +31,9 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
     cy.addDsl(emptyDSL);
   });
 
-  it("in edit mode", function () {
+  it("1. In edit & View mode", function () {
     testLinkRelPreloads();
-  });
-
-  it("in view mode", function () {
+    //In view mode", function () {
     cy.PublishtheApp();
 
     testLinkRelPreloads();

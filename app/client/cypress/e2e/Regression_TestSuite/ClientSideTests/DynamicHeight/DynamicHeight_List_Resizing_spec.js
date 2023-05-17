@@ -2,7 +2,7 @@ const dsl = require("../../../../fixtures/ResizeListDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function () {
-  it("Validate change with auto height width for List widgets", function () {
+  it("1. Validate change with auto height width for List widgets", function () {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     cy.get(".t--entity-collapse-toggle").eq(2).click({ force: true });

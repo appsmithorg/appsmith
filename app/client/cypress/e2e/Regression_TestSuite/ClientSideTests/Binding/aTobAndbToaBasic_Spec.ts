@@ -29,9 +29,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
       .first()
       .invoke("attr", "value")
       .should("equal", "A"); //Before mapping JSObject value of input
-  });
-
-  it("2. Input widget test with default value for btoa method", function () {
+    //Input widget test with default value for btoa method"
     ee.SelectEntityByName("Input2");
     propPane.UpdatePropertyFieldValue(
       "Default value",
@@ -44,7 +42,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
       .should("equal", "QQ=="); //Before mapping JSObject value of input
   });
 
-  it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
+  it("2. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
     deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
     cy.get(locator._widgetInputSelector("inputwidgetv2"))
       .first()

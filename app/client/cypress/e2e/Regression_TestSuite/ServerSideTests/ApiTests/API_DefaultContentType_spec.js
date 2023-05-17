@@ -4,7 +4,7 @@ import appPage from "../../../../locators/CMSApplocators";
 import apiEditor from "../../../../locators/ApiEditor";
 
 describe("API Panel request body", function () {
-  it("Check whether the default content-type changes on changing method types and remains unchanged on switching to GET", function () {
+  it("1. Check whether the default content-type changes on changing method types and remains unchanged on switching to GET", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
 
@@ -50,7 +50,7 @@ describe("API Panel request body", function () {
     cy.DeleteAPI();
   });
 
-  it("Bug 14624 - Verifying the content-type none is not added", function () {
+  it("2. Bug 14624 - Verifying the content-type none is not added", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
 

@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel request body", function () {
-  it("Check whether input exists when form-encoded is selected", function () {
+  it("1. Check whether input exists when form-encoded is selected", function () {
     _.apiPage.CreateApi("FirstAPI");
     _.apiPage.SelectAPIVerb("POST");
     _.apiPage.SelectPaneTab("Body");

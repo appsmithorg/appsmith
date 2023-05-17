@@ -8,7 +8,7 @@ describe("Moustache test Functionality", function () {
   beforeEach(() => {
     cy.addDsl(dsl);
   });
-  it("Moustache test Functionality", function () {
+  it("1. Moustache test Functionality", function () {
     cy.openPropertyPane("textwidget");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);

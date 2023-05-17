@@ -7,15 +7,15 @@ describe("Name uniqueness test", function () {
     cy.log("Creation of UniqueName Action successful");
   });
 
-  it("Validate Unique Name", () => {
+  it("1. Validate Unique Name", () => {
     cy.CreationOfUniqueAPIcheck("Uni");
   });
 
-  it("Validate download apiname check", () => {
+  it("2. Validate download apiname check", () => {
     cy.CreationOfUniqueAPIcheck("download");
   });
 
-  it("Validate dedicated worker scope object property(Blob)apiname check", () => {
+  it("3. Validate dedicated worker scope object property(Blob)apiname check", () => {
     cy.CreationOfUniqueAPIcheck("Blob");
   });
 });

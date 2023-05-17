@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const { CommonLocators: locators, EntityExplorer: ee } = ObjectsRegistry;
 
 describe("Empty canvas ctas", () => {
-  it("Ctas validations", () => {
+  it("1. Ctas validations", () => {
     cy.wait(3000); // for page to load, failing in CI
     //Ctas should not be shown in the second page
     cy.get(locators._emptyCanvasCta).should("be.visible");

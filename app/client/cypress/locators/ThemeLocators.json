@@ -1,7 +1,7 @@
 {
     "canvas": "#canvas-selection-0",
     "border": ".t--theme-appBorderRadius",
-    "popover": ".bp3-popover-content",
+    "popover": ".rc-tooltip-inner",
     "shadow": ".t--theme-appBoxShadow",
     "color": ".t--property-pane-sidebar .bp3-popover-target .cursor-pointer",
     "inputColor": ".t--colorpicker-v2-popover input",

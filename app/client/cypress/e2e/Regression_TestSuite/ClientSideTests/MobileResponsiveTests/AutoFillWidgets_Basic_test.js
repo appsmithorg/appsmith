@@ -34,7 +34,7 @@ let width = {
 };
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
-  it("To capture the height and width of various autofill / Hug widgets in webview", function () {
+  it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
@@ -77,8 +77,10 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     [390, 844],
     [360, 780],
   ];
-  phones.forEach((phone) => {
-    it(`${phone} port execution For Auto Fill Widgets`, function () {
+  phones.forEach((phone, index) => {
+    it(`${
+      index + 2
+    }. ${phone} port execution For Auto Fill Widgets`, function () {
       if (Cypress._.isArray(phone)) {
         cy.viewport(phone[0], phone[1]);
       } else {

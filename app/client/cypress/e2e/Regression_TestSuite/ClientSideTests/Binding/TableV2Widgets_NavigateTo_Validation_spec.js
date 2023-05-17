@@ -30,9 +30,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
-  });
-
-  it("2. Table Widget V2 Functionality with multiple page", function () {
+    //Table Widget V2 Functionality with multiple page
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -52,7 +50,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     cy.assertPageSave();
   });
 
-  it("3. Validate NavigateTo Page functionality ", function () {
+  it("2. Validate NavigateTo Page functionality ", function () {
     cy.wait(2000);
     cy.PublishtheApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");

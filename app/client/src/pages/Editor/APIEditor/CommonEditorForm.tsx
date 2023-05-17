@@ -685,6 +685,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                   <TabsList>
                     {Object.values(API_EDITOR_TABS).map((tab) => (
                       <Tab
+                        data-testid={`t--api-editor-${tab}`}
                         key={tab}
                         notificationCount={
                           tab == "HEADERS"

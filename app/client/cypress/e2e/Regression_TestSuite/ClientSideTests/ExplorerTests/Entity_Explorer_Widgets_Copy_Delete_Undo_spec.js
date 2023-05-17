@@ -11,7 +11,7 @@ before(() => {
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-  it("Drag and drop form widget and validate copy widget via toast message", function () {
+  it("1. Drag and drop form widget and validate copy widget via toast message", function () {
     cy.openPropertyPane("formwidget");
     cy.widgetText(
       "FormTest",
@@ -24,7 +24,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.get(commonlocators.toastBody).first().contains("Copied");
   });
 
-  it("Delete Widget from sidebar and Undo action validation", function () {
+  it("2. Delete Widget from sidebar and Undo action validation", function () {
     cy.GlobalSearchEntity("Widgets");
     cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);

@@ -2,7 +2,7 @@ const dsl = require("../../../../fixtures/jsonFormDynamicHeightDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function () {
-  it("Validate change with auto height width for JsonForm", function () {
+  it("1. Validate change with auto height width for JsonForm", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("jsonformwidget");

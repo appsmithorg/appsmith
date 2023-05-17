@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class ThemeSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private locators = {
+  public locators = {
     _changeThemeBtn: ".t--change-theme-btn",
     _themeCard: (themeName: string) =>
       "//h3[text()='" +
@@ -13,9 +13,13 @@ export class ThemeSettings {
     _colorRingPrimary: "[data-testid='theme-primaryColor']",
     _colorRingBackground: "[data-testid='theme-backgroundColor']",
     _colorInput: (option: string) =>
-      "//h3[text()='" + option + " Color']//parent::div//input",
+      "//h3[text()='" + option + " color']//parent::div//input",
     _colorInputField: (option: string) =>
-      "//h3[text()='" + option + " Color']//parent::div",
+      "//h3[text()='" + option + " color']//parent::div",
+    _boxShadow: (type: string) =>
+      "//p[text()='App box shadow']/following-sibling::div//span[contains(@class, 'ads-v2-segmented-control-value-" +
+      type +
+      "')]/parent::span",
   };
 
   public ChangeTheme(newTheme: string) {

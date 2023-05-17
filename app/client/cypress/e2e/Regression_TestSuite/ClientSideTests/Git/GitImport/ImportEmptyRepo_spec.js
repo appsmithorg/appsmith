@@ -21,7 +21,7 @@ describe("Git import empty repository", function () {
     });
   });
 
-  it("Bug #12749 Git Import - Empty Repo NullPointerException", () => {
+  it("1. Bug #12749 Git Import - Empty Repo NullPointerException", () => {
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });

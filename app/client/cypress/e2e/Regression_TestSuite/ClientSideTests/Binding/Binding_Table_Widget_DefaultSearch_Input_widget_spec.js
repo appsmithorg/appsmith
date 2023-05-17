@@ -8,7 +8,7 @@ describe("Binding the Table and input Widget", function () {
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value from table widget", function () {
+  it("1. Input widget test with default value from table widget", function () {
     _.entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
@@ -17,9 +17,7 @@ describe("Binding the Table and input Widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("validation of data displayed in input widgets based on search value set", function () {
+    //validation of data displayed in input widgets based on search value set
     _.entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("defaultsearchtext", "2736212");
 

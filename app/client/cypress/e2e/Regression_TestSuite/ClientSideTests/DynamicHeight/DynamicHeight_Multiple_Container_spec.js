@@ -5,7 +5,7 @@ describe("Dynamic Height Width validation for multiple container", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Validate change in auto height width with multiple containers", function () {
+  it("1. Validate change in auto height width with multiple containers", function () {
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPaneWithIndex("containerwidget", 0);
     cy.changeLayoutHeight(commonlocators.fixed);
