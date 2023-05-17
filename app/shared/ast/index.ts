@@ -72,6 +72,7 @@ export type {
   IdentifierInfo,
   TParsedJSProperty,
   JSPropertyPosition,
+  PeekOverlayExpressionIdentifierOptions,
 };
 
 export {
@@ -124,4 +125,3 @@ export {
   isFunctionPresent,
   PeekOverlayExpressionIdentifier,
 };
-export type { PeekOverlayExpressionIdentifierOptions };
