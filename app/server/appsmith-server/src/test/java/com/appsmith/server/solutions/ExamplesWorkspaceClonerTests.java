@@ -7,6 +7,8 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PEMCertificate;
@@ -69,6 +71,7 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -436,6 +439,10 @@ public class ExamplesWorkspaceClonerTests {
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
@@ -445,6 +452,10 @@ public class ExamplesWorkspaceClonerTests {
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
                     ds2.getDatasourceConfiguration().setAuthentication(auth);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     return Mono.when(
                             datasourceService.create(ds1),
@@ -491,6 +502,10 @@ public class ExamplesWorkspaceClonerTests {
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
@@ -500,6 +515,10 @@ public class ExamplesWorkspaceClonerTests {
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
                     ds2.getDatasourceConfiguration().setAuthentication(auth);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     return Mono.zip(
                             datasourceService.create(ds1),
@@ -559,11 +578,19 @@ public class ExamplesWorkspaceClonerTests {
                     ds1.setName("datasource 1");
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(pluginId);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(pluginId);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                             .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -628,11 +655,19 @@ public class ExamplesWorkspaceClonerTests {
         ds1.setName("datasource 1");
         ds1.setWorkspaceId(workspace.getId());
         ds1.setPluginId(installedPlugin.getId());
+        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+        storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+        ds1.setDatasourceStorages(storages1);
 
         final Datasource ds2 = new Datasource();
         ds2.setName("datasource 2");
         ds2.setWorkspaceId(workspace.getId());
         ds2.setPluginId(installedPlugin.getId());
+        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+        storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+        ds2.setDatasourceStorages(storages2);
 
         final Application app = applicationPageService.createApplication(app1).block();
         final Application app2Again = applicationPageService.createApplication(app2).block();
@@ -847,6 +882,10 @@ public class ExamplesWorkspaceClonerTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
@@ -875,11 +914,19 @@ public class ExamplesWorkspaceClonerTests {
                             null,
                             false
                     ));
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
                     ds3.setWorkspaceId(sourceOrg1.getId());
                     ds3.setPluginId(installedPlugin.getId());
+                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
+                    storages3.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage3));
+                    ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
                             .flatMap(createdApp -> Mono.zip(
@@ -988,10 +1035,12 @@ public class ExamplesWorkspaceClonerTests {
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    assertThat(storage1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    assertThat(storage2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",
@@ -1077,6 +1126,10 @@ public class ExamplesWorkspaceClonerTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
@@ -1105,11 +1158,19 @@ public class ExamplesWorkspaceClonerTests {
                             null,
                             false
                     ));
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
                     ds3.setWorkspaceId(sourceOrg1.getId());
                     ds3.setPluginId(installedPlugin.getId());
+                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
+                    storages3.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage3));
+                    ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
                             .flatMap(createdApp -> Mono.zip(
@@ -1223,10 +1284,12 @@ public class ExamplesWorkspaceClonerTests {
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication()).isNull();
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    assertThat(storage1.getDatasourceConfiguration().getAuthentication()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication()).isNull();
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    assertThat(storage2.getDatasourceConfiguration().getAuthentication()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",

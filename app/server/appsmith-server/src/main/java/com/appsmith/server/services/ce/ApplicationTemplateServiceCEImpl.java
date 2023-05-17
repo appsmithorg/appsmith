@@ -201,7 +201,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson))
                 .flatMap(application -> importExportApplicationService
-                        .getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, environmentId))
+                        .getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
@@ -284,7 +284,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
                 })
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application, environmentId)
+                        application.getId(), application.getWorkspaceId(), application)
                 )
                 .flatMap(applicationImportDTO -> {
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());

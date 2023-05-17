@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -103,6 +104,7 @@ public class DatasourceStorage extends BaseDomain {
         this.environmentId = environmentId;
         this.datasourceConfiguration = datasource.getDatasourceConfiguration();
         this.isConfigured = datasource.getIsConfigured();
+        this.gitSyncId = datasource.getGitSyncId();
         this.invalids = new HashSet<>();
         if (datasource.getMessages() != null) {
             this.messages.addAll(datasource.getMessages());
@@ -140,10 +142,23 @@ public class DatasourceStorage extends BaseDomain {
         if (datasource.getInvalids() != null) {
             this.invalids.addAll(datasource.getInvalids());
         }
+        this.gitSyncId = datasource.getGitSyncId();
     }
 
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
         return CollectionUtils.isEmpty(invalids);
+    }
+
+    public void sanitiseToExportResource(Map<String, String> pluginMap) {
+        this.setPolicies(null);
+        this.setUpdatedAt(null);
+        this.setCreatedAt(null);
+        this.setUserPermissions(null);
+        this.setIsConfigured(null);
+        this.setInvalids(null);
+        this.setId(null);
+        this.setWorkspaceId(null);
+        this.setPluginId(pluginMap.get(this.getPluginId()));
     }
 }

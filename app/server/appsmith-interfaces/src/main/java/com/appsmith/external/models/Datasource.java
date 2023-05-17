@@ -24,7 +24,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 @ToString
 @NoArgsConstructor
 @Document
-public class Datasource extends BranchAwareDomain implements Forkable {
+public class Datasource extends BranchAwareDomain implements Forkable<Datasource> {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";
@@ -127,7 +127,9 @@ public class Datasource extends BranchAwareDomain implements Forkable {
 
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         this.datasourceStorages = storages;
-        storages.put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
+        if (datasourceStorage.getEnvironmentId() != null) {
+            storages.put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
+        }
     }
 
     /**
@@ -176,18 +178,4 @@ public class Datasource extends BranchAwareDomain implements Forkable {
 
         return newDs;
     }
-
-    public void sanitiseToExportResource(Map<String, String> pluginMap) {
-        this.setPolicies(null);
-        this.setUpdatedAt(null);
-        this.setCreatedAt(null);
-        this.setUserPermissions(null);
-        this.setIsConfigured(null);
-        this.setInvalids(null);
-        this.setId(null);
-        this.setWorkspaceId(null);
-        this.setOrganizationId(null);
-        this.setPluginId(pluginMap.get(this.getPluginId()));
-    }
-
 }

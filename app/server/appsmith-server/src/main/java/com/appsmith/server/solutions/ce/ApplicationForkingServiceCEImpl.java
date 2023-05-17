@@ -11,7 +11,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -41,7 +40,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
     private final ImportExportApplicationService importExportApplicationService;
-    private final DatasourceService datasourceService;
 
     @Override
     public Mono<Application> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId,
@@ -152,8 +150,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                     .getApplicationImportDTO(
                                             application.getId(),
                                             application.getWorkspaceId(),
-                                            application,
-                                            toEnvironmentId));
+                                            application
+                                    ));
                 });
     }
 

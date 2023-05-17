@@ -8,6 +8,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.PluginType;
@@ -510,7 +511,7 @@ public class ImportExportApplicationServiceTests {
                     List<NewPage> pageList = applicationJson.getPageList();
                     List<NewAction> actionList = applicationJson.getActionList();
                     List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
-                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
+                    List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
                     List<String> exportedCollectionIds = actionCollectionList.stream().map(ActionCollection::getId).collect(Collectors.toList());
                     List<String> exportedActionIds = actionList.stream().map(NewAction::getId).collect(Collectors.toList());
@@ -594,7 +595,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollection.getUnpublishedCollection().getPluginId()).isEqualTo(installedJsPlugin.getPackageName());
 
                     assertThat(datasourceList).hasSize(1);
-                    Datasource datasource = datasourceList.get(0);
+                    DatasourceStorage datasource = datasourceList.get(0);
                     assertThat(datasource.getWorkspaceId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
@@ -671,7 +672,7 @@ public class ImportExportApplicationServiceTests {
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
                     List<NewAction> actionList = applicationJson.getActionList();
-                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
+                    List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
                     NewPage newPage = pageList.get(0);
 
@@ -705,7 +706,7 @@ public class ImportExportApplicationServiceTests {
                             .isEqualTo(newPage.getUnpublishedPage().getName());
 
                     assertThat(datasourceList).hasSize(1);
-                    Datasource datasource = datasourceList.get(0);
+                    DatasourceStorage datasource = datasourceList.get(0);
                     assertThat(datasource.getWorkspaceId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
@@ -2300,7 +2301,7 @@ public class ImportExportApplicationServiceTests {
                     List<NewPage> pageList = applicationJson.getPageList();
                     List<NewAction> actionList = applicationJson.getActionList();
                     List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
-                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
+                    List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
                     List<String> exportedCollectionIds = actionCollectionList.stream().map(ActionCollection::getId).collect(Collectors.toList());
                     List<String> exportedActionIds = actionList.stream().map(NewAction::getId).collect(Collectors.toList());
@@ -2377,7 +2378,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollection.getUnpublishedCollection().getPluginId()).isEqualTo(installedJsPlugin.getPackageName());
 
                     assertThat(datasourceList).hasSize(1);
-                    Datasource datasource = datasourceList.get(0);
+                    DatasourceStorage datasource = datasourceList.get(0);
                     assertThat(datasource.getWorkspaceId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
@@ -2764,7 +2765,7 @@ public class ImportExportApplicationServiceTests {
         application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
         applicationJson.setExportedApplication(application);
 
-        Datasource sampleDatasource = new Datasource();
+        DatasourceStorage sampleDatasource = new DatasourceStorage();
         sampleDatasource.setName("SampleDS");
         sampleDatasource.setPluginId("restapi-plugin");
 

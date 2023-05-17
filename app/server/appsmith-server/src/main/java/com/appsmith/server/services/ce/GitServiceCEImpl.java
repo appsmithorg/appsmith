@@ -8,6 +8,7 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
@@ -2052,8 +2053,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> importExportApplicationService
                         .getApplicationImportDTO(application.getId(),
                                 application.getWorkspaceId(),
-                                application,
-                                environmentId))
+                                application
+                        ))
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
@@ -2266,15 +2267,15 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private boolean checkIsDatasourceNameConflict(List<Datasource> existingDatasources,
-                                                  List<Datasource> importedDatasources,
+                                                  List<DatasourceStorage> importedDatasources,
                                                   List<Plugin> pluginList) {
         // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
-        for (Datasource datasource : importedDatasources) {
+        for (DatasourceStorage datasourceStorage : importedDatasources) {
             // Collect the datasource(existing in workspace) which has same as of imported datasource
             // As names are unique we will need filter first element to check if the plugin id is matched
             Datasource filteredDatasource = existingDatasources
                     .stream()
-                    .filter(datasource1 -> datasource1.getName().equals(datasource.getName()))
+                    .filter(datasource1 -> datasource1.getName().equals(datasourceStorage.getName()))
                     .findFirst()
                     .orElse(null);
 
@@ -2285,7 +2286,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
 
                             return plugin.getId().equals(filteredDatasource.getPluginId())
-                                    && !datasource.getPluginId().equals(pluginReference);
+                                    && !datasourceStorage.getPluginId().equals(pluginReference);
                         })
                         .count();
                 if (matchCount > 0) {

@@ -8,9 +8,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfigurationStructure;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -267,10 +265,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     final String templateTableRef = TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
                     final String tableRef = tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName;
 
-                    DatasourceDTO templateDatasource = applicationJson
+                    DatasourceStorage templateDatasource = applicationJson
                             .getDatasourceList()
                             .stream()
-                            .map(datasourceService::convertToDatasourceDTO)
                             .filter(datasource1 -> {
                                 final String pluginRef = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
                                 return StringUtils.equals(datasource1.getPluginId(), pluginRef)
