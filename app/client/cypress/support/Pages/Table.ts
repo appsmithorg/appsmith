@@ -107,7 +107,7 @@ export class Table {
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
-    "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
+    "']/parent::div/parent::div/parent::div/parent::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
   _columnSettingsV2 = (columnName: string) =>
     `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
