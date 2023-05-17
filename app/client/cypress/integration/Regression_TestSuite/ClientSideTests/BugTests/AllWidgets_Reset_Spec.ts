@@ -10,7 +10,16 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 import { WIDGET } from "../../../../locators/WidgetLocators";
 
-const widgetsToTest = {
+const widgetsToTest: Record<
+  string,
+  {
+    widgetName: string;
+    widgetPrefixName: string;
+    textBindingValue: string;
+    assertWidgetReset: () => void;
+    setupWidget?: () => void;
+  }
+> = {
   [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
@@ -33,6 +42,9 @@ const widgetsToTest = {
     textBindingValue: testdata.tableBindingValue,
     assertWidgetReset: () => {
       selectTableAndReset();
+    },
+    setupWidget: () => {
+      table.AddSampleTableData();
     },
   },
   [WIDGET.SWITCHGROUP]: {
@@ -187,7 +199,6 @@ function selectTabAndReset() {
 }
 
 function selectTableAndReset() {
-  table.AddSampleTableData();
   table.SelectTableRow(1, 0, true, "v2");
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
@@ -422,6 +433,10 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         agHelper.AddDsl(val);
       });
       ee.DragDropWidgetNVerify(widgetSelector, 300, 100);
+
+      if (testConfig.setupWidget) {
+        testConfig.setupWidget();
+      }
     });
 
     it("2. Bind Button on click  and Text widget content", () => {

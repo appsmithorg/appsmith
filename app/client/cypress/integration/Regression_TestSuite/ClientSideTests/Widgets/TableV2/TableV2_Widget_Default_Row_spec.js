@@ -1,5 +1,6 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/defaultTableV2Dsl.json");
+const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 
 describe("Table Widget V2 property pane deafult feature validation", function () {
   before(() => {
@@ -13,6 +14,7 @@ describe("Table Widget V2 property pane deafult feature validation", function ()
     cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 100 });
+    ObjectsRegistry.Table.AddSampleTableData();
     // close Widget side bar
     cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.wait(2000);

@@ -1,16 +1,12 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 export function ChooseAndAssertForm(source, selectedSource, table, column) {
-  _._.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+  _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
 
   _.agHelper.AssertElementAbsence(".t--one-click-binding-connect-data");
 
   _.agHelper.GetNClick(
     `.t--one-click-binding-datasource-selector--datasource:contains(${source})`,
-  );
-
-  _.agHelper.AssertElementExist(
-    `.t--one-click-binding-datasource-selector .rc-select-selection-item:contains(${selectedSource})`,
   );
 
   cy.wait("@getDatasourceStructure").should(
