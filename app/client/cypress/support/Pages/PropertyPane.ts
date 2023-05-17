@@ -87,6 +87,12 @@ export class PropertyPane {
   _selectorViewLabel = '[data-testId="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
+  _dropDownValue = (dropdownOption: string) =>
+    `.rc-virtual-list .rc-select-item-option span:contains('${dropdownOption}')`;
+  _selectPropDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//input[@class='rc-select-selection-search-input']";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -194,16 +200,13 @@ export class PropertyPane {
     index = 0,
   ) {
     if (action == "Action")
-      this.agHelper.GetNClick(
-        this.locator._selectPropDropdown(endpoint),
-        index,
-      );
+      this.agHelper.GetNClick(this._selectPropDropdown(endpoint), index);
     else
       this.agHelper.GetNClick(
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    cy.get(this.locator._dropDownValue(dropdownOption)).click();
+    cy.get(this._dropDownValue(dropdownOption)).click();
   }
 
   public SelectJSFunctionToExecuteInExistingActionBlock(

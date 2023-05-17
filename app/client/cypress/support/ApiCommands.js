@@ -268,11 +268,7 @@ Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
   }
 
   cy.get(apiwidget.renameEntity).click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
   cy.get(explorer.editEntity).last().type(value, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(3000);
 });
 
 Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
