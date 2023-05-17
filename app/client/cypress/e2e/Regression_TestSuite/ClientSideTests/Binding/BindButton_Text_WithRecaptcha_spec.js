@@ -12,13 +12,13 @@ describe(
 
     it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {
       _.agHelper.ClickButton("Submit");
-      agHelper
+      _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      _.entityExplorerSelectEntityByName("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
       _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
       _.agHelper.ClickButton("Submit");
-      agHelper
+      _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
       _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
@@ -67,21 +67,21 @@ describe(
     });
 
     it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
-      _.entityExplorerSelectEntityByName("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
         testdata.v2Key,
       );
       _.agHelper.ClickButton("Submit");
       _.agHelper.Sleep();
-      agHelper
+      _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      _.entityExplorerSelectEntityByName("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
       _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
       _.agHelper.ClickButton("Submit");
       _.agHelper.Sleep();
-      agHelper
+      _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
       _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
@@ -90,7 +90,7 @@ describe(
     });
 
     it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
-      _.entityExplorerSelectEntityByName("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
         testdata.v3Key,
@@ -102,10 +102,10 @@ describe(
         _.locators._specificToast("Google Re-Captcha token generation failed!"),
         5000,
       );
-      agHelper
+      _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
-      _.entityExplorerSelectEntityByName("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
       _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
       _.agHelper.ClickButton("Submit");
       _.agHelper.AssertContains("Google Re-Captcha token generation failed!"); //toast doesnt come when run in CI!
