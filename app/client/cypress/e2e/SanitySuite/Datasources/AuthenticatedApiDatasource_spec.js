@@ -46,7 +46,7 @@ describe("Authenticated API Datasource", function () {
     cy.generateUUID().then((uuid) => {
       cy.renameDatasource(uuid);
       cy.fillAuthenticatedAPIForm();
-      cy.addOAuth2AuthorizationCodeDetails(
+      dataSources.AddOAuth2AuthorizationCodeDetails(
         testdata.accessTokenUrl,
         testdata.clientID,
         testdata.clientSecret,
