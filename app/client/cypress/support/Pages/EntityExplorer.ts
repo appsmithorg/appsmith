@@ -284,6 +284,7 @@ export class EntityExplorer {
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
     cy.get(this.locator._dropHere)
+      .first()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
