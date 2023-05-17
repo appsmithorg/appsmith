@@ -119,7 +119,7 @@ describe("Table Widget text wrapping functionality", function () {
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
-        .click({force: true});
+        .click({ force: true });
       cy.wait("@updateLayout");
       cy.get(".t--property-control-cellwrapping").should(data.expected);
     });
@@ -136,16 +136,12 @@ describe("Table Widget text wrapping functionality", function () {
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");
       });
-      cy.get(".t--property-control-cellwrapping input")
-        .first()
-        .click();
+      cy.get(".t--property-control-cellwrapping input").first().click();
       cy.wait(1000);
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.not.equal("28px");
       });
-      cy.get(".t--property-control-cellwrapping input")
-        .first()
-        .click();
+      cy.get(".t--property-control-cellwrapping input").first().click();
     });
   });
 
@@ -158,9 +154,7 @@ describe("Table Widget text wrapping functionality", function () {
       .then((value) => {
         pageSizeBeforeWrapping = value;
       });
-    cy.get(".t--property-control-cellwrapping input")
-      .first()
-      .click();
+    cy.get(".t--property-control-cellwrapping input").first().click();
     cy.wait(1000);
     cy.get(".t--widget-textwidget .bp3-ui-text")
       .invoke("text")
