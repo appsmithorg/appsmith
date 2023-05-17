@@ -83,7 +83,7 @@ Cypress.Commands.add(
         },
       });
 
-      cy.get(gitSyncLocators.useGlobalGitConfig).click();
+      cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
 
       cy.get(gitSyncLocators.gitConfigNameInput).type(
         `{selectall}${testUsername}`,
@@ -153,8 +153,8 @@ Cypress.Commands.add("createGitBranch", (branch) => {
   cy.wait(3000);
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
-  cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
+  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
@@ -165,8 +165,8 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
-    cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
+    cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
   }
 
   cy.wait(2000);
@@ -286,7 +286,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   agHelper.AssertElementExist(gitSync._bottomBarPull);
-  cy.get(gitSyncLocators.bottomBarMergeButton).click();
+  cy.get(gitSyncLocators.bottomBarMergeButton).click({ force: true });
   //cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
     "have.nested.property",
@@ -299,7 +299,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     0,
     false,
   );
-  cy.wait(3000);
+  cy.wait(6000);
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
   agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
@@ -375,7 +375,7 @@ Cypress.Commands.add(
         },
       });
 
-      cy.get(gitSyncLocators.useGlobalGitConfig).click();
+      cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
 
       cy.get(gitSyncLocators.gitConfigNameInput).type(
         `{selectall}${testUsername}`,
@@ -430,9 +430,9 @@ Cypress.Commands.add(
   (repo, generateKey = true, protocol = "ECDSA") => {
     let generatedKey;
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
     cy.wait(2000);
-    cy.get(gitSyncLocators.SSHKeycontextmenu).click();
+    cy.get(gitSyncLocators.SSHKeycontextmenu).eq(2).click();
     if (protocol === "ECDSA") {
       cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
     } else if (protocol === "RSA") {

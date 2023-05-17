@@ -60,7 +60,7 @@ function EmbedSettings() {
           <div className="px-4">
             <div className="flex justify-between content-center">
               <Switch
-                id="t--embed-settings-application-public"
+                data-testid="t--embed-settings-application-public"
                 isDisabled={isFetchingApplication || isChangingViewAccess}
                 isSelected={application?.isPublic}
                 onChange={() =>

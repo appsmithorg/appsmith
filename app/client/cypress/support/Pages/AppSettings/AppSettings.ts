@@ -4,7 +4,7 @@ export class AppSettings {
   private theme = ObjectsRegistry.ThemeSettings;
 
   private locators = {
-    _appSettings: "#t--app-settings-cta",
+    _appSettings: ".t--app-settings-cta",
     _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
@@ -19,7 +19,7 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    this.agHelper.GetNClick(this.locators._appSettings);
+    this.agHelper.GetNClick(this.locators._appSettings, 0, true);
   }
 
   public ClosePane() {
@@ -57,6 +57,7 @@ export class AppSettings {
     this.GoToThemeSettings();
     this.theme.ChangeThemeColor(primaryColorIndex, "Primary");
     this.theme.ChangeThemeColor(backgroundColorIndex, "Background");
+    this.agHelper.Sleep();
     this.ClosePane();
   }
 

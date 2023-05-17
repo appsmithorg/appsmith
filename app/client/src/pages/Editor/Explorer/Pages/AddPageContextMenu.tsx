@@ -64,14 +64,14 @@ function AddPageContextMenu({
         title: createMessage(CREATE_PAGE),
         icon: "file-add-line",
         onClick: createPageCallback,
-        "data-cy": "add-page",
+        "data-testid": "add-page",
         key: "CREATE_PAGE",
       },
       {
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: "database-2-line",
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
-        "data-cy": "generate-page",
+        "data-testid": "generate-page",
         key: "GENERATE_PAGE",
       },
     ];
@@ -85,7 +85,7 @@ function AddPageContextMenu({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: "layout-2-line",
         onClick: () => dispatch(showTemplatesModal(true)),
-        "data-cy": "add-page-from-template",
+        "data-testid": "add-page-from-template",
         key: "ADD_PAGE_FROM_TEMPLATE",
       });
     }

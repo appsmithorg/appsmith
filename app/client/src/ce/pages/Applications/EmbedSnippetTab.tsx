@@ -72,7 +72,7 @@ function ShareModal() {
     <div className="flex flex-col gap-6">
       {embedSnippet.isSuperUser && (
         <div className="flex justify-between">
-          <div className="flex gap-1">
+          <div className="flex gap-1" data-testid="frame-ancestors-setting">
             <Icon
               className="icon"
               name={embedSnippet.embedSettingContent.icon}
@@ -145,7 +145,7 @@ function AppSettings() {
       <div className="flex flex-col gap-6">
         {embedSnippet.isSuperUser && (
           <div className="flex justify-between">
-            <div className="flex gap-1">
+            <div className="flex gap-1" data-testid="frame-ancestors-setting">
               <Icon
                 className="icon"
                 name={embedSnippet.embedSettingContent.icon}

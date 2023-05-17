@@ -126,7 +126,7 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
         style={style ?? styles}
       >
         <AutoHeightLimitOverlayDisplay
-          data-cy="t--auto-height-overlay"
+          data-testid="t--auto-height-overlay"
           height={isMaxDotDragging || isMaxDotActive ? finalMaxY : finalMinY}
           isActive={
             isMaxDotDragging ||

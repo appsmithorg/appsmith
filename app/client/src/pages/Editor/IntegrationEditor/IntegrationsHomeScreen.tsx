@@ -550,13 +550,17 @@ class IntegrationsHomeScreen extends React.Component<
             <MainTabsContainer>
               {showTabs && (
                 <Tabs
-                  data-cy="t--datasource-tab"
+                  data-testid="t--datasource-tab"
                   onValueChange={this.onSelectPrimaryMenu}
                   value={this.state.activePrimaryMenuId}
                 >
                   <TabsList>
                     {PRIMARY_MENU.map((tab: TabProp) => (
-                      <Tab key={tab.key} value={tab.key}>
+                      <Tab
+                        data-testid={`t--tab-${tab.key}`}
+                        key={tab.key}
+                        value={tab.key}
+                      >
                         {tab.title}
                       </Tab>
                     ))}

@@ -247,6 +247,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <CopyUrlForm
+                      fieldName={setting.fieldName || ""}
                       helpText={setting.helpText}
                       title={setting.label || ""}
                       tooltip={
@@ -264,7 +265,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <TagInputField
-                      data-cy="t--tag-input"
+                      data-testid="t--tag-input"
                       intent="success"
                       label={setting.label}
                       name={setting.name || setting.id}

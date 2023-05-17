@@ -71,7 +71,7 @@ export default function GitConfig() {
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
           <Input
-            data-test-id="t--git-author-name"
+            data-testid="t--git-author-name"
             isRequired
             label={createMessage(AUTHOR_NAME)}
             labelPosition="top"
@@ -88,7 +88,7 @@ export default function GitConfig() {
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
           <Input
-            data-test-id="t--git-author-email"
+            data-testid="t--git-author-email"
             isRequired
             label={createMessage(AUTHOR_EMAIL)}
             labelPosition="top"

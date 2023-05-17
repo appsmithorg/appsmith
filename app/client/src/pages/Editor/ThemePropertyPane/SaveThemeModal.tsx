@@ -139,7 +139,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
               You can save your custom themes to use across applications and use
               them when you need.
             </Text>
-            <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
+            <form data-testid="save-theme-form" noValidate onSubmit={onSubmit}>
               <Input
                 autoFocus
                 errorMessage={

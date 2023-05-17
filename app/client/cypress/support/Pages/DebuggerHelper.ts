@@ -19,8 +19,8 @@ export class DebuggerHelper {
 
   public readonly locators = {
     _debuggerIcon: ".t--debugger-count",
-    _debuggerToggle: "[data-cy=t--debugger-toggle]",
-    _debuggerDownStreamErrMsg: "[data-cy=t--debugger-downStreamErrorMsg]",
+    _debuggerToggle: "[data-testid=t--debugger-toggle]",
+    _debuggerDownStreamErrMsg: "[data-testid=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
     _closeButton: ".t--close-debugger",
     _logMessage: ".t--debugger-log-message",
@@ -29,7 +29,7 @@ export class DebuggerHelper {
     _errorCount: ".t--debugger-count",
     _clearLogs: ".t--debugger-clear-logs",
     _logMessageOccurence: ".t--debugger-log-message-occurence",
-    _debuggerMessage: "[data-cy=t--debugger-log-message]",
+    _debuggerMessage: "[data-testid=t--debugger-log-message]",
     _contextMenuIcon: ".t--debugger-contextual-error-menu ",
     _contextMenuItem: ".t--debugger-contextual-menuitem",
     _debuggerLabel: "span.debugger-label",
@@ -41,7 +41,7 @@ export class DebuggerHelper {
     },
     _debuggerList: ".debugger-list",
     _debuggerFilter: ".debugger-search",
-    _debuggerSelectedTab: ".react-tabs__tab--selected",
+    _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
   };
 
   ClickDebuggerIcon(
@@ -112,6 +112,7 @@ export class DebuggerHelper {
 
   AssertSelectedTab(text: string) {
     this.agHelper.GetNAssertContains(this.locators._debuggerSelectedTab, text);
+    this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
   }
 
   DoesConsoleLogExist(

@@ -152,7 +152,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
         className={`t--settings-sub-category-${
           method.needsUpgrade ? `upgrade-${method.category}` : method.category
         }`}
-        data-cy="btn-auth-account"
+        data-testid="btn-auth-account"
         kind={"secondary"}
         onClick={() => onClickHandler(method)}
         size="md"

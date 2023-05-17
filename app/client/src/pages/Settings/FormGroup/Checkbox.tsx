@@ -56,6 +56,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
     return (
       <CheckboxWrapper>
         <Checkbox
+          data-testid={props.id}
           defaultSelected={isPropertyDisabled ? !val : val}
           isDisabled={props.isDisabled}
           onChange={onCheckbox}

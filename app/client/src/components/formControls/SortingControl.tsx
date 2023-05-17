@@ -188,7 +188,7 @@ function SortingComponent(props: any) {
               />
               {/* Component to render the delete icon */}
               <CenteredButton
-                data-cy={`t--sorting-delete-[${index}]`}
+                data-testid={`t--sorting-delete-[${index}]`}
                 isIconButton
                 kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
@@ -203,7 +203,7 @@ function SortingComponent(props: any) {
         })}
       <ButtonWrapper>
         <Button
-          data-cy={`t--sorting-add-field`}
+          data-testid={`t--sorting-add-field`}
           kind="tertiary"
           onClick={() =>
             props.fields.push({

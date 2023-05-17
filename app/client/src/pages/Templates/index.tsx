@@ -189,7 +189,7 @@ export function TemplatesContent(props: TemplatesContentProps) {
       <SearchWrapper sticky={props.stickySearchBar}>
         <div className="templates-search">
           <SearchInput
-            data-test-id={"t--application-search-input"}
+            data-testid={"t--application-search-input"}
             isDisabled={isLoading}
             onChange={debouncedOnChange || noop}
             placeholder={createMessage(SEARCH_TEMPLATES)}

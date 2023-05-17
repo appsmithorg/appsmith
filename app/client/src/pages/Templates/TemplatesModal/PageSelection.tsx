@@ -148,7 +148,7 @@ function PageSelection(props: PageSelectionProps) {
           );
         })}
         <StyledButton
-          data-cy="template-fork-button"
+          data-testid="template-fork-button"
           isDisabled={!selectedPages.length}
           onClick={importPagesToApp}
           size="md"

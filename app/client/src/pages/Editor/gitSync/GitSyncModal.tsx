@@ -110,7 +110,6 @@ function GitSyncModal(props: { isImport?: boolean }) {
   return (
     <>
       <Modal
-        data-testid="t--git-sync-modal"
         onOpenChange={(open) => {
           if (!open) {
             handleClose();
@@ -118,7 +117,10 @@ function GitSyncModal(props: { isImport?: boolean }) {
         }}
         open={isModalOpen}
       >
-        <ModalContentContainer style={{ width: "640px" }}>
+        <ModalContentContainer
+          data-testid="t--git-sync-modal"
+          style={{ width: "640px" }}
+        >
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>

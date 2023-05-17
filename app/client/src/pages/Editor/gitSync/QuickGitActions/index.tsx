@@ -184,6 +184,7 @@ const getQuickActionButtons = ({
       tooltipText: createMessage(MERGE),
     },
     {
+      className: "t--bottom-git-settings",
       icon: "settings-2-line",
       onClick: connect,
       tooltipText: createMessage(GIT_SETTINGS),

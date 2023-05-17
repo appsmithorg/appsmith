@@ -1,5 +1,5 @@
 {
-  "dropdownChevronLeft": ".bp3-icon-chevron-left",
+  "dropdownChevronLeft": ".t--close-editor",
   "addNewtable": "//span[text()='New Table']",
   "addTablename": "(//div[@class='bp3-input-group']//input)[2]",
   "addColumn": "//span[text()='Add Column']/parent::button/parent::div",

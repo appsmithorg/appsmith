@@ -552,7 +552,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   const appNameText = (
-    <Text cypressSelector="t--app-card-name" type={TextType.H3}>
+    <Text data-testid="t--app-card-name" type={TextType.H3}>
       {props.application.name}
     </Text>
   );

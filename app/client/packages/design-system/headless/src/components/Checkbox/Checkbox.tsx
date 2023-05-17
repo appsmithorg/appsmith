@@ -26,12 +26,12 @@ const ICON_SIZE = 14;
 
 export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   const {
+    autoFocus,
+    children,
     className,
     icon = <CheckIcon size={ICON_SIZE} />,
     isDisabled = false,
     isIndeterminate = false,
-    children,
-    autoFocus,
     validationState,
   } = props;
   const state = useToggleState(props);

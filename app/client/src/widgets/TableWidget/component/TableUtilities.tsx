@@ -548,7 +548,7 @@ export const renderEmptyRows = (
               <div
                 {...cellProps}
                 className="td"
-                data-cy={`empty-row-${index}-cell-${cellIndex}`}
+                data-testid={`empty-row-${index}-cell-${cellIndex}`}
                 key={cellIndex}
               />
             );

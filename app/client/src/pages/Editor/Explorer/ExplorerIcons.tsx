@@ -23,7 +23,9 @@ export const pageIcon = <Icon name="page-line" size="md" />;
 
 export const homePageIcon = <Icon name="home-3-line" size="md" />;
 
-export const defaultPageIcon = <Icon name="home-3-line" size="md" />;
+export const defaultPageIcon = (
+  <Icon data-testid="t--default-home-icon" name="home-3-line" size="md" />
+);
 
 export const hiddenPageIcon = <Icon name="eye-off" size="md" />;
 

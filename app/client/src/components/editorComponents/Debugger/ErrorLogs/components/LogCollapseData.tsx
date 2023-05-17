@@ -90,7 +90,7 @@ export default function LogCollapseData(props: any) {
                       : "DownstreamError"
                   }
                 />
-                <span data-cy="t--debugger-downStreamErrorMsg">
+                <span data-testid="t--debugger-downStreamErrorMsg">
                   {props.pluginErrorDetails.downstreamErrorMessage}
                 </span>
               </>

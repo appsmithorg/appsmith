@@ -25,7 +25,7 @@ Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
   cy.get(".t--applications-container")
     .contains(workspaceName)
     .closest(homePage.workspaceCompleteSection)
-    .find(homePage.workspaceNamePopover)
+    .scrollIntoView()
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.get(homePage.renameWorkspaceInput)
@@ -141,13 +141,13 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
 });
 
 Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
-  cy.get(homePage.enablePublicAccess).first().click({ force: true });
+  cy.xpath(homePage.enablePublicAccess).first().click({ force: true });
   cy.wait("@changeAccess").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-  cy.wait(10000);
+  cy.wait(5000);
   const closeButtonLocator = editMode
     ? homePage.editModeInviteModalCloseBtn
     : homePage.closeBtn;
@@ -236,7 +236,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
-        .contains("Edit Name", { matchCase: false })
+        .contains("Edit name", { matchCase: false })
         .click({ force: true });
     }
   });
@@ -315,7 +315,7 @@ Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
   cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
     cy.get(".t--context-menu").click({ force: true });
   });
-  cy.selectAction("Edit Name");
+  cy.selectAction("Edit name");
   cy.get(explorer.editEntity).last().type(`${renamedEntity}`, { force: true });
 });
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {

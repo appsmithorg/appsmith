@@ -35,7 +35,7 @@ const setting: Setting = {
 
 function renderComponent() {
   function RadioFieldComponent() {
-    return <Radio data-cy="t--radio" setting={setting} />;
+    return <Radio data-testid="t--radio" setting={setting} />;
   }
   const Parent = reduxForm<any, any>({
     validate: () => {

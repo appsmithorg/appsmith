@@ -126,7 +126,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
       />
       <TemplateWrapper
         className={props.className}
-        data-cy="template-card"
+        data-testid="template-card"
         onClick={onClick}
       >
         <ImageWrapper className="image-wrapper">

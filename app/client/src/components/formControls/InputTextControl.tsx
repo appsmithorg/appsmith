@@ -135,7 +135,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     } = this.props;
 
     return (
-      <FieldWrapper data-cy={configProperty} style={customStyles || {}}>
+      <FieldWrapper data-testid={configProperty} style={customStyles || {}}>
         {this.state.secretDisplayVisible && (
           <SecretDisplayIndicator
             onClick={this.onClickSecretDisplayIndicator}

@@ -121,10 +121,7 @@
                         "dataType": "array",
                         "defaultValue": "{{((sourceData, formData, fieldState) => (Table1.selectedRow.details.type.map(item=> {return {      label: item,        value: item       }})))(UpdateJSONForm.sourceData, UpdateJSONForm.formData, UpdateJSONForm.fieldState)}}",
                         "fieldType": "Multiselect",
-                        "sourceData": [
-                          "Novel",
-                          "Adventure"
-                        ],
+                        "sourceData": ["Novel", "Adventure"],
                         "isCustomField": false,
                         "accessor": "type",
                         "identifier": "type",
@@ -226,10 +223,7 @@
                     "sourceData": {
                       "customer": "Josh William",
                       "title": "Ivanhoe",
-                      "type": [
-                        "Novel",
-                        "Adventure"
-                      ],
+                      "type": ["Novel", "Adventure"],
                       "info": {
                         "published": true,
                         "price": 400
@@ -792,11 +786,7 @@
         },
         "widgetName": "Table1",
         "defaultPageSize": 0,
-        "columnOrder": [
-          "serialid",
-          "details",
-          "customColumn1"
-        ],
+        "columnOrder": ["serialid", "details", "customColumn1"],
         "dynamicPropertyPathList": [],
         "displayName": "Table",
         "bottomRow": 57,
@@ -1184,10 +1174,7 @@
                         "dataType": "array",
                         "defaultValue": "",
                         "fieldType": "Multiselect",
-                        "sourceData": [
-                          "Novel",
-                          "Adventure"
-                        ],
+                        "sourceData": ["Novel", "Adventure"],
                         "isCustomField": false,
                         "accessor": "type",
                         "identifier": "type",
@@ -1292,10 +1279,7 @@
                     "sourceData": {
                       "customer": "Josh William",
                       "title": "Ivanhoe",
-                      "type": [
-                        "Novel",
-                        "Adventure"
-                      ],
+                      "type": ["Novel", "Adventure"],
                       "info": {
                         "published": true,
                         "price": 400

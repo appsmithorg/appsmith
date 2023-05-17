@@ -466,8 +466,10 @@ export function EditorHeader(props: EditorHeaderProps) {
                     value={activeTab}
                   >
                     <TabsList>
-                      <Tab value="invite">{createMessage(INVITE_TAB)}</Tab>
-                      <Tab value="embed">
+                      <Tab data-testid="t--tab-INVITE" value="invite">
+                        {createMessage(INVITE_TAB)}
+                      </Tab>
+                      <Tab data-tesid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
                     </TabsList>

@@ -183,6 +183,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
         <Button
+          data-testid="t--property-pane-back-btn"
           isIconButton
           kind="tertiary"
           onClick={props.onBackClick}

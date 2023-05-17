@@ -88,7 +88,7 @@ export function Pagination(props: {
   };
 
   return (
-    <PaginationContainer data-cy={name}>
+    <PaginationContainer data-testid={name}>
       {/*  form control for Limit field */}
       <FormControlContainer>
         <FormControl

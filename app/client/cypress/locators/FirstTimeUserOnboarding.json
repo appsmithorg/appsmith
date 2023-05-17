@@ -1,10 +1,10 @@
 {
-  "introModal": ".t--onboarding-introduction-modal",
+  "introModal": ".ads-v2-modal__content",
   "introModalBuild": ".t--introduction-modal-build-button",
   "introModalWelcomeTourBtn": ".t--introduction-modal-welcome-tour-button",
-  "introModalCloseBtn": ".t--how-appsmith-works-modal-close",
+  "introModalCloseBtn": ".ads-v2-modal__content-header-close-button",
   "statusbar": ".t--onboarding-statusbar",
-  "statusbarClose": "[data-cy='statusbar-skip']",
+  "statusbarClose": "[data-testid='statusbar-skip']",
   "checklistStatus": ".t--checklist-complete-status",
   "checklistDatasourceBtn": ".t--checklist-datasource-button",
   "checklistBack": ".t--checklist-back",
@@ -28,6 +28,5 @@
   "textWidgetName": ".t--widget-textwidget",
   "taskDatasourceAltBtn": ".t--tasks-datasource-alternate-button",
   "taskActionAltBtn": ".t--tasks-action-alternate-button",
-  "welcomeTourBtn": ".t--start-building",
-  "widgetPaneTrigger": "#switcher--widgets"
+  "welcomeTourBtn": ".t--start-building"
 }

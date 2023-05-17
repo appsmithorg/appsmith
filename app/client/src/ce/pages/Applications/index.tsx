@@ -428,11 +428,11 @@ export function LeftPane(props: LeftPaneProps) {
         heading={createMessage(WORKSPACES_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
-        <WorkpsacesNavigator data-cy="t--left-panel">
+        <WorkpsacesNavigator data-testid="t--left-panel">
           {canCreateWorkspace && (
             <ListItem
               color="var(--ads-v2-color-fg-emphasis)"
-              cypressSelector="t--workspace-new-workspace-auto-create"
+              data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
               onSelect={() =>
                 submitCreateWorkspaceForm(
@@ -809,7 +809,7 @@ export function ApplicationsSection(props: any) {
                                 }}
                               >
                                 <WorkspaceRename
-                                  cypressSelector="t--workspace-rename-input"
+                                  className="t--workspace-rename-input"
                                   defaultValue={workspace.name}
                                   editInteractionKind={
                                     EditInteractionKind.SINGLE

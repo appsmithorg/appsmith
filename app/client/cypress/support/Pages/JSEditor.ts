@@ -25,8 +25,8 @@ export class JSEditor {
 
   //#region Element locators
   _runButton = "button.run-js-action";
-  _settingsTab = ".tab-title:contains('Settings')";
-  _codeTab = ".tab-title:contains('Code')";
+  _settingsTab = "//span[text()='Settings']/parent::button";
+  _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -34,7 +34,7 @@ export class JSEditor {
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
-    }) span.checkbox`;
+    }) input`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
     onLoad: boolean,
@@ -48,7 +48,7 @@ export class JSEditor {
   ) =>
     `.${functionName}-confirm-before-execute label:contains(${
       shouldConfirm ? "Yes" : "No"
-    }) span.checkbox`;
+    }) input`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
     shouldConfirm: boolean,
@@ -59,9 +59,9 @@ export class JSEditor {
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS Object')";
+  private _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
-  private _propertyList = ".t--entity-property";
+  public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
     "//div[@class='function-name'][text()='" +
     funName +
@@ -71,22 +71,20 @@ export class JSEditor {
     settingTxt +
     "']/parent::div/following-sibling::input[@type='checkbox']";
   _dialog = (dialogHeader: string) =>
-    "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" +
-    dialogHeader +
-    "')]";
+    "//div[@role='dialog']//h3[contains(text(), '" + dialogHeader + "')]";
   private _closeSettings = "span[icon='small-cross']";
   _dialogBody = (jsFuncName: string) =>
-    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
   _dialogInDeployView =
-    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
-  _funcDropdown = ".t--formActionButtons div[role='listbox']";
-  _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
+  _funcDropdown = ".t--formActionButtons .function-select-dropdown";
+  _funcDropdownOptions = ".rc-virtual-list .rc-select-item-option p";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
@@ -97,7 +95,7 @@ export class JSEditor {
     `${
       selector ? `${selector} ` : ""
     }.CodeMirror-line:nth-child(${lineNumber})`;
-  _logsTab = "[data-cy=t--tab-LOGS_TAB]";
+  _logsTab = "[data-testid=t--tab-LOGS_TAB]";
   //#endregion
 
   //#region constants
@@ -123,8 +121,9 @@ export class JSEditor {
 
   //#region Page functions
   public NavigateToNewJSEditor() {
+    this.agHelper.ClickOutside(); //to enable click of below!
     cy.get(this.locator._createNew).last().click({ force: true });
-    cy.get(this._newJSobj).click({ force: true });
+    cy.get(this._newJSobj).eq(0).click({ force: true });
 
     // Assert that the name of the JS Object is focused when newly created
     cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
@@ -177,7 +176,7 @@ export class JSEditor {
 
     this.agHelper.AssertAutoSave();
     if (prettify) {
-      this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+      this.agHelper.ActionContextMenuWithInPane("Prettify code");
       this.agHelper.AssertAutoSave();
     }
 
@@ -208,7 +207,7 @@ export class JSEditor {
         this.agHelper.Paste(el, newContent);
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
-    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify code");
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
   }
 
@@ -253,7 +252,7 @@ export class JSEditor {
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
-    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit Name");
+    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit name");
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
@@ -268,7 +267,7 @@ export class JSEditor {
   }
 
   public ValidateDefaultJSObjProperties(jsObjName: string) {
-    this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
+    this.ee.ActionContextMenuByEntityName(jsObjName, "Show bindings");
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
@@ -352,7 +351,7 @@ export class JSEditor {
 
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
-    this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
+    this.agHelper.GetNClickByContains(this._funcDropdownOptions, funName);
   }
 
   //#endregion

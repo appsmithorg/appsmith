@@ -92,7 +92,7 @@ class DropDownControl extends BaseControl<Props> {
     return (
       <DropdownSelect
         className={`t--${this?.props?.configProperty}`}
-        data-cy={this.props.configProperty}
+        data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}
       >

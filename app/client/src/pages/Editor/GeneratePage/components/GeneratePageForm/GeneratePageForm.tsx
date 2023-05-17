@@ -164,7 +164,7 @@ function GeneratePageSubmitBtn({
   return showSubmitButton ? (
     <div>
       <Button
-        data-cy="t--generate-page-form-submit"
+        data-testid="t--generate-page-form-submit"
         isDisabled={disabled}
         isLoading={isLoading}
         kind="primary"
@@ -685,6 +685,8 @@ function GeneratePageForm() {
                   }
                 : selectedDatasource
             }
+            // TODO: This needs to be fixed. Removed for cypress tests to pass
+            virtual={false}
           >
             {dataSourceOptions.map((option) => {
               const isConnectNewDataSourceBtn =
@@ -702,7 +704,7 @@ function GeneratePageForm() {
                   value={option.value}
                 >
                   <DataSourceOption
-                    cypressSelector="t--datasource-dropdown-option"
+                    dataTestid="t--datasource-dropdown-option"
                     extraProps={{ routeToCreateNewDatasource }}
                     key={(option as DropdownOption).id}
                     option={option}
@@ -746,6 +748,8 @@ function GeneratePageForm() {
                     }
                   : selectedTable
               }
+              // TODO: This needs to be fixed. Removed for cypress tests to pass
+              virtual={false}
             >
               {datasourceTableOptions.map((table) => {
                 return (
@@ -818,6 +822,7 @@ function GeneratePageForm() {
                         }
                       : selectedColumn
                   }
+                  virtual={false}
                 >
                   {selectedTableColumnOptions.map((column) => {
                     return (

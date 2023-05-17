@@ -16,5 +16,5 @@ export default function LogAdditionalInfo(props: {
   text: string;
   datacy?: string;
 }) {
-  return <Wrapper data-cy={props.datacy}>{`[${props.text}]`}</Wrapper>;
+  return <Wrapper data-testid={props.datacy}>{`[${props.text}]`}</Wrapper>;
 }

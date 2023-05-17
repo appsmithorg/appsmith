@@ -233,7 +233,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     >
       <StyledClose
         className="hover-icons"
-        data-cy="statusbar-skip"
+        data-testid="statusbar-skip"
         isIconButton
         kind={isChecklistPage ? "primary" : "tertiary"}
         onClick={endFirstTimeUserOnboarding}

@@ -17,7 +17,7 @@
 	"viewportHeight": 1100,
 	"viewportWidth": 1400,
 	"retries": {
-		"runMode": 1,
+		"runMode": 0,
 		"openMode": 0
 	}
 }

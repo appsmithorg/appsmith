@@ -69,7 +69,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
   if (dataSources.length === 0) {
     return (
       <EmptyActiveDatasource>
-        <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
+        <Text data-testid="t--empty-datasource-list" type={TextType.H3}>
           {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}
         </Text>
         <Button

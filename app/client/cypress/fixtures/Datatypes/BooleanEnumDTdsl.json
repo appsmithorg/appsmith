@@ -237,9 +237,7 @@
                 "displayName": "Select",
                 "iconSVG": "/static/media/icon.bd99caba5853ad71e4b3d8daffacb3a2.svg",
                 "labelText": "{{Table1.columnOrder[1].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
-                "searchTags": [
-                  "dropdown"
-                ],
+                "searchTags": ["dropdown"],
                 "topRow": 8,
                 "bottomRow": 15,
                 "parentRowSpace": 10,
@@ -298,9 +296,7 @@
                 ],
                 "displayName": "Switch",
                 "iconSVG": "/static/media/icon.a3115bc1c224776de2846985c8819f99.svg",
-                "searchTags": [
-                  "boolean"
-                ],
+                "searchTags": ["boolean"],
                 "topRow": 17,
                 "bottomRow": 21,
                 "parentRowSpace": 10,
@@ -926,9 +922,7 @@
                 "displayName": "Select",
                 "iconSVG": "/static/media/icon.bd99caba5853ad71e4b3d8daffacb3a2.svg",
                 "labelText": "{{Table1.columnOrder[1].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
-                "searchTags": [
-                  "dropdown"
-                ],
+                "searchTags": ["dropdown"],
                 "topRow": 8,
                 "bottomRow": 15,
                 "parentRowSpace": 10,
@@ -979,9 +973,7 @@
                 "widgetName": "Insertareweworking",
                 "displayName": "Switch",
                 "iconSVG": "/static/media/icon.a3115bc1c224776de2846985c8819f99.svg",
-                "searchTags": [
-                  "boolean"
-                ],
+                "searchTags": ["boolean"],
                 "topRow": 17,
                 "bottomRow": 21,
                 "parentRowSpace": 10,

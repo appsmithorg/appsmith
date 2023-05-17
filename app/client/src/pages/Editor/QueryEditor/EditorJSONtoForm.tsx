@@ -699,7 +699,7 @@ export function EditorJSONtoForm(props: Props) {
                 {executedQueryData &&
                   (executedQueryData.pluginErrorDetails ? (
                     <>
-                      <div data-cy="t--query-error">
+                      <div data-testid="t--query-error">
                         {
                           executedQueryData.pluginErrorDetails
                             .downstreamErrorMessage
@@ -717,7 +717,7 @@ export function EditorJSONtoForm(props: Props) {
                     </>
                   ) : (
                     executedQueryData.body && (
-                      <div data-cy="t--query-error">
+                      <div data-testid="t--query-error">
                         {executedQueryData.body}
                       </div>
                     )
@@ -757,6 +757,7 @@ export function EditorJSONtoForm(props: Props) {
             selectedTabIndex !== -1 && (
               <SegmentedControlContainer>
                 <SegmentedControl
+                  data-testid="t--response-tab-segmented-control"
                   defaultValue={segmentedControlOptions[0]?.value}
                   isFullWidth={false}
                   onChange={(value) => {
@@ -930,8 +931,18 @@ export function EditorJSONtoForm(props: Props) {
                 >
                   <TabsListWrapper>
                     <TabsList>
-                      <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
-                      <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
+                      <Tab
+                        data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
+                        value={EDITOR_TABS.QUERY}
+                      >
+                        Query
+                      </Tab>
+                      <Tab
+                        data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
+                        value={EDITOR_TABS.SETTINGS}
+                      >
+                        Settings
+                      </Tab>
                     </TabsList>
                   </TabsListWrapper>
                   <TabPanelWrapper

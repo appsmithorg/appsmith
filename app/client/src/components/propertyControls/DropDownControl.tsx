@@ -111,7 +111,12 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           virtual={this.props.virtual || false}
         >
           {options.map((option, index) => (
-            <Option key={index} label={option.label} value={option.value}>
+            <Option
+              className="t--dropdown-option"
+              key={index}
+              label={option.label}
+              value={option.value}
+            >
               {/* Show Flag if present */}
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
