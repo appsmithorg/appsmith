@@ -83,7 +83,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
       cy.get(gitSyncLocators.disconnectGitModal).should("exist");
 
-      cy.get(gitSyncLocators.closeRevokeModal).click();
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
     }
   });

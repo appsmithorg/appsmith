@@ -128,8 +128,8 @@ export const generateQuickCommands = (
   entityInfo: FieldEntityInformation,
 ) => {
   const { entityId, expectedType = "string", propertyPath } = entityInfo || {};
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
+  const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",

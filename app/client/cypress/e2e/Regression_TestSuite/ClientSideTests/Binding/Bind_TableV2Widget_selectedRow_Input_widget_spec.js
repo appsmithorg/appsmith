@@ -11,7 +11,9 @@ describe("Binding the table widget and input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget v2", function () {
-    _.entityExplorer.SelectEntityByName("Input1", "Form1");
+    _.entityExplorer.ExpandCollapseEntity("Form1");
+
+    _.entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",

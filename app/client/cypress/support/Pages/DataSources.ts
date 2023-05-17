@@ -1062,7 +1062,7 @@ export class DataSources {
       this.agHelper.GetNClick(
         this.locator._visibleTextSpan("Save"),
         0,
-        false,
+        true,
         0,
       );
       this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
@@ -1071,7 +1071,7 @@ export class DataSources {
       this.agHelper.GetNClick(
         this.locator._visibleTextSpan("Don't save"),
         0,
-        false,
+        true,
         0,
       );
   }

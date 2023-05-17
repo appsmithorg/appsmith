@@ -39,9 +39,9 @@ export class JSEditor {
     functionName: string,
     onLoad: boolean,
   ) =>
-    `.${functionName}-on-page-load-setting label:contains(${
+    `//div[contains(@class, '${functionName}-on-page-load-setting')]//label[text()='${
       onLoad ? "Yes" : "No"
-    })>input`;
+    }']/parent::div`;
   private _confirmBeforeExecuteRadioButton = (
     functionName: string,
     shouldConfirm: boolean,
@@ -53,9 +53,9 @@ export class JSEditor {
     functionName: string,
     shouldConfirm: boolean,
   ) =>
-    `.${functionName}-confirm-before-execute label:contains(${
+    `//div[contains(@class, '${functionName}-confirm-before-execute')]//label[text()='${
       shouldConfirm ? "Yes" : "No"
-    })>input`;
+    }']/parent::div`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -311,13 +311,13 @@ export class JSEditor {
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
 
     this.agHelper.GetNClick(this._settingsTab);
-    this.agHelper.AssertExistingToggleState(
+    this.agHelper.AssertExistingCheckedState(
       this._onPageLoadRadioButtonStatus(funName, onLoad),
-      "checked",
+      onLoad.toString(),
     );
-    this.agHelper.AssertExistingToggleState(
+    this.agHelper.AssertExistingCheckedState(
       this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling),
-      "checked",
+      bfrCalling.toString(),
     );
   }
 

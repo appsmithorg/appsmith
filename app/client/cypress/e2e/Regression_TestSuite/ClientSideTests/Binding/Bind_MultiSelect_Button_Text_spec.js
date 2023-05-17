@@ -86,7 +86,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.get(".t--text-widget-container").each((item, index, list) => {
         cy.wrap(item).should("not.contain.text", "BLUE");
       });
-      cy.get(".t--toast-action span").contains("success");
+      cy.get("div.Toastify__toast").contains("success");
     });
   });
 
