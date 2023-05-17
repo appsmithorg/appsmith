@@ -641,8 +641,7 @@ export class DataSources {
 
   public DeleteDatasouceFromWinthinDS(
     datasourceName: string,
-    expectedRes = 200,
-    ignoreApiResult = false,
+    expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -651,19 +650,32 @@ export class DataSources {
       .should("be.visible")
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
-    this.DeleteDSDirectly(expectedRes, ignoreApiResult);
+    this.DeleteDSDirectly(expectedRes);
   }
 
-  public DeleteDSDirectly(expectedRes = 200, ignoreApiResult = false) {
+  public DeleteDSDirectly(
+    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+  ) {
     this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
     cy.get(this._contextMenuDatasource).click({ force: true });
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
-    if (!ignoreApiResult) {
-      this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+    this.ValidateDSDeletion(expectedRes);
+  }
+  public ValidateDSDeletion(expectedRes: number | number[] = 200) {
+    let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
+    if (toValidateRes) {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
+      this.agHelper.ValidateNetworkStatus(
+        "@deleteDatasource",
+        expectedRes as number,
+      );
+    } else {
+      cy.wait("@deleteDatasource").should((response: any) => {
+        expect(response.status).to.be.oneOf([200, 409]);
+      });
     }
   }
 

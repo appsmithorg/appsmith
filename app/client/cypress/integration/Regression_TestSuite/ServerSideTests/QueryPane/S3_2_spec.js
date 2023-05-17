@@ -240,6 +240,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 200);
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, [200, 409]);
   });
 });

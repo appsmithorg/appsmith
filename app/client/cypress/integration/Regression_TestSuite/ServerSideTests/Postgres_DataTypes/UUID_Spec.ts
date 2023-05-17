@@ -418,6 +418,6 @@ describe("UUID Datatype tests", function () {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200, true);
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });
