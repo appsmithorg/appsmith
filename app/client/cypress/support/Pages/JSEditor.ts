@@ -212,6 +212,16 @@ export class JSEditor {
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
   }
 
+  public ClearJSObj() {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
+      .type("{backspace}", { force: true });
+    this.agHelper.Sleep(2000); //Settling time for edited js code
+    this.agHelper.AssertAutoSave();
+  }
+
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
@@ -353,6 +363,10 @@ export class JSEditor {
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
     this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
+  }
+
+  public AssertFunctionDropdownValue(funName: string) {
+    cy.get(`${this._funcDropdown} > span`).contains(funName).should("exist");
   }
 
   //#endregion
