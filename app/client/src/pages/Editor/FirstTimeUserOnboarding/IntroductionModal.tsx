@@ -123,6 +123,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
   return (
     <Modal onOpenChange={closeModal} open={modalAlwaysOpen}>
       <ModalContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         style={{ width: "920px" }}
       >
