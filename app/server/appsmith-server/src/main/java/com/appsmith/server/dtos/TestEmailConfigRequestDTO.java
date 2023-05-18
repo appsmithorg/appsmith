@@ -25,5 +25,5 @@ public class TestEmailConfigRequestDTO {
     private String fromEmail;
 
     @NotNull
-    private Boolean tlsEnabled;
+    private Boolean starttlsEnabled;
 }
