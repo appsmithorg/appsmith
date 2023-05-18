@@ -855,7 +855,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Mono.just(new ArrayList<Datasource>());
                 })
-                .flatMapMany(existingDatasources -> {
+                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId))
+                .flatMapMany(tuple2 -> {
+                    List<Datasource> existingDatasources = tuple2.getT1();
+                    String environmentId = tuple2.getT2();
                     if (CollectionUtils.isEmpty(importedDatasourceList)) {
                         return Mono.empty();
                     }
@@ -888,6 +891,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     // for this instance
                                     datasourceStorage.setDatasourceConfiguration(null);
                                     datasourceStorage.setPluginId(null);
+                                    datasourceStorage.setEnvironmentId(environmentId);
 
                                     copyNestedNonNullProperties(new Datasource(datasourceStorage), existingDatasource);
                                     // Don't update the datasource configuration for already available datasources
@@ -909,7 +913,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     updateAuthenticationDTO(datasourceStorage, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasourceStorage, workspaceId);
+                                return createUniqueDatasourceIfNotPresent(
+                                        existingDatasourceFlux,
+                                        datasourceStorage,
+                                        workspaceId,
+                                        environmentId);
                             });
                 })
                 .collectMap(Datasource::getName, Datasource::getId)
@@ -2024,7 +2032,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 DatasourceStorage datasourceStorage,
-                                                                String workspaceId) {
+                                                                String workspaceId,
+                                                                String environmentId) {
         /*
             1. If same datasource is present return
             2. If unable to find the datasource create a new datasource with unique name and return
@@ -2048,17 +2057,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     // No matching existing datasource found, so create a new one.
                     datasourceStorage.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
+                    datasourceStorage.setEnvironmentId(environmentId);
+
                     return datasourceService
                             .findByNameAndWorkspaceId(datasourceStorage.getName(), workspaceId, Optional.empty())
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )
-                            .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId))
-                            .map(tuple2 -> {
-                                datasourceStorage.setName(datasourceStorage.getName() + tuple2.getT1());
-                                datasourceStorage.setEnvironmentId(tuple2.getT2());
+                            .map(dsName -> {
+                                datasourceStorage.setName(datasourceStorage.getName() + dsName);
                                 return new Datasource(datasourceStorage);
                             })
+                            .switchIfEmpty(Mono.just(new Datasource(datasourceStorage)))
                             .flatMap(datasourceService::createWithoutPermissions);
                 }));
     }

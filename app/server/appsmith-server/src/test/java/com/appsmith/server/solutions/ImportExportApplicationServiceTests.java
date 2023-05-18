@@ -9,6 +9,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.PluginType;
@@ -209,6 +210,10 @@ public class ImportExportApplicationServiceTests {
                 new Property("X-Answer", "42")
         ));
         ds1.setDatasourceConfiguration(datasourceConfiguration);
+        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+        storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+        ds1.setDatasourceStorages(storages1);
 
         Datasource ds2 = new Datasource();
         ds2.setName("DS2");
@@ -218,6 +223,10 @@ public class ImportExportApplicationServiceTests {
         DBAuth auth = new DBAuth();
         auth.setPassword("awesome-password");
         ds2.getDatasourceConfiguration().setAuthentication(auth);
+        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+        storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+        ds2.setDatasourceStorages(storages2);
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS datasource");
@@ -878,7 +887,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
-                        assertThat(datasource.getDatasourceConfiguration()).isNotNull();
+                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                        assertThat(storageDTO.getDatasourceConfiguration()).isNotNull();
                     });
 
                     List<String> collectionIdInAction = new ArrayList<>();
@@ -1077,7 +1087,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
-                        assertThat(datasource.getDatasourceConfiguration()).isNotNull();
+                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                        assertThat(storageDTO.getDatasourceConfiguration()).isNotNull();
                     });
 
                     assertThat(actionDTOS).isNotEmpty();
@@ -2454,6 +2465,12 @@ public class ImportExportApplicationServiceTests {
         testDatasource.setWorkspaceId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        testDatasource.setDatasourceStorages(storages);
+
         datasourceService.create(testDatasource).block();
 
         final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(testWorkspace.getId(), applicationJson);
@@ -2507,6 +2524,11 @@ public class ImportExportApplicationServiceTests {
         testDatasource.setWorkspaceId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        testDatasource.setDatasourceStorages(storages);
         datasourceService.create(testDatasource).block();
 
         final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(testWorkspace.getId(), applicationJson);
@@ -3559,16 +3581,17 @@ public class ImportExportApplicationServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(testWorkspace).cache();
 
         Mono<Application> applicationMono = workspaceMono.flatMap(workspace -> {
-            Application testApplication = new Application();
-            testApplication.setName("application-" + randomUUID);
-            testApplication.setExportWithConfiguration(true);
-            testApplication.setWorkspaceId(workspace.getId());
-            return applicationPageService.createApplication(testApplication);
-        }).flatMap(application -> {
-            ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
-            accessDTO.setPublicAccess(true);
-            return applicationService.changeViewAccess(application.getId(), accessDTO).thenReturn(application);
-        });
+                    Application testApplication = new Application();
+                    testApplication.setName("application-" + randomUUID);
+                    testApplication.setExportWithConfiguration(true);
+                    testApplication.setWorkspaceId(workspace.getId());
+                    return applicationPageService.createApplication(testApplication);
+                })
+                .flatMap(application -> {
+                    ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
+                    accessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(application.getId(), accessDTO).thenReturn(application);
+                });
 
         Mono<Datasource> datasourceMono = workspaceMono.zipWith(pluginRepository.findByPackageName("restapi-plugin"))
                 .flatMap(objects -> {
@@ -3594,8 +3617,13 @@ public class ImportExportApplicationServiceTests {
                     datasourceConfiguration.setConnection(connection);
                     datasourceConfiguration.setConnection(new Connection());
                     datasourceConfiguration.setUrl("https://mock-api.appsmith.com");
-
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    datasource.setDatasourceStorages(storages);
+
                     return datasourceService.create(datasource);
                 });
 
@@ -3616,11 +3644,13 @@ public class ImportExportApplicationServiceTests {
                     .then(importExportApplicationService.exportApplicationById(objects.getT1().getId(), ""));
         });
 
-        StepVerifier.create(exportAppMono).assertNext(applicationJson -> {
-            assertThat(applicationJson.getDecryptedFields()).isNotEmpty();
-            DecryptedSensitiveFields fields = applicationJson.getDecryptedFields().get("RestAPIWithBearerToken");
-            assertThat(fields.getBearerTokenAuth().getBearerToken()).isEqualTo("token_" + randomUUID);
-        }).verifyComplete();
+        StepVerifier.create(exportAppMono)
+                .assertNext(applicationJson -> {
+                    assertThat(applicationJson.getDecryptedFields()).isNotEmpty();
+                    DecryptedSensitiveFields fields = applicationJson.getDecryptedFields().get("RestAPIWithBearerToken");
+                    assertThat(fields.getBearerTokenAuth().getBearerToken()).isEqualTo("token_" + randomUUID);
+                })
+                .verifyComplete();
     }
 
     @Test
