@@ -104,7 +104,7 @@
   "chooseWidget": ".t--open-dropdown-Select-Widget",
   "onClick": ".t--property-control-onclick .t--open-dropdown-Select-Action",
   "changeZoomlevel": ".t--property-control-maxzoomlevel input",
-  "selectedZoomlevel": ".t--property-control-maxzoomlevel input",
+  "selectedZoomlevel": ".t--property-control-maxzoomlevel .rc-select-selection-item span",
   "imgWidget": "div[data-testid='styledImage']",
   "editColTitle": ".t--property-pane-title",
   "editColText": ".t--property-pane-title span",
