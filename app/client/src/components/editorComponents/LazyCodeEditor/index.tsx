@@ -227,10 +227,12 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
       <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
           input={input}
+          isReadOnly={otherProps.isReadOnly}
           onInteracted={() => {
             stateMachine.current.transition("PLACEHOLDER_INTERACTED");
           }}
           placeholder={placeholder}
+          showLineNumbers={otherProps.showLineNumbers}
           showLoadingProgress={showLoadingProgress}
         />
       </LazyEditorWrapper>
