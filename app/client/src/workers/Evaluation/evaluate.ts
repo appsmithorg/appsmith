@@ -303,9 +303,9 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
-  configTree?: ConfigTree,
 ) {
   return (async function () {
     resetWorkerGlobalScope();
