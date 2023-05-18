@@ -38,14 +38,14 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
-      "http://www.serebii.net/pokemongo/pokemon/150.png",
-      "150",
-      `["Bug","Ghost","Dark"]`,
-      10,
+      "58f56171ee9d4bd5e610d6d9",
+      "None",
+      `["Psychic"]`,
+      0,
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -67,9 +67,14 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
-    GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
+    GenerateCRUDNValidateDeployPage(
+      "6291151eb55a625eda8526f4",
+      "Mason Jar ",
+      "9 of 10 ",
+      0,
+    );
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(1, 0);
+    table.WaitUntilTableLoad(1, 0, "v2");
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
@@ -99,13 +104,13 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 

@@ -40,10 +40,10 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
 
     GenerateCRUDNValidateDeployPage(
-      "<p>Monica's old friend Rachel moves in with her after leaving her fiancé.</p>",
-      `1994-09-22`,
-      "http://www.tvmaze.com/episodes/40646/friends-1x01-the-one-where-it-all-began",
-      11,
+      "58f56189ee9d4bd5e610d6db",
+      `{"self":{"href":"http://api.tvmaze.com/episodes/40646"}}`,
+      "1994-09-22T20:00:00-04:00",
+      0,
     );
 
     deployMode.NavigateBacktoEditor();
@@ -609,19 +609,14 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "AuthorNAwards");
-    GenerateCRUDNValidateDeployPage(
-      `[{"award":"Award for the Advancement of Free Software","year":2001,"by":"Free Software Foundation"},{"award":"NLUUG Award","year":2003,"by":"NLUUG"}]`,
-      "6",
-      "",
-      3,
-    );
+    GenerateCRUDNValidateDeployPage("6", `1956-01-31T05:00:00Z`, "", 3);
     // agHelper.NavigateBacktoEditor();
     // table.WaitUntilTableLoad();
   });
 
   it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName(
@@ -793,13 +788,13 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 

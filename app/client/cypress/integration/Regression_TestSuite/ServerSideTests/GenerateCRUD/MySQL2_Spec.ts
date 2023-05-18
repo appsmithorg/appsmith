@@ -95,7 +95,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it("5. Verify Update data from Deploy page - on Stores - existing record", () => {
@@ -103,9 +103,9 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();
-    table.SelectTableRow(0, 0, false); //to make JSON form hidden
+    table.SelectTableRow(0, 0, false, "v2"); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
-    table.SelectTableRow(3);
+    table.SelectTableRow(3, 0, true, "v2");
     agHelper.AssertElementVisible(locator._jsonFormWidget);
     dataSources.AssertJSONFormHeader(3, 0, "store_id");
     generateStoresSecretInfo(3);
@@ -114,7 +114,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       cy.log("newStoreSecret is : " + newStoreSecret);
       updateNVerify(3, 4, newStoreSecret as string);
     });
-    table.SelectTableRow(6);
+    table.SelectTableRow(6, 0, true, "v2");
     dataSources.AssertJSONFormHeader(6, 0, "store_id");
 
     generateStoresSecretInfo(6);
@@ -124,7 +124,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       updateNVerify(6, 4, newStoreSecret as string);
     });
 
-    table.SelectTableRow(17);
+    table.SelectTableRow(17, 0, true, "v2");
     dataSources.AssertJSONFormHeader(17, 0, "store_id");
     generateStoresSecretInfo(17);
     cy.get("@secretInfo").then(($secretInfo) => {
@@ -137,7 +137,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("6. Verify Delete field data from Deploy page - on Stores - existing record", () => {
-    table.SelectTableRow(4);
+    table.SelectTableRow(4, 0, true, "v2");
     //Deleting field value from UI - since MYSQL - "" also considered a value & hence even though this field is NOT NULL - no validations
     dataSources.AssertJSONFormHeader(4, 0, "store_id");
     cy.xpath(deployMode._jsonFormFieldByName("Store Address", false))
@@ -145,7 +145,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       .wait(500);
     updateNVerify(4, 3, "");
 
-    table.SelectTableRow(8);
+    table.SelectTableRow(8, 0, true, "v2");
     dataSources.AssertJSONFormHeader(8, 0, "store_id");
     cy.xpath(deployMode._jsonFormFieldByName("Store Address", false))
       .clear()
@@ -154,7 +154,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("7. Verify Delete row from Deploy page - on Stores - existing record", () => {
-    table.SelectTableRow(5);
+    table.SelectTableRow(5, 0, true, "v2");
     dataSources.AssertJSONFormHeader(5, 0, "store_id");
     agHelper.ClickButton("Delete", 5);
     agHelper.AssertElementVisible(locator._modal);
@@ -184,43 +184,43 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(4, 3, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 3, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(7, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
 
-    table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, "v2", 200).then(($cellData) => {
       expect($cellData).not.eq("2132"); //Deleted record Store_ID
     });
 
-    table.NavigateToNextPage(); //page 2
+    table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad(); //page 2
+    table.WaitUntilTableLoad(0, 0, "v2"); //page 2
     agHelper.AssertElementVisible(locator._jsonFormWidget); // JSON form should be present
 
-    table.NavigateToNextPage(); //page 3
+    table.NavigateToNextPage(true, "v2"); //page 3
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitForTableEmpty(); //page 3
+    table.WaitForTableEmpty("v2"); //page 3
     agHelper.AssertElementAbsence(locator._jsonFormWidget); //JSON form also should not be present
 
     //Try to add via to Insert Modal - JSON fields not showing correct fields, Open bug 14122
 
     // Go back to page 2
-    table.NavigateToPreviousPage();
+    table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     // Go back to page 1
-    table.NavigateToPreviousPage();
+    table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it("9. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
@@ -279,7 +279,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("10. Verify Update fields/Delete from Deploy page - on Stores - newly inserted record", () => {
-    table.SelectTableRow(0);
+    table.SelectTableRow(0, 0, true, "v2");
 
     //validating update happened fine!
     dataSources.AssertJSONFormHeader(0, 0, "store_id", "2105"); //Validaing new record got inserted in 1st position due to id used
@@ -309,14 +309,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     // });
     // updateNVerify(0, 4, newStoreSecret as string);
 
-    table.NavigateToNextPage(); //page 2
+    table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad(); //page 2 //newly inserted record would have pushed the existing record to next page!
+    table.WaitUntilTableLoad(0, 0, "v2"); //page 2 //newly inserted record would have pushed the existing record to next page!
     agHelper.AssertElementVisible(locator._jsonFormWidget); //JSON form should be present
 
-    table.NavigateToPreviousPage();
+    table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     dataSources.AssertJSONFormHeader(0, 0, "store_id", "2105");
     agHelper.ClickButton("Delete", 0);
@@ -331,14 +331,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
-    table.ReadTableRowColumnData(0, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 200).then(($cellData) => {
       expect($cellData).not.eq("2105"); //Deleted record Store_ID
     });
   });
 
   it("11. Validate Deletion of the Newly Created Page - Stores", () => {
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ActionContextMenuByEntityName("Stores", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
@@ -383,17 +383,17 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
@@ -412,7 +412,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   function generateStoresSecretInfo(rowIndex: number) {
     let secretInfo = "";
     table
-      .ReadTableRowColumnData(rowIndex, 3, "v1", 200)
+      .ReadTableRowColumnData(rowIndex, 3, "v2", 200)
       .then(($cellData: any) => {
         let points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
         let secretCode: string[] = (points as string).split(",");
@@ -441,7 +441,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //validating update happened fine!
     table
-      .ReadTableRowColumnData(rowIndex, colIndex, "v1", 200)
+      .ReadTableRowColumnData(rowIndex, colIndex, "v2", 200)
       .then(($cellData) => {
         expect($cellData).to.eq(expectedTableData);
       });

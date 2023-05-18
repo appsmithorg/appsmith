@@ -39,7 +39,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -103,7 +103,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
@@ -169,27 +169,28 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("Classic Cars");
     });
-    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Motorcycles");
     });
-    table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Planes");
     });
-    table.ReadTableRowColumnData(3, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Ships");
     });
-    table.ReadTableRowColumnData(4, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Trains");
     });
-    table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Trucks and Buses");
     });
-    table.ReadTableRowColumnData(6, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Vintage Cars");
     });
+
     //Validating loaded JSON form
     cy.xpath(locator._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
@@ -233,7 +234,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(3);
 
     //validating update happened fine!
-    table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(
         "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
       );
@@ -246,7 +247,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
@@ -299,17 +300,17 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 

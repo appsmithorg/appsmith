@@ -34,7 +34,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -88,13 +88,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     GenerateCRUDNValidateDeployPage(
       "VINET",
-      "1996-07-04",
+      "1996-07-04T00:00:00+05:30",
       "1996-08-01",
       "order_id",
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName(
@@ -129,13 +129,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 4, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
