@@ -569,7 +569,6 @@ describe("Validate Mongo query commands", function () {
       _.entityExplorer.ActionContextMenuByEntityName(dbName, "Refresh");
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
-
     cy.deleteQueryUsingContext();
   });
 });
