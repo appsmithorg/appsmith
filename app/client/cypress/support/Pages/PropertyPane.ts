@@ -80,7 +80,7 @@ export class PropertyPane {
   _actionPopupTextLabel = '[data-testid="text-view-label"]';
   _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-modal";
   _selectorViewButton = ".selector-view .bp3-button-text";
-  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
+  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-page";
   _pageNameSwitcher = "#switcher--page-name";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
   _urlSwitcher = "#switcher--url";

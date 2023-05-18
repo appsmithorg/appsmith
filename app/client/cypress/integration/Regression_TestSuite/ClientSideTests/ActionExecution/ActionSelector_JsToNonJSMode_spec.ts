@@ -114,7 +114,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Store value",
+      "Store valuea",
       "have.text",
       2,
     );
