@@ -63,52 +63,52 @@ export default function DetailsForm(
       <StyledFormBodyWrapper>
         <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
           <div className="flex flex-row justify-between w-100">
-            <StyledFormGroup
-              className="!w-52 t--welcome-form-full-name test"
-              label={createMessage(WELCOME_FORM_FIRST_NAME)}
-            >
+            <StyledFormGroup className="!w-52 t--welcome-form-full-name test">
               <FormTextField
                 autoFocus
+                label={createMessage(WELCOME_FORM_FIRST_NAME)}
                 name="firstName"
                 placeholder="John"
+                size="md"
                 type="text"
               />
             </StyledFormGroup>
-            <StyledFormGroup
-              className="!w-52 t--welcome-form-full-name"
-              label={createMessage(WELCOME_FORM_LAST_NAME)}
-            >
-              <FormTextField name="lastName" placeholder="Doe" type="text" />
+
+            <StyledFormGroup className="!w-52 t--welcome-form-full-name">
+              <FormTextField
+                label={createMessage(WELCOME_FORM_LAST_NAME)}
+                name="lastName"
+                placeholder="Doe"
+                size="md"
+                type="text"
+              />
             </StyledFormGroup>
           </div>
-          <StyledFormGroup
-            className="t--welcome-form-email"
-            label={createMessage(WELCOME_FORM_EMAIL_ID)}
-          >
+          <StyledFormGroup className="t--welcome-form-email">
             <FormTextField
+              label={createMessage(WELCOME_FORM_EMAIL_ID)}
               name="email"
               placeholder="How can we reach you?"
+              size="md"
               type="email"
             />
           </StyledFormGroup>
-          <StyledFormGroup
-            className="t--welcome-form-password"
-            label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
-          >
+          <StyledFormGroup className="t--welcome-form-password">
             <FormTextField
+              label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
               name="password"
               placeholder="Make it strong!"
+              size="md"
               type="password"
             />
           </StyledFormGroup>
-          <StyledFormGroup
-            className="t--welcome-form-verify-password"
-            label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
-          >
+          <StyledFormGroup className="t--welcome-form-verify-password">
             <FormTextField
               data-testid="verifyPassword"
+              label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
               name="verifyPassword"
               placeholder="Type correctly"
+              size="md"
               type="password"
             />
           </StyledFormGroup>
@@ -122,20 +122,23 @@ export default function DetailsForm(
             >
               <Field
                 asyncControl
-                component={withDropdown(roleOptions, "100%")}
+                component={withDropdown(roleOptions)}
                 name="role"
                 placeholder={createMessage(
                   WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
                 )}
+                size="md"
                 type="text"
               />
             </DropdownWrapper>
             {props.role == "other" && (
-              <StyledFormGroup
-                className="t--welcome-form-role-input"
-                label={createMessage(WELCOME_FORM_ROLE)}
-              >
-                <FormTextField name="role_name" placeholder="" type="text" />
+              <StyledFormGroup className="t--welcome-form-role-input">
+                <FormTextField
+                  label={createMessage(WELCOME_FORM_ROLE)}
+                  name="role_name"
+                  placeholder=""
+                  type="text"
+                />
               </StyledFormGroup>
             )}
             <DropdownWrapper
@@ -144,18 +147,16 @@ export default function DetailsForm(
             >
               <Field
                 asyncControl
-                component={withDropdown(useCaseOptions, "100%")}
+                component={withDropdown(useCaseOptions)}
                 name="useCase"
                 placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
                 type="text"
               />
             </DropdownWrapper>
             {props.useCase == "other" && (
-              <StyledFormGroup
-                className="t--welcome-form-use-case-input"
-                label={createMessage(WELCOME_FORM_CUSTOM_USE_CASE)}
-              >
+              <StyledFormGroup className="t--welcome-form-use-case-input">
                 <FormTextField
+                  label={createMessage(WELCOME_FORM_CUSTOM_USE_CASE)}
                   name="custom_useCase"
                   placeholder=""
                   type="text"
