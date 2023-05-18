@@ -63,7 +63,7 @@ export default function DetailsForm(
       <StyledFormBodyWrapper>
         <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
           <div className="flex flex-row justify-between w-100">
-            <StyledFormGroup className="!w-52 t--welcome-form-full-name test">
+            <StyledFormGroup className="!w-52 t--welcome-form-first-name">
               <FormTextField
                 autoFocus
                 label={createMessage(WELCOME_FORM_FIRST_NAME)}
@@ -74,7 +74,7 @@ export default function DetailsForm(
               />
             </StyledFormGroup>
 
-            <StyledFormGroup className="!w-52 t--welcome-form-full-name">
+            <StyledFormGroup className="!w-52 t--welcome-form-last-name">
               <FormTextField
                 label={createMessage(WELCOME_FORM_LAST_NAME)}
                 name="lastName"
@@ -177,7 +177,7 @@ export default function DetailsForm(
         )}
         <ButtonWrapper>
           <Button
-            className="t--welcome-form-next-button w-100"
+            className="t--welcome-form-submit-button w-100"
             isDisabled={props.invalid}
             kind="primary"
             onClick={() => {
