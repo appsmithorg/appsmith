@@ -5,18 +5,16 @@ import { createReducer } from "utils/ReducerUtils";
 const initialState: OnboardingState = {
   // Signposting
   inOnboardingWidgetSelection: false,
-  enableFirstTimeUserOnboarding: false,
   forceOpenWidgetPanel: false,
-  firstTimeUserOnboardingApplicationId: "",
+  firstTimeUserOnboardingApplicationIds: [],
   firstTimeUserOnboardingComplete: false,
   showFirstTimeUserOnboardingModal: false,
 };
 
 export interface OnboardingState {
   inOnboardingWidgetSelection: boolean;
-  enableFirstTimeUserOnboarding: boolean;
   forceOpenWidgetPanel: boolean;
-  firstTimeUserOnboardingApplicationId: string;
+  firstTimeUserOnboardingApplicationIds: string[];
   firstTimeUserOnboardingComplete: boolean;
   showFirstTimeUserOnboardingModal: boolean;
 }
@@ -31,22 +29,13 @@ const onboardingReducer = createReducer(initialState, {
       inOnboardingWidgetSelection: action.payload,
     };
   },
-  [ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING]: (
+  [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS]: (
     state: OnboardingState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<string[]>,
   ) => {
     return {
       ...state,
-      enableFirstTimeUserOnboarding: action.payload,
-    };
-  },
-  [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID]: (
-    state: OnboardingState,
-    action: ReduxAction<string>,
-  ) => {
-    return {
-      ...state,
-      firstTimeUserOnboardingApplicationId: action.payload,
+      firstTimeUserOnboardingApplicationIds: action.payload,
     };
   },
   [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE]: (

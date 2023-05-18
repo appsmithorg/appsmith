@@ -93,6 +93,10 @@ export class JSEditor {
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
+  _lineinPropertyPaneJsEditor = (lineNumber: number, selector = "") =>
+    `${
+      selector ? `${selector} ` : ""
+    }.CodeMirror-line:nth-child(${lineNumber})`;
   _logsTab = "[data-cy=t--tab-LOGS_TAB]";
   //#endregion
 
@@ -226,6 +230,18 @@ export class JSEditor {
       });
   }
 
+  public EnableJSContext(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (!classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+  }
+
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
     cy.get(this._jsObjTxt)
@@ -328,20 +344,10 @@ export class JSEditor {
   1. Parse errors that render the JS Object invalid and all functions unrunnable
   2. Parse errors within functions that throw errors when executing those functions
  */
-  public AssertParseError(
-    exists: boolean,
-    isFunctionExecutionParseError: boolean,
-  ) {
-    const {
-      _jsFunctionExecutionParseErrorCallout,
-      _jsObjectParseErrorCallout,
-    } = this;
+  public AssertParseError(exists: boolean) {
+    const { _jsObjectParseErrorCallout } = this;
     // Assert presence/absence of parse error
-    cy.get(
-      isFunctionExecutionParseError
-        ? _jsFunctionExecutionParseErrorCallout
-        : _jsObjectParseErrorCallout,
-    ).should(exists ? "exist" : "not.exist");
+    cy.get(_jsObjectParseErrorCallout).should(exists ? "exist" : "not.exist");
   }
 
   public SelectFunctionDropdown(funName: string) {

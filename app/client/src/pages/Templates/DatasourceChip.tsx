@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDefaultPlugin } from "selectors/entitiesSelector";
 import styled from "styled-components";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const StyledDatasourceChip = styled.div`
   background-color: rgba(248, 248, 248, 0.5);
@@ -40,7 +41,7 @@ function DatasourceChip(props: DatasourceChipProps) {
 
   return (
     <StyledDatasourceChip className={props.className}>
-      <img className="image" src={plugin.iconLocation} />
+      <img className="image" src={getAssetUrl(plugin.iconLocation)} />
       <span>{plugin.name}</span>
     </StyledDatasourceChip>
   );

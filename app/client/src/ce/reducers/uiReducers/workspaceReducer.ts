@@ -8,6 +8,7 @@ import type {
   WorkspaceRole,
   Workspace,
   WorkspaceUser,
+  WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 
 export const initialState: WorkspaceReduxState = {
@@ -24,6 +25,20 @@ export const initialState: WorkspaceReduxState = {
     name: "",
   },
 };
+
+export interface WorkspaceReduxState {
+  list?: Workspace[];
+  roles?: WorkspaceRole[];
+  loadingStates: {
+    fetchingRoles: boolean;
+    isFetchAllRoles: boolean;
+    isFetchAllUsers: boolean;
+    isFetchingWorkspace: boolean;
+  };
+  workspaceUsers: WorkspaceUser[];
+  workspaceRoles: any;
+  currentWorkspace: Workspace;
+}
 
 export const handlers = {
   [ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT]: (
@@ -73,12 +88,7 @@ export const handlers = {
       userId: string;
       username: string;
       name: string;
-      roles: {
-        id: string;
-        name: string;
-        description: string;
-        entityType: string;
-      }[];
+      roles: WorkspaceUserRoles[];
     }>,
   ) => {
     draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
@@ -164,19 +174,5 @@ export const handlers = {
 };
 
 const workspaceReducer = createImmerReducer(initialState, handlers);
-
-export interface WorkspaceReduxState {
-  list?: Workspace[];
-  roles?: WorkspaceRole[];
-  loadingStates: {
-    fetchingRoles: boolean;
-    isFetchAllRoles: boolean;
-    isFetchAllUsers: boolean;
-    isFetchingWorkspace: boolean;
-  };
-  workspaceUsers: WorkspaceUser[];
-  workspaceRoles: any;
-  currentWorkspace: Workspace;
-}
 
 export default workspaceReducer;

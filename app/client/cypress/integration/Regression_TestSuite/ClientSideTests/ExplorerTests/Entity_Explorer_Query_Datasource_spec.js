@@ -102,6 +102,8 @@ describe("Entity explorer tests related to query and datasource", function () {
     ee.ActionContextMenuByEntityName("Query1", "Edit Name");
     cy.EditApiNameFromExplorer("MyQuery");
     ee.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
+    cy.wait(2000);
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("MyQuery");
     cy.wait(2000);
     cy.runQuery();

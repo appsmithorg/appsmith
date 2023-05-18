@@ -27,7 +27,6 @@ export default {
     Data,
     Basic,
     General,
-    // ...(ResponsiveBehaviorConfig as any),
     Validations,
     SaveButtonProperties,
     DiscardButtonproperties,

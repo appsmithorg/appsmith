@@ -173,7 +173,59 @@ describe("Binary Datatype tests", function () {
     });
   });
 
-  it("6. Validating Binary (bytea) - escape, hex, base64 functions", () => {
+  it("6. Deleting records - binarytype", () => {
+    //_.entityExplorer.SelectEntityByName("Page1");//commenting 2 lines since case 6th is skipped!
+    //_.deployMode.DeployApp();
+    _.table.WaitUntilTableLoad();
+    _.table.SelectTableRow(1);
+    _.agHelper.ClickButton("DeleteQuery", 1);
+    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //Allowing time for delete to be success
+    _.agHelper.Sleep(6000); //Allwowing time for delete to be success
+    _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
+      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
+    });
+    _.table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq("2");
+    });
+
+    //Deleting all records from .table
+    _.agHelper.GetNClick(_.locators._deleteIcon);
+    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
+    _.agHelper.Sleep(2000);
+    _.table.WaitForTableEmpty();
+  });
+
+  it("7. Inserting another record (to check serial column) - binarytype", () => {
+    imageNameToUpload = "Datatypes/Massachusetts.jpeg";
+
+    _.agHelper.ClickButton("Run InsertQuery");
+    _.agHelper.AssertElementVisible(_.locators._modal);
+
+    //_.agHelper.EnterInputText("Imagename", "Massachusetts");
+    _.agHelper.ClickButton("Select New Image");
+    _.agHelper.UploadFile(imageNameToUpload);
+
+    _.agHelper.ClickButton("Insert");
+    _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
+    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
+    _.table.WaitUntilTableLoad();
+    _.agHelper.Sleep(2000); //for all rows with images to be populated
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
+    });
+    _.table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq("Massachusetts.jpeg");
+    });
+    _.table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
+      _.table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
+        expect($oldimage).to.eq($newimage);
+      });
+    });
+  });
+
+  it("8. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     _.deployMode.NavigateBacktoEditor();
     _.table.WaitUntilTableLoad();
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
@@ -304,123 +356,37 @@ describe("Binary Datatype tests", function () {
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
-  it("7. Deleting records - binarytype", () => {
-    _.entityExplorer.SelectEntityByName("Page1");
-    _.deployMode.DeployApp();
-    _.table.WaitUntilTableLoad();
-    _.table.SelectTableRow(1);
-    _.agHelper.ClickButton("DeleteQuery", 1);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //Allowing time for delete to be success
-    _.agHelper.Sleep(6000); //Allwowing time for delete to be success
-    _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
-    });
-    _.table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("2");
-    });
+  // after(
+  //   "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
+  //   () => {
+  //     //Drop table
+  //     _.deployMode.NavigateBacktoEditor();
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+  //     _.entityExplorer.SelectEntityByName("dropTable");
+  //     _.dataSources.RunQuery();
+  //     _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+  //       expect($cellData).to.eq("0"); //Success response for dropped _.table!
+  //     });
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+  //     _.entityExplorer.ExpandCollapseEntity("Datasources");
+  //     _.entityExplorer.ExpandCollapseEntity(dsName);
+  //     _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+  //     _.agHelper.AssertElementAbsence(
+  //       _.entityExplorer._entityNameInExplorer("public.binarytype"),
+  //     );
+  //     _.entityExplorer.ExpandCollapseEntity(dsName, false);
+  //     _.entityExplorer.ExpandCollapseEntity("Datasources", false);
 
-    //Deleting all records from .table
-    _.agHelper.GetNClick(_.locators._deleteIcon);
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.Sleep(2000);
-    _.table.WaitForTableEmpty();
-  });
+  //     //Delete all queries
+  //     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+  //      _.entityExplorer.DeleteAllQueriesForDB(dsName);
 
-  it("8. Inserting another record (to check serial column) - binarytype", () => {
-    imageNameToUpload = "Datatypes/Massachusetts.jpeg";
-
-    _.agHelper.ClickButton("Run InsertQuery");
-    _.agHelper.AssertElementVisible(_.locators._modal);
-
-    //_.agHelper.EnterInputText("Imagename", "Massachusetts");
-    _.agHelper.ClickButton("Select New Image");
-    _.agHelper.UploadFile(imageNameToUpload);
-
-    _.agHelper.ClickButton("Insert");
-    _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
-    _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.table.WaitUntilTableLoad();
-    _.agHelper.Sleep(2000); //for all rows with images to be populated
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
-      expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
-    });
-    _.table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("Massachusetts.jpeg");
-    });
-    _.table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-      _.table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
-      });
-    });
-  });
-
-  after(
-    "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
-    () => {
-      //Drop table
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.SelectEntityByName("dropTable");
-      _.dataSources.RunQuery();
-      _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped _.table!
-      });
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.entityExplorer.ExpandCollapseEntity(dsName);
-      _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-      _.agHelper.AssertElementAbsence(
-        _.entityExplorer._entityNameInExplorer("public.binarytype"),
-      );
-      _.entityExplorer.ExpandCollapseEntity(dsName, false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources", false);
-
-      //Delete all queries
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "createTable",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "deleteAllRecords",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "deleteRecord",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "dropTable",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "insertRecord",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "selectRecords",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "updateRecord",
-        "Delete",
-        "Are you sure?",
-      );
-
-      //Delete DS
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
-    },
-  );
+  //     //Delete DS
+  //     _.deployMode.DeployApp();
+  //     _.deployMode.NavigateBacktoEditor();
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+  //     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+  //   },
+  // );
 });

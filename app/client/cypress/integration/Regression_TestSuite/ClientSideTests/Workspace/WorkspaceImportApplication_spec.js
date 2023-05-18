@@ -25,10 +25,10 @@ describe("Workspace Import Application", function () {
       const url = anchor.prop("href");
       cy.request(url).then(({ body, headers }) => {
         expect(headers).to.have.property("content-type", "application/json");
-        expect(headers).to.have.property(
-          "content-disposition",
-          `attachment; filename*=UTF-8''${appname}.json`,
-        );
+        expect(headers)
+          .to.have.property("content-disposition")
+          .that.includes("attachment;")
+          .and.includes(`filename*=UTF-8''${appname}.json`);
         cy.writeFile("cypress/fixtures/exported-app.json", body, "utf-8");
 
         cy.generateUUID().then((uid) => {

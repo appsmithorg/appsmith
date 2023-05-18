@@ -1,6 +1,7 @@
 import { isEqual } from "lodash";
 import { WorkerErrorTypes } from "@appsmith/workers/common/types";
-import { JSLibraries, resetJSLibraries } from "workers/common/JSLibrary";
+import { JSLibraries } from "workers/common/JSLibrary";
+import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
 import type {
   LintWorkerRequest,
   LintTreeResponse,
@@ -64,18 +65,32 @@ function eventRequestHandler({
 }): LintTreeResponse | unknown {
   switch (method) {
     case LINT_WORKER_ACTIONS.LINT_TREE: {
-      const lintTreeResponse: LintTreeResponse = { errors: {} };
+      const lintTreeResponse: LintTreeResponse = {
+        errors: {},
+        updatedJSEntities: [],
+      };
       try {
-        const { cloudHosting, configTree, pathsToLint, unevalTree } =
-          requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree(
-          pathsToLint,
-          unevalTree,
-          configTree,
+        const {
+          asyncJSFunctionsInDataFields,
           cloudHosting,
+          configTree,
+          jsPropertiesState,
+          pathsToLint,
+          unevalTree: unEvalTree,
+        } = requestData as LintTreeRequest;
+        const { errors: lintErrors, updatedJSEntities } = getlintErrorsFromTree(
+          {
+            pathsToLint,
+            unEvalTree,
+            jsPropertiesState,
+            cloudHosting,
+            asyncJSFunctionsInDataFields,
+            configTree,
+          },
         );
 
         lintTreeResponse.errors = lintErrors;
+        lintTreeResponse.updatedJSEntities = updatedJSEntities;
       } catch (e) {}
       return lintTreeResponse;
     }
@@ -97,6 +112,7 @@ function eventRequestHandler({
       }
       return true;
     }
+
     default: {
       // eslint-disable-next-line no-console
       console.error("Action not registered on lintWorker ", method);

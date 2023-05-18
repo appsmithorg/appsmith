@@ -5,7 +5,7 @@ describe("Canvas Resize", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Deleting bottom widget should resize canvas", function () {
+  it("1. Deleting bottom widget should resize canvas", function () {
     const InitHeight = "2950px";
     cy.get(commonlocators.dropTarget).should("have.css", "height", InitHeight);
     cy.openPropertyPane("textwidget");

@@ -8,7 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,
@@ -36,81 +36,83 @@ export const primaryColumnValidation = (
     dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),
   );
 
-  // For not valid entries an empty array is parsed as the inputValue is an array type
-  if (isArray) {
-    if (inputValue.length === 0) {
+  if (listData.length) {
+    if (isArray) {
+      // For not valid entries an empty array is parsed as the inputValue is an array type
+      if (inputValue.length === 0) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message:
+                "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
+            },
+          ],
+        };
+      }
+
+      // when PrimaryKey is {{ currentItem["img"] }} and img doesn't exist in the data.
+      if (inputValue.every((value) => _.isNil(value))) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message:
+                "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
+            },
+          ],
+        };
+      }
+
+      //  PrimaryKey evaluation has null or undefined values.
+      if (inputValue.some((value) => _.isNil(value))) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message:
+                "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
+            },
+          ],
+        };
+      }
+
+      const areKeysUnique = _.uniq(inputValue).length === listData.length;
+
+      const isDataTypeUnique =
+        _.uniqBy(inputValue, (item: any) => item.toString()).length ===
+        listData.length;
+
+      if (!areKeysUnique || !isDataTypeUnique) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message:
+                "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+            },
+          ],
+        };
+      }
+    } else {
+      const message = isJSModeEnabled
+        ? "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns."
+        : "Select an option from the dropdown or toggle JS on to define a data identifier.";
+
       return {
         isValid: false,
-        parsed: [],
-        messages: [
-          {
-            name: "ValidationError",
-            message:
-              "This data identifier evaluates to an empty array. Please use an identifier that evaluates to a valid value.",
-          },
-        ],
+        parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
+        messages: [{ name: "ValidationError", message }],
       };
     }
-
-    // when PrimaryKey is {{ currentItem["img"] }} and img doesn't exist in the data.
-    if (inputValue.every((value) => _.isNil(value))) {
-      return {
-        isValid: false,
-        parsed: [],
-        messages: [
-          {
-            name: "ValidationError",
-            message:
-              "This identifier isn't a data attribute. Use an existing data attribute as your data identifier.",
-          },
-        ],
-      };
-    }
-
-    //  PrimaryKey evaluation has null or undefined values.
-    if (inputValue.some((value) => _.isNil(value))) {
-      return {
-        isValid: false,
-        parsed: [],
-        messages: [
-          {
-            name: "ValidationError",
-            message:
-              "This data identifier evaluates to null or undefined. Please use an identifier that evaluates to a valid value.",
-          },
-        ],
-      };
-    }
-
-    const areKeysUnique = _.uniq(inputValue).length === listData.length;
-
-    const isDataTypeUnique =
-      _.uniqBy(inputValue, (item: any) => item.toString()).length ===
-      listData.length;
-
-    if (!areKeysUnique || !isDataTypeUnique) {
-      return {
-        isValid: false,
-        parsed: [],
-        messages: [
-          {
-            name: "ValidationError",
-            message:
-              "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
-          },
-        ],
-      };
-    }
-  } else {
-    const message = isJSModeEnabled
-      ? "Use currentItem or currentIndex to find a good data identifier. You can also combine two or more data attributes or columns."
-      : "Select an option from the dropdown or toggle JS on to define a data identifier.";
-
-    return {
-      isValid: false,
-      parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
-      messages: [{ name: "ValidationError", message }],
-    };
   }
 
   return {
@@ -231,7 +233,12 @@ export const PropertyPaneContentConfig = [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.ARRAY },
+        validation: {
+          type: ValidationTypes.ARRAY,
+          params: {
+            default: [],
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -310,7 +317,7 @@ export const PropertyPaneContentConfig = [
       {
         propertyName: "onPageChange",
         helpText:
-          "Configure one or chain multiple Actions when the page is changed in a List. All nested Actions run at the same time.",
+          "Configure one or chain multiple actions when the page is changed in a List. All nested Actions run at the same time.",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

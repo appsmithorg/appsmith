@@ -16,7 +16,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";

@@ -129,6 +129,13 @@ export const StyledButton = styled((props) => (
   line-height: ${({ compactMode }) =>
     compactMode === "SHORT" ? "24px" : "28px"};
 
+  .auto-layout & {
+    min-height: 32px;
+    min-width: 32px;
+    height: 32px;
+    width: 32px;
+  }
+
   ${({ buttonColor, buttonVariant, compactMode, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
@@ -269,16 +276,15 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
+  const hasOnClick = !isDisabled && hasOnClickAction;
+
   const iconBtnWrapper = (
     <IconButtonContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       hasOnClickAction={hasOnClickAction}
-      onClick={() => {
-        if (isDisabled) return;
-        onClick();
-      }}
+      onClick={hasOnClick ? onClick : undefined}
       renderMode={renderMode}
     >
       <StyledButton

@@ -8,4 +8,5 @@
     "createNew":".t--file-operation",
     "recentlyopenItem":"//span[@class='text']",
     "category":".t--global-search-category"
+
 }

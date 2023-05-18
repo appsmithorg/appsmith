@@ -23,7 +23,7 @@ import styled from "styled-components";
 import type { SetProgress, UploadCallback } from "design-system-old";
 import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { useMediaQuery } from "react-responsive";
 
 // trigger tests

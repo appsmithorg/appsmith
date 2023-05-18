@@ -13,9 +13,10 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 /// <reference types="Cypress" />
-
+/// <reference types='cypress-tags' />
 import "cypress-real-events/support";
 import "cypress-wait-until";
+import "cypress-network-idle";
 import "cypress-xpath";
 import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
@@ -25,11 +26,14 @@ import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
+import RapidMode from "./RapidMode.ts";
+
 import "./WorkspaceCommands";
 import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
+import "cypress-plugin-tab";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
@@ -45,6 +49,26 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function () {
+  if (RapidMode.config.enabled) {
+    cy.startServerAndRoutes();
+    cy.getCookie("SESSION").then((cookie) => {
+      if (!cookie) {
+        cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      }
+    });
+
+    Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+    if (!RapidMode.config.usesDSL) {
+      cy.visit(RapidMode.url());
+      cy.wait("@getWorkspace");
+    }
+  }
+});
+
+before(function () {
+  if (RapidMode.config.enabled) {
+    return;
+  }
   //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
@@ -85,13 +109,14 @@ before(function () {
 });
 
 before(function () {
+  if (RapidMode.config.enabled) {
+    return;
+  }
   //console.warn = () => {};
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
-  cy.visit("/applications");
-  cy.wait("@getMe");
   cy.wait(3000);
   cy.get(".t--applications-container .createnew")
     .should("be.visible")
@@ -122,6 +147,9 @@ beforeEach(function () {
 });
 
 after(function () {
+  if (RapidMode.config.enabled) {
+    return;
+  }
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//

@@ -115,7 +115,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     //cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
     cy.get(".t--entity-name:contains(Table1)").click({ force: true });
     cy.testJsontext("tabledata", "{{Api2.data}}");
-    cy.callApi("Api2");
+    cy.executeDbQuery("Api2", "onPageChange");
   });
 
   it("6. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {

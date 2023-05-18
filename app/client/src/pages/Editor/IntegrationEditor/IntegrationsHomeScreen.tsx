@@ -5,7 +5,6 @@ import { reduxForm } from "redux-form";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
-import { Colors } from "constants/Colors";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
@@ -27,18 +26,24 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "../DataSourceEditor/Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const HeaderFlex = styled.div`
+  font-size: 20px;
   display: flex;
   align-items: center;
+  padding: 0 20px;
 `;
 
 const ApiHomePage = styled.div`
   display: flex;
   flex-direction: column;
 
-  font-size: 20px;
-  padding: 20px 20px 0 20px;
+  padding-top: 20px;
   /* margin-left: 10px; */
   flex: 1;
   overflow: hidden !important;
@@ -46,24 +51,21 @@ const ApiHomePage = styled.div`
     position: absolute;
     left: 70%;
   }
-  .bp3-collapse-body {
-    position: absolute;
-    z-index: 99999;
-    background-color: ${Colors.WHITE};
-    border: 1px solid ${Colors.ALTO};
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    width: 100%;
-    padding: 20px;
-  }
   .fontSize16 {
     font-size: 16px;
+  }
+  .integrations-content-container {
+    padding: 0 20px;
+  }
+  .t--vertical-menu {
+    overflow: auto;
   }
 `;
 
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
+  padding: 0 20px;
   .react-tabs__tab-list {
     margin: 2px;
   }
@@ -72,11 +74,11 @@ const MainTabsContainer = styled.div`
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr ${({ isActiveTab }) => isActiveTab && "180px"};
+  grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
   flex: 1;
-  min-height: 0;
+  min-height: 100%;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -104,6 +106,7 @@ type IntegrationsHomeScreenProps = {
   mockDatasources: MockDatasource[];
   applicationId: string;
   canCreateDatasource?: boolean;
+  showDebugger: boolean;
 };
 
 type IntegrationsHomeScreenState = {
@@ -395,6 +398,7 @@ class IntegrationsHomeScreen extends React.Component<
       isCreating,
       location,
       pageId,
+      showDebugger,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
@@ -512,24 +516,25 @@ class IntegrationsHomeScreen extends React.Component<
                 />
               )}
             </MainTabsContainer>
-            {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
-              <div />
-            )}
-
-            {currentScreen}
-            {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-              <TabComponent
-                className="t--vertical-menu"
-                onSelect={this.onSelectSecondaryMenu}
-                selectedIndex={this.state.activeSecondaryMenuId}
-                tabs={
-                  this.props.mockDatasources.length > 0
-                    ? getSecondaryMenu(dataSources.length > 0)
-                    : SECONDARY_MENU
-                }
-                vertical
-              />
-            )}
+            <ResizerMainContainer>
+              <ResizerContentContainer className="integrations-content-container">
+                {currentScreen}
+                {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
+                  <TabComponent
+                    className="t--vertical-menu"
+                    onSelect={this.onSelectSecondaryMenu}
+                    selectedIndex={this.state.activeSecondaryMenuId}
+                    tabs={
+                      this.props.mockDatasources.length > 0
+                        ? getSecondaryMenu(dataSources.length > 0)
+                        : SECONDARY_MENU
+                    }
+                    vertical
+                  />
+                )}
+              </ResizerContentContainer>
+              {showDebugger && <Debugger />}
+            </ResizerMainContainer>
           </SectionGrid>
         </ApiHomePage>
       </>
@@ -538,6 +543,9 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
+
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
@@ -550,6 +558,7 @@ const mapStateToProps = (state: AppState) => {
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
     canCreateDatasource,
+    showDebugger,
   };
 };
 

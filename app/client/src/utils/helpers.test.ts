@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "./autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,
   getLocale,
@@ -354,8 +354,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "when a user changes the selected option",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
@@ -524,8 +523,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "when a user changes the selected option",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",

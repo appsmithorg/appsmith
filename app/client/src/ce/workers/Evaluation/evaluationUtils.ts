@@ -17,7 +17,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import _, { difference, find, get, has, set } from "lodash";
+import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -210,17 +210,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
-        ) {
+        if (difference.lhs === undefined && !isNil(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
-        ) {
+        if (difference.rhs === undefined && !isNil(difference.lhs)) {
           result = [
             {
               event: DataTreeDiffEvent.EDIT,
@@ -397,6 +391,15 @@ export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
     entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
+export function isJSActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is JSActionEntityConfig {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
 
 export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
@@ -406,6 +409,10 @@ export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
     "pluginType" in entity &&
     entity.pluginType === PluginType.JS
   );
+}
+
+export function isDataTreeEntity(entity: unknown) {
+  return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
@@ -497,7 +504,7 @@ export const getAllPaths = (
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
       getAllPaths(records[i], tempKey, result);
     }
-  } else if (typeof records === "object" && records) {
+  } else if (isTrueObject(records)) {
     for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
       getAllPaths(records[key], tempKey, result);
@@ -831,7 +838,7 @@ export const overrideWidgetProperties = (params: {
     const propertyOverridingKeyMap =
       configEntity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
-      const defaultValue = configEntity[propertyOverridingKeyMap.DEFAULT];
+      const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = klona(defaultValue);
       if (defaultValue !== undefined) {
         const propertyPathArray = propertyPath.split(".");

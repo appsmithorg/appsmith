@@ -1,4 +1,4 @@
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import { setPageAsDefault, updatePage } from "actions/pageActions";
 import type { UpdatePageRequest } from "api/PageApi";
 import {
@@ -20,7 +20,7 @@ import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Text, TextInput, TextType } from "design-system-old";
 import AdsSwitch from "design-system-old/build/Switch";
-import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
+import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";

@@ -27,7 +27,7 @@ import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
-import type { Action as ReduxActionType } from "redux";
+import type { DatasourceConfiguration } from "entities/Datasource";
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -38,6 +38,7 @@ export type FormEvalActionPayload = {
   settingConfig?: FormConfigType[];
   actionDiffPath?: string;
   hasRouteChanged?: boolean;
+  datasourceConfiguration?: DatasourceConfiguration;
 };
 
 // This value holds an array of values that needs to be dynamically fetched
@@ -244,7 +245,6 @@ function* fetchDynamicValueSaga(
     dynamicFetchedValues.isLoading = false;
     // @ts-expect-error: we don't know what the response will be
     if (response.responseMeta.status === 200 && "trigger" in response.data) {
-      // @ts-expect-error: we don't know what the response will be
       dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;
     } else {
@@ -261,7 +261,7 @@ function* fetchDynamicValueSaga(
 }
 
 function* formEvaluationChangeListenerSaga() {
-  const formEvalChannel: ActionPattern<ReduxActionType<FormEvalActionPayload>> =
+  const formEvalChannel: ActionPattern<ReduxAction<FormEvalActionPayload>> =
     yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
   while (true) {
     const action: ReduxAction<FormEvalActionPayload> = yield take(

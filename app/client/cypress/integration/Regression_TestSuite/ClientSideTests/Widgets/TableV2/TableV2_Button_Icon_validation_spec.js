@@ -18,7 +18,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       widgetsPage.widgetNameSpan,
     );
     //cy.createModal("Modal", this.data.ModalName);
-    cy.createModalWithIndex("Modal", 1);
+    cy.createModal("Modal", "onRowSelected");
     cy.isSelectRow(1);
     cy.get(".bp3-overlay-backdrop").click({ force: true });
     cy.isSelectRow(2);

@@ -129,6 +129,7 @@ const ProgressContainer = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+  width: 100%;
 `;
 
 // Determinate Linear progress

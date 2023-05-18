@@ -1,9 +1,9 @@
 import React from "react";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
@@ -13,18 +13,29 @@ import {
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
+import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import {
+  ORIGINAL_INDEX_KEY,
+  PRIMARY_COLUMN_KEY_VALUE,
+} from "widgets/TableWidgetV2/constants";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
+} from "@appsmith/constants/messages";
 
-const PromptMessage = styled.span`
+export const PromptMessage = styled.span`
   line-height: 17px;
 `;
+
+export const StyledCode = styled.span`
+  color: ${Colors.PRIMARY_ORANGE};
+`;
+
 export const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: ${Colors.PRIMARY_ORANGE};
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
@@ -58,7 +69,8 @@ export function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -80,14 +92,22 @@ export function InputText(props: InputTextProp) {
 
 const bindingPrefix = `{{
   (
-    (isNewRow) => (
+    (isNewRow, currentIndex, currentRow) => (
 `;
 
 const getBindingSuffix = (tableId: string) => {
   return `
     ))
     (
-      ${tableId}.isAddRowInProgress
+      ${tableId}.isAddRowInProgress,
+      ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+        Object.keys(${tableId}.processedTableData[0])
+          .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
+          .reduce((prev, curr) => {
+            prev[curr] = "";
+            return prev;
+          }, {}))
     )
   }}
   `;
@@ -110,6 +130,14 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         ? this.getInputComputedValue(propertyValue, tableId)
         : propertyValue || defaultValue;
 
+    const columns: Record<string, ColumnProperties> =
+      widgetProperties.primaryColumns || {};
+
+    const currentRow: { [key: string]: any } = {};
+    Object.values(columns).forEach((column) => {
+      currentRow[column.alias || column.originalId] = undefined;
+    });
+
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
@@ -117,6 +145,8 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
 
     const additionalDynamicData = {
       isNewRow: false,
+      currentIndex: -1,
+      currentRow,
     };
 
     return (
@@ -126,6 +156,14 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         expected={expected}
         label={label}
         onChange={this.onTextChange}
+        promptMessage={
+          <PromptMessage>
+            {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
+            <CurlyBraces>{"{{"}</CurlyBraces>
+            <StyledCode>currentRow.columnName</StyledCode>
+            <CurlyBraces>{"}}"}</CurlyBraces>
+          </PromptMessage>
+        }
         theme={theme}
         value={value}
       />

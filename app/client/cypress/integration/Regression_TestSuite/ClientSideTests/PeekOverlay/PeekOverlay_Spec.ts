@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("peek overlay", () => {
-  it("main test", () => {
+describe("Peek overlay", () => {
+  it("1. Main test", () => {
     cy.fixture("datasources").then((datasourceFormData: any) => {
       _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);

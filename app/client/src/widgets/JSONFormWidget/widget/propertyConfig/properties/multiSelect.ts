@@ -5,7 +5,7 @@ import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import type { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(
@@ -203,7 +203,7 @@ const PROPERTIES = {
   actions: [
     {
       propertyName: "onOptionChange",
-      helpText: "Triggers an action when a user selects an option",
+      helpText: "when a user selects an option",
       label: "onOptionChange",
       controlType: "ACTION_SELECTOR",
       isJSConvertible: true,
@@ -293,7 +293,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onOptionChange",
-        helpText: "Triggers an action when a user selects an option",
+        helpText: "when a user selects an option",
         label: "onOptionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

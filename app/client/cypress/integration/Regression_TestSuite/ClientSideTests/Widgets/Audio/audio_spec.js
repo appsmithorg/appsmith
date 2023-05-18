@@ -15,9 +15,7 @@ describe("Audio Widget Functionality", function () {
       widgetsPage.audioWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.get(commonlocators.onPlay).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Play success");
+    cy.getAlert("onPlay", "Play success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -27,9 +25,7 @@ describe("Audio Widget Functionality", function () {
   });
 
   it("Audio widget pause functionality validation", function () {
-    cy.get(commonlocators.onPause).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Pause success");
+    cy.getAlert("onPause", "Pause success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -63,8 +59,7 @@ describe("Audio Widget Functionality", function () {
       widgetsPage.buttonWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.get(commonlocators.onClick).click();
-    cy.selectResetWidget();
+    cy.selectResetWidget("onClick");
     cy.selectWidgetForReset("Audio1");
 
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });

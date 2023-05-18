@@ -1,5 +1,5 @@
 import React from "react";
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import { builderURL } from "RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
@@ -18,7 +18,7 @@ import {
   updatedApplicationPayload,
   updatedPagePayload,
 } from "./mockData";
-import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
+import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { Icon, IconSize } from "design-system-old";

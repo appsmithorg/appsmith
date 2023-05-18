@@ -105,6 +105,7 @@ function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
       );
     logActionExecutionError(
       error.message,
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
@@ -128,6 +129,7 @@ export function* getCurrentLocationSaga(
   } catch (error) {
     logActionExecutionError(
       (error as Error).message,
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
@@ -150,6 +152,7 @@ export function* watchCurrentLocation(
     // at a given point in time, only one watch is active
     logActionExecutionError(
       "A watchLocation is already active. Clear it before before starting a new one",
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
@@ -184,6 +187,7 @@ export function* stopWatchCurrentLocation(
   if (watchId === undefined) {
     logActionExecutionError(
       "No location watch active",
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );

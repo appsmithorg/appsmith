@@ -2,6 +2,7 @@ import type {
   ConfigTree,
   DataTree,
   AppsmithEntity,
+  DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -20,6 +21,7 @@ import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import JSObjectCollection from "./Collection";
 import type { APP_MODE } from "entities/App";
 import type {
   JSActionEntityConfig,
@@ -148,6 +150,8 @@ export const updateJSCollectionInUnEvalTree = (
           (!existedVarVal && !!newVar)
         ) {
           set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
+          // When user updates the JSObject all the variable's reset's to initial value
+          JSObjectCollection.removeVariable(`${entityName}.${newVar.name}`);
         }
       } else {
         varList.push(newVar.name);
@@ -158,8 +162,10 @@ export const updateJSCollectionInUnEvalTree = (
         const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: newVar.name });
 
-        set(modifiedUnEvalTree, `${entityName}.variables`, varList);
+        set(configTree, `${entityName}.variables`, varList);
         set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
+        // When user updates the JSObject all the variable's reset's to initial value
+        JSObjectCollection.removeVariable(`${entityName}.${newVar.name}`);
       }
     }
     let newVarList: Array<string> = varList;
@@ -182,7 +188,7 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
     if (newVarList.length) {
-      set(modifiedUnEvalTree, `${entityName}.variables`, newVarList);
+      set(configTree, `${entityName}.variables`, newVarList);
     }
   }
   return modifiedUnEvalTree;
@@ -201,7 +207,6 @@ export const removeFunctionsAndVariableJSCollection = (
   entityName: string,
   configTree: ConfigTree,
 ) => {
-  // const oldConfig = Object.getPrototypeOf(entity) as JSActionEntity;
   const oldConfig = configTree[entityName] as JSActionEntityConfig;
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
@@ -209,14 +214,15 @@ export const removeFunctionsAndVariableJSCollection = (
     functionsList.push(action);
   });
   //removed variables
-  const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entityName}.variables`, []);
+  const varList: Array<string> = oldConfig.variables;
+  set(oldConfig, `${entityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
     unset(modifiedDataTree[entityName], varName);
+    // When user updates the JSObject all the variable's reset's to initial value
+    JSObjectCollection.removeVariable(`${entityName}.${varName}`);
   }
   //remove functions
-
   const reactivePaths = entity.reactivePaths;
   const meta = entity.meta;
 
@@ -250,6 +256,20 @@ export function isJSObjectFunction(
     return entityConfig.meta.hasOwnProperty(key);
   }
   return false;
+}
+
+export function isJSObjectVariable(
+  jsObjectName: string,
+  key: string,
+  configTree: ConfigTree,
+) {
+  const entityConfig = configTree[jsObjectName] as JSActionEntityConfig;
+  if (!entityConfig) return false;
+  const entity = configTree[jsObjectName];
+  const variables = entityConfig.variables;
+  return (
+    isJSAction(entity as unknown as DataTreeEntity) && variables.includes(key)
+  );
 }
 
 export function getAppMode(dataTree: DataTree) {

@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import type { DropdownOption } from "design-system-old";
-import { Dropdown, Icon, IconSize } from "design-system-old";
+import type { DropdownOption } from "@design-system/widgets-old";
+import { Dropdown, Icon, IconSize } from "@design-system/widgets-old";
 import { countryToFlag } from "./utilities";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
@@ -277,7 +277,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         enableSearch
         height="36px"
         onSelect={props.onISDCodeChange}
-        optionWidth="340px"
+        optionWidth="360px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
         portalContainer={document.getElementById("art-board") || undefined}

@@ -16,7 +16,7 @@ import {
 import { previewModeSelector } from "selectors/editorSelectors";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import BottomBar from "./BottomBar";
+import BottomBar from "@appsmith/components/BottomBar";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
 import styled from "styled-components";

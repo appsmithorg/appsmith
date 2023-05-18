@@ -9,6 +9,10 @@ const DataSourceKVP = {
   UnAuthenticatedGraphQL: "GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
+  Arango: "ArangoDB",
+  Firestore: "Firestore",
+  Elasticsearch: "Elasticsearch",
+  Redis: "Redis",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -28,7 +32,6 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
-  private homePage = ObjectsRegistry.HomePage;
   private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
@@ -51,9 +54,7 @@ export class DataSources {
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
-  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
-  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
@@ -93,7 +94,7 @@ export class DataSources {
     "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "span.t--query-error";
+  _queryError = "[data-cy='t--query-error']";
   _queryResponse = (responseType: string) =>
     "li[data-cy='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>
@@ -108,6 +109,7 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
   private _createBlankGraphQL = ".t--createBlankApiGraphqlCard";
+  private _createBlankCurl = ".t--createBlankCurlCard";
   private _graphQLHeaderKey = "input[name='headers[0].key']";
   private _graphQLHeaderValue = "input[name='headers[0].value']";
   _graphqlQueryEditor = ".t--graphql-query-editor";
@@ -143,6 +145,12 @@ export class DataSources {
   private _suggestedWidget = (widgetType: string) =>
     ".t--suggested-widget-" + widgetType + "";
 
+  private _curlTextArea =
+    "//label[text()='Paste CURL Code Here']/parent::form/div";
+  _noSchemaAvailable = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-cy=authType]";
@@ -164,10 +172,36 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
   public _urlInputControl = "input[name='url']";
+  _nestedWhereClauseKey = (index: number) =>
+    ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
+    index +
+    "\\]\\.key";
+  _nestedWhereClauseValue = (index: number) =>
+    ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
+    index +
+    "\\]\\.value";
+  _whereDelete = (index: number) =>
+    "[data-cy='t--where-clause-delete-[" + index + "]']";
+
+  _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
+  }
+
+  public GeneratePageWithDB(datasourceName: any, tableName: string) {
+    this.ee.AddNewPage("generate-page");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClickByContains(
+      this.locator._dropdownText,
+      datasourceName,
+    );
+    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick(`[data-cy='t--dropdown-option-${tableName}']`);
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
   }
 
   public GeneratePageWithMockDB() {
@@ -299,10 +333,10 @@ export class DataSources {
   public ExpandSectionByName(locator: string) {
     // Click on collapse section only if it collapsed, if it is expanded
     // we ignore
-    cy.get(`${locator} span`)
-      .invoke("attr", "icon")
-      .then((iconName) => {
-        if (iconName === "chevron-down") {
+    cy.get(`${locator} .bp3-icon`)
+      .invoke("attr", "class")
+      .then((className: any) => {
+        if (className.includes("bp3-icon-chevron-down")) {
           cy.get(locator).click();
         }
       });
@@ -427,16 +461,87 @@ export class DataSources {
     this.agHelper.Sleep();
   }
 
+  public FillArangoDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["arango-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["arango-port"].toString(),
+    );
+    //Validating db name is _system, currently unable to create DB via curl in Arango
+    this.agHelper
+      .GetText(this._databaseName, "val")
+      .then(($dbName) => expect($dbName).to.eq("_system"));
+    this.ExpandSectionByName(this._sectionAuthentication);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["arango-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["arango-password"],
+    );
+  }
+
+  public FillCurlNImport(value: string) {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._createBlankCurl);
+    this.ImportCurlNRun(value);
+  }
+
+  public ImportCurlNRun(value: string) {
+    this.agHelper.UpdateTextArea(this._curlTextArea, value);
+    this.agHelper.ClickButton("Import");
+    this.apiPage.RunAPI();
+  }
+
   public FillFirestoreDSForm() {
-    cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
-      datasourceFormData["database-url"],
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Database URL"),
+      datasourceFormData["firestore-database-url"],
     );
-    cy.xpath(this.locator._inputFieldByName("Project Id") + "//input").type(
-      datasourceFormData.projectID,
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Project Id"),
+      datasourceFormData["firestore-projectID"],
     );
-    cy.xpath(
-      this.locator._inputFieldByName("Service Account Credentials") + "//input",
-    ).type(datasourceFormData["serviceAccCredentials"]);
+    // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
+    //   let ServiceAccCreds = JSON.parse(
+    //     JSON.stringify(json.serviceAccCredentials),
+    //   );
+    //   ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
+    //   //cy.log("ServiceAccCreds is " + JSON.stringify(ServiceAccCreds));
+    //   cy.log(
+    //     "ServiceAccCreds.private_key  is " +
+    //       JSON.stringify(ServiceAccCreds.private_key),
+    //   );
+    this.agHelper.UpdateFieldLongInput(
+      this.locator._inputFieldByName("Service Account Credentials"),
+      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+    );
+    //});
+  }
+
+  public FillElasticSearchDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["elastic-host"],
+    );
+
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["elastic-port"].toString(),
+    );
+    this.ExpandSectionByName(this._sectionAuthentication);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["elastic-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["elastic-password"],
+    );
   }
 
   public FillUnAuthenticatedGraphQLDSForm() {
@@ -465,6 +570,17 @@ export class DataSources {
       this.SaveDatasource();
       cy.wrap(dataSourceName).as("dsName");
     });
+  }
+
+  public FillRedisDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["redis-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["redis-port"].toString(),
+    );
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -535,7 +651,12 @@ export class DataSources {
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
+    this.agHelper.GetNClick(
+      this.locator._visibleTextSpan("Delete"),
+      0,
+      false,
+      200,
+    );
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
     if (expectedRes == 200)
@@ -638,15 +759,6 @@ export class DataSources {
     cy.get(this._saveDs).click();
   }
 
-  public CloseReconnectDataSourceModal() {
-    cy.get("body").then(($ele) => {
-      if ($ele.find(this._reconnectDataSourceModal).length) {
-        this.agHelper.GetNClick(this._skiptoApplicationBtn);
-        this.homePage.NavigateToHome();
-      }
-    });
-  }
-
   RunQuery({
     expectedStatus = true,
     toValidateResponse = true,
@@ -713,9 +825,7 @@ export class DataSources {
   }
 
   public EnterQuery(query: string, sleep = 500) {
-    cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-      this.agHelper.UpdateCodeInput($field, query);
-    });
+    this.agHelper.UpdateCodeInput(this.locator._codeEditorTarget, query);
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     cy.wait("@saveAction");
@@ -746,7 +856,11 @@ export class DataSources {
       | "MySql"
       | "UnAuthenticatedGraphQL"
       | "MsSql"
-      | "Airtable",
+      | "Airtable"
+      | "Arango"
+      | "Firestore"
+      | "Elasticsearch"
+      | "Redis",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -767,6 +881,12 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
           this.FillMsSqlDSForm();
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
+        else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
+        else if (DataSourceKVP[dsType] == "Firestore")
+          this.FillFirestoreDSForm();
+        else if (DataSourceKVP[dsType] == "Elasticsearch")
+          this.FillElasticSearchDSForm();
+        else if (DataSourceKVP[dsType] == "Redis") this.FillRedisDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -798,17 +918,14 @@ export class DataSources {
     variable?: string;
   }) {
     if (options?.query) {
-      this.agHelper.GetElement(this._graphqlQueryEditor).then(($field: any) => {
-        this.agHelper.UpdateCodeInput($field, options.query as string);
-      });
+      this.agHelper.UpdateCodeInput(this._graphqlQueryEditor, options.query);
     }
 
     if (options?.variable) {
-      this.agHelper
-        .GetElement(this._graphqlVariableEditor)
-        .then(($field: any) => {
-          this.agHelper.UpdateCodeInput($field, options.variable as string);
-        });
+      this.agHelper.UpdateCodeInput(
+        this._graphqlVariableEditor,
+        options.variable as string,
+      );
     }
 
     this.agHelper.Sleep();

@@ -13,6 +13,10 @@ import type { WidgetStyleContainerProps } from "components/designSystems/appsmit
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { useSelector } from "react-redux";
+import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -53,6 +57,7 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -119,7 +124,12 @@ function ContainerComponentWrapper(
       backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)} container-with-scrollbar`}
+      } ${generateClassName(props.widgetId)} container-with-scrollbar ${
+        appPositioningType === AppPositioningTypes.AUTO &&
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? "auto-layout"
+          : ""
+      }`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={props.onClick}
@@ -145,7 +155,10 @@ function ContainerComponent(props: ContainerComponentProps) {
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
-        shouldScrollContents={props.shouldScrollContents}
+        shouldScrollContents={
+          props.shouldScrollContents &&
+          props.appPositioningType !== AppPositioningTypes.AUTO
+        }
         type={props.type}
         widgetId={props.widgetId}
       >
@@ -172,7 +185,13 @@ function ContainerComponent(props: ContainerComponentProps) {
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
-        shouldScrollContents={props.shouldScrollContents}
+        shouldScrollContents={
+          props.shouldScrollContents &&
+          // Disable scrollbar on autolayout canvas as it meddles with canvas drag and highlight position.
+          (props.appPositioningType !== AppPositioningTypes.AUTO ||
+            // We need to allow scrollbars for list items as they don't have auto-height
+            props.isListItemContainer)
+        }
         type={props.type}
         widgetId={props.widgetId}
       >
@@ -202,6 +221,8 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   justifyContent?: string;
   alignItems?: string;
   dropDisabled?: boolean;
+  appPositioningType?: AppPositioningTypes;
+  isListItemContainer?: boolean;
 }
 
 export default ContainerComponent;

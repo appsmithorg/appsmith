@@ -4,7 +4,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Guided Tour", function () {
+describe("excludeForAirgap", "Guided Tour", function () {
   it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
@@ -91,23 +91,24 @@ describe("Guided Tour", function () {
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Step 7: Execute a query onClick
-    cy.executeDbQuery("updateCustomerInfo");
+    cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
-    cy.get(
-      `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,
-    )
-      .eq(0)
-      .click({ force: true })
-      .wait(500)
-      .get("ul.bp3-menu")
-      .children()
-      .contains("Execute a query")
+    _.propPane.SelectActionByTitleAndValue(
+      "Execute a query",
+      "updateCustomerInfo.run",
+    ),
+      cy.get(_.propPane._actionCallbacks).click();
+    cy.get(_.propPane._actionAddCallback("success")).click().wait(500);
+    cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("getCustomers")
-      .click({ force: true });
+      .click({ force: true })
+      .wait(500);
+    _.agHelper.GetNClick(_.propPane._actionSelectorPopupClose);
+
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();

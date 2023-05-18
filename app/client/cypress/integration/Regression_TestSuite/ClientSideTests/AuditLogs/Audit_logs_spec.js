@@ -32,7 +32,6 @@ describe("Audit logs", () => {
     if (CURRENT_REPO === REPO.CE) {
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.visit("/applications");
       cy.get(locators.AdminSettingsEntryLink).should("be.visible");
       cy.get(locators.AdminSettingsEntryLink).click();
       cy.url().should("contain", "/settings/general");

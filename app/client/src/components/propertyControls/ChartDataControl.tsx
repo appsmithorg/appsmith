@@ -15,8 +15,8 @@ import {
 import { Size, Category } from "design-system-old";
 import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 
 const Wrapper = styled.div`
@@ -139,7 +139,8 @@ function DataControlComponent(props: RenderComponentProps) {
         )}
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <CodeEditor
+        <LazyCodeEditor
+          AIAssisted
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={expectedSeriesName}
@@ -187,7 +188,8 @@ function DataControlComponent(props: RenderComponentProps) {
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
-        <CodeEditor
+        <LazyCodeEditor
+          AIAssisted
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={expectedSeriesData}

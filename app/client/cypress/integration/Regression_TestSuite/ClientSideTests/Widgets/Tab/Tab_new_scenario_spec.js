@@ -11,12 +11,12 @@ describe("Tab widget test", function () {
     cy.openPropertyPane("tabswidget");
     cy.widgetText("tab", Layoutpage.tabWidget, widgetsPage.widgetNameSpan);
     cy.AddActionWithModal();
-    cy.get(".t--widget-buttonwidget:contains('Confirm')").click({
+    cy.get(".t--draggable-buttonwidget:contains('Close')").click({
       force: true,
     });
   });
 
-  it("Publih the app and validate the widgets displayed under each tab", function () {
+  it("Publish the app and validate the widgets displayed under each tab", function () {
     cy.PublishtheApp();
     cy.get(publish.buttonWidget).should("be.visible");
     cy.get(publish.textWidget).should("be.visible");

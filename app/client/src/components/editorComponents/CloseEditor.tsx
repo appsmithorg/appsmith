@@ -17,6 +17,8 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { AppsmithLocationState } from "../../utils/history";
+import { NavigationMethod } from "../../utils/history";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -31,7 +33,7 @@ const IconContainer = styled.div`
 `;
 
 function CloseEditor() {
-  const history = useHistory();
+  const history = useHistory<AppsmithLocationState>();
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
@@ -75,7 +77,7 @@ function CloseEditor() {
       fromUrl: location.pathname,
       toUrl: URL,
     });
-    history.push(URL);
+    history.push(URL, { invokedBy: NavigationMethod.ActionBackButton });
   };
 
   return (

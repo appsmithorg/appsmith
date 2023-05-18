@@ -2,11 +2,23 @@ import type { JSXElementConstructor } from "react";
 import React from "react";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import ShareIcon from "remixicon-react/ShareBoxFillIcon";
-import DeployIcon from "remixicon-react/Rocket2FillIcon";
-import FeedbackIcon from "remixicon-react/FeedbackFillIcon";
-import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
-import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
+import { importRemixIcon } from "design-system-old";
+
+const ShareIcon = importRemixIcon(
+  () => import("remixicon-react/ShareBoxFillIcon"),
+);
+const DeployIcon = importRemixIcon(
+  () => import("remixicon-react/Rocket2FillIcon"),
+);
+const FeedbackIcon = importRemixIcon(
+  () => import("remixicon-react/FeedbackFillIcon"),
+);
+const SaveFailureIcon = importRemixIcon(
+  () => import("remixicon-react/ErrorWarningFillIcon"),
+);
+const SaveSuccessIcon = importRemixIcon(
+  () => import("remixicon-react/CheckboxCircleFillIcon"),
+);
 /* eslint-disable react/display-name */
 
 export const HeaderIcons: {

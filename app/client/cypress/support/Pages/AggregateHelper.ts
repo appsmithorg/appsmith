@@ -1,6 +1,7 @@
 import "cypress-wait-until";
 const uuid = require("uuid");
 import { ObjectsRegistry } from "../Objects/Registry";
+import type CodeMirror from "codemirror";
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -24,6 +25,8 @@ export class AggregateHelper {
   }`;
   private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
+  private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
+  private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -462,13 +465,25 @@ export class AggregateHelper {
     value: string,
     paste = true,
     index = 0,
+    parseSpecialCharacters = false,
   ) {
     cy.xpath(this.locator._actionTextArea(actionName))
       .eq(index)
       .scrollIntoView()
-      .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}{del}", { force: true });
+      .parents(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        input.setValue("");
+        this.Sleep(200);
+      });
+
+    //Not working consistenly, hence commenting
+    // .focus()
+    // .type("{uparrow}", { force: true })
+    // .type("{ctrl}{shift}{downarrow}{del}", { force: true });
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
@@ -491,7 +506,7 @@ export class AggregateHelper {
             this.Paste(el, value);
           } else {
             cy.get(el).type(value, {
-              parseSpecialCharSequences: false,
+              parseSpecialCharSequences: parseSpecialCharacters,
             });
           }
         });
@@ -581,7 +596,7 @@ export class AggregateHelper {
     return locator.eq(index).focus().wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       //delay: 3,
-      //force: true,
+      force: true,
     });
   }
 
@@ -767,14 +782,11 @@ export class AggregateHelper {
   ) {
     const { directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
-      cy.get(propFieldName).then(($field: any) => {
-        this.UpdateCodeInput($field, valueToEnter);
-      });
+      this.UpdateCodeInput(propFieldName, valueToEnter);
     } else if (inputFieldName && !propFieldName && !directInput) {
-      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
-        ($field: any) => {
-          this.UpdateCodeInput($field, valueToEnter);
-        },
+      this.UpdateCodeInput(
+        this.locator._inputFieldByName(inputFieldName),
+        valueToEnter,
       );
     }
     this.AssertAutoSave();
@@ -809,13 +821,28 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
-    cy.wrap(selector)
-      .find(".CodeMirror")
+    this.EnableAllCodeEditors();
+
+    const isXPathSelector =
+      selector.startsWith("//") || selector.startsWith("(//");
+    // A previous version of this code used a more simple `this.GetElement(xPathOrCssSelector).find(".CodeMirror")` command.
+    // However, occasionally, this would lead to a race condition: React would re-render between calls to `this.GetElement()`
+    // and `.find(".CodeMirror")`, causing the element from the first call to be detached from the DOM.
+    // Relevant docs: http://web.archive.org/web/20210618235924/https://docs.cypress.io/guides/core-concepts/retry-ability#Only-the-last-command-is-retried
+    //
+    // This was fixed in Cypress 12 (https://github.com/cypress-io/cypress/issues/7306), which started to retry
+    // the entire query chain (https://docs.cypress.io/guides/core-concepts/retry-ability#Only-queries-are-retried),
+    // but until we’ve upgraded to v12, we can’t rely on that and have to fit everything into a single query.
+    const codeMirrorSelector = isXPathSelector
+      ? selector +
+        "//*[contains(concat(' ', normalize-space(@class), ' '), ' CodeMirror ')]"
+      : selector + " .CodeMirror";
+    this.GetElement(codeMirrorSelector)
       .find("textarea")
       .parents(".CodeMirror")
       .first()
-      .then((ins: any) => {
-        const input = ins[0].CodeMirror;
+      .then((ins) => {
+        const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
         input.focus();
         this.Sleep(200);
         input.setValue(value);
@@ -827,8 +854,9 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
+      .clear()
       //.type(this.selectAll)
-      .type(value, { delay: 1 });
+      .type(value, { delay: 1, parseSpecialCharSequences: false });
     // .type(selectAllJSObjectContentShortcut)
     // .then((ins: any) => {
     //   //const input = ins[0].input;
@@ -838,6 +866,31 @@ export class AggregateHelper {
     //   ins.val(value).trigger('change');
     //   this.Sleep(200);
     // });
+  }
+
+  public UpdateFieldLongInput(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("input")
+      .invoke("attr", "value", value)
+      .trigger("input");
+    this.Sleep(); //for value set to settle
+  }
+
+  public UpdateTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .invoke("val", value)
+      .trigger("input");
+    this.Sleep(500); //for value set to settle
+  }
+
+  public TypeIntoTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
+    this.Sleep(500); //for value set to settle
   }
 
   public UpdateInputValue(selector: string, value: string) {
@@ -996,7 +1049,7 @@ export class AggregateHelper {
   AssertHeight(selector: ElementType, height: number) {
     return this.GetElement(selector)
       .invoke("height")
-      .should("be.equal", height);
+      .should("be.closeTo", height, 1);
   }
 
   public AssertText(
@@ -1016,8 +1069,12 @@ export class AggregateHelper {
     return this.GetElement(selector).should("not.be.focused");
   }
 
-  public AssertElementVisible(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
+  public AssertElementVisible(
+    selector: ElementType,
+    index = 0,
+    timeout = 20000,
+  ) {
+    return this.GetElement(selector, timeout)
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
@@ -1125,6 +1182,28 @@ export class AggregateHelper {
     } else {
       return this.GetElement(selector).eq(index).should("not.be.disabled");
     }
+  }
+
+  // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.
+  // Called “EnableAllCodeEditors” to match the command in the JS part of the Cypress codebase
+  // with the same name.
+  public EnableAllCodeEditors() {
+    cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
+    cy.get(this.lazyCodeEditorRendered).each(($el) => {
+      cy.wrap($el).find(".CodeMirror").should("exist");
+    });
+  }
+
+  public AssertNewTabOpened(openTabFunc: () => void) {
+    cy.window().then((win) => {
+      cy.spy(win, "open").as("windowOpen");
+      openTabFunc();
+      cy.get("@windowOpen").should(
+        "be.calledWith",
+        Cypress.sinon.match.string,
+        "_blank",
+      );
+    });
   }
 
   //Not used:

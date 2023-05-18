@@ -66,16 +66,16 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     Map<String, GitProfile> gitProfiles;
 
-    // JWT tokens
-    @JsonView(Views.Internal.class)
-    String accessToken;
-
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
 
     // list of template ids that were recently forked by the user
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedTemplateIds;
+
+    // Status of user's consent on sharing email for Intercom communications
+    @JsonView(Views.Internal.class)
+    private boolean isIntercomConsentGiven;
 
     @JsonView(Views.Public.class)
     public GitProfile getGitProfileByKey(String key) {

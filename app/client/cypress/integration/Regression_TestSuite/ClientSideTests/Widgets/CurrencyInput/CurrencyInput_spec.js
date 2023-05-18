@@ -102,11 +102,7 @@ describe("Currency widget - ", () => {
 
   it("should check that widget input resets on submit", () => {
     cy.openPropertyPane(widgetName);
-    cy.get(
-      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-    ).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!");
+    cy.getAlert("onSubmit", "Submitted!!");
 
     cy.get(widgetInput).clear();
     cy.wait(300);

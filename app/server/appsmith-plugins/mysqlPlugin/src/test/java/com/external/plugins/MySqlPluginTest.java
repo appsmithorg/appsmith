@@ -207,6 +207,31 @@ public class MySqlPluginTest {
                         .verifyComplete();
         }
 
+    @Test
+    public void testMySqlNoPasswordExceptionMessage() {
+
+        dsConfig = createDatasourceConfiguration();
+        ((DBAuth) dsConfig.getAuthentication()).setPassword("");
+
+        Mono<ConnectionPool> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        Mono<DatasourceTestResult> datasourceTestResultMono = connectionMono
+                .flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
+
+        String gateway = mySQLContainer.getContainerInfo().getNetworkSettings().getGateway();
+        String expectedErrorMessage = new StringBuilder("Access denied for user 'mysql'@'")
+                .append(gateway)
+                .append("'")
+                .toString();
+
+        StepVerifier
+                .create(datasourceTestResultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getInvalids().contains(expectedErrorMessage));
+                })
+                .verifyComplete();
+    }
+
         @Test
         public void testConnectMySQLContainerWithInvalidTimezone() {
 
@@ -421,6 +446,25 @@ public class MySqlPluginTest {
                         })
                         .verifyComplete();
         }
+
+    @Test
+    public void testExecuteWithLongRunningQuery() {
+        Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT SLEEP(20);");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
 
         @Test
         public void testStaleConnectionCheck() {
@@ -879,6 +923,32 @@ public class MySqlPluginTest {
                 String query_select_from_test_data_types = "select * from test_data_types;";
                 String query_select_from_test_geometry_types = "select * from test_geometry_types;";
 
+                String expected_numeric_types_result = "[{\"c_integer\":-1,\"c_smallint\":1,\"c_tinyint\":1,\""
+                        +
+                        "c_mediumint\":10,\"c_bigint\":2000,\"c_decimal\":1,\"c_float\":0.1234,\"c_double\":1.0102344,"
+                        +
+                        "\"c_bit\":{\"empty\":false}}]";
+
+                String expected_date_time_types_result = "[{\"c_date\":\"2020-12-01\",\"c_datetime\":\"2020-12-01T20:20:20Z\","
+                        +
+                        "\"c_timestamp\":\"2020-12-01T20:20:20Z\",\"c_time\":\"20:20:20\",\"c_year\":2020}]";
+
+                String expected_data_types_result = "[{\"c_char\":\"test\",\"c_varchar\":\"test\","
+                        +
+                        "\"c_binary\":\"YQAJAAAAAAAAAAAAAAAAAAAAAAA=\",\"c_varbinary\":\"YQAJ\",\"c_tinyblob\":\"dGVzdA==\","
+                        +
+                        "\"c_blob\":\"dGVzdA==\",\"c_mediumblob\":\"dGVzdA==\",\"c_longblob\":\"dGVzdA==\",\"c_tinytext\":\"test\","
+                        +
+                        "\"c_text\":\"test\",\"c_mediumtext\":\"test\",\"c_longtext\":\"test\",\"c_enum\":\"ONE\",\"c_set\":\"a\"}]";
+
+                String expected_json_result = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+
+                String expected_geometry_types_result = "[{\"c_geometry\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAADwPw==\","
+                        +
+                        "\"c_point\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAABZQA==\"}]";
+
+
+
                 Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> {
                                 return connection.createBatch()
@@ -897,20 +967,15 @@ public class MySqlPluginTest {
                         .blockLast(); // wait until completion of all the queries
 
                 /* Test numeric types */
-                testExecute(query_select_from_test_numeric_types, null);
+                testExecute(query_select_from_test_numeric_types, expected_numeric_types_result);
                 /* Test date time types */
-                testExecute(query_select_from_test_date_time_types, null);
+                testExecute(query_select_from_test_date_time_types, expected_date_time_types_result);
                 /* Test data types */
-                testExecute(query_select_from_test_data_types, null);
+                testExecute(query_select_from_test_data_types, expected_data_types_result);
                 /* Test json type */
-                /**
-                 * TBD: add check for other data types as well.
-                 * Tracked here: https://github.com/appsmithorg/appsmith/issues/20069
-                 */
-                String expectedJsonResult = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
-                testExecute(query_select_from_test_json_data_type, expectedJsonResult);
+                testExecute(query_select_from_test_json_data_type, expected_json_result);
                 /* Test geometry types */
-                testExecute(query_select_from_test_geometry_types, null);
+                testExecute(query_select_from_test_geometry_types, expected_geometry_types_result);
 
                 return;
         }

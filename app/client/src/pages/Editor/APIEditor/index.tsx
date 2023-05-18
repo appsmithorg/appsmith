@@ -12,7 +12,7 @@ import type {
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import _ from "lodash";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
@@ -174,7 +174,7 @@ class ApiEditor extends React.Component<Props> {
       pluginId,
       plugins,
     } = this.props;
-    if (!this.props.pluginId && this.props.match.params.apiId) {
+    if (!pluginId && apiId) {
       return <EntityNotFoundPane />;
     }
     if (isCreating || !isEditorInitialized) {

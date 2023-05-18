@@ -10,7 +10,7 @@ describe("Update Application", () => {
     .toString(36)
     .slice(2, -1)}`;
 
-  it("Open the application menu and update name and then check whether update is reflected in the application card", () => {
+  it("1. Open the application menu and update name and then check whether update is reflected in the application card", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).clear();
@@ -29,7 +29,7 @@ describe("Update Application", () => {
     cy.get(homePage.applicationCardName).should("contain", appname);
   });
 
-  it("Open the application menu and update icon and then check whether update is reflected in the application card", () => {
+  it("2. Open the application menu and update icon and then check whether update is reflected in the application card", () => {
     cy.get(homePage.applicationIconSelector).first().click();
     cy.wait("@updateApplication")
       .then((xhr) => {
@@ -43,7 +43,7 @@ describe("Update Application", () => {
       });
   });
 
-  it("Check for errors in updating application name", () => {
+  it("3. Check for errors in updating application name", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
     cy.get(homePage.searchInput).type(appname);
@@ -71,7 +71,7 @@ describe("Update Application", () => {
     );
   });
 
-  it("Updates the name of first application to very long name and checks whether update is reflected in the application card with no popover", () => {
+  it("4. Updates the name of first application to very long name and checks whether update is reflected in the application card with no popover", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
     // eslint-disable-next-line cypress/no-unnecessary-waiting

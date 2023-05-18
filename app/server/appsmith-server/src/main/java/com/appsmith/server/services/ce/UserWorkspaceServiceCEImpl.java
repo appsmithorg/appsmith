@@ -127,7 +127,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     /**
-     * This method is used when an admin of an workspace changes the role or removes a member.
+     * This method is used when an admin of a workspace changes the role or removes a member.
      * Admin user can also remove itself from the workspace, if there is another admin there in the workspace.
      *
      * @param workspaceId        ID of the workspace
@@ -168,10 +168,17 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return Mono.just(permissionGroup);
                 });
 
+        /*
+         * The below operations have been changed from parallel execution (zipWith) to a sequential execution (zipWhen).
+         * MongoTransactions have a limitation that there should be only 1 DB operation which should initiate the transaction.
+         * But here, since 2 DB operations were happening in parallel, we were observing an intermittent exception: "Command failed with error 251 (NoSuchTransaction)".
+         *
+         * The below operation is responsible for the first DB operation, if a user is removed from the workspace.
+         */
         // Unassigned old permission group from user
-        Mono<PermissionGroup> permissionGroupUnassignedMono = oldDefaultPermissionGroupMono
-                .zipWith(userMono)
-                .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2()));
+        Mono<PermissionGroup> permissionGroupUnassignedMono = userMono
+                .zipWhen(user -> oldDefaultPermissionGroupMono)
+                .flatMap(pair -> permissionGroupService.unAssignFromUserAndSendEvent(pair.getT2(), pair.getT1()));
 
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
@@ -189,14 +196,18 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMap(newPermissionGroup -> {
                     return permissionGroupUnassignedMono
                             .then(userMono)
-                            .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
+                            .flatMap(user -> permissionGroupService.assignToUserAndSendEvent(newPermissionGroup, user));
                 });
 
-        return changePermissionGroupsMono
-                .zipWith(userMono)
+        /*
+         * The below operation is responsible for the first DB operation, if workspace role is changed ƒor the user,
+         * hence we need to make this operation sequential as well.
+         */
+        return userMono
+                .zipWhen(user -> changePermissionGroupsMono)
                 .map(pair -> {
-                    User user = pair.getT2();
-                    PermissionGroup role = pair.getT1();
+                    User user = pair.getT1();
+                    PermissionGroup role = pair.getT2();
                     PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(), role.getDescription());
                     roleInfoDTO.setEntityType(Workspace.class.getSimpleName());
                     return MemberInfoDTO.builder()
@@ -258,7 +269,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         //TODO get users sorted from DB and fill in three buckets - admin, developer and viewer
         Mono<List<MemberInfoDTO>> sortedListMono = userAndPermissionGroupDTOsMono
                 .map(userAndPermissionGroupDTOS -> {
-                    Collections.sort(userAndPermissionGroupDTOS, AppsmithComparators.getWorkspaceMemberComparator());
+                    Collections.sort(userAndPermissionGroupDTOS, AppsmithComparators.workspaceMembersComparator());
 
                     return userAndPermissionGroupDTOS;
                 });

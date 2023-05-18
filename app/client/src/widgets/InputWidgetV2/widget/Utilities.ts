@@ -28,3 +28,7 @@ export function getParsedText(value: string, inputType: InputTypes) {
 
   return text;
 }
+
+export function isInputTypeEmailOrPassword(inputType?: string) {
+  return inputType === InputTypes.EMAIL || inputType === InputTypes.PASSWORD;
+}

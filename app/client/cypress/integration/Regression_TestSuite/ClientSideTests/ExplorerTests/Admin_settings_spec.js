@@ -1,3 +1,4 @@
+/// <reference types="cypress-tags" />
 import adminsSettings from "../../../../locators/AdminsSettings";
 
 const {
@@ -30,38 +31,28 @@ describe("Admin settings page", function () {
     }).as("postEnvVariables");
   });
 
-  it("should test that settings page is accessible to super user", () => {
+  it("1. should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit(routes.APPLICATIONS);
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", routes.GENERAL);
     cy.wait("@getEnvVariables");
-    cy.LogOut();
   });
 
-  it("should test that settings page is not accessible to normal users", () => {
-    cy.wait(2000);
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.visit(routes.APPLICATIONS);
-    cy.get(".admin-settings-menu-option").should("not.exist");
-    cy.visit(routes.GENERAL);
-    // non super users are redirected to home page
-    cy.url().should("contain", routes.APPLICATIONS);
-    cy.LogOut();
-  });
-
-  it("should test that page header is visible", () => {
-    cy.visit(routes.GENERAL);
+  it("2. should test that page header is visible", () => {
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.visit(routes.GOOGLE_MAPS);
+    cy.url().should("contain", "/google-maps");
+    cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.visit(routes.GOOGLEAUTH);
+    cy.url().should("contain", "/google-auth");
+    cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
   });
 
-  it("should test that clicking on logo should redirect to applications page", () => {
+  it("3. should test that clicking on logo should redirect to applications page", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.get(adminsSettings.appsmithLogo).should("be.visible");
@@ -69,33 +60,56 @@ describe("Admin settings page", function () {
     cy.url().should("contain", routes.APPLICATIONS);
   });
 
-  it("should test that settings page is redirected to default tab", () => {
+  it("4. should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit(routes.APPLICATIONS);
-    cy.wait(3000);
     cy.visit(routes.SETTINGS);
     cy.url().should("contain", routes.GENERAL);
   });
 
-  it("should test that settings page tab redirects", () => {
-    cy.visit(routes.APPLICATIONS);
-    cy.wait(3000);
-    cy.get(".admin-settings-menu-option").click();
-    cy.get(adminsSettings.generalTab).click();
-    cy.url().should("contain", routes.GENERAL);
-    cy.get(adminsSettings.advancedTab).click();
-    cy.url().should("contain", routes.ADVANCED);
-    cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", routes.AUTHENTICATION);
-    cy.get(adminsSettings.emailTab).click();
-    cy.url().should("contain", routes.EMAIL);
-    cy.get(adminsSettings.googleMapsTab).click();
-    cy.url().should("contain", routes.GOOGLE_MAPS);
-    cy.get(adminsSettings.versionTab).click();
-    cy.url().should("contain", routes.VERSION);
-  });
+  it(
+    "excludeForAirgap",
+    "5. should test that settings page tab redirects not airgap",
+    () => {
+      cy.visit(routes.APPLICATIONS);
+      cy.wait(3000);
+      cy.get(".admin-settings-menu-option").click();
+      cy.get(adminsSettings.generalTab).click();
+      cy.url().should("contain", routes.GENERAL);
+      cy.get(adminsSettings.advancedTab).click();
+      cy.url().should("contain", routes.ADVANCED);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.emailTab).click();
+      cy.url().should("contain", routes.EMAIL);
+      cy.get(adminsSettings.googleMapsTab).click();
+      cy.url().should("contain", routes.GOOGLE_MAPS);
+      cy.get(adminsSettings.versionTab).click();
+      cy.url().should("contain", routes.VERSION);
+    },
+  );
 
-  it("should test save and clear buttons disabled state", () => {
+  it(
+    "airgap",
+    "5. should test that settings page tab redirects and google maps doesn't exist - airgap",
+    () => {
+      cy.visit(routes.APPLICATIONS);
+      cy.wait(3000);
+      cy.get(".admin-settings-menu-option").click();
+      cy.get(adminsSettings.generalTab).click();
+      cy.url().should("contain", routes.GENERAL);
+      cy.get(adminsSettings.advancedTab).click();
+      cy.url().should("contain", routes.ADVANCED);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.emailTab).click();
+      cy.get(adminsSettings.googleMapsTab).should("not.exist");
+      cy.url().should("contain", routes.EMAIL);
+      cy.get(adminsSettings.versionTab).click();
+      cy.url().should("contain", routes.VERSION);
+    },
+  );
+
+  it("6. should test save and clear buttons disabled state", () => {
     cy.visit(routes.GENERAL);
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
@@ -114,7 +128,7 @@ describe("Admin settings page", function () {
     assertVisibilityAndDisabledState();
   });
 
-  it("should test saving a setting value", () => {
+  it("7. should test saving a setting value", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
@@ -140,7 +154,7 @@ describe("Admin settings page", function () {
     cy.wait(3000);
   });
 
-  it("should test saving settings value from different tabs", () => {
+  it("8. should test saving settings value from different tabs", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
@@ -178,13 +192,13 @@ describe("Admin settings page", function () {
     cy.wait(3000);
   });
 
-  it("should test that instance name and admin emails exist on general tab", () => {
+  it("9. should test that instance name and admin emails exist on general tab", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.instanceName).should("be.visible");
     cy.get(adminsSettings.adminEmails).should("be.visible");
   });
 
-  it("should test that configure link redirects to google maps setup doc", () => {
+  it("10. should test that configure link redirects to google maps setup doc", () => {
     cy.visit(routes.GOOGLE_MAPS);
     cy.get(adminsSettings.readMoreLink).within(() => {
       cy.get("a")
@@ -195,69 +209,121 @@ describe("Admin settings page", function () {
     });
   });
 
-  it("should test that authentication page redirects", () => {
-    cy.visit(routes.GENERAL);
-    cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", routes.AUTHENTICATION);
-    cy.get(adminsSettings.googleButton).click();
-    cy.url().should("contain", routes.GOOGLEAUTH);
-    cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", routes.AUTHENTICATION);
-    cy.get(adminsSettings.githubButton).click();
-    cy.url().should("contain", routes.GITHUBAUTH);
-    cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", routes.AUTHENTICATION);
-    cy.get(adminsSettings.formloginButton).click();
-    cy.url().should("contain", routes.FORMLOGIN);
-  });
+  it(
+    "excludeForAirgap",
+    "11. should test that authentication page redirects",
+    () => {
+      cy.visit(routes.GENERAL);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.googleButton).click();
+      cy.url().should("contain", routes.GOOGLEAUTH);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.githubButton).click();
+      cy.url().should("contain", routes.GITHUBAUTH);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.formloginButton).click();
+      cy.url().should("contain", routes.FORMLOGIN);
+    },
+  );
 
-  it("should test that configure link redirects to google signup setup doc", () => {
-    cy.visit(routes.GENERAL);
-    cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", routes.AUTHENTICATION);
-    cy.get(adminsSettings.googleButton).click();
-    cy.url().should("contain", routes.GOOGLEAUTH);
-    cy.get(adminsSettings.readMoreLink).within(() => {
-      cy.get("a")
-        .should("have.attr", "target", "_blank")
-        .invoke("removeAttr", "target")
-        .click();
-      cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
-    });
-  });
+  it(
+    "airgap",
+    "11. should test that authentication page redirects and google and github auth doesn't exist - airgap",
+    () => {
+      cy.visit(routes.GENERAL);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.googleButton).should("not.exist");
+      cy.get(adminsSettings.githubButton).should("not.exist");
+      cy.get(adminsSettings.formloginButton).click();
+      cy.url().should("contain", routes.FORMLOGIN);
+    },
+  );
 
-  it("should test that configure link redirects to github signup setup doc", () => {
-    cy.visit(routes.GENERAL);
-    cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", routes.AUTHENTICATION);
-    cy.get(adminsSettings.githubButton).click();
-    cy.url().should("contain", routes.GITHUBAUTH);
-    cy.get(adminsSettings.readMoreLink).within(() => {
-      cy.get("a")
-        .should("have.attr", "target", "_blank")
-        .invoke("removeAttr", "target")
-        .click();
-      cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
-    });
-  });
+  it(
+    "excludeForAirgap",
+    "12. should test that configure link redirects to google signup setup doc",
+    () => {
+      cy.visit(routes.GENERAL);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.googleButton).click();
+      cy.url().should("contain", routes.GOOGLEAUTH);
+      cy.get(adminsSettings.readMoreLink).within(() => {
+        cy.get("a")
+          .should("have.attr", "target", "_blank")
+          .invoke("removeAttr", "target")
+          .click();
+        cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
+      });
+    },
+  );
 
-  it("should test that read more on version opens up release notes", () => {
-    cy.visit(routes.GENERAL);
-    cy.get(adminsSettings.versionTab).click();
-    cy.url().should("contain", routes.VERSION);
-    cy.get(adminsSettings.readMoreLink).within(() => {
-      cy.get("a").click();
-    });
+  it(
+    "excludeForAirgap",
+    "13. should test that configure link redirects to github signup setup doc",
+    () => {
+      cy.visit(routes.GENERAL);
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", routes.AUTHENTICATION);
+      cy.get(adminsSettings.githubButton).click();
+      cy.url().should("contain", routes.GITHUBAUTH);
+      cy.get(adminsSettings.readMoreLink).within(() => {
+        cy.get("a")
+          .should("have.attr", "target", "_blank")
+          .invoke("removeAttr", "target")
+          .click();
+        cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
+      });
+    },
+  );
+
+  it(
+    "excludeForAirgap",
+    "14. should test that read more on version opens up release notes",
+    () => {
+      cy.visit(routes.GENERAL);
+      cy.get(adminsSettings.versionTab).click();
+      cy.url().should("contain", routes.VERSION);
+      cy.get(adminsSettings.readMoreLink).within(() => {
+        cy.get("a").click();
+      });
+      cy.wait(2000);
+      cy.get(".bp3-dialog-container").should("be.visible");
+      cy.get(".bp3-dialog-header .bp3-heading").should("be.visible");
+      cy.get(".bp3-dialog-header .bp3-heading").should(
+        "contain",
+        "Product Updates",
+      );
+      cy.get(".bp3-dialog-close-button").should("be.visible");
+      cy.get(".bp3-dialog-close-button").click();
+      cy.wait(2000);
+      cy.get(".bp3-dialog-container").should("not.exist");
+    },
+  );
+
+  it(
+    "airgap",
+    "14. should test that read more on version is hidden for airgap",
+    () => {
+      cy.visit(routes.GENERAL);
+      cy.get(adminsSettings.versionTab).click();
+      cy.url().should("contain", routes.VERSION);
+      cy.get(adminsSettings.readMoreLink).should("not.exist");
+    },
+  );
+
+  it("15. should test that settings page is not accessible to normal users", () => {
+    cy.LogOut();
     cy.wait(2000);
-    cy.get(".bp3-dialog-container").should("be.visible");
-    cy.get(".bp3-dialog-header .bp3-heading").should("be.visible");
-    cy.get(".bp3-dialog-header .bp3-heading").should(
-      "contain",
-      "Product Updates",
-    );
-    cy.get(".bp3-dialog-close-button").should("be.visible");
-    cy.get(".bp3-dialog-close-button").click();
-    cy.wait(2000);
-    cy.get(".bp3-dialog-container").should("not.exist");
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    cy.get(".admin-settings-menu-option").should("not.exist");
+    cy.visit(routes.GENERAL);
+    // non super users are redirected to home page
+    cy.url().should("contain", routes.APPLICATIONS);
+    cy.LogOut();
   });
 });

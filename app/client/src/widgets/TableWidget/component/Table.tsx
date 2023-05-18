@@ -29,7 +29,7 @@ import type {
 import { TABLE_SIZES, CompactModeTypes } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system-old";
+import { ScrollIndicator } from "@design-system/widgets-old";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 

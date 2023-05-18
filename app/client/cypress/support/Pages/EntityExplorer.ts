@@ -12,7 +12,9 @@ type templateActions =
   | "Delete"
   | "Count"
   | "Distinct"
-  | "Aggregate";
+  | "Aggregate"
+  | "Select"
+  | "Create";
 
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -35,6 +37,10 @@ export class EntityExplorer {
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+  private _expandCollapseSection = (entityNameinLeftSidebar: string) =>
+    this._expandCollapseArrow(entityNameinLeftSidebar) +
+    "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
+
   private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
@@ -47,7 +53,7 @@ export class EntityExplorer {
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
   private _visibleTextSpan = (spanText: string) =>
-    "//span[text()='" + spanText + " Query']";
+    "//span[text()='" + spanText + "']";
   _createNewPopup = ".bp3-overlay-content";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _pinEntityExplorer = ".t--pin-entity-explorer";
@@ -57,6 +63,10 @@ export class EntityExplorer {
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
   private _newPageOptions = (option: string) => `[data-cy='${option}']`;
+  _allQueriesforDB = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -116,21 +126,64 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
+    this.agHelper.AssertElementVisible(
+      this._expandCollapseArrow(entityName),
+      index,
+      30000,
+    );
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
+      .wait(500)
       .invoke("attr", "name")
       .then((arrow) => {
-        if (expand && arrow == "arrow-right")
+        if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
-            .wait(1000);
-        else if (!expand && arrow == "arrow-down")
+            .trigger("click", { force: true })
+            .wait(500);
+          // this.agHelper
+          //   .GetElement(this._expandCollapseSection(entityName))
+          //   .then(($div: any) => {
+          //     cy.log("Checking style - expand");
+          //     while (!$div.attr("style").includes("overflow-y: visible;")) {
+          //       cy.log("Inside style check - expand");
+          //       cy.xpath(this._expandCollapseArrow(entityName))
+          //         .eq(index)
+          //         .trigger("click", { multiple: true })
+          //         .wait(500);
+          //     }
+          //   });
+        } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
-            .wait(1000);
-        else this.agHelper.Sleep(500);
+            .trigger("click", { force: true })
+            .wait(500);
+          // this.agHelper
+          //   .GetElement(this._expandCollapseSection(entityName))
+          //   .then(($div: any) => {
+          //     cy.log("Checking style - collapse");
+          //     while ($div.attr("style").includes("overflow-y: visible;")) {
+          //       cy.log("Inside style check - collapse");
+          //       cy.xpath(this._expandCollapseArrow(entityName))
+          //         .eq(index)
+          //         .trigger("click", { multiple: true })
+          //         .wait(500);
+          //     }
+          //   });
+        } else this.agHelper.Sleep(500);
+      });
+  }
+
+  public GetEntityNamesInSection(
+    sectionName: string,
+    entityFilterSelector: string,
+  ) {
+    return cy
+      .xpath(this._expandCollapseSection(sectionName))
+      .find(entityFilterSelector)
+      .then((entities) => {
+        const entityNames = entities.map((_, el) => Cypress.$(el).text()).get();
+        return entityNames;
       });
   }
 
@@ -159,6 +212,16 @@ export class EntityExplorer {
     }
   }
 
+  public DeleteAllQueriesForDB(dsName: string) {
+    this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el) => {
+      cy.wrap($el)
+        .invoke("text")
+        .then(($query) => {
+          this.ActionContextMenuByEntityName($query, "Delete", "Are you sure?");
+        });
+    });
+  }
+
   public ActionTemplateMenuByEntityName(
     entityNameinLeftSidebar: string,
     action: templateActions,
@@ -182,7 +245,11 @@ export class EntityExplorer {
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+    if (widgetType === "modalwidget") {
+      cy.get(".t--modal-widget").should("exist");
+    } else {
+      cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+    }
   }
 
   public ClonePage(pageName = "Page1") {
@@ -191,9 +258,16 @@ export class EntityExplorer {
     this.agHelper.ValidateNetworkStatus("@clonePage", 201);
   }
 
-  public CreateNewDsQuery(dsName: string) {
+  public CreateNewDsQuery(dsName: string, isQuery = true) {
     cy.get(this.locator._createNew).last().click({ force: true });
-    cy.xpath(this._visibleTextSpan(dsName)).click({ force: true });
+    const searchText = isQuery ? dsName + " query" : dsName;
+    this.SearchAndClickOmnibar(searchText);
+  }
+
+  public SearchAndClickOmnibar(searchText: string) {
+    cy.get(`[data-testId="t--search-file-operation"]`).type(searchText);
+    let overlayItem = this._visibleTextSpan(searchText);
+    this.agHelper.GetNClick(overlayItem);
   }
 
   public CopyPasteWidget(widgetName: string) {

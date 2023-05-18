@@ -7,7 +7,7 @@ import {
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "../../TableStyledWrappers";
-import { SearchComponent } from "design-system-old";
+import { SearchComponent } from "@design-system/widgets-old";
 import TableFilters from "./filter";
 import type {
   ReactTableColumnProps,
@@ -213,9 +213,7 @@ function Actions(props: ActionsPropsType) {
                 {props.pageNo + 1}
               </PaginationItemWrapper>
               &nbsp;
-              <span
-                data-pagecount={props.pageCount}
-              >{`of ${props.pageCount}`}</span>
+              <span>{`of ${props.pageCount}`}</span>
             </TableHeaderContentWrapper>
           ) : (
             <PaginationItemWrapper

@@ -29,7 +29,7 @@ const JSInput2TestCode =
 let repoName;
 
 describe("1. CommandClickNavigation", function () {
-  it("1. Import the test application", () => {
+  it("1. Import application & Assert few things", () => {
     homePage.NavigateToHome();
     cy.reload();
     homePage.ImportApp("ContextSwitching.json");
@@ -46,9 +46,8 @@ describe("1. CommandClickNavigation", function () {
         homePage.AssertImportToast();
       }
     });
-  });
 
-  it("2. Assert link and and style", () => {
+    //Assert link and and style
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
@@ -61,11 +60,10 @@ describe("1. CommandClickNavigation", function () {
       .should("have.css", "cursor", "text");
 
     // TODO how to hover with cmd or ctrl to assert pointer?
-  });
 
-  it("3. Assert navigation only when cmd or ctrl is pressed", () => {
+    // Assert navigation only when cmd or ctrl is pressed
     agHelper.Sleep();
-    cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click();
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({ force: true });
 
     cy.url().should("not.contain", "/api/");
 
@@ -75,9 +73,8 @@ describe("1. CommandClickNavigation", function () {
     });
 
     cy.url().should("contain", "/api/");
-  });
 
-  it("4. Assert working on url field", () => {
+    //Assert working on url field
     cy.updateCodeInput(
       ".t--dataSourceField",
       "https://www.test.com/{{ SQL_Query.data }}",
@@ -86,12 +83,12 @@ describe("1. CommandClickNavigation", function () {
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="SQL_Query"]`)
       .should("have.length", 1)
-      .click({ cmdKey: true });
+      .click({ cmdKey: true }, { force: true });
 
     cy.url().should("contain", "/queries/");
   });
 
-  it("5. Will open modals", () => {
+  it("2. Will open & close modals ", () => {
     cy.updateCodeInput(
       ".t--actionConfiguration\\.body",
       "SELECT * from {{ Button3.text }}",
@@ -102,9 +99,8 @@ describe("1. CommandClickNavigation", function () {
       .click({ cmdKey: true });
 
     cy.url().should("not.contain", "/queries/");
-  });
 
-  it("6. Will close modals", () => {
+    //CLose modal
     cy.updateCodeInput(
       `${commonLocators._propertyControl}tooltip`,
       "{{ Image1.image }}",
@@ -115,7 +111,7 @@ describe("1. CommandClickNavigation", function () {
       .click({ cmdKey: true });
   });
 
-  it("7. Will navigate to specific JS Functions", () => {
+  it("3. Will navigate to specific JS Functions", () => {
     // It was found that when having git connected,
     // cmd clicking to JS function reloaded the app. Will assert that does not happen
     cy.generateUUID().then((uid) => {
@@ -133,9 +129,12 @@ describe("1. CommandClickNavigation", function () {
 
     agHelper.Sleep();
 
-    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
-      ctrlKey: true,
-    });
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click(
+      {
+        ctrlKey: true,
+      },
+      { force: true },
+    );
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
     agHelper.Sleep();
@@ -152,7 +151,7 @@ describe("1. CommandClickNavigation", function () {
     });
   });
 
-  it("8. Will navigate within Js Object properly", () => {
+  it("4. Will navigate within Js Object properly", () => {
     cy.updateCodeInput(".js-editor", JSInputTestCode);
     agHelper.Sleep(2000);
     cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myVar1"]`).click({
@@ -184,7 +183,7 @@ describe("1. CommandClickNavigation", function () {
     });
   });
 
-  it.skip("Will work with string arguments in framework functions", () => {
+  it.skip("5. Will work with string arguments in framework functions", () => {
     cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,

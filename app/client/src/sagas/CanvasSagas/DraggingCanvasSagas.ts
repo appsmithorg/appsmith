@@ -24,18 +24,19 @@ import type {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidget, getWidgets } from "sagas/selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
 import {
+  getCanvasWidth,
   getCurrentAppPositioningType,
+  getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
@@ -343,13 +344,17 @@ function* moveWidgetsSaga(
        * If previous parent is an auto layout container,
        * then update the flex layers.
        */
-      const isMobile: boolean = yield select(getIsMobile);
+      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
         canvasId,
         true,
         isMobile,
+        mainCanvasWidth,
+        metaProps,
       );
     }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(

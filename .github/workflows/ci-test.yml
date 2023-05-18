@@ -128,8 +128,6 @@ jobs:
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
@@ -146,8 +144,6 @@ jobs:
 
       - name: Run Appsmith & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
@@ -158,16 +154,18 @@ jobs:
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -v "$PWD/stacks:/appsmith-stacks" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            --add-host=host.docker.internal:host-gateway \
+            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
-            
-      - name: Setup MSSQL docker container
+
+      - name: Setup MSSQL & Arango docker & ElasticSearch containers
         working-directory : app/client/cypress
         run : |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
+          docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
+          docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
        # docker restart mssqldb
        # sudo ufw allow 1433/tcp
@@ -180,14 +178,24 @@ jobs:
         with:
           node-version: "16.14.0"
 
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install \
-          --cwd cypress \
-          --modules-folder ../node_modules
+          yarn install --immutable
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -210,6 +218,7 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -229,6 +238,8 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
@@ -264,6 +275,7 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -283,6 +295,8 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -322,6 +336,7 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -341,6 +356,8 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -392,9 +409,16 @@ jobs:
           cd ${{ github.workspace }}/app/client/cypress/
           find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
+      # reset the failed_spec_ci file in case of success
+      - name: In case of test success reset the failed_spec_ci file
+        if: success()
+        run: |
+          rm -f ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          touch ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: failed-spec-ci

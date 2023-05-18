@@ -6,7 +6,7 @@ import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
@@ -119,7 +119,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onOptionChange",
-        helpText: "Triggers an action when a user selects an option",
+        helpText: "when a user selects an option",
         label: "onOptionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

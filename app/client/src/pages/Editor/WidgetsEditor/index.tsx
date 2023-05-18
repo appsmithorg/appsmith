@@ -21,7 +21,7 @@ import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
@@ -43,10 +43,20 @@ import {
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import classNames from "classnames";
+import { BannerMessage, IconSize } from "design-system-old";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  SNAPSHOT_BANNER_MESSAGE,
+  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+} from "@appsmith/constants/messages";
+import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
-import useGoogleFont from "utils/hooks/useGoogleFont";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import classNames from "classnames";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
+import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -58,6 +68,9 @@ function WidgetsEditor() {
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
   const isPreviewMode = useSelector(previewModeSelector);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
@@ -70,7 +83,13 @@ function WidgetsEditor() {
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
+  const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
+  const isMobile = useIsMobileDevice();
+  const isPreviewingNavigation =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
+  const shouldShowSnapShotBanner =
+    !!readableSnapShotDetails && !isPreviewingNavigation;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -142,7 +161,7 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
+    if (isPreviewingNavigation && !guidedTourEnabled) {
       return (
         <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={
@@ -162,13 +181,19 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
+
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div className="relative flex flex-col w-full overflow-hidden">
-              <CanvasTopSection />
+            <div
+              className={classNames({
+                "relative flex flex-col w-full overflow-hidden": true,
+                "m-8 border border-gray-200":
+                  isAppSettingsPaneWithNavigationTabOpen,
+              })}
+            >
+              {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+
               <div
-                className={classNames({
-                  "relative flex flex-row w-full overflow-hidden": true,
-                })}
+                className="relative flex flex-row w-full overflow-hidden"
                 data-testid="widgets-editor"
                 draggable
                 id="widgets-editor"
@@ -181,8 +206,14 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
+                  className={classNames({
+                    "relative flex flex-row w-full justify-center overflow-hidden":
+                      true,
+                    "select-none pointer-events-none":
+                      isAppSettingsPaneWithNavigationTabOpen,
+                  })}
                   hasPinnedSidebar={
-                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                    isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail
                           ?.navigationSetting?.orientation ===
                           NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
@@ -191,24 +222,46 @@ function WidgetsEditor() {
                   }
                   isPreviewMode={isPreviewMode}
                   isPublished={isPublished}
-                  sidebarWidth={
-                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-                      ? sidebarWidth
-                      : 0
-                  }
+                  sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
                 >
+                  {shouldShowSnapShotBanner && (
+                    <div className="absolute top-0 z-1 w-full">
+                      <BannerMessage
+                        backgroundColor={Colors.WARNING_ORANGE}
+                        ctaChildren={<SnapShotBannerCTA />}
+                        fontWeight="400"
+                        icon="warning-line"
+                        iconColor={Colors.WARNING_SOLID}
+                        iconFlexPosition="start"
+                        iconSize={IconSize.XXXXL}
+                        intentLine
+                        message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
+                        messageHeader={
+                          readableSnapShotDetails
+                            ? createMessage(
+                                SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+                                readableSnapShotDetails.timeTillExpiration,
+                              )
+                            : ""
+                        }
+                        textColor={Colors.GRAY_800}
+                      />
+                    </div>
+                  )}
                   <CanvasContainer
                     isAppSettingsPaneWithNavigationTabOpen={
                       AppSettingsTabs.Navigation ===
                       appSettingsPaneContext?.type
                     }
+                    isPreviewMode={isPreviewMode}
                     navigationHeight={navigationHeight}
+                    shouldShowSnapShotBanner={shouldShowSnapShotBanner}
                   />
                 </PageViewContainer>
 
                 <CrudInfoModal />
-                <Debugger />
               </div>
+              <Debugger />
             </div>
 
             {!isMultiPane && <PropertyPaneContainer />}

@@ -1,20 +1,21 @@
 import { debounce, get } from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-// import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
-  // MAIN_CONTAINER_WIDGET_ID,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-// import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationLayout,
-  // getCurrentAppPositioningType,
+  getCurrentAppPositioningType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
@@ -34,18 +35,18 @@ import {
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
-import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
+import type { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
@@ -65,6 +66,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -72,7 +74,10 @@ export const useDynamicAppLayout = () => {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isMobile = useIsMobileDevice();
-  // const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  const [isCanvasResizing, setIsCanvasResizing] = useState<boolean>(false);
 
   // /**
   //  * calculates min height
@@ -117,8 +122,12 @@ export const useDynamicAppLayout = () => {
    * @returns
    */
   const calculateCanvasWidth = () => {
-    const { maxWidth, minWidth } = layoutWidthRange;
+    let { maxWidth } = layoutWidthRange;
+    const { minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
+
+    const gutterWidth =
+      appPositioningType === AppPositioningTypes.AUTO ? 0 : GUTTER_WIDTH;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
@@ -167,25 +176,24 @@ export const useDynamicAppLayout = () => {
     ) {
       calculatedWidth -= sidebarWidth;
     }
-    // const ele: any = document.getElementById("canvas-viewport");
-    // if (
-    //   appMode === "EDIT" &&
-    //   appLayout?.type === "FLUID" &&
-    //   ele &&
-    //   calculatedWidth > ele.clientWidth
-    // ) {
-    //   calculatedWidth = ele.clientWidth;
-    // }
-
-    // if (appPositioningType === AppPositioningTypes.AUTO && isPreviewMode) {
-    //   calculatedWidth -= AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
-    // }
+    if (isMobile) {
+      maxWidth += sidebarWidth;
+    }
+    const ele: any = document.getElementById("canvas-viewport");
+    if (
+      appMode === APP_MODE.EDIT &&
+      appLayout?.type === "FLUID" &&
+      ele &&
+      calculatedWidth > ele.clientWidth
+    ) {
+      calculatedWidth = ele.clientWidth;
+    }
 
     switch (true) {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
-        const totalWidthToSubtract = BORDERS_WIDTH + GUTTER_WIDTH;
+        const totalWidthToSubtract = gutterWidth;
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
@@ -216,11 +224,7 @@ export const useDynamicAppLayout = () => {
     let scale = 1;
     if (isMultiPane && appLayout?.type !== "FLUID") {
       let canvasSpace =
-        screenWidth -
-        tabsPaneWidth -
-        SIDE_NAV_WIDTH -
-        GUTTER_WIDTH -
-        BORDERS_WIDTH;
+        screenWidth - tabsPaneWidth - SIDE_NAV_WIDTH - GUTTER_WIDTH;
       if (paneCount === 3) canvasSpace -= propertyPaneWidth;
       // Scale will always be between 0.5 to 1
       scale = Math.max(
@@ -231,6 +235,7 @@ export const useDynamicAppLayout = () => {
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
+    return calculatedWidth;
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
@@ -240,29 +245,29 @@ export const useDynamicAppLayout = () => {
     paneCount,
   ]);
 
-  // const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
-  //   mainCanvasProps,
-  //   screenWidth,
-  //   currentPageId,
-  //   appMode,
-  //   appLayout,
-  //   isPreviewMode,
-  // ]);
+  const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
+    mainCanvasProps,
+    screenWidth,
+    currentPageId,
+    appMode,
+    appLayout,
+    isPreviewMode,
+  ]);
 
-  // const resizeObserver = new ResizeObserver(immediateDebouncedResize);
-  // useEffect(() => {
-  //   const ele: any = document.getElementById("canvas-viewport");
-  //   if (ele) {
-  //     if (appLayout?.type === "FLUID") {
-  //       resizeObserver.observe(ele);
-  //     } else {
-  //       resizeObserver.unobserve(ele);
-  //     }
-  //   }
-  //   return () => {
-  //     ele && resizeObserver.unobserve(ele);
-  //   };
-  // }, [appLayout, currentPageId, isPreviewMode]);
+  const resizeObserver = new ResizeObserver(immediateDebouncedResize);
+  useEffect(() => {
+    const ele: any = document.getElementById("canvas-viewport");
+    if (ele) {
+      if (appLayout?.type === "FLUID") {
+        resizeObserver.observe(ele);
+      } else {
+        resizeObserver.unobserve(ele);
+      }
+    }
+    return () => {
+      ele && resizeObserver.unobserve(ele);
+    };
+  }, [appLayout, currentPageId, isPreviewMode]);
 
   /**
    * when screen height is changed, update canvas layout
@@ -301,6 +306,7 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     isAppSettingsPaneWithNavigationTabOpen,
     explorerWidth,
+    sidebarWidth,
     propertyPaneWidth,
     isExplorerPinned,
     propertyPaneWidth,
@@ -313,17 +319,37 @@ export const useDynamicAppLayout = () => {
     currentPageId, //TODO: preet - remove this after first merge.
   ]);
 
-  // useEffect(() => {
-  //   dispatch(
-  //     updateLayoutForMobileBreakpointAction(
-  //       MAIN_CONTAINER_WIDGET_ID,
-  //       appPositioningType === AppPositioningTypes.AUTO
-  //         ? mainCanvasProps?.isMobile
-  //         : false,
-  //       calculateCanvasWidth(),
-  //     ),
-  //   );
-  // }, [mainCanvasProps?.isMobile, appPositioningType]);
+  useEffect(() => {
+    dispatch(
+      updateLayoutForMobileBreakpointAction(
+        MAIN_CONTAINER_WIDGET_ID,
+        appPositioningType === AppPositioningTypes.AUTO
+          ? mainCanvasProps?.isMobile
+          : false,
+        calculateCanvasWidth(),
+      ),
+    );
+  }, [mainCanvasProps?.isMobile]);
+
+  useEffect(() => {
+    if (isAutoCanvasResizing) setIsCanvasResizing(true);
+    else if (isCanvasResizing) {
+      setIsCanvasResizing(false);
+      const canvasWidth: number = resizeToLayout();
+      dispatch(
+        updateLayoutForMobileBreakpointAction(
+          MAIN_CONTAINER_WIDGET_ID,
+          appPositioningType === AppPositioningTypes.AUTO
+            ? mainCanvasProps?.isMobile
+            : false,
+          canvasWidth,
+        ),
+      );
+      dispatch({
+        type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+      });
+    }
+  }, [isAutoCanvasResizing]);
 
   return isCanvasInitialized;
 };

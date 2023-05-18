@@ -37,6 +37,9 @@ public class UserProfileDTO {
     @JsonProperty("adminSettingsVisible")
     boolean adminSettingsVisible = false;
 
+    @JsonProperty("isIntercomConsentGiven")
+    boolean isIntercomConsentGiven = false;
+
     String photoId;
 
     String role;

@@ -21,6 +21,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public interface ExecutionMethod {
 
@@ -66,7 +67,7 @@ public interface ExecutionMethod {
 
     WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig);
 
-    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw Exceptions.propagate(new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

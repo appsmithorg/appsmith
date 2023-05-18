@@ -5,6 +5,8 @@
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
+@import "assets/fonts/custom/index.css";
+@import "assets/fonts/google/index.css";
 
 body {
   margin: 0;
@@ -16,6 +18,11 @@ body {
 
 body.dragging * {
   cursor: grabbing !important;
+}
+
+body.overlay {
+  opacity: 0;
+  pointer-events: none;
 }
 
 code {
@@ -38,6 +45,16 @@ span.bp3-popover-target {
 
 span.bp3-popover-target > * {
   flex-grow: 1;
+}
+
+.action-selector-popup span.bp3-popover-target > * {
+  max-width: 100%;
+}
+
+.action-selector-popup .bp3-button-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
 }
 
 div.bp3-popover-arrow {
@@ -85,6 +102,10 @@ div.bp3-popover-arrow {
 
 .bp3-popover.bp3-minimal {
   margin-top: 8px !important;
+}
+
+.bp3-popover.bp3-minimal.action-selector-dropdown {
+  margin-top: 0px !important;
 }
 
 .layout-control.bp3-popover.bp3-minimal {

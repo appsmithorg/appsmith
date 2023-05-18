@@ -8,8 +8,7 @@ import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -17,7 +16,12 @@ import TabsComponent from "../component";
 import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -185,12 +189,11 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onTabSelected",
             label: "onTabSelected",
             controlType: "ACTION_SELECTOR",
@@ -283,6 +286,12 @@ class TabsWidget extends BaseWidget<
     checkContainersForAutoHeight && checkContainersForAutoHeight();
   };
 
+  callPositionUpdates = (tabWidgetId: string) => {
+    const { updatePositionsOnTabChange } = this.context;
+    updatePositionsOnTabChange &&
+      updatePositionsOnTabChange(this.props.widgetId, tabWidgetId);
+  };
+
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
       triggerPropertyName: "onTabSelected",
@@ -292,6 +301,7 @@ class TabsWidget extends BaseWidget<
       },
     });
     setTimeout(this.callDynamicHeightUpdates, 0);
+    setTimeout(() => this.callPositionUpdates(tabWidgetId), 0);
   };
 
   static getStylesheetConfig(): Stylesheet {
@@ -305,6 +315,13 @@ class TabsWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedTab: "string",
     };
   }
 
@@ -329,7 +346,7 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidget(this.props, true);
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -342,6 +359,10 @@ class TabsWidget extends BaseWidget<
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
         selectedTabWidgetId={this.getSelectedTabWidgetId()}
+        shouldScrollContents={
+          this.props.shouldScrollContents &&
+          this.props.appPositioningType !== AppPositioningTypes.AUTO
+        }
       >
         {this.renderComponent()}
       </TabsComponent>

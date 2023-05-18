@@ -15,6 +15,9 @@ export interface UpdateWidgetMetaPropertyPayload {
   propertyValue: unknown;
 }
 
+export interface BatchUpdateWidgetMetaPropertyPayload {
+  batchMetaUpdates: UpdateWidgetMetaPropertyPayload[];
+}
 export const updateWidgetMetaPropAndEval = (
   widgetId: string,
   propertyName: string,
@@ -77,6 +80,15 @@ export const triggerEvalOnMetaUpdate = () => {
     type: ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
     payload: {},
   });
+};
+
+export const syncBatchUpdateWidgetMetaProperties = (
+  batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
+): ReduxAction<BatchUpdateWidgetMetaPropertyPayload> => {
+  return {
+    type: ReduxActionTypes.BATCH_UPDATE_META_PROPS,
+    payload: { batchMetaUpdates },
+  };
 };
 
 export const syncUpdateWidgetMetaProperty = (

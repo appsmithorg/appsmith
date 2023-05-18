@@ -32,7 +32,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
@@ -319,11 +318,17 @@ public class ApplicationServiceCETest {
                 .verify();
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createValidApplication() {
+
+    /**
+     * Create an application and validate it.
+     * @param applicationName This is the initial name of the application which will try to create the application,
+     *                        but not guaranteed this will be the application's final name due to retry logic
+     * @param applicationFinalName This is the application final name and it can be different from initial name
+     *                             due to retry if there is name clash.
+     */
+    private void createAndVerifyValidApplication(String applicationName, String applicationFinalName){
         Application testApplication = new Application();
-        testApplication.setName("ApplicationServiceTest TestApp");
+        testApplication.setName(applicationName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -341,10 +346,10 @@ public class ApplicationServiceCETest {
                     Application application = tuple2.getT1();
                     String defaultThemeId = tuple2.getT2();
                     assertThat(application).isNotNull();
-                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(applicationFinalName));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
+                    assertThat(application.getName()).isEqualTo(applicationFinalName);
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
@@ -392,6 +397,23 @@ public class ApplicationServiceCETest {
                             exportAppPolicy, deleteApplicationsPolicy, createPagesPolicy));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createValidApplication() {
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createApplicationWithDuplicateName() {
+        // Creating first App with name "ApplicationServiceTest TestApp"
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp");
+
+        // Creating second App with same name "ApplicationServiceTest TestApp" but due to duplicate name its resultant
+        // name will be ApplicationServiceTest TestApp (1)
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp (1)");
     }
 
     @Test
@@ -2399,6 +2421,7 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        gitConnectedApp.setUnpublishedApplicationDetail(new ApplicationDetail());
         gitConnectedApp.getUnpublishedApplicationDetail().setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
@@ -3586,5 +3609,24 @@ public class ApplicationServiceCETest {
         StepVerifier.create(saveMono)
                 .expectErrorMatches(error -> error instanceof AppsmithException)
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void cloneApplication_WhenClonedSuccessfully_InternalFieldsResetToNull() {
+        String applicationName = "ApplicationServiceTest internal fields reset post cloning";
+        Application testApplication = new Application();
+        testApplication.setName(applicationName);
+        testApplication.setExportWithConfiguration(TRUE);
+        testApplication.setForkWithConfiguration(TRUE);
+
+        Application application =  applicationPageService.createApplication(testApplication, workspaceId).block();
+        Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(application.getId(), null);
+
+
+        StepVerifier.create(clonedApplicationMono).assertNext(clonedApplication -> {
+            assertThat(clonedApplication.getExportWithConfiguration()).isNull();
+            assertThat(clonedApplication.getForkWithConfiguration()).isNull();
+        }).verifyComplete();
     }
 }

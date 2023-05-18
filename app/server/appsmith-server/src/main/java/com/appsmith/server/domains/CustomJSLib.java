@@ -1,6 +1,6 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-public class CustomJSLib extends BaseDomain {
+public class CustomJSLib extends BranchAwareDomain {
     /* Library name */
     String name;
 

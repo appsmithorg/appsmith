@@ -6,6 +6,9 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -33,11 +36,25 @@ import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
-} from "selectors/applicationSelectors";
-import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
+} from "@appsmith/selectors/applicationSelectors";
+import {
+  get,
+  isArray,
+  isString,
+  set,
+  find,
+  isNil,
+  flatten,
+  isArrayBuffer,
+  isEmpty,
+  unset,
+} from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
-import { validateResponse } from "sagas/ErrorSagas";
+import {
+  extractClientDefinedErrorMetadata,
+  validateResponse,
+} from "sagas/ErrorSagas";
 import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
@@ -115,10 +132,19 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
+
+type FilePickerInstumentationObject = {
+  numberOfFiles: number;
+  totalSize: number;
+  fileTypes: Array<string>;
+  fileSizes: Array<number>;
+};
 
 export const getActionTimeout = (
   state: AppState,
@@ -181,7 +207,16 @@ function* readBlob(blobUrl: string): any {
     if (fileType === FileDataTypes.Base64) {
       reader.readAsDataURL(file);
     } else if (fileType === FileDataTypes.Binary) {
-      reader.readAsBinaryString(file);
+      if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
+        //check size of the file, if less than 5mb, go with binary string method
+        // TODO: this method is deprecated, use readAsText instead
+        reader.readAsBinaryString(file);
+      } else {
+        // For files greater than 5 mb, use array buffer method
+        // This is to remove the bloat from the file which is added
+        // when using read as binary string method
+        reader.readAsArrayBuffer(file);
+      }
     } else {
       reader.readAsText(file);
     }
@@ -214,7 +249,9 @@ function* resolvingBlobUrls(
   //If array elements then dont push datatypes to payload.
   isArray
     ? arrDatatype?.push(dataType)
-    : (executeActionRequest.paramProperties[`k${index}`] = dataType);
+    : (executeActionRequest.paramProperties[`k${index}`] = {
+        datatype: dataType,
+      });
 
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
@@ -228,6 +265,17 @@ function* resolvingBlobUrls(
       const blobUrl = value[blobUrlPath] as string;
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
+
+      // We need to store the url path map to be able to update the blob data
+      // and send the info to server
+
+      // Here we fetch the blobUrlPathMap from the action payload and update it
+      const blobUrlPathMap = get(value, "blobUrlPaths", {}) as Record<
+        string,
+        string
+      >;
+      set(blobUrlPathMap, blobUrlPath, blobUrl);
+      set(value, "blobUrlPaths", blobUrlPathMap);
     }
   } else if (isBlobUrl(value)) {
     // @ts-expect-error: Values can take many types
@@ -235,6 +283,28 @@ function* resolvingBlobUrls(
   }
 
   return value;
+}
+
+// Function that updates the blob data in the action payload for large file
+// uploads
+function updateBlobDataFromUrls(
+  blobUrlPaths: Record<string, string>,
+  newVal: any,
+  blobMap: string[],
+  blobDataMap: Record<string, Blob>,
+) {
+  Object.entries(blobUrlPaths as Record<string, string>).forEach(
+    // blobUrl: string eg: blob:1234-1234-1234?type=binary
+    ([path, blobUrl]) => {
+      if (isArrayBuffer(newVal[path])) {
+        // remove the ?type=binary from the blob url if present
+        const sanitisedBlobURL = blobUrl.split("?")[0];
+        blobMap.push(sanitisedBlobURL);
+        set(blobDataMap, sanitisedBlobURL, new Blob([newVal[path]]));
+        set(newVal, path, sanitisedBlobURL);
+      }
+    },
+  );
 }
 
 /**
@@ -270,6 +340,7 @@ function* evaluateActionParams(
   bindings: string[] | undefined,
   formData: FormData,
   executeActionRequest: ExecuteActionRequest,
+  filePickerInstrumentation: FilePickerInstumentationObject,
   executionParams?: Record<string, any> | string,
 ) {
   if (isNil(bindings) || bindings.length === 0) {
@@ -283,17 +354,32 @@ function* evaluateActionParams(
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
 
+  // Maintain a blob data map to resolve blob urls of large files as array buffer
+  const blobDataMap: Record<string, Blob> = {};
+
+  let recordFilePickerInstrumentation = false;
+
+  // if json bindings have filepicker reference, we need to init the instrumentation object
+  // which we will send post execution
+  recordFilePickerInstrumentation = bindings.some((binding) =>
+    binding.includes(".files"),
+  );
+
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
     let value = values[i];
 
+    let useBlobMaps = false;
+    // Maintain a blob map to resolve blob urls of large files
+    const blobMap: Array<string> = [];
+
     if (isArray(value)) {
       const tempArr = [];
-      const arrDatatype: string[] = [];
+      const arrDatatype: Array<string> = [];
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
       for (const val of value) {
-        const newVal: unknown = yield call(
+        const newVal: Record<string, any> = yield call(
           resolvingBlobUrls,
           val,
           executeActionRequest,
@@ -301,30 +387,83 @@ function* evaluateActionParams(
           true,
           arrDatatype,
         );
+
+        if (newVal.hasOwnProperty("blobUrlPaths")) {
+          updateBlobDataFromUrls(
+            newVal.blobUrlPaths,
+            newVal,
+            blobMap,
+            blobDataMap,
+          );
+          useBlobMaps = true;
+          unset(newVal, "blobUrlPaths");
+        }
+
         tempArr.push(newVal);
+
+        if (key.includes(".files") && recordFilePickerInstrumentation) {
+          filePickerInstrumentation["numberOfFiles"] += 1;
+          const { size, type } = newVal;
+          filePickerInstrumentation["totalSize"] += size;
+          filePickerInstrumentation["fileSizes"].push(size);
+          filePickerInstrumentation["fileTypes"].push(type);
+        }
       }
       //Adding array datatype along with the datatype of first element of the array
       executeActionRequest.paramProperties[`k${i}`] = {
-        array: [arrDatatype[0]],
+        datatype: { array: [arrDatatype[0]] },
       };
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
       value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
+      if (key.includes(".files") && recordFilePickerInstrumentation) {
+        filePickerInstrumentation["numberOfFiles"] += 1;
+        filePickerInstrumentation["totalSize"] += value.size;
+        filePickerInstrumentation["fileSizes"].push(value.size);
+        filePickerInstrumentation["fileTypes"].push(value.type);
+      }
     }
 
     if (typeof value === "object") {
+      // This is used in cases of large files, we store the bloburls with the path they were set in
+      // This helps in creating a unique map of blob urls to blob data when passing to the server
+      if (!!value && value.hasOwnProperty("blobUrlPaths")) {
+        updateBlobDataFromUrls(value.blobUrlPaths, value, blobMap, blobDataMap);
+        unset(value, "blobUrlPaths");
+      }
+
       value = JSON.stringify(value);
     }
 
-    value = new Blob([value], { type: "text/plain" });
+    // If there are no blob urls in the value, we can directly add it to the formData
+    // If there are blob urls, we need to add them to the blobDataMap
+    if (!useBlobMaps) {
+      value = new Blob([value], { type: "text/plain" });
+    }
     bindingsMap[key] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
+
+    // We need to add the blob map to the param properties
+    // This will allow the server to handle the scenaio of large files upload using blob data
+    const paramProperties = executeActionRequest.paramProperties[`k${i}`];
+    if (!!paramProperties && typeof paramProperties === "object") {
+      paramProperties["blobIdentifiers"] = blobMap;
+    }
   }
 
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
+
+  // Append blob data map to formData if not empty
+  if (!isEmpty(blobDataMap)) {
+    // blobDataMap is used to resolve blob urls of large files as array buffer
+    // we need to add each blob data to formData as a separate entry
+    Object.entries(blobDataMap).forEach(([path, blobData]) =>
+      formData.append(path, blobData),
+    );
+  }
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -513,6 +652,12 @@ function* runActionShortcutSaga() {
   }
 }
 
+type RunActionError = {
+  name: string;
+  message: string;
+  clientDefinedError?: boolean;
+};
+
 function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -548,22 +693,31 @@ function* runActionSaga(
     },
     state: {
       ...actionObject.actionConfiguration,
-      ...(datasourceUrl && {
-        url: datasourceUrl,
-      }),
+      ...(datasourceUrl
+        ? {
+            url: datasourceUrl,
+          }
+        : null),
     },
   });
 
   const { id, paginationField } = reduxAction.payload;
+  // open response tab in debugger on exection of action.
+  yield call(openDebugger);
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = { name: "", message: "" };
+  let error: RunActionError = {
+    name: "",
+    message: "",
+  };
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
       id,
       paginationField,
+      {},
+      true,
     );
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
@@ -588,6 +742,22 @@ function* runActionSaga(
     }
     log.error(e);
     error = { name: (e as Error).name, message: (e as Error).message };
+
+    const clientDefinedErrorMetadata = extractClientDefinedErrorMetadata(e);
+    if (clientDefinedErrorMetadata) {
+      set(
+        payload,
+        "statusCode",
+        `${clientDefinedErrorMetadata?.statusCode || ""}`,
+      );
+      set(payload, "request", {});
+      set(
+        payload,
+        "pluginErrorDetails",
+        clientDefinedErrorMetadata?.pluginErrorDetails,
+      );
+      set(error, "clientDefinedError", true);
+    }
   }
 
   // Error should be readable error if present.
@@ -608,13 +778,22 @@ function* runActionSaga(
       }
     : undefined;
 
+  const clientDefinedError = error.clientDefinedError
+    ? {
+        name: "PluginExecutionError",
+        message: error?.message,
+        clientDefinedError: true,
+      }
+    : undefined;
+
   const defaultError = {
     name: "PluginExecutionError",
     message: "An unexpected error occurred",
   };
 
   if (isError) {
-    error = readableError || payloadBodyError || defaultError;
+    error =
+      readableError || payloadBodyError || clientDefinedError || defaultError;
 
     // In case of debugger, both the current error message
     // and the readableError needs to be present,
@@ -653,22 +832,18 @@ function* runActionSaga(
             pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
-          state: payload.request,
-          pluginErrorDetails: payload.pluginErrorDetails,
+          state: payload?.request,
+          pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
     ]);
-
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-      variant: Variant.danger,
-    });
 
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: {
         error: appsmithConsoleErrorMessageList[0].message,
         id: reduxAction.payload.id,
+        show: false,
       },
     });
     return;
@@ -755,6 +930,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionName: collection.name,
         action: jsAction,
         collectionId: collectionId,
+        isExecuteJSFunc: true,
       };
       yield call(handleExecuteJSFunctionSaga, data);
     }
@@ -792,6 +968,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       name: "PluginExecutionError",
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
+
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
         yield call(executePluginActionSaga, pageAction);
@@ -807,6 +984,10 @@ function* executePageLoadAction(pageAction: PageAction) {
         };
       }
     }
+    // open response tab in debugger on exection of action on page load.
+    // Only if current page is the page on which the action is executed.
+    if (window.location.pathname.includes(pageAction.id))
+      yield call(openDebugger);
 
     if (isError) {
       AppsmithConsole.addErrors([
@@ -921,6 +1102,7 @@ function* executePluginActionSaga(
   actionOrActionId: PageAction | string,
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
+  isUserInitiated?: boolean,
 ) {
   let pluginAction;
   let actionId;
@@ -972,6 +1154,9 @@ function* executePluginActionSaga(
     actionId: actionId,
     viewMode: appMode === APP_MODE.PUBLISHED,
     paramProperties: {},
+    analyticsProperties: {
+      isUserInitiated: !!isUserInitiated,
+    },
   };
 
   if (paginationField) {
@@ -980,11 +1165,21 @@ function* executePluginActionSaga(
 
   const formData = new FormData();
 
+  // Initialising instrumentation object, will only be populated in case
+  // files are being uplaoded
+  const filePickerInstrumentation: FilePickerInstumentationObject = {
+    numberOfFiles: 0,
+    totalSize: 0,
+    fileTypes: [],
+    fileSizes: [],
+  };
+
   yield call(
     evaluateActionParams,
     pluginAction.jsonPathKeys,
     formData,
     executeActionRequest,
+    filePickerInstrumentation,
     params,
   );
 
@@ -1019,11 +1214,38 @@ function* executePluginActionSaga(
     } catch (e) {
       log.error("plugin no found", e);
     }
+
+    const isError = isErrorResponse(response);
+    if (filePickerInstrumentation.numberOfFiles > 0) {
+      triggerFileUploadInstrumentation(
+        filePickerInstrumentation,
+        isError ? "ERROR" : "SUCCESS",
+        response.data.statusCode,
+        pluginAction.name,
+        pluginAction.pluginType,
+        response.clientMeta.duration,
+      );
+    }
     return {
       payload,
-      isError: isErrorResponse(response),
+      isError,
     };
   } catch (e) {
+    if ("clientDefinedError" in (e as any)) {
+      // Case: error from client side validation
+      if (filePickerInstrumentation.numberOfFiles > 0) {
+        triggerFileUploadInstrumentation(
+          filePickerInstrumentation,
+          "ERROR",
+          "400",
+          pluginAction.name,
+          pluginAction.pluginType,
+          "NA",
+        );
+      }
+      throw e;
+    }
+
     yield put(
       executePluginActionSuccess({
         id: actionId,
@@ -1031,11 +1253,64 @@ function* executePluginActionSaga(
       }),
     );
     if (e instanceof UserCancelledActionExecutionError) {
+      // Case: user cancelled the request of file upload
+      if (filePickerInstrumentation.numberOfFiles > 0) {
+        triggerFileUploadInstrumentation(
+          filePickerInstrumentation,
+          "CANCELLED",
+          "499",
+          pluginAction.name,
+          pluginAction.pluginType,
+          "NA",
+        );
+      }
       throw new UserCancelledActionExecutionError();
     }
 
+    // In case there is no response from server and files are being uploaded
+    // we report it as INVALID_RESPONSE. The server didn't send any code or the
+    // request was cancelled due to timeout
+    if (filePickerInstrumentation.numberOfFiles > 0) {
+      triggerFileUploadInstrumentation(
+        filePickerInstrumentation,
+        "INVALID_RESPONSE",
+        "444",
+        pluginAction.name,
+        pluginAction.pluginType,
+        "NA",
+      );
+    }
     throw new PluginActionExecutionError("Response not valid", false);
   }
+}
+
+// Function to send the file upload event to segment
+function triggerFileUploadInstrumentation(
+  filePickerInfo: Record<string, any>,
+  status: string,
+  statusCode: string,
+  pluginName: string,
+  pluginType: string,
+  timeTaken: string,
+) {
+  const { fileSizes, fileTypes, numberOfFiles, totalSize } = filePickerInfo;
+  AnalyticsUtil.logEvent("FILE_UPLOAD_COMPLETE", {
+    totalSize,
+    fileSizes,
+    numberOfFiles,
+    fileTypes,
+    status,
+    statusCode,
+    pluginName,
+    pluginType,
+    timeTaken,
+  });
+}
+
+//Open debugger with response tab selected.
+function* openDebugger() {
+  yield put(showDebugger(true));
+  yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
 }
 
 export function* watchPluginActionExecutionSagas() {
@@ -1049,5 +1324,6 @@ export function* watchPluginActionExecutionSagas() {
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
     ),
+    takeLatest(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }

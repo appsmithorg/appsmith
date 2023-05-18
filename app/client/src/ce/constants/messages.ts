@@ -1,3 +1,5 @@
+import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
+
 export function createMessage(
   format: (...strArgs: any[]) => string,
   ...args: any[]
@@ -15,6 +17,8 @@ export const APPSMITH_DISPLAY_VERSION = (
   version: string,
   cloudHosting: boolean,
 ) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const INTERCOM_CONSENT_MESSAGE = () =>
+  `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -125,6 +129,10 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_413 = (maxFileSize: number) =>
+  `Payload too large. File size cannot exceed ${maxFileSize}MB.`;
+export const GENERIC_API_EXECUTION_ERROR = () => `API execution error`;
+export const APPSMITH_HTTP_ERROR_413 = () => `413 CONTENT_TOO_LARGE`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
@@ -147,12 +155,34 @@ export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
-export const INVITE_USERS_SUBMIT_SUCCESS = () =>
-  `The users have been invited successfully`;
-export const INVITE_USER_SUBMIT_SUCCESS = () =>
-  `The user has been invited successfully`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The users have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
+export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+  "Users will have access to all applications in this workspace";
+export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
+  "Users will only have access to this application";
+export const NO_USERS_INVITED = () => "You haven't invited any users yet";
+
+export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
+  "Unable to upload display picture.";
+export const UPDATE_USER_DETAILS_FAILED = () =>
+  "Unable to update user details.";
+export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
+  "File content doesn't seem to be an image. Please verify.";
+export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
+  "No special characters allowed except .'-";
+export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
+export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
+export const USER_EMAIL_PLACEHOLDER = () => "Email";
+export const USER_RESET_PASSWORD = () => "Reset Password";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
@@ -178,6 +208,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -332,7 +363,10 @@ export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const GSHEET_AUTHORIZATION_ERROR =
-  "Data source is not authorized, please authorize to continue.";
+  "Authorisation failed, to continue using this data source authorize now.";
+export const GSHEET_FILES_NOT_SELECTED =
+  "Datasource does not have access to any files, please authorize google sheets to use this data source";
+export const FILES_NOT_SELECTED_EVENT = () => "Files not selected";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -359,11 +393,6 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 // error pages
 export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
-export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
-export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
-  "Appsmith server is unavailable";
-export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
-  "Please try again later";
 export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
 export const PAGE_SERVER_TIMEOUT_TITLE = () =>
   "Appsmith server is taking too long to respond";
@@ -372,6 +401,64 @@ export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
 export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
 export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
   "This is embarrassing, please contact Appsmith support for help";
+
+export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+
+// cloudHosting used in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
+  "Appsmith server unavailable";
+
+export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
+  "Please try again later";
+
+export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
+  cloudHosting: boolean,
+): PageErrorMessageProps[] => {
+  if (cloudHosting) {
+    return [
+      {
+        text: "If the problem persists, please contact customer support",
+        links: [
+          {
+            from: 40,
+            to: 56,
+            href: "mailto: support@appsmith.com?subject=Appsmith 503 Server Error",
+          },
+        ],
+        addNewLine: true,
+      },
+    ];
+  } else {
+    return [
+      {
+        text: "If the problem persists, please contact your admin",
+        addNewLine: true,
+      },
+      {
+        text: "You can find more information on how to debug and access the logs here",
+        links: [
+          {
+            from: 66,
+            to: 70,
+            href: "https://docs.appsmith.com/learning-and-resources/how-to-guides/how-to-get-container-logs",
+          },
+        ],
+        addNewLine: true,
+      },
+      {
+        text: "A quick view of the server logs is accessible here",
+        links: [
+          {
+            from: 46,
+            to: 50,
+            href: "/supervisor/logtail/backend",
+          },
+        ],
+      },
+    ];
+  }
+};
 
 // comments
 export const POST = () => "Post";
@@ -422,9 +509,10 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_MESSAGE = () => `Show message`;
-export const OPEN_MODAL = () => `Open modal`;
+export const SHOW_ALERT = () => `Show Alert`;
+export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
+export const CLOSE = () => `CLOSE`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -487,6 +575,8 @@ export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
 // Import/Export Application features
+export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
+  "Error importing application. No workspace found";
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
@@ -517,8 +607,13 @@ export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
-export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this workspace`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
+  name?: string | null,
+  entityType?: string,
+) =>
+  `You want to remove ${name} from this ${
+    entityType === "Application" ? "application" : "workspace"
+  }`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
@@ -828,6 +923,8 @@ export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
   `Create a new Query, API or JS Object`;
+export const TABLE_WIDGET_VALIDATION_ASSIST_PROMPT = () =>
+  `Access the current cell using `;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -1398,8 +1495,7 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
-  "App name, icon and share";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
@@ -1435,6 +1531,20 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+export const CODE_EDITOR_LOADING_ERROR = (message?: string) =>
+  `Failed to load the code editor${message ? `: ${message}` : ""}`;
+
+export const UPDATE_VIA_IMPORT_SETTING = {
+  settingHeader: () => "Update through file import",
+  settingDesc: () => "Update app by importing file",
+  settingLabel: () => "Import",
+  settingContent: () =>
+    "This action will override your existing application. Please exercise caution while selecting the file to import.",
+  settingActionButtonTxt: () => "Import",
+  disabledForGit: () =>
+    "This feature is not supported for apps connected to Git version control. Please use Git Pull to update and sync your app.",
+};
+
 export const IN_APP_EMBED_SETTING = {
   applicationUrl: () => "application url",
   allowEmbeddingLabel: () => "Embedding enabled",
@@ -1448,7 +1558,7 @@ export const IN_APP_EMBED_SETTING = {
   disableEmbeddingTooltip: () =>
     "This app cannot be embedded anywhere on the Internet",
   embed: () => "Embed",
-  embedSnippetTitle: () => "Copy embed code",
+  embedSnippetTitle: () => "Embed URL",
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
@@ -1457,27 +1567,41 @@ export const IN_APP_EMBED_SETTING = {
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
+  upgradeHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
+  upgradeHeadingForInviteModal: () =>
+    "Make your app public in share settings to embed",
+  upgradeContent: () => "Private embedding is now available in",
+  appsmithBusinessEdition: () => "Appsmith Business Edition",
+  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
 };
 
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
+// Datasource/New Query
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
@@ -1485,7 +1609,77 @@ export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
+export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
+  "Appsmith will require access to your google drive to access google sheets.";
+export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
+export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 
+//Layout Conversion flow
+export const CONVERT = () => "CONVERT";
+export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const BUILD_RESPONSIVE_TEXT = () =>
+  "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
+export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT_TEXT = () =>
+  "Appsmith will convert your application’s UI to fixed layout, the default mode.";
+export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
+export const SAVE_SNAPSHOT = () =>
+  "Save a Snapshot of your Current Layout for 5 days";
+export const SAVE_SNAPSHOT_TEXT = () =>
+  "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
+export const CREATE_SNAPSHOT = () => "Creating a snapshot";
+export const CONVERTING_APP = () => "Converting your app";
+export const RESTORING_SNAPSHOT = () => "Removing changes made";
+export const REFRESH_THE_APP = () => "REFRESH THE APP";
+export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const CONVERSION_SUCCESS_HEADER = () => "All done";
+export const DISCARD_SNAPSHOT_TEXT = () =>
+  "You are about to discard this snapshot:";
+export const CONVERSION_SUCCESS_TEXT = () =>
+  "Check all your pages and start using your new layout";
+export const CONVERSION_WARNING_HEADER = () =>
+  "All done, some adjustments needed";
+export const CONVERSION_WARNING_TEXT = () =>
+  "You might need to manually position some of the widgets your layout contains";
+export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
+export const CONVERSION_ERROR = () =>
+  "Appsmith ran into a critical error while trying to convert to auto layout";
+export const SEND_REPORT = () => "SEND US A REPORT";
+export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
+export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
+export const CONVERSION_WARNING = () => "Conversion will change your layout";
+export const SNAPSHOT_LABEL = () =>
+  "To revert back to the original state use this snapshot";
+export const USE_SNAPSHOT_TEXT = () =>
+  "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+export const SNAPSHOT_WARNING_MESSAGE = () =>
+  "Any changes you made after conversion will not be present.";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT (BETA)";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT (BETA)";
+export const SNAPSHOT_BANNER_MESSAGE = () =>
+  "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
+export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
+export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
+export const MORE_DETAILS = () => "More details";
+export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
+  "To resolve this error please:";
+export const CONVERSION_ERROR_MESSAGE_TEXT_ONE = () =>
+  "Check your internet connection.";
+export const CONVERSION_ERROR_MESSAGE_TEXT_TWO = () =>
+  "Send us a report. Sending a report will only inform us that the failure happened and will give us your email address to reach out to.";
+export const SNAPSHOT_TIME_FROM_MESSAGE = (
+  timeSince: string,
+  readableDate: string,
+) => `Snapshot from ${timeSince} ago (${readableDate})`;
+export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
+  timeTillExpiration: string,
+) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
+export const DISCARD = () => "DISCARD";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

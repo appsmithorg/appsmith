@@ -24,7 +24,7 @@ describe("Dynamic Height Width validation", function () {
     cy.get(".t--property-control-fontsize .ur--has-border")
       .invoke("css", "font-size")
       .then((dropdownFont) => {
-        cy.get(".t--property-control-fontsize .remixicon-icon").click({
+        cy.get(".t--property-control-fontsize .remixicon-icon").last().click({
           force: true,
         });
         cy.get(".t--dropdown-option span")

@@ -32,7 +32,7 @@ describe("Checkbox Widget Functionality", function () {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangetextCheckbox);
+    cy.getAlert("onCheckChange");
     cy.PublishtheApp();
   });
   it("Checkbox Functionality To Check Label", function () {

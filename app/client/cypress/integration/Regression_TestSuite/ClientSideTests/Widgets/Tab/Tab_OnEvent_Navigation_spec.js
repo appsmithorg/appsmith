@@ -2,6 +2,8 @@ const LayoutPage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tabsWidgetReset.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+const { propPane } = require("../../../../../support/Objects/ObjectsCore");
+const { agHelper } = require("../../../../../support/Objects/ObjectsCore");
 
 describe("Tabs widget on change of selection navigation usecases", function () {
   before(() => {
@@ -10,15 +12,10 @@ describe("Tabs widget on change of selection navigation usecases", function () {
 
   it("1.On change of tab selection Navigate to a URL", function () {
     cy.openPropertyPane("tabswidget");
-    cy.get(".code-highlight")
-      .children()
-      .contains("No action")
-      .last()
-      .click({ force: true })
-      .selectOnClickOption("Navigate to");
+    propPane.SelectPlatformFunction("onTabSelected", "Navigate to");
     cy.wait(5000);
     cy.get("#switcher--url").click({ force: true });
-    cy.testCodeMirrorWithIndex("www.appsmith.com", 1);
+    agHelper.EnterActionValue("Enter URL", "www.appsmith.com");
     cy.wait(5000);
   });
 

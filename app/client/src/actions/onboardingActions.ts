@@ -17,6 +17,21 @@ export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
   };
 };
 
+export const removeFirstTimeUserOnboardingApplicationId = (
+  applicationId: string,
+) => {
+  return {
+    type: ReduxActionTypes.REMOVE_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    payload: applicationId,
+  };
+};
+
+export const disableStartSignpostingAction = () => {
+  return {
+    type: ReduxActionTypes.DISABLE_START_SIGNPOSTING,
+  };
+};
+
 export const firstTimeUserOnboardingInit = (
   applicationId: string | undefined,
   pageId: string,

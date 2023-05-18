@@ -89,7 +89,7 @@ public class OAuth2ClientCredentialsTest {
 
     @Test
     public void testCreate_withIsAuthorizationHeaderTrue_sendsCredentialsInHeader() throws InterruptedException {
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
 
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         OAuth2 oAuth2 = new OAuth2();
@@ -115,7 +115,7 @@ public class OAuth2ClientCredentialsTest {
 
     @Test
     public void testCreate_withIsAuthorizationHeaderFalse_sendsCredentialsInBody() throws InterruptedException, EOFException {
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
 
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         OAuth2 oAuth2 = new OAuth2();

@@ -32,7 +32,7 @@ describe("Switch Widget Functionality", function () {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangetextSwitch);
+    cy.getAlert("onChange");
     cy.PublishtheApp();
   });
 

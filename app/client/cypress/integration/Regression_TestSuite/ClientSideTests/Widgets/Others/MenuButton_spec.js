@@ -109,7 +109,7 @@ describe("Menu Button Widget Functionality", () => {
     );
 
     // Open configure array item panel
-    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+    cy.get(commonlocators.menuButtonConfigureArrayItems).last().click({
       force: true,
     });
 
@@ -136,7 +136,7 @@ describe("Menu Button Widget Functionality", () => {
     cy.moveToContentTab();
 
     // Open configure array item panel
-    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+    cy.get(commonlocators.menuButtonConfigureArrayItems).last().click({
       force: true,
     });
 
@@ -163,7 +163,7 @@ describe("Menu Button Widget Functionality", () => {
     cy.moveToContentTab();
 
     // Open configure array item panel
-    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+    cy.get(commonlocators.menuButtonConfigureArrayItems).last().click({
       force: true,
     });
     cy.moveToStyleTab();

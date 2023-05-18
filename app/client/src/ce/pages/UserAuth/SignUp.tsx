@@ -23,7 +23,6 @@ import {
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -32,7 +31,7 @@ import type { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -44,13 +43,17 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 declare global {
   interface Window {
     grecaptcha: any;
   }
 }
-const { disableLoginForm, googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -75,8 +78,9 @@ type SignUpFormProps = InjectedFormProps<
 
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   useEffect(() => {
-    if (disableLoginForm) {
+    if (!isFormLoginEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
       history.replace({
         pathname: AUTH_LOGIN_URL,
@@ -86,7 +90,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = ThirdPartyLoginRegistry.get();
+  const socialLoginList = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 
@@ -164,7 +168,7 @@ export function SignUp(props: SignUpFormProps) {
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
-      {!disableLoginForm && (
+      {isFormLoginEnabled && (
         <SpacedSubmitForm
           action={signupURL.toString()}
           id="signup-form"

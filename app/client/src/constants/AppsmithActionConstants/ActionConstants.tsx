@@ -149,7 +149,7 @@ export const urlGroupsRegexExp =
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params|this\?.params/g;
-export const THIS_DOT_PARAMS_KEY = "params";
+export const THIS_DOT_PARAMS_KEY = "$params";
 
 export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export const API_REQUEST_HEADERS: APIHeaders = {

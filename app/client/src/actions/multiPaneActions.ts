@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 export const setTabsPaneWidth = (width: number) => {

@@ -2,11 +2,6 @@
   "form": [
     {
       "sectionName": "General",
-      "hidden": {
-        "comparison": "FEATURE_FLAG",
-        "value": true,
-        "flagValue": "LIMITING_GOOGLE_SHEET_ACCESS"
-      },
       "children": [
         {
           "label": "Authentication Type",
@@ -25,73 +20,42 @@
           "initialValue": "authorization_code"
         },
         {
-          "label": "Scope",
-          "configProperty": "datasourceConfiguration.authentication.scopeString",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "options": [
-            {
-              "label": "Read Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
-            },
-            {
-              "label": "Read, Edit and Create Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
-            },
-            {
-              "label": "Read, Edit, Create and Delete Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
-            }
-          ],
-          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
-        }
-      ]
-    },
-    {
-      "sectionName": "General",
-      "hidden": {
-        "comparison": "FEATURE_FLAG",
-        "value": false,
-        "flagValue": "LIMITING_GOOGLE_SHEET_ACCESS"
-      },
-      "isDefaultOpen": true,
-      "children": [
-        {
-          "label": "Authentication Type",
-          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "label": "Account",
+          "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
-          "hidden": true,
-          "initialValue": "oAuth2"
+          "hidden": {
+            "comparison": "VIEW_MODE",
+            "value": false
+          },
+          "initialValue": "Authorize datasource to fetch account name"
         },
         {
-          "label": "Grant Type",
-          "configProperty": "datasourceConfiguration.authentication.grantType",
-          "controlType": "INPUT_TEXT",
-          "isRequired": false,
-          "hidden": true,
-          "initialValue": "authorization_code"
-        },
-        {
-          "label": "Scope",
+          "label": "Permissions | Scope",
           "configProperty": "datasourceConfiguration.authentication.scopeString",
           "controlType": "DROP_DOWN",
-          "isRequired": true,
           "options": [
             {
-              "label": "Read/Write | Selected Google Sheets",
+              "label": "Read / Write / Delete | Selected Google Sheets",
               "value": "https://www.googleapis.com/auth/drive.file"
             },
             {
-              "label": "Read/Write | All Google Sheets",
+              "label": "Read / Write / Delete | All Google Sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
             },
             {
-              "label": "Read Files | All Google Sheets",
+              "label": "Read / Write | All Google Sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read | All Google Sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
-          "initialValue": "https://www.googleapis.com/auth/drive.file"
+          "initialValue": "https://www.googleapis.com/auth/drive.file",
+          "customStyles": {
+            "width": "340px"
+          }
         }
       ]
     }

@@ -7,10 +7,12 @@ import type { Stylesheet } from "entities/AppTheming";
 import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -43,7 +45,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
                 expected: {
                   type: "Video URL",
-                  example: "https://assets.appsmith.com/widgets/bird.mp4",
+                  example: getAssetUrl(`${ASSETS_CDN_URL}/widgets/bird.mp4`),
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -88,12 +90,11 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the video is played",
+            helpText: "when the video is played",
             propertyName: "onPlay",
             label: "onPlay",
             controlType: "ACTION_SELECTOR",
@@ -102,7 +103,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the video is paused",
+            helpText: "when the video is paused",
             propertyName: "onPause",
             label: "onPause",
             controlType: "ACTION_SELECTOR",
@@ -111,7 +112,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the video ends",
+            helpText: "when the video ends",
             propertyName: "onEnd",
             label: "onEnd",
             controlType: "ACTION_SELECTOR",
@@ -185,6 +186,16 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       playing: "autoPlay",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+      "!url": "https://docs.appsmith.com/widget-reference/video",
+      playState: "number",
+      autoPlay: "bool",
     };
   }
 

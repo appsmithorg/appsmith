@@ -9,6 +9,7 @@ const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
@@ -40,11 +41,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .click({ force: true });
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(widgetsPage.inputOnTextChange).first().click({ force: true });
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Navigate to")
-      .click();
+    propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-Page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)

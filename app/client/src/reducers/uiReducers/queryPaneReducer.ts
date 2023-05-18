@@ -19,7 +19,6 @@ const initialState: QueryPaneReduxState = {
   lastUsed: "", // NR
   responseTabHeight: ActionExecutionResizerHeight,
   selectedConfigTabIndex: 0,
-  selectedResponseTab: "",
 };
 
 export interface QueryPaneReduxState {
@@ -31,7 +30,6 @@ export interface QueryPaneReduxState {
   lastUsed: string; // NR
   isCreating: boolean; // RR
   selectedConfigTabIndex: number;
-  selectedResponseTab: string;
   responseTabHeight: number;
 }
 
@@ -187,26 +185,6 @@ const queryPaneReducer = createReducer(initialState, {
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_SELECTED_TAB]: (
-    state: QueryPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
-  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: QueryPaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
     };
   },
 });

@@ -620,15 +620,16 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     //verify Deletion of file is success from UI also
 
-    //Deleting the page:
-    cy.actionContextMenuByEntityName(
-      "Assets-test.appsmith.com",
-      "Delete",
-      "Are you sure?",
-    );
+    // //Deleting the page://Commenting below since during re-runs the page name can be com2, com3 etc
+    // cy.actionContextMenuByEntityName(
+    //   "Assets-test.appsmith.com",
+    //   "Delete",
+    //   "Are you sure?",
+    // );
   });
 
   it("7. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+    _.entityExplorer.SelectEntityByName("Page1");
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
     _.agHelper.GetObjectName().then(($queryName) => {

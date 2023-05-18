@@ -1,5 +1,5 @@
 export * from "ce/configs/index";
-import type { EvaluationVersion } from "api/ApplicationApi";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import type { INJECTED_CONFIGS } from "ce/configs/index";
 
 declare global {

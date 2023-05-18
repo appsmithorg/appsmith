@@ -98,7 +98,10 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       getCanvasWidgetHeightsToUpdate(listOfUpdatedWidgets, state);
 
     for (const widgetId in canvasWidgetHeightsToUpdate) {
-      state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
+      state[widgetId] = {
+        ...state[widgetId],
+        bottomRow: canvasWidgetHeightsToUpdate[widgetId],
+      };
     }
   },
   [ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES]: (

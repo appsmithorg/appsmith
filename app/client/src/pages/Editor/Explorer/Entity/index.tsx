@@ -31,6 +31,7 @@ import { setEntityCollapsibleState } from "actions/editorContextActions";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
+  CONTEXT_MENU_CONTENT = "entity-context-menu-content",
   RIGHT_ICON = "entity-right-icon",
   PRE_RIGHT_ICON = "entity-pre-right-icon",
   ADD_BUTTON = "t--entity-add-btn",

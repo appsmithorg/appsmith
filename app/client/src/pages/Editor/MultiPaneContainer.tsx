@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import SideNav from "pages/common/SideNav";
 import classNames from "classnames";
-import BottomBar from "pages/Editor/BottomBar";
+import BottomBar from "@appsmith/components/BottomBar";
 import { useDispatch, useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import TabsPane from "pages/Editor/TabsPane";

@@ -21,7 +21,7 @@ import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
 import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 

@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/datepicker_switchDsl.json");
@@ -18,7 +17,7 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.testCodeMirror(this.data.switchInputName);
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     cy.togglebar(widgetsPage.defaultcheck);
-    cy.getAlert(commonlocators.optionchangetextSwitch);
+    cy.getAlert("onChange");
     cy.closePropertyPane();
   });
 
@@ -29,15 +28,8 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.setDate(1, "ddd MMM DD YYYY");
     const nextDay = dayjs().format("DD/MM/YYYY");
     cy.log(nextDay);
-    cy.get(
-      commonlocators.onDateSelectedField + " " + widgetsPage.actionSelect,
-    ).click({ force: true });
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Reset widget")
-      .click();
-    cy.get(widgetsPage.selectWidget).click({ force: true });
-    cy.get(commonlocators.chooseAction).children().contains("Toggler").click();
+    cy.selectResetWidget("onDateSelected");
+    cy.selectWidgetForReset("Toggler");
     cy.closePropertyPane();
     cy.get(widgetsPage.switchWidget).click();
     cy.get(widgetsPage.toastMsg)

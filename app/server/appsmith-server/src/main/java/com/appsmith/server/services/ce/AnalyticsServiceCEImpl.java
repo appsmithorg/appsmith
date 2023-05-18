@@ -29,6 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
+import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
+import static com.appsmith.external.constants.AnalyticsConstants.IP;
+import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
+import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
+import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
@@ -134,7 +142,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 });
     }
 
-    public void identifyInstance(String instanceId, String role, String useCase) {
+    public void identifyInstance(String instanceId, String role, String useCase, String adminEmail, String adminFullName, String ip) {
         if (!isActive()) {
             return;
         }
@@ -143,8 +151,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 .userId(instanceId)
                 .traits(Map.of(
                         "isInstance", true,  // Is this "identify" data-point for a user or an instance?
-                        "role", ObjectUtils.defaultIfNull(role, ""),
-                        "goal", ObjectUtils.defaultIfNull(useCase, "")
+                        ROLE, ObjectUtils.defaultIfNull(role, ""),
+                        GOAL, ObjectUtils.defaultIfNull(useCase, ""),
+                        EMAIL, ObjectUtils.defaultIfNull(adminEmail, ""),
+                        NAME, ObjectUtils.defaultIfNull(adminFullName, ""),
+                        IP, ObjectUtils.defaultIfNull(ip, "unknown"),
+                        IP_ADDRESS, ObjectUtils.defaultIfNull(ip, "unknown")
                 ))
         );
         analytics.flush();
@@ -167,7 +179,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
-        final String emailDomainHash = getEmailDomainHash(userId);
+        final String immutableUserId = userId;
+        final String emailDomainHash = getEmailDomainHash(immutableUserId);
 
         // Hash usernames at all places for self-hosted instance
         if (userId != null
@@ -196,20 +209,35 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         return Mono.zip(
                         ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
+                        ExchangeUtils.getUserAgentFromCurrentRequest(),
                         configService.getInstanceId()
                                 .defaultIfEmpty("unknown-instance-id")
                 ).map(tuple -> {
                     final String userIdFromClient = tuple.getT1();
-                    final String instanceId = tuple.getT2();
+                    final String userAgent = tuple.getT2();
+                    final String instanceId = tuple.getT3();
                     String userIdToSend = finalUserId;
                     if (FieldName.ANONYMOUS_USER.equals(finalUserId)) {
                         userIdToSend = StringUtils.defaultIfEmpty(userIdFromClient, FieldName.ANONYMOUS_USER);
                     }
-                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userIdToSend);
+                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event)
+                        .userId(userIdToSend)
+                        .context(Map.of(
+                            "userAgent", userAgent
+                        ));
+                    // For Installation Setup Complete event we are using `instanceId` as tracking id
+                    // As this does not satisfy the email validation it's not getting hashed correctly
+                    if (AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName().equals(event)
+                            && analyticsProperties.containsKey(EMAIL)) {
+
+                        String email = analyticsProperties.get(EMAIL) != null ? analyticsProperties.get(EMAIL).toString() : "";
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, getEmailDomainHash(email));
+                    } else {
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
+                    }
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
                     analyticsProperties.put("version", projectProperties.getVersion());
-                    analyticsProperties.put("emailDomainHash", emailDomainHash);
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
                     return instanceId;
@@ -272,6 +300,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         // To avoid sending extra event data to analytics
                         analyticsProperties.remove(FieldName.EVENT_DATA);
                     }
+                    if (analyticsProperties.containsKey(FieldName.CLOUD_HOSTED_EXTRA_PROPS)) {
+                        if (commonConfig.isCloudHosting()) {
+                            Map<String, Object> extraPropsForCloudHostedInstance = (Map<String, Object>) analyticsProperties.get(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
+                            analyticsProperties.putAll(extraPropsForCloudHostedInstance);
+                        }
+                        analyticsProperties.remove(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
+                    }
 
                     return sendEvent(eventTag, username, analyticsProperties)
                             .thenReturn(object);
@@ -303,7 +338,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 AnalyticsEvents.EXECUTE_ACTION,
                 AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
                 AnalyticsEvents.EXECUTE_INVITE_USERS,
-                AnalyticsEvents.UPDATE_LAYOUT
+                AnalyticsEvents.UPDATE_LAYOUT,
+                AnalyticsEvents.DS_TEST_EVENT,
+                AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
+                AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED
         );
     }
 

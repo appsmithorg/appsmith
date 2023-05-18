@@ -3,6 +3,7 @@ import { JSEditor } from "../Pages/JSEditor";
 import { EntityExplorer } from "../Pages/EntityExplorer";
 import { CommonLocators } from "./CommonLocators";
 import { ApiPage } from "../Pages/ApiPage";
+import { AdminSettings } from "../Pages/AdminSettings";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
@@ -20,6 +21,7 @@ import { PageSettings } from "../Pages/AppSettings/PageSettings";
 import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
 import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
+import { Onboarding } from "../Pages/Onboarding";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -60,6 +62,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.apiPage__ = new ApiPage();
     }
     return ObjectsRegistry.apiPage__;
+  }
+
+  private static adminSettings__: AdminSettings;
+  static get AdminSettings(): AdminSettings {
+    if (ObjectsRegistry.adminSettings__ === undefined) {
+      ObjectsRegistry.adminSettings__ = new AdminSettings();
+    }
+    return ObjectsRegistry.adminSettings__;
   }
 
   private static homePage__: HomePage;
@@ -196,6 +206,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.templates__ = new Templates();
     }
     return ObjectsRegistry.templates__;
+  }
+
+  private static onboarding__: Onboarding;
+  static get Onboarding(): Onboarding {
+    if (ObjectsRegistry.onboarding__ === undefined) {
+      ObjectsRegistry.onboarding__ = new Onboarding();
+    }
+    return ObjectsRegistry.onboarding__;
   }
 }
 

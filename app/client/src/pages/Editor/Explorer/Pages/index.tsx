@@ -13,7 +13,7 @@ import {
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
-import { createPage, updatePage } from "actions/pageActions";
+import { createNewPageFromEntities, updatePage } from "actions/pageActions";
 import {
   currentPageIcon,
   defaultPageIcon,
@@ -23,7 +23,6 @@ import {
 import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
@@ -139,11 +138,8 @@ function Pages() {
       "Page",
       pages.map((page: Page) => page.pageName),
     );
-    // Default layout is extracted by adding dynamically computed properties like min-height.
-    const defaultPageLayouts = [
-      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
-    ];
-    dispatch(createPage(applicationId, name, defaultPageLayouts));
+
+    dispatch(createNewPageFromEntities(applicationId, name));
   }, [dispatch, pages, applicationId]);
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);

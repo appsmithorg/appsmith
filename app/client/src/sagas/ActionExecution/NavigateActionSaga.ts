@@ -3,7 +3,7 @@ import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "RouteBuilder";
 import history from "utils/history";

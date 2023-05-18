@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { getDragHandlers } from "widgets/TableWidgetV2/widget/utilities";
 import { HeaderCell } from "../cellComponents/HeaderCell";
 import type { ReactTableColumnProps } from "../Constants";
@@ -143,4 +143,4 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
   );
 };
 
-export default TableColumnHeader;
+export default memo(TableColumnHeader);

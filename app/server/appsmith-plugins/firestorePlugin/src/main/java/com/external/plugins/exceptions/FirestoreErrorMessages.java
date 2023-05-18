@@ -58,6 +58,8 @@ public class FirestoreErrorMessages {
 
     public static final String WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG = "Unable to parse condition value as a JSON list.";
 
+    public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID = "Unable to connect to the Firestore project. No project found for the given ProjectID.";
+
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.
@@ -66,7 +68,6 @@ public class FirestoreErrorMessages {
 
     public static final String DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG = "Validation failed for field 'Service Account Credentials'. Please check the " +
             "value provided in the 'Service Account Credentials' field.";
-
     public static final String DS_MISSING_PROJECT_ID_AND_CLIENTJSON_ERROR_MSG = "Missing ProjectID and ClientJSON in datasource.";
 
     public static final String DS_MISSING_PROJECT_ID_ERROR_MSG = "Missing ProjectID in datasource.";
@@ -74,4 +75,13 @@ public class FirestoreErrorMessages {
     public static final String DS_MISSING_CLIENTJSON_ERROR_MSG = "Missing ClientJSON in datasource.";
 
     public static final String DS_MISSING_FIRESTORE_URL_ERROR_MSG = "Missing Firestore URL.";
+
+    /*
+     ************************************************************************************************************************************************
+                                        Warning messages related to datasource.
+     ************************************************************************************************************************************************
+     */
+    public static final String META_DATA_ACCESS_MISSING_MESSAGE = "Hi, it seems that the credentials provided here " +
+            "don't have the permission to gather metadata information. Please reach out to your database admin " +
+            "to understand more. ";
 }

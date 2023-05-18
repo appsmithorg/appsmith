@@ -1,41 +1,22 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import type { Server, Def } from "tern";
-import ecma from "constants/defs/ecmascript.json";
-import lodash from "constants/defs/lodash.json";
-import base64 from "constants/defs/base64-js.json";
-import moment from "constants/defs/moment.json";
-import xmlJs from "constants/defs/xmlParser.json";
-import forge from "constants/defs/forge.json";
-import browser from "constants/defs/browser.json";
 import type { Hint } from "codemirror";
-import CodeMirror, { Pos, cmpPos } from "codemirror";
+import type CodeMirror from "codemirror";
 import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import {
-  GLOBAL_DEFS,
-  GLOBAL_FUNCTIONS,
-} from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
-
-const DEFS: Def[] = [
-  // @ts-expect-error: Types are not available
-  ecma,
-  browser,
-  GLOBAL_FUNCTIONS,
-  GLOBAL_DEFS,
-  lodash,
-  base64,
-  moment,
-  xmlJs,
-  forge,
-];
+import { AutocompleteDataType } from "./AutocompleteDataType";
+import {
+  getCodeMirrorNamespaceFromDoc,
+  getCodeMirrorNamespaceFromEditor,
+} from "../getCodeMirrorNamespace";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -64,16 +45,6 @@ type TernDoc = {
   name: string;
   changed: { to: number; from: number } | null;
 };
-
-export enum AutocompleteDataType {
-  OBJECT = "OBJECT",
-  NUMBER = "NUMBER",
-  ARRAY = "ARRAY",
-  FUNCTION = "FUNCTION",
-  BOOLEAN = "BOOLEAN",
-  STRING = "STRING",
-  UNKNOWN = "UNKNOWN",
-}
 
 type ArgHints = {
   start: CodeMirror.Position;
@@ -151,9 +122,9 @@ class CodeMirrorTernService {
     string,
     DataTreeDefEntityInformation
   >();
-  options: { async: boolean; defs: Def[] };
+  options: { async: boolean };
 
-  constructor(options: { async: boolean; defs: Def[] }) {
+  constructor(options: { async: boolean }) {
     this.options = options;
     this.server = new TernWorkerServer(this);
   }
@@ -167,6 +138,7 @@ class CodeMirrorTernService {
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
+      alignWithWord: false,
       extraKeys: {
         Up: (cm: CodeMirror.Editor, handle: any) => {
           handle.moveFocus(-1);
@@ -242,6 +214,7 @@ class CodeMirrorTernService {
       ch: end.ch + extraChars,
       line: cursor.line,
     };
+    const { Pos } = getCodeMirrorNamespaceFromEditor(cm);
     if (
       cm.getRange(Pos(from.line, from.ch - 2), from) === '["' &&
       cm.getRange(to, Pos(to.line, to.ch + 2)) !== '"]'
@@ -327,6 +300,7 @@ class CodeMirrorTernService {
       selectedHint: indexToBeSelected,
     };
     let tooltip: HTMLElement | undefined = undefined;
+    const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
     CodeMirror.on(
@@ -364,8 +338,8 @@ class CodeMirrorTernService {
     return obj;
   }
 
-  getHint(cm: CodeMirror.Editor) {
-    return new Promise((resolve) => {
+  async getHint(cm: CodeMirror.Editor) {
+    const hints = await new Promise((resolve) => {
       this.request(
         cm,
         {
@@ -376,11 +350,24 @@ class CodeMirrorTernService {
           origins: true,
           caseInsensitive: true,
           guess: false,
-          inLiteral: false,
+          inLiteral: true,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
     });
+
+    // When a function is picked, move the cursor between the parenthesis
+    const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
+    CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+      if (selected.type === AutocompleteDataType.FUNCTION) {
+        cm.setCursor({
+          line: cm.getCursor().line,
+          ch: cm.getCursor().ch - 1,
+        });
+      }
+    });
+
+    return hints;
   }
 
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
@@ -440,6 +427,7 @@ class CodeMirrorTernService {
   addDoc(name: string, doc: CodeMirror.Doc) {
     const data = { doc: doc, name: name, changed: null };
     this.server.addFile(name, this.getFocusedDocValueAndPos(data).value);
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(doc);
     CodeMirror.on(doc, "change", this.trackChange.bind(this));
     return (this.docs[name] = data);
   }
@@ -478,6 +466,8 @@ class CodeMirrorTernService {
         doc.changed.from <= startPos.line &&
         doc.changed.to > query.end.line
       ) {
+        const { Pos } = getCodeMirrorNamespaceFromDoc(doc.doc);
+
         files.push(this.getFragmentAround(doc, startPos, query.end));
         query.file = "#0";
         offsetLines = files[0].offsetLines;
@@ -527,6 +517,7 @@ class CodeMirrorTernService {
       text: string | any[];
     },
   ) {
+    const { cmpPos } = getCodeMirrorNamespaceFromDoc(doc);
     const data = this.findDoc(doc);
 
     const argHints = this.cachedArgHints;
@@ -711,6 +702,8 @@ class CodeMirrorTernService {
     end: CodeMirror.Position,
   ) {
     const doc = data.doc;
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(doc);
+
     let minIndent = null;
     let minLine = null;
     let endLine;
@@ -741,6 +734,8 @@ class CodeMirrorTernService {
         );
         if (indent <= minIndent) break;
       }
+
+    const { Pos } = CodeMirror;
     const from = Pos(minLine, 0);
 
     return {
@@ -780,6 +775,8 @@ class CodeMirrorTernService {
       if (tip.parentNode) this.fadeOut(tip);
       clearActivity();
     };
+
+    const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     let mouseOnTip = false;
     let old = false;
     CodeMirror.on(tip, "mousemove", function () {
@@ -793,6 +790,7 @@ class CodeMirrorTernService {
         else mouseOnTip = false;
       }
     });
+
     setTimeout(maybeClear, hintDelay);
     const clearActivity = this.onEditorActivity(cm, clear);
   }
@@ -866,5 +864,4 @@ export const createCompletionHeader = (name: string): Completion => ({
 
 export default new CodeMirrorTernService({
   async: true,
-  defs: DEFS,
 });

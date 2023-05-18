@@ -5,13 +5,13 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -61,6 +61,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -336,7 +337,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         application1.setEditModeThemeId(themeId);
                         application1.setPublishedModeThemeId(themeId);
                         return themeId;
-                    }).then(applicationService.createDefault(application1));
+                    }).then(applicationService.createDefaultApplication(application1));
                 })
                 .flatMap(savedApplication -> {
 
@@ -764,7 +765,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(applicationUserTuple2 -> {
                                 Application application1 = applicationUserTuple2.getT1();
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
-                                return applicationService.createDefault(application1);
+                                return applicationService.createDefaultApplication(application1);
                             })
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
@@ -1006,17 +1007,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
+                    application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
 
-                    if (application.getUnpublishedApplicationDetail() == null){
-                        application.setUnpublishedApplicationDetail(new ApplicationDetail());
-                    }
-
-                    if (application.getPublishedApplicationDetail() == null){
-                        application.setPublishedApplicationDetail(new ApplicationDetail());
-                    }
-
-                    application.getPublishedApplicationDetail().setAppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning());
-                    application.getPublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting());
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
@@ -1041,7 +1033,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .collectList()
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<List<NewAction>> publishedActionsListMono = newActionService
+        Mono<Map<PluginType, Collection<NewAction>>> publishedActionsListMono = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
                 .flatMap(newAction -> {
                     // If the action was deleted in edit mode, now this document can be safely archived
@@ -1054,7 +1046,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Mono.just(newAction);
                 })
                 .flatMap(newActionService::save)
-                .collectList()
+                .collectMultimap(newAction -> newAction.getPluginType())
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
@@ -1080,8 +1072,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         isPublishedManually));
     }
 
+    private int getActionCount(Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap, PluginType pluginType) {
+        if (pluginTypeCollectionMap.containsKey(pluginType)) {
+            return pluginTypeCollectionMap.get(pluginType).size();
+        }
+        return 0;
+    }
+
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
-                                                            Mono<List<NewAction>> publishedActionsFlux,
+                                                            Mono<Map<PluginType, Collection<NewAction>>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
                                                             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
                                                             String applicationId, boolean isPublishedManually) {
@@ -1097,7 +1096,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application application = objects.getT4();
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
-                    extraProperties.put("queryCount", objects.getT2().size());
+                    Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
+                    Integer dbQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.DB);
+                    Integer apiCount = getActionCount(pluginTypeCollectionMap, PluginType.API);
+                    Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
+                    Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
+                    Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
+
+                    extraProperties.put("dbQueryCount", dbQueryCount);
+                    extraProperties.put("apiCount", apiCount);
+                    extraProperties.put("jsFuncCount", jsFuncCount);
+                    extraProperties.put("saasQueryCount", saasQueryCount);
+                    extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("queryCount", (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount));
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));

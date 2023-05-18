@@ -1,0 +1,49 @@
+name: Build client server without running tests
+
+on:
+  # This workflow can be triggered manually from the GitHub Actions page
+  workflow_dispatch:
+
+jobs:
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: "true"
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: "true"
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+  
+  build-docker-image:
+    needs: [ client-build, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  ci-test-limited:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: ci-test-limited
+    uses: ./.github/workflows/ci-test-limited.yml
+    secrets: inherit
+    with:
+      pr: 0

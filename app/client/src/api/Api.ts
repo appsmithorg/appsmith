@@ -6,6 +6,7 @@ import {
   apiFailureResponseInterceptor,
   apiRequestInterceptor,
   apiSuccessResponseInterceptor,
+  blockedApiRoutesForAirgapInterceptor,
 } from "api/ApiUtils";
 
 //TODO(abhinav): Refactor this to make more composable.
@@ -20,7 +21,14 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
-axiosInstance.interceptors.request.use(apiRequestInterceptor);
+const requestInterceptors = [
+  blockedApiRoutesForAirgapInterceptor,
+  apiRequestInterceptor,
+];
+requestInterceptors.forEach((interceptor) => {
+  axiosInstance.interceptors.request.use(interceptor as any);
+});
+
 axiosInstance.interceptors.response.use(
   apiSuccessResponseInterceptor,
   apiFailureResponseInterceptor,

@@ -10,9 +10,12 @@ import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConsta
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
-import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
-import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
-import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { importSvg } from "design-system-old";
+
+const ApiIcon = importSvg(() => import("assets/icons/menu/api-colored.svg"));
+const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
+const GraphqlIcon = importSvg(() => import("assets/images/Graphql-logo.svg"));
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -159,7 +162,12 @@ const PluginIcon = styled.img`
 
 export const getPluginIcon = (plugin?: Plugin) => {
   if (plugin && plugin.iconLocation) {
-    return <PluginIcon alt={plugin.packageName} src={plugin.iconLocation} />;
+    return (
+      <PluginIcon
+        alt={plugin.packageName}
+        src={getAssetUrl(plugin.iconLocation)}
+      />
+    );
   }
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
@@ -337,7 +345,7 @@ export function CurlIconV2() {
 export function JsFileIconV2(height = 18, width = 18) {
   return (
     <EntityIcon height={height + "px"} width={width + "px"}>
-      <EntityIcon.textIcon fontSize={height * 3.2}>JS</EntityIcon.textIcon>
+      <EntityIcon.textIcon fontSize={height * 3.05}>JS</EntityIcon.textIcon>
     </EntityIcon>
   );
 }

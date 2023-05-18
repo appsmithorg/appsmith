@@ -1,8 +1,7 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import type { MenuButtonWidgetProps } from "../../constants";
 import { MenuItemsSource } from "../../constants";
@@ -147,5 +146,4 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("MENU_BUTTON_WIDGET"),
 ] as PropertyPaneConfig[];

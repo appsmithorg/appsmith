@@ -20,10 +20,10 @@ import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { Button, Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -33,6 +33,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
+import { Link } from "react-router-dom";
+import { showDebugger } from "actions/debuggerActions";
+import { modText } from "utils/helpers";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
+import { importSvg } from "design-system-old";
+
+const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -181,6 +189,24 @@ const StyledTitleName = styled.p`
   font-weight: 600;
   line-height: 12px;
   cursor: pointer;
+`;
+
+const AsyncFunctionErrorLink = styled(Link)`
+  color: ${(props) => props.theme.colors.debugger.entityLink};
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 14px;
+  cursor: pointer;
+  letter-spacing: 0.6px;
+  &:hover {
+    color: ${(props) => props.theme.colors.debugger.entityLink};
+  }
+`;
+
+const AsyncFunctionErrorView = styled.div`
+  display: flex;
+  margin-top: 12px;
+  justify-content: space-between;
 `;
 
 function CollapseToggle(props: { isOpen: boolean }) {
@@ -455,23 +481,45 @@ function PopoverContent(props: PopoverContentProps) {
     !!popupContext?.type,
   );
   const [openExpectedExample, setOpenExpectedExample] = useState(
-    !!popupContext?.example,
+    props.expected?.openExampleTextByDefault || !!popupContext?.example,
   );
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(
     popupContext && popupContext.value !== undefined
       ? popupContext.value
       : true,
   );
+  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
+    props;
+  const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
+  const JSFunctionInvocationError = errors.find(
+    ({ kind }) =>
+      kind &&
+      kind.category ===
+        PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD &&
+      kind.rootcause,
+  );
+  const errorNavigationUrl = useSelector((state: AppState) =>
+    getJSFunctionNavigationUrl(
+      state,
+      entityName,
+      JSFunctionInvocationError?.kind?.rootcause,
+    ),
+  );
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
-    props;
+
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
   }
+  const openDebugger = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    dispatch(showDebugger());
+  };
 
   useEffect(() => {
     dispatch(
@@ -490,7 +538,7 @@ function PopoverContent(props: PopoverContentProps) {
   };
   return (
     <ContentWrapper
-      className="t--CodeEditor-evaluatedValue"
+      className="t--CodeEditor-evaluatedValue evaluated-value-popup"
       colorTheme={theme}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -508,13 +556,25 @@ function PopoverContent(props: PopoverContentProps) {
             {/* errorMessage could be an empty string */}
             {getErrorMessage(error.errorMessage)}
           </span>
-          <EvaluatedValueDebugButton
-            entity={props.entity}
-            error={{
-              type: error.errorType,
-              message: error.errorMessage,
-            }}
-          />
+
+          {errorNavigationUrl ? (
+            <AsyncFunctionErrorView>
+              <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
+                See Error ({modText()} D)
+              </AsyncFunctionErrorLink>
+              <AsyncFunctionErrorLink to={errorNavigationUrl}>
+                View Source
+              </AsyncFunctionErrorLink>
+            </AsyncFunctionErrorView>
+          ) : (
+            <EvaluatedValueDebugButton
+              entity={props.entity}
+              error={{
+                type: error.errorType,
+                message: error.errorMessage,
+              }}
+            />
+          )}
         </ErrorText>
       )}
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (

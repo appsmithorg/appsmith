@@ -1,5 +1,5 @@
-import { updateApplication } from "actions/applicationActions";
-import type { UpdateApplicationPayload } from "api/ApplicationApi";
+import { updateApplication } from "@appsmith/actions/applicationActions";
+import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getIsSavingAppName,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";

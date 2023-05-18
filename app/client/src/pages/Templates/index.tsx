@@ -32,8 +32,8 @@ import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,
-} from "selectors/applicationSelectors";
-import { getAllApplications } from "actions/applicationActions";
+} from "@appsmith/selectors/applicationSelectors";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";

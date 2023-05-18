@@ -8,9 +8,13 @@ import React from "react";
 
 export function TabView(props: TabViewProps) {
   return (
-    <FieldWrapper>
+    <FieldWrapper className="tab-view">
       <ControlWrapper>
-        {props.label && <label data-testid="tabs-label">{props.label}</label>}
+        {props.label && (
+          <label className="!text-gray-600 !text-xs" data-testid="tabs-label">
+            {props.label}
+          </label>
+        )}
         <Switcher activeObj={props.activeObj} switches={props.switches} />
       </ControlWrapper>
     </FieldWrapper>

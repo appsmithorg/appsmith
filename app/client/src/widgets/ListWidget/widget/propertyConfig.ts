@@ -4,9 +4,8 @@ import type { ListWidgetProps } from "../constants";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 export const PropertyPaneContentConfig = [
   {
     sectionName: "Data",
@@ -38,7 +37,7 @@ export const PropertyPaneContentConfig = [
         isTriggerProperty: false,
       },
       {
-        helpText: "Triggers an action when a list page is changed",
+        helpText: "when a list page is changed",
         propertyName: "onPageChange",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
@@ -50,7 +49,7 @@ export const PropertyPaneContentConfig = [
         dependencies: ["serverSidePaginationEnabled"],
       },
       {
-        helpText: "Triggers an action when a list page size is changed",
+        helpText: "when a list page size is changed",
         propertyName: "onPageSizeChange",
         label: "onPageSizeChange",
         controlType: "ACTION_SELECTOR",
@@ -91,12 +90,11 @@ export const PropertyPaneContentConfig = [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("LIST_WIDGET"),
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a grid list item is clicked",
+        helpText: "when a grid list item is clicked",
         propertyName: "onListItemClick",
         label: "onListItemClick",
         controlType: "ACTION_SELECTOR",

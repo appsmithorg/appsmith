@@ -20,6 +20,7 @@ import { Spinner } from "@blueprintjs/core";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -99,7 +100,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
             {currentPlugin && (
               <JSIconWrapper
                 alt={currentPlugin.name}
-                src={currentPlugin.iconLocation}
+                src={getAssetUrl(currentPlugin.iconLocation)}
               />
             )}
             <EditableText

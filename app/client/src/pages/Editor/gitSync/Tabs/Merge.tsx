@@ -12,11 +12,10 @@ import {
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
 } from "@appsmith/constants/messages";
-import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
@@ -48,6 +47,9 @@ import { Button, Case, Size, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
+import { importSvg } from "design-system-old";
+
+const LeftArrow = importSvg(() => import("assets/icons/ads/arrow-left-1.svg"));
 
 const Row = styled.div`
   display: flex;

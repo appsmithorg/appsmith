@@ -10,15 +10,19 @@ import equal from "fast-deep-equal/es6";
 import type { LoDashStatic } from "lodash";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
 import type { DropdownOption } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -124,6 +128,33 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     super(props);
   }
 
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      filterText: {
+        "!type": "string",
+        "!doc": "The filter text for Server side filtering",
+      },
+      selectedOptionValue: {
+        "!type": "string",
+        "!doc": "The value selected in a single select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      selectedOptionLabel: {
+        "!type": "string",
+        "!doc": "The selected option label in a single select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      isDirty: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -218,6 +249,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               { label: "Top", value: LabelPosition.Top },
               { label: "Auto", value: LabelPosition.Auto },
             ],
+            hidden: isAutoLayout,
             defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
@@ -374,12 +406,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
@@ -388,7 +419,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown opens",
+            helpText: "when the dropdown opens",
             propertyName: "onDropdownOpen",
             label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
@@ -397,7 +428,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown closes",
+            helpText: "when the dropdown closes",
             propertyName: "onDropdownClose",
             label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
@@ -431,6 +462,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

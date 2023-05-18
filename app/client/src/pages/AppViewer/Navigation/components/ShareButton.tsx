@@ -1,10 +1,10 @@
 import React from "react";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import Button from "../../AppViewerButton";
-import { Icon } from "design-system-old";
+import { Icon, TooltipComponent } from "design-system-old";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
-import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import { showAppInviteUsersDialogSelector } from "@appsmith/selectors/applicationSelectors";
 import {
   createMessage,
   INVITE_USERS_MESSAGE,
@@ -61,26 +61,40 @@ const ShareButton = (props: ShareButtonProps) => {
       placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
       title={currentApplicationDetails?.name}
       trigger={
-        <Button
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className="h-8 t--app-viewer-share-button"
-          data-cy="viewmode-share"
-          icon={
-            <Icon
-              fillColor={getApplicationNameTextColor(
-                primaryColor,
-                navColorStyle,
-              )}
-              name="share-line"
-              size="extraLarge"
-            />
-          }
-          insideSidebar={insideSidebar}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-          text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
-        />
+        <TooltipComponent
+          boundary="viewport"
+          content={createMessage(SHARE_APP)}
+          disabled={insideSidebar}
+          hoverOpenDelay={500}
+          modifiers={{
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: "viewport",
+            },
+          }}
+          position="bottom"
+        >
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            className="h-8 t--app-viewer-share-button"
+            data-cy="viewmode-share"
+            icon={
+              <Icon
+                fillColor={getApplicationNameTextColor(
+                  primaryColor,
+                  navColorStyle,
+                )}
+                name="share-line"
+                size="extraLarge"
+              />
+            }
+            insideSidebar={insideSidebar}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
+          />
+        </TooltipComponent>
       }
       workspaceId={currentWorkspaceId}
     />

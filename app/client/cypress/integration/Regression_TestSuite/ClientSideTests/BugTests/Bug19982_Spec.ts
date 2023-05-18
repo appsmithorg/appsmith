@@ -35,6 +35,6 @@ describe("JS Execution of Higher-order-functions", function () {
     jsEditor.RunJSObj();
 
     // Expect to see jsfunction execution error
-    jsEditor.AssertParseError(true, true);
+    jsEditor.AssertParseError(true);
   });
 });

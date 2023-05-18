@@ -13,11 +13,8 @@ import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import { JSToString, stringToJS } from "./utils";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -54,7 +51,8 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

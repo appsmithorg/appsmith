@@ -33,7 +33,7 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getPageById } from "selectors/editorSelectors";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 
 const CustomLabel = styled.div`

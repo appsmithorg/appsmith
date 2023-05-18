@@ -4,7 +4,7 @@ import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { useParams, withRouter } from "react-router";
 import type { AppState } from "@appsmith/reducers";
@@ -30,10 +30,7 @@ import {
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
-import {
-  connectedMethods,
-  saveAllowed,
-} from "@appsmith/utils/adminSettingsHelpers";
+import { saveAllowed } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
@@ -45,6 +42,10 @@ import {
   MaxWidthWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -80,10 +81,12 @@ export function SettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const socialLoginList = useSelector(getThirdPartyAuths);
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings)) {
+      if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
@@ -171,7 +174,9 @@ export function SettingsForm(
 
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
-    if (connectedMethods.length >= 2) {
+    const connectedMethodsCount =
+      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+    if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (
           !setting.isHidden &&
