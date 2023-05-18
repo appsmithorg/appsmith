@@ -85,7 +85,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
     GenerateCRUDNValidateDeployPage(
       "2106",
