@@ -90,7 +90,7 @@ export class DataSources {
   _newDatabases = "#new-datasources";
   _newDatasourceContainer = "#new-integrations-wrapper";
   _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";
-  _selectTableDropdown = "[data-testid=t--table-dropdown]";
+  _selectTableDropdown = "[data-testid=t--table-dropdown] .rc-select-selection-item";
   _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
   _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
   _dropdownOption = ".rc-select-item-option-content";
@@ -221,7 +221,7 @@ export class DataSources {
       this.locator._dropdownText,
       datasourceName,
     );
-    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick(this._selectTableDropdown,0,true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
@@ -235,7 +235,8 @@ export class DataSources {
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 0);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.Sleep(500)
+    this.agHelper.GetNClick(this._selectTableDropdown,0,true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("public.users")`,
     ).click();
