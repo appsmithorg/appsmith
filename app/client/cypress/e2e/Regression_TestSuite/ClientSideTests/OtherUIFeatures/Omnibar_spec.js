@@ -96,7 +96,8 @@ describe("Omnibar functionality test cases", () => {
     cy.renameWithInPane(apiName);
 
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(1).click();
+    cy.get(omnibar.categoryTitle).contains("Create new").click();
+    cy.wait(1000);
     cy.get(omnibar.createNew).contains("New cURL import").click();
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
