@@ -123,7 +123,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
   return (
     <Modal onOpenChange={closeModal} open={modalAlwaysOpen}>
       <ModalContent
-        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
         style={{ width: "920px" }}
       >
         <ModalHeader className="t--how-appsmith-works-modal-header">
