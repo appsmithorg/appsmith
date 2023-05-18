@@ -25,7 +25,7 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "astronauts");
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
@@ -43,7 +43,7 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "country");
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);

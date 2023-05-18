@@ -21,7 +21,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown);
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
       "worldCountryInfo",
@@ -68,7 +68,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     _.dataSources.CreateDataSource("MySql", false);
 
     _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown);
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "customers");
 
     GenerateCRUDNValidateDeployPage(
@@ -87,7 +87,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
     _.dataSources.NavigateFromActiveDS(dsName, false);
     _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown);
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "employees");
 
     GenerateCRUDNValidateDeployPage(
@@ -156,7 +156,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
     _.dataSources.NavigateFromActiveDS(dsName, false);
     _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
-    _.agHelper.GetNClick(_.dataSources._selectTableDropdown);
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
       "productlines",
