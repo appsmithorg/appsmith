@@ -272,7 +272,7 @@
     "cypress-real-events": "^1.7.1",
     "cypress-tags": "^1.1.2",
     "cypress-wait-until": "^1.7.2",
-    "cypress-xpath": "^1.4.0",
+    "cypress-xpath": "^1.6.0",
     "diff": "^5.0.0",
     "dotenv": "^8.1.0",
     "eslint": "^8.36.0",

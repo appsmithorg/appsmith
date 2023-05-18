@@ -1,12 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export class PeekOverlay {
-  private readonly PEEKABLE_ATTRIBUTE = "peek-data";
   private readonly locators = {
     _overlayContainer: "#t--peek-overlay-container",
     _dataContainer: "#t--peek-overlay-data",
-    _peekableCode: (peekableAttr: string) =>
-      `[${this.PEEKABLE_ATTRIBUTE}="${peekableAttr}"]`,
 
     // react json viewer selectors
     _rjv_variableValue: ".variable-value",
@@ -22,18 +19,26 @@ export class PeekOverlay {
   // Please skip for now - testing on CI because local setup doesn't work
   HoverCode(lineNumber: number, tokenNumber: number, verifyText: string) {
     this.agHelper
-      .GetElement("CodeMirror-line", lineNumber)
-      .children()
-      .eq(tokenNumber)
-      .should("have.text", verifyText);
-    // (visibleText
-    //   ? this.agHelper.GetNAssertContains(
-    //       this.locators._peekableCode(peekableAttribute),
-    //       visibleText,
-    //     )
-    //   : this.agHelper.GetElement(this.locators._peekableCode(peekableAttribute))
-    // ).realHover();
-    this.agHelper.Sleep();
+      .GetElement(
+        `(//pre[contains(@class, "CodeMirror-line")])[${lineNumber}]/span/span[${tokenNumber}]`,
+      )
+      .should("have.text", verifyText)
+      .realHover();
+    this.agHelper
+      .GetElement(
+        `(//pre[contains(@class, "CodeMirror-line")])[${lineNumber}]/span/span[${tokenNumber}]`,
+      )
+      .invoke("val")
+      .then((val) => val && cy.log("mouse over triggered " + val.toString()));
+    // this.agHelper
+    //   .GetElement(".CodeMirror-line > span")
+    //   .eq(lineNumber)
+    //   .children(".cm-m-javascript")
+    //   .eq(tokenNumber)
+    //   .should("have.text", verifyText)
+    //   .trigger("mouseover");
+    //   .then((el: any) => el.realHover());
+    this.agHelper.Sleep(1000);
   }
 
   IsOverlayOpen(checkIsOpen = true) {

@@ -9057,7 +9057,7 @@ __metadata:
     cypress-real-events: ^1.7.1
     cypress-tags: ^1.1.2
     cypress-wait-until: ^1.7.2
-    cypress-xpath: ^1.4.0
+    cypress-xpath: ^1.6.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.6"
@@ -12796,10 +12796,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-xpath@npm:^1.4.0":
-  version: 1.6.0
-  resolution: "cypress-xpath@npm:1.6.0"
-  checksum: 67cc5613d70a090b1a162d31d0ef11831576592c87ca07d242e2c07a6df2fca413fc81ea7df148a0d0c888025bb7ec0dad34684f2a322eeaa2863b8f3b65dd32
+"cypress-xpath@npm:^1.4.0, cypress-xpath@npm:^1.6.0":
+  version: 1.8.0
+  resolution: "cypress-xpath@npm:1.8.0"
+  checksum: 11792ec46b898f2e00ced81dedcdca8e30d5c232778780210423d1ec0b07cd8b2a29a475d38eadaf9fd7e962efec7f5cee17f92884c308636cfa506efe6017e6
   languageName: node
   linkType: hard
 

@@ -16,12 +16,12 @@ describe("Peek overlay", () => {
       //   lineNumber: 0,
       //   prettify: true,
       // });
-      _.jsEditor.SelectFunctionDropdown("myFun2");
-      _.jsEditor.RunJSObj();
-      _.agHelper.Sleep();
+      // _.jsEditor.SelectFunctionDropdown("myFun2");
+      // _.jsEditor.RunJSObj();
+      // _.agHelper.Sleep();
 
       // check number array
-      _.peekOverlay.HoverCode(8, 2, "numArray");
+      _.peekOverlay.HoverCode(9, 4, "numArray");
       // _.peekOverlay.IsOverlayOpen();
       // _.peekOverlay.VerifyDataType("array");
       // _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);

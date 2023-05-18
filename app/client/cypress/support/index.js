@@ -35,13 +35,13 @@ import "cypress-plugin-tab";
 /// <reference types="cypress-xpath" />
 
 let rapidMode = {
-  enabled: false, // Set to true to disable app creation
-  appName: "cf023e29", // Replace it with your app name
+  enabled: true, // Set to true to disable app creation
+  appName: "adfasfdsf", // Replace it with your app name
   pageName: "page1", // Replace it with the page name
-  pageID: "644d0ec870cec01248edfc9a", // Replace it with pageID
+  pageID: "646485eddf25c14ea3b15579", // Replace it with pageID
 
   url: function () {
-    return `app/${this.appName}/${this.pageName}-${this.pageID}/edit`;
+    return `app/adfasfdsf/page1-646485eddf25c14ea3b15579/edit/jsObjects/646485eddf25c14ea3b15589`;
   },
 };
 

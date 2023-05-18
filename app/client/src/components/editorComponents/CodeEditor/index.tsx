@@ -648,6 +648,13 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleMouseOver = (event: MouseEvent) => {
+    event.target instanceof Element &&
+      console.log(
+        "mouse over triggered",
+        event.clientX,
+        event.clientY,
+        event.target.innerHTML,
+      );
     const startTime = performance.now();
     const tokenElement = event.target;
     if (
