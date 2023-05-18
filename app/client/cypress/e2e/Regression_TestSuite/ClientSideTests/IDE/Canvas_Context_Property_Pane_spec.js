@@ -17,8 +17,7 @@ describe("Canvas context Property Pane", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     ee.SelectEntityByName(page1, "Pages");
     apiPage.CreateApi(api1);
-    cy.get(".t--close-editor").click({ force: true }).wait(200);
-    cy.get(".t--back-button").click();
+    ee.NavigateToSwitcher("Widgets");
   });
 
   beforeEach(() => {
@@ -59,9 +58,9 @@ describe("Canvas context Property Pane", function () {
     if (!Cypress.env("AIRGAPPED")) {
       //DropDown Property controls should have focus while switching between widgets, pages and Editor Panes
       agHelper.RefreshPage();
-      propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
+      propertyControlClickSelector = `.t--property-control-googlerecaptchaversion .rc-select-selection-search-input`;
       propertyControlVerifySelector =
-        ".t--property-control-googlerecaptchaversion .ur--has-border";
+        ".t--property-control-googlerecaptchaversion .rc-select-selection-search-input";
 
       verifyPropertyPaneContext(
         () => {
@@ -76,11 +75,11 @@ describe("Canvas context Property Pane", function () {
 
     //Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes
     agHelper.RefreshPage();
-    propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;
-    propertyControlVerifySelector = `.t--property-control-borderradius div[role="tablist"]`;
+    propertyControlClickSelector = `.t--property-control-borderradius .ads-v2-segmented-control__segments-container`;
+    propertyControlVerifySelector = `.t--property-control-borderradius .ads-v2-segmented-control__segments-container[data-selected="true"]`;
     verifyPropertyPaneContext(
       () => {
-        cy.get(propertyControlClickSelector).click({ force: true });
+        cy.get(propertyControlClickSelector).eq(0).click({ force: true });
       },
       () => {
         cy.get(propertyControlVerifySelector).should("be.focused");
@@ -133,7 +132,7 @@ describe("Canvas context Property Pane", function () {
 
     verifyPropertyPaneContext(
       () => {
-        cy.get(`.tab-title:contains("Style")`).eq(0).click();
+        cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
         setPropertyPaneSectionState(propertySectionState);
       },
       () => {
@@ -209,7 +208,7 @@ describe("Canvas context Property Pane", function () {
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("step");
-        cy.get(`.tab-title:contains("Style")`).eq(0).click();
+        cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
         setPropertyPaneSectionState(propertySectionState);
       },
       () => {
@@ -305,7 +304,7 @@ describe("Canvas context Property Pane", function () {
       () => {
         cy.editColumn("status");
         cy.editColumn("menuIteme63irwbvnd", false);
-        cy.get(`.tab-title:contains("Style")`).eq(0).click();
+        cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
         setPropertyPaneSectionState(propertySectionState);
       },
       () => {
@@ -332,8 +331,9 @@ function setPropertyPaneSectionState(propertySectionState) {
   )) {
     cy.get("body").then(($body) => {
       if (
-        $body.find(`${propertySectionClass(sectionName)} a[name="arrow-down"]`)
-          .length >
+        $body.find(
+          `${propertySectionClass(sectionName)} .t--chevron-icon.rotate-180`,
+        ).length >
           0 !==
         shouldSectionOpen
       ) {
@@ -349,8 +349,9 @@ function verifyPropertyPaneSectionState(propertySectionState) {
   )) {
     cy.get("body").then(($body) => {
       const isSectionOpen =
-        $body.find(`${propertySectionClass(sectionName)} a[name="arrow-down"]`)
-          .length > 0;
+        $body.find(
+          `${propertySectionClass(sectionName)} .t--chevron-icon.rotate-180`,
+        ).length > 0;
       expect(isSectionOpen).to.equal(shouldSectionOpen);
     });
   }
@@ -369,7 +370,7 @@ function verifyPropertyPaneContext(
   cy.get(".t--property-pane-title").should("contain", widgetName);
 
   if (isStyleTab) {
-    cy.get(`.tab-title:contains("Style")`).eq(0).click();
+    cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
   }
 
   //Focus Callback

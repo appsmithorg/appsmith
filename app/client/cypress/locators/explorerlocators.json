@@ -24,13 +24,13 @@
   "editNameField": ".editing input",
   "editEntityField": ".bp3-editable-text-input",
   "entity": ".t--entity-name",
-  "addWidget": ".widgets .t--entity-add-btn",
+  "addWidget": ".widgets .t--entity-add-btn button",
   "closeWidgets": ".t--close-widgets-sidebar",
   "dropHere": "#div-dragarena-0",
   "addDBQueryEntity": ".datasources .t--entity-add-btn button",
   "editEntity": ".t--entity-name input",
   "activeTab": "span:contains('Active')",
-  "createNew": ".t--entity-add-btn.group.files",
+  "createNew": ".t--entity-add-btn.group.files button",
   "blankAPI": "span:contains('New blank API')",
   "addQuery": ".files .t--entity-add-btn"
 }

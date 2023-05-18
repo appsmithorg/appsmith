@@ -449,9 +449,9 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
   cy.get(commonlocators.widgetSection)
-    .invoke("attr", "name")
-    .then((name) => {
-      if (name === "arrow-right") {
+    .invoke("attr", "id")
+    .then((id) => {
+      if (id === "arrow-right-s-line") {
         cy.get(commonlocators.widgetSection).click({ force: true });
       }
     });
@@ -705,8 +705,8 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
-  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
-  cy.get(".t--file-operation").eq(0).click({ force: true });
+  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS object");
+  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -1510,7 +1510,7 @@ Cypress.Commands.add("checkCodeInputValue", (selector) => {
 });
 
 Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
-  cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
+  cy.xpath("//span[text()='" + btnVisibleText + "']/ancestor::button")
     .first()
     .scrollIntoView()
     .click({ force: toForceClick });

@@ -41,7 +41,7 @@ describe("Post window message", () => {
       </body>
       </html>`,
     );
-    propPane.SelectPlatformFunction("onMessageReceived", "Show Alert");
+    propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp();
 

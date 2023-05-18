@@ -166,6 +166,8 @@ export default function ExplorerSubMenu({
 
               return (
                 <MenuItem
+                  data-testid="t--file-operation"
+                  id={`file-op-${idx}`}
                   key={`file-op-${idx}`}
                   onClick={() => handleClick(item)}
                 >

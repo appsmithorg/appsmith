@@ -267,7 +267,7 @@ describe("JSON Form Widget Array Field", () => {
     cy.get(".t--input-country-code-change").first().click();
     cy.get(".t--search-input input").type("+91");
     cy.wait(500);
-    cy.get(".t--dropdown-option").last().click();
+    cy.get(".t--dropdown-option").contains("+91").click({ force: true });
 
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
   });

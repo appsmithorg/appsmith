@@ -163,6 +163,7 @@ describe("Shopping cart App", function () {
   });
 
   it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
+    cy.get(".t--back-to-editor").click();
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;

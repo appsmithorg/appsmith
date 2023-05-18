@@ -21,7 +21,7 @@ describe("Deprecation warning feature", function () {
 
       cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
-      cy.get(`.t--deprecation-warning`).should("have.length", 1);
+      cy.get(`[data-testid='t--deprecation-warning']`).should("have.length", 1);
     }
   });
 });

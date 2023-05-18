@@ -23,9 +23,11 @@ export default {
     ".t--apiFormPaginationType label:contains('Paginate with Response URL') input",
   apiTab: ".react-tabs__tab-list li",
   bodyType: ".t--apiFormPostBodyType",
-  bodyTypeSelected: '[data-testid="t--api-body-tab-switch"] .t--tab-selected',
+  bodyTypeSelected:
+    '[data-testid="t--api-body-tab-switch"] .ads-v2-segmented-control__segments-container-segment[data-selected="true"]',
   bodyTab: "Body",
-  jsonBodyTab: "[data-testid=tab--JSON]",
+  jsonBodyTab:
+    ".ads-v2-segmented-control__segments-container-segment[data-value='application/json']",
   headersTab: "Header",
   jsonResponseTab: "[data-value='JSON']",
   tableResponseTab: "[data-value='TABLE']",

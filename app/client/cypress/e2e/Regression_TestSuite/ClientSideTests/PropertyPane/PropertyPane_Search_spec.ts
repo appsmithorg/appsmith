@@ -39,35 +39,35 @@ describe("Property Pane Search", function () {
   });
 
   it("2. Search for Properties", function () {
-    // Search for a property inside content tab
+    // Search for a property inside CONTENT tab
     propPane.Search("visible");
-    propPane.AssertIfPropertyOrSectionExists("general", "Content", "visible");
+    propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
 
     // Search for a property inside style tab
     propPane.Search("text color");
-    propPane.AssertIfPropertyOrSectionExists("color", "Style", "textcolor");
+    propPane.AssertIfPropertyOrSectionExists("color", "STYLE", "textcolor");
 
     // search for a camel case property
     propPane.Search("on row selected");
     propPane.AssertIfPropertyOrSectionExists(
       "rowselection",
-      "Content",
+      "CONTENT",
       "onrowselected",
     );
 
     // search for another variation of camel case property
     propPane.Search("onSort");
-    propPane.AssertIfPropertyOrSectionExists("sorting", "Content", "onsort");
+    propPane.AssertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
   });
 
   it("3. Search for Sections", function () {
-    // Search for a section inside content tab
+    // Search for a section inside CONTENT tab
     propPane.Search("general");
-    propPane.AssertIfPropertyOrSectionExists("general", "Content");
+    propPane.AssertIfPropertyOrSectionExists("general", "CONTENT");
 
     // Search for a section inside style tab
     propPane.Search("text formaTTing");
-    propPane.AssertIfPropertyOrSectionExists("textformatting", "Style");
+    propPane.AssertIfPropertyOrSectionExists("textformatting", "STYLE");
 
     // Clear the search input for the next test
     propPane.Search("");
@@ -76,23 +76,23 @@ describe("Property Pane Search", function () {
   it("4. Search for Properties inside a panel", function () {
     propPane.OpenTableColumnSettings("name");
 
-    // Search for a property inside content tab
+    // Search for a property inside CONTENT tab
     propPane.Search("Visible");
-    propPane.AssertIfPropertyOrSectionExists("general", "Content", "visible");
+    propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
 
     // Search for a property inside style tab
     propPane.Search("text Color");
-    propPane.AssertIfPropertyOrSectionExists("color", "Style", "textcolor");
+    propPane.AssertIfPropertyOrSectionExists("color", "STYLE", "textcolor");
   });
 
   it("5. Search for Sections inside a panel", function () {
-    // Search for a section inside content tab
+    // Search for a section inside CONTENT tab
     propPane.Search("DATA");
-    propPane.AssertIfPropertyOrSectionExists("data", "Content");
+    propPane.AssertIfPropertyOrSectionExists("data", "CONTENT");
 
     // Search for a section inside style tab
     propPane.Search("color");
-    propPane.AssertIfPropertyOrSectionExists("color", "Style");
+    propPane.AssertIfPropertyOrSectionExists("color", "STYLE");
   });
 
   it("6. Search for gibberish and verify if empty results message is shown", function () {
@@ -109,13 +109,13 @@ describe("Property Pane Search", function () {
   it("7. Verify behaviour with Dynamically hidden properties inside search results", function () {
     // Search for a Section with Dynamically hidden properties
     propPane.Search("pagination");
-    propPane.AssertIfPropertyOrSectionExists("pagination", "Content");
+    propPane.AssertIfPropertyOrSectionExists("pagination", "CONTENT");
     // Do the operation so that the dymnamic property is visible
     propPane.ToggleOnOrOff("Server side pagination", "On");
     // Verify if the property is visible
     propPane.AssertIfPropertyOrSectionExists(
       "pagination",
-      "Content",
+      "CONTENT",
       "onpagechange",
     );
 
@@ -137,18 +137,18 @@ describe("Property Pane Search", function () {
 
     // Search for sections & properties
     propPane.Search("events");
-    propPane.AssertIfPropertyOrSectionExists("events", "Content");
+    propPane.AssertIfPropertyOrSectionExists("events", "CONTENT");
 
     propPane.Search("visible");
-    propPane.AssertIfPropertyOrSectionExists("events", "Content", "visible");
+    propPane.AssertIfPropertyOrSectionExists("events", "CONTENT", "visible");
 
     propPane.Search("color");
-    propPane.AssertIfPropertyOrSectionExists("color", "Style");
+    propPane.AssertIfPropertyOrSectionExists("color", "STYLE");
 
     propPane.Search("emphasis");
     propPane.AssertIfPropertyOrSectionExists(
       "labelstyles",
-      "Style",
+      "STYLE",
       "emphasis",
     );
   });
@@ -165,22 +165,22 @@ describe("Property Pane Search", function () {
   it("10. Verify searching for properties inside the same section one after the other works", function () {
     // Search for a property
     propPane.Search("onsort");
-    propPane.AssertIfPropertyOrSectionExists("sorting", "Content", "onsort");
+    propPane.AssertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
 
     // Search for another property in the same section
     propPane.Search("column sorting");
     propPane.AssertIfPropertyOrSectionExists(
       "sorting",
-      "Content",
+      "CONTENT",
       "columnsorting",
     );
 
     // Search for the same section name and verify all the properties under it are visible
     propPane.Search("sorting");
-    propPane.AssertIfPropertyOrSectionExists("sorting", "Content", "onsort");
+    propPane.AssertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
     propPane.AssertIfPropertyOrSectionExists(
       "sorting",
-      "Content",
+      "CONTENT",
       "columnsorting",
     );
   });

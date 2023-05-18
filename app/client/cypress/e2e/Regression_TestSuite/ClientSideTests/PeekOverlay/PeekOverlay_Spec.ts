@@ -4,6 +4,7 @@ describe("Peek overlay", () => {
   it("1. Main test", () => {
     cy.fixture("datasources").then((datasourceFormData: any) => {
       _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
+      _.entityExplorer.NavigateToSwitcher("Explorer");
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
       _.apiPage.RunAPI();
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);

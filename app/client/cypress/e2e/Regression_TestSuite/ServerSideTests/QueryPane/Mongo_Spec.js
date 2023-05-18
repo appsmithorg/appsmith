@@ -285,11 +285,12 @@ describe("Validate Mongo query commands", function () {
     let id;
     _.entityExplorer.ExpandCollapseEntity("Datasources");
     _.entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
-    cy.xpath(queryLocators.listingAndReviewContext)
-      .invoke("show")
+    // div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
+    cy.get("[data-testid='t--entity-item-listingAndReviews']")
+      .find(".t--template-menu-trigger")
       .click({ force: true });
 
-    cy.xpath("//div[text()='Find']").click().wait(100); //wait for Find form to open
+    cy.get(".ads-v2-menu__menu-item").contains("Find").click().wait(100); //wait for Find form to open
 
     cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
       let localcolData = colData.replace("{", "").replace("}", "");
@@ -455,6 +456,8 @@ describe("Validate Mongo query commands", function () {
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
 
     //Update document - Single document
+    cy.wait(2000);
+    cy.get("body").click(0, 0, { force: true });
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",

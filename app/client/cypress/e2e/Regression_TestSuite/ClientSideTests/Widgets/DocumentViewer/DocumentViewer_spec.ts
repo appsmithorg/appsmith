@@ -34,7 +34,7 @@ describe("DocumentViewer Widget Functionality", () => {
 
   it("4. Should show a word document correctly", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Document Link", encodedWordDoc);
+    propPane.UpdatePropertyFieldValue("Document link", encodedWordDoc);
     deployMode.DeployApp();
     //"Some doc content" is pressent in the encoded word doc
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(

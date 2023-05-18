@@ -48,7 +48,6 @@ Cypress.Commands.add("navigateToWorkspaceSettings", (workspaceName) => {
     .should("be.visible");
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
-    .find(homePage.workspaceNamePopover)
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
@@ -68,9 +67,8 @@ Cypress.Commands.add("openWorkspaceOptionsPopup", (workspaceName) => {
 
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
-    .find(homePage.workspaceNamePopover)
-    .first()
     .find(homePage.optionsIcon)
+    .first()
     .click({ force: true });
 });
 
@@ -109,7 +107,7 @@ Cypress.Commands.add("CheckShareIcon", (workspaceName, count) => {
   cy.get(
     homePage.workspaceList
       .concat(workspaceName)
-      .concat(") .workspace-share-user-icons"),
+      .concat(") .t--workspace-share-user-icons"),
   ).should("have.length", count);
 });
 

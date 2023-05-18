@@ -32,9 +32,7 @@ describe("Audio Widget Functionality", function () {
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("3. Update audio url and check play and pause functionality validation", function () {
+    // 3. Update audio url and check play and pause functionality validation
     cy.testCodeMirror(testdata.audioUrl);
     cy.get(".CodeMirror textarea").first().blur();
     cy.get(widgetsPage.autoPlay).click({ force: true });
@@ -51,7 +49,7 @@ describe("Audio Widget Functionality", function () {
     );
   });
 
-  it("4. Checks if audio widget is reset on button click", function () {
+  it("3. Checks if audio widget is reset on button click", function () {
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
     cy.widgetText(

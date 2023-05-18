@@ -12,6 +12,7 @@ export class HomePage {
   private _submitBtn = "button[type='submit']";
   private _workspaceCompleteSection = ".t--workspace-section";
   private _workspaceName = ".t--workspace-name";
+  private _workspaceNameText = ".t--workspace-name-text";
   private _optionsIcon = ".t--options-icon";
   private _optionsIconInWorkspace = (workspaceName: string) =>
     "//span[text()='" +
@@ -87,7 +88,7 @@ export class HomePage {
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
-    "//span[text()='" + action + "']/ancestor::a";
+    ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private _templatesTab = ".t--templates-tab";
   private _workSpaceByName = (wsName: string) =>
@@ -98,6 +99,8 @@ export class HomePage {
   _welcomeTourBuildingButton = ".t--start-building";
   _reconnectDataSourceModal = "[data-testid='reconnect-datasource-modal']";
   _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
+  _workspaceSettingOption = "[data-testid=t--workspace-setting]";
+  _inviteUserMembersPage = "[data-testid=t--page-header-input]";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -124,13 +127,23 @@ export class HomePage {
       });
   }
 
+  public OpenWorkspaceOptions(workspaceName: string) {
+    this.agHelper.AssertContains(
+      workspaceName,
+      "exist",
+      this._workspaceNameText,
+    );
+    this.agHelper.GetNClick(this._optionsIconInWorkspace(workspaceName));
+  }
+
+  public OpenWorkspaceSettings(workspaceName: string) {
+    this.OpenWorkspaceOptions(workspaceName);
+    this.agHelper.GetNClick(this._workspaceSettingOption);
+  }
+
   public RenameWorkspace(oldName: string, newWorkspaceName: string) {
-    cy.xpath(this._workSpaceByName(oldName))
-      .last()
-      .closest(this._workspaceCompleteSection)
-      .scrollIntoView()
-      .find(this._optionsIcon)
-      .click({ force: true });
+    this.agHelper.AssertContains(oldName, "exist", this._workspaceNameText);
+    this.agHelper.GetNClick(this._optionsIconInWorkspace(oldName));
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
       .type(newWorkspaceName.concat("{enter}"), { delay: 0 });
@@ -500,10 +513,7 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
-    cy.get(this._workspaceList(workspaceName))
-      .scrollIntoView()
-      .should("be.visible");
-    cy.get(this._optionsIcon).first().click({ force: true });
+    this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
     cy.wait("@leaveWorkspaceApiCall").should(

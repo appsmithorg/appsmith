@@ -52,7 +52,7 @@ describe("Modal focus", function () {
 
     // autofocus for input field is enabled
     cy.get(".t--property-control-autofocus")
-      .find(".bp3-switch input")
+      .find(".ads-v2-switch")
       .click({ force: true });
     //enter some text to the input field
     cy.get(`${widgets.modalWidget} .t--widget-inputwidgetv2 input`)
@@ -74,7 +74,7 @@ describe("Modal focus", function () {
 
     // autofocus for input field is disabled
     cy.get(".t--property-control-autofocus")
-      .find(".bp3-switch input")
+      .find(".ads-v2-switch")
       .click({ force: true });
     //close Modal
     cy.get(widgets.modalCloseButton).click({ force: true });

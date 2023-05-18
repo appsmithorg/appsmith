@@ -6,6 +6,6 @@
   "templateViewForkButton": "[data-testid='template-fork-button']",
   "startFromTemplateCard": "[data-testid=start-from-template]",
   "templateDialogBox": "[data-testid=t--templates-dialog-component]",
-  "selectAllPages": "//label[@class='ads-v2-checkbox' and text()='Select all']",
+  "selectCheckbox": ".ads-v2-checkbox",
   "closeButton": "//span[@name='close-x']"
 }

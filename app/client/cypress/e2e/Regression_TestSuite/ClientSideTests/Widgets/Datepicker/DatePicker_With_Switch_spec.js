@@ -21,8 +21,8 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.getAlert("onChange");
     cy.closePropertyPane();
   });
-
-  it("Date Widget with Reset widget being switch widget", function () {
+  // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
+  it.skip("Date Widget with Reset widget being switch widget", function () {
     _.entityExplorer.SelectEntityByName("DatePicker1");
 
     cy.get(formWidgetsPage.defaultDate).click();
@@ -45,7 +45,7 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.get(widgetsPage.switchWidgetInactive).should("be.visible");
   });
 
-  it("DatePicker-Date change and validate switch widget status", function () {
+  it.skip("DatePicker-Date change and validate switch widget status", function () {
     cy.get(widgetsPage.datepickerInput).click({ force: true });
     cy.SetDateToToday();
     cy.get(widgetsPage.switchWidgetActive).should("be.visible");

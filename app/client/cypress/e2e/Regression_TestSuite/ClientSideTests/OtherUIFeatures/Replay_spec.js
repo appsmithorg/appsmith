@@ -80,7 +80,7 @@ describe("Undo/Redo functionality", function () {
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(100);
-    cy.get(`${widgetsPage.disable} label`).should("not.have.class", "checked");
+    cy.get(`${widgetsPage.disable} input`).should("not.be.checked");
     cy.get(widgetLocators.checkboxWidget + " " + "input").should(
       "not.be.disabled",
     );
@@ -88,7 +88,7 @@ describe("Undo/Redo functionality", function () {
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.wait(100);
 
-    cy.get(`${widgetsPage.disable} label`).should("have.class", "checked");
+    cy.get(`${widgetsPage.disable} input`).should("be.checked");
     cy.get(widgetLocators.checkboxWidget + " " + "input").should("be.disabled");
   });
 
@@ -149,14 +149,14 @@ describe("Undo/Redo functionality", function () {
 
     cy.focused().blur();
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(commonlocators.toastmsg).eq(0).contains("is removed");
-    cy.get(commonlocators.toastmsg).eq(1).contains("REDO");
-    cy.get(commonlocators.toastBody).first().click();
+    cy.get(commonlocators.toastmsg).contains("is removed");
+    cy.get(commonlocators.toastmsg).contains("redo");
+    cy.get(commonlocators.toastBody).first().click({ force: true });
 
     cy.wait(100);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    cy.get(commonlocators.toastmsg).eq(0).contains("is added back");
-    cy.get(commonlocators.toastmsg).eq(1).contains("UNDO");
+    cy.get(commonlocators.toastmsg).contains("is added back");
+    cy.get(commonlocators.toastmsg).contains("undo");
     cy.deleteWidget(widgetsPage.textWidget);
   });
 

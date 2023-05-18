@@ -24,8 +24,8 @@ describe("JSONForm Footer spec", () => {
 
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")
-      .find("label.bp3-control")
-      .should("have.class", "checked");
+      .find(".ads-v2-switch input")
+      .should("be.checked");
 
     // Check if there is a gap between body and footer
     cy.get(".t--jsonform-body").then(($body) => {
@@ -59,8 +59,8 @@ describe("JSONForm Footer spec", () => {
     cy.openPropertyPane("jsonformwidget");
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")
-      .find("label.bp3-control")
-      .should("have.class", "checked");
+      .find(".ads-v2-switch input")
+      .should("be.checked");
 
     // Check if footer is floating
     cy.get(".t--draggable-jsonformwidget")

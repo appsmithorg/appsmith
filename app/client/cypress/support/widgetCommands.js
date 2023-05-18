@@ -87,7 +87,10 @@ Cypress.Commands.add("selectDateFormat", (value) => {
 
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
   cy.get(element).last().scrollIntoView().click({ force: true });
-  cy.get(".t--dropdown-option").children().contains(value).click();
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("assertDateFormat", () => {
@@ -862,9 +865,9 @@ Cypress.Commands.add("selectWidgetForReset", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooterPublish)
-    .contains("Today")
-    .click({ force: true });
+  cy.get(".react-datepicker .react-datepicker__day--today").click({
+    force: true,
+  });
   cy.assertPageSave();
 });
 

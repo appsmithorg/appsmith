@@ -190,6 +190,7 @@ export function DraggableListCard(props: RenderComponentProps) {
           onClick={() => {
             onEdit && onEdit(index);
           }}
+          onFocus={(e) => e.stopPropagation()}
           size="sm"
           startIcon="settings-2-line"
         />

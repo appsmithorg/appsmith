@@ -27,7 +27,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun2()}}");
     _.agHelper.AssertElementVisible(_.locators._evaluateMsg);
-    _.agHelper.ContainsNClick("View Source"); // should route to jsobject page
+    _.agHelper.ContainsNClick("View source"); // should route to jsobject page
 
     _.agHelper.AssertElementLength(_.locators._lintWarningElement, 1);
 
@@ -70,7 +70,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun1()}}");
     _.agHelper.AssertElementVisible(_.locators._evaluateMsg);
-    _.agHelper.ContainsNClick("View Source"); // should route to jsobject page
+    _.agHelper.ContainsNClick("View source"); // should route to jsobject page
     _.agHelper.AssertElementLength(_.locators._lintWarningElement, 2);
     MouseHoverNVerify(
       "myFun1",

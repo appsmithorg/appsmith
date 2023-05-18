@@ -47,6 +47,7 @@ describe("Table Widget property pane feature validation", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
     propPane.EnterJSContext("Text size", testdata.bindingSize);
+    cy.wait(2000);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
     cy.readTabledataValidateCSS("1", "0", "font-size", "24px");

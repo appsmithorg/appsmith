@@ -44,10 +44,9 @@ describe("Table Widget V2 row multi select validation", function () {
     cy.get(commonlocators.toastmsg).should("not.exist");
     // click on first row select box
     cy.get(".t--table-multiselect").first().click({ force: true });
-    //cy.get(commonlocators.toastmsg).contains("Row Selected");
     cy.get(commonlocators.toastmsg)
-      .should("have.css", "font-size", "14px")
-      .contains("Row Selected");
+      .contains("Row Selected")
+      .should("have.css", "font-size", "14px");
   });
 
   it("5. It should deselected default Selected Row when the header cell is clicked", () => {

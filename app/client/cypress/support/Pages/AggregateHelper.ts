@@ -632,7 +632,8 @@ export class AggregateHelper {
     containsText: string,
     index = 0,
   ) {
-    cy.get(selector)
+    return cy
+      .get(selector)
       .contains(containsText)
       .eq(index)
       .click({ force: true })
@@ -652,7 +653,7 @@ export class AggregateHelper {
 
   public AssertExistingToggleState(
     propertyName: string,
-    toggle: "checked" | "unchecked",
+    toggle: "true" | "false",
   ) {
     let locator;
     if (propertyName.startsWith("//")) {
@@ -663,10 +664,18 @@ export class AggregateHelper {
       locator.should("have.attr", toggle);
     } else {
       locator = cy.xpath(this.locator._propertyToggleValue(propertyName));
-      locator.invoke("attr", "class").then((classes) => {
+      locator.invoke("attr", "data-checked").then((classes) => {
         expect(classes).includes(toggle);
       });
     }
+  }
+
+  public AssertExistingCheckedState(selector: string, toggle: string) {
+    this.GetElement(selector).should(
+      "have.attr",
+      "data-selected-value",
+      toggle,
+    );
   }
 
   public AssertSelectedTab(propertyName: string, value: "true" | "false") {
@@ -754,13 +763,14 @@ export class AggregateHelper {
     jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
-    this.GetNClick(this.locator._visibleTextSpan(action));
+    this.GetNClick(this.locator._contextMenuItem(action));
+
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      this.GetNClick(this.locator._visibleTextSpan(subAction));
-      this.Sleep(500);
+      this.GetNClick(this.locator._contextMenuItem(subAction));
+      this.Sleep(1000);
     }
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
