@@ -152,6 +152,7 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
             /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
             properties.setProperty("jdbc_query_result_format", "json");
+            properties.setProperty("APPLICATION", "APPSMITH_JDBC_DRIVER");
 
             return Mono
                     .fromCallable(() -> {

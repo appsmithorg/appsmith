@@ -20,7 +20,7 @@ import {
 } from "selectors/debuggerSelectors";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
+import { BottomBarCTAStyles } from "ce/components/BottomBar/styles";
 import { Colors } from "constants/Colors";
 
 function Debugger() {
