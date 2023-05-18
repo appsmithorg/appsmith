@@ -38,6 +38,7 @@
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
     "@design-system/widgets": "workspace:*",
+    "@design-system/widgets-old": "workspace:*",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@googlemaps/markerclusterer": "^2.0.14",

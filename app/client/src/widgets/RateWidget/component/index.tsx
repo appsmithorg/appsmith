@@ -7,7 +7,7 @@ import _ from "lodash";
 
 import type { RateSize } from "../constants";
 import { RATE_SIZES } from "../constants";
-import { TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "@design-system/widgets-old";
 import type { ComponentProps } from "widgets/BaseComponent";
 
 /*

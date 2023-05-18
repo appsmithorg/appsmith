@@ -19,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
-public class DatasourceStorage extends BaseDomain{
+public class DatasourceStorage extends BaseDomain {
 
     @JsonView(Views.Public.class)
     String datasourceId;

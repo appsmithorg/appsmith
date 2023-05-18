@@ -5,9 +5,9 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "lint:ci": "eslint --cache .",
-    "prettier:ci": "prettier --check .",
-    "test:unit": "jest"
+    "lint": "eslint --cache .",
+    "prettier": "prettier --check .",
+    "test": "jest"
   },
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
