@@ -4,7 +4,7 @@ import type { ListWidgetProps } from "../constants";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 export const PropertyPaneContentConfig = [
   {

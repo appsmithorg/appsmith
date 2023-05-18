@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "./autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,
   getLocale,

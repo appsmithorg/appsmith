@@ -7,7 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { retryPromise } from "utils/AppsmithUtils";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { MapType } from "../component";

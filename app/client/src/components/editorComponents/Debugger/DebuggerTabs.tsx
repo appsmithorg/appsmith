@@ -97,7 +97,13 @@ function DebuggerTabs() {
     },
   ];
 
-  return (
+  // Do not render if response tab and header tab is selected in the bottom bar.
+  const shouldRender = !(
+    selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
+    selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+  );
+
+  return shouldRender ? (
     <Container
       className="t--debugger-tabs-container"
       onClick={stopEventPropagation}
@@ -124,7 +130,7 @@ function DebuggerTabs() {
         size={IconSize.XL}
       />
     </Container>
-  );
+  ) : null;
 }
 
 export default DebuggerTabs;

@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Welcome tour spec", function () {
+describe("excludeForAirgap", "Welcome tour spec", function () {
   it("Bug: 22275: Debugger should not render in preview mode", function () {
     //Open debugger
     _.agHelper.GetNClick(_.debuggerHelper.locators._debuggerIcon);

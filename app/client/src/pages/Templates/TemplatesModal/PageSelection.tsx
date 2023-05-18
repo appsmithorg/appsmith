@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import PagesLineIcon from "remixicon-react/PagesLineIcon";
 import {
   Button,
   CheckboxType,
@@ -23,6 +22,11 @@ import {
   PAGES,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
+import { importRemixIcon } from "design-system-old";
+
+const PagesLineIcon = importRemixIcon(
+  () => import("remixicon-react/PagesLineIcon"),
+);
 
 const Wrapper = styled.div`
   width: max(300px, 25%);

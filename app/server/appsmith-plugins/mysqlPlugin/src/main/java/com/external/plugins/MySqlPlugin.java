@@ -25,6 +25,7 @@ import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.plugins.exceptions.MySQLErrorMessages;
 import com.external.plugins.exceptions.MySQLPluginError;
 import com.external.utils.MySqlDatasourceUtils;
+import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.*;
@@ -79,6 +80,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
     public static final String JSON_DB_TYPE = "JSON";
+    public static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -402,7 +404,9 @@ public class MySqlPlugin extends BasePlugin {
             return Mono.just(pool)
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
-                    .then(Mono.just(new DatasourceTestResult()));
+                    .then(Mono.just(new DatasourceTestResult()))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(
+                            mySqlErrorUtils.getReadableError(error))));
         }
 
         @Override

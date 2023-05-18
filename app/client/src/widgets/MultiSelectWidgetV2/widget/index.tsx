@@ -12,7 +12,7 @@ import type { LoDashStatic } from "lodash";
 import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";

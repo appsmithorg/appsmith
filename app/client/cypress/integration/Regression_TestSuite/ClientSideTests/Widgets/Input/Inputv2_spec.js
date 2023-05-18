@@ -470,15 +470,4 @@ describe("Input widget V2 - ", () => {
     //autocomplete attribute should not be present in the text widget
     cy.get(widgetInput).should("not.have.attr", "autocomplete");
   }
-
-  function enterAndTest(text, expected) {
-    cy.get(`.t--widget-${widgetName} input`).clear();
-    cy.wait(300);
-    if (text) {
-      cy.get(`.t--widget-${widgetName} input`)
-        .click({ force: true })
-        .type(text);
-    }
-    cy.get(".t--widget-textwidget").should("contain", expected);
-  }
 });

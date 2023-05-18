@@ -41,7 +41,6 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOption, TextProps } from "design-system-old";
 import {
@@ -68,7 +67,12 @@ import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+
+const NoEmailConfigImage = importSvg(
+  () => import("assets/images/email-not-configured.svg"),
+);
 
 const { cloudHosting } = getAppsmithConfigs();
 

@@ -24,7 +24,6 @@ import {
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
-import AddLineIcon from "remixicon-react/AddLineIcon";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import {
@@ -34,6 +33,11 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { importRemixIcon } from "design-system-old";
+
+const AddLineIcon = importRemixIcon(
+  () => import("remixicon-react/AddLineIcon"),
+);
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();

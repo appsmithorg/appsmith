@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     // Ref syntax for message templates: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
     INVALID_PARAMETER(400, AppsmithErrorCode.INVALID_PARAMETER.getCode(), "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
+    EMPTY_CURL_INPUT_STATEMENT(400, AppsmithErrorCode.EMPTY_CURL_INPUT_STATEMENT.getCode(), "Input CURL statement is empty / null. Please edit the input box to provide a valid CURL statement.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
     PLUGIN_NOT_INSTALLED(400, AppsmithErrorCode.PLUGIN_NOT_INSTALLED.getCode(), "Plugin {0} not installed", AppsmithErrorAction.DEFAULT, "Plugin not installed", ErrorType.INTERNAL_ERROR, null),
     PLUGIN_ID_NOT_GIVEN(400, AppsmithErrorCode.PLUGIN_ID_NOT_GIVEN.getCode(), "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, "Missing plugin id", ErrorType.INTERNAL_ERROR, null),
     DATASOURCE_NOT_GIVEN(400, AppsmithErrorCode.DATASOURCE_NOT_GIVEN.getCode(), "Missing datasource. Add/enter/connect a datasource to create a valid action.",

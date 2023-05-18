@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   all,
   call,
@@ -39,6 +40,7 @@ import {
   getDatasourceActionRouteInfo,
   getPlugin,
   getEditorConfig,
+  getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -87,6 +89,7 @@ import {
   DATASOURCE_DELETE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
+  FILES_NOT_SELECTED_EVENT,
   GSHEET_AUTHORISED_FILE_IDS_KEY,
   OAUTH_APPSMITH_TOKEN_NOT_FOUND,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
@@ -894,7 +897,7 @@ function* updateDraftsSaga() {
     getFormValues(DATASOURCE_DB_FORM),
   );
 
-  if (!values.id) return;
+  if (!values?.id) return;
   const datasource: Datasource | undefined = yield select(
     getDatasource,
     // @ts-expect-error: values is of type unknown
@@ -991,8 +994,8 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo.pageId,
-        apiId: actionRouteInfo.apiId,
+        pageId: actionRouteInfo.pageId!,
+        apiId: actionRouteInfo.apiId!,
       }),
     );
   }
@@ -1230,6 +1233,23 @@ function* filePickerActionCallbackSaga(
 
     // Once files are selected in case of import, set this flag
     set(datasource, "isConfigured", true);
+
+    // event in case files are not selected
+    if (action === FilePickerActionStatus.CANCEL) {
+      const oauthReason = createMessage(FILES_NOT_SELECTED_EVENT);
+      const dsName = datasource?.name;
+      const orgId = datasource?.workspaceId;
+      const pluginName: string = yield select(
+        getPluginNameFromId,
+        datasource?.pluginId,
+      );
+      AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
+        dsName,
+        oauthReason,
+        orgId,
+        pluginName,
+      });
+    }
 
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource

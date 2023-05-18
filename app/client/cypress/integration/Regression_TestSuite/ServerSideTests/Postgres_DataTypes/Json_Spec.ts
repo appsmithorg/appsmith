@@ -10,11 +10,16 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("Json & JsonB Datatype tests", function () {
-  before(() => {
+  before("Importing App & setting theme", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
+    ee.NavigateToSwitcher("widgets");
+    appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
   beforeEach(() => {
@@ -26,14 +31,6 @@ describe("Json & JsonB Datatype tests", function () {
   });
 
   //#region Json Datatype
-
-  it("0. Importing App & setting theme", () => {
-    cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-    ee.NavigateToSwitcher("widgets");
-    appSettings.OpenPaneAndChangeThemeColors(33, 39);
-  });
 
   it("1. Creating table query - jsonbooks", () => {
     query = `CREATE TABLE jsonbooks(serialId SERIAL PRIMARY KEY, details JSON)`;
@@ -330,21 +327,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+    ee.DeleteAllQueriesForDB(dsName);
   });
 
   //#endregion
@@ -704,24 +687,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createEnum", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropEnum", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("getEnum", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+    ee.DeleteAllQueriesForDB(dsName);
   });
 
   //#endregion

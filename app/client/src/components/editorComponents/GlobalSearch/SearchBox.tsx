@@ -15,8 +15,10 @@ import {
 } from "@appsmith/constants/messages";
 import type { SearchCategory } from "./utils";
 import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
-import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
-import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
+import { importSvg } from "design-system-old";
+
+const CloseIcon = importSvg(() => import("assets/icons/help/close_blue.svg"));
+const SearchIcon = importSvg(() => import("assets/icons/ads/search.svg"));
 
 const Container = styled.div`
   background: #ffffff;

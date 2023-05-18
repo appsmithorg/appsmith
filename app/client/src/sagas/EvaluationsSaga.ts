@@ -106,6 +106,7 @@ import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
+import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -147,6 +148,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
+    undefinedEvalValuesMap,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -205,6 +207,7 @@ export function* updateDataTreeHandler(
         isCreateFirstTree,
         isNewWidgetAdded,
         configTree,
+        undefinedEvalValuesMap,
       );
     }
 
@@ -692,6 +695,47 @@ export function* evaluateArgumentSaga(action: any) {
           name,
           errors: lintErrors,
           isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateActionSelectorFieldSaga(action: any) {
+  const { id, type, value } = action.payload;
+  try {
+    const workerResponse: {
+      errors: Array<unknown>;
+      result: unknown;
+    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+      expression: value,
+    });
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {}, "");
+      if (!validation.isValid)
+        validation.messages?.map((message) => {
+          lintErrors.unshift({
+            ...validation,
+            ...{
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+            },
+          });
+        });
+    }
+
+    yield put(
+      setEvaluatedActionSelectorField({
+        id,
+        evaluatedValue: {
+          value: workerResponse.result as string,
+          errors: lintErrors,
         },
       }),
     );
