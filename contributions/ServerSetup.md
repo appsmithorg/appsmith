@@ -29,6 +29,7 @@ There are two ways to run Appsmith server.
     * Redis instance
 
 * ## Pre-requisites
+
     * [Docker](https://docs.docker.com/get-docker/)
 
 * ## Setup
@@ -85,7 +86,7 @@ This document doesn't provide instructions to install Java and Maven because the
 
 * MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
-   ### Enabling replica set for mongo
+    ### Enabling replica set for mongo
     *  <b>Mongo running inside docker</b>
 
         Please follow the below steps for enabling the replica set with mongo running inside the docker
@@ -101,11 +102,11 @@ This document doesn't provide instructions to install Java and Maven because the
         - Upgrade the MongoDB version to 5.0 or higher
         - Close the mongoDB instance running in your local
         - Start the mongoDB in replica set mode and initiate the replica set
-
+            
             ```
             mongod --port 27017 --dbpath <path/to/db> --replSet <replica-set-name> && mongo --eval “rs.initiate()”
             ```
-        - One can use following commands to check replica set status:
+        - One can use following commands to check replica set status: 
             ```
             mongo appsmith
             rs.status()
@@ -135,7 +136,7 @@ With the prerequisites met, let's build the code.
     mvn clean compile
     ```  
 
-   This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
+    This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 
 4. Setup Environment file
     - Create a copy of the `envs/dev.env.example`
@@ -144,7 +145,7 @@ With the prerequisites met, let's build the code.
         cp envs/dev.env.example .env
         ```
 
-      This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
+        This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
 5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
@@ -160,8 +161,8 @@ With the prerequisites met, let's build the code.
     ```
     - This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
     - If you want to run the tests, you can remove `-DskipTests` flag from the build cmd.
-   ### Debugging
-
+    ### Debugging
+    
     - If the volume containing docker's data root path (macOS: ```~/Library/Containers/com.docker.docker/Data/vms/0/```, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error.
 
         ```console
@@ -176,7 +177,7 @@ With the prerequisites met, let's build the code.
             ```console
             sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
             ```
-
+    
 
 
 8. Start the Java server by running
@@ -299,6 +300,7 @@ Note:
 sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
 - If the volume containing docker's data root path (macOS: `~/Library/Containers/com.docker.docker/Data/vms/0/`, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error:
+        
 ```console
 Check failed: Docker environment should have more than 2GB free disk space.
 ```
@@ -358,7 +360,7 @@ In case the server doesn't work with the above config, please try re-compiling t
 mvn -B clean compile && ./build.sh -DskipTests
 ```
 
-### Troubleshooting
+### General Troubleshooting
 
 #### The Intellij run configuration fails during build
 
