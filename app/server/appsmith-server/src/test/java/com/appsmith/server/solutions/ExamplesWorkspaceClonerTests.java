@@ -652,7 +652,7 @@ public class ExamplesWorkspaceClonerTests {
         app2.setIsPublic(true);
 
         final Datasource ds1 = new Datasource();
-        ds1.setName("datasource 1");
+        ds1.setName("ds 1");
         ds1.setWorkspaceId(workspace.getId());
         ds1.setPluginId(installedPlugin.getId());
         DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
@@ -661,7 +661,7 @@ public class ExamplesWorkspaceClonerTests {
         ds1.setDatasourceStorages(storages1);
 
         final Datasource ds2 = new Datasource();
-        ds2.setName("datasource 2");
+        ds2.setName("ds 2");
         ds2.setWorkspaceId(workspace.getId());
         ds2.setPluginId(installedPlugin.getId());
         DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
@@ -757,7 +757,8 @@ public class ExamplesWorkspaceClonerTests {
                 .map(tuple2 -> {
                     log.info("Created action and added page to app {}", tuple2);
                     return tuple2;
-                }).block();
+                })
+                .block();
         layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
@@ -795,8 +796,8 @@ public class ExamplesWorkspaceClonerTests {
 
                     assertThat(data.datasources).hasSize(2);
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
-                            "datasource 1",
-                            "datasource 2"
+                            "ds 1",
+                            "ds 2"
                     );
 
                     assertThat(data.actions).hasSize(3);

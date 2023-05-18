@@ -175,6 +175,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
         copyNestedNonNullProperties(this, newDs);
         newDs.makePristine();
         newDs.setWorkspaceId(toWorkspaceId);
+        newDs.setDatasourceStorages(new HashMap<>());
 
         return newDs;
     }

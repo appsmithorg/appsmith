@@ -62,6 +62,7 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
         DatasourceStorageDTO newDatasourceStorageDTO = new DatasourceStorageDTO();
         copyNestedNonNullProperties(this, newDatasourceStorageDTO);
         newDatasourceStorageDTO.setId(null);
+        newDatasourceStorageDTO.setDatasourceId(null);
 
         if (newDatasourceStorageDTO.getDatasourceConfiguration() != null) {
             initialAuth = newDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication();

@@ -151,6 +151,8 @@ public class DatasourceStorage extends BaseDomain {
     }
 
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
+        this.setDatasourceId(null);
+        this.setEnvironmentId(null);
         this.setPolicies(null);
         this.setUpdatedAt(null);
         this.setCreatedAt(null);

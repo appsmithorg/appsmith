@@ -201,6 +201,9 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     // forkWithConfiguration is dependent on application, here we are calling cloneDatasource
                     // for the workspace hence Boolean.TRUE is passed as the third parameter because by default
                     // user should have access to the datasource credentials already present in the workspace
+
+                    // The use case for this is: In the example workspace, we need a welcome tour which is based on
+                    // one of the datasource, to get the credentials of that datasource, we have set this value as True
                     final Mono<Datasource> clonerMono = forkDatasource(datasourceId, toWorkspaceId, Boolean.TRUE, environmentId);
                     clonedDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
@@ -568,8 +571,10 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
                                 Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
-                                DatasourceStorageDTO storageDTO = newDs.getDatasourceStorages().get(environmentId)
+                                DatasourceStorageDTO storageDTO = datasourceToFork.getDatasourceStorages()
+                                        .get(environmentId)
                                         .fork(forkWithConfiguration, toWorkspaceId);
+                                storageDTO.setEnvironmentId(environmentId);
                                 newDs.getDatasourceStorages().put(environmentId, storageDTO);
                                 return createSuffixedDatasource(newDs);
                             }));
