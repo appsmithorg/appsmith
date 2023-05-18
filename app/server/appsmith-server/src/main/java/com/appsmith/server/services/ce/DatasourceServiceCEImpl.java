@@ -626,10 +626,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasourceDTO.setPolicies(datasource.getPolicies());
 
         DatasourceStorageDTO datasourceStorageDTO = getFallbackDatasourceStorageDTO(datasource);
-
-        datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO.getDatasourceConfiguration());
-        datasourceDTO.setInvalids(datasourceStorageDTO.getInvalids());
-        datasourceDTO.setMessages(datasourceStorageDTO.getMessages());
+        if (datasourceStorageDTO != null) {
+            datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO.getDatasourceConfiguration());
+            datasourceDTO.setInvalids(datasourceStorageDTO.getInvalids());
+            datasourceDTO.setMessages(datasourceStorageDTO.getMessages());
+        }
 
         return datasourceDTO;
     }
