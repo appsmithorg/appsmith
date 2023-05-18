@@ -324,10 +324,18 @@ export function* evalErrorHandler(
   });
 }
 
-export function* dynamicTriggerErrorHandler(errors: EvaluationError[]) {
+export function* dynamicTriggerErrorHandler(
+  errors: EvaluationError[],
+  triggerPropertyName: string,
+) {
   if (errors.length > 0) {
     for (const error of errors) {
-      logActionExecutionError(error.errorMessage.message);
+      logActionExecutionError(
+        error.errorMessage.message,
+        true,
+        undefined,
+        triggerPropertyName,
+      );
     }
   }
 }

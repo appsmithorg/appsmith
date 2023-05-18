@@ -132,20 +132,20 @@ export function* updateDataTreeHandler(
     postEvalActions || [];
 
   const {
+    configTree,
     dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    isCreateFirstTree = false,
+    isNewWidgetAdded,
     jsUpdates,
     logs,
-    unEvalUpdates,
-    isCreateFirstTree = false,
-    configTree,
-    staleMetaIds,
     pathsToClearErrorsFor,
-    isNewWidgetAdded,
+    staleMetaIds,
     undefinedEvalValuesMap,
+    unEvalUpdates,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -332,7 +332,11 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
   const { errors = [] } = response as any;
-  yield call(dynamicTriggerErrorHandler, errors);
+  yield call(
+    dynamicTriggerErrorHandler,
+    errors,
+    triggerMeta.triggerPropertyName || "",
+  );
   return response;
 }
 
