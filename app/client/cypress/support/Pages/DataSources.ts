@@ -237,7 +237,7 @@ export class DataSources {
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
     this.agHelper.GetNClick(this._selectTableDropdown);
     cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("public.city")`,
+      `div[role="listbox"] p[kind="span"]:contains("public.users")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
