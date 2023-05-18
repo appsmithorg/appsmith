@@ -18,6 +18,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -84,16 +85,32 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     return datasourceStorage;
                 })
                 // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(datasourceStorageTransferSolution
-                        .transferAndGetDatasourceStorage(datasource, environmentId));
+                .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
+                        .transferAndGetDatasourceStorage(datasource, environmentId)))
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return findByDatasourceAndEnvironmentId(datasource, environmentId);
+                    }
+                    throw error;
+                });
     }
 
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
         return this.findByDatasourceId(datasource.getId())
                 // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(datasourceStorageTransferSolution
-                        .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource));
+                .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
+                        .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource)))
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("datasource_storage_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return findByDatasource(datasource);
+                    }
+                    throw error;
+                });
     }
 
     protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {

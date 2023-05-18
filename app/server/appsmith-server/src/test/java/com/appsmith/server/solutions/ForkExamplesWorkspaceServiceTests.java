@@ -89,7 +89,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
-public class ExamplesWorkspaceClonerTests {
+public class ForkExamplesWorkspaceServiceTests {
 
     @MockBean
     PluginExecutor pluginExecutor;

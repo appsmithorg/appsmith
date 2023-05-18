@@ -34,37 +34,18 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
 
     @Transactional
     @Override
-    public Mono<DatasourceStorage> transferAndGetDatasourceStorage(String datasourceId,
-                                                                   String environmentId,
-                                                                   AclPermission permission) {
-        return datasourceRepository
-                .findById(datasourceId, permission)
-                .flatMap(datasource -> transferDatasourceStorage(datasource, environmentId));
-
-    }
-
-    @Transactional
-    @Override
     public Mono<DatasourceStorage> transferAndGetDatasourceStorage(Datasource datasource, String environmentId) {
         return this.transferDatasourceStorage(datasource, environmentId);
     }
 
     @NotNull
     private Mono<DatasourceStorage> transferDatasourceStorage(Datasource datasource, String environmentId) {
-        DatasourceStorage datasourceStorage = this.initializeDatasourceStorage(datasource, environmentId);
+        final DatasourceStorage datasourceStorage = this.initializeDatasourceStorage(datasource, environmentId);
         datasource.setDatasourceConfiguration(null);
         datasource.setInvalids(null);
         datasource.setHasDatasourceStorage(true);
         return Mono.zip(datasourceStorageRepository.save(datasourceStorage), datasourceRepository.save(datasource))
-                .map(Tuple2::getT1)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return transferDatasourceStorage(datasource, environmentId);
-                    }
-                    throw error;
-                });
+                .map(Tuple2::getT1);
     }
 
     @Transactional
