@@ -92,6 +92,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
+import reactor.util.function.Tuples;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -179,6 +180,8 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     CustomJSLibService customJSLibService;
+
+    PagePermission pagePermission = new PagePermissionImpl();
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -3938,4 +3941,52 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateExistingApplication_WhenUserLacksPageEditPermission_ThrowsException() {
+        String uuid = UUID.randomUUID().toString();
+        /*
+        1. Create application and create a page
+        2. Create an ApplicationJSON that has a page with the same gitSyncIc as the one created in step 1
+        3. Revoke edit permission from the page for that application
+        4. Import the ApplicationJSON to the application
+         */
+        // Create application connected to git
+        Application testApplication = new Application();
+        testApplication.setName("TestApplication" + uuid);
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Application> importAppMono = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(createdApp -> {
+                    ApplicationPage applicationPage = createdApp.getPages().get(0);
+                    // get the page with edit permission
+                    return newPageService.findById(applicationPage.getId(), pagePermission.getEditPermission());
+                })
+                .zipWith(importExportApplicationService.extractApplicationJson(createFilePart("test_assets/ImportExportServiceTest/valid-application.json")))
+                .flatMap(objects -> {
+                    NewPage newPage = objects.getT1();
+                    ApplicationJson applicationJson = objects.getT2();
+                    // set the gitSyncId to a page inside the applicationJson
+                    applicationJson.getPageList().get(0).setGitSyncId(newPage.getGitSyncId());
+                    // revoke permission from this page
+                    newPage.getPolicies().removeIf(
+                            policy -> policy.getPermission().equals(pagePermission.getEditPermission().getValue())
+                    );
+                    newPage.getUnpublishedPage().setName("Page_"+uuid);
+                    return newPageService.save(newPage)
+                            .thenReturn(Tuples.of(newPage.getApplicationId(), applicationJson));
+                })
+                .flatMap(objects -> {
+                    String applicationId = objects.getT1();
+                    ApplicationJson applicationJson = objects.getT2();
+                    return importExportApplicationService
+                            .importApplicationInWorkspace(workspaceId, applicationJson, applicationId, null);
+                });
+
+        StepVerifier
+                .create(importAppMono)
+                // not matching error message because we throw a generic error message
+                .expectError(AppsmithException.class)
+                .verify();
+    }
 }
