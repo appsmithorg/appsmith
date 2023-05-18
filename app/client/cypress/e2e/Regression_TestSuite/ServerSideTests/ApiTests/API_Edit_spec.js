@@ -92,6 +92,8 @@ describe("API Panel Test Functionality", function () {
       .wait(1000)
       .type("{enter}", { parseSpecialCharSequences: true });
 
-    cy.contains("https://www.facebook.com/users/Cancel?key=test&val=Cancel");
+    cy.validateEvaluatedValue(
+      "https://www.facebook.com/users/Cancel?key=test&val=Cancel",
+    );
   });
 });
