@@ -165,11 +165,7 @@ export default function DetailsForm(
             )}
 
             {!isAirgapped() && (
-              <Checkbox
-                defaultSelected={false}
-                name="signupForNewsletter"
-                value="true"
-              >
+              <Checkbox defaultSelected name="signupForNewsletter" value="true">
                 I want security and product updates.
               </Checkbox>
             )}
