@@ -339,6 +339,7 @@ export function* logSuccessfulBindings(
   isCreateFirstTree: boolean,
   isNewWidgetAdded: boolean,
   configTree: ConfigTree,
+  undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -357,6 +358,10 @@ export function* logSuccessfulBindings(
       | ActionEntityConfig;
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
+      let isUndefined = false;
+
+      isUndefined = get(undefinedEvalValuesMap, evaluatedPath) || false;
+
       const entityType = isAction(entity)
         ? entityConfig.pluginType
         : entity.type;
@@ -401,9 +406,11 @@ export function* logSuccessfulBindings(
               unevalValue,
               entityType,
               propertyPath,
+              isUndefined,
             });
           }
         }
+
         successfulBindingPaths[evaluatedPath] = unevalValue;
       } else {
         /**Remove the binding from the map so that in case it is added again, we log it*/

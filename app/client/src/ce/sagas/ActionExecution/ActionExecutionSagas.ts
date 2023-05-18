@@ -8,6 +8,7 @@ import type {
 import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
+  evaluateActionSelectorFieldSaga,
   evaluateAndExecuteDynamicTrigger,
   evaluateArgumentSaga,
   evaluateSnippetSaga,
@@ -167,5 +168,9 @@ export function* watchActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
     takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),
+    takeLatest(
+      ReduxActionTypes.EVALUATE_ACTION_SELECTOR_FIELD,
+      evaluateActionSelectorFieldSaga,
+    ),
   ]);
 }
