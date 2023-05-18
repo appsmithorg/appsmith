@@ -243,6 +243,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                 )}
                 {props.addOrDeleteFields !== false && (
                   <CenteredButton
+                    data-testid="t--trash-icon"
                     isIconButton
                     kind="tertiary"
                     onClick={() => props.fields.remove(index)}
