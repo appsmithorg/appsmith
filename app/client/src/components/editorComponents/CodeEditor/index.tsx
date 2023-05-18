@@ -154,7 +154,6 @@ import {
   askAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import store from "store";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -424,14 +423,11 @@ class CodeEditor extends Component<Props, State> {
         } else {
           editor.setSize("100%", "100%");
         }
-        const entitiesForNavigation = this.getEntitiesForNavigationData(
-          this.props,
-        );
         CodeEditor.updateMarkings(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.marking!, // ! since defaultProps are set
-          entitiesForNavigation,
+          this.props.entitiesForNavigation,
         );
 
         this.hinters = CodeEditor.startAutocomplete(
@@ -554,20 +550,15 @@ class CodeEditor extends Component<Props, State> {
         // handles case when inputValue changes from a truthy to a falsy value
         this.setEditorInput("");
       }
-      const entitiesForNavigation = this.getEntitiesForNavigationData(
-        this.props,
-      );
-      const entitiesForNavigationPrev =
-        this.getEntitiesForNavigationData(prevProps);
       if (
-        entitiesForNavigation !== entitiesForNavigationPrev ||
+        this.props.entitiesForNavigation !== prevProps.entitiesForNavigation ||
         this.props.marking !== prevProps.marking
       ) {
         CodeEditor.updateMarkings(
           this.editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.marking!, // ! since defaultProps are set
-          entitiesForNavigation,
+          this.props.entitiesForNavigation,
         );
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
@@ -674,16 +665,13 @@ class CodeEditor extends Component<Props, State> {
           return;
         }
         const paths = peekableAttribute.split(".");
-        const entitiesForNavigation = this.getEntitiesForNavigationData(
-          this.props,
-        );
         if (paths.length) {
           paths.splice(1, 0, "peekData");
           this.showPeekOverlay(
             peekableAttribute,
             tokenElement,
             tokenElementPosition,
-            _.get(entitiesForNavigation, paths),
+            _.get(this.props.entitiesForNavigation, paths),
           );
         }
       }
@@ -847,11 +835,9 @@ class CodeEditor extends Component<Props, State> {
             isFocused: false,
           },
           () => {
-            const entitiesNavigationData = this.getEntitiesForNavigationData(
-              this.props,
-            );
-            if (entityToNavigate[0] in entitiesNavigationData) {
-              let navigationData = entitiesNavigationData[entityToNavigate[0]];
+            if (entityToNavigate[0] in this.props.entitiesForNavigation) {
+              let navigationData =
+                this.props.entitiesForNavigation[entityToNavigate[0]];
               for (let i = 1; i < entityToNavigate.length; i += 1) {
                 if (entityToNavigate[i] in navigationData.children) {
                   navigationData = navigationData.children[entityToNavigate[i]];
@@ -1088,14 +1074,11 @@ class CodeEditor extends Component<Props, State> {
     }
 
     if (this.editor && changeObj) {
-      const entitiesForNavigation = this.getEntitiesForNavigationData(
-        this.props,
-      );
       CodeEditor.updateMarkings(
         this.editor,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.props.marking!, // ! since defaultProps are set
-        entitiesForNavigation,
+        this.props.entitiesForNavigation,
         changeObj.from,
         changeObj.to,
       );
@@ -1350,11 +1333,6 @@ class CodeEditor extends Component<Props, State> {
     this.editor.setValue(value);
   };
 
-  getEntitiesForNavigationData = (props: EditorProps) => {
-    const state: AppState = store.getState();
-    return getEntitiesForNavigation(state, props.dataTreePath?.split(".")[0]);
-  };
-
   render() {
     const {
       border,
@@ -1578,6 +1556,10 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
     getEditorIdentifier(props),
+  ),
+  entitiesForNavigation: getEntitiesForNavigation(
+    state,
+    props.dataTreePath?.split(".")[0],
   ),
   featureFlags: selectFeatureFlags(state),
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
