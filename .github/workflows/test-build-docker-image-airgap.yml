@@ -57,6 +57,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      airgap-enabled: "true"
 
   ci-test:
     needs: [ build-docker-image ]
@@ -174,11 +175,17 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v3
 
-      - name: Download the airgapped react build artifact
+      - name: Download the react build artifact
         uses: actions/download-artifact@v3
         with:
           name: client-build-airgap
-          path: app/client/build_airgap
+          path: app/client
+
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p app/client/build_airgap
+          tar -xvf app/client/build.tar -C app/client/build_airgap
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
@@ -226,6 +233,8 @@ jobs:
             APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.vars.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:beta
 
       - name: Build and push airgap master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')

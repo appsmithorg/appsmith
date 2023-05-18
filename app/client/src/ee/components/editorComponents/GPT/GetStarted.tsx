@@ -1,43 +1,54 @@
-import React from "react";
-import { GPTTask, useGPTTasks } from "./utils";
-import { UserPromptWrapper } from "./GPTPrompt";
+import React, { useState } from "react";
+import { GPTTask } from "./utils";
+// import { UserPromptWrapper } from "./GPTPrompt";
+import { Collapse } from "@blueprintjs/core";
+import { AppIcon } from "design-system-old";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
-const examplePrompts = {
-  [GPTTask.JS_EXPRESSION]: [
-    "Filter users by age > 30 from response of get_users api?",
-    "Pick first name and last name from response of get_users api?",
-    "Run get_users api and display a toast message 'Success' on success and 'Error' on error?",
-  ],
-  [GPTTask.SQL_QUERY]: [
-    "Fetch all users from users table where age > 30",
-    "Update first_name of users table to 'John' where id = 1",
-    "Delete all users from users table where age < 30",
-  ],
-  [GPTTask.REFACTOR_CODE]: [],
+export const examplePrompts: Record<string, any> = {
+  [GPTTask.JS_EXPRESSION]: {
+    [AutocompleteDataType.ARRAY]:
+      "Filter users by age > 30 from response of get_users api?",
+    [AutocompleteDataType.FUNCTION]:
+      "Run get_users api and display a toast message 'Success' on success and 'Error' on error?",
+    [AutocompleteDataType.OBJECT]: "Get admin from get_users api",
+    [AutocompleteDataType.UNKNOWN]:
+      "Run get_users api and display a toast message 'Success' on success and 'Error' on error?",
+    [AutocompleteDataType.STRING]: "Get first user name from get_users api",
+  },
 };
 
-export function GettingStarted({ task }: { task: GPTTask }) {
-  const allTasks = useGPTTasks();
-  const taskDescription = allTasks.find((t) => t.id === task)?.desc;
+export function GettingStarted() {
+  // const task = useGPTTask();
+  const [showExamplePrompt, toggleExamplePrompt] = useState<boolean>(false);
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col gap-1">
-        <p className="text-[13px] font-semibold pb-2">{taskDescription}</p>
-        <div className="text-xs font-medium">Example Prompts</div>
-        <div className="flex flex-col gap-2">
-          {examplePrompts[task].map((prompt) => (
-            <ExamplePrompt key={prompt} prompt={prompt} />
-          ))}
-        </div>
+      <div
+        className="text-xs font-medium flex"
+        onClick={() => toggleExamplePrompt(!showExamplePrompt)}
+      >
+        {showExamplePrompt ? (
+          <AppIcon name="arrow-down" size={12} />
+        ) : (
+          <AppIcon name="arrow-right" size={12} />
+        )}
+        Example Prompts
       </div>
+      <Collapse isOpen={showExamplePrompt}>
+        <div className="flex flex-col gap-2">
+          {/* {examplePrompts[task.id].map((prompt) => (
+            <ExamplePrompt key={prompt} prompt={prompt} />
+          ))} */}
+        </div>
+      </Collapse>
     </div>
   );
 }
 
-function ExamplePrompt({ prompt }: { prompt: string }) {
-  return (
-    <div className="flex justify-start bg-gray-100 w-full font-normal">
-      <UserPromptWrapper>{prompt}</UserPromptWrapper>
-    </div>
-  );
-}
+// function ExamplePrompt({ prompt }: { prompt: string }) {
+//   return (
+//     <div className="flex justify-start bg-gray-100 w-full font-normal">
+//       <UserPromptWrapper>{prompt}</UserPromptWrapper>
+//     </div>
+//   );
+// }

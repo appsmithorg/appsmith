@@ -72,6 +72,7 @@ public class SmtpPlugin extends BasePlugin {
                 String ccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
                 String bccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
                 String subject = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
+                String bodyType = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bodyType");
                 Boolean isReplyTo = (Boolean) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
                 String replyTo = Boolean.TRUE.equals(isReplyTo) ?
                         (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
@@ -100,12 +101,12 @@ public class SmtpPlugin extends BasePlugin {
                 message.setSubject(subject, ENCODING);
 
                 String msg = StringUtils.hasText(actionConfiguration.getBody()) ? actionConfiguration.getBody() : "";
+                bodyType = StringUtils.hasText(bodyType) ? bodyType : "text/html";
+                String msgType = String.format("%s; charset=%s", bodyType, ENCODING);
 
                 MimeBodyPart mimeBodyPart = getMimeBodyPart();
 
-                // By default, all emails sent will be of type HTML. This can be parameterized. For simplification reasons,
-                // use the text/html mime type right now.
-                mimeBodyPart.setContent(msg, "text/html; charset=" + ENCODING);
+                mimeBodyPart.setContent(msg, msgType);
                 Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(mimeBodyPart);
                 message.setContent(multipart);

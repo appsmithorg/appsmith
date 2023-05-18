@@ -17,6 +17,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -292,7 +293,7 @@ public class ApplicationForkingServiceTests {
         appPage.setPolicies(newPoliciesWithoutEdit);
         NewPage updatedGitAppPage = newPageRepository.save(appPage).block();
 
-        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+        final Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -328,7 +329,7 @@ public class ApplicationForkingServiceTests {
         targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);
         Workspace updatedargetWorkspace = workspaceRepository.save(targetWorkspace).block();
 
-        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+        final Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&

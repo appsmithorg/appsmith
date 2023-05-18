@@ -1,5 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import {
+  getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
   isTrueObject,
@@ -20,6 +21,10 @@ import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import FuzzySet from "fuzzyset";
+import WidgetFactory from "utils/WidgetFactory";
+import log from "loglevel";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { WidgetType } from "constants/WidgetConstants";
 
 export type TUserPrompt = {
   role: "user";
@@ -54,30 +59,34 @@ export enum GPTTask {
 
 export const GPT_JS_EXPRESSION = {
   id: GPTTask.JS_EXPRESSION,
-  desc: "Generate a JS expression that transforms your query/API data",
+  desc: "Generate JS expression",
   title: "Generate JS Code",
 };
 
 export const GPT_SQL_QUERY = {
   id: GPTTask.SQL_QUERY,
   title: "Generate SQL query",
-  desc: "Generate a SQL query",
+  desc: "Generate SQL query",
 };
 
-export const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
-
-export const useGPTTasks = () => {
+export const useGPTTask = () => {
   const location = useLocation();
   const { pageType } = getEntityInCurrentPath(location.pathname);
   return useMemo(() => {
-    const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
     if (pageType === "queryEditor") {
-      GPT_TASKS.reverse();
+      return GPT_SQL_QUERY;
+    } else {
+      return GPT_JS_EXPRESSION;
     }
-    return GPT_TASKS;
   }, [location.pathname]);
 };
 
+/**
+ * Looks at the words in user query and tries to fuzzy match it with an existing application entity
+ * @param message
+ * @param entityNames
+ * @returns
+ */
 function getPotentialEntityNamesFromMessage(
   message: string,
   entityNames: string[],
@@ -119,7 +128,24 @@ const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
         type: "ACTION",
       };
     } else if (isWidget(entity)) {
-      const widgetSkeleton = getDataSkeleton(entity);
+      //Selects only paths that can be autocompleted
+      let autocompleteDefinitions =
+        WidgetFactory.getAutocompleteDefinitions(entity.type) || {};
+      if (typeof autocompleteDefinitions === "function") {
+        try {
+          autocompleteDefinitions = autocompleteDefinitions(entity);
+        } catch (e) {
+          log.debug(e);
+          autocompleteDefinitions = {};
+        }
+      }
+      const minimumEntityInfo: Record<string, unknown> = {};
+      const entityFields = Object.keys(entity);
+      for (const field of entityFields) {
+        if (autocompleteDefinitions.hasOwnProperty(field))
+          minimumEntityInfo[field] = entity[field];
+      }
+      const widgetSkeleton = getDataSkeleton(minimumEntityInfo);
       context[entityName] = { ...widgetSkeleton, type: "WIDGET" };
     } else if (isJSAction(entity)) {
       context[entityName] = {
@@ -131,43 +157,110 @@ const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
   };
 });
 
-export function useGPTContextGenerator() {
+const FIELD_SPECIFIC_PROMPTS: Record<WidgetType, Record<string, string>> = {
+  SELECT_WIDGET: {
+    options: `"value" must be unique`,
+  },
+  MULTI_SELECT_WIDGET: {
+    options: `"value" must be unique`,
+  },
+  MULTI_SELECT_WIDGET_V2: {
+    options: `"value" must be unique`,
+  },
+  MULTI_SELECT_TREE_WIDGET: {
+    options: `"value" must be unique`,
+  },
+};
+
+const QUERY_SEPARATOR = ". ";
+
+export function useGPTContextGenerator(
+  dataTreePath?: string,
+  triggerContext?: CodeEditorExpected,
+) {
   const dataTree = useSelector(getDataTree);
   const contextGenerator = useSelector(getGPTContextGenerator);
   const location = useLocation();
   const actions = useSelector(getActionsForCurrentPage);
   const generator = useMemo(
-    () => (prompt: TChatGPTPrompt) => {
-      if (prompt?.role !== "user") return {};
-      const query = prompt.content;
-      if (!query) return {};
-      const entityNames = Object.keys(dataTree);
-      const { exactMatches, partialMatches } =
-        getPotentialEntityNamesFromMessage(query, entityNames);
-      const entityNamesFromMessage = exactMatches.length
-        ? exactMatches
-        : partialMatches.slice(0, 2);
-      const api_context = entityNamesFromMessage.reduce((acc, entityName) => {
-        acc = { ...acc, ...contextGenerator(entityName) };
-        return acc;
-      }, {} as any);
-      const { id, pageType } = getEntityInCurrentPath(location.pathname);
-      const meta: any = {};
-      if (pageType === "queryEditor") {
-        const query = actions.find((a) => a.config.id === id);
-        const datasourceId = (query?.config?.datasource as any)?.id;
-        meta["datasourceId"] = datasourceId;
-      }
-      return {
-        api_context,
-        meta,
-      };
-    },
-    [dataTree, contextGenerator, location.pathname, actions],
+    () =>
+      (prompt: TChatGPTPrompt): [TChatGPTContext, string] => {
+        const defaultContext = [{}, ""] as [TChatGPTContext, string];
+        try {
+          const additionalQueries: string[] = [];
+          if (prompt?.role !== "user") return defaultContext;
+          const query = prompt.content;
+          if (!query) return defaultContext;
+          const entityNames = Object.keys(dataTree);
+          const { exactMatches, partialMatches } =
+            getPotentialEntityNamesFromMessage(query, entityNames);
+          //Ignore partial matches if exact match exists
+          const entityNamesFromMessage = exactMatches.length
+            ? exactMatches
+            : partialMatches.slice(0, 2);
+          const api_context = entityNamesFromMessage.reduce(
+            (acc, entityName) => {
+              acc = { ...acc, ...contextGenerator(entityName) };
+              return acc;
+            },
+            {} as any,
+          );
+          const { id, pageType } = getEntityInCurrentPath(location.pathname);
+          const meta: any = {};
+          if (pageType === "queryEditor") {
+            const query = actions.find((a) => a.config.id === id);
+            const datasourceId = (query?.config?.datasource as any)?.id;
+            meta["datasourceId"] = datasourceId;
+          }
+          if (
+            triggerContext &&
+            triggerContext.type &&
+            triggerContext.type !== "Function"
+          ) {
+            additionalQueries.push(
+              `Return type of the expression should be of type '${triggerContext.type}'`,
+            );
+          }
+          if (dataTreePath) {
+            const { entityName, propertyPath } =
+              getEntityNameAndPropertyPath(dataTreePath);
+            const entity = dataTree[entityName];
+            if (isWidget(entity)) {
+              const type = entity.type;
+              const fieldSpecificPrompt =
+                FIELD_SPECIFIC_PROMPTS[type]?.[propertyPath] || "";
+              if (fieldSpecificPrompt)
+                additionalQueries.push(fieldSpecificPrompt);
+            }
+          }
+          return [
+            {
+              api_context,
+              meta,
+            },
+            additionalQueries.join(QUERY_SEPARATOR),
+          ];
+        } catch (e) {
+          return defaultContext;
+        }
+      },
+    [
+      dataTree,
+      contextGenerator,
+      location.pathname,
+      actions,
+      dataTreePath,
+      triggerContext,
+    ],
   );
   return generator;
 }
 
+/**
+ * Takes a value and recursive replaces it with `typeof value`
+ * @param data
+ * @returns
+ */
 function getDataSkeleton(data: unknown): any {
   if (!data) return {};
   if (Array.isArray(data)) {
@@ -194,8 +287,6 @@ export const selectIsAILoading = (state: AppState) => state.ai.isLoading;
 
 export const selectShowExamplePrompt = (state: AppState) =>
   state.ai.showExamplePrompt;
-
-export const selectGPTTask = (state: AppState) => state.ai.task;
 
 export const isUserPrompt = (prompt: TChatGPTPrompt): prompt is TUserPrompt =>
   prompt.role === "user";

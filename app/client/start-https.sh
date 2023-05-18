@@ -153,6 +153,11 @@ rts="http://$rts_host:$rts_port"
 http_listen_port="${http_listen_port-80}"
 https_listen_port="${https_listen_port-443}"
 
+if [[ $backend =~ /$ ]]; then
+    echo "The backend endpoint ($backend) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
+    echo "Exiting. Please run again, removing the trailing slash(es) for the backend." >&2
+    exit 1
+fi
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
     echo "I got --env-file as '$env_file', but I cannot access it." >&2
@@ -299,8 +304,6 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_CLOUD_SERVICES_BASE_URL__ '${APPSMITH_CLOUD_SERVICES_BASE_URL-}';
             sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '${APPSMITH_RECAPTCHA_SITE_KEY-}';
             sub_filter __APPSMITH_DISABLE_INTERCOM__ '${APPSMITH_DISABLE_INTERCOM-}';
-            sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '${APPSMITH_FORM_LOGIN_DISABLED-}';
-            sub_filter __APPSMITH_SIGNUP_DISABLED__ '${APPSMITH_SIGNUP_DISABLED-}';
             sub_filter __APPSMITH_ZIPY_SDK_KEY__ '${APPSMITH_ZIPY_SDK_KEY-}';
             sub_filter __APPSMITH_HIDE_WATERMARK__ '${APPSMITH_HIDE_WATERMARK-}';
             sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}';

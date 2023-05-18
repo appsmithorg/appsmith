@@ -5,14 +5,19 @@ import classNames from "classnames";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import MagicIcon from "remixicon-react/MagicLineIcon";
 import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { selectIsAIWindowOpen } from "./utils";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Colors } from "constants/Colors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { importRemixIcon } from "design-system-old";
 
-export const addAISlashCommand = true;
+const MagicIcon = importRemixIcon(
+  () => import("remixicon-react/MagicLineIcon"),
+);
+
+export const askAIEnabled = true;
+export const APPSMITH_AI = "AI";
 
 export function GPTTrigger() {
   const dispatch = useDispatch();

@@ -1,9 +1,15 @@
 import React from "react";
 
 import { CellCheckboxWrapper, CellCheckbox } from "../TableStyledWrappers";
-import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
-import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
 import { CheckboxState } from "../Constants";
+import { importSvg } from "design-system-old";
+
+const CheckBoxCheckIcon = importSvg(
+  () => import("assets/icons/widget/table/checkbox-check.svg"),
+);
+const CheckBoxLineIcon = importSvg(
+  () => import("assets/icons/widget/table/checkbox-line.svg"),
+);
 
 export const renderBodyCheckBoxCell = (
   isChecked: boolean,

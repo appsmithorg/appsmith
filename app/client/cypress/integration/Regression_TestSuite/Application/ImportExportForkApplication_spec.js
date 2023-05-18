@@ -1,5 +1,5 @@
-const homePage = require("../../../locators/HomePage");
-const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
+import homePage from "../../../locators/HomePage";
+import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 
 describe("Import, Export and Fork application and validate data binding", function () {
   let workspaceId;

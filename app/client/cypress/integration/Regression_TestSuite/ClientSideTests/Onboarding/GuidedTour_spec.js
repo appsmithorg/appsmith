@@ -4,7 +4,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Guided Tour", function () {
+describe("excludeForAirgap", "Guided Tour", function () {
   it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
@@ -30,7 +30,6 @@ describe("Guided Tour", function () {
     _.dataSources.SetQueryTimeout();
     // Step 1: Run query
     _.dataSources.RunQuery();
-    _.debuggerHelper.ClickDebuggerIcon();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");

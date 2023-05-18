@@ -3610,4 +3610,23 @@ public class ApplicationServiceCETest {
                 .expectErrorMatches(error -> error instanceof AppsmithException)
                 .verify();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void cloneApplication_WhenClonedSuccessfully_InternalFieldsResetToNull() {
+        String applicationName = "ApplicationServiceTest internal fields reset post cloning";
+        Application testApplication = new Application();
+        testApplication.setName(applicationName);
+        testApplication.setExportWithConfiguration(TRUE);
+        testApplication.setForkWithConfiguration(TRUE);
+
+        Application application =  applicationPageService.createApplication(testApplication, workspaceId).block();
+        Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(application.getId(), null);
+
+
+        StepVerifier.create(clonedApplicationMono).assertNext(clonedApplication -> {
+            assertThat(clonedApplication.getExportWithConfiguration()).isNull();
+            assertThat(clonedApplication.getForkWithConfiguration()).isNull();
+        }).verifyComplete();
+    }
 }

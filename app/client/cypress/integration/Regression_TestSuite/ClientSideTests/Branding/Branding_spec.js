@@ -154,43 +154,104 @@ describe("Branding", () => {
     }
   });
 
-  it("checks branding on dashboard and checks if colorpicker has branding colors", () => {
-    if (CURRENT_REPO === REPO.EE) {
-      // naivagae to dashboard
-      cy.get(locators.appsmithLogo).click();
+  it(
+    "excludeForAirgap",
+    "checks branding on dashboard and checks if colorpicker has branding colors",
+    () => {
+      if (CURRENT_REPO === REPO.EE) {
+        // naivagae to dashboard
+        cy.get(locators.appsmithLogo).click();
 
-      // check logo
-      cy.get(locators.appsmithLogoImg).invoke("attr", "src").should("eq", logo);
+        // check logo
+        cy.get(locators.appsmithLogoImg)
+          .invoke("attr", "src")
+          .should("eq", logo);
 
-      // check favicon
-      cy.get(locators.BrandingFaviconHead)
-        .invoke("attr", "href")
-        .should("eq", favicon);
+        // check favicon
+        cy.get(locators.BrandingFaviconHead)
+          .invoke("attr", "href")
+          .should("eq", favicon);
 
-      // check the apps tab border bottom
-      cy.get(locators.dashboardAppTab).should(
-        "have.css",
-        "border-bottom-color",
-        shades.primary,
-      );
+        // check the apps tab border bottom
+        cy.get(locators.dashboardAppTab).should(
+          "have.css",
+          "border-bottom-color",
+          shades.primary,
+        );
 
-      // check the button bg
-      cy.get(locators.createNewAppButton).should(
-        "have.css",
-        "background-color",
-        shades.primary,
-      );
+        // check the button bg
+        cy.get(locators.createNewAppButton).should(
+          "have.css",
+          "background-color",
+          shades.primary,
+        );
 
-      // create new app
-      cy.get(locators.createNewAppButton).eq(0).click();
+        // create new app
+        cy.get(locators.createNewAppButton).eq(0).click();
 
-      _.appSettings.OpenAppSettings();
-      _.appSettings.GoToThemeSettings();
+        _.appSettings.OpenAppSettings();
+        _.appSettings.GoToThemeSettings();
 
-      cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
-      cy.get(widgetsPage.colorPickerV2PopoverContent).contains("Brand Colors");
-    }
-  });
+        cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
+        cy.get(widgetsPage.colorPickerV2PopoverContent).contains(
+          "Brand Colors",
+        );
+      }
+    },
+  );
+
+  it(
+    "airgap",
+    "checks branding on dashboard and checks if colorpicker has branding colors - airgap",
+    () => {
+      if (CURRENT_REPO === REPO.EE) {
+        // naivagae to dashboard
+        cy.get(locators.appsmithLogo).click();
+        let airgappedLogo = logo;
+        let airgappedFavicon = favicon;
+        if (logo.startsWith("http://" || "https://")) {
+          airgappedLogo = `${window.location.origin}/${logo.split("/").pop()}`;
+        } else if (favicon.startsWith("http://" || "https://")) {
+          airgappedFavicon = `${window.location.origin}/${favicon
+            .split("/")
+            .pop()}`;
+        }
+        cy.get(locators.appsmithLogoImg)
+          .invoke("attr", "src")
+          .should("eq", airgappedLogo);
+
+        // check favicon
+        cy.get(locators.BrandingFaviconHead)
+          .invoke("attr", "href")
+          .should("eq", airgappedFavicon);
+
+        // check the apps tab border bottom
+        cy.get(locators.dashboardAppTab).should(
+          "have.css",
+          "border-bottom-color",
+          shades.primary,
+        );
+
+        // check the button bg
+        cy.get(locators.createNewAppButton).should(
+          "have.css",
+          "background-color",
+          shades.primary,
+        );
+
+        // create new app
+        cy.get(locators.createNewAppButton).eq(0).click();
+
+        _.appSettings.OpenAppSettings();
+        _.appSettings.GoToThemeSettings();
+
+        cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
+        cy.get(widgetsPage.colorPickerV2PopoverContent).contains(
+          "Brand Colors",
+        );
+      }
+    },
+  );
 
   it("checks branding colors on login page", () => {
     if (CURRENT_REPO === REPO.EE) {

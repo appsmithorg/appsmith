@@ -247,10 +247,9 @@ export class PropertyPane {
     valueToEnter: string,
     toVerifySave = true,
   ) {
-    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
-      ($field: any) => {
-        this.agHelper.UpdateCodeInput($field, valueToEnter);
-      },
+    this.agHelper.UpdateCodeInput(
+      this.locator._existingFieldTextByName(propFieldName),
+      valueToEnter,
     );
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }

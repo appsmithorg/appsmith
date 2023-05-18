@@ -1,19 +1,19 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -21,8 +21,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,6 +35,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     private final TenantService tenantService;
     private final UserUtils userUtils;
 
+    private final EnvironmentService environmentService;
+
     public WorkspaceServiceImpl(Scheduler scheduler,
                                 Validator validator,
                                 MongoConverter mongoConverter,
@@ -45,9 +45,6 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 AnalyticsService analyticsService,
                                 PluginRepository pluginRepository,
                                 SessionUserService sessionUserService,
-                                UserWorkspaceService userWorkspaceService,
-                                UserRepository userRepository,
-                                RoleGraph roleGraph,
                                 AssetRepository assetRepository,
                                 AssetService assetService,
                                 ApplicationRepository applicationRepository,
@@ -57,15 +54,16 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 WorkspacePermission workspacePermission,
                                 PermissionGroupPermission permissionGroupPermission,
                                 TenantService tenantService,
-                                UserUtils userUtils) {
+                                UserUtils userUtils,
+                                EnvironmentService environmentService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
-                assetRepository, assetService, applicationRepository, permissionGroupService,
-                policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
+                pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
+                permissionGroupService, policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;
+        this.environmentService = environmentService;
     }
 
     @Override
@@ -119,4 +117,21 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 });
     }
 
+    @Override
+    protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
+        super.prepareWorkspaceToCreate(workspace, user);
+        workspace.setHasEnvironments(true);
+    }
+
+    @Override
+    protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
+        return environmentService.createDefaultEnvironments(createdWorkspace)
+                .then(Mono.just(createdWorkspace));
+    }
+
+    @Override
+    protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {
+        return environmentService.archiveByWorkspaceId(workspace.getId())
+                .then(Mono.just(workspace));
+    }
 }

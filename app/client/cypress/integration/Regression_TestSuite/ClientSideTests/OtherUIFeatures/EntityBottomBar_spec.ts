@@ -1,5 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
+const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Entity bottom bar", () => {
   it("1. Debugger should be closable", () => {
@@ -15,7 +17,26 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertClosed();
   });
 
-  it("2. Api bottom pane should be collapsable", () => {
+  it("2. Jseditor bottom bar should be collapsable", () => {
+    _.jsEditor.CreateJSObject(` return "hello world";`);
+    //Verify if bottom bar opens JSEditor.
+    _.debuggerHelper.AssertOpen(PageType.JsEditor);
+    // Verify if selected tab is response.
+    _.debuggerHelper.AssertSelectedTab("Response");
+    //Verify if bottom bar is closed on clicking close icon in JSEditor.
+    _.debuggerHelper.CloseBottomBar();
+    _.debuggerHelper.AssertClosed();
+    //Verify if bottom bar is open on executing JSFunction.
+    _.jsEditor.RunJSObj();
+    _.debuggerHelper.AssertOpen(PageType.JsEditor);
+    //verify if response tab is selected on execution JSFunction.
+    _.debuggerHelper.AssertSelectedTab("Response");
+    //verify if bottom bar is closed on switching to canvas page.
+    _.agHelper.GetNClick(OnboardingLocator.widgetPaneTrigger);
+    _.debuggerHelper.AssertClosed();
+  });
+
+  it("3. Api bottom pane should be collapsable", () => {
     cy.fixture("datasources").then((datasourceFormData: any) => {
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
       //Verify if bottom bar opens on clicking debugger icon in api page.
@@ -38,25 +59,14 @@ describe("Entity bottom bar", () => {
     });
   });
 
-  it("3. Jseditor bottom bar should be collapsable", () => {
-    _.jsEditor.CreateJSObject(` return "hello world";`);
-    //Verify if bottom bar open status is retained on changing from api to JSEditor.
-    _.debuggerHelper.AssertOpen(PageType.JsEditor);
-    // Verify if selected tab context is reatined on changing from api to JSEditor.
-    _.debuggerHelper.AssertSelectedTab("Response");
-    //Verify if bottom bar is closed on clicking close icon in JSEditor.
-    _.debuggerHelper.CloseBottomBar();
-    _.debuggerHelper.AssertClosed();
-    //Verify if bottom bar is open on executing JSFunction.
-    _.jsEditor.RunJSObj();
-    _.debuggerHelper.AssertOpen(PageType.JsEditor);
-    //verify if response tab is selected on execution JSFunction.
-    _.debuggerHelper.AssertSelectedTab("Response");
-  });
-
   it("4. Bottom bar in Datasource", () => {
     //Verify if bottom bar remain open on shifting to create new datasource page.
     _.dataSources.NavigateToDSCreateNew();
+    //Expecting errors tab to be closed as previous selected tab was response.
+    //And response tab is not part of datasource page.
+    _.debuggerHelper.AssertClosed();
+    //Verify if bottom bar opens on clicking debugger icon in datasource page.
+    _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.DataSources);
     //Verify if selected tab is errors in tab title.
     _.debuggerHelper.AssertSelectedTab("Errors");
@@ -68,7 +78,7 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertOpen(PageType.DataSources);
   });
 
-  it("5. Query bottom bar should be collapsable", () => {
+  it("excludeForAirgap", "5. Query bottom bar should be collapsable", () => {
     _.dataSources.CreateMockDB("Users").then((dbName) => {
       //Verify if bottom bar remain open on shifting to active datasource page.
       _.debuggerHelper.AssertOpen(PageType.DataSources);
@@ -99,6 +109,38 @@ describe("Entity bottom bar", () => {
       // clean up
       _.dataSources.DeleteQuery("Query1");
       _.dataSources.DeleteDatasouceFromActiveTab(dbName);
+    });
+  });
+
+  it("airgap", "5. Query bottom bar should be collapsable - airgap", () => {
+    _.dataSources.CreateDataSource("Postgres");
+    //Verify if bottom bar remain open on shifting to active datasource page.
+    _.debuggerHelper.AssertOpen(PageType.DataSources);
+    //Verify if selected tab is errors and error count is
+    //Verify if selected tab is errors in tab title.
+    _.debuggerHelper.AssertSelectedTab("Errors");
+    //Verify if bottom bar is closed on clicking close icon in active datasource page.
+    _.debuggerHelper.CloseBottomBar();
+    _.debuggerHelper.AssertClosed();
+    //Verify if bottom bar opens on clicking debugger icon in query page.
+    cy.get(datasource.createQuery).click();
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.AssertOpen(PageType.Query);
+    //Verify if bottom bar is closed on clicking close icon in query page.
+    _.debuggerHelper.CloseBottomBar();
+    _.debuggerHelper.AssertClosed();
+    //Create and run query.
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;", 1000);
+    _.dataSources.RunQuery();
+    //Verify if bottom bar is open on executing query.
+    _.debuggerHelper.AssertOpen(PageType.Query);
+    //Verify if response atb is selected on executing query.
+    _.debuggerHelper.AssertSelectedTab("Response");
+    // clean up
+    _.dataSources.DeleteQuery("Query1");
+    cy.get("@dsName").then(($dsName) => {
+      _.dataSources.DeleteDatasouceFromActiveTab($dsName as any);
     });
   });
 });

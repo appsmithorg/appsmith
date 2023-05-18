@@ -19,6 +19,8 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.List;
+
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
@@ -27,6 +29,9 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
 
     private final UserRepository userRepository;
     private final ReactiveRedisOperations<String, Object> redisOperations;
+
+    public final static String SPRING_SESSION_PATTERN = "spring:session:sessions:*";
+    private final static String SESSION_ATTRIBUTE = "sessionAttr:";
 
     @Override
     public Mono<User> getCurrentUser() {
@@ -68,15 +73,22 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
 
     @Override
     public Mono<Void> logoutAllSessions(String email) {
+        return getSessionKeysByUserEmail(email)
+                .flatMap(this::deleteSessionsByKeys)
+                .then();
+    }
+
+    @Override
+    public Mono<List<String>> getSessionKeysByUserEmail(String email) {
         // This pattern string comes from calling `ReactiveRedisSessionRepository.getSessionKey("*")` private method.
-        return redisOperations.keys("spring:session:sessions:*")
+        return redisOperations.keys(SPRING_SESSION_PATTERN)
                 .flatMap(key -> Mono.zip(
                         Mono.just(key),
                         // The values are maps, containing various pieces of session related information.
                         // One of them, holds the serialized User object. We want just that.
                         redisOperations.opsForHash().entries(key)
                                 .filter(e -> e.getValue() != null &&
-                                        ("sessionAttr:" + DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME).equals(e.getKey())
+                                        (SESSION_ATTRIBUTE + DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME).equals(e.getKey())
                                 )
                                 .map(e -> (User) ((SecurityContext) e.getValue()).getAuthentication().getPrincipal())
                                 .next()
@@ -85,14 +97,17 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
                 // Filter the ones we need to clear out.
                 .filter(tuple -> StringUtils.equalsIgnoreCase(email, tuple.getT2().getEmail()))
                 .map(Tuple2::getT1)
-                .collectList()
-                .flatMap(keys ->
-                        CollectionUtils.isNullOrEmpty(keys)
-                                ? Mono.just(0L)
-                                : redisOperations.delete(keys.toArray(String[]::new))
+                .collectList();
+
+    }
+
+    @Override
+    public Mono<Long> deleteSessionsByKeys(List<String> keys) {
+        return CollectionUtils.isNullOrEmpty(keys)
+                ? Mono.just(0L)
+                : redisOperations.delete(keys.toArray(String[]::new)
                 )
-                .doOnError(error -> log.error("Error clearing user sessions", error))
-                .then();
+                .doOnError(error -> log.error("Error clearing user sessions", error));
     }
 
 }

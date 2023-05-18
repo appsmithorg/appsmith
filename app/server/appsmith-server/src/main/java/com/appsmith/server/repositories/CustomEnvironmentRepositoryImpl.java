@@ -1,20 +1,20 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.Environment;
 import com.appsmith.server.repositories.ce.CustomEnvironmentRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -37,22 +37,6 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
 
     private static Criteria nameCriteria(String name) {
         return where(fieldName(QEnvironment.environment.name)).is(name);
-    }
-
-    private Flux<Environment> queryMany(List<Criteria> criterion) {
-        Query query = new Query();
-        for (Criteria criteria: criterion) {
-            query.addCriteria(criteria);
-        }
-        return mongoOperations.find(query, Environment.class);
-    }
-
-    private Mono<Environment> queryOne(List<Criteria> criterion) {
-        Query query = new Query();
-        for (Criteria criteria: criterion) {
-            query.addCriteria(criteria);
-        }
-        return mongoOperations.findOne(query, Environment.class);
     }
 
     @Override

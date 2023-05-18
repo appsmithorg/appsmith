@@ -37,14 +37,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
-    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName);
-
-    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName, String environmentName);
-
-    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
-
-    <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
-
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
     Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);

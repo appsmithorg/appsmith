@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      airgap-enabled:
+        description: "This flag is used to determine if the workflow is running for airgap"
+        required: false
+        type: string
+        default: "false"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -90,7 +95,7 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
-      
+
       # Set up Node.js cache yarn dependencies.
       # actions/setup-node@v3 now support caching of dependencies using actions/cache under the hood
       # https://github.com/actions/setup-node#caching-global-packages-data
@@ -102,27 +107,28 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'app/client/yarn.lock'
 
-      # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
-
-      - name: Installing Yarn serve
-        if: steps.run_result.outputs.run_result != 'success'
+      - name: Get docker image artifact name to download
         run: |
-          yarn global add serve
-          echo "$(yarn global bin)" >> $GITHUB_PATH
-     
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+          else
+           echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+           fi
+
+      - name: Log the docker container name
+        run: |
+          echo "docker_container_name: ${{ env.docker_container_name }}"
+
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
-          name: cicontainer
+          name: ${{ env.docker_container_name }}
 
       - name: Load Docker image from tar file
         working-directory: "."
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+          gunzip ${{ env.docker_container_name }}.tar.gz
+          docker load -i ${{ env.docker_container_name }}.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -149,14 +155,14 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
-            cicontainer
+            ${{ env.docker_container_name }}
 
       # Start rts
       - name: Start RTS Server
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: ./app/rts
         run: |
-          cp .env.example .env        
+          cp .env.example .env
           ./start-server.sh &
 
       - name: Setting up the perf tests
@@ -202,22 +208,22 @@ jobs:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: ${{ steps.perf_infra_ref.outputs.ref }}
-          path: app/client/perf
+          path: perf
 
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         shell: bash
         run: yarn install --frozen-lockfile
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         run: chmod +x ./start-test.sh
 
       - name: Run performance tests
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         shell: bash
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
@@ -242,7 +248,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            app/client/perf/traces
+            perf/traces
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -250,7 +256,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: performance-test-logs
-          path: app/client/perf/traces/reports
+          path: perf/traces/reports
 
       # Set status = success
       - name: Save the status of the run

@@ -24,7 +24,7 @@ import type {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidget, getWidgets } from "sagas/selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
@@ -346,6 +346,7 @@ function* moveWidgetsSaga(
        */
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
       const mainCanvasWidth: number = yield select(getCanvasWidth);
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
@@ -353,6 +354,7 @@ function* moveWidgetsSaga(
         true,
         isMobile,
         mainCanvasWidth,
+        metaProps,
       );
     }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(

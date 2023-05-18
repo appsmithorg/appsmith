@@ -26,6 +26,7 @@ import {
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
+  getCanvasWidth,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -64,6 +65,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+
+    const mainCanvasWidth = useSelector(getCanvasWidth);
     const metaWidget = useSelector(getMetaWidget(widgetId));
 
     const mainCanvasProps = useSelector((state: AppState) =>
@@ -236,6 +239,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.topRow === widgetProps.bottomRow &&
       renderMode === RenderModes.CANVAS &&
       !isPreviewMode;
+
+    widgetProps.maincanvasWidth = mainCanvasWidth;
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {

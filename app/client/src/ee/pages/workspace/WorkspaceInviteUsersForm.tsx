@@ -54,7 +54,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOption } from "design-system-old";
 import {
@@ -92,6 +91,11 @@ import {
 } from "@appsmith/actions/applicationActions";
 import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+import { importSvg } from "design-system-old";
+
+const NoEmailConfigImage = importSvg(
+  () => import("assets/images/email-not-configured.svg"),
+);
 
 const { cloudHosting } = getAppsmithConfigs();
 

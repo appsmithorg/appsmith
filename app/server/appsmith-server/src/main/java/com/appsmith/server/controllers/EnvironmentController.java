@@ -30,11 +30,11 @@ public class EnvironmentController extends EnvironmentControllerCE {
         this.environmentService = environmentService;
     }
 
-    @GetMapping("/{envId}")
-    public Mono<ResponseDTO<EnvironmentDTO>> getEnvironmentById(@PathVariable String envId) {
-        log.debug("Going to fetch environment from environment controller with environment id {}", envId);
+    @GetMapping("/{environmentId}")
+    public Mono<ResponseDTO<EnvironmentDTO>> getEnvironmentById(@PathVariable String environmentId) {
+        log.debug("Going to fetch environment from environment controller with environment id {}", environmentId);
 
-        return environmentService.getEnvironmentDTOByEnvironmentId(envId)
+        return environmentService.getEnvironmentDTOByEnvironmentId(environmentId)
                 .map(environmentDTO -> {
                     return new ResponseDTO<>(HttpStatus.OK.value(), environmentDTO, null);
                 });

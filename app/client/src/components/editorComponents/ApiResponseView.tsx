@@ -89,9 +89,6 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
-  .CodeMirror-code {
-    font-size: 12px;
-  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -287,7 +284,6 @@ const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
-  padding-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;
@@ -333,7 +329,6 @@ export const responseTabComponent = (
         input={{
           value: isString(output) ? output : JSON.stringify(output, null, 2),
         }}
-        isReadOnly
       />
     ),
     [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
@@ -348,7 +343,6 @@ export const responseTabComponent = (
           value: isString(output) ? output : JSON.stringify(output, null, 2),
         }}
         isRawView
-        isReadOnly
       />
     ),
   }[responseType];
@@ -563,7 +557,6 @@ function ApiResponseView(props: Props) {
                       input={{
                         value: response?.body,
                       }}
-                      isReadOnly
                     />
                   ) : responseTabs &&
                     responseTabs.length > 0 &&
@@ -628,7 +621,6 @@ function ApiResponseView(props: Props) {
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
-                isReadOnly
               />
             )}
           </ResponseDataContainer>

@@ -26,7 +26,6 @@ function TernWorkerServer(this: any, ts: any) {
   const worker = (ts.worker = ternWorker);
   worker.postMessage({
     type: TernWorkerAction.INIT,
-    defs: ts.options.defs,
     plugins: ts.options.plugins,
     scripts: ts.options.workerDeps,
   });

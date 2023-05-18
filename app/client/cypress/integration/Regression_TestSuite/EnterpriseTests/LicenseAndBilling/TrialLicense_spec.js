@@ -1,7 +1,7 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 
-describe("Trial License", function () {
+describe("excludeForAirgap", "Trial License", function () {
   before(() => {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",

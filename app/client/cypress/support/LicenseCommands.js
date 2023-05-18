@@ -5,10 +5,14 @@ Cypress.Commands.add("validateLicense", () => {
     "have.text",
     "No active subscription",
   );
-  cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should(
-    "have.text",
-    "Kindly choose one of the following option to get started",
-  );
+  if (!Cypress.env("AIRGAPPED")) {
+    cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should(
+      "have.text",
+      "Kindly choose one of the following option to get started",
+    );
+  } else {
+    cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should("not.exist");
+  }
 
   cy.get(LicenseLocators.licenseCheckForm).within(() => {
     cy.get(LicenseLocators.licenseFormInput).should(
@@ -19,40 +23,62 @@ Cypress.Commands.add("validateLicense", () => {
     cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
   });
 
-  cy.get(LicenseLocators.getTrialLicenseCard).within(() => {
-    cy.get(LicenseLocators.getTrialLicenseLabel).should(
-      "have.text",
-      "If you do not have a license key, please visit our customer portal to start trial or buy a subscription",
-    );
-    cy.get(LicenseLocators.getTrialLicenseBtn).should(
-      "have.text",
-      "VISIT CUSTOMER PORTAL",
-    );
-  });
-
+  if (!Cypress.env("AIRGAPPED")) {
+    cy.get(LicenseLocators.getTrialLicenseCard).within(() => {
+      cy.get(LicenseLocators.getTrialLicenseLabel).should(
+        "have.text",
+        "If you do not have a license key, please visit our customer portal to start trial or buy a subscription",
+      );
+      cy.get(LicenseLocators.getTrialLicenseBtn).should(
+        "have.text",
+        "VISIT CUSTOMER PORTAL",
+      );
+    });
+  } else {
+    cy.get(LicenseLocators.getTrialLicenseCard).should("not.exist");
+  }
   cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
   cy.get(LicenseLocators.activeInstanceBtn).click();
   cy.wait(2000);
   cy.request({
     method: "PUT",
     url: "/api/v1/tenants/license",
-    body: { key: "INVALID-LICENSE-KEY" },
+    body: {
+      key: "INVALID-LICENSE-KEY",
+    },
     failOnStatusCode: false,
   })
     .its("status")
     .should("equal", 400);
   cy.wait(1000);
-  cy.get(LicenseLocators.licenseFormInput).clear().type("VALID LICENSE KEY");
-  cy.get(LicenseLocators.activeInstanceBtn).click();
-  cy.wait(2000);
-  cy.request({
-    method: "PUT",
-    url: "/api/v1/tenants/license",
-    body: { key: "VALID LICENSE KEY" },
-    failOnStatusCode: false,
-  })
-    .its("status")
-    .should("equal", 200);
+  if (Cypress.env("AIRGAPPED")) {
+    cy.get(LicenseLocators.licenseFormInput)
+      .clear()
+      .type(Cypress.env("OFFLINE_LICENSE_KEY"));
+    cy.get(LicenseLocators.activeInstanceBtn).click();
+    cy.request({
+      method: "PUT",
+      url: "/api/v1/tenants/license",
+      body: {
+        key: Cypress.env("OFFLINE_LICENSE_KEY"),
+      },
+      failOnStatusCode: false,
+    })
+      .its("status")
+      .should("equal", 200);
+  } else {
+    cy.get(LicenseLocators.licenseFormInput).clear().type("VALID LICENSE KEY");
+    cy.get(LicenseLocators.activeInstanceBtn).click();
+    cy.wait(2000);
+    cy.request({
+      method: "PUT",
+      url: "/api/v1/tenants/license",
+      body: { key: "VALID LICENSE KEY" },
+      failOnStatusCode: false,
+    })
+      .its("status")
+      .should("equal", 200);
+  }
 });
 
 Cypress.Commands.add(

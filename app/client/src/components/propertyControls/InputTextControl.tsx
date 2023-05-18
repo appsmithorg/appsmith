@@ -12,7 +12,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
-import CodeEditor from "../editorComponents/LazyCodeEditorWrapper";
+import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 export function InputText(props: {
@@ -47,7 +47,8 @@ export function InputText(props: {
 
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}

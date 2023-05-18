@@ -1,4 +1,4 @@
-const adminSettings = require("../../../../locators/AdminsSettings");
+import adminSettings from "../../../../locators/AdminsSettings";
 const enterpriseSettings = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";

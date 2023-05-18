@@ -1,9 +1,11 @@
 import React from "react";
 import { connectCurrentRefinements } from "react-instantsearch-dom";
 import styled from "styled-components";
-import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 import { getSnippetFilterLabel } from "./utils";
 import { useStore } from "react-redux";
+import { importSvg } from "design-system-old";
+
+const CloseIcon = importSvg(() => import("assets/icons/help/close_blue.svg"));
 
 const RefinementListContainer = styled.div`
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};

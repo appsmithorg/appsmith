@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     // Ref syntax for message templates: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
     INVALID_PARAMETER(400, AppsmithErrorCode.INVALID_PARAMETER.getCode(), "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
+    EMPTY_CURL_INPUT_STATEMENT(400, AppsmithErrorCode.EMPTY_CURL_INPUT_STATEMENT.getCode(), "Input CURL statement is empty / null. Please edit the input box to provide a valid CURL statement.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
     PLUGIN_NOT_INSTALLED(400, AppsmithErrorCode.PLUGIN_NOT_INSTALLED.getCode(), "Plugin {0} not installed", AppsmithErrorAction.DEFAULT, "Plugin not installed", ErrorType.INTERNAL_ERROR, null),
     PLUGIN_ID_NOT_GIVEN(400, AppsmithErrorCode.PLUGIN_ID_NOT_GIVEN.getCode(), "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, "Missing plugin id", ErrorType.INTERNAL_ERROR, null),
     DATASOURCE_NOT_GIVEN(400, AppsmithErrorCode.DATASOURCE_NOT_GIVEN.getCode(), "Missing datasource. Add/enter/connect a datasource to create a valid action.",
@@ -181,7 +182,7 @@ public enum AppsmithError {
 
     UNKNOWN_SERVER_VARIABLE_TYPE(500, AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(), "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, "Unexpected server variable type", ErrorType.INTERNAL_ERROR, null),
     MIGRATION_FAILED(500, AppsmithErrorCode.MIGRATION_FAILED.getCode(), "Migration {0} failed. Reason: {1}. Note: {2}", AppsmithErrorAction.DEFAULT, "Migration failed", ErrorType.INTERNAL_ERROR, null),
-    OPEN_AI_ERROR(500, AppsmithErrorCode.OPEN_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Open AI error", ErrorType.EE_FEATURE_ERROR, null),
+    APPSMITH_AI_ERROR(500, AppsmithErrorCode.APPSMITH_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Appsmith AI error", ErrorType.EE_FEATURE_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

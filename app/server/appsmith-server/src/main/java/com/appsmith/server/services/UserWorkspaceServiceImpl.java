@@ -101,9 +101,17 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                     return Mono.just(permissionGroup);
                 });
 
-        Mono<PermissionGroup> permissionGroupUnassignedMono = oldDefaultPermissionGroupMono
-                .zipWith(userGroupMono)
-                .flatMap(pair -> permissionGroupService.unassignFromUserGroup(pair.getT1(), pair.getT2()));
+        /*
+         * The below operations have been changed from parallel execution (zipWith) to a sequential execution (zipWhen).
+         * MongoTransactions have a limitation that there should be only 1 DB operation which should initiate the transaction.
+         * But here, since 2 DB operations were happening in parallel, we were observing an intermittent exception: "Command failed with error 251 (NoSuchTransaction)".
+         *
+         * The below operation is responsible for the first DB operation, if a user group is removed from the workspace.
+         */
+        // Unassigned old permission group from userGroup
+        Mono<PermissionGroup> permissionGroupUnassignedMono = userGroupMono
+                .zipWhen(userGroup -> oldDefaultPermissionGroupMono)
+                .flatMap(pair -> permissionGroupService.unAssignFromUserGroupAndSendEvent(pair.getT2(), pair.getT1()));
 
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
@@ -119,13 +127,17 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
         Mono<PermissionGroup> changePermissionGroupsMono = newDefaultPermissionGroupMono
                 .flatMap(newPermissionGroup -> permissionGroupUnassignedMono
                         .then(userGroupMono)
-                        .flatMap(userGroup -> permissionGroupService.assignToUserGroup(newPermissionGroup, userGroup)));
+                        .flatMap(userGroup -> permissionGroupService.assignToUserGroupAndSendEvent(newPermissionGroup, userGroup)));
 
-        return changePermissionGroupsMono
-                .zipWith(userGroupMono)
+        /*
+         * The below operation is responsible for the first DB operation, if workspace role is changed ƒor the user group,
+         * hence we need to make this operation sequential as well.
+         */
+        return userGroupMono
+                .zipWhen(userGroup -> changePermissionGroupsMono)
                 .map(pair -> {
-                    UserGroup userGroup = pair.getT2();
-                    PermissionGroup role = pair.getT1();
+                    UserGroup userGroup = pair.getT1();
+                    PermissionGroup role = pair.getT2();
                     PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(), role.getDescription());
                     roleInfoDTO.setEntityType(Workspace.class.getSimpleName());
                     return MemberInfoDTO.builder()

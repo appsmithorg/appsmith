@@ -1,7 +1,7 @@
 export * from "ce/pages/Editor/NavigationSettings/LogoInput";
 import React, { useEffect, useState } from "react";
 import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { TextType, Text, TooltipComponent } from "design-system-old";
+import { TextType, Text, TooltipComponent, importSvg } from "design-system-old";
 import {
   createMessage,
   APP_NAVIGATION_SETTING,
@@ -16,9 +16,10 @@ import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "@appsmith/selectors/applicationSelectors";
-import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+
+const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
 export type ButtonGroupSettingProps = {
   updateSetting: UpdateSetting;

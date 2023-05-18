@@ -374,8 +374,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes, String origin) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
-        return verifyCurrentUserIsSuper().
-                flatMap(user -> validateChanges(user, changes).thenReturn(user))
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;

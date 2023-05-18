@@ -92,7 +92,7 @@ public class ChatServiceImpl implements ChatService {
                                                         responseDTO.getResponseMeta() != null &&
                                                         responseDTO.getResponseMeta().getError() != null) {
                                                     return new AppsmithException(
-                                                            AppsmithError.OPEN_AI_ERROR,
+                                                            AppsmithError.APPSMITH_AI_ERROR,
                                                             responseDTO.getResponseMeta().getError().getMessage());
                                                 }
                                                 return e;

@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      airgap-enabled:
+        description: "This flag is used to determine if the workflow is running for airgap"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   ci-test:
@@ -96,7 +101,7 @@ jobs:
           key: ${{ github.run_id }}-"ci-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
-            
+
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
@@ -116,15 +121,27 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
+      - name: Get docker image artifact name to download
+        run: |
+         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+          echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+         else
+          echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+          fi
+
+      - name: Log the docker container name
+        run: |
+          echo "docker_container_name: ${{ env.docker_container_name }}"
+
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
-          name: cicontainer
+          name: ${{ env.docker_container_name }}
 
       - name: Load Docker image from tar file
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+          gunzip ${{ env.docker_container_name }}.tar.gz
+          docker load -i ${{ env.docker_container_name }}.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -163,8 +180,8 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            cicontainer
-            
+            ${{ env.docker_container_name }}
+
       - name: Setup MSSQL & Arango docker & ElasticSearch containers
         working-directory : app/client/cypress
         run : |
@@ -183,14 +200,33 @@ jobs:
         with:
           node-version: "16.14.0"
 
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install \
-          --cwd cypress \
-          --modules-folder ../node_modules
+          yarn install --immutable
+
+      - name: Set cypress tags to exclude
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            echo 'tags_to_exclude=excludeForAirgap' >> "$GITHUB_ENV"
+          else
+            echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
+          fi
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -233,6 +269,9 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_OFFLINE_LICENSE_KEY: ${{ secrets.CYPRESS_OFFLINE_LICENSE_KEY }}
+          CYPRESS_EXCLUDE_TAGS: ${{ env.tags_to_exclude }}
+          CYPRESS_AIRGAPPED: ${{ inputs.airgap-enabled }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
@@ -288,6 +327,9 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_OFFLINE_LICENSE_KEY: ${{ secrets.CYPRESS_OFFLINE_LICENSE_KEY }}
+          CYPRESS_EXCLUDE_TAGS: ${{ env.tags_to_exclude }}
+          CYPRESS_AIRGAPPED: ${{ inputs.airgap-enabled }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -347,6 +389,9 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_OFFLINE_LICENSE_KEY: ${{ secrets.CYPRESS_OFFLINE_LICENSE_KEY }}
+          CYPRESS_EXCLUDE_TAGS: ${{ env.tags_to_exclude }}
+          CYPRESS_AIRGAPPED: ${{ inputs.airgap-enabled }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}

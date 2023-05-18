@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -29,11 +30,13 @@ public class CommonAppsmithObjectData {
     Flux<NewAction> actionFlux;
     Flux<ActionCollection> actionCollectionFlux;
     Flux<Datasource> datasourceFlux;
+    Flux<Environment> environmentFlux;
 
     Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono;
     Mono<Map<String, Collection<NewPage>>> applicationPageMapMono;
     Mono<Map<String, Collection<NewAction>>> pageActionMapMono;
     Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionMapMono;
     Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono;
+    Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono;
 
 }

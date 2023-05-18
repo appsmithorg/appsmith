@@ -1,55 +1,122 @@
 export * from "ce/components/editorComponents/GPT";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { AskAI } from "./AskAI";
-import { useSelector } from "react-redux";
-import classNames from "classnames";
-import { selectIsAIWindowOpen } from "./utils";
+import type { TAssistantPrompt } from "./utils";
+import { useGPTTask } from "./utils";
 import type { TAIWrapperProps } from "ce/components/editorComponents/GPT";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { Popover2 } from "@blueprintjs/popover2";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { usePrevious } from "@mantine/hooks";
 
 export function AIWindow(props: TAIWrapperProps) {
-  const { windowType } = props;
-  if (windowType === "popover") {
-    return <FloatingAIWindow {...props} />;
-  } else {
-    return <FixedAIWindow {...props} />;
+  if (!props.enableAIAssistance) {
+    //eslint-disable-next-line
+    return <>{props.children}</>;
   }
-}
-
-function FixedAIWindow(props: TAIWrapperProps) {
-  const { className } = props;
-  const isAIWindowOpen = useSelector(selectIsAIWindowOpen);
-  return (
-    <div
-      className={classNames({
-        "h-full w-[400px]": true,
-        [className || ""]: true,
-        hidden: !isAIWindowOpen,
-      })}
-    >
-      <AskAI />
-    </div>
-  );
+  return <FloatingAIWindow {...props} />;
 }
 
 function FloatingAIWindow(props: TAIWrapperProps) {
-  const isAIWindowOpen = useSelector(selectIsAIWindowOpen);
-  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
-  const BORDER_OFFSET = 1;
+  /**
+   * Store the AI response
+   * `null` value represents the state when AI response is either not generated or rejected.
+   */
+  const [response, setResponse] = React.useState<TAssistantPrompt | null>(null);
+  const task = useGPTTask();
+
+  /**
+   * Called when AI response is received
+   * Stores the response and calls the update method
+   * @param value
+   */
+  const updateResponse = (value: TAssistantPrompt | null) => {
+    setResponse(value);
+    props.update?.(`{{${value?.content}}}`);
+  };
+
+  const prevOpen = usePrevious(props.isOpen);
+
+  /**
+   * Holds the default value of the property
+   */
+  const defaultValue = React.useRef<string>(props.currentValue);
+
+  useEffect(() => {
+    if (prevOpen !== props.isOpen && props.isOpen) {
+      defaultValue.current = props.currentValue;
+    }
+  }, [props.isOpen, props.currentValue, prevOpen]);
+
+  /**
+   * When this is invoked the field should already be updated.
+   * Logs analytics and closes the popover.
+   * @param query
+   * @param task
+   */
+  const acceptResponse = (query: string) => {
+    if (response) {
+      AnalyticsUtil.logEvent("AI_RESPONSE_FEEDBACK", {
+        responseId: response.messageId,
+        requestedOutputType: task,
+        liked: true,
+        generatedCode: response.content,
+        userQuery: query,
+      });
+    }
+    defaultValue.current = props.currentValue;
+    setResponse(null);
+    props.close();
+  };
+
+  /**
+   * Sets the AI response to null and restore the property to its default value.
+   * @param query
+   * @param task
+   */
+  const rejectResponse = (query: string, implicit = false) => {
+    // If response is empty, all changes are committed.
+    if (!response) return;
+    if (!query) return;
+    AnalyticsUtil.logEvent("AI_RESPONSE_FEEDBACK", {
+      responseId: response.messageId,
+      requestedOutputType: task.id,
+      liked: false,
+      implicit,
+      generatedCode: response.content,
+      userQuery: query,
+    });
+    setResponse(null);
+    props.update?.(defaultValue.current || "");
+  };
   return (
-    <div className="relative">
-      <div
-        className={classNames({
-          "h-[500px] w-[400px] overflow-hidden absolute bottom-0": true,
-          hidden: !isAIWindowOpen,
-          " bg-white bp3-popover": isAIWindowOpen,
-        })}
-        style={{ right: propertyPaneWidth + BORDER_OFFSET + "px" }}
-      >
-        <AskAI />
-      </div>
+    <Popover2
+      autoFocus={false}
+      className="w-full"
+      content={
+        <AskAI
+          acceptResponse={acceptResponse}
+          close={props.close}
+          dataTreePath={props.dataTreePath}
+          rejectResponse={rejectResponse}
+          response={response}
+          triggerContext={props.triggerContext}
+          updateResponse={updateResponse}
+        />
+      }
+      enforceFocus={false}
+      isOpen={props.isOpen}
+      minimal
+      modifiers={{
+        preventOverflow: {
+          enabled: true,
+        },
+      }}
+      placement="bottom-end"
+      popoverClassName="w-[320px]"
+      portalClassName="ai-window"
+    >
       {props.children}
-    </div>
+    </Popover2>
   );
 }

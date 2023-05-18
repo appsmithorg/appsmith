@@ -1,7 +1,9 @@
 import React from "react";
-import UserIcon from "remixicon-react/User3FillIcon";
 
 import PreviewBox from "./PreviewBox";
+import { importRemixIcon } from "design-system-old";
+
+const UserIcon = importRemixIcon(() => import("remixicon-react/User3FillIcon"));
 
 const DashboardThumbnail = () => {
   return (

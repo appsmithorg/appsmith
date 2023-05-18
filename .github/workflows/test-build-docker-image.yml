@@ -29,14 +29,6 @@ jobs:
     with:
       pr: 0
 
-  client-build-airgap:
-    name: client-build-airgap
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-      airgap-enabled: "true"
-
   rts-build:
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
@@ -53,17 +45,6 @@ jobs:
     secrets: inherit
     with:
       pr: 0
-
-  build-airgapped-docker-image:
-    needs: [ client-build-airgap, server-build, rts-build ]
-    # Only run if the build step is successful
-    if: success()
-    name: build-airgapped-docker-image
-    uses: ./.github/workflows/build-docker-image.yml
-    secrets: inherit
-    with:
-      pr: 0
-      airgap-enabled: "true"
 
   perf-test:
     needs: [ build-docker-image ]
@@ -194,13 +175,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: client-build
-          path: app/client/build
+          path: app/client
 
-      - name: Download the airgapped react build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: client-build-airgap
-          path: app/client/build_airgap
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p app/client/build
+          tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
@@ -268,20 +249,6 @@ jobs:
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{steps.vars.outputs.tag}}
 
-      - name: Build and push airgap release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: depot/build-push-action@v1
-        with:
-          context: .
-          push: true
-          platforms: linux/arm64,linux/amd64
-          build-args: |
-            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_RELEASE }}
-            APPSMITH_AIRGAP_ENABLED=true
-            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
-          tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.vars.outputs.tag}}
-
       - name: Build and push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: depot/build-push-action@v1
@@ -294,21 +261,6 @@ jobs:
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{ github.sha }}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly
-
-      - name: Build and push airgap master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: depot/build-push-action@v1
-        with:
-          context: .
-          push: true
-          platforms: linux/arm64,linux/amd64
-          build-args: |
-            APPSMITH_AIRGAP_ENABLED=true
-            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY }}
-            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
-          tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{ github.sha }}
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:nightly
 
       # - name: Check and push CI image to Docker Hub with commit tag
       #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')

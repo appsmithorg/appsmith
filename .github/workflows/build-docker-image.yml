@@ -45,13 +45,13 @@ jobs:
 
       - name: Set the client build path env vars
         run: |
-         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
-          echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
-          echo 'client_build_path=app/client/build_airgap' >> "$GITHUB_ENV"
-         else
-          echo 'client_build_name=client-build' >> "$GITHUB_ENV"
-          echo 'client_build_path=app/client/build' >> "$GITHUB_ENV"
-          fi
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build_airgap' >> "$GITHUB_ENV"
+          else
+           echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build' >> "$GITHUB_ENV"
+           fi
 
       - name: Log the client build env vars
         run: |
@@ -63,7 +63,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.client_build_name }}
-          path: ${{ env.client_build_path }}
+          path: app/client
+
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p ${{ env.client_build_path }}
+          tar -xvf app/client/build.tar -C ${{ env.client_build_path }}
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
@@ -88,23 +94,46 @@ jobs:
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build docker image
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && inputs.airgap-enabled != 'true'
         working-directory: "."
         run: |
           docker build -t cicontainer .
 
+      - name: Build airgapped docker image
+        if: steps.run_result.outputs.run_result != 'success' && inputs.airgap-enabled == 'true'
+        working-directory: "."
+        run: |
+          docker build --build-arg KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_CI }} --build-arg APPSMITH_AIRGAP_ENABLED=true --build-arg APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap -t airgap-cicontainer .
+
       # Saving the docker image to tar file
       - name: Save Docker image to tar file
+        if: inputs.airgap-enabled == 'false'
         run: |
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 
       # Uploading the artifact to use it in other subsequent runners
       - name: Upload Docker image to artifacts
+        if: inputs.airgap-enabled == 'false'
         uses: actions/upload-artifact@v3
         with:
           name: cicontainer
           path: cicontainer.tar.gz
+
+      # Saving the docker image to tar file
+      - name: Save Airgapped docker image to tar file
+        if: inputs.airgap-enabled == 'true'
+        run: |
+          docker save airgap-cicontainer -o airgap-cicontainer.tar
+          gzip airgap-cicontainer.tar
+
+      # Uploading the artifact to use it in other subsequent runners
+      - name: Upload Airgapped Docker image to artifacts
+        if: inputs.airgap-enabled == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: airgap-cicontainer
+          path: airgap-cicontainer.tar.gz
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

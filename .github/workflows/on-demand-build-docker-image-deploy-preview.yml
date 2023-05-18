@@ -72,8 +72,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-          cache: "yarn"
-          cache-dependency-path: "app/client/yarn.lock"
+
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
@@ -90,10 +100,9 @@ jobs:
       - name: vercel-notify
         uses: peter-evans/create-or-update-comment@v2
         with:
-           issue-number: ${{ github.event.client_payload.pull_request.number }}
-           body: |
-             Deploy-Preview-URL: ${{ steps.set-dpurl.outputs.dpurl }}
-
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Deploy-Preview-URL: ${{ steps.set-dpurl.outputs.dpurl }}
 
   push-image:
     needs: [client-build, rts-build, server-build]
@@ -119,24 +128,30 @@ jobs:
 
       - name: Set the client build path env vars
         run: |
-         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
-          echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
-          echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
-         else
-          echo 'client_build_name=client-build' >> "$GITHUB_ENV"
-          echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
-          fi
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
+          else
+           echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
+           fi
 
       - name: Log the client build env vars
         run: |
           echo "client_build_name: ${{ env.client_build_name }}"
           echo "client_build_path: ${{ env.client_build_path }}"
 
-      - name: Download the react build artifact
+      - name: Download the client build artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.client_build_name }}
-          path: ${{ env.client_build_path }}
+          path: app/client
+
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p ${{ env.client_build_path }}
+          tar -xvf app/client/build.tar -C ${{ env.client_build_path }}
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3

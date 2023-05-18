@@ -60,6 +60,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
@@ -74,6 +75,7 @@ import com.appsmith.server.helpers.WidgetSuggestionHelper;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.appsmith.server.solutions.EnvManager;
@@ -213,6 +215,9 @@ public class AuditLogServiceTest {
 
     @Autowired
     NewActionService newActionService;
+    
+    @Autowired
+    ActionExecutionSolution actionExecutionSolution;
 
     @Autowired
     UserRepository userRepository;
@@ -260,6 +265,9 @@ public class AuditLogServiceTest {
 
     @Autowired
     RoleConfigurationSolution roleConfigurationSolution;
+
+    @Autowired
+    UserWorkspaceService userWorkspaceService;
 
     private static String workspaceId;
     private static Application app;
@@ -1228,9 +1236,9 @@ public class AuditLogServiceTest {
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId()).block();
+        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getApplication().getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.getAuditLogs(params))
@@ -1244,9 +1252,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
-                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getId());
+                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getApplication().getId());
                     assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
-                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getName());
+                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getApplication().getName());
                     assertThat(auditLog.getResource().getVisibility()).isEqualTo(FieldName.PRIVATE);
 
                     // Workspace validation
@@ -1290,9 +1298,9 @@ public class AuditLogServiceTest {
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdWorkspace.getId()).block();
+        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getApplication().getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.getAuditLogs(params))
@@ -1306,9 +1314,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
-                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getId());
+                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getApplication().getId());
                     assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
-                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getName());
+                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getApplication().getName());
                     assertThat(auditLog.getResource().getVisibility()).isEqualTo(FieldName.PRIVATE);
 
                     // Workspace validation
@@ -2362,7 +2370,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO, null).block();
+        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
@@ -2484,7 +2492,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(true);
 
-        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO, null).block();
+        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
@@ -4760,4 +4768,262 @@ public class AuditLogServiceTest {
         assertThat(permissionGroupMetadataRoleAssignedToGroup.getAssignedUsers()).isNull();
         assertThat(permissionGroupMetadataRoleAssignedToGroup.getUnassignedUsers()).isNull();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogEventsUpdateWorkspaceRoleMembers() {
+        String testName = "testAuditLogEventsUpdateWorkspaceRoleMembers";
+        User apiUser = userService.findByEmail("api_user").block();
+
+        User user = new User();
+        user.setEmail(testName + "@" + testName + ".com");
+        user.setPassword(testName);
+        User createdUser = userService.create(user).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(userGroup).block();
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        List<PermissionGroup> workspaceRoles = permissionGroupService.findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+
+        PermissionGroup workspaceAdministratorRole = workspaceRoles.stream().filter(role -> role.getName().startsWith(FieldName.ADMINISTRATOR)).findFirst().get();
+        PermissionGroup workspaceDeveloperRole = workspaceRoles.stream().filter(role -> role.getName().startsWith(FieldName.DEVELOPER)).findFirst().get();
+        PermissionGroup workspaceViewerRole = workspaceRoles.stream().filter(role -> role.getName().startsWith(FieldName.VIEWER)).findFirst().get();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
+        inviteUsersDTO.setGroups(Set.of(createdUserGroup.getId()));
+        inviteUsersDTO.setPermissionGroupId(workspaceAdministratorRole.getId());
+
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        assertAuditLogRoleAssignedToUser(workspaceAdministratorRole, apiUser, createdUser);
+        assertAuditLogRoleAssignedToUserGroup(workspaceAdministratorRole, apiUser, createdUserGroup);
+
+        UpdatePermissionGroupDTO updatePermissionGroupDTOForUser = new UpdatePermissionGroupDTO();
+        updatePermissionGroupDTOForUser.setUsername(createdUser.getUsername());
+        updatePermissionGroupDTOForUser.setNewPermissionGroupId(workspaceDeveloperRole.getId());
+        userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTOForUser, "test").block();
+        assertAuditLogRoleUnAssignedFromUser(workspaceAdministratorRole, apiUser, createdUser);
+        assertAuditLogRoleAssignedToUser(workspaceDeveloperRole, apiUser, createdUser);
+        UpdatePermissionGroupDTO deletePermissionGroupDTOForUser = new UpdatePermissionGroupDTO();
+        deletePermissionGroupDTOForUser.setUsername(createdUser.getUsername());
+        userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), deletePermissionGroupDTOForUser, "test").block();
+        assertAuditLogRoleUnAssignedFromUser(workspaceDeveloperRole, apiUser, createdUser);
+
+        UpdatePermissionGroupDTO updatePermissionGroupDTOForGroup = new UpdatePermissionGroupDTO();
+        updatePermissionGroupDTOForGroup.setUserGroupId(createdUserGroup.getId());
+        updatePermissionGroupDTOForGroup.setNewPermissionGroupId(workspaceViewerRole.getId());
+        userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTOForGroup, "test").block();
+        assertAuditLogRoleUnAssignedFromUserGroup(workspaceAdministratorRole, apiUser, createdUserGroup);
+        assertAuditLogRoleAssignedToUserGroup(workspaceViewerRole, apiUser, createdUserGroup);
+        UpdatePermissionGroupDTO deletePermissionGroupDTOForGroup = new UpdatePermissionGroupDTO();
+        deletePermissionGroupDTOForGroup.setUserGroupId(createdUserGroup.getId());
+        userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), deletePermissionGroupDTOForGroup, "test").block();
+        assertAuditLogRoleUnAssignedFromUserGroup(workspaceViewerRole, apiUser, createdUserGroup);
+
+
+
+    }
+
+    private void assertAuditLogRoleAssignedToUser(PermissionGroup role, User assignedBy, User assignedToUser) {
+        String resourceTypeRole = auditLogService.getResourceType(role);
+
+        MultiValueMap<String, String> workspaceAdministratorRoleAssignedToUserParams = getAuditLogRequest(null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_ASSIGNED_USERS),
+                resourceTypeRole,
+                role.getId(),
+                null, null, null, null, null);
+
+        List<AuditLog> auditLogsRoleAssignedToUser = auditLogService.getAuditLogs(workspaceAdministratorRoleAssignedToUserParams).block();
+        assertThat(auditLogsRoleAssignedToUser).hasSize(1);
+        AuditLog auditLogRoleAssignedToUser = auditLogsRoleAssignedToUser.get(0);
+
+        assertThat(auditLogRoleAssignedToUser.getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_ASSIGNED_USERS));
+        assertThat(auditLogRoleAssignedToUser.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogRoleAssignedToUser.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogRoleAssignedToUser.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogRoleAssignedToUser.getResource()).isNotNull();
+        assertThat(auditLogRoleAssignedToUser.getMetadata()).isNotNull();
+        assertThat(auditLogRoleAssignedToUser.getUser()).isNotNull();
+        assertThat(auditLogRoleAssignedToUser.getRole()).isNotNull();
+        assertThat(auditLogRoleAssignedToUser.getGroup()).isNull();
+        assertThat(auditLogRoleAssignedToUser.getWorkspace()).isNull();
+        assertThat(auditLogRoleAssignedToUser.getApplication()).isNull();
+        assertThat(auditLogRoleAssignedToUser.getPage()).isNull();
+
+        AuditLogUserMetadata userMetadataRoleAssignedToUser = auditLogRoleAssignedToUser.getUser();
+        assertThat(userMetadataRoleAssignedToUser.getId()).isEqualTo(assignedBy.getId());
+        assertThat(userMetadataRoleAssignedToUser.getName()).isEqualTo(assignedBy.getName());
+
+        AuditLogMetadata auditLogMetadataRoleAssignedToUser = auditLogRoleAssignedToUser.getMetadata();
+        assertThat(auditLogMetadataRoleAssignedToUser.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();
+
+        assertThat(auditLogResourceRoleAssignedToUser.getType()).isEqualTo("Role");
+        assertThat(auditLogResourceRoleAssignedToUser.getId()).isEqualTo(role.getId());
+        assertThat(auditLogResourceRoleAssignedToUser.getName()).isEqualTo(role.getName());
+
+        AuditLogPermissionGroupMetadata permissionGroupMetadataRoleAssignedToUser = auditLogRoleAssignedToUser.getRole();
+        assertThat(permissionGroupMetadataRoleAssignedToUser.getAssignedUsers()).hasSize(1);
+        assertThat(permissionGroupMetadataRoleAssignedToUser.getAssignedUsers().get(0)).isEqualTo(assignedToUser.getEmail());
+        assertThat(permissionGroupMetadataRoleAssignedToUser.getUnassignedUsers()).isNull();
+        assertThat(permissionGroupMetadataRoleAssignedToUser.getAssignedGroups()).isNull();
+        assertThat(permissionGroupMetadataRoleAssignedToUser.getUnassignedGroups()).isNull();
+    }
+
+    private void assertAuditLogRoleAssignedToUserGroup(PermissionGroup role, User assignedBy, UserGroupDTO assignedToUserGroup) {
+        String resourceTypeRole = auditLogService.getResourceType(role);
+
+        MultiValueMap<String, String> roleUnAssignedFromUserParams = getAuditLogRequest(null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_ASSIGNED_GROUPS),
+                resourceTypeRole,
+                role.getId(),
+                null, null, null, null, null);
+
+        List<AuditLog> auditLogsRoleAssignedToUser = auditLogService.getAuditLogs(roleUnAssignedFromUserParams).block();
+        assertThat(auditLogsRoleAssignedToUser).hasSize(1);
+        AuditLog auditLogRoleAssignedToGroup = auditLogsRoleAssignedToUser.get(0);
+
+        assertThat(auditLogRoleAssignedToGroup.getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_ASSIGNED_GROUPS));
+        assertThat(auditLogRoleAssignedToGroup.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogRoleAssignedToGroup.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogRoleAssignedToGroup.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogRoleAssignedToGroup.getResource()).isNotNull();
+        assertThat(auditLogRoleAssignedToGroup.getMetadata()).isNotNull();
+        assertThat(auditLogRoleAssignedToGroup.getUser()).isNotNull();
+        assertThat(auditLogRoleAssignedToGroup.getRole()).isNotNull();
+        assertThat(auditLogRoleAssignedToGroup.getGroup()).isNull();
+        assertThat(auditLogRoleAssignedToGroup.getWorkspace()).isNull();
+        assertThat(auditLogRoleAssignedToGroup.getApplication()).isNull();
+        assertThat(auditLogRoleAssignedToGroup.getPage()).isNull();
+
+        AuditLogUserMetadata userMetadataRoleAssignedToGroup = auditLogRoleAssignedToGroup.getUser();
+        assertThat(userMetadataRoleAssignedToGroup.getId()).isEqualTo(assignedBy.getId());
+        assertThat(userMetadataRoleAssignedToGroup.getName()).isEqualTo(assignedBy.getName());
+
+        AuditLogMetadata auditLogMetadataRoleAssignedToGroup = auditLogRoleAssignedToGroup.getMetadata();
+        assertThat(auditLogMetadataRoleAssignedToGroup.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResourceRoleAssignedToGroup = auditLogRoleAssignedToGroup.getResource();
+
+        assertThat(auditLogResourceRoleAssignedToGroup.getType()).isEqualTo("Role");
+        assertThat(auditLogResourceRoleAssignedToGroup.getId()).isEqualTo(role.getId());
+        assertThat(auditLogResourceRoleAssignedToGroup.getName()).isEqualTo(role.getName());
+
+        AuditLogPermissionGroupMetadata permissionGroupMetadataRoleAssignedToGroup = auditLogRoleAssignedToGroup.getRole();
+        assertThat(permissionGroupMetadataRoleAssignedToGroup.getAssignedGroups()).hasSize(1);
+        assertThat(permissionGroupMetadataRoleAssignedToGroup.getAssignedGroups().get(0)).isEqualTo(assignedToUserGroup.getName());
+        assertThat(permissionGroupMetadataRoleAssignedToGroup.getUnassignedGroups()).isNull();
+        assertThat(permissionGroupMetadataRoleAssignedToGroup.getAssignedUsers()).isNullOrEmpty();
+        assertThat(permissionGroupMetadataRoleAssignedToGroup.getUnassignedUsers()).isNull();
+    }
+
+    private void assertAuditLogRoleUnAssignedFromUser(PermissionGroup role, User unAssignedBy, User unAssignedFromUser) {
+        String resourceTypeRole = auditLogService.getResourceType(role);
+
+        MultiValueMap<String, String> roleUnAssignedFromUserParams = getAuditLogRequest(null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_UNASSIGNED_USERS),
+                resourceTypeRole,
+                role.getId(),
+                null, null, null, null, null);
+
+        List<AuditLog> auditLogsRoleUnAssignedFromUser = auditLogService.getAuditLogs(roleUnAssignedFromUserParams).block();
+        assertThat(auditLogsRoleUnAssignedFromUser).hasSize(1);
+        AuditLog auditLogRoleUnAssignedFromUser = auditLogsRoleUnAssignedFromUser.get(0);
+
+        assertThat(auditLogRoleUnAssignedFromUser.getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_UNASSIGNED_USERS));
+        assertThat(auditLogRoleUnAssignedFromUser.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogRoleUnAssignedFromUser.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogRoleUnAssignedFromUser.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogRoleUnAssignedFromUser.getResource()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getMetadata()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getUser()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getRole()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getGroup()).isNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getWorkspace()).isNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getApplication()).isNull();
+        assertThat(auditLogRoleUnAssignedFromUser.getPage()).isNull();
+
+        AuditLogUserMetadata userMetadataRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getUser();
+        assertThat(userMetadataRoleUnAssignedFromUser.getId()).isEqualTo(unAssignedBy.getId());
+        assertThat(userMetadataRoleUnAssignedFromUser.getName()).isEqualTo(unAssignedBy.getName());
+
+        AuditLogMetadata auditLogMetadataRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getMetadata();
+        assertThat(auditLogMetadataRoleUnAssignedFromUser.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResourceRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getResource();
+
+        assertThat(auditLogResourceRoleUnAssignedFromUser.getType()).isEqualTo("Role");
+        assertThat(auditLogResourceRoleUnAssignedFromUser.getId()).isEqualTo(role.getId());
+        assertThat(auditLogResourceRoleUnAssignedFromUser.getName()).isEqualTo(role.getName());
+
+        AuditLogPermissionGroupMetadata permissionGroupMetadataRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getRole();
+        assertThat(permissionGroupMetadataRoleUnAssignedFromUser.getUnassignedUsers()).hasSize(1);
+        assertThat(permissionGroupMetadataRoleUnAssignedFromUser.getUnassignedUsers().get(0)).isEqualTo(unAssignedFromUser.getEmail());
+        assertThat(permissionGroupMetadataRoleUnAssignedFromUser.getAssignedUsers()).isNull();
+        assertThat(permissionGroupMetadataRoleUnAssignedFromUser.getAssignedGroups()).isNull();
+        assertThat(permissionGroupMetadataRoleUnAssignedFromUser.getUnassignedGroups()).isNull();
+    }
+
+    private void assertAuditLogRoleUnAssignedFromUserGroup(PermissionGroup role, User unAssignedBy, UserGroupDTO unAssignedFromUserGroup) {
+        String resourceTypeRole = auditLogService.getResourceType(role);
+        MultiValueMap<String, String> roleUnAssignedFromGroupParams = getAuditLogRequest(null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_UNASSIGNED_GROUPS),
+                resourceTypeRole,
+                role.getId(),
+                null, null, null, null, null);
+
+        List<AuditLog> auditLogsRoleUnAssignedFromGroup = auditLogService.getAuditLogs(roleUnAssignedFromGroupParams).block();
+        assertThat(auditLogsRoleUnAssignedFromGroup).hasSize(1);
+        AuditLog auditLogRoleUnAssignedFromGroup = auditLogsRoleUnAssignedFromGroup.get(0);
+
+        assertThat(auditLogRoleUnAssignedFromGroup.getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.ROLE_UNASSIGNED_GROUPS));
+        assertThat(auditLogRoleUnAssignedFromGroup.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogRoleUnAssignedFromGroup.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogRoleUnAssignedFromGroup.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogRoleUnAssignedFromGroup.getResource()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getMetadata()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getUser()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getRole()).isNotNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getGroup()).isNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getWorkspace()).isNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getApplication()).isNull();
+        assertThat(auditLogRoleUnAssignedFromGroup.getPage()).isNull();
+
+        AuditLogUserMetadata userMetadataRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getUser();
+        assertThat(userMetadataRoleUnAssignedFromGroup.getId()).isEqualTo(unAssignedBy.getId());
+        assertThat(userMetadataRoleUnAssignedFromGroup.getName()).isEqualTo(unAssignedBy.getName());
+
+        AuditLogMetadata auditLogMetadataRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getMetadata();
+        assertThat(auditLogMetadataRoleUnAssignedFromGroup.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResourceRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getResource();
+
+        assertThat(auditLogResourceRoleUnAssignedFromGroup.getType()).isEqualTo("Role");
+        assertThat(auditLogResourceRoleUnAssignedFromGroup.getId()).isEqualTo(role.getId());
+        assertThat(auditLogResourceRoleUnAssignedFromGroup.getName()).isEqualTo(role.getName());
+
+        AuditLogPermissionGroupMetadata permissionGroupMetadataRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getRole();
+        assertThat(permissionGroupMetadataRoleUnAssignedFromGroup.getUnassignedGroups()).hasSize(1);
+        assertThat(permissionGroupMetadataRoleUnAssignedFromGroup.getUnassignedGroups().get(0)).isEqualTo(unAssignedFromUserGroup.getName());
+        assertThat(permissionGroupMetadataRoleUnAssignedFromGroup.getAssignedGroups()).isNull();
+        assertThat(permissionGroupMetadataRoleUnAssignedFromGroup.getAssignedUsers()).isNull();
+        assertThat(permissionGroupMetadataRoleUnAssignedFromGroup.getUnassignedUsers()).isNull();
+    }
+
 }

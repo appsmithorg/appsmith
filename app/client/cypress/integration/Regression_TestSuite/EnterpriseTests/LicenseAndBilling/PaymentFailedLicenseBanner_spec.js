@@ -1,6 +1,6 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 
-describe("Payment Failed License Banner", function () {
+describe("excludeForAirgap", "Payment Failed License Banner", function () {
   it("1. should show payment failure banner for tenants with payment failure", function () {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
