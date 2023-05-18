@@ -7,6 +7,7 @@
 @import "theme/wds.css";
 @import "assets/fonts/custom/index.css";
 @import "assets/fonts/google/index.css";
+@import "~design-system/build/css/design-system.css";
 
 body {
   margin: 0;
