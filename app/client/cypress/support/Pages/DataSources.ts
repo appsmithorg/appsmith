@@ -788,7 +788,7 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdown(currentValue)).click({ force: true });
+      cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
       //to expand the dropdown
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
