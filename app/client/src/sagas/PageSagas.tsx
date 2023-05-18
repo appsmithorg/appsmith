@@ -141,6 +141,8 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { getCurrentWorkspaceId } from "../ce/selectors/workspaceSelectors";
+import { getInstanceId } from "../ce/selectors/tenantSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -703,8 +705,18 @@ export function* createNewPageFromEntity(
     const { applicationId, blockNavigation, name } =
       createPageAction?.payload || {};
 
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const instanceId: string | undefined = yield select(getInstanceId);
+
     yield put(
-      createPage(applicationId, name, defaultPageLayouts, blockNavigation),
+      createPage(
+        applicationId,
+        name,
+        defaultPageLayouts,
+        workspaceId,
+        blockNavigation,
+        instanceId,
+      ),
     );
   } catch (error) {
     yield put({
