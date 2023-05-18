@@ -107,20 +107,8 @@ export interface MULTI_PART_DROPDOWN_OPTION {
   value: string;
 }
 
-export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
-  {
-    label: MultiPartOptionTypes.TEXT,
-    value: "TEXT",
-  },
-  {
-    label: MultiPartOptionTypes.FILE,
-    value: "FILE",
-  },
-  {
-    label: MultiPartOptionTypes.ARRAY,
-    value: "ARRAY",
-  },
-];
+export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] =
+  Object.values(MultiPartOptionTypes).map((value) => ({ label: value, value }));
 
 export const DEFAULT_MULTI_PART_DROPDOWN_WIDTH = "77px";
 export const DEFAULT_MULTI_PART_DROPDOWN_HEIGHT = "100%";
