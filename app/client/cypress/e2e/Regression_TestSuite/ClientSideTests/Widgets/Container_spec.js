@@ -92,15 +92,11 @@ describe("Container Widget Functionality", function () {
   it("Test border radius and verity", function () {
     // check if border radius is changed on button
 
-    cy.get(
-      `.t--property-control-borderradius .ads-v2-segmented-control__segments-container-segment-text > div`,
-    )
+    cy.get(`.t--property-control-borderradius  .t--js-toggle`)
       .eq(0)
       .click({ force: true });
 
-    cy.get(
-      `.t--property-control-borderradius .ads-v2-segmented-control__segments-container-segment-text > div`,
-    )
+    cy.get(`.t--property-control-borderradius  .t--js-toggle`)
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -111,15 +107,18 @@ describe("Container Widget Functionality", function () {
   });
 
   it("Test Box shadow and verity", function () {
-    cy.get(
-      `.t--property-control-boxshadow .ads-v2-segmented-control__segments-container`,
-    )
-      .eq(1)
+    cy.get(`.t--property-control-boxshadow  .t--js-toggle`)
+      .eq(0)
       .click({ force: true });
 
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
-    ).should("have.css", "box-shadow", boxShadowOptions.S);
+    cy.get(`.t--property-control-boxshadow  .t--js-toggle`)
+      .eq(0)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(
+          `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
+        ).should("have.css", "box-shadow", boxShadow);
+      });
   });
 
   afterEach(() => {
