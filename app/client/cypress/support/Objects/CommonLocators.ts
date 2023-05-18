@@ -53,6 +53,8 @@ export class CommonLocators {
     item +
     "']/parent::div[@role='menuitem'] | //div[text()='" +
     item +
+    "']/ancestor::div[@role='menuitem']| //span[text()='" +
+    item +
     "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
