@@ -1,15 +1,15 @@
 import { Toaster, Variant } from "design-system-old";
 import { createMessage } from "@appsmith/constants/messages";
-import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
-import {
+import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
+import type {
   FormEvalOutput,
   ConditionalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { Log } from "entities/AppsmithConsole";
 import {
   ENTITY_TYPE,
-  Log,
   LOG_CATEGORY,
   PLATFORM_ERROR,
   Severity,
@@ -96,6 +96,7 @@ const logCyclicDependecyErrors = (
             name: error?.code?.toString(),
             id: error?.code?.toString(),
           },
+          isExpanded: false,
         });
         return acc;
       }, []),

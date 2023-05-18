@@ -1,70 +1,67 @@
-import navigateTo, {
+import type {
   TNavigateToActionType,
   TNavigateToDescription,
 } from "./navigateTo";
-import showAlert, {
-  TShowAlertActionType,
-  TShowAlertDescription,
-} from "./showAlert";
-import {
-  closeModal,
-  showModal,
+import navigateTo from "./navigateTo";
+import type { TShowAlertActionType, TShowAlertDescription } from "./showAlert";
+import showAlert from "./showAlert";
+import type {
   TCloseModalActionType,
   TCloseModalDescription,
   TShowModalActionType,
   TShowModalDescription,
 } from "./modalFns";
-import download, {
-  TDownloadActionType,
-  TDownloadDescription,
-} from "./download";
-import postWindowMessage, {
+import { closeModal, showModal } from "./modalFns";
+import type { TDownloadActionType, TDownloadDescription } from "./download";
+import download from "./download";
+import type {
   TPostWindowMessageActionType,
   TPostWindowMessageDescription,
 } from "./postWindowMessage";
-import copyToClipboard, {
+import postWindowMessage from "./postWindowMessage";
+import type {
   TCopyToClipboardActionType,
   TCopyToClipboardDescription,
 } from "./copyToClipboard";
-import resetWidget, {
+import copyToClipboard from "./copyToClipboard";
+import type {
   TResetWidgetActionType,
   TResetWidgetDescription,
 } from "./resetWidget";
-import {
-  clearStore,
-  removeValue,
-  storeValue,
+import resetWidget from "./resetWidget";
+import type {
   TClearStoreDescription,
   TRemoveValueDescription,
   TStoreValueDescription,
 } from "./storeFns";
-import run, {
-  clear,
+import { clearStore, removeValue, storeValue } from "./storeFns";
+import type {
   TClearActionType,
   TClearDescription,
   TRunActionType,
   TRunDescription,
 } from "./actionFns";
+import run, { clear } from "./actionFns";
 import {
   isAction,
   isAppsmithEntity,
-} from "ce/workers/Evaluation/evaluationUtils";
-import {
-  DataTreeAction,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
-import {
-  getGeoLocation,
-  stopWatchGeoLocation,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
   TStopWatchGeoLocationActionType,
   TStopWatchGeoLocationDescription,
   TWatchGeoLocationActionType,
   TWatchGeoLocationDescription,
+} from "./geolocationFns";
+import {
+  getGeoLocation,
+  stopWatchGeoLocation,
   watchGeoLocation,
 } from "./geolocationFns";
-import { isAsyncGuard } from "./utils/fnGuard";
+import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
+import type { ActionEntity } from "entities/DataTree/types";
 
 // cloudHosting -> to use in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -123,16 +120,24 @@ export const entityFns = [
   {
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) =>
-      isAsyncGuard(run.bind(entity), `${(entity as DataTreeAction).name}.run`),
+    fn: (entity: DataTreeEntity, entityName: string) => {
+      // @ts-expect-error: name is not defined on ActionEntity
+      entity.name = entityName;
+      return getFnWithGuards(
+        run.bind(entity as ActionEntity),
+        `${entityName}.run`,
+        [isAsyncGuard],
+      );
+    },
   },
   {
     name: "clear",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) =>
-      isAsyncGuard(
-        clear.bind(entity),
-        `${(entity as DataTreeAction).name}.clear`,
+    fn: (entity: DataTreeEntity, entityName: string) =>
+      getFnWithGuards(
+        clear.bind(entity as ActionEntity),
+        `${entityName}.clear`,
+        [isAsyncGuard],
       ),
   },
   {
@@ -140,21 +145,29 @@ export const entityFns = [
     path: "appsmith.geolocation.getCurrentPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(getGeoLocation, "appsmith.geolocation.getCurrentPosition"),
+      getFnWithGuards(
+        getGeoLocation,
+        "appsmith.geolocation.getCurrentPosition",
+        [isAsyncGuard],
+      ),
   },
   {
     name: "watchGeoLocation",
     path: "appsmith.geolocation.watchPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(watchGeoLocation, "appsmith.geolocation.watchPosition"),
+      getFnWithGuards(watchGeoLocation, "appsmith.geolocation.watchPosition", [
+        isAsyncGuard,
+      ]),
   },
   {
     name: "stopWatchGeoLocation",
     path: "appsmith.geolocation.clearWatch",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(stopWatchGeoLocation, "appsmith.geolocation.clearWatch"),
+      getFnWithGuards(stopWatchGeoLocation, "appsmith.geolocation.clearWatch", [
+        isAsyncGuard,
+      ]),
   },
 ];
 

@@ -1,20 +1,17 @@
-import React, { Ref } from "react";
-import {
+import type { Ref } from "react";
+import React from "react";
+import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
-import {
-  FixedSizeList,
-  ListChildComponentProps,
-  areEqual,
-  ReactElementType,
-} from "react-window";
+import type { ListChildComponentProps, ReactElementType } from "react-window";
+import { FixedSizeList, areEqual } from "react-window";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
-import { ReactTableColumnProps, TableSizes } from "../Constants";
-import { HeaderComponentProps } from "../Table";
-import SimpleBar from "simplebar-react";
+import type { ReactTableColumnProps, TableSizes } from "../Constants";
+import type { HeaderComponentProps } from "../Table";
+import type SimpleBar from "simplebar-react";
 
 export type BodyContextType = {
   accentColor: string;

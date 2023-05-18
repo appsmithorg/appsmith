@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Table Widget property pane feature validation", function() {
+describe("Table Widget property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Test to add column", function() {
+  it("Test to add column", function () {
     cy.openPropertyPane("tablewidget");
     // Adding new column
     cy.addColumn("CustomColumn");

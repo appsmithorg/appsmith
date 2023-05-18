@@ -1,18 +1,13 @@
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
-import {
-  getAutocompleteProperties,
-  getSchemaItem,
-  HiddenFnParams,
-} from "../helper";
-import { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
+import type { HiddenFnParams } from "../helper";
+import { getAutocompleteProperties, getSchemaItem } from "../helper";
+import type { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
 import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
-import { JSONFormWidgetProps } from "../..";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { JSONFormWidgetProps } from "../..";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { ICON_NAMES } from "widgets/constants";
 
 function defaultValueValidation(
@@ -483,7 +478,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onTextChanged",
-        helpText: "Triggers an action when the text is changed",
+        helpText: "when the text is changed",
         label: "onTextChanged",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -496,8 +491,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "onEnterKeyPress",
-        helpText:
-          "Triggers an action on submit (when the enter key is pressed)",
+        helpText: "on submit (when the enter key is pressed)",
         label: "onEnterKeyPress",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

@@ -7,7 +7,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 let datasourceName;
 let currentUrl;
 
-describe("Addwidget from Query and bind with other widgets", function() {
+describe("Addwidget from Query and bind with other widgets", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -34,9 +34,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.get(queryEditor.suggestedTableWidget).click();
       cy.createJSObject("return Query1.data;");
       cy.CheckAndUnfoldEntityItem("Widgets");
-      cy.get(".t--entity-name")
-        .contains("Table1")
-        .click({ force: true });
+      cy.get(".t--entity-name").contains("Table1").click({ force: true });
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabData) => {
@@ -52,9 +50,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.url().then((url) => {
         currentUrl = url;
         cy.log("Published url is: " + currentUrl);
-        cy.get(publish.backToEditor)
-          .first()
-          .click();
+        cy.get(publish.backToEditor).first().click();
         cy.wait(2000);
         cy.visit(currentUrl);
         cy.wait("@getPagesForViewApp").should(

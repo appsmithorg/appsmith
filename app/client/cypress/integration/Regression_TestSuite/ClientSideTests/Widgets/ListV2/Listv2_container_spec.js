@@ -18,9 +18,7 @@ describe("Listv2 - Container widget", () => {
     cy.openPropertyPaneByWidgetName("Container1", "containerwidget");
 
     // Open style table
-    cy.get(commonlocators.propertyStyle)
-      .first()
-      .click({ force: true });
+    cy.get(commonlocators.propertyStyle).first().click({ force: true });
 
     cy.get(".t--property-control-backgroundcolor")
       .find(".t--js-toggle")

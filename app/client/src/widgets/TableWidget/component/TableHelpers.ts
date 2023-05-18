@@ -1,5 +1,5 @@
 import { uniq, without, isNaN } from "lodash";
-import { ColumnProperties } from "./Constants";
+import type { ColumnProperties } from "./Constants";
 
 const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;

@@ -102,18 +102,20 @@ describe("List v2 - Property autocomplete", () => {
 
     // level_1 List currentItemsView should not exist
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.List2.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.List2.",
+      { force: true },
+    );
     cy.get(".CodeMirror-hints")
       .contains("currentItemsView")
       .should("not.exist");
 
     // level_2 List currentItemsView should not exist
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_2.currentView.List3.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_2.currentView.List3.",
+      { force: true },
+    );
     cy.get(".CodeMirror-hints")
       .contains("currentItemsView")
       .should("not.exist");
@@ -124,9 +126,10 @@ describe("List v2 - Property autocomplete", () => {
     cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{currentItem.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{currentItem.",
+      { force: true },
+    );
     checkAutosuggestion("companyName", "String");
     checkAutosuggestion("id", "Number");
     checkAutosuggestion("location", "String");
@@ -139,34 +142,38 @@ describe("List v2 - Property autocomplete", () => {
 
     // level_1.currentView
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.",
+      { force: true },
+    );
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("Text2", "Object");
     checkAutosuggestion("List2", "Object");
 
     // level_1.currentView.Text1
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.Text1.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.Text1.",
+      { force: true },
+    );
     checkAutosuggestion("text", "String");
     checkAutosuggestion("isVisible", "Boolean");
 
     // level_1.currentView.Text2
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.Text2.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.Text2.",
+      { force: true },
+    );
     checkAutosuggestion("text", "String");
     checkAutosuggestion("isVisible", "Boolean");
 
     // level_1.currentView.List2
     cy.testJsontext("text", "");
-    cy.get(
-      ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentView.List2.", { force: true });
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.List2.",
+      { force: true },
+    );
     checkAutosuggestion("backgroundColor", "String");
     checkAutosuggestion("itemSpacing", "Number");
     checkAutosuggestion("isVisible", "Boolean");

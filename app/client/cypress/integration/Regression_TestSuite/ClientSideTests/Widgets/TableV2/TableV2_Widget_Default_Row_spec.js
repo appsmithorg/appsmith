@@ -1,12 +1,12 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/defaultTableV2Dsl.json");
 
-describe("Table Widget V2 property pane deafult feature validation", function() {
+describe("Table Widget V2 property pane deafult feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Verify default table row Data", function() {
+  it("1. Verify default table row Data", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Open Widget side bar
@@ -22,18 +22,14 @@ describe("Table Widget V2 property pane deafult feature validation", function() 
     cy.readTableV2dataFromSpecificIndex("0", "0", 0).then((tabData) => {
       const tabValue = tabData;
       cy.log("the table is" + tabValue);
-      cy.get(".bp3-ui-text span")
-        .eq(1)
-        .should("have.text", tabData);
+      cy.get(".bp3-ui-text span").eq(1).should("have.text", tabData);
     });
     cy.SearchEntityandOpen("Table1");
     cy.wait(2000);
     cy.readTableV2dataFromSpecificIndex("2", "0", 1).then((tabData) => {
       const tabValue = tabData;
       cy.log("the table is" + tabValue);
-      cy.get(".bp3-ui-text span")
-        .eq(0)
-        .should("have.text", tabData);
+      cy.get(".bp3-ui-text span").eq(0).should("have.text", tabData);
     });
   });
 

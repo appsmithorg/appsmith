@@ -2,14 +2,15 @@ import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
+  ROW_GAP,
 } from "utils/autoLayout/constants";
-import { HighlightInfo } from "./autoLayoutTypes";
+import type { HighlightInfo } from "./autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
+import type { VerticalHighlightsPayload } from "./highlightUtils";
 import {
   deriveHighlightsFromLayers,
   generateHighlightsForAlignment,
   generateVerticalHighlights,
-  VerticalHighlightsPayload,
 } from "./highlightUtils";
 
 describe("test HighlightUtils methods", () => {
@@ -103,6 +104,7 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       };
+      const offsetTop = ROW_GAP;
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         "1",
@@ -124,7 +126,9 @@ describe("test HighlightUtils methods", () => {
       expect(highlights[7].posY).toEqual(
         highlights[0].posY +
           (widgets["2"].bottomRow - widgets["2"].topRow) *
-            widgets["2"].parentRowSpace,
+            widgets["2"].parentRowSpace +
+          ROW_GAP -
+          offsetTop,
       );
 
       expect(highlights[0].layerIndex).toEqual(0);

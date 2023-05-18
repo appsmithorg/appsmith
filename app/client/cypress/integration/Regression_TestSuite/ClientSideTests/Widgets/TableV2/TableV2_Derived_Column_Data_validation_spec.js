@@ -3,18 +3,18 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Create an API and Execute the API and bind with Table V2", function() {
+  it("1. Create an API and Execute the API and bind with Table V2", function () {
     // Create and execute an API and bind with table
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("2. Validate Table V2 with API data and then add a column", function() {
+  it("2. Validate Table V2 with API data and then add a column", function () {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Clear Table data and enter Apil data into table data
@@ -36,21 +36,19 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     // add new column
     cy.addColumnV2("CustomColumn");
   });
 
-  it("3. Table widget toggle test for background color", function() {
+  it("3. Table widget toggle test for background color", function () {
     // Open id property pane
     cy.editColumn("id");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.moveToStyleTab();
     // Click on cell background JS button
-    cy.get(widgetsPage.toggleJsBcgColor)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.toggleJsBcgColor).first().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Change the cell background color to green
@@ -67,7 +65,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     );
   });
 
-  it("4. Edit column name and validate test for computed value based on column type selected", function() {
+  it("4. Edit column name and validate test for computed value based on column type selected", function () {
     // opoen customColumn1 property pane
     cy.editColumn("customColumn1");
     cy.moveToContentTab();
@@ -83,7 +81,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.closePropertyPane();
   });
 
-  it("5. Update table json data and check the column names updated", function() {
+  it("5. Update table json data and check the column names updated", function () {
     // Open table propert pane
     cy.SearchEntityandOpen("Table1");
     cy.backFromPropertyPanel();

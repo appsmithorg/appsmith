@@ -1,4 +1,8 @@
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -7,17 +11,18 @@ import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import React, { CSSProperties } from "react";
+import type { CSSProperties } from "react";
+import React from "react";
 import { getCanvasClassName } from "utils/generators";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import ContainerWidget, {
-  ContainerWidgetProps,
-} from "widgets/ContainerWidget/widget";
-import { CanvasWidgetStructure, DSLWidget } from "./constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import ContainerWidget from "widgets/ContainerWidget/widget";
+import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -84,7 +89,12 @@ class CanvasWidget extends ContainerWidget {
     props: ContainerWidgetProps<WidgetProps>,
   ): JSX.Element {
     const direction = this.getDirection();
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.appPositioningType === AppPositioningTypes.AUTO,
+    );
     return (
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
@@ -125,7 +135,7 @@ class CanvasWidget extends ContainerWidget {
       <FlexBoxComponent
         direction={direction}
         flexLayers={this.props.flexLayers || []}
-        isMobile={this.props.isMobile}
+        isMobile={this.props.isMobile || false}
         stretchHeight={stretchFlexBox}
         useAutoLayout={this.props.useAutoLayout || false}
         widgetId={this.props.widgetId}
@@ -157,11 +167,16 @@ class CanvasWidget extends ContainerWidget {
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(this.props.bottomRow);
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.appPositioningType === AppPositioningTypes.AUTO,
+    );
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",
-      height: this.props.useAutoLayout ? "100%" : `${height}px`,
+      height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
       background: "none",
       position: "relative",
     };
@@ -206,9 +221,7 @@ export const CONFIG = {
     version: 1,
     detachFromLayout: true,
     flexLayers: [],
-    responsiveBehavior: getDefaultResponsiveBehavior(
-      CanvasWidget.getWidgetType(),
-    ),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

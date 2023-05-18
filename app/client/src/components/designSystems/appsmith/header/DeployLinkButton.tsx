@@ -1,4 +1,5 @@
-import React, { ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
 import { useSelector, useDispatch } from "react-redux";
@@ -7,13 +8,15 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { Colors } from "constants/Colors";
 
-import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "@appsmith/constants/messages";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
+import { importSvg } from "design-system-old";
+
+const GitBranch = importSvg(() => import("assets/icons/ads/git-branch.svg"));
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;

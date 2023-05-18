@@ -4,20 +4,32 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 
-import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
-import {
-  CameraMode,
-  CameraModeTypes,
-  MediaCaptureStatusTypes,
-} from "../constants";
+import type { CameraMode } from "../constants";
+import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",
+      "!url": "https://docs.appsmith.com/widget-reference/camera",
+      imageBlobURL: "string",
+      imageDataURL: "string",
+      imageRawBinary: "string",
+      videoBlobURL: "string",
+      videoDataURL: "string",
+      videoRawBinary: "string",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -81,12 +93,11 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the image is captured",
+            helpText: "when the image is captured",
             propertyName: "onImageCapture",
             label: "OnImageCapture",
             controlType: "ACTION_SELECTOR",
@@ -97,7 +108,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the image is saved",
+            helpText: "when the image is saved",
             propertyName: "onImageSave",
             label: "onImageCapture",
             controlType: "ACTION_SELECTOR",
@@ -109,7 +120,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the video recording get started",
+            helpText: "when the video recording get started",
             propertyName: "onRecordingStart",
             label: "OnRecordingStart",
             controlType: "ACTION_SELECTOR",
@@ -120,7 +131,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the video recording stops",
+            helpText: "when the video recording stops",
             propertyName: "onRecordingStop",
             label: "OnRecordingStop",
             controlType: "ACTION_SELECTOR",
@@ -131,7 +142,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the video recording is saved",
+            helpText: "when the video recording is saved",
             propertyName: "onVideoSave",
             label: "onVideoSave",
             controlType: "ACTION_SELECTOR",

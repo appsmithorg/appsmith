@@ -9,12 +9,12 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const dataSources = ObjectsRegistry.DataSources;
 let datasourceName;
 
-describe("Binding the multiple widgets and validating default data", function() {
+describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Create a postgres datasource", function() {
+  it("1. Create a postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.fillPostgresDatasourceForm();
@@ -34,9 +34,9 @@ describe("Binding the multiple widgets and validating default data", function() 
     dataSources.RunQuery();
   });
 
-  it("3. Button widget test with on action query run", function() {
+  it("3. Button widget test with on action query run", function () {
     cy.SearchEntityandOpen("Button1");
-    cy.executeDbQuery("Query1");
+    cy.executeDbQuery("Query1", "onClick");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -44,7 +44,7 @@ describe("Binding the multiple widgets and validating default data", function() 
     );
   });
 
-  it("4. Input widget test with default value update with query data", function() {
+  it("4. Input widget test with default value update with query data", function () {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
     cy.wait("@updateLayout").should(
@@ -54,13 +54,11 @@ describe("Binding the multiple widgets and validating default data", function() 
     );
   });
 
-  it("5. Publish App and validate loading functionalty", function() {
+  it("5. Publish App and validate loading functionalty", function () {
     cy.PublishtheApp();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(widgetsPage.widgetBtn)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.widgetBtn).first().click({ force: true });
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",

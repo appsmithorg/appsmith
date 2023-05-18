@@ -31,11 +31,7 @@ export const formatCurrencyNumber = (
   const missingFractDigitsCount =
     fractionDigits - (value.length - currentIndexOfDecimal - 1);
   if (missingFractDigitsCount > 0) {
-    valueToFormat =
-      value +
-      Array(missingFractDigitsCount)
-        .fill("0")
-        .join("");
+    valueToFormat = value + Array(missingFractDigitsCount).fill("0").join("");
   }
   const locale = getLocale();
   const formatter = new Intl.NumberFormat(locale, {

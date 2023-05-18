@@ -1,7 +1,7 @@
 import { LabelPosition } from "components/constants";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { DSLWidget } from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 
 export function migrateLabelPosition(currentDSL: DSLWidget) {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {

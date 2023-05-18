@@ -1,7 +1,7 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Radiogroup Widget Functionality", function() {
+describe("Radiogroup Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

@@ -35,6 +35,7 @@ const CollapseWrapper = styled.div`
 
 function CollapseComponent(props: {
   children?: React.ReactNode;
+  openTitle?: string;
   title?: string;
   isOpen?: boolean;
   titleStyle?: React.CSSProperties;
@@ -54,7 +55,7 @@ function CollapseComponent(props: {
         onClick={handleIsOpen}
         style={props.titleStyle}
       >
-        {props.title}
+        {open && props.openTitle ? props.openTitle : props.title}
         <Icon
           className={`icon ${open ? "collapse" : ""}`}
           color="#4B4848"

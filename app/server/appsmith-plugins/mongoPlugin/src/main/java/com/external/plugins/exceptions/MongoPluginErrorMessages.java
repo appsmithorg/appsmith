@@ -56,6 +56,7 @@ public class MongoPluginErrorMessages {
             "check the URI once.";
 
     public static final String DS_MISSING_DEFAULT_DATABASE_NAME_ERROR_MSG = "Missing default database name.";
+    public static final String DS_INVALID_AUTH_DATABASE_NAME = "Authentication Database Name is invalid, no database found with this name.";
     public static final String DS_MISSING_ENDPOINTS_ERROR_MSG = "Missing endpoint(s).";
     public static final String DS_NO_PORT_EXPECTED_IN_REPLICA_SET_CONNECTION_ERROR_MSG = "REPLICA_SET connections should not be given a port." +
             " If you are trying to specify all the shards, please add more than one.";

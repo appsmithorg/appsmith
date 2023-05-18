@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let queryName = "Query1";
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -15,7 +16,9 @@ Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
 6. When updating Datasource query
 */
 
-describe("Cyclic Dependency Informational Error Messages", function() {
+let dsname;
+
+describe("Cyclic Dependency Informational Error Messages", function () {
   before(() => {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
@@ -23,23 +26,59 @@ describe("Cyclic Dependency Informational Error Messages", function() {
     cy.wait(3000); //dsl to settle!
   });
 
-  it("1. Create Users Sample DB Query & Simulate cyclic depedency", () => {
-    //Step1 : Create Mock Users DB
-    _.dataSources.CreateMockDB("Users").then((dbName) => {
-      _.dataSources.CreateQueryFromActiveTab(dbName, false);
+  it(
+    "excludeForAirgap",
+    "1. Create Users Sample DB Query & Simulate cyclic depedency",
+    () => {
+      //Step1 : Create Mock Users DB
+      _.dataSources.CreateMockDB("Users").then((dbName) => {
+        _.dataSources.CreateQueryFromActiveTab(dbName, false);
+        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+        _.dataSources.ToggleUsePreparedStatement(false);
+      });
+      cy.get(widgetsPage.widgetSwitchId).click();
+      cy.openPropertyPane("inputwidgetv2");
+      cy.get(widgetsPage.defaultInput).type(
+        "{{" + queryName + ".data[0].gender",
+      );
+      cy.widgetText(
+        "gender",
+        widgetsPage.inputWidget,
+        widgetsPage.widgetNameSpan,
+      );
+      cy.assertPageSave();
+    },
+  );
+
+  it(
+    "airgap",
+    "1. Create Users Sample DB Query & Simulate cyclic depedency - airgap",
+    () => {
+      //Step1 : Create Users DB
+      cy.NavigateToDatasourceEditor();
+      cy.get(datasource.PostgreSQL).click();
+      cy.fillPostgresDatasourceForm();
+      cy.testSaveDatasource();
+      cy.get("@saveDatasource").then((httpResponse) => {
+        dsname = httpResponse.response.body.data.name;
+      });
+      cy.wait(1000);
+      cy.get(datasource.createQuery).click();
       _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
       _.dataSources.ToggleUsePreparedStatement(false);
-    });
-    cy.get(widgetsPage.widgetSwitchId).click();
-    cy.openPropertyPane("inputwidgetv2");
-    cy.get(widgetsPage.defaultInput).type("{{" + queryName + ".data[0].gender");
-    cy.widgetText(
-      "gender",
-      widgetsPage.inputWidget,
-      widgetsPage.widgetNameSpan,
-    );
-    cy.assertPageSave();
-  });
+      cy.get(widgetsPage.widgetSwitchId).click();
+      cy.openPropertyPane("inputwidgetv2");
+      cy.get(widgetsPage.defaultInput).type(
+        "{{" + queryName + ".data[0].gender",
+      );
+      cy.widgetText(
+        "gender",
+        widgetsPage.inputWidget,
+        widgetsPage.widgetNameSpan,
+      );
+      cy.assertPageSave();
+    },
+  );
 
   //Case 1: On page load actions
   it("2. Reload Page and it should not provide errors in response & update input widget's placeholder property and check errors array to be empty", () => {
@@ -115,13 +154,10 @@ describe("Cyclic Dependency Informational Error Messages", function() {
     _.entityExplorer.SelectEntityByName(queryName, "Queries/JS");
     // update query and check no cyclic dependency issue should occur
     cy.get(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(" ", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    cy.get(".CodeMirror textarea").first().focus().type(" ", {
+      force: true,
+      parseSpecialCharSequences: false,
+    });
     cy.wait("@saveAction").should(
       "have.nested.property",
       "response.body.data.errorReports.length",

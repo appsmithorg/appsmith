@@ -1,4 +1,4 @@
-import { TypeOptions } from "react-toastify";
+import type { TypeOptions } from "react-toastify";
 import { promisify } from "./utils/Promisify";
 
 function showAlertFnDescriptor(message: string, style: TypeOptions) {

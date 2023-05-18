@@ -2,27 +2,29 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { TextSize, WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
   HTML = "html",
 }
 const RichTextEditorComponent = lazy(() =>
-  retryPromise(() =>
-    import(/* webpackChunkName: "rte",webpackPrefetch: 2 */ "../component"),
-  ),
+  retryPromise(() => import(/* webpackChunkName: "rte" */ "../component")),
 );
 
 const converter = new showdown.Converter();
@@ -30,6 +32,14 @@ class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
+      isDisabled: "string",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -212,13 +222,12 @@ class RichTextEditorWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
 
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the text is changed",
+            helpText: "when the text is changed",
             propertyName: "onTextChange",
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",

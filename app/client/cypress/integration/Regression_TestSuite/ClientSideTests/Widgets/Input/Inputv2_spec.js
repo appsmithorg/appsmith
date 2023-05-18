@@ -18,11 +18,7 @@ describe("Input widget V2 - ", () => {
 
   it("2. Validate input widget resets OnSubmit", () => {
     cy.openPropertyPane(widgetName);
-    cy.get(
-      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-    ).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
+    cy.getAlert("onSubmit", "Submitted!!");
     cy.get(widgetInput).clear();
     cy.wait(300);
     cy.get(widgetInput).type("test{enter}"); //Clicking enter submits the form here
@@ -69,9 +65,7 @@ describe("Input widget V2 - ", () => {
     cy.openPropertyPane(widgetName);
 
     //required: on
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -152,9 +146,7 @@ describe("Input widget V2 - ", () => {
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: off
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
     [
@@ -232,9 +224,7 @@ describe("Input widget V2 - ", () => {
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: on
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -266,6 +256,8 @@ describe("Input widget V2 - ", () => {
         expected: "test@appsmith.com:test@appsmith.com:true",
       },
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
+
+    validateAutocompleteAttribute();
   });
 
   it("6. Validate DataType - EMAIL can be entered into Input widget", () => {
@@ -303,9 +295,7 @@ describe("Input widget V2 - ", () => {
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: off
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -337,6 +327,8 @@ describe("Input widget V2 - ", () => {
         expected: "test@appsmith.com:test@appsmith.com:true",
       },
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
+
+    validateAutocompleteAttribute();
   });
 
   it("7. Validating other properties - Input validity with #valid", () => {
@@ -356,13 +348,9 @@ describe("Input widget V2 - ", () => {
   it("8. onSubmit should be triggered with the whole input value", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
     // Set onSubmit action, storing value
-    cy.get(".t--property-control-onsubmit")
-      .find(".t--js-toggle")
-      .click();
+    cy.get(".t--property-control-onsubmit").find(".t--js-toggle").click();
     cy.updateCodeInput(
       ".t--property-control-onsubmit",
       "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
@@ -424,7 +412,7 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "1.0001:1.0001:true");
   });
 
-  it("Check isDirty meta property", function() {
+  it("Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Input1.isDirty}}`);
     // Init isDirty
@@ -456,5 +444,30 @@ describe("Input widget V2 - ", () => {
         .type(text);
     }
     cy.get(".t--widget-textwidget").should("contain", expected);
+  }
+
+  function validateAutocompleteAttribute() {
+    //validate autocomplete behaviour for email and password
+
+    cy.openPropertyPane("textwidget");
+    cy.openPropertyPane(widgetName);
+    //check if autofill toggle option is present and is checked by default
+    cy.get(".t--property-control-allowautofill input").should("be.checked");
+    //check if autocomplete attribute is not present in the text widget when autofill is enabled
+    cy.get(widgetInput).should("not.have.attr", "autocomplete");
+
+    //toggle off autofill
+    cy.get(".t--property-control-allowautofill input").click({ force: true });
+    cy.get(".t--property-control-allowautofill input").should("not.be.checked");
+
+    //autocomplete should now be present in the text widget
+    cy.get(widgetInput).should("have.attr", "autocomplete", "off");
+
+    //select a non email or password option
+    cy.selectDropdownValue(".t--property-control-datatype", "text");
+    //autofill toggle should not be present as this restores autofill to be enabled
+    cy.get(".t--property-control-allowautofill input").should("not.exist");
+    //autocomplete attribute should not be present in the text widget
+    cy.get(widgetInput).should("not.have.attr", "autocomplete");
   }
 });

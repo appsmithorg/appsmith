@@ -9,13 +9,29 @@ export class ApiPage {
   private _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
-    ".t--actionConfiguration\\.headers\\[0\\]\\.key\\." + index + "";
+    ".t--actionConfiguration\\.headers\\[" +
+    index +
+    "\\]\\.key\\." +
+    index +
+    "";
   private _headerValue = (index: number) =>
-    ".t--actionConfiguration\\.headers\\[0\\]\\.value\\." + index + "";
+    ".t--actionConfiguration\\.headers\\[" +
+    index +
+    "\\]\\.value\\." +
+    index +
+    "";
   private _paramKey = (index: number) =>
-    ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\." + index + "";
-  private _paramValue = (index: number) =>
-    ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\." + index + "";
+    ".t--actionConfiguration\\.queryParameters\\[" +
+    index +
+    "\\]\\.key\\." +
+    index +
+    "";
+  public _paramValue = (index: number) =>
+    ".t--actionConfiguration\\.queryParameters\\[" +
+    index +
+    "\\]\\.value\\." +
+    index +
+    "";
   private _importedKey = (index: number, keyValueName: string) =>
     `.t--${keyValueName}-key-${index}`;
   private _importedValue = (index: number, keyValueName: string) =>
@@ -37,8 +53,6 @@ export class ApiPage {
     verb +
     "')]";
   private _bodySubTab = (subTab: string) => `[data-cy='tab--${subTab}']`;
-  private _suggestedWidget = (widget: string) =>
-    `.t--suggested-widget-${widget}`;
   private _rightPaneTab = (tab: string) => `[data-cy='t--tab-${tab}']`;
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
@@ -110,16 +124,16 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  EnterHeader(hKey: string, hValue: string) {
+  EnterHeader(hKey: string, hValue: string, index = 0) {
     this.SelectPaneTab("Headers");
     this.agHelper.EnterValue(hKey, {
-      propFieldName: this._headerKey(0),
+      propFieldName: this._headerKey(index),
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.PressEscape();
     this.agHelper.EnterValue(hValue, {
-      propFieldName: this._headerValue(0),
+      propFieldName: this._headerValue(index),
       directInput: true,
       inputFieldName: "",
     });
@@ -127,20 +141,22 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  EnterParams(pKey: string, pValue: string) {
+  EnterParams(pKey: string, pValue: string, index = 0, escape = true) {
     this.SelectPaneTab("Params");
     this.agHelper.EnterValue(pKey, {
-      propFieldName: this._paramKey(0),
+      propFieldName: this._paramKey(index),
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.PressEscape();
     this.agHelper.EnterValue(pValue, {
-      propFieldName: this._paramValue(0),
+      propFieldName: this._paramValue(index),
       directInput: true,
       inputFieldName: "",
     });
-    this.agHelper.PressEscape();
+    if (escape) {
+      this.agHelper.PressEscape();
+    }
     this.agHelper.AssertAutoSave();
   }
 
@@ -154,9 +170,7 @@ export class ApiPage {
     this.SelectPaneTab("Body");
     this.SelectSubTab(subTab);
     if (toTrash) {
-      cy.get(this._trashDelete)
-        .first()
-        .click();
+      cy.get(this._trashDelete).first().click();
       cy.xpath(this._visibleTextSpan("Add more")).click();
     }
     this.agHelper.EnterValue(bKey, {
@@ -167,9 +181,7 @@ export class ApiPage {
     this.agHelper.PressEscape();
 
     if (type) {
-      cy.xpath(this._bodyTypeDropdown)
-        .eq(0)
-        .click();
+      cy.xpath(this._bodyTypeDropdown).eq(0).click();
       cy.xpath(this._visibleTextDiv(type)).click();
     }
     this.agHelper.EnterValue(bValue, {
@@ -202,9 +214,7 @@ export class ApiPage {
 
   SetAPITimeout(timeout: number) {
     this.SelectPaneTab("Settings");
-    cy.xpath(this._queryTimeout)
-      .clear()
-      .type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
+    cy.xpath(this._queryTimeout).clear().type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
@@ -354,7 +364,7 @@ export class ApiPage {
       .invoke("text")
       .then((text) => {
         apiResp = `${text
-          .match(/"(.*)"/)![0]
+          .match(/"(.*)"/)?.[0]
           .split('"')
           .join("")} `;
         cy.log("Key value in api response is :" + apiResp);
@@ -368,9 +378,7 @@ export class ApiPage {
 
   public SelectAPIVerb(verb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH") {
     cy.get(this._apiVerbDropdown).click();
-    cy.xpath(this._verbToSelect(verb))
-      .should("be.visible")
-      .click();
+    cy.xpath(this._verbToSelect(verb)).should("be.visible").click();
   }
 
   ResponseStatusCheck(statusCode: string) {
@@ -378,9 +386,7 @@ export class ApiPage {
     this.agHelper.GetNAssertContains(this._responseStatus, statusCode);
   }
   public SelectPaginationTypeViaIndex(index: number) {
-    cy.get(this._paginationTypeLabels)
-      .eq(index)
-      .click({ force: true });
+    cy.get(this._paginationTypeLabels).eq(index).click({ force: true });
   }
 
   CreateAndFillGraphqlApi(url: string, apiName = "", queryTimeout = 10000) {
@@ -399,9 +405,5 @@ export class ApiPage {
 
     if (apiName) this.agHelper.RenameWithInPane(apiName);
     cy.get(this._resourceUrl).should("be.visible");
-  }
-
-  AddSuggestedWidget(widgetName: string) {
-    this.agHelper.GetNClick(this._suggestedWidget(widgetName));
   }
 }

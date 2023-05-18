@@ -3,7 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  homePage = ObjectsRegistry.HomePage;
+  homePage = ObjectsRegistry.HomePage,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("JSEditor Indendation - Visual tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
@@ -51,7 +52,6 @@ myFun2: async () => {
         prettify: false,
       },
     );
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -67,7 +67,6 @@ myFun2: async () => {
     agHelper.WaitUntilAllToastsDisappear();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
@@ -111,7 +110,6 @@ myFun2: async () => {
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify7");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -126,7 +124,6 @@ myFun2: async () => {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.Sleep(3000);
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });
 
@@ -155,7 +152,6 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -207,7 +203,6 @@ myFun2: async () => {
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -221,13 +216,15 @@ myFun2: async () => {
     // click run button and take a snap to make sure prettify did not revert
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.Sleep(); // allow time to run
+    //Close bottom bar after execution.
+    debuggerHelper.CloseBottomBar();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click dropdown to change function and make sure prettify has not reverted
     agHelper.GetNClick("[name='expand-more']", 0, true, 100);
     agHelper.ContainsNClick("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
-    agHelper.AssertContains("ran successfully");
+    agHelper.AssertContains("ran successfully", "not.exist");
   });
 
   it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
@@ -257,8 +254,6 @@ myFun2: async () => {
         prettify: false,
       },
     );
-
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjBeforePrettify3");
@@ -316,12 +311,9 @@ myFun2: async () => {
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
 
-    cy.get("div.CodeMirror")
-      .type("{shift+cmd+p}")
-      .wait(1000);
+    cy.get("div.CodeMirror").type("{shift+cmd+p}").wait(1000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
@@ -331,6 +323,8 @@ myFun2: async () => {
     // click run button and take a snap to make sure prettify did not revert
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.Sleep(); // allow time to run
+    //Close bottom bar after execution.
+    debuggerHelper.CloseBottomBar();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click dropdown to change function and make sure prettify has not reverted
@@ -338,7 +332,7 @@ myFun2: async () => {
     agHelper.GetNClick("[name='expand-more']", 0, true, 100);
     agHelper.ContainsNClick("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
-    agHelper.AssertContains("ran successfully");
+    agHelper.AssertContains("ran successfully", "not.exist");
   });
 
   it("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
@@ -349,7 +343,6 @@ myFun2: async () => {
       shouldCreateNewJSObj: true,
     });
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeGoLineStartSmart5");
 
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");

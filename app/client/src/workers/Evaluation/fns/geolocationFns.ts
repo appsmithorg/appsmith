@@ -1,5 +1,5 @@
 import { uniqueId } from "lodash";
-import { TDefaultMessage } from "utils/MessageUtil";
+import type { TDefaultMessage } from "utils/MessageUtil";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { promisify } from "./utils/Promisify";
@@ -90,16 +90,10 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
     const message = event.data;
     if (message.messageId !== listenerId) return;
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData(metaData);
     const { body } = message;
     if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
     if (body.data) {
       if (typeof onSuccessCallback === "function") onSuccessCallback(body.data);
@@ -126,7 +120,8 @@ export type TStopWatchGeoLocationArgs = Parameters<
 export type TStopWatchGeoLocationDescription = ReturnType<
   typeof stopWatchGeoLocationFnDescriptor
 >;
-export type TStopWatchGeoLocationActionType = TStopWatchGeoLocationDescription["type"];
+export type TStopWatchGeoLocationActionType =
+  TStopWatchGeoLocationDescription["type"];
 
 export async function stopWatchGeoLocation() {
   const executor = promisify(stopWatchGeoLocationFnDescriptor);

@@ -12,7 +12,7 @@ import {
   checkIfSectionIsEnabled,
   updateEvaluatedSectionConfig,
 } from "./utils";
-import { HiddenType } from "./BaseControl";
+import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 

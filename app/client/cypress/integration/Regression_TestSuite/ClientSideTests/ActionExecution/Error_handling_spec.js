@@ -4,17 +4,17 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 let dataSet;
 
-describe("Test Create Api and Bind to Button widget", function() {
+describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     cy.addDsl(dsl);
-    cy.fixture("example").then(function(data) {
+    cy.fixture("example").then(function (data) {
       dataSet = data;
       cy.createAndFillApi(dataSet.userApi, "/random");
       cy.RunAPI();
     });
   });
 
-  it("1. Call the api without error handling", () => {
+  it("1. Call the api with & without error handling", () => {
     cy.SearchEntityandOpen("Button1");
     cy.get(widgetsPage.toggleOnClick)
       .invoke("attr", "class")
@@ -32,9 +32,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.PublishtheApp();
 
     cy.wait(3000);
-    cy.get("span:contains('Submit')")
-      .closest("div")
-      .click();
+    cy.get("span:contains('Submit')").closest("div").click();
 
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -47,9 +45,8 @@ describe("Test Create Api and Bind to Button widget", function() {
       .should("contain.text", "failed to execute");
 
     cy.get(publishPage.backToEditor).click({ force: true });
-  });
 
-  it("2. Call the api with error handling", () => {
+    //With Error handling
     cy.SearchEntityandOpen("Button1");
 
     cy.get(".t--property-control-onclick").then(($el) => {
@@ -59,9 +56,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.PublishtheApp();
 
     cy.wait(3000);
-    cy.get("span:contains('Submit')")
-      .closest("div")
-      .click();
+    cy.get("span:contains('Submit')").closest("div").click();
 
     cy.wait("@postExecute").should(
       "have.nested.property",

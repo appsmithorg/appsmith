@@ -11,8 +11,8 @@ const widgetName = "currencyinputwidget";
 const wiggetClass = `.t--widget-${widgetName}`;
 const widgetInput = `${wiggetClass} input`;
 
-describe("Currency Input Issue", function() {
-  it("1. Import application json &should check that the widget input is not showing any error", function() {
+describe("Currency Input Issue", function () {
+  it("1. Import application json &should check that the widget input is not showing any error", function () {
     cy.visit("/applications");
     homePage.ImportApp("CurrencyInputIssueExport.json");
     cy.wait("@importNewApplication").then((interception) => {

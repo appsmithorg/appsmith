@@ -25,7 +25,7 @@ RUN apt-get update \
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
-  && curl --silent --show-error --location https://deb.nodesource.com/setup_14.x | bash - \
+  && curl --silent --show-error --location https://deb.nodesource.com/setup_16.x | bash - \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \ 
   && apt update \
@@ -71,6 +71,8 @@ COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/mockdb_postgres.sql \
   ./deploy/docker/templates/users_postgres.sql \
+  ./deploy/docker/templates/appsmith_starting.html \
+  ./deploy/docker/templates/appsmith_initializing.html \
   templates/
 
 # Add bootstrapfile

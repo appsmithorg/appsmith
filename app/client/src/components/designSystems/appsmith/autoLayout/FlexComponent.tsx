@@ -1,11 +1,17 @@
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
+import type { RenderMode, WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import { snipingModeSelector } from "selectors/editorSelectors";
-import { getIsResizing } from "selectors/widgetSelectors";
 import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import { getIsResizing } from "selectors/widgetSelectors";
+import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
@@ -14,14 +20,15 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
+  alignment: FlexVerticalAlignment;
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
-  direction?: LayoutDirection;
+  direction: LayoutDirection;
   focused?: boolean;
-  minWidth?: number;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;
@@ -30,7 +37,8 @@ export type AutoLayoutProps = {
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile?: boolean;
+  isMobile: boolean;
+  renderMode: RenderMode;
 };
 
 const FlexWidget = styled.div`
@@ -60,6 +68,13 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
+  const wrappedChildren = (children: ReactNode) =>
+    props.renderMode === RenderModes.PAGE ? (
+      <div className="w-full h-full">{children}</div>
+    ) : (
+      children
+    );
+
   const className = useMemo(
     () =>
       `auto-layout-parent-${props.parentId} auto-layout-child-${
@@ -69,21 +84,36 @@ export function FlexComponent(props: AutoLayoutProps) {
       )} t--widget-${props.widgetName.toLowerCase()}`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
+  const isPreviewMode = useSelector(previewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
-
+  const widgetDimensionsViewCss = {
+    width: props.componentWidth - WIDGET_PADDING * 2,
+    height: props.componentHeight - WIDGET_PADDING * 2,
+    margin: WIDGET_PADDING + "px",
+    transform: `translate3d(${
+      props.alignment === "end" ? "-" : ""
+    }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
+  };
+  const widgetDimensionsEditCss = {
+    width: isResizing
+      ? "auto"
+      : `${props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER}px`,
+    height: isResizing
+      ? "auto"
+      : `${
+          props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
+        }px`,
+    margin: WIDGET_PADDING / 2 + "px",
+  };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
       zIndex,
-      width: isResizing
-        ? "auto"
-        : `${props.componentWidth - WIDGET_PADDING * 2}px`,
-      height: isResizing
-        ? "auto"
-        : props.componentHeight - WIDGET_PADDING * 2 + "px",
+      ...(props.renderMode === "PAGE"
+        ? widgetDimensionsViewCss
+        : widgetDimensionsEditCss),
       minHeight: "30px",
-      margin: WIDGET_PADDING + "px",
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
@@ -96,6 +126,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.flexVerticalAlignment,
     zIndex,
     isResizing,
+    isPreviewMode,
     onHoverZIndex,
   ]);
 
@@ -109,7 +140,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       onClickCapture={onClickFn}
       style={flexComponentStyle}
     >
-      {props.children}
+      {wrappedChildren(props.children)}
     </FlexWidget>
   );
 }

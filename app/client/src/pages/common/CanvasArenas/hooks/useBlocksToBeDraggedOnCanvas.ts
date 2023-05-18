@@ -1,24 +1,26 @@
-import { useContext, useEffect, useRef } from "react";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
 import {
   getDropZoneOffsets,
-  WidgetOperationParams,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -26,12 +28,13 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
-import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
-import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { useContext, useEffect, useRef } from "react";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -267,9 +270,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
         alignment: dropPayload.alignment,
       },
     };
-    setTimeout(() => {
-      selectWidget(widgetPayload.newWidgetId);
-    }, 100);
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
@@ -279,15 +279,19 @@ export const useBlocksToBeDraggedOnCanvas = ({
           ? MAIN_CONTAINER_WIDGET_ID
           : widgetId,
         direction,
+        addToBottom: newWidget.detachFromLayout,
       },
     });
+    setTimeout(() => {
+      selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
+    }, 100);
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
   ) => {
-    const reflowedBlocks: WidgetDraggingBlock[] = reflowedPositionsUpdatesWidgets.map(
-      (each) => {
+    const reflowedBlocks: WidgetDraggingBlock[] =
+      reflowedPositionsUpdatesWidgets.map((each) => {
         const widget = allWidgets[each.id];
         return {
           left: each.left * snapColumnSpace,
@@ -301,8 +305,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           detachFromLayout: widget.detachFromLayout,
           type: widget.type,
         };
-      },
-    );
+      });
     const reflowedIds = reflowedPositionsUpdatesWidgets.map((each) => each.id);
     const allUpdatedBlocks = [...drawingBlocks, ...reflowedBlocks];
     const cannotDrop = allUpdatedBlocks.some((each) => {

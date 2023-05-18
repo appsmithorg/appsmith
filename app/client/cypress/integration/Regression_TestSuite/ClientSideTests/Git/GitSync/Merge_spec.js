@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let repoName;
 let childBranchKey = "ChildBranch";
 let mainBranch = "master";
-describe("Git sync modal: merge tab", function() {
+describe("Git sync modal: merge tab", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -20,7 +20,7 @@ describe("Git sync modal: merge tab", function() {
     });
   });
 
-  it("1. Verify the functionality of the default dropdown under merge tab", function() {
+  it("1. Verify the functionality of the default dropdown under merge tab", function () {
     cy.get(commonLocators.canvas).click({ force: true });
     _.gitSync.CreateGitBranch(childBranchKey);
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
@@ -33,9 +33,7 @@ describe("Git sync modal: merge tab", function() {
     cy.get(gitSyncLocators.mergeButton).should("be.disabled");
     cy.wait(3000);
     cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
-    cy.get(commonLocators.dropdownmenu)
-      .contains(mainBranch)
-      .click();
+    cy.get(commonLocators.dropdownmenu).contains(mainBranch).click();
     _.agHelper.AssertElementAbsence(_.gitSync._checkMergeability, 30000);
 
     cy.wait("@mergeStatus", { timeout: 35000 }).should(

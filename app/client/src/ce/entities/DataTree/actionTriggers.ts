@@ -1,5 +1,5 @@
-import { NavigationTargetType_Dep } from "sagas/ActionExecution/NavigateActionSaga";
-import { TypeOptions } from "react-toastify";
+import type { NavigationTargetType_Dep } from "sagas/ActionExecution/NavigateActionSaga";
+import type { TypeOptions } from "react-toastify";
 
 export type ActionTriggerKeys =
   | "RUN_PLUGIN_ACTION"

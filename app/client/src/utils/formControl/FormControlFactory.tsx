@@ -1,5 +1,5 @@
-import { ControlType } from "constants/PropertyControlConstants";
-import {
+import type { ControlType } from "constants/PropertyControlConstants";
+import type {
   ControlBuilder,
   ControlProps,
   ControlData,

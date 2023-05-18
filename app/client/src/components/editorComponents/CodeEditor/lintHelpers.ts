@@ -1,18 +1,19 @@
 import { last, isNumber, isEmpty } from "lodash";
-import { Annotation, Position } from "codemirror";
-import { isDynamicValue, LintError } from "utils/DynamicBindingUtils";
+import type { Annotation, Position } from "codemirror";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
 import {
   CODE_EDITOR_START_POSITION,
   LintTooltipDirection,
   VALID_JS_OBJECT_BINDING_POSITION,
 } from "./constants";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
-  JS_OBJECT_START_STATEMENT,
+  INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
 } from "workers/Linting/constants";
 export const getIndexOfRegex = (
   str: string,
@@ -122,28 +123,10 @@ export const getLintAnnotations = (
   const lintErrors = filterInvalidLintErrors(errors, contextData);
   const lines = value.split("\n");
 
-  // The binding position of every valid JS Object is constant, so we need not
-  // waste time checking for position of binding.
-  // For JS Objects not starting with the expected "export default" statement, we return early
-  // with a "invalid start statement" lint error
-  if (
-    isJSObject &&
-    !isEmpty(lines) &&
-    !lines[0].startsWith(JS_OBJECT_START_STATEMENT)
-  ) {
-    return [
-      {
-        from: CODE_EDITOR_START_POSITION,
-        to: getFirstNonEmptyPosition(lines),
-        message: INVALID_JSOBJECT_START_STATEMENT,
-        severity: Severity.ERROR,
-      },
-    ];
-  }
-
   lintErrors.forEach((error) => {
     const {
       ch,
+      code,
       errorMessage,
       line,
       originalBinding,
@@ -154,7 +137,18 @@ export const getLintAnnotations = (
     if (!originalBinding) {
       return annotations;
     }
-
+    if (code === INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE) {
+      // The binding position of every valid JS Object is constant, so we need not
+      // waste time checking for position of binding.
+      // For JS Objects not starting with the expected "export default" statement, we return early
+      // with a "invalid start statement" lint error
+      return annotations.push({
+        from: CODE_EDITOR_START_POSITION,
+        to: getFirstNonEmptyPosition(lines),
+        message: INVALID_JSOBJECT_START_STATEMENT,
+        severity: Severity.ERROR,
+      });
+    }
     let variableLength = 1;
     // Find the variable with minimal length
     if (variables) {

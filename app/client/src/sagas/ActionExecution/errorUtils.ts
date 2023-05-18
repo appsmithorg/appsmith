@@ -1,16 +1,14 @@
-import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
-import { Types } from "utils/TypeHelpers";
-import {
-  ActionTriggerKeys,
-  getActionTriggerFunctionNames,
-} from "@appsmith/workers/Evaluation/fns/index";
+import type { Types } from "utils/TypeHelpers";
+import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -60,6 +58,7 @@ export class ActionValidationError extends TriggerFailureError {
 
 export const logActionExecutionError = (
   errorMessage: string,
+  isExecuteJSFunc = true,
   source?: TriggerSource,
   triggerPropertyName?: string,
 ) => {
@@ -87,18 +86,18 @@ export const logActionExecutionError = (
   //     },
   //   ]);
   // }
-
-  Toaster.show({
-    text: errorMessage,
-    variant: Variant.danger,
-    showDebugButton: !!triggerPropertyName && {
-      component: DebugButton,
-      componentProps: {
-        className: "t--toast-debug-button",
-        source: "TOAST",
+  isExecuteJSFunc &&
+    Toaster.show({
+      text: errorMessage,
+      variant: Variant.danger,
+      showDebugButton: !!triggerPropertyName && {
+        component: DebugButton,
+        componentProps: {
+          className: "t--toast-debug-button",
+          source: "TOAST",
+        },
       },
-    },
-  });
+    });
 };
 
 /*

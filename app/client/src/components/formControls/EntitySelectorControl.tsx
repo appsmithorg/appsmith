@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import { ControlProps, FormConfigType } from "./BaseControl";
+import type { ControlProps, FormConfigType } from "./BaseControl";
 import { allowedControlTypes } from "components/formControls/utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Colors } from "constants/Colors";

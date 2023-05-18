@@ -1,8 +1,8 @@
 import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import { Action } from "entities/Action";
-import { WidgetProps } from "widgets/BaseWidget";
-import { Severity } from "entities/AppsmithConsole";
+import type { Action } from "entities/Action";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -10,7 +10,10 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -19,6 +22,12 @@ export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 export type FormDatasourceButtonConfigs = Record<string, string[]>;
+
+function hasNonStringSemicolons(stringifiedJS: string) {
+  // This regex pattern matches semicolons that are not inside single or double quotes
+  const regex = /;(?=(?:[^']*'[^']*')*[^']*$)(?=(?:[^"]*"[^"]*")*[^"]*$)/g;
+  return regex.test(stringifiedJS);
+}
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
@@ -103,13 +112,29 @@ export const combineDynamicBindings = (
   return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
-        return jsSnippets[index];
+        return addOperatorPrecedenceIfNeeded(jsSnippets[index]);
       } else {
-        return `'${segment}'`;
+        return JSON.stringify(segment);
       }
     })
     .join(" + ");
 };
+
+/**
+ * Operator precedence example: JSCode =  Color is  {{ currentItem.color || "Blue"}}  PS: currentItem.color is undefined
+ *  Previously this code would be transformed to  (() =>  "Color is" + currentItem.color || "Blue")() which evaluates to "Color is undefined" rather than "Color is Blue"
+ * with precedence we'd have (() =>  "Color is" + (currentItem.color || "Blue"))() which evaluates to Color is Blue,  because the parentheses change the order of evaluation, giving  higher precedence in this case to (currentItem.color || "Blue").
+ */
+function addOperatorPrecedenceIfNeeded(stringifiedJS: string) {
+  /**
+   *  parenthesis doesn't work with ; i.e Color is  {{ currentItem.color || "Blue" ;}} cant be (() =>  "Color is" + (currentItem.color || "Blue";))()
+   */
+  if (!hasNonStringSemicolons(stringifiedJS)) {
+    return `(${stringifiedJS})`;
+  }
+
+  return stringifiedJS;
+}
 
 export enum EvalErrorTypes {
   CYCLICAL_DEPENDENCY_ERROR = "CYCLICAL_DEPENDENCY_ERROR",
@@ -192,10 +217,7 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-export const isPathDynamicTrigger = (
-  widget: WidgetProps,
-  path: string,
-): boolean => {
+export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   if (
     widget &&
     widget.dynamicTriggerPathList &&
@@ -306,9 +328,8 @@ const getNestedEvalPath = (
   fullPath = true,
   isPopulated = false,
 ) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
   const nestedPath = isPopulated
     ? `${pathType}.${propertyPath}`
     : `${pathType}.['${propertyPath}']`;
@@ -354,6 +375,15 @@ export enum PropertyEvaluationErrorType {
   PARSE = "PARSE",
   LINT = "LINT",
 }
+
+export enum PropertyEvaluationErrorCategory {
+  INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD = "INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD",
+}
+export interface PropertyEvaluationErrorKind {
+  category: PropertyEvaluationErrorCategory;
+  rootcause: string;
+}
+
 export interface DataTreeError {
   raw: string;
   errorMessage: Error;
@@ -365,6 +395,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
+  kind?: PropertyEvaluationErrorKind;
 }
 
 export interface LintError extends DataTreeError {
@@ -375,6 +406,7 @@ export interface LintError extends DataTreeError {
   code: string;
   line: number;
   ch: number;
+  originalPath?: string;
 }
 
 export interface DataTreeEvaluationProps {
@@ -533,8 +565,11 @@ export function getEntityId(entity: DataTreeEntity) {
   if (isJSAction(entity)) return entity.actionId;
 }
 
-export function getEntityName(entity: DataTreeEntity) {
-  if (isAction(entity)) return entity.name;
+export function getEntityName(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+) {
+  if (isAction(entity)) return entityConfig.name;
   if (isWidget(entity)) return entity.widgetName;
-  if (isJSAction(entity)) return entity.name;
+  if (isJSAction(entity)) return entityConfig.name;
 }

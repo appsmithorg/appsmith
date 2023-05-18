@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -190,6 +191,13 @@ public class GitFileUtils {
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
                     String body = newAction.getUnpublishedAction().getActionConfiguration().getBody() != null ? newAction.getUnpublishedAction().getActionConfiguration().getBody() : "";
+
+                    // This is a special case where we are handling REMOTE type plugins based actions such as Twilio
+                    // The user configured values are stored in a attribute called formData which is a map unlike the body
+                    if (newAction.getPluginType().toString().equals("REMOTE") && newAction.getUnpublishedAction().getActionConfiguration().getFormData() != null) {
+                        body = new Gson().toJson(newAction.getUnpublishedAction().getActionConfiguration().getFormData(), Map.class);
+                        newAction.getUnpublishedAction().getActionConfiguration().setFormData(null);
+                    }
                     // This is a special case where we are handling JS actions as we don't want to commit the body of JS actions
                     if (newAction.getPluginType().equals(PluginType.JS)) {
                         newAction.getUnpublishedAction().getActionConfiguration().setBody(null);
@@ -412,8 +420,15 @@ public class GitFileUtils {
                 // With the file version v4 we have split the actions and metadata separately into two files
                 // So we need to set the body to the unpublished action
                 String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
-                if (actionBody != null && (actionBody.containsKey(keyName))) {
-                    newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                if (actionBody != null && (actionBody.containsKey(keyName)) && !StringUtils.isEmpty(actionBody.get(keyName))) {
+                    // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
+                    // deserialized separately unlike the body which is stored as string in the db.
+                    if (newAction.getPluginType().toString().equals("REMOTE")) {
+                        Map<String, Object> formData = new Gson().fromJson(actionBody.get(keyName), Map.class);
+                        newAction.getUnpublishedAction().getActionConfiguration().setFormData(formData);
+                    } else {
+                        newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                    }
                 }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionDTO will be same, so we create a deep copy for the published version for action from

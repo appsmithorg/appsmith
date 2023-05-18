@@ -4,8 +4,8 @@ import {
   apiFailureResponseInterceptor,
   axiosConnectionAbortedCode,
 } from "./ApiUtils";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { ActionExecutionResponse } from "api/ActionAPI";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { ActionExecutionResponse } from "api/ActionAPI";
 import {
   createMessage,
   ERROR_0,
@@ -41,9 +41,8 @@ describe("axios api interceptors", () => {
         },
       };
 
-      const interceptedResponse: ActionExecutionResponse = apiSuccessResponseInterceptor(
-        response,
-      );
+      const interceptedResponse: ActionExecutionResponse =
+        apiSuccessResponseInterceptor(response);
 
       expect(interceptedResponse).toHaveProperty("clientMeta");
       expect(interceptedResponse.clientMeta).toHaveProperty("size");
@@ -64,9 +63,8 @@ describe("axios api interceptors", () => {
         },
       };
 
-      const interceptedResponse: ActionExecutionResponse = apiSuccessResponseInterceptor(
-        response,
-      );
+      const interceptedResponse: ActionExecutionResponse =
+        apiSuccessResponseInterceptor(response);
       expect(interceptedResponse).toBe("Test data");
     });
   });

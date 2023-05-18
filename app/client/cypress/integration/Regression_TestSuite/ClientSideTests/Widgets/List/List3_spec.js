@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/listRegression3Dsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Binding the list widget with text widget", function() {
+describe("Binding the list widget with text widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Validate text widget data based on changes in list widget Data3", function() {
+  it("Validate text widget data based on changes in list widget Data3", function () {
     cy.PublishtheApp();
     cy.wait(5000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(

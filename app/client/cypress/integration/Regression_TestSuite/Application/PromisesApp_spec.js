@@ -1,19 +1,19 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
-const homePage = require("../../../locators/HomePage");
+import homePage from "../../../locators/HomePage";
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 
-describe("JSEditor tests", function() {
+describe("JSEditor tests", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
     cy.fixture("datasources").then((datasourceFormData) => {
-    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
-    _.apiPage.RunAPI();
-    _.jsEditor.CreateJSObject(
-      `export default {
+      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
+      _.apiPage.RunAPI();
+      _.jsEditor.CreateJSObject(
+        `export default {
         myFun1: async () => { //comment
           await this.clearStore()		//clear store value before running the case
           return resetWidget('Switch1')
@@ -40,55 +40,53 @@ describe("JSEditor tests", function() {
            })
         }
       }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-      },
-    );
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    // verify text in the text widget
-    cy.get(".t--draggable-textwidget span")
-      .eq(5)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Green and will default to undefined",
-        );
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+        },
+      );
+      _.entityExplorer.SelectEntityByName("Page1", "Pages");
+      // verify text in the text widget
+      cy.get(".t--draggable-textwidget span")
+        .eq(5)
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal(
+            "Step 4: Value is Green and will default to undefined",
+          );
+        });
+      // toggle off the switch
+      cy.get(".t--switch-widget-active .bp3-control-indicator").click({
+        force: true,
       });
-    // toggle off the switch
-    cy.get(".t--switch-widget-active .bp3-control-indicator").click({
-      force: true,
-    });
-    cy.get(homePage.toastMessage).should(
-      "contain",
-      "Switch widget has changed",
-    );
+      cy.get(homePage.toastMessage).should(
+        "contain",
+        "Switch widget has changed",
+      );
 
-    // select an option from select widget
-    cy.get(".bp3-button.select-button").click({ force: true });
-    cy.get(".menu-item-text")
-      .eq(2)
-      .click({ force: true });
-    cy.wait(2000);
-    // verify text in the text widget
-    cy.get(".t--draggable-textwidget span")
-      .eq(5)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Red and will default to undefined",
-        );
+      // select an option from select widget
+      cy.get(".bp3-button.select-button").click({ force: true });
+      cy.get(".menu-item-text").eq(2).click({ force: true });
+      cy.wait(2000);
+      // verify text in the text widget
+      cy.get(".t--draggable-textwidget span")
+        .eq(5)
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal(
+            "Step 4: Value is Red and will default to undefined",
+          );
+        });
+      // move to page  2 on table widget
+      cy.get(commonlocators.tableNextPage).click();
+      cy.get(".t--table-widget-page-input").within(() => {
+        cy.get("input.bp3-input").should("have.value", "2");
       });
-    // move to page  2 on table widget
-    cy.get(commonlocators.tableNextPage).click();
-    cy.get(".t--table-widget-page-input").within(() => {
-      cy.get("input.bp3-input").should("have.value", "2");
-    });
-    cy.wait(3000);
-    // hit audio play button and trigger actions
-    /* cy.openPropertyPane("audiowidget");
+      cy.wait(3000);
+      // hit audio play button and trigger actions
+      /* cy.openPropertyPane("audiowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -112,7 +110,7 @@ describe("JSEditor tests", function() {
       "Success running API query",
       "GREEN",
     ); */
-    })
+    });
   });
 
   //Skipping reason? to add

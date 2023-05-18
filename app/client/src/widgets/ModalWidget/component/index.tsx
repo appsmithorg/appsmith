@@ -1,20 +1,14 @@
-import React, {
-  ReactNode,
-  RefObject,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { ReactNode, RefObject } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { Classes, Overlay } from "@blueprintjs/core";
 import { get, omit } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { closeTableFilterPane } from "actions/widgetActions";
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import type { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
@@ -23,11 +17,13 @@ import {
 } from "components/editorComponents/ResizeStyledComponents";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
+import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
 const Container = styled.div<{
   width?: number;
@@ -40,6 +36,8 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
+  headerHeight?: number;
+  smallHeaderHeight?: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -47,13 +45,16 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: var(--view-mode-header-height, 0);
+      top: ${(props) =>
+        `calc(${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        })`};
       right: 0;
       bottom: 0;
       height: ${(props) =>
-        props.isEditMode
-          ? "100vh"
-          : `calc(100vh - var(--view-mode-header-height, 0))`};
+        `calc(100vh - (${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        }))`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -139,17 +140,16 @@ export type ModalComponentProps = {
   background?: string;
   borderRadius?: string;
   settingsComponent?: ReactNode;
+  isAutoLayout: boolean;
 };
 
 /* eslint-disable react/display-name */
 export default function ModalComponent(props: ModalComponentProps) {
-  const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
-    null,
-  );
+  const modalContentRef: RefObject<HTMLDivElement> =
+    useRef<HTMLDivElement>(null);
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-  const resizeRef = React.useRef<HTMLDivElement>(null);
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -170,6 +170,8 @@ export default function ModalComponent(props: ModalComponentProps) {
 
     return omit(allHandles, disabledResizeHandles);
   }, [disabledResizeHandles]);
+  const headerHeight = useSelector(getAppViewHeaderHeight);
+  const theme = useSelector(getCurrentThemeDetails);
 
   useEffect(() => {
     setTimeout(() => {
@@ -227,7 +229,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   const isVerticalResizeEnabled = useMemo(() => {
-    return !props.isDynamicHeightEnabled && enableResize;
+    return !props.isDynamicHeightEnabled && enableResize && !props.isAutoLayout;
   }, [props.isDynamicHeightEnabled, enableResize]);
 
   const getResizableContent = () => {
@@ -243,7 +245,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         isColliding={() => false}
         onStart={onResizeStart}
         onStop={onResizeStop}
-        ref={resizeRef}
         resizeDualSides
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
@@ -285,12 +286,14 @@ export default function ModalComponent(props: ModalComponentProps) {
       >
         <Container
           bottom={props.bottom}
+          headerHeight={headerHeight}
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
           maxWidth={props.maxWidth}
           minSize={props.minSize}
           right={props.bottom}
+          smallHeaderHeight={theme.smallHeaderHeight}
           top={props.top}
           width={props.width}
           zIndex={

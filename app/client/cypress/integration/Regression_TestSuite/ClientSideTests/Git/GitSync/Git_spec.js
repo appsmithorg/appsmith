@@ -26,7 +26,7 @@ let applicationId = null;
 let applicationName = null;
 
 let repoName;
-describe.skip("Git sync:", function() {
+describe.skip("Git sync:", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -52,7 +52,7 @@ describe.skip("Git sync:", function() {
     });
   });
 
-  it("1. Shows remote is ahead warning and conflict error during commit and push", function() {
+  it("1. Shows remote is ahead warning and conflict error during commit and push", function () {
     _.gitSync.CreateGitBranch(tempBranch, false);
     cy.get("@gitbranchName").then((branName) => {
       tempBranch = branName;
@@ -104,7 +104,7 @@ describe.skip("Git sync:", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("2. Detect conflicts when merging head to base branch", function() {
+  it("2. Detect conflicts when merging head to base branch", function () {
     cy.switchGitBranch(mainBranch);
     cy.get(explorerLocators.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
@@ -130,15 +130,13 @@ describe.skip("Git sync:", function() {
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.wait(5000); // wait for git status call to finish
     cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
-    cy.get(commonlocators.dropdownmenu)
-      .contains(mainBranch)
-      .click();
+    cy.get(commonlocators.dropdownmenu).contains(mainBranch).click();
     // assert conflicting status
     cy.contains(Cypress.env("MESSAGES").GIT_CONFLICTING_INFO());
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("3. Supports merging head to base branch", function() {
+  it("3. Supports merging head to base branch", function () {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
@@ -153,7 +151,7 @@ describe.skip("Git sync:", function() {
     cy.contains("NewPage");
   });
 
-  it("4. Enables pulling remote changes from bottom bar", function() {
+  it("4. Enables pulling remote changes from bottom bar", function () {
     _.gitSync.CreateGitBranch(tempBranch3, false);
     cy.get(explorerLocators.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
@@ -217,7 +215,7 @@ describe.skip("Git sync:", function() {
     cy.xpath("//span[@name='close-modal']").click({ force: true });
   });
 
-  it("5. Clicking '+' icon on bottom bar should open deploy popup", function() {
+  it("5. Clicking '+' icon on bottom bar should open deploy popup", function () {
     cy.get(gitSyncLocators.bottomBarCommitButton).click({ force: true });
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
     cy.get("[data-cy=t--tab-DEPLOY]").should("exist");

@@ -1,5 +1,8 @@
 {
-	"src/**/*.tsx": ["npx eslint --fix", "npx prettier --write"],
-	"cypress/**/*.js": ["npx eslint --fix", "npx prettier --write"],
-	"src/**/*.ts": ["npx eslint --fix", "npx prettier --write"]
+	"src/**/*.{js,ts,tsx}": ["npx eslint --fix"],
+	"src/**/*.{js,ts,tsx,css,md,json}": ["npx prettier --write"],
+	"cypress/**/*.{js,ts}": ["npx eslint --fix"],
+	"cypress/**/*.{js,ts,json}": ["npx prettier --write"],
+	"packages/**/*.{js,ts,tsx}": ["npx eslint --fix"],
+	"packages/**/*.{js,ts,tsx,css,mdx,json}": ["npx prettier --write"]
 }

@@ -1,10 +1,12 @@
-import API, { HttpMethod } from "api/Api";
-import { ApiResponse } from "./ApiResponses";
+import type { HttpMethod } from "api/Api";
+import API from "api/Api";
+import type { ApiResponse } from "./ApiResponses";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
-import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { Action, ActionViewMode } from "entities/Action";
-import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetType } from "constants/WidgetConstants";
+import type { AxiosPromise, CancelTokenSource } from "axios";
+import axios from "axios";
+import type { Action, ActionViewMode } from "entities/Action";
+import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -47,7 +49,14 @@ export interface ExecuteActionRequest extends APIRequest {
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;
-  paramProperties: Record<string, string | Record<string, string[]>>;
+  paramProperties: Record<
+    string,
+    | string
+    | Record<string, Array<string>>
+    | Record<string, string>
+    | Record<string, Record<string, Array<string>>>
+  >;
+  analyticsProperties?: Record<string, boolean>;
 }
 
 export type ExecuteActionResponse = ApiResponse & {
@@ -194,6 +203,7 @@ class ActionAPI extends API {
       headers: {
         accept: "application/json",
         "Content-Type": "multipart/form-data",
+        Expect: "100-continue",
       },
       cancelToken: ActionAPI.abortActionExecutionTokenSource.token,
     });

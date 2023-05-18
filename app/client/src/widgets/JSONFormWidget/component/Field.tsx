@@ -1,10 +1,12 @@
 import equal from "fast-deep-equal/es6";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { ControllerProps, useFormContext } from "react-hook-form";
+import type { ControllerProps } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { klona } from "klona";
 
-import FieldLabel, { FieldLabelProps } from "./FieldLabel";
+import type { FieldLabelProps } from "./FieldLabel";
+import FieldLabel from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 

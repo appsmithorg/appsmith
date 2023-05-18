@@ -1,9 +1,9 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import {
   SettingTypes,
   SettingSubtype,
-  Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import Accordion from "./Accordion";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";

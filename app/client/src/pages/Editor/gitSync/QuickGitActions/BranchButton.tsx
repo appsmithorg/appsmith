@@ -6,7 +6,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { Colors } from "constants/Colors";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
 import {

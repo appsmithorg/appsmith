@@ -5,12 +5,12 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Execute Action Functionality", function() {
+describe("Execute Action Functionality", function () {
   before(() => {
     homePage.ImportApp("executeAction.json");
   });
 
-  it("1. Checks whether execute action is getting called on page load only once", function() {
+  it("1. Checks whether execute action is getting called on page load only once", function () {
     agHelper.AssertElementVisible(locator._widgetInCanvas("textwidget"));
     deployMode.DeployApp();
 

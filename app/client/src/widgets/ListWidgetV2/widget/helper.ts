@@ -1,6 +1,8 @@
-import { WidgetBaseProps } from "widgets/BaseWidget";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { WidgetBaseProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { FlexLayer, LayerChild } from "utils/autoLayout/autoLayoutTypes";
+import { checkForOnClick } from "widgets/WidgetUtils";
 
 export const extractTillNestedListWidget = (
   flattenedWidgets: WidgetBaseProps["flattenedChildCanvasWidgets"],
@@ -76,4 +78,49 @@ export const getNumberOfChildListWidget = (
   );
 
   return numOfChildListWidget;
+};
+
+/**
+ * Create new flex layer objects from flexLayers argument by replacing widget Ids from rowReferences
+ * @param flexLayers
+ * @param rowReferences
+ * @returns
+ */
+export function getMetaFlexLayers(
+  flexLayers: FlexLayer[],
+  rowReferences: Record<string, string | undefined>,
+): FlexLayer[] {
+  const metaFlexLayers: FlexLayer[] = [];
+
+  for (const flexLayer of flexLayers) {
+    const { children } = flexLayer;
+
+    const metaFlexChildren: LayerChild[] = [];
+
+    for (const flexChild of children) {
+      if (rowReferences[flexChild.id]) {
+        const metaWidgetId = rowReferences[flexChild.id] || flexChild.id;
+        metaFlexChildren.push({
+          align: flexChild.align,
+          id: metaWidgetId,
+        });
+      }
+    }
+
+    metaFlexLayers.push({ children: metaFlexChildren });
+  }
+
+  return metaFlexLayers;
+}
+
+export const isTargetElementClickable = (e: React.MouseEvent<HTMLElement>) => {
+  const target = e.target as HTMLElement;
+  const isInput = target.tagName === "INPUT";
+  const hasControl = (target as HTMLLabelElement).control;
+  const parentHasControl = (target.parentElement as HTMLLabelElement).control;
+  const hasLink = (target as HTMLAnchorElement).href;
+
+  const hasOnClick = checkForOnClick(e);
+
+  return isInput || hasControl || parentHasControl || hasLink || hasOnClick;
 };

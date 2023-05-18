@@ -323,4 +323,27 @@ public class PolicyGeneratorCE {
 
         return new HashSet<>(policyMap.values());
     }
+
+    public Set<AclPermission> getChildPermissions(AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+        Set<AclPermission> childPermissionSet = new HashSet<>();
+        Set<AclPermission> lateralPermissions = lateralGraph.outgoingEdgesOf(aclPermission)
+                .stream().map(defaultEdge -> lateralGraph.getEdgeTarget(defaultEdge))
+                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
+                .collect(Collectors.toSet());
+        childPermissionSet.addAll(lateralPermissions);
+        Set<AclPermission> directChildPermissions = hierarchyGraph.outgoingEdgesOf(aclPermission)
+                .stream().map(defaultEdge -> hierarchyGraph.getEdgeTarget(defaultEdge))
+                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
+                .collect(Collectors.toSet());
+        childPermissionSet.addAll(directChildPermissions);
+        childPermissionSet.addAll(getAllChildPermissions(directChildPermissions, destinationEntity));
+        return childPermissionSet;
+    }
+
+    public Set<AclPermission> getAllChildPermissions(Collection<AclPermission> aclPermissions, Class<? extends BaseDomain> destinationEntity) {
+        return aclPermissions.stream()
+                .map(permission -> getChildPermissions(permission, destinationEntity))
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+    }
 }

@@ -1,17 +1,17 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import {
+import type {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { Stylesheet } from "entities/AppTheming";
-import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
+import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { Stylesheet } from "entities/AppTheming";
+import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
 const ControlTypes = getPropertyControlTypes();
-export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
+export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
   sectionName: string;

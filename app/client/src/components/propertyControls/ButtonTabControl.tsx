@@ -1,9 +1,11 @@
 import React from "react";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { ButtonGroup, ButtonGroupOption } from "design-system-old";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ButtonGroupOption } from "design-system-old";
+import { ButtonGroup } from "design-system-old";
 import produce from "immer";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,

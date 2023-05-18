@@ -1,6 +1,12 @@
 import { EventEmitter } from "events";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
+import type {
+  Patch,
+  UpdatedPathsMap,
+} from "workers/Evaluation/JSObject/JSVariableUpdates";
+import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
+import ExecutionMetaData from "./ExecutionMetaData";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -10,6 +16,8 @@ export enum BatchKey {
   process_store_updates = "process_store_updates",
   process_batched_triggers = "process_batched_triggers",
   process_batched_fn_execution = "process_batched_fn_execution",
+  process_js_variable_updates = "process_js_variable_updates",
+  process_batched_fn_invoke_log = "process_batched_fn_invoke_log",
 }
 
 const TriggerEmitter = new EventEmitter();
@@ -21,11 +29,11 @@ const TriggerEmitter = new EventEmitter();
  * @param task
  * @returns
  */
-export const priorityBatchedActionHandler = function(
-  task: (batchedData: unknown[]) => void,
+export function priorityBatchedActionHandler<T>(
+  task: (batchedData: T[]) => void,
 ) {
-  let batchedData: unknown[] = [];
-  return (data: unknown) => {
+  let batchedData: T[] = [];
+  return (data: T) => {
     if (batchedData.length === 0) {
       // Ref - https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide
       queueMicrotask(() => {
@@ -35,7 +43,7 @@ export const priorityBatchedActionHandler = function(
     }
     batchedData.push(data);
   };
-};
+}
 
 /**
  * This function is used to batch actions and send them to the main thread
@@ -44,7 +52,7 @@ export const priorityBatchedActionHandler = function(
  * @param deferredTask
  * @returns
  */
-export const deferredBatchedActionHandler = function(
+export const deferredBatchedActionHandler = function (
   deferredTask: (batchedData: unknown) => void,
 ) {
   let batchedData: unknown[] = [];
@@ -96,6 +104,7 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
       try {
         acc.JSExecutionData[name] = self.structuredClone(data);
       } catch (e) {
+        acc.JSExecutionData[name] = undefined;
         acc.JSExecutionErrors[name] = {
           message: `Execution of ${name} returned an unserializable data`,
         };
@@ -115,5 +124,37 @@ TriggerEmitter.on(
   BatchKey.process_batched_fn_execution,
   fnExecutionDataHandler,
 );
+
+const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
+  (batchedData) => {
+    const updatesMap: UpdatedPathsMap = {};
+    for (const patch of batchedData) {
+      updatesMap[patch.path] = patch;
+    }
+    applyJSVariableUpdatesToEvalTree(updatesMap);
+  },
+);
+
+export const jsVariableUpdatesHandlerWrapper = (patch: Patch) => {
+  if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking)
+    return;
+
+  jsVariableUpdatesHandler(patch);
+};
+
+TriggerEmitter.on(
+  BatchKey.process_js_variable_updates,
+  jsVariableUpdatesHandlerWrapper,
+);
+
+export const fnInvokeLogHandler = priorityBatchedActionHandler((data) => {
+  const set = new Set([...data]);
+  WorkerMessenger.ping({
+    method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
+    data: [...set],
+  });
+});
+
+TriggerEmitter.on(BatchKey.process_batched_fn_invoke_log, fnInvokeLogHandler);
 
 export default TriggerEmitter;

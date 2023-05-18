@@ -1,4 +1,4 @@
-import { LogLevelDesc } from "loglevel";
+import type { LogLevelDesc } from "loglevel";
 
 export type SentryConfig = {
   dsn: string;
@@ -37,10 +37,6 @@ export interface AppsmithUIConfigs {
   };
 
   enableRapidAPI: boolean;
-  enableGoogleOAuth: boolean;
-  enableGithubOAuth: boolean;
-  disableLoginForm: boolean;
-  disableSignup: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 
@@ -64,4 +60,6 @@ export interface AppsmithUIConfigs {
   appsmithSupportEmail: string;
   hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
+  pricingUrl: string;
+  customerPortalUrl: string;
 }

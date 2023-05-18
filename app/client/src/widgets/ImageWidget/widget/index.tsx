@@ -1,18 +1,31 @@
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import * as React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import ImageComponent from "../component";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { Stylesheet } from "entities/AppTheming";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
+      "!url": "https://docs.appsmith.com/widget-reference/image",
+      image: "string",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
   }
 
   static getPropertyPaneContentConfig() {
@@ -154,12 +167,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when user clicks on an image",
+            helpText: "when user clicks on an image",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",

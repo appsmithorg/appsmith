@@ -1,11 +1,9 @@
-import React, { ReactElement } from "react";
-import {
-  Field,
-  WrappedFieldMetaProps,
-  WrappedFieldInputProps,
-} from "redux-form";
+import type { ReactElement } from "react";
+import React from "react";
+import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
+import { Field } from "redux-form";
 import { TagInput } from "design-system-old";
-import { Intent } from "constants/DefaultTheme";
+import type { Intent } from "constants/DefaultTheme";
 
 const renderComponent = (
   componentProps: TagListFieldProps & {

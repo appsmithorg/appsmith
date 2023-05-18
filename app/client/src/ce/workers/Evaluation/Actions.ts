@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalContext } from "workers/Evaluation/evaluate";
-import { EvaluationVersion } from "api/ApplicationApi";
+
+import set from "lodash/set";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvalContext } from "workers/Evaluation/evaluate";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import { set } from "lodash";
 import {
   entityFns,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
+import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
+import { klona } from "klona/full";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -33,28 +36,34 @@ export enum ExecutionType {
 export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: EvalContext;
   dataTree: Readonly<DataTree>;
-  skipEntityFunctions?: boolean;
+  removeEntityFunctions?: boolean;
   isTriggerBased: boolean;
 }) => {
   const {
     dataTree,
     EVAL_CONTEXT,
     isTriggerBased,
-    skipEntityFunctions = false,
+    removeEntityFunctions = false,
   } = args;
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
-    EVAL_CONTEXT[entityName] = entity;
-    if (skipEntityFunctions || !isTriggerBased) continue;
+    EVAL_CONTEXT[entityName] = getEntityForEvalContext(entity, entityName);
+    if (!removeEntityFunctions && !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
-      const func = entityFn.fn(entity);
+      const func = entityFn.fn(entity, entityName);
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       set(entityFunctionCollection, fullPath, func);
     }
   }
+
+  if (removeEntityFunctions)
+    return removeEntityFunctionsFromEvalContext(
+      entityFunctionCollection,
+      EVAL_CONTEXT,
+    );
 
   // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
   if (!isTriggerBased) return;
@@ -86,4 +95,19 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
+};
+
+export const removeEntityFunctionsFromEvalContext = (
+  entityFunctionCollection: Record<string, Record<string, Function>>,
+  evalContext: EvalContext,
+) => {
+  for (const [entityName, funcObj] of Object.entries(
+    entityFunctionCollection,
+  )) {
+    const entity = klona(evalContext[entityName]);
+    Object.keys(funcObj).forEach((entityFn) => {
+      delete entity[entityFn];
+    });
+    evalContext[entityName] = entity;
+  }
 };

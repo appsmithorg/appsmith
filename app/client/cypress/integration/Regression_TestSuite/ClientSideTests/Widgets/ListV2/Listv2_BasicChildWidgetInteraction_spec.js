@@ -64,9 +64,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.inputWidget).should("exist");
 
     // Type value
-    cy.get(publishLocators.inputWidget)
-      .find("input")
-      .type("abcd");
+    cy.get(publishLocators.inputWidget).find("input").type("abcd");
 
     // Verify if the value got typed
     cy.get(publishLocators.inputWidget)
@@ -176,9 +174,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     );
 
     // Verify checked
-    cy.get(publishLocators.switchwidget)
-      .find("input")
-      .should("be.checked");
+    cy.get(publishLocators.switchwidget).find("input").should("be.checked");
     cy.wait(1000);
     cy.waitUntil(() =>
       cy

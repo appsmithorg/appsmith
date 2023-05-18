@@ -36,18 +36,23 @@ import {
   selectQueuedLibraries,
   selectStatusForURL,
 } from "selectors/entitiesSelector";
-import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   clearInstalls,
   installLibraryInit,
   toggleInstaller,
 } from "actions/JSLibraryActions";
 import classNames from "classnames";
-import { TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { importRemixIcon } from "design-system-old";
+
+const SaveSuccessIcon = importRemixIcon(
+  () => import("remixicon-react/CheckboxCircleFillIcon"),
+);
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
@@ -206,7 +211,8 @@ const StatusIconWrapper = styled.div<{
 `;
 
 function isValidJSFileURL(url: string) {
-  const JS_FILE_REGEX = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  const JS_FILE_REGEX =
+    /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
   return JS_FILE_REGEX.test(url);
 }
 
@@ -216,9 +222,10 @@ function StatusIcon(props: {
   action?: any;
 }) {
   const { action, isInstalled = false, status } = props;
-  const actionProps = useMemo(() => (action ? { onClick: action } : {}), [
-    action,
-  ]);
+  const actionProps = useMemo(
+    () => (action ? { onClick: action } : {}),
+    [action],
+  );
   if (status === InstallState.Success || isInstalled)
     return (
       <StatusIconWrapper addHoverState={false} className="installed">
@@ -411,7 +418,11 @@ export function Installer(props: { left: number }) {
   );
 
   return !isOpen ? null : (
-    <Wrapper className="bp3-popover" left={left} ref={installerRef}>
+    <Wrapper
+      className={`bp3-popover ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      left={left}
+      ref={installerRef}
+    >
       <div className="installation-header">
         <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
@@ -502,7 +513,7 @@ function LibraryCard({
   lib,
   onClick,
 }: {
-  lib: typeof recommendedLibraries[0];
+  lib: (typeof recommendedLibraries)[0];
   onClick: (url: string) => void;
   isLastCard: boolean;
 }) {

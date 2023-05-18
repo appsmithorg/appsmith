@@ -1,7 +1,7 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Multi Tree Select Widget", function() {
+describe("Multi Tree Select Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });

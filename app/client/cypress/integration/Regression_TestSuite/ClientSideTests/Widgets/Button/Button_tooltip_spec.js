@@ -3,12 +3,12 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Button Widget Functionality - Validate tooltip visibility", function() {
+describe("Button Widget Functionality - Validate tooltip visibility", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Validate show/hide tooltip feature on normal button", function() {
+  it("Validate show/hide tooltip feature on normal button", function () {
     cy.openPropertyPane("buttonwidget");
     // Add tooltip
     cy.testJsontext(
@@ -32,7 +32,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function()
       .should("not.exist");
   });
 
-  it("Validate show/hide tooltip feature for a disabled button on deploy", function() {
+  it("Validate show/hide tooltip feature for a disabled button on deploy", function () {
     // Disable the button
     cy.get(".t--property-control-disabled .bp3-switch").click({ force: true });
     cy.validateDisableWidget(

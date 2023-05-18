@@ -2,33 +2,42 @@ import { get } from "lodash";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
 } from "./widget/helper";
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { GridDefaults } from "constants/WidgetConstants";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const DEFAULT_LIST_DATA = [
   {
     id: "001",
     name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
   },
   {
     id: "002",
     name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
   },
   {
     id: "003",
     name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
   },
 ];
 
@@ -50,7 +59,8 @@ export const CONFIG = {
     columns: 24,
     animateLoading: true,
     gridType: "vertical",
-    positioning: Positioning.Fixed,
+    //positioning: Positioning.Fixed,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     responsiveBehavior: ResponsiveBehavior.Fill,
     dynamicBindingPathList: [
       {
@@ -122,6 +132,7 @@ export const CONFIG = {
                     containerStyle: "card",
                     dragDisabled: true,
                     isDeletable: false,
+                    isListItemContainer: true,
                     disallowCopy: true,
                     noContainerOffset: true,
                     positioning: Positioning.Fixed,
@@ -153,8 +164,9 @@ export const CONFIG = {
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
-                                    defaultImage:
-                                      "https://assets.appsmith.com/widgets/default.png",
+                                    defaultImage: getAssetUrl(
+                                      `${ASSETS_CDN_URL}/widgets/default.png`,
+                                    ),
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",
@@ -259,6 +271,114 @@ export const CONFIG = {
           },
         },
         {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (
+            widget: FlattenedWidgetProps,
+            widgets: CanvasWidgetsReduxState,
+            parent: FlattenedWidgetProps,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return [];
+
+            const firstCanvas = get(widget, "children.0");
+
+            //get first container widget
+            const containerId = get(widget, "children.0.children.0");
+            const containerWidget = widgets[containerId];
+
+            //get first Canvas Widget inside the container
+            const canvasId = get(containerWidget, "children.0");
+            const canvasWidget: FlattenedWidgetProps = widgets[canvasId];
+
+            //get Children inside Canvas
+            const childrenIds: string[] = get(canvasWidget, "children") || [];
+            const children: FlattenedWidgetProps[] = childrenIds.map(
+              (childId) => widgets[childId],
+            );
+
+            //Separate the text widget and image widget
+            const textWidgets = children.filter(
+              (child) => child.type === "TEXT_WIDGET",
+            );
+            const imageWidget = children.filter(
+              (child) => child.type === "IMAGE_WIDGET",
+            )?.[0];
+
+            //Create flex layer object based on the children
+            const flexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: textWidgets[0].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                  {
+                    id: imageWidget.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: textWidgets[1].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                ],
+              },
+            ];
+
+            const firstCanvasFlexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: containerId,
+                    align: FlexLayerAlignment.Center,
+                  },
+                ],
+              },
+            ];
+
+            //create properties to be updated
+            return getWidgetBluePrintUpdates({
+              [firstCanvas.widgetId]: {
+                flexLayers: firstCanvasFlexLayers,
+                positioning: Positioning.Vertical,
+              },
+              [containerId]: {
+                positioning: Positioning.Vertical,
+                isFlexChild: true,
+              },
+              [canvasWidget.widgetId]: {
+                flexLayers,
+                useAutoLayout: true,
+                positioning: Positioning.Vertical,
+              },
+              [textWidgets[0].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+              },
+              [textWidgets[1].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [imageWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 0,
+                bottomRow: 6,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+                widthInPercentage: 16 / GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+            });
+          },
+        },
+        {
           type: BlueprintOperationTypes.CHILD_OPERATIONS,
           fn: (
             widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -347,6 +467,20 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "300px",
+          };
+        },
+      },
+    ],
   },
 };
 

@@ -4,20 +4,23 @@ import React from "react";
 
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
-import { RadioOption } from "../constants";
+import type { RadioOption } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 /**
  * Validation rules:
@@ -178,6 +181,18 @@ function defaultOptionValidation(
 }
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
+      "!url": "https://docs.appsmith.com/widget-reference/radio",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      options: "[$__dropdownOption__$]",
+      selectedOptionValue: "string",
+      isRequired: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -196,8 +211,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               params: {
                 fn: optionsCustomValidation,
                 expected: {
-                  type:
-                    'Array<{ "label": "string", "value": "string" | number}>',
+                  type: 'Array<{ "label": "string", "value": "string" | number}>',
                   example: `[{"label": "One", "value": "one"}]`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
@@ -252,6 +266,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -378,13 +393,11 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "when a user changes the selected option",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",

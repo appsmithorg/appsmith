@@ -3,7 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Dynamic Height Width validation with multiple containers and text widget", function() {
+describe("Dynamic Height Width validation with multiple containers and text widget", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -11,7 +11,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
-  it("Validate change with auto height width for widgets", function() {
+  it("Validate change with auto height width for widgets", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height";
     cy.addDsl(dsl);
@@ -54,11 +54,9 @@ describe("Dynamic Height Width validation with multiple containers and text widg
                           .type(`{${modifierKey}}a`)
                           .then(($cm) => {
                             if ($cm.val() !== "") {
-                              cy.get(".CodeMirror textarea")
-                                .first()
-                                .clear({
-                                  force: true,
-                                });
+                              cy.get(".CodeMirror textarea").first().clear({
+                                force: true,
+                              });
                             }
                           });
                         cy.wait("@updateLayout");

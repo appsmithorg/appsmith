@@ -1,9 +1,11 @@
 import { Icon } from "@blueprintjs/core";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
-import React, { SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import type { RouteComponentProps } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
@@ -210,14 +212,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   };
   if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
     dispatch({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: false,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: "",
-    });
-    dispatch({
       type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
       payload: true,
     });
@@ -232,16 +226,15 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         history.push(onboardingCheckListUrl({ pageId }));
       }}
     >
-      {!isFirstTimeUserOnboardingComplete && (
-        <StyledClose
-          className="hover-icons"
-          color={Colors.GREY_10}
-          data-cy="statusbar-skip"
-          icon="cross"
-          iconSize={14}
-          onClick={endFirstTimeUserOnboarding}
-        />
-      )}
+      <StyledClose
+        className="hover-icons"
+        color={Colors.GREY_10}
+        data-cy="statusbar-skip"
+        icon="cross"
+        iconSize={14}
+        onClick={endFirstTimeUserOnboarding}
+      />
+
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>

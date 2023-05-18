@@ -2,12 +2,15 @@ import React from "react";
 import { Button, Size } from "design-system-old";
 
 import Page from "./Page";
+import { createMessage } from "@appsmith/constants/messages";
 import {
-  createMessage,
-  PAGE_SERVER_UNAVAILABLE_DESCRIPTION,
+  PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES,
   PAGE_SERVER_UNAVAILABLE_ERROR_CODE,
   PAGE_SERVER_UNAVAILABLE_TITLE,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 function ServerUnavailable() {
   return (
@@ -24,9 +27,9 @@ function ServerUnavailable() {
           variant="info"
         />
       }
-      description={createMessage(PAGE_SERVER_UNAVAILABLE_DESCRIPTION)}
       errorCode={createMessage(PAGE_SERVER_UNAVAILABLE_ERROR_CODE)}
-      title={createMessage(PAGE_SERVER_UNAVAILABLE_TITLE)}
+      errorMessages={PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES(!!cloudHosting)}
+      title={createMessage(PAGE_SERVER_UNAVAILABLE_TITLE, !!cloudHosting)}
     />
   );
 }

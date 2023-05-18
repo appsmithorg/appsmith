@@ -1,7 +1,7 @@
-import { AppState } from "@appsmith/reducers";
-import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
-import PopperJS, { Placement, PopperOptions } from "popper.js";
+import type { Placement, PopperOptions } from "popper.js";
+import PopperJS from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -9,6 +9,11 @@ import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
 // import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
+import { importSvg } from "design-system-old";
+
+const DragHandleIcon = importSvg(
+  () => import("assets/icons/ads/app-icons/draghandler.svg"),
+);
 
 export type PopperProps = {
   boundaryParent?: Element | PopperJS.Boundary;
@@ -163,7 +168,7 @@ export default (props: PopperProps) => {
       // remains to be discovered.
       const _popper = new PopperJS(
         props.targetNode,
-        (contentRef.current as unknown) as Element,
+        contentRef.current as unknown as Element,
         {
           ...(isDraggable && disablePopperEvents
             ? {}

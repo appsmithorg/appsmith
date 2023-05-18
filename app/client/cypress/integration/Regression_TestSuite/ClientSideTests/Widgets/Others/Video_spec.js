@@ -3,21 +3,19 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Video Widget Functionality", function() {
+describe("Video Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Video Widget play functionality validation", function() {
+  it("Video Widget play functionality validation", function () {
     cy.openPropertyPane("videowidget");
     cy.widgetText(
       "Video1",
       widgetsPage.videoWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.get(commonlocators.onPlay).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Play success");
+    cy.getAlert("onPlay", "Play success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -31,10 +29,8 @@ describe("Video Widget Functionality", function() {
     */
   });
 
-  it("Video widget pause functionality validation", function() {
-    cy.get(commonlocators.onPause).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Pause success");
+  it("Video widget pause functionality validation", function () {
+    cy.getAlert("onPause", "Pause success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -48,11 +44,9 @@ describe("Video Widget Functionality", function() {
     */
   });
 
-  it("Update video url and check play and pause functionality validation", function() {
+  it("Update video url and check play and pause functionality validation", function () {
     cy.testCodeMirror(testdata.videoUrl);
-    cy.get(".CodeMirror textarea")
-      .first()
-      .blur();
+    cy.get(".CodeMirror textarea").first().blur();
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -77,7 +71,7 @@ describe("Video Widget Functionality", function() {
     */
   });
 
-  it("Checks if video widget is reset on button click", function() {
+  it("Checks if video widget is reset on button click", function () {
     cy.testCodeMirror(testdata.videoUrl2);
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
@@ -86,8 +80,7 @@ describe("Video Widget Functionality", function() {
       widgetsPage.buttonWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.get(commonlocators.onClick).click();
-    cy.selectResetWidget();
+    cy.selectResetWidget("onClick");
     cy.selectWidgetForReset("Video1");
 
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });

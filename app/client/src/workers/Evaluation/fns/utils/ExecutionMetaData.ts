@@ -1,5 +1,5 @@
-import { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
-import {
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type {
   EventType,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
@@ -7,12 +7,20 @@ import {
 export default class ExecutionMetaData {
   private static triggerMeta?: TriggerMeta;
   private static eventType?: EventType;
-  static setExecutionMetaData(
-    triggerMeta?: TriggerMeta,
-    eventType?: EventType,
-  ) {
-    ExecutionMetaData.triggerMeta = triggerMeta;
-    ExecutionMetaData.eventType = eventType;
+  private static enableJSVarUpdateTracking = true;
+  private static enableJSFnPostProcessors = true;
+
+  static setExecutionMetaData(metaData: {
+    triggerMeta?: TriggerMeta;
+    eventType?: EventType;
+    enableJSFnPostProcessors?: boolean;
+    enableJSVarUpdateTracking?: boolean;
+  }) {
+    const metaDataEntries = Object.entries(metaData);
+    for (const [key, value] of metaDataEntries) {
+      // @ts-expect-error: type unknown
+      ExecutionMetaData[key] = value;
+    }
   }
   static getExecutionMetaData() {
     const { source, triggerPropertyName } = ExecutionMetaData.triggerMeta || {};
@@ -22,6 +30,8 @@ export default class ExecutionMetaData {
         triggerPropertyName,
       },
       eventType: ExecutionMetaData.eventType,
+      enableJSVarUpdateTracking: ExecutionMetaData.enableJSVarUpdateTracking,
+      enableJSFnPostProcessors: ExecutionMetaData.enableJSFnPostProcessors,
     };
   }
 }

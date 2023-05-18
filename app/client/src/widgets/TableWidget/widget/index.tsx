@@ -16,9 +16,12 @@ import {
 } from "lodash";
 import equal from "fast-deep-equal/es6";
 
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { RenderMenuButtonProps } from "../component/TableUtilities";
 import {
   getDefaultColumnProperties,
   getTableStyles,
@@ -26,34 +29,44 @@ import {
   renderDropdown,
   renderActions,
   renderMenuButton,
-  RenderMenuButtonProps,
   renderIconButton,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import { DynamicPath, getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ReactTableFilter, OperatorTypes } from "../component/Constants";
-import { TableWidgetProps } from "../constants";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import type { ReactTableFilter } from "../component/Constants";
+import { OperatorTypes } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { selectRowIndex, selectRowIndices } from "./utilities";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
-import {
+import type {
   ColumnProperties,
   ReactTableColumnProps,
+} from "../component/Constants";
+import {
   ColumnTypes,
   CompactModeTypes,
   SortOrderTypes,
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { IconName } from "@blueprintjs/icons";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
-import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
+import {
+  borderRadiusUtility,
+  boxShadowMigration,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -68,6 +81,33 @@ const defaultFilter = [
 ];
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => ({
+      "!doc":
+        "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
+      "!url": "https://docs.appsmith.com/widget-reference/table",
+      selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
+      selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
+      selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
+      triggeredRow: generateTypeDef(widget.triggeredRow),
+      selectedRowIndex: "number",
+      tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
+      filteredTableData: generateTypeDef(
+        widget.filteredTableData,
+        extraDefsToDefine,
+      ),
+      pageNo: "number",
+      pageSize: "number",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      searchText: "string",
+      totalRecordsCount: "number",
+      sortOrder: {
+        column: "string",
+        order: ["asc", "desc"],
+      },
+    });
+  }
+
   static getPropertyValidationMap() {
     throw new Error("Method not implemented.");
   }
@@ -526,10 +566,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           // Update column types using types from the table before migration
           if (
-            (columnTypeMap as Record<
-              string,
-              { type: ColumnTypes; inputFormat?: string; format?: string }
-            >)[i]
+            (
+              columnTypeMap as Record<
+                string,
+                { type: ColumnTypes; inputFormat?: string; format?: string }
+              >
+            )[i]
           ) {
             columnProperties.columnType = columnTypeMap[i].type;
             columnProperties.inputFormat = columnTypeMap[i].inputFormat;
@@ -801,8 +843,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getSelectedRowIndices = () => {
-    let selectedRowIndices: number[] | undefined = this.props
-      .selectedRowIndices;
+    let selectedRowIndices: number[] | undefined =
+      this.props.selectedRowIndices;
     if (!this.props.multiRowSelection) selectedRowIndices = undefined;
     else {
       if (!Array.isArray(selectedRowIndices)) {

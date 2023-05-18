@@ -1,4 +1,4 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 export const HORIZONTAL_RESIZE_MIN_LIMIT = 2;
 export const VERTICAL_RESIZE_MIN_LIMIT = 4;

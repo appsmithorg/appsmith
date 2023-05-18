@@ -4,8 +4,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Guided Tour", function() {
-  it("1. Guided tour should work when started from the editor", function() {
+describe("excludeForAirgap", "Guided Tour", function () {
+  it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
     });
@@ -14,7 +14,7 @@ describe("Guided Tour", function() {
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
-  it("2. Guided Tour", function() {
+  it("2. Guided Tour", function () {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
@@ -71,9 +71,7 @@ describe("Guided Tour", function() {
       "Default Value",
       "{{CustomersTable.selectedRow.email}}",
     );
-    cy.get(".t--entity-name")
-      .contains("CountryInput")
-      .click({ force: true });
+    cy.get(".t--entity-name").contains("CountryInput").click({ force: true });
     cy.wait(1000);
     cy.get(guidedTourLocators.inputfields)
       .eq(2)
@@ -83,9 +81,7 @@ describe("Guided Tour", function() {
       "Default Value",
       "{{CustomersTable.selectedRow.country}}",
     );
-    cy.get(".t--entity-name")
-      .contains("DisplayImage")
-      .click({ force: true });
+    cy.get(".t--entity-name").contains("DisplayImage").click({ force: true });
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
@@ -95,30 +91,29 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Step 7: Execute a query onClick
-    cy.executeDbQuery("updateCustomerInfo");
+    cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
-    cy.get(
-      `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,
-    )
-      .eq(0)
-      .click({ force: true })
-      .wait(500)
-      .get("ul.bp3-menu")
-      .children()
-      .contains("Execute a query")
+    _.propPane.SelectActionByTitleAndValue(
+      "Execute a query",
+      "updateCustomerInfo.run",
+    ),
+      cy.get(_.propPane._actionCallbacks).click();
+    cy.get(_.propPane._actionAddCallback("success")).click().wait(500);
+    cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("getCustomers")
-      .click({ force: true });
+      .click({ force: true })
+      .wait(500);
+    _.agHelper.GetNClick(_.propPane._actionSelectorPopupClose);
+
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();
     cy.get(guidedTourLocators.rating).should("be.visible");
-    cy.get(guidedTourLocators.rating)
-      .eq(4)
-      .click();
+    cy.get(guidedTourLocators.rating).eq(4).click();
     cy.get(guidedTourLocators.startBuilding).should("be.visible");
     cy.get(guidedTourLocators.startBuilding).click();
   });

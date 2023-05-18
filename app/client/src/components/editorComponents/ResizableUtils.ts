@@ -1,6 +1,6 @@
-import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
+import type { WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
@@ -19,6 +19,25 @@ export type WidgetPosition = {
 
 export type WidgetExtendedPosition = WidgetPosition & {
   paddingOffset: number;
+};
+
+const computeAutoLayoutRowCols = (
+  delta: UIElementSize,
+  position: XYCord,
+  props: WidgetPosition,
+) => {
+  return {
+    leftColumn: Math.round(
+      props.leftColumn + position.x / props.parentColumnSpace,
+    ),
+    topRow: Math.round(props.topRow + position.y / props.parentRowSpace),
+    rightColumn: Math.round(
+      props.rightColumn + delta.width / props.parentColumnSpace,
+    ),
+    bottomRow: Math.round(
+      props.bottomRow + delta.height / props.parentRowSpace,
+    ),
+  };
 };
 
 export const computeRowCols = (
@@ -54,7 +73,7 @@ export const computeBoundedRowCols = (rowCols: WidgetRowCols) => {
 
 export const hasRowColsChanged = (
   newRowCols: WidgetRowCols,
-  props: WidgetProps,
+  props: WidgetPosition,
 ) => {
   return (
     props.leftColumn !== newRowCols.leftColumn ||
@@ -67,13 +86,29 @@ export const hasRowColsChanged = (
 export const computeFinalRowCols = (
   delta: UIElementSize,
   position: XYCord,
-  props: WidgetProps,
+  widgetPositionProps: WidgetPosition,
 ): WidgetRowCols | false => {
   const newRowCols = computeBoundedRowCols(
-    computeRowCols(delta, position, props),
+    computeRowCols(delta, position, widgetPositionProps),
   );
 
-  return hasRowColsChanged(newRowCols, props) ? newRowCols : false;
+  return hasRowColsChanged(newRowCols, widgetPositionProps)
+    ? newRowCols
+    : false;
+};
+
+export const computeFinalAutoLayoutRowCols = (
+  delta: UIElementSize,
+  position: XYCord,
+  widgetPositionProps: WidgetPosition,
+): WidgetRowCols | false => {
+  const newRowCols = computeBoundedRowCols(
+    computeAutoLayoutRowCols(delta, position, widgetPositionProps),
+  );
+
+  return hasRowColsChanged(newRowCols, widgetPositionProps)
+    ? newRowCols
+    : false;
 };
 
 /**
@@ -90,8 +125,6 @@ export function isHandleResizeAllowed(
   horizontalEnabled: boolean,
   verticalEnabled: boolean,
   direction?: ReflowDirection,
-  isFlexChild?: boolean,
-  responsiveBehavior?: ResponsiveBehavior,
 ): boolean {
   if (direction === ReflowDirection.TOP || direction === ReflowDirection.BOTTOM)
     return verticalEnabled;
@@ -99,9 +132,38 @@ export function isHandleResizeAllowed(
     direction === ReflowDirection.LEFT ||
     direction === ReflowDirection.RIGHT
   ) {
-    return isFlexChild && responsiveBehavior === ResponsiveBehavior.Fill
-      ? false
-      : horizontalEnabled;
+    return horizontalEnabled;
   }
   return true;
+}
+
+export function isResizingDisabled(
+  handles: { horizontal?: boolean; vertical?: boolean } = {},
+  direction?: ReflowDirection,
+  isFlexChild?: boolean,
+  responsiveBehavior?: ResponsiveBehavior,
+) {
+  const { horizontal = false, vertical = false } = handles;
+
+  if (
+    (direction === ReflowDirection.TOP ||
+      direction === ReflowDirection.BOTTOM ||
+      direction === ReflowDirection.BOTTOMLEFT ||
+      direction === ReflowDirection.BOTTOMRIGHT) &&
+    vertical
+  )
+    return true;
+
+  if (
+    direction === ReflowDirection.RIGHT ||
+    direction === ReflowDirection.LEFT
+  ) {
+    if (
+      horizontal ||
+      (isFlexChild && responsiveBehavior === ResponsiveBehavior.Fill)
+    )
+      return true;
+  }
+
+  return false;
 }

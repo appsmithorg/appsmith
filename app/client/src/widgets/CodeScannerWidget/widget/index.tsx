@@ -1,12 +1,15 @@
 import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import CodeScannerComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import { CodeScannerWidgetProps } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { CodeScannerWidgetProps } from "../constants";
+import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
@@ -22,6 +25,16 @@ class CodeScannerWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Scan a Code",
+      "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isDisabled: "bool",
+      value: "string",
     };
   }
 

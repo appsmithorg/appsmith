@@ -7,16 +7,16 @@ import "codemirror-graphql/jump";
 import "codemirror-graphql/mode";
 
 import QueryWrapper from "./QueryWrapperWithCSS";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system-old";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const QueryHeader = styled.div`
   display: flex;
@@ -57,7 +57,7 @@ function QueryEditor(props: QueryProps) {
         </Text>
       </QueryHeader>
       <Field
-        component={CodeEditor}
+        component={LazyCodeEditor}
         evaluatedPopUpLabel="Query"
         {...props}
         {...editorProps}

@@ -1,7 +1,7 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("checkboxgroupwidget Widget Functionality", function() {
+describe("checkboxgroupwidget Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

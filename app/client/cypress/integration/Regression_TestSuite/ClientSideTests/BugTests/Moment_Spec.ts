@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any, query: string;
 
-describe("Bug #14299 - The data from the query does not show up on the widget", function() {
+describe("Bug #14299 - The data from the query does not show up on the widget", function () {
   before("Create Postgress DS & set theme", () => {
     cy.fixture("/Bugs/14299dsl").then((val: any) => {
       _.agHelper.AddDsl(val);

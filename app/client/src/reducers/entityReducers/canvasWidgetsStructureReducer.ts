@@ -1,14 +1,12 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxActionTypes,
+import type {
   UpdateCanvasPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetType,
-} from "constants/WidgetConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
 import { denormalize } from "utils/canvasStructureHelpers";
 

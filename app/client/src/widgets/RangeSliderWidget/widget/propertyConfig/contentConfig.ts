@@ -1,9 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { RangeSliderWidgetProps } from "..";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { RangeSliderWidgetProps } from "..";
 import {
   endValueValidation,
   maxValueValidation,
@@ -158,6 +158,7 @@ export default [
         label: "Position",
         controlType: "ICON_TABS",
         fullWidth: true,
+        hidden: isAutoLayout,
         options: [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
@@ -317,12 +318,11 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("RANGE_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onStartValueChange",
         label: "onStartValueChange",
         controlType: "ACTION_SELECTOR",
@@ -331,7 +331,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onEndValueChange",
         label: "onEndValueChange",
         controlType: "ACTION_SELECTOR",

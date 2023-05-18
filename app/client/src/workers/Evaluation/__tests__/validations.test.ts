@@ -2,11 +2,11 @@ import {
   validate,
   WIDGET_TYPE_VALIDATION_ERROR,
 } from "workers/Evaluation/validations";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -115,7 +115,8 @@ describe("Validate Validators", () => {
       type: ValidationTypes.TEXT,
       params: {
         default: "https://www.appsmith.com",
-        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
+        regex:
+          /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
       },
     };
     const inputs = [
@@ -158,7 +159,8 @@ describe("Validate Validators", () => {
       type: ValidationTypes.TEXT,
       params: {
         default: "https://www.appsmith.com",
-        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
+        regex:
+          /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/,
         expected: {
           type: "URL",
           example: "https://www.appsmith.com",
@@ -1185,7 +1187,6 @@ describe("Validate Validators", () => {
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
-      console.log(result);
       expect(result).toStrictEqual(expected[index]);
     });
   });

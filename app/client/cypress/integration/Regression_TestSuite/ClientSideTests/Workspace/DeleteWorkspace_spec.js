@@ -2,16 +2,16 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Delete workspace test spec", function() {
+describe("Delete workspace test spec", function () {
   let newWorkspaceName;
 
-  it("1. Should delete the workspace", function() {
+  it("1. Should delete the workspace", function () {
     cy.visit("/applications");
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       newWorkspaceName = "Deleteworkspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
-      _.homePage.DeleteWorkspace(newWorkspaceName)
+      _.homePage.DeleteWorkspace(newWorkspaceName);
       cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(200);
       });
@@ -19,7 +19,7 @@ describe("Delete workspace test spec", function() {
     });
   });
 
-  it("2. Should show option to delete workspace for an admin user", function() {
+  it("2. Should show option to delete workspace for an admin user", function () {
     cy.visit("/applications");
     cy.wait(2000);
     cy.generateUUID().then((uid) => {

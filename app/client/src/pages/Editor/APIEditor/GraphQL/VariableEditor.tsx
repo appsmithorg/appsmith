@@ -1,16 +1,16 @@
 import React from "react";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 const VariableWrapper = styled.div`
   display: flex;

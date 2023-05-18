@@ -1,15 +1,11 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { TextSize } from "constants/WidgetConstants";
-import {
-  getChangeValue,
-  getPosition,
-  getSliderStyles,
-  SliderSizes,
-} from "../utils";
+import type { LabelPosition } from "components/constants";
+import type { Alignment } from "@blueprintjs/core";
+import type { TextSize } from "constants/WidgetConstants";
+import type { SliderSizes } from "../utils";
+import { getChangeValue, getPosition, getSliderStyles } from "../utils";
 import { useMove } from "../use-move";
 import { SliderContainer } from "./Container";
 import { SliderRoot } from "./SilderRoot";

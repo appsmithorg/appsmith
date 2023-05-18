@@ -1,5 +1,8 @@
 import { isBoolean, isObject } from "lodash";
-import { CellLayoutProperties, ColumnProperties } from "../component/Constants";
+import type {
+  CellLayoutProperties,
+  ColumnProperties,
+} from "../component/Constants";
 
 export const getPropertyValue = (
   value: any,

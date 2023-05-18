@@ -3,9 +3,8 @@ import { renderHook } from "@testing-library/react-hooks";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormContextProvider } from "../FormContext";
-import useRegisterFieldValidity, {
-  UseRegisterFieldValidityProps,
-} from "./useRegisterFieldValidity";
+import type { UseRegisterFieldValidityProps } from "./useRegisterFieldValidity";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { FieldType } from "../constants";
 
 const initialFieldState = {
@@ -91,9 +90,8 @@ describe("useRegisterFieldInvalid", () => {
     });
 
     expect(mocksetMetaInternalFieldState).toBeCalledTimes(2);
-    const cbResult = mocksetMetaInternalFieldState.mock.calls[1][0](
-      initialFieldState,
-    );
+    const cbResult =
+      mocksetMetaInternalFieldState.mock.calls[1][0](initialFieldState);
 
     expect(cbResult).toEqual(expectedUpdatedFieldState);
   });

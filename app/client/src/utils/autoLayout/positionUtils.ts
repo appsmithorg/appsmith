@@ -1,35 +1,45 @@
-import { FlexLayer } from "./autoLayoutTypes";
+import type {
+  AlignmentChildren,
+  AlignmentInfo,
+  FlexLayer,
+  LayerChild,
+  Row,
+} from "./autoLayoutTypes";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
+  MOBILE_ROW_GAP,
   Positioning,
   ResponsiveBehavior,
+  ROW_GAP,
 } from "utils/autoLayout/constants";
 import {
   getBottomRow,
   getTopRow,
   getWidgetHeight,
+  getWidgetMinMaxDimensionsInPixel,
   getWidgetRows,
   getWidgetWidth,
   setDimensions,
 } from "./flexWidgetUtils";
-
-export interface AlignmentInfo {
-  alignment: FlexLayerAlignment;
-  columns: number;
-  children: FlattenedWidgetProps[];
-}
-
-export interface Row extends AlignmentInfo {
-  height: number;
-}
+import { getCanvasDimensions } from "./AutoLayoutUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { isFunction } from "lodash";
+import {
+  getComputedHeight,
+  getDivisor,
+  getModalHeight,
+  shouldUpdateParentHeight,
+  updateParentHeight,
+} from "./heightUpdateUtils";
 
 /**
  * Calculate widget position on canvas.
@@ -43,6 +53,9 @@ export function updateWidgetPositions(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   isMobile = false,
+  mainCanvasWidth: number,
+  firstTimeDSLUpdate = false,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
@@ -54,7 +67,17 @@ export function updateWidgetPositions(
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
+    const { columnSpace } = getCanvasDimensions(
+      parent,
+      widgets,
+      mainCanvasWidth,
+      isMobile,
+    );
+
     let height = 0;
+    const rowGap =
+      (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     if (parent.flexLayers && parent.flexLayers?.length) {
       /**
        * For each flex layer, calculate position of child widgets
@@ -64,51 +87,57 @@ export function updateWidgetPositions(
         const payload: {
           height: number;
           widgets: CanvasWidgetsReduxState;
-        } = calculateWidgetPositions(widgets, layer, height, isMobile);
+        } = calculateWidgetPositions(
+          widgets,
+          layer,
+          height,
+          isMobile,
+          mainCanvasWidth,
+          columnSpace,
+          firstTimeDSLUpdate,
+        );
         widgets = payload.widgets;
-        height += payload.height;
+        height += payload.height + rowGap; // Add rowGap after each layer.
       }
+      // subtract rowGap from height to account for the last layer.
+      height -= rowGap;
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
-      height = getHeightOfFixedCanvas(widgets, parent, isMobile);
+      height = getHeightOfFixedCanvas(widgets, parent, isMobile, metaProps);
+    } else if (parent.type === "CANVAS_WIDGET" && parent.parentId) {
+      // Set a minimal height of an empty canvas to trigger height calculation for parent.
+      height = 1;
     } else return widgets;
 
-    const divisor = parent.parentRowSpace === 1 ? 10 : 1;
+    const divisor = getDivisor(parent);
+
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight - height <= 1) {
-      /**
-       * if children height is greater than parent height,
-       * update the parent height to match the children height
-       * and add a buffer of 1 row to render the new layer highlights.
-       */
-      const parentTopRow = getTopRow(parent, isMobile);
-      const updatedParent = setDimensions(
+    const computedHeight: number = getComputedHeight(
+      parent,
+      widgets,
+      height,
+      mainCanvasWidth,
+    );
+    if (
+      shouldUpdateParentHeight(widgets, parent, computedHeight, parentHeight)
+    ) {
+      const updatedParent: FlattenedWidgetProps = updateParentHeight(
         parent,
-        parentTopRow,
-        parentTopRow + height * divisor + 1 * divisor,
-        null,
-        null,
+        computedHeight * divisor,
+        getModalHeight(parent, computedHeight, divisor),
         isMobile,
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };
 
-      const shouldUpdateHeight =
-        parent.parentId &&
-        ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
-          allWidgets[parent.parentId].type,
+      if (parent.parentId)
+        return updateWidgetPositions(
+          widgets,
+          parent.parentId,
+          isMobile,
+          mainCanvasWidth,
+          firstTimeDSLUpdate,
+          metaProps,
         );
-      // console.log(
-      //   "#### update height",
-      //   parent.widgetName,
-      //   "parentHeight",
-      //   parentHeight,
-      //   "height",
-      //   height,
-      //   shouldUpdateHeight,
-      //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
-      // );
-      if (shouldUpdateHeight && parent.parentId)
-        return updateWidgetPositions(widgets, parent.parentId, isMobile);
     }
     return widgets;
   } catch (e) {
@@ -122,16 +151,22 @@ function calculateWidgetPositions(
   layer: FlexLayer,
   topRow: number,
   isMobile = false,
+  mainCanvasWidth: number,
+  columnSpace: number,
+  firstTimeDSLUpdate: boolean,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   /**
    * Get information break down on each alignment within the layer.
    * Information - children, columns, alignment.
    * Also, retrieve the length of each fill widget within this layer.
    */
-  const { fillWidgetLength, info } = extractAlignmentInfo(
+  const { info } = extractAlignmentInfo(
     allWidgets,
     layer,
     isMobile,
+    mainCanvasWidth,
+    columnSpace,
+    firstTimeDSLUpdate,
   );
   /**
    * Check if this layer is wrapped by css flex.
@@ -144,21 +179,9 @@ function calculateWidgetPositions(
     }, 0) > GridDefaults.DEFAULT_GRID_COLUMNS;
 
   if (isFlexWrapped)
-    return updatePositionsForFlexWrap(
-      allWidgets,
-      info,
-      topRow,
-      fillWidgetLength,
-      isMobile,
-    );
+    return updatePositionsForFlexWrap(allWidgets, info, topRow, isMobile);
 
-  return placeWidgetsWithoutWrap(
-    allWidgets,
-    info,
-    topRow,
-    fillWidgetLength,
-    isMobile,
-  );
+  return placeWidgetsWithoutWrap(allWidgets, info, topRow, isMobile);
 }
 
 /**
@@ -167,7 +190,6 @@ function calculateWidgetPositions(
  * @param allWidgets | CanvasWidgetsReduxState : List of all widgets.
  * @param arr | AlignmentInfo[] : Array of all alignments to be placed in this row.
  * @param topRow | number : Starting row for placing the widgets.
- * @param fillWidgetLength | number : Size of each fill widget in this row.
  * @param isMobile : boolean : if the current viewport is mobile. default is false.
  * @param totalHeight | number : total height assumed by the widgets in this row.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
@@ -176,7 +198,6 @@ export function placeWidgetsWithoutWrap(
   allWidgets: CanvasWidgetsReduxState,
   arr: AlignmentInfo[],
   topRow: number,
-  fillWidgetLength: number,
   isMobile = false,
   totalHeight = 0,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
@@ -195,19 +216,15 @@ export function placeWidgetsWithoutWrap(
       endSize,
       each.columns,
     );
-    for (const widget of each.children) {
-      const height = getWidgetHeight(widget, isMobile);
-      const width =
-        widget.responsiveBehavior === ResponsiveBehavior.Fill
-          ? fillWidgetLength
-          : getWidgetWidth(widget, isMobile);
-      if (!totalHeight) maxHeight = Math.max(maxHeight, height);
+    for (const child of each.children) {
+      const { columns, rows, widget } = child;
+      if (!totalHeight) maxHeight = Math.max(maxHeight, rows);
       const updatedWidget = setDimensions(
         widget,
         topRow,
-        topRow + height,
+        topRow + rows,
         left,
-        left + width,
+        left + columns,
         isMobile,
       );
       widgets = {
@@ -216,7 +233,7 @@ export function placeWidgetsWithoutWrap(
           ...updatedWidget,
         },
       };
-      left += width;
+      left += columns;
     }
   }
 
@@ -264,21 +281,40 @@ function getAlignmentSizes(
 
 /**
  * Breakdown the current flex layer to extract information on each child alignment.
- * Information for each alignment - children, columns, alignment.
+ *  1. Information for each alignment - children, columns, alignment.
+ *  2. Length of each fill widget within this layer.
+ *  3. Total number of columns and rows occupied by hug widgets in this layer.
+ *
+ * Logic:
+ * - Iterate over all children of the layer.
+ * - If the child is a widget, then add it to the corresponding alignment array.
+ * - for each child:
+ *   - Get widget's size (columns, rows).
+ *    - if  columns < minWidth => calculate the number of columns based on minWidth.
+ *   - store columns and rows information of each child.
+ *   - if alignment is fill => store min columns and rows information of each child.
+ * - availableColumns = 64 - totalColumns occupied by hug widgets.
+ * - for each fill child (sorted in descending order of minWidth):
+ *  - if minWidth > availableColumns / # of fill widgets => assign columns based on minWidth and update fillLength for remaining fill widgets.
  * @param widgets | CanvasWidgetsReduxState: List of all widgets.
  * @param layer | FlexLayer : current layer to be positioned on the canvas.
  * @param isMobile | boolean
+ * @param mainCanvasWidth | number: width of the main canvas.
+ * @param columnSpace | number
  * @returns { info: AlignmentInfo[]; fillWidgetLength: number }
  */
 export function extractAlignmentInfo(
   widgets: CanvasWidgetsReduxState,
   layer: FlexLayer,
   isMobile: boolean,
+  mainCanvasWidth: number,
+  columnSpace: number,
+  firstTimeDSLUpdate: boolean,
 ): { info: AlignmentInfo[]; fillWidgetLength: number } {
-  const startChildren = [],
-    centerChildren = [],
-    endChildren = [],
-    fillChildren = [];
+  const startChildren: AlignmentChildren[] = [],
+    centerChildren: AlignmentChildren[] = [],
+    endChildren: AlignmentChildren[] = [],
+    fillChildren: any[] = [];
   let startColumns = 0,
     centerColumns = 0,
     endColumns = 0;
@@ -286,38 +322,133 @@ export function extractAlignmentInfo(
   for (const child of layer.children) {
     const widget = widgets[child.id];
     if (!widget) continue;
+
+    let columns = getWidgetWidth(widget, isMobile);
+    let rows = getWidgetHeight(widget, isMobile);
+    const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
+      widget,
+      mainCanvasWidth,
+    );
+    const rowSpace = widget.detachFromLayout
+      ? 1
+      : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
-    if (isFillWidget) fillChildren.push(child);
+
+    let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+      widget.type,
+    );
+    if (isFunction(disableResizeHandles)) {
+      disableResizeHandles = disableResizeHandles(widget);
+    }
+
+    // For hug widgets with horizontal resizing enabled,
+    // make sure the width is not getting greater than user defined width
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (!isMobile && widget.widthInPercentage) {
+        columns = Math.round(
+          (widget.widthInPercentage * mainCanvasWidth) / columnSpace,
+        );
+      } else if (isMobile && widget.mobileWidthInPercentage) {
+        columns = Math.round(
+          (widget.mobileWidthInPercentage * mainCanvasWidth) / columnSpace,
+        );
+      } else if (firstTimeDSLUpdate) {
+        // Sets the widthInPercentage & mobileWidthInPercentage value after conversion
+        widget.widthInPercentage = (columns * columnSpace) / mainCanvasWidth;
+        widget.mobileWidthInPercentage =
+          (columns * columnSpace) / mainCanvasWidth;
+      }
+    }
+
+    // Make sure that the height of the widget that cannot be vertically resized is
+    // set to the minimum height after converting from fixed to auto layout.
+    //but should not set for canvas type widgets
+    if (
+      firstTimeDSLUpdate &&
+      isFillWidget &&
+      disableResizeHandles?.vertical &&
+      minHeight &&
+      !checkIsDropTarget(widget.type)
+    ) {
+      rows = Math.round(minHeight / rowSpace);
+    }
+
+    // If the widget's width is less than its min width, then calculate the number of columns based on min width.
+    if (minWidth && columns * columnSpace < minWidth) {
+      columns = minWidth / columnSpace;
+    }
+
+    // If the widget's width is less than its min height, then calculate the number of rows based on min height.
+    if (minHeight && rows * rowSpace < minHeight) {
+      rows = minHeight / rowSpace;
+    }
+
+    // Store the min columns and rows information of each fill widget.
+    if (isFillWidget)
+      fillChildren.push({
+        child,
+        columns: (minWidth || 0) / columnSpace,
+        rows,
+      });
+    // Store the columns and rows information of each widget.
     if (child.align === FlexLayerAlignment.Start) {
-      startChildren.push(widget);
-      if (!isFillWidget) startColumns += getWidgetWidth(widget, isMobile);
+      startChildren.push({ widget, columns, rows });
+      if (!isFillWidget) startColumns += columns;
     } else if (child.align === FlexLayerAlignment.Center) {
-      centerChildren.push(widget);
-      if (!isFillWidget) centerColumns += getWidgetWidth(widget, isMobile);
+      centerChildren.push({ widget, columns, rows });
+      if (!isFillWidget) centerColumns += columns;
     } else if (child.align === FlexLayerAlignment.End) {
-      endChildren.push(widget);
-      if (!isFillWidget) endColumns += getWidgetWidth(widget, isMobile);
+      endChildren.push({ widget, columns, rows });
+      if (!isFillWidget) endColumns += columns;
     }
   }
 
-  const availableColumns: number =
+  let availableColumns: number =
     GridDefaults.DEFAULT_GRID_COLUMNS -
     startColumns -
     centerColumns -
     endColumns;
   // Fill widgets are designed to take up parent's entire width on mobile viewport.
-  const fillWidgetLength: number = isMobile
+  let fillWidgetLength: number = isMobile
     ? GridDefaults.DEFAULT_GRID_COLUMNS
     : Math.min(availableColumns / fillChildren.length, 64);
-  for (const child of fillChildren) {
-    if (child.align === FlexLayerAlignment.Start) {
-      startColumns += fillWidgetLength;
-    } else if (child.align === FlexLayerAlignment.Center) {
-      centerColumns += fillWidgetLength;
-    } else if (child.align === FlexLayerAlignment.End) {
-      endColumns += fillWidgetLength;
-    }
-  }
+
+  // sort fill widgets in descending order of minWidth.
+  fillChildren
+    .sort((a, b) => b.columns - a.columns)
+    .forEach((each, index) => {
+      const { child, columns } = each;
+      // For mobile viewport, use only fillWidgetLength == 64.
+      let width = fillWidgetLength;
+      if (!isMobile) {
+        // If minWidth > availableColumns / # of fill widgets => assign columns based on minWidth and update fillLength for remaining fill widgets.
+        width = columns > fillWidgetLength ? columns : fillWidgetLength;
+        availableColumns = Math.max(availableColumns - width, 0);
+        if (fillChildren.length - index - 1 > 0)
+          fillWidgetLength =
+            availableColumns / (fillChildren.length - index - 1);
+      }
+      if (child.align === FlexLayerAlignment.Start) {
+        startColumns += width;
+        const index = startChildren.findIndex(
+          (each) => each.widget.widgetId === child.id,
+        );
+        if (index !== -1) startChildren[index].columns = width;
+      } else if (child.align === FlexLayerAlignment.Center) {
+        centerColumns += width;
+        const index = centerChildren.findIndex(
+          (each) => each.widget.widgetId === child.id,
+        );
+        if (index !== -1) centerChildren[index].columns = width;
+      } else if (child.align === FlexLayerAlignment.End) {
+        endColumns += width;
+        const index = endChildren.findIndex(
+          (each) => each.widget.widgetId === child.id,
+        );
+        if (index !== -1) endChildren[index].columns = width;
+      }
+    });
 
   return {
     info: [
@@ -341,9 +472,11 @@ export function extractAlignmentInfo(
   };
 }
 
-export function getAlignmentSizeInfo(
-  arr: AlignmentInfo[],
-): { startSize: number; centerSize: number; endSize: number } {
+export function getAlignmentSizeInfo(arr: AlignmentInfo[]): {
+  startSize: number;
+  centerSize: number;
+  endSize: number;
+} {
   let startSize = 0,
     centerSize = 0,
     endSize = 0;
@@ -413,7 +546,6 @@ export function getWrappedAlignmentInfo(
  * @param allWidgets | CanvasWidgetsReduxState: all widgets.
  * @param arr | AlignmentInfo[] : Array of alignments to be placed in this layer.
  * @param topRow | number : Starting row to place the widgets.
- * @param fillWidgetLength | number : Length of fill widgets.
  * @param isMobile | boolean : Is mobile viewport.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
@@ -421,7 +553,6 @@ function updatePositionsForFlexWrap(
   allWidgets: CanvasWidgetsReduxState,
   arr: AlignmentInfo[],
   topRow: number,
-  fillWidgetLength: number,
   isMobile: boolean,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
@@ -429,23 +560,24 @@ function updatePositionsForFlexWrap(
   const wrappedAlignments: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
 
   let top = topRow;
+  const rowGap =
+    (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
   for (const each of wrappedAlignments) {
     if (!each.length) break;
+    const totalColumns = each.reduce((acc, curr) => acc + curr.columns, 0);
     // if there is only one alignment in this row, this implies that it may be wrapped.
     const payload =
       each.length === 1
-        ? placeWrappedWidgets(widgets, each[0], top, fillWidgetLength, isMobile)
-        : placeWidgetsWithoutWrap(
-            widgets,
-            each,
-            top,
-            fillWidgetLength,
-            isMobile,
-          );
+        ? placeWrappedWidgets(widgets, each[0], top, isMobile, rowGap)
+        : placeWidgetsWithoutWrap(widgets, each, top, isMobile);
     widgets = payload.widgets;
-    top += payload.height;
+    top += payload.height + (totalColumns > 0 ? rowGap : 0);
     continue;
   }
+  // adjust the top position to account for the last row
+  top -= rowGap;
   return { height: top - topRow, widgets };
 }
 
@@ -475,16 +607,16 @@ export function getStartingPosition(
  * @param allWidgets | CanvasWidgetsReduxState: all widgets.
  * @param alignment | AlignmentInfo: alignment to be positioned.
  * @param topRow | number: top row to place the widgets.
- * @param fillWidgetLength | number: length of fill widgets.
  * @param isMobile | boolean: is mobile viewport.
+ * @param rowGap | number: gap between rows.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
 export function placeWrappedWidgets(
   allWidgets: CanvasWidgetsReduxState,
   alignment: AlignmentInfo,
   topRow: number,
-  fillWidgetLength: number,
   isMobile = false,
+  rowGap = 0,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
 
@@ -492,6 +624,7 @@ export function placeWrappedWidgets(
   const rows: Row[] = getWrappedRows(alignment, [], isMobile);
   for (const row of rows) {
     const { alignment, children, columns, height } = row;
+
     const result: {
       height: number;
       widgets: CanvasWidgetsReduxState;
@@ -499,14 +632,13 @@ export function placeWrappedWidgets(
       widgets,
       [{ alignment, children, columns }],
       startRow,
-      fillWidgetLength,
       isMobile,
       height,
     );
     widgets = result.widgets;
-    startRow += height;
+    startRow += height + rowGap;
   }
-
+  startRow -= rows?.length ? rowGap : 0;
   return { height: startRow - topRow, widgets };
 }
 
@@ -537,12 +669,12 @@ export function getWrappedRows(
     height: 0,
   };
   const space = GridDefaults.DEFAULT_GRID_COLUMNS;
-  const temp: FlattenedWidgetProps[] = [];
+  const temp: AlignmentChildren[] = [];
   let columns = 0,
     index = 0,
     maxHeight = 0;
   for (const child of arr.children) {
-    const width = getWidgetWidth(child, isMobile);
+    const { columns: width, rows: height } = child;
     if (columns + width > space) {
       row.children.push(...temp);
       row.height = maxHeight;
@@ -558,7 +690,7 @@ export function getWrappedRows(
       );
     }
     temp.push(child);
-    maxHeight = Math.max(maxHeight, getWidgetHeight(child, isMobile));
+    maxHeight = Math.max(maxHeight, height);
     columns += width;
     index += 1;
   }
@@ -575,10 +707,26 @@ function getHeightOfFixedCanvas(
   widgets: CanvasWidgetsReduxState,
   parent: FlattenedWidgetProps,
   isMobile: boolean,
+  metaProps?: Record<string, any>,
 ): number {
   if (!parent.children || !parent.children.length)
     return getWidgetRows(parent, isMobile);
-  return getTotalRowsOfAllChildren(widgets, parent.children, isMobile);
+  let children: string[] = parent?.children;
+
+  /**
+   * If the parent is a tabs widget,
+   * then we need to get the selected tab widget id
+   */
+  if (parent.type === "TABS_WIDGET") {
+    if (
+      metaProps &&
+      metaProps[parent.widgetId] &&
+      metaProps[parent.widgetId]?.selectedTabWidgetId
+    ) {
+      children = [metaProps[parent.widgetId]?.selectedTabWidgetId];
+    } else children = [parent.children[0]];
+  }
+  return getTotalRowsOfAllChildren(widgets, children, isMobile);
 }
 
 export function getTotalRowsOfAllChildren(
@@ -586,14 +734,76 @@ export function getTotalRowsOfAllChildren(
   children: string[],
   isMobile: boolean,
 ): number {
+  if (!children || !children.length) return 0;
   let top = 10000,
     bottom = 0;
   for (const childId of children) {
     const child = widgets[childId];
     if (!child) continue;
-    const divisor = child.parentRowSpace === 1 ? 10 : 1;
+    const divisor = getDivisor(child);
     top = Math.min(top, getTopRow(child, isMobile));
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
   }
   return bottom - top;
+}
+
+/**
+ * Update sizes and positions of all the canvas containing widgets in the affected flex layer and its parent canvas.
+ * Sibling canvases in flex layers are updated to recheck the minSize situations within them.
+ * @param allWidgets | CanvasWidgetsReduxState: all widgets.
+ * @param parentId | string: parent id.
+ * @param layerIndex | number: layer index of the affected flex layer.
+ * @param isMobile | boolean: is mobile viewport.
+ * @param mainCanvasWidth | number: width of the main canvas.
+ * @param firstTimeDSLUpdate | boolean: is this the first time DSL is being updated.
+ * @param metaProps | Record<string, any>: meta props of the widget.
+ * @returns CanvasWidgetsReduxState
+ */
+export function updatePositionsOfParentAndSiblings(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  layerIndex: number,
+  isMobile: boolean,
+  mainCanvasWidth: number,
+  firstTimeDSLUpdate = false,
+  metaProps?: Record<string, any>,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[parentId];
+  if (!parent) return widgets;
+  const { children, flexLayers } = parent;
+  if (children === undefined || flexLayers === undefined) return widgets;
+
+  // Extract all widgets to be updated. => parent canvas + all other canvas containing widgets in the same flex layer.
+  let widgetsToBeParsed: string[] = [parentId];
+  if (
+    layerIndex > -1 &&
+    layerIndex < flexLayers?.length &&
+    flexLayers[layerIndex]?.children?.length
+  ) {
+    flexLayers[layerIndex]?.children.forEach((child: LayerChild) => {
+      const widget = widgets[child.id];
+      if (!widget || !widget.children || !widget.children?.length) return;
+      // Due to canvas / cell splitting, a widget can contain multiple canvases.
+      const canvases: string[] = widget.children?.filter(
+        (id: string) => widgets[id] && widgets[id].type === "CANVAS_WIDGET",
+      );
+      if (canvases.length) {
+        widgetsToBeParsed = [...widgetsToBeParsed, ...canvases];
+      }
+    });
+  }
+  // Update positions of all the widgets.
+  for (const widgetId of widgetsToBeParsed) {
+    widgets = updateWidgetPositions(
+      widgets,
+      widgetId,
+      isMobile,
+      mainCanvasWidth,
+      firstTimeDSLUpdate,
+      metaProps,
+    );
+  }
+
+  return widgets;
 }

@@ -23,7 +23,7 @@ const THROTTLE_TIMEOUT = 50;
 
 function useFixedFooter<
   HTMLDivElement extends HTMLElement,
-  TFooterElement extends HTMLElement = HTMLDivElement
+  TFooterElement extends HTMLElement = HTMLDivElement,
 >({ activeClassName, fixedFooter, ref }: UseFixedFooterProps) {
   const bodyRef = ref;
   const footerRef = useRef<TFooterElement>(null);

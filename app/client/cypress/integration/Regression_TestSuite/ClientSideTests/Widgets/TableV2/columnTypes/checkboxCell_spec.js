@@ -67,9 +67,7 @@ describe("Checkbox column type funtionality test", () => {
   });
 
   it("3. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
-    cy.get(".t--propertypane")
-      .contains("STYLE")
-      .click({ force: true });
+    cy.get(".t--propertypane").contains("STYLE").click({ force: true });
     // Check horizontal alignment
     cy.get(".t--property-control-horizontalalignment .t--button-group-CENTER")
       .first()
@@ -99,9 +97,7 @@ describe("Checkbox column type funtionality test", () => {
   });
 
   it("4. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
-    cy.get(".t--propertypane")
-      .contains("CONTENT")
-      .click({ force: true });
+    cy.get(".t--propertypane").contains("CONTENT").click({ force: true });
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + checkboxSelector;
 
@@ -121,13 +117,13 @@ describe("Checkbox column type funtionality test", () => {
       cy.get(selector).should("be.checked");
 
       // Check if onCheckChange is availabe when Editable is true and hidden on false
-      cy.get(".t--property-control-oncheckchange").should("be.visible");
+      cy.get(".t--add-action-onCheckChange").should("be.visible");
       propPane.ToggleOnOrOff("Editable", "off");
-      cy.get(".t--property-control-oncheckchange").should("not.exist");
+      cy.get(".t--add-action-onCheckChange").should("not.exist");
 
       // Verify on check change handler
       propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPropertiesDropDown("oncheckchange", "Show message");
+      propPane.SelectPlatformFunction("onCheckChange", "Show Alert");
       agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
@@ -140,15 +136,11 @@ describe("Checkbox column type funtionality test", () => {
   it("5. Verify filter condition", () => {
     cy.get(widgetsJson.tableFilterPaneToggle).click();
     cy.get(publishPage.attributeDropdown).click();
-    cy.get(".t--dropdown-option")
-      .contains("completed")
-      .click();
+    cy.get(".t--dropdown-option").contains("completed").click();
     cy.get(widgetsJson.tableFilterRow)
       .find(publishPage.conditionDropdown)
       .click();
-    cy.get(".t--dropdown-option")
-      .contains("is checked")
-      .click();
+    cy.get(".t--dropdown-option").contains("is checked").click();
     cy.get(publishPage.applyFiltersBtn).click();
 
     // filter and verify checked rows
@@ -160,9 +152,7 @@ describe("Checkbox column type funtionality test", () => {
     cy.get(widgetsJson.tableFilterRow)
       .find(publishPage.conditionDropdown)
       .click();
-    cy.get(".t--dropdown-option")
-      .contains("is unchecked")
-      .click();
+    cy.get(".t--dropdown-option").contains("is unchecked").click();
     cy.get(publishPage.applyFiltersBtn).click();
 
     cy.getTableV2DataSelector("0", "4").then((selector) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Carousel, Header } from "./types";
+import type { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
 import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
 import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";

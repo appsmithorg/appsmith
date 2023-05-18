@@ -1,6 +1,7 @@
-import React, { CSSProperties, Key, useContext } from "react";
-import { Row as ReactTableRowType } from "react-table";
-import { ListChildComponentProps } from "react-window";
+import type { CSSProperties, Key } from "react";
+import React, { useContext } from "react";
+import type { Row as ReactTableRowType } from "react-table";
+import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
@@ -50,8 +51,9 @@ export function Row(props: RowType) {
   return (
     <div
       {...rowProps}
-      className={`tr ${isRowSelected ? "selected-row" : ""} ${props.className ||
-        ""} ${isAddRowInProgress && props.index === 0 ? "new-row" : ""}`}
+      className={`tr ${isRowSelected ? "selected-row" : ""} ${
+        props.className || ""
+      } ${isAddRowInProgress && props.index === 0 ? "new-row" : ""}`}
       data-rowindex={props.index}
       key={key}
       onClick={(e) => {

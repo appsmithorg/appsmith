@@ -1,19 +1,20 @@
-import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import {
-  ENTITY_TYPE,
-  UnEvalTreeAction,
-} from "entities/DataTree/dataTreeFactory";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
 } from "entities/Action/actionProperties";
+import type { ActionEntity, ActionEntityConfig } from "./types";
 
 export const generateDataTreeAction = (
   action: ActionData,
   editorConfig: any[],
   dependencyConfig: DependencyMap = {},
-): UnEvalTreeAction => {
+): {
+  unEvalEntity: ActionEntity;
+  configEntity: ActionEntityConfig;
+} => {
   let dynamicBindingPathList: DynamicPath[] = [];
   let datasourceUrl = "";
 
@@ -48,20 +49,22 @@ export const generateDataTreeAction = (
   );
 
   return {
-    actionId: action.config.id,
-    run: {},
-    clear: {},
-    data: action.data ? action.data.body : undefined,
-    isLoading: action.isLoading,
-    responseMeta: {
-      statusCode: action.data?.statusCode,
-      isExecutionSuccess: action.data?.isExecutionSuccess || false,
-      headers: action.data?.headers,
+    unEvalEntity: {
+      actionId: action.config.id,
+      run: {},
+      clear: {},
+      data: action.data ? action.data.body : undefined,
+      isLoading: action.isLoading,
+      responseMeta: {
+        statusCode: action.data?.statusCode,
+        isExecutionSuccess: action.data?.isExecutionSuccess || false,
+        headers: action.data?.headers,
+      },
+      config: action.config.actionConfiguration,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      datasourceUrl,
     },
-    config: action.config.actionConfiguration,
-    ENTITY_TYPE: ENTITY_TYPE.ACTION,
-    datasourceUrl,
-    __config__: {
+    configEntity: {
       actionId: action.config.id,
       name: action.config.name,
       pluginId: action.config.pluginId,

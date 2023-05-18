@@ -5,6 +5,5 @@
 	"semi": true,
 	"singleQuote": false,
 	"trailingComma": "all",
-	"parser": "typescript",
 	"arrowParens": "always"
 }

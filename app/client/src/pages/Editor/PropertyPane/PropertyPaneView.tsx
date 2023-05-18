@@ -1,14 +1,9 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import type { ReactElement } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
-import { IPanelProps, Position } from "@blueprintjs/core";
+import type { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
@@ -16,13 +11,9 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import CopyIcon from "remixicon-react/FileCopyLineIcon";
-import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
-import { WidgetType } from "constants/WidgetConstants";
-import {
-  InteractionAnalyticsEventDetail,
-  INTERACTION_ANALYTICS_EVENT,
-} from "utils/AppsmithUtils";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
+import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
@@ -33,6 +24,14 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { importRemixIcon } from "design-system-old";
+
+const CopyIcon = importRemixIcon(
+  () => import("remixicon-react/FileCopyLineIcon"),
+);
+const DeleteIcon = importRemixIcon(
+  () => import("remixicon-react/DeleteBinLineIcon"),
+);
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -185,9 +184,10 @@ function PropertyPaneView(
   // generate messages
   const deprecationMessage = buildDeprecationWidgetMessage(widgetReplacedWith);
 
-  const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
-    widgetProperties.type,
-  ).length;
+  const isContentConfigAvailable =
+    WidgetFactory.getWidgetPropertyPaneContentConfig(
+      widgetProperties.type,
+    ).length;
 
   const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
     widgetProperties.type,

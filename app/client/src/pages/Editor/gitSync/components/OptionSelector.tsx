@@ -1,15 +1,21 @@
 import React from "react";
-import {
-  Dropdown,
+import type {
   DefaultDropDownValueNodeProps,
   DropdownOption,
+} from "design-system-old";
+import {
+  Dropdown,
   DropdownWrapper,
   DropdownContainer as DropdownComponentContainer,
 } from "design-system-old";
-import { ReactComponent as ChevronDown } from "assets/icons/ads/chevron-down.svg";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
+import { importSvg } from "design-system-old";
+
+const ChevronDown = importSvg(
+  () => import("assets/icons/ads/chevron-down.svg"),
+);
 
 const SelectedValueNodeContainer = styled.div`
   color: ${Colors.CRUSTA};

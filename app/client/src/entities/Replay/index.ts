@@ -1,9 +1,10 @@
 import { Doc, Map, UndoManager } from "yjs";
 import { captureException } from "@sentry/react";
-import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
+import type { Diff } from "deep-diff";
+import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import { getPathsFromDiff } from "./replayUtils";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const _DIFF_ = "diff";
 type ReplayType = "UNDO" | "REDO";

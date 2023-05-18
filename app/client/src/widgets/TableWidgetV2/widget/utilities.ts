@@ -1,19 +1,18 @@
 import { Colors } from "constants/Colors";
-import {
-  FontStyleTypes,
-  RenderMode,
-  RenderModes,
-} from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
-import {
-  CellAlignmentTypes,
+import type {
   CellLayoutProperties,
   ColumnProperties,
   ReactTableColumnProps,
-  StickyType,
   TableColumnProps,
   TableStyles,
+} from "../component/Constants";
+import {
+  CellAlignmentTypes,
+  StickyType,
   VerticalAlignmentTypes,
 } from "../component/Constants";
 import {
@@ -24,7 +23,7 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import { TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
@@ -34,10 +33,10 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
-import React from "react";
+import type React from "react";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -189,6 +188,7 @@ export function getDefaultColumnProperties(
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
+    allowSameOptionsInNewRow: true,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,
     originalId: id,
@@ -294,6 +294,7 @@ export const getArrayPropertyValue = (value: unknown, index: number) => {
 export const getCellProperties = (
   columnProperties: ColumnProperties,
   rowIndex: number,
+  isAddRowInProgress = false,
 ) => {
   if (columnProperties) {
     return {
@@ -494,9 +495,10 @@ export const getCellProperties = (
         true,
       ),
       shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
-      selectOptions: getArrayPropertyValue(
-        columnProperties.selectOptions,
+      selectOptions: getSelectOptions(
+        isAddRowInProgress,
         rowIndex,
+        columnProperties,
       ),
       timePrecision: getPropertyValue(
         columnProperties.timePrecision,
@@ -540,9 +542,7 @@ export function getSelectColumnTypeOptions(value: unknown) {
  */
 export const getSelectedRowBgColor = (accentColor: string) => {
   const tinyAccentColor = tinycolor(accentColor);
-  const brightness = tinycolor(accentColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(accentColor).greyscale().getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
   let nextBrightness = 0;
@@ -931,12 +931,8 @@ export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
       );
 
       if (parsedTableWidgetColumnOrder[widgetId]) {
-        const {
-          columnOrder,
-          columnUpdatedAt,
-          leftOrder,
-          rightOrder,
-        } = parsedTableWidgetColumnOrder[widgetId];
+        const { columnOrder, columnUpdatedAt, leftOrder, rightOrder } =
+          parsedTableWidgetColumnOrder[widgetId];
         return {
           columnOrder,
           columnUpdatedAt,
@@ -1108,4 +1104,24 @@ export const getDragHandlers = (
     onDragStart,
     onDrop,
   };
+};
+
+export const getSelectOptions = (
+  isNewRow: boolean,
+  rowIndex: number,
+  columnProperties: ColumnProperties,
+) => {
+  if (isNewRow) {
+    if (
+      columnProperties.allowSameOptionsInNewRow &&
+      columnProperties?.selectOptions
+    ) {
+      // Use select options from the first row
+      return getArrayPropertyValue(columnProperties.selectOptions, 0);
+    } else {
+      return columnProperties.newRowSelectOptions;
+    }
+  } else {
+    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
+  }
 };

@@ -1,23 +1,29 @@
-import { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { createSelector } from "reselect";
-import { getWidgets } from "sagas/selectors";
-import {
+import { getCanvasAndMetaWidgets } from "sagas/selectors";
+import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
   FlexLayer,
   LayerChild,
 } from "utils/autoLayout/autoLayoutTypes";
 import { getAlignmentColumnInfo } from "utils/autoLayout/AutoLayoutUtils";
-import { getIsMobile } from "./mainCanvasSelectors";
+import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
+
+export const getIsCurrentlyConvertingLayout = (state: AppState) =>
+  state.ui.layoutConversion.isConverting;
 
 export const getFlexLayers = (parentId: string) => {
-  return createSelector(getWidgets, (widgets): FlexLayer[] => {
+  return createSelector(getCanvasAndMetaWidgets, (widgets): FlexLayer[] => {
     const parent = widgets[parentId];
     if (!parent) return [];
     return parent?.flexLayers || [];
   });
 };
+
+export const getSnapshotUpdatedTime = (state: AppState) =>
+  state.ui.layoutConversion.snapshotDetails?.lastUpdatedTime;
 
 export const getLayerIndex = (widgetId: string, parentId: string) => {
   return createSelector(
@@ -44,22 +50,50 @@ export const isCurrentCanvasDragging = (widgetId: string) => {
   );
 };
 
+export const getTotalTopOffset = (widgetId: string) => {
+  return createSelector(
+    getCanvasAndMetaWidgets,
+    getIsAutoLayoutMobileBreakPoint,
+    (widgets, isMobile): number => {
+      let widget = widgets[widgetId];
+      if (!widget) return 0;
+      let offset = 0;
+      while (widget.parentId) {
+        const parent = widgets[widget.parentId];
+        const top =
+          isMobile && parent.mobileTopRow !== undefined
+            ? parent.mobileTopRow
+            : parent.topRow;
+        offset += top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
+        if (parent.type === "TABS_WIDGET" && parent?.shouldShowTabs)
+          offset += GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 4; // 4 rows for tabs header
+        widget = parent;
+      }
+      return offset;
+    },
+  );
+};
+
 export const getParentOffsetTop = (widgetId: string) =>
-  createSelector(getWidgets, getIsMobile, (widgets, isMobile): number => {
-    const widget = widgets[widgetId];
-    if (!widget || !widget.parentId) return 0;
-    const parent = widgets[widget.parentId];
-    const top =
-      isMobile && parent.mobileTopRow !== undefined
-        ? parent.mobileTopRow
-        : parent.topRow;
-    return top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
-  });
+  createSelector(
+    getCanvasAndMetaWidgets,
+    getIsAutoLayoutMobileBreakPoint,
+    (widgets, isMobile): number => {
+      const widget = widgets[widgetId];
+      if (!widget || !widget.parentId) return 0;
+      const parent = widgets[widget.parentId];
+      const top =
+        isMobile && parent.mobileTopRow !== undefined
+          ? parent.mobileTopRow
+          : parent.topRow;
+      return top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
+    },
+  );
 
 export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
   createSelector(
-    getWidgets,
-    getIsMobile,
+    getCanvasAndMetaWidgets,
+    getIsAutoLayoutMobileBreakPoint,
     getFlexLayers(widgetId),
     (widgets, isMobile, flexLayers): AlignmentColumnInfo => {
       const layer: FlexLayer = flexLayers[layerIndex];
@@ -69,8 +103,8 @@ export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
 
 export const getColumnsForAllLayers = (widgetId: string) =>
   createSelector(
-    getWidgets,
-    getIsMobile,
+    getCanvasAndMetaWidgets,
+    getIsAutoLayoutMobileBreakPoint,
     getFlexLayers(widgetId),
     (widgets, isMobile, flexLayers): FlexBoxAlignmentColumnInfo => {
       const res: { [key: number]: AlignmentColumnInfo } = {};

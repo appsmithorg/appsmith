@@ -2,18 +2,24 @@ import React from "react";
 import { isEmail } from "utils/formhelpers";
 import { apiRequestConfig } from "api/Api";
 import UserApi from "@appsmith/api/UserApi";
-import {
+import type {
   AdminConfigType,
+  Setting,
+} from "@appsmith/pages/AdminSettings/config/types";
+import {
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-  Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
-import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
+import { importRemixIcon } from "design-system-old";
+
+const QuestionFillIcon = importRemixIcon(
+  () => import("remixicon-react/QuestionFillIcon"),
+);
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",
@@ -101,11 +107,9 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
         badge: "NOT RECOMMENDED",
         tooltip: {
           icon: <QuestionFillIcon />,
-          text:
-            "Lets all domains, including malicious ones, embed your Appsmith apps. ",
+          text: "Lets all domains, including malicious ones, embed your Appsmith apps. ",
           linkText: "SEE WHY THIS IS RISKY",
-          link:
-            "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
+          link: "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
         },
         label: "Allow embedding everywhere",
         value: AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE,

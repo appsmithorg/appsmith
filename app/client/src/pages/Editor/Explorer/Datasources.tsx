@@ -3,7 +3,7 @@ import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
 } from "./hooks";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "react-redux";
 import {
@@ -23,7 +23,6 @@ import {
   EMPTY_DATASOURCE_MAIN_TEXT,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
 import {
   useDatasourceIdFromURL,
@@ -35,11 +34,16 @@ import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { importRemixIcon } from "design-system-old";
+
+const ArrowRightLineIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowRightLineIcon"),
+);
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;

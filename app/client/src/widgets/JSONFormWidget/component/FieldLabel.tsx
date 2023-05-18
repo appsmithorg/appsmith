@@ -1,13 +1,16 @@
-import React, { PropsWithChildren, useMemo } from "react";
+import type { PropsWithChildren } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { IconWrapper } from "constants/IconConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import { AlignWidget } from "widgets/constants";
+import type { AlignWidget } from "widgets/constants";
+import { importSvg } from "design-system-old";
+
+const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
 
 type AlignField = AlignWidget;
 

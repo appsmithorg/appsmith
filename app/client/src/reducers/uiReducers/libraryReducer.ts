@@ -1,11 +1,12 @@
 import { createImmerReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { defaultLibraries, TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
+import { defaultLibraries } from "workers/common/JSLibrary";
 
 export enum InstallState {
   Queued,

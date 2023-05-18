@@ -1,0 +1,72 @@
+// This file is a base for all package-specific ESLint configurations
+{
+  "$schema": "http://json.schemastore.org/eslintrc",
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "prettier",
+    "react-hooks",
+    "sort-destructure-keys",
+    "cypress"
+  ],
+  "extends": [
+    "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
+    "plugin:@typescript-eslint/recommended",
+    "plugin:cypress/recommended",
+    // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
+    // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
+    "sourceType": "module", // Allows for the use of imports
+    "ecmaFeatures": {
+      "jsx": true // Allows for the parsing of JSX
+    }
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "import/no-webpack-loader-syntax": "off",
+    "no-undef": "off",
+    "react/prop-types": "off",
+    "react/display-name": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "cypress/no-unnecessary-waiting": "off",
+    "cypress/no-assigning-return-values": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    // enforce `import type` for all type-only imports so the bundler knows to erase them
+    "@typescript-eslint/consistent-type-imports": "error",
+    "react-hooks/rules-of-hooks": "error",
+    "react/jsx-boolean-value": "error",
+    "react/self-closing-comp": "error",
+    "react/jsx-sort-props": "error",
+    "react/jsx-fragments": "error",
+    "react/jsx-no-useless-fragment": "error",
+    "sort-destructure-keys/sort-destructure-keys": [
+      "error",
+      { "caseSensitive": false }
+    ],
+    "no-console": "warn",
+    "no-debugger": "warn"
+  },
+  "settings": {
+    "import/resolver": {
+      "babel-module": {}
+    },
+    "react": {
+      "pragma": "React",
+      // Tells eslint-plugin-react to automatically detect the version of React to use
+      "version": "detect"
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "cypress/globals": true,
+    "worker": true
+  }
+}

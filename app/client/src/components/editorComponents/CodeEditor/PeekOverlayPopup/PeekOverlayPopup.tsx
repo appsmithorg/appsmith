@@ -1,4 +1,5 @@
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import type { MutableRefObject } from "react";
+import React, { useEffect, useRef } from "react";
 import ReactJson from "react-json-view";
 import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";

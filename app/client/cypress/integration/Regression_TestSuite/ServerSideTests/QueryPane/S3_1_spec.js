@@ -10,7 +10,7 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 
 let datasourceName;
 
-describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
+describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -26,11 +26,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   //     cy.actionContextMenuByEntityName(queryName);
   // });
 
-  before("Creates a new Amazon S3 datasource", function() {
+  before("Creates a new Amazon S3 datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.AmazonS3)
-      .click({ force: true })
-      .wait(1000);
+    cy.get(datasource.AmazonS3).click({ force: true }).wait(1000);
 
     cy.generateUUID().then((uid) => {
       datasourceName = `Amazon S3 CRUD ds ${uid}`;
@@ -48,7 +46,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       formControls.commandDropdown,
       "List files in bucket",
     );
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
@@ -57,7 +55,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait(3000); //for new postExecute to come thru
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
@@ -371,7 +369,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
-  it("4. Create new file in bucket for UI Operations & Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function() {
+  it("4. Create new file in bucket for UI Operations & Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function () {
     //Creating new file in bucket
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
@@ -443,9 +441,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.ClickGotIt();
 
     //Verifying Searching File from UI
-    cy.xpath(queryLocators.searchFilefield)
-      .type("CRUD")
-      .wait(7000); //for search to finish
+    cy.xpath(queryLocators.searchFilefield).type("CRUD").wait(7000); //for search to finish
 
     cy.get(".t--widget-textwidget span:contains('CRUDNewPageFile')")
       .should("have.length", 1)
@@ -456,9 +452,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(queryLocators.deleteFileicon)
-      .eq(0)
-      .click(); //Verifies 8684
+    cy.xpath(queryLocators.deleteFileicon).eq(0).click(); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(
@@ -476,9 +470,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--delete-datasource").contains("Are you sure?").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -491,7 +483,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
   });
 
-  it("6. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function() {
+  it("6. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function () {
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.wait(5000); //for buckets to populate
     //Verifying List of Files from UI
@@ -538,9 +530,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .should("contain.text", "File Uploaded"); //Verifies bug # 6975
 
     //Verifying Searching File from UI
-    cy.xpath(queryLocators.searchFilefield)
-      .type("AAAGlobeChri")
-      .wait(7000); //for search to finish
+    cy.xpath(queryLocators.searchFilefield).type("AAAGlobeChri").wait(7000); //for search to finish
 
     cy.get(`.t--widget-textwidget span:contains(${fixturePath})`)
       .should("have.length", 1)
@@ -630,15 +620,16 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     //verify Deletion of file is success from UI also
 
-    //Deleting the page:
-    cy.actionContextMenuByEntityName(
-      "Assets-test.appsmith.com",
-      "Delete",
-      "Are you sure?",
-    );
+    // //Deleting the page://Commenting below since during re-runs the page name can be com2, com3 etc
+    // cy.actionContextMenuByEntityName(
+    //   "Assets-test.appsmith.com",
+    //   "Delete",
+    //   "Are you sure?",
+    // );
   });
 
   it("7. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+    _.entityExplorer.SelectEntityByName("Page1");
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
     _.agHelper.GetObjectName().then(($queryName) => {
@@ -651,26 +642,20 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         formControls.s3BucketName,
       );
       cy.runQuery();
-      cy.xpath(queryLocators.suggestedWidgetDropdown)
-        .click()
-        .wait(1000);
+      cy.xpath(queryLocators.suggestedWidgetDropdown).click().wait(1000);
       cy.get(".t--draggable-selectwidget").validateWidgetExists();
 
       _.entityExplorer.SelectEntityByName("Select1", "Widgets");
       _.agHelper.GetNClick(_.propPane._deleteWidget);
 
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      cy.get(queryLocators.suggestedTableWidget)
-        .click()
-        .wait(1000);
+      cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
       cy.get(commonlocators.TableV2Row).validateWidgetExists();
       _.entityExplorer.SelectEntityByName("Table1", "Widgets");
       _.agHelper.GetNClick(_.propPane._deleteWidget);
 
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      cy.xpath(queryLocators.suggestedWidgetText)
-        .click()
-        .wait(1000);
+      cy.xpath(queryLocators.suggestedWidgetText).click().wait(1000);
       cy.get(commonlocators.textWidget).validateWidgetExists();
       _.entityExplorer.SelectEntityByName("Text1", "Widgets");
       _.agHelper.GetNClick(_.propPane._deleteWidget);
@@ -695,9 +680,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       );
       cy.runQuery();
       cy.clickButton("Select Widget");
-      cy.xpath(queryLocators.snipeableTable)
-        .click()
-        .wait(1500); //wait for table to load!
+      cy.xpath(queryLocators.snipeableTable).click().wait(1500); //wait for table to load!
 
       cy.get(commonlocators.TableV2Row).validateWidgetExists();
 
@@ -715,9 +698,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--delete-datasource").contains("Are you sure?").click();
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

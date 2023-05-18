@@ -32,9 +32,7 @@ describe("Linting of entity properties", () => {
       .should("have.length", 2)
       .first()
       .trigger("mouseover");
-    agHelper
-      .AssertContains(`"${invalidProperty}" doesn't exist in Api1`)
-      .should("exist");
+    agHelper.AssertContains(`"${invalidProperty}" doesn't exist in Api1`);
   });
 
   it("2. Shows correct lint error when wrong JSObject property is binded", () => {
@@ -109,6 +107,6 @@ describe("Linting of entity properties", () => {
 
     // select button, and assert that no lint error is present
     ee.SelectEntityByName("Button1", "Widgets");
-    cy.get(locator._lintErrorElement).should("not.exist");
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 });

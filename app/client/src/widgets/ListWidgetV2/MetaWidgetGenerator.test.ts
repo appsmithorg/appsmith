@@ -1,15 +1,24 @@
 import { difference } from "lodash";
 import { klona } from "klona";
 
-import MetaWidgetGenerator, {
-  ConstructorProps,
-  GeneratorOptions,
-} from "./MetaWidgetGenerator";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
+import MetaWidgetGenerator from "./MetaWidgetGenerator";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
-import { LevelData } from "./widget";
+import type { LevelData } from "./widget";
+
+import { registerWidget } from "utils/WidgetRegisterHelpers";
+import ImageWidget, { CONFIG as ImageWidgetConfig } from "widgets/ImageWidget";
+import TextWidget, { CONFIG as TextWidgetConfig } from "widgets/TextWidget";
+import ListWidget, { CONFIG as ListWidgetConfig } from "widgets/ListWidgetV2";
+import CanvasWidget, {
+  CONFIG as CanvasWidgetConfig,
+} from "widgets/CanvasWidget";
+import ContainerWidget, {
+  CONFIG as ContainerWidgetConfig,
+} from "widgets/ContainerWidget";
 
 type Validator = {
   widgetType: string;
@@ -40,7 +49,7 @@ const DEFAULT_OPTIONS = {
   infiniteScroll: false,
   levelData: undefined,
   prevTemplateWidgets: {},
-  primaryKeys: data.map((d) => d.id),
+  primaryKeys: data.map((d) => d.id.toString()),
   scrollElement: null,
   templateBottomRow: 12,
   widgetName: "List1",
@@ -86,7 +95,7 @@ const levelData: LevelData = {
       },
       List6: {
         entityDefinition:
-          "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex",
+          "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
         rowIndex: 0,
         metaWidgetId: "fs2d2lqjgd",
         metaWidgetName: "List6",
@@ -222,6 +231,14 @@ const validateMetaWidgetType = (
   expect(extraGeneratedMetaWidgets).toEqual([]);
 };
 
+beforeAll(() => {
+  registerWidget(ImageWidget, ImageWidgetConfig);
+  registerWidget(TextWidget, TextWidgetConfig);
+  registerWidget(ListWidget, ListWidgetConfig);
+  registerWidget(CanvasWidget, CanvasWidgetConfig);
+  registerWidget(ContainerWidget, ContainerWidgetConfig);
+});
+
 describe("#generate", () => {
   it("generates meta widgets for first instance", () => {
     const { initialResult } = init();
@@ -269,7 +286,7 @@ describe("#generate", () => {
       { id: 4, name: "White" },
     ];
     options.data = newData;
-    options.primaryKeys = newData.map((d) => d.id);
+    options.primaryKeys = newData.map((d) => d.id.toString());
 
     const result = generator.withOptions(options).generate();
     const count = Object.keys(result.metaWidgets).length;
@@ -727,7 +744,7 @@ describe("#generate", () => {
           },
           List6: {
             entityDefinition:
-              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
+              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView",
             rowIndex: 0,
             metaWidgetId: "fs2d2lqjgd",
             metaWidgetName: "List6",
@@ -764,7 +781,21 @@ describe("#generate", () => {
             id: 1,
             name: "Blue",
           },
-          currentView: "{{Container1.data}}",
+          currentView: `{{((data, blackListArr) => {
+              const newObj = {};
+
+              for (const key in data) {
+                if (data.hasOwnProperty(key) && typeof data[key] === 'object') {
+                  newObj[key] = Object.fromEntries(
+                    Object.entries(data[key]).filter(
+                      ([nestedKey]) => !blackListArr.includes(nestedKey)
+                    )
+                  );
+                }
+              }
+              return newObj;
+              })(Container1.data, [\"selectedItemView\",\"triggeredItemView\",\"currentItemsView\"] )
+          }}`,
         },
       },
     };
@@ -772,7 +803,7 @@ describe("#generate", () => {
     const nestedListWidgetId = "fs2d2lqjgd";
     const metaListWidget = initialResult.metaWidgets[nestedListWidgetId];
 
-    Object.values(initialResult.metaWidgets).map((metaWidget) => {
+    Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
       if (metaWidget.type === "LIST_WIDGET_V2") {
         expect(metaWidget.level).toEqual(2);
       }
@@ -817,6 +848,58 @@ describe("#generate", () => {
     const count = Object.keys(initialResult.metaWidgets).length;
     expect(count).toEqual(15);
     expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
+  });
+
+  it("removed BlackListed properties from Parent InnerList", () => {
+    const nestedTextWidgetId = "dkk5yh9urt";
+
+    const nestedListWidgetId = "fs2d2lqjgd";
+    const nestedListWidget =
+      nestedListInput.templateWidgets[nestedListWidgetId];
+
+    const cache = new Cache();
+
+    const generator = new MetaWidgetGenerator({
+      getWidgetCache: () => cache.getWidgetCache(nestedListWidgetId),
+      setWidgetCache: (data) => cache.setWidgetCache(nestedListWidgetId, data),
+      getWidgetReferenceCache: cache.getWidgetReferenceCache,
+      setWidgetReferenceCache: cache.setWidgetReferenceCache,
+      infiniteScroll: false,
+      prefixMetaWidgetId: "test",
+      isListCloned: false,
+      level: 2,
+      onVirtualListScroll: jest.fn,
+      primaryWidgetType: "LIST_WIDGET_V2",
+      renderMode: RenderModes.CANVAS,
+    });
+
+    const initialResult = generator
+      .withOptions({
+        ...DEFAULT_OPTIONS,
+        currTemplateWidgets: {
+          ...nestedListInput.templateWidgets,
+          dkk5yh9urt: {
+            ...nestedListInput.templateWidgets[nestedTextWidgetId],
+            text: "{{level_1.currentView.List6}}",
+          },
+        },
+        containerParentId: nestedListWidget.mainCanvasId,
+        containerWidgetId: nestedListWidget.mainContainerId,
+        levelData,
+        pageSize: 3,
+        widgetName: "List6",
+      })
+      .generate();
+
+    const expectedLevel_1 = {
+      currentView: {
+        List6:
+          "{{{backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize}}}",
+      },
+    };
+
+    const metaNestedTextWidget = initialResult.metaWidgets[nestedTextWidgetId];
+    expect(metaNestedTextWidget.level_1).toEqual(expectedLevel_1);
   });
 
   it("updates the bindings properties that use currentItem, currentView, currentIndex and level_", () => {
@@ -927,7 +1010,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
     expect(count).toEqual(18);
@@ -951,13 +1034,13 @@ describe("#generate", () => {
       { id: 1, name: "Blue" },
       { id: 2, name: "Pink" },
     ];
-    const page1PrimaryKeys = page1Data.map((d) => d.id);
+    const page1PrimaryKeys = page1Data.map((d) => d.id.toString());
 
     const page2Data = [
       { id: 3, name: "Red" },
       { id: 4, name: "Blue" },
     ];
-    const page2PrimaryKeys = page2Data.map((d) => d.id);
+    const page2PrimaryKeys = page2Data.map((d) => d.id.toString());
 
     /**
      * Here page1Data's first item got shuffled into 2nd item and
@@ -967,7 +1050,7 @@ describe("#generate", () => {
       { id: 5, name: "Green" },
       { id: 1, name: "White" },
     ];
-    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id);
+    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id.toString());
 
     const { generator, initialResult, options } = init({
       optionsProps: {
@@ -1013,13 +1096,13 @@ describe("#generate", () => {
       { id: 1, name: "Blue" },
       { id: 2, name: "Pink" },
     ];
-    const page1PrimaryKeys = page1Data.map((d) => d.id);
+    const page1PrimaryKeys = page1Data.map((d) => d.id.toString());
 
     const page2Data = [
       { id: 3, name: "Red" },
       { id: 4, name: "Blue" },
     ];
-    const page2PrimaryKeys = page2Data.map((d) => d.id);
+    const page2PrimaryKeys = page2Data.map((d) => d.id.toString());
 
     /**
      * Here page1Data's first item got shuffled into 2nd item and
@@ -1029,7 +1112,7 @@ describe("#generate", () => {
       { id: 5, name: "Green" },
       { id: 1, name: "White" },
     ];
-    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id);
+    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id.toString());
 
     const { generator, initialResult, options } = init({
       constructorProps: {

@@ -1,7 +1,5 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
@@ -9,8 +7,8 @@ import {
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 
+import type { CodeEditorFocusState } from "actions/editorContextActions";
 import {
-  CodeEditorFocusState,
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";

@@ -1,5 +1,6 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { RefObject } from "react";
+import type { RefObject } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { scrollCSS } from "widgets/WidgetUtils";
@@ -50,7 +51,7 @@ const ScrollableCanvasWrapper = styled.div<
   Pick<ListComponentProps, "infiniteScroll" | "height">
 >`
   ${({ infiniteScroll }) => (infiniteScroll ? scrollCSS : ``)}
-   height: ${(props) => props.height - WIDGET_PADDING * 2}px;
+  height: ${(props) => props.height - WIDGET_PADDING * 2}px;
 `;
 
 function ListComponent(props: ListComponentProps) {

@@ -8,19 +8,16 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function() {
-  before(() => {
+describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function () {
+  before("Change Theme & Create Postgress DS", () => {
     appSettings.OpenPaneAndChangeTheme("Pampas");
-  });
-
-  it("1. Create Postgress DS", function() {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("2. Create dummy pages for navigating", () => {
+  it("1. Create dummy pages for navigating", () => {
     //CRUD page 2
     ee.AddNewPage();
     ee.AddNewPage("generate-page");
@@ -57,11 +54,8 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
     table.WaitUntilTableLoad();
   });
-
-  //Since its failing continuously skiping now
-  it("3. Navigate & Assert toast", () => {
+  it("2. Navigate & Assert toast", () => {
     //Navigating between CRUD (Page3) & EmptyPage (Page2):
-
     ee.SelectEntityByName("Page1");
     agHelper.Sleep(2000);
     ee.SelectEntityByName("Page2");

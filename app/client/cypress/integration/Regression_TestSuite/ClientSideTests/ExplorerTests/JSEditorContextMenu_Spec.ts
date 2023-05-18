@@ -13,13 +13,13 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     jsEditor.ValidateDefaultJSObjProperties("JSObject1");
   });
 
-  it("2. Validate Rename JSObject from Form Header", function() {
+  it("2. Validate Rename JSObject from Form Header", function () {
     jsEditor.RenameJSObjFromPane("RenamedJSObject");
     ee.AssertEntityPresenceInExplorer("RenamedJSObject");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObject");
   });
 
-  it("3. Validate Copy JSObject", function() {
+  it("3. Validate Copy JSObject", function () {
     ee.ActionContextMenuByEntityName("RenamedJSObject", "Copy to page", pageId);
     cy.wait("@createNewJSCollection").should(
       "have.nested.property",
@@ -30,13 +30,13 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
-  it("4. Validate Rename JSObject from Entity Explorer", function() {
+  it("4. Validate Rename JSObject from Entity Explorer", function () {
     jsEditor.RenameJSObjFromExplorer("RenamedJSObject", "ExplorerRenamed");
     ee.AssertEntityPresenceInExplorer("ExplorerRenamed");
     jsEditor.ValidateDefaultJSObjProperties("ExplorerRenamed");
   });
 
-  it("5. Validate Move JSObject", function() {
+  it("5. Validate Move JSObject", function () {
     const newPageId = "Page2";
     ee.AddNewPage();
     ee.AssertEntityPresenceInExplorer(newPageId);
@@ -52,7 +52,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
-  it("6. Validate Deletion of JSObject", function() {
+  it("6. Validate Deletion of JSObject", function () {
     ee.SelectEntityByName(pageId);
     ee.ActionContextMenuByEntityName(
       "ExplorerRenamed",

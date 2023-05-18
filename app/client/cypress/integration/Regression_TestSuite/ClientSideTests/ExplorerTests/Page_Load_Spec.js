@@ -59,9 +59,7 @@ describe("Page Load tests", () => {
       "This is Page 2",
     );
     // Switch page
-    cy.get(".t--page-switch-tab")
-      .contains("Page1")
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page1")

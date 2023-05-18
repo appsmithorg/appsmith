@@ -29,8 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
-  private _contentTabBtn = "li:contains('CONTENT')";
-  private _styleTabBtn = "li:contains('STYLE')";
+  private _styleTabBtn = (tab: string) => "li:contains('" + tab + "')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -46,6 +45,7 @@ export class PropertyPane {
     `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
   private _propertyControl = (property: string) =>
     `.t--property-control-${property}`;
+  private _addAction = (property: string) => `.t--add-action-${property}`;
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
@@ -60,6 +60,34 @@ export class PropertyPane {
     "//h3[text()='" + option + " Color']//parent::div//input";
   _colorInputField = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div";
+  _rowHeightBtn = (btnType: "SHORT" | "DEFAULT" | "TALL") =>
+    ".t--button-group-" + btnType + " ";
+  _actionSelectorPopup = ".t--action-selector-popup";
+  _actionSelectorFieldByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
+  _actionSelectorFieldContentByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div`;
+  _actionCardByTitle = (title: string) =>
+    `[data-testid='action-card-${title}']`;
+  _actionCallbacks = ".t--action-callbacks";
+  _actionAddCallback = (type: "success" | "failure") =>
+    `.t--action-add-${type}-callback`;
+  _actionSelectorPopupClose = `${this._actionSelectorPopup} .t--close`;
+  _actionSelectorDelete = `${this._actionSelectorPopup} .t--delete`;
+  _actionCard = ".action-block-tree";
+  _actionCallbackTitle = ".action-callback-add";
+  _actionTreeCollapse = ".callback-collapse";
+  _actionPopupTextLabel = '[data-testid="text-view-label"]';
+  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
+  _selectorViewButton = ".selector-view .bp3-button-text";
+  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
+  _pageNameSwitcher = "#switcher--page-name";
+  _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
+  _urlSwitcher = "#switcher--url";
+  _dropdownSelectType = ".t--open-dropdown-Select-type";
+  _selectorViewLabel = '[data-testId="selector-view-label"]';
+  _textView = ".text-view";
+  _selectorView = ".selector-view";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -107,15 +135,9 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper
-        .GetElement(this._colorInput(type))
-        .clear()
-        .wait(200);
+      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper
-        .GetElement(this._colorInput(type))
-        .clear()
-        .wait(200);
+      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -124,7 +146,7 @@ export class PropertyPane {
   public GetJSONFormConfigurationFileds() {
     const fieldNames: string[] = [];
     let fieldInvokeValue: string;
-    cy.xpath(this._jsonFieldConfigList).each(function($item) {
+    cy.xpath(this._jsonFieldConfigList).each(function ($item) {
       cy.wrap($item)
         .invoke("val")
         .then(($fieldName: any) => {
@@ -169,16 +191,9 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public moveToContentTab() {
-    cy.get(this._contentTabBtn)
-      .first()
-      .click({ force: true });
-  }
-
-  public moveToStyleTab() {
-    cy.get(this._styleTabBtn)
-      .first()
-      .click({ force: true });
+  public MoveToTab(tab: "CONTENT" | "STYLE") {
+    this.agHelper.GetNClick(this._styleTabBtn(tab));
+    this.agHelper.Sleep();
   }
 
   public SelectPropertiesDropDown(
@@ -200,12 +215,28 @@ export class PropertyPane {
     cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
+  public SelectJSFunctionToExecuteInExistingActionBlock(
+    jsName: string,
+    funcName: string,
+  ) {
+    cy.get(".t--action-selector-popup .bp3-button").click({ force: true });
+    cy.get(this.locator._dropDownValue("Execute a JS function")).click();
+    cy.get(this.locator._dropDownValue(jsName)).click();
+    cy.get(this.locator._dropDownValue(funcName)).click();
+    this.agHelper.AssertAutoSave();
+  }
+
   public SelectJSFunctionToExecute(
     eventName: string,
     jsName: string,
     funcName: string,
   ) {
-    this.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.AddAction(eventName);
+    this.agHelper.GetNClick(
+      this.locator._dropDownValue("Execute a JS function"),
+      0,
+      true,
+    );
     this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
     this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();
@@ -216,10 +247,9 @@ export class PropertyPane {
     valueToEnter: string,
     toVerifySave = true,
   ) {
-    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
-      ($field: any) => {
-        this.agHelper.UpdateCodeInput($field, valueToEnter);
-      },
+    this.agHelper.UpdateCodeInput(
+      this.locator._existingFieldTextByName(propFieldName),
+      valueToEnter,
     );
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
@@ -236,20 +266,21 @@ export class PropertyPane {
     return cy.wrap(valueToValidate);
   }
 
+  public ValidateJSFieldValue(fieldName: string, valueToValidate: string) {
+    this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
+    this.ValidatePropertyFieldValue(fieldName, valueToValidate);
+    this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
+  }
+
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
     let val: any;
     if (fieldName) {
-      cy.xpath(this.locator._existingFieldValueByName(fieldName))
-        .eq(0)
-        .click();
+      cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
       val = cy.get(fieldName).then(($field) => {
-        cy.wrap($field)
-          .find(".CodeMirror-code span")
-          .first()
-          .invoke("text");
+        cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
       });
     } else {
-      cy.xpath(this.locator._codeMirrorCode).click();
+      this.agHelper.GetNClick(this.locator._codeMirrorCode);
       val = cy
         .xpath(
           "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
@@ -284,8 +315,10 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave();
   }
 
-  public TypeTextIntoField(endp: string, value: string) {
-    this.RemoveText(endp);
+  public TypeTextIntoField(endp: string, value: string, removeText = true) {
+    if (removeText) {
+      this.RemoveText(endp);
+    }
     cy.get(
       this.locator._propertyControl +
         endp.replace(/ +/g, "").toLowerCase() +
@@ -376,5 +409,24 @@ export class PropertyPane {
     );
     if (property)
       this.agHelper.AssertElementExist(this._propertyControl(property));
+  }
+
+  public AddAction(property: string) {
+    cy.get(this._addAction(property)).scrollIntoView().click({ force: true });
+  }
+
+  public SelectPlatformFunction(eventName: string, dropdownValue: string) {
+    this.AddAction(eventName);
+    cy.get(this.locator._dropDownValue(dropdownValue)).click();
+  }
+
+  public SelectActionByTitleAndValue(title: string, value: string) {
+    cy.get(this._actionCardByTitle(title)).children().contains(value).click();
+  }
+
+  public ClearActionField(property: string) {
+    cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+    this.UpdatePropertyFieldValue(property, "");
+    cy.get(this.locator._jsToggle(property.toLowerCase())).click();
   }
 }

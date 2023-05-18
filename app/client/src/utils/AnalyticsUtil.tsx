@@ -3,7 +3,8 @@ import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
 declare global {
@@ -114,6 +115,7 @@ export type EventName =
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
   | "EXECUTE_ACTION"
+  | "FILE_UPLOAD_COMPLETE"
   | "WELCOME_TOUR_CLICK"
   | "GUIDED_TOUR_RATING"
   | "GUIDED_TOUR_REACHED_STEP"
@@ -132,13 +134,15 @@ export type EventName =
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
   | "INTERCOM_CLICK"
-  | "BINDING_SUCCESS"
+  | "ENTITY_BINDING_SUCCESS"
   | "APP_MENU_OPTION_CLICK"
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
   | "DEBUGGER_NEW_ERROR_MESSAGE"
   | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
+  | "DEBUGGER_LOG_ITEM_EXPAND"
+  | "DEBUGGER_HELP_CLICK"
   | "DEBUGGER_CONTEXT_MENU_CLICK"
   | "ADD_MOCK_DATASOURCE_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
@@ -285,7 +289,27 @@ export type EventName =
   | "PEEK_OVERLAY_OPENED"
   | "PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK"
   | "PEEK_OVERLAY_VALUE_COPIED"
-  | LIBRARY_EVENTS;
+  | LIBRARY_EVENTS
+  | "APP_SETTINGS_SECTION_CLICK"
+  | APP_NAVIGATION_EVENT_NAMES
+  | ACTION_SELECTOR_EVENT_NAMES
+  | "PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT"
+  | "OPEN_DOCS"
+  | "RESTORE_SNAPSHOT"
+  | "CONVERSION_FAILURE"
+  | "CONVERT_AUTO_TO_FIXED"
+  | "CONVERT_FIXED_TO_AUTO"
+  | "DATASOURCE_AUTHORIZE_CLICK"
+  | "DATASOURCE_AUTHORIZE_RESULT"
+  | AI_EVENTS;
+
+export type AI_EVENTS =
+  | "AI_QUERY_SENT"
+  | "AI_RESPONSE_GENERATED"
+  | "AI_RESPONSE_COPIED"
+  | "AI_RESPONSE_EXECUTION_FAILED"
+  | "AI_RESPONSE_FEEDBACK"
+  | "AI_RESPONSE_EXECUTION_INIT";
 
 export type LIBRARY_EVENTS =
   | "INSTALL_LIBRARY"
@@ -310,6 +334,18 @@ export type GAC_EVENT_NAMES =
   | "GAC_INVITE_USER_CLICK"
   | "GAC_ADD_USER_CLICK";
 
+export type APP_NAVIGATION_EVENT_NAMES =
+  | "APP_NAVIGATION_SHOW_NAV"
+  | "APP_NAVIGATION_ORIENTATION"
+  | "APP_NAVIGATION_VARIANT"
+  | "APP_NAVIGATION_BACKGROUND_COLOR"
+  | "APP_NAVIGATION_SHOW_SIGN_IN";
+
+export type ACTION_SELECTOR_EVENT_NAMES =
+  | "ACTION_ADDED"
+  | "ACTION_DELETED"
+  | "ACTION_MODIFIED";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -328,11 +364,6 @@ class AnalyticsUtil {
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
-  }
-
-  static initializeSegmentWithoutTracking(key: string) {
-    AnalyticsUtil.blockTrackEvent = true;
-    return AnalyticsUtil.initializeSegment(key);
   }
 
   static initializeSegment(key: string) {
@@ -362,8 +393,8 @@ class AnalyticsUtil {
               "off",
               "on",
             ];
-            analytics.factory = function(t: any) {
-              return function() {
+            analytics.factory = function (t: any) {
+              return function () {
                 const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
                 e.unshift(t);
                 analytics.push(e);
@@ -375,7 +406,7 @@ class AnalyticsUtil {
             const e = analytics.methods[t];
             analytics[e] = analytics.factory(e);
           }
-          analytics.load = function(t: any, e: any) {
+          analytics.load = function (t: any, e: any) {
             const n = document.createElement("script");
             n.type = "text/javascript";
             n.async = !0;
@@ -496,7 +527,7 @@ class AnalyticsUtil {
     }
 
     if (sentry.enabled) {
-      Sentry.configureScope(function(scope) {
+      Sentry.configureScope(function (scope) {
         scope.setUser({
           id: userId,
           username: userData.username,

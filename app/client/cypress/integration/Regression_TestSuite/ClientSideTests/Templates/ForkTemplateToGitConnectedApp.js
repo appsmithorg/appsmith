@@ -5,10 +5,10 @@ let repoName;
 let newWorkspaceName;
 let branchName = "test/template";
 const jsObject = "Utils";
-const homePage = require("../../../../locators/HomePage");
+import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Fork a template to the current app", () => {
+describe("excludeForAirgap", "Fork a template to the current app", () => {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -23,7 +23,7 @@ describe("Fork a template to the current app", () => {
     _.agHelper.Sleep(2000);
   });
 
-  it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function() {
+  it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function () {
     cy.get(template.startFromTemplateCard).click();
     cy.wait("@fetchTemplate", { timeout: 30000 }).should(
       "have.nested.property",
@@ -38,6 +38,7 @@ describe("Fork a template to the current app", () => {
       .scrollIntoView()
       .wait(500)
       .click();
+    cy.get(template.templateViewForkButton).first().click();
     cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
       errorMsg: "Setting Templates did not finish even after 75 seconds",
       timeout: 950000,
@@ -60,7 +61,7 @@ describe("Fork a template to the current app", () => {
     cy.commitAndPush();
   });
 
-  it("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function() {
+  it("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function () {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
@@ -69,14 +70,9 @@ describe("Fork a template to the current app", () => {
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//div[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
-      cy.xpath(template.selectAllPages)
-        .next()
-        .click();
+      cy.xpath(template.selectAllPages).next().click();
       cy.wait(1000);
-      cy.xpath("//span[text()='SEND MESSAGES']")
-        .parent()
-        .next()
-        .click();
+      cy.xpath("//span[text()='SEND MESSAGES']").parent().next().click();
       // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       cy.get(template.templateViewForkButton).click();
       cy.wait(5000);
@@ -88,16 +84,10 @@ describe("Fork a template to the current app", () => {
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
       cy.NavigateToHome();
-      cy.get(homePage.searchInput)
-        .clear()
-        .type(newWorkspaceName);
+      cy.get(homePage.searchInput).clear().type(newWorkspaceName);
       cy.wait(2000);
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
-      cy.get(homePage.appEditIcon)
-        .first()
-        .click({ force: true });
+      cy.get(homePage.applicationCard).first().trigger("mouseover");
+      cy.get(homePage.appEditIcon).first().click({ force: true });
       cy.wait(5000);
       cy.switchGitBranch(branchName);
       cy.get(homePage.publishButton).click({ force: true });

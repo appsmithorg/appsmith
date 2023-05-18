@@ -1,5 +1,6 @@
 import React from "react";
-import { Severity } from "entities/AppsmithConsole";
+import type { Severity } from "entities/AppsmithConsole";
+import moment from "moment";
 
 // This component is used to render the timestamp in the error logs.
 export default function LogTimeStamp(props: {
@@ -7,6 +8,8 @@ export default function LogTimeStamp(props: {
   severity: Severity;
 }) {
   return (
-    <div className={`debugger-time ${props.severity}`}>{props.timestamp}</div>
+    <div className={`debugger-time ${props.severity}`}>
+      {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
+    </div>
   );
 }

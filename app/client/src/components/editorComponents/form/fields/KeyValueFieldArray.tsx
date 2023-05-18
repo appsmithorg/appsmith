@@ -1,15 +1,16 @@
 import React, { useEffect } from "react";
-import { FieldArray, WrappedFieldArrayProps } from "redux-form";
+import type { WrappedFieldArrayProps } from "redux-form";
+import { FieldArray } from "redux-form";
 import styled from "styled-components";
 import DynamicTextField from "./DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorSize,
-  EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Case,
@@ -19,7 +20,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,

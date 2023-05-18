@@ -1,5 +1,5 @@
 import React from "react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useSelector } from "react-redux";
 import {
   forceShowContentSelector,

@@ -20,7 +20,7 @@ export const useMouseLocation = () => {
     };
   }, []);
 
-  return function() {
+  return function () {
     return mousePosition.current;
   };
 };

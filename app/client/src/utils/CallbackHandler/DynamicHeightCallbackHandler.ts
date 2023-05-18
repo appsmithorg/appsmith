@@ -19,7 +19,8 @@ class DynamicHeightCallbackHandler extends BaseCallbackHandler {
    */
   public static getInstance(): DynamicHeightCallbackHandler {
     if (!DynamicHeightCallbackHandler.instance) {
-      DynamicHeightCallbackHandler.instance = new DynamicHeightCallbackHandler();
+      DynamicHeightCallbackHandler.instance =
+        new DynamicHeightCallbackHandler();
     }
 
     return DynamicHeightCallbackHandler.instance;

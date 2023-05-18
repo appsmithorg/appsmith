@@ -3,14 +3,13 @@ import { Provider } from "react-redux";
 import store from "store";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { render } from "test/testUtils";
 import Deploy from "../Deploy";
 import {
   commitToRepoInit,
   fetchGitStatusSuccess,
 } from "actions/gitSyncActions";
-import { COMMITTING_AND_PUSHING_CHANGES } from "ce/constants/messages";
+import { COMMITTING_AND_PUSHING_CHANGES } from "@appsmith/constants/messages";
 
 describe("Tests for git deploy modal", () => {
   it("Should show progress bar for JS Library diffs", () => {

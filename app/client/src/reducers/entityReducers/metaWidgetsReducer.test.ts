@@ -1,14 +1,17 @@
-import reducer, { MetaWidgetsReduxState } from "./metaWidgetsReducer";
+import type { MetaWidgetsReduxState } from "./metaWidgetsReducer";
+import reducer from "./metaWidgetsReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { metaWidgetState } from "utils/metaWidgetState";
 import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const modifiedState: MetaWidgetsReduxState = {
   baowuczcgg: {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    defaultImage: "https://assets.appsmith.com/widgets/default.png",
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -273,8 +276,7 @@ const modifiedState: MetaWidgetsReduxState = {
     ],
 
     gap: 0,
-    data:
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
+    data: "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
     currentIndex: 0,
     referencedWidgetId: "e3bqqc9oid",
     isMetaWidget: true,
@@ -350,7 +352,7 @@ describe("meta widget reducer test", () => {
         type: ReduxActionTypes.INIT_CANVAS_LAYOUT,
         payload: {},
       }),
-    ).toEqual({});
+    ).toEqual(metaWidgetState);
   });
   it("MODIFY_META_WIDGETS", () => {
     expect(

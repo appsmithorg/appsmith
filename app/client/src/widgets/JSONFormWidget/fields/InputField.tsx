@@ -1,11 +1,9 @@
 import React, { useCallback } from "react";
 
-import BaseInputField, {
-  BaseInputComponentProps,
-  EMAIL_REGEX,
-  parseRegex,
-} from "./BaseInputField";
-import { BaseFieldComponentProps, FieldType } from "../constants";
+import type { BaseInputComponentProps } from "./BaseInputField";
+import BaseInputField, { EMAIL_REGEX, parseRegex } from "./BaseInputField";
+import type { BaseFieldComponentProps } from "../constants";
+import { FieldType } from "../constants";
 import { isNil } from "lodash";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";

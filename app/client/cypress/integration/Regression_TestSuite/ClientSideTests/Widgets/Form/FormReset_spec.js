@@ -1,17 +1,14 @@
 const dsl = require("../../../../../fixtures/formResetDsl.json");
 import widgets from "../../../../../locators/Widgets.json";
 
-describe("Form reset functionality", function() {
+describe("Form reset functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
   it("Resets the form", () => {
     // Select a row and verify
-    cy.get(".tr")
-      .eq(2)
-      .click()
-      .should("have.class", "selected-row");
+    cy.get(".tr").eq(2).click().should("have.class", "selected-row");
     cy.wait(2000);
     cy.get(".rc-select-selection-overflow").click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 1");
@@ -27,9 +24,7 @@ describe("Form reset functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     // verify table should not have selected row
-    cy.get(".tr")
-      .eq(2)
-      .should("not.have.class", "selected-row");
+    cy.get(".tr").eq(2).should("not.have.class", "selected-row");
     // Verify dropdown does not have selected values
     cy.get(`${widgets.selectWidget} .bp3-tag-input-values .bp3-tag`).should(
       ($span) => {

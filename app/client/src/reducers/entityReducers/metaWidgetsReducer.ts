@@ -1,12 +1,11 @@
-import { set, split, unset } from "lodash";
+import { get, set, split, unset } from "lodash";
 
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
 
 export type MetaWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
@@ -55,12 +54,8 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     state: MetaWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {
-    const {
-      addOrUpdate,
-      creatorId,
-      deleteIds,
-      propertyUpdates,
-    } = action.payload;
+    const { addOrUpdate, creatorId, deleteIds, propertyUpdates } =
+      action.payload;
 
     if (addOrUpdate) {
       Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {
@@ -118,8 +113,31 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     }
     return state;
   },
-  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
-    return {};
+  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (state: MetaWidgetsReduxState) => {
+    return state;
+  },
+  [ReduxActionTypes.UPDATE_MULTIPLE_META_WIDGET_PROPERTIES]: (
+    state: MetaWidgetsReduxState,
+    action: ReduxAction<{
+      widgetsToUpdate: UpdateWidgetsPayload;
+      shouldEval: boolean;
+    }>,
+  ) => {
+    // For each widget whose properties we would like to update
+    for (const [widgetId, propertyPathsToUpdate] of Object.entries(
+      action.payload.widgetsToUpdate,
+    )) {
+      // Iterate through each property to update in `widgetId`
+      propertyPathsToUpdate.forEach(({ propertyPath, propertyValue }) => {
+        const path = `${widgetId}.${propertyPath}`;
+        // Get original value in reducer
+        const originalPropertyValue = get(state, path);
+        // If the original and new values are different
+        if (propertyValue !== originalPropertyValue)
+          // Set the new values
+          set(state, path, propertyValue);
+      });
+    }
   },
 });
 

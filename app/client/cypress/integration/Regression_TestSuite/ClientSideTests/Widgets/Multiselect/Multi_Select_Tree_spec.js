@@ -5,12 +5,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("MultiSelectTree Widget Functionality", function() {
+describe("MultiSelectTree Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Check isDirty meta property", function() {
+  it("1. Check isDirty meta property", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
     cy.openPropertyPane("textwidget");
@@ -24,9 +24,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
     cy.treeMultiSelectDropdown("Red");
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
@@ -44,9 +42,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .first()
       .should("have.text", "Red");
     // Clear the selected value
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
     cy.treeMultiSelectDropdown("Red");
   });
 
@@ -55,9 +51,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     // search for option Red in the search input
     cy.openPropertyPane("multiselecttreewidget");
     cy.testJsontext("defaultselectedvalues", "");
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
     cy.get(formWidgetsPage.multiTreeSelectFilterInput)
       .click({ force: true })
       .type("Green");
@@ -69,9 +63,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .first()
       .should("have.text", "Green");
     // Reopen the multi-tree select widget
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
     // Assert if the search input is empty now
     cy.get(formWidgetsPage.multiTreeSelectFilterInput)
       .invoke("val")
@@ -80,17 +72,13 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.testJsontext("defaultselectedvalues", "RED\n");
   });
 
-  it("4. To Validate Options", function() {
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true });
-    cy.get(formWidgetsPage.multiTreeSelectFilterInput)
-      .click()
-      .type("light");
+  it("4. To Validate Options", function () {
+    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
+    cy.get(formWidgetsPage.multiTreeSelectFilterInput).click().type("light");
     cy.treeMultiSelectDropdown("Light Blue");
   });
 
-  it("5. To Unchecked Visible Widget", function() {
+  it("5. To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(
@@ -99,7 +87,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("6. To Check Visible Widget", function() {
+  it("6. To Check Visible Widget", function () {
     cy.openPropertyPane("multiselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -109,13 +97,9 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("7. To Check Option Not Found", function() {
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true });
-    cy.get(formWidgetsPage.multiTreeSelectFilterInput)
-      .click()
-      .type("ABCD");
+  it("7. To Check Option Not Found", function () {
+    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
+    cy.get(formWidgetsPage.multiTreeSelectFilterInput).click().type("ABCD");
     cy.get(".tree-multiselect-dropdown .rc-tree-select-empty").contains(
       "No Results Found",
     );
@@ -126,9 +110,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     // enter tooltip in property pan
     cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
     // tooltip help icon shows
-    cy.get(".multitree-select-tooltip")
-      .scrollIntoView()
-      .should("be.visible");
+    cy.get(".multitree-select-tooltip").scrollIntoView().should("be.visible");
   });
 });
 afterEach(() => {

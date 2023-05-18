@@ -1,8 +1,8 @@
 const dsl = require("../../../../fixtures/DynamicHeightModalDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Dynamic Height Width validation with limits", function() {
-  it("Validate change in auto height with limits width for widgets and highlight section validation", function() {
+describe("Dynamic Height Width validation with limits", function () {
+  it("Validate change in auto height with limits width for widgets and highlight section validation", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt height Dynamic panel validation for text widget Dynamic panel validation for text widget Dynamic panel validation for text widget";
     cy.addDsl(dsl);

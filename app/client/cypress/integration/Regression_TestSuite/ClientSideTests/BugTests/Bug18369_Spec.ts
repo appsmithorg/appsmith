@@ -4,7 +4,7 @@ const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("JS Function Execution", function() {
+describe("JS Function Execution", function () {
   before(() => {
     cy.fixture("formWithtabdsl.json").then((val: any) => {
       agHelper.AddDsl(val);

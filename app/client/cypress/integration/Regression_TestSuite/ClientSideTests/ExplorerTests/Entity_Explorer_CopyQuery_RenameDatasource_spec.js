@@ -9,7 +9,7 @@ const pageid = "MyPage";
 let updatedName;
 let datasourceName;
 
-describe("Entity explorer tests related to copy query", function() {
+describe("Entity explorer tests related to copy query", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -20,7 +20,7 @@ describe("Entity explorer tests related to copy query", function() {
   //   }
   // });
 
-  it("1. Create a query with dataSource in explorer, Create new Page", function() {
+  it("1. Create a query with dataSource in explorer, Create new Page", function () {
     cy.Createpage(pageid);
     ee.SelectEntityByName("Page1");
     cy.NavigateToDatasourceEditor();
@@ -41,10 +41,7 @@ describe("Entity explorer tests related to copy query", function() {
     );
 
     cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from users");
+    cy.get(".CodeMirror textarea").first().focus().type("select * from users");
 
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
@@ -52,7 +49,7 @@ describe("Entity explorer tests related to copy query", function() {
       datasourceName = httpResponse.response.body.data.name;
       ee.ExpandCollapseEntity("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
-      cy.get(apiwidget.propertyList).then(function($lis) {
+      cy.get(apiwidget.propertyList).then(function ($lis) {
         expect($lis).to.have.length(5);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
         expect($lis.eq(1)).to.contain("{{Query1.data}}");
@@ -63,14 +60,14 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("2. Copy query in explorer to new page & verify Bindings are copied too", function() {
+  it("2. Copy query in explorer to new page & verify Bindings are copied too", function () {
     ee.SelectEntityByName("Query1", "Queries/JS");
     ee.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("Query1");
     cy.runQuery();
     ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");
       expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
@@ -79,7 +76,7 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function() {
+  it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function () {
     ee.SelectEntityByName("Page1");
     cy.generateUUID().then((uid) => {
       updatedName = uid;

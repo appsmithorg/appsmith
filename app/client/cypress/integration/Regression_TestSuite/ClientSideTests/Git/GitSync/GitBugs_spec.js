@@ -15,7 +15,7 @@ const jsObject = "JSObject1";
 
 let repoName;
 
-describe("Git sync Bug #10773", function() {
+describe("Git sync Bug #10773", function () {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });
@@ -126,9 +126,7 @@ describe("Git sync Bug #10773", function() {
       "be.visible",
     );
     // switch to Page1 and validate data binding
-    cy.get(".t--page-switch-tab")
-      .contains("Page1")
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -172,7 +170,7 @@ describe("Git sync Bug #10773", function() {
     _.gitSync.DeleteTestGithubRepo(repoName);
   });
 
-  it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+  it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function () {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {

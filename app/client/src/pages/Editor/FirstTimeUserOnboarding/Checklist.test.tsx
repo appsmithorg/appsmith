@@ -29,6 +29,7 @@ jest.mock("react-redux", () => {
 
 jest.mock("utils/history", () => ({
   push: history,
+  listen: jest.fn(),
 }));
 
 function renderComponent(store: any) {

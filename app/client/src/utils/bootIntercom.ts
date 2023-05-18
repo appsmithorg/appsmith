@@ -1,8 +1,9 @@
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
+import { getLicenseKey } from "@appsmith/utils/licenseHelpers";
 
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export default function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
@@ -25,3 +26,17 @@ export default function bootIntercom(user?: User) {
     });
   }
 }
+export const updateIntercomProperties = (instanceId: string, user?: User) => {
+  if (intercomAppID && window.Intercom) {
+    const { email } = user || {};
+
+    window.Intercom("update", {
+      email,
+      "Appsmith version": `Appsmith ${
+        !cloudHosting ? appVersion.edition : ""
+      } ${appVersion.id}`,
+      instanceId,
+      "License ID": getLicenseKey(),
+    });
+  }
+};

@@ -13,11 +13,11 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Select Widgets", function() {
+describe("Select Widgets", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("a. Validate the Values in Table widget", function() {
+  it("a. Validate the Values in Table widget", function () {
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(0)
       .within(() => {

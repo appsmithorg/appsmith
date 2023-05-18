@@ -1,11 +1,13 @@
-body, html {
+body,
+html {
   height: 100%;
   overflow-x: hidden;
   width: 100%;
   background-color: #fff;
   margin: 0;
   color: #182026;
-  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,Icons16,sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Open Sans, Helvetica Neue, Icons16, sans-serif;
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 0;
@@ -64,7 +66,7 @@ body, html {
 }
 
 .body-text {
-  margin: 8px 0 0 ;
+  margin: 8px 0 0;
 }
 
 .button-container {
@@ -111,4 +113,3 @@ body, html {
   color: #f86a2b;
   border: 1.2px solid #f86a2b;
 }
-

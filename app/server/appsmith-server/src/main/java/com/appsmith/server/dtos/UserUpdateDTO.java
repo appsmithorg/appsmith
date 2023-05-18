@@ -14,12 +14,14 @@ public class UserUpdateDTO {
 
     private String useCase;
 
+    private boolean isIntercomConsentGiven;
+
     public boolean hasUserUpdates() {
         return name != null;
     }
 
     public boolean hasUserDataUpdates() {
-        return role != null || useCase != null;
+        return role != null || useCase != null || isIntercomConsentGiven;
     }
 
 }

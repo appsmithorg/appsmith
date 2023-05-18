@@ -11,26 +11,28 @@ import {
   getNumberOfEntitiesInCurrentPage,
 } from "selectors/entitiesSelector";
 
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
+import type {
+  DropdownOption,
+  IconName,
+  RenderDropdownOptionType,
+} from "design-system-old";
 import {
   Button,
   Category,
   Dropdown,
-  DropdownOption,
   getTypographyByKey,
-  IconName,
   IconSize,
-  RenderDropdownOptionType,
   Size,
   TooltipComponent as Tooltip,
 } from "design-system-old";
@@ -40,7 +42,7 @@ import {
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
 } from "@appsmith/constants/messages";
-import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
   useSheetsList,
@@ -49,17 +51,19 @@ import {
   useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   DropdownOptions,
   DatasourceTableDropdownOption,
+} from "../constants";
+import {
   PluginFormInputFieldMap,
   DEFAULT_DROPDOWN_OPTION,
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
-import { GeneratePagePayload } from "./types";
+import type { GeneratePagePayload } from "./types";
 import { Icon } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -70,6 +74,9 @@ import {
 } from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
+import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 //  ---------- Styles ----------
 
@@ -179,6 +186,7 @@ function GeneratePageForm() {
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
   const applicationId = useSelector(getCurrentApplicationId);
+  const workspace = useSelector(getCurrentAppWorkspace);
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -189,9 +197,8 @@ function GeneratePageForm() {
       : GENERATE_PAGE_MODE.REPLACE_EMPTY,
   );
 
-  const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
-    string
-  >("");
+  const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] =
+    useState<string>("");
   const datasourcesStructure = useSelector(getDatasourcesStructure);
 
   const isFetchingDatasourceStructure = useSelector(
@@ -202,21 +209,18 @@ function GeneratePageForm() {
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const [datasourceTableOptions, setSelectedDatasourceTableOptions] = useState<
-    DropdownOptions
-  >([]);
+  const [datasourceTableOptions, setSelectedDatasourceTableOptions] =
+    useState<DropdownOptions>([]);
 
-  const [selectedTableColumnOptions, setSelectedTableColumnOptions] = useState<
-    DropdownOptions
-  >([]);
+  const [selectedTableColumnOptions, setSelectedTableColumnOptions] =
+    useState<DropdownOptions>([]);
 
   const [selectedDatasource, selectDataSource] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const [isSelectedTableEmpty, setIsSelectedTableEmpty] = useState<boolean>(
-    false,
-  );
+  const [isSelectedTableEmpty, setIsSelectedTableEmpty] =
+    useState<boolean>(false);
 
   const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
   const selectedDatasourcePluginPackageName: string =
@@ -242,20 +246,15 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const [
-    selectedDatasourceIsInvalid,
-    setSelectedDatasourceIsInvalid,
-  ] = useState(false);
+  const [selectedDatasourceIsInvalid, setSelectedDatasourceIsInvalid] =
+    useState(false);
 
   const [selectedColumn, selectColumn] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const {
-    bucketList,
-    failedFetchingBucketList,
-    isFetchingBucketList,
-  } = useS3BucketList();
+  const { bucketList, failedFetchingBucketList, isFetchingBucketList } =
+    useS3BucketList();
 
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -371,7 +370,12 @@ function GeneratePageForm() {
     [selectColumn],
   );
 
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    workspace?.userPermissions || [],
+  );
+
   const dataSourceOptions = useDatasourceOptions({
+    canCreateDatasource,
     datasources,
     generateCRUDSupportedPlugin,
   });
@@ -520,10 +524,7 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
     if (isFirstTimeUserOnboardingEnabled) {
-      dispatch({
-        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-        payload: "",
-      });
+      dispatch(removeFirstTimeUserOnboardingApplicationId(applicationId));
     }
     if (isFirstTimeUserOnboardingComplete) {
       dispatch({

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { Icon, TextType, Text } from "design-system-old";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
-import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
+import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
 
 const SaveStatusContainer = styled.div`
   align-items: center;

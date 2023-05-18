@@ -2,10 +2,10 @@
 
 import homePage from "../../../../locators/HomePage";
 
-describe("Workspace name validation spec", function() {
+describe("Workspace name validation spec", function () {
   let workspaceId;
   let newWorkspaceName;
-  it("1. create workspace with leading space validation", function() {
+  it("1. create workspace with leading space validation", function () {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -17,13 +17,11 @@ describe("Workspace name validation spec", function() {
         .find(homePage.workspaceNamePopover)
         .find(homePage.optionsIcon)
         .click({ force: true });
-      cy.get(homePage.renameWorkspaceInput)
-        .should("be.visible")
-        .type(" ");
+      cy.get(homePage.renameWorkspaceInput).should("be.visible").type(" ");
       cy.get(".error-message").should("be.visible");
     });
   });
-  it("2. creates workspace and checks that workspace name is editable and create workspace with special characters validation", function() {
+  it("2. creates workspace and checks that workspace name is editable and create workspace with special characters validation", function () {
     cy.createWorkspace();
     cy.generateUUID().then((uid) => {
       workspaceId =
@@ -39,9 +37,7 @@ describe("Workspace name validation spec", function() {
           .scrollIntoView()
           .should("be.visible")
           .within(() => {
-            cy.get(homePage.shareUserIcons)
-              .first()
-              .should("be.visible");
+            cy.get(homePage.shareUserIcons).first().should("be.visible");
           });
         cy.navigateToWorkspaceSettings(workspaceId);
         // checking parent's(<a></a>) since the child(<span>) inherits css from it

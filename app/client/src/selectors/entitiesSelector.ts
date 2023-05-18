@@ -1,38 +1,47 @@
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import {
+import type {
   Datasource,
   MockDatasource,
   DatasourceStructure,
-  isEmbeddedRestDatasource,
 } from "entities/Datasource";
-import { Action, PluginType } from "entities/Action";
+import { isEmbeddedRestDatasource } from "entities/Datasource";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { AppStoreState } from "reducers/entityReducers/appReducer";
-import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import { JSAction, JSCollection } from "entities/JSCollection";
+import type { AppStoreState } from "reducers/entityReducers/appReducer";
+import type {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "reducers/entityReducers/jsActionsReducer";
+import type {
+  DefaultPlugin,
+  GenerateCRUDEnabledPluginMap,
+} from "api/PluginApi";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
-import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  EvaluationError,
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getFormValues } from "redux-form";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -41,11 +50,32 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
+export const getRecentDatasourceIds = (state: AppState): string[] => {
+  return state.entities.datasources.recentDatasources;
+};
+
 export const getDatasourcesStructure = (
   state: AppState,
 ): Record<string, DatasourceStructure> => {
   return state.entities.datasources.structure;
 };
+
+export const getDatasourceStructureById =
+  (id: string) =>
+  (state: AppState): DatasourceStructure => {
+    return state.entities.datasources.structure[id];
+  };
+
+export const getDatasourceTableColumns =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(datasourceId)(state);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      return table?.columns;
+    }
+  };
 
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
@@ -294,11 +324,9 @@ export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
 
 export const getPluginImages = createSelector(getPlugins, (plugins) => {
   const pluginImages: Record<string, string> = {};
-
   plugins.forEach((plugin) => {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
-
   return pluginImages;
 });
 
@@ -358,6 +386,17 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   },
 );
 
+export const getPluginIdPackageNamesMap = createSelector(
+  getPlugins,
+  (plugins) => {
+    return plugins.reduce((obj: Record<string, string>, plugin) => {
+      obj[plugin.id] = plugin.packageName;
+
+      return obj;
+    }, {});
+  },
+);
+
 export const getActionsForCurrentPage = createSelector(
   getCurrentPageId,
   getActions,
@@ -367,6 +406,7 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+// Note: getJSCollectionsForCurrentPage (returns a new object everytime)
 export const getJSCollectionsForCurrentPage = createSelector(
   getCurrentPageId,
   getJSCollections,
@@ -375,6 +415,38 @@ export const getJSCollectionsForCurrentPage = createSelector(
     return actions.filter((a) => a.config.pageId === pageId);
   },
 );
+
+export const getJSCollectionFromName = createSelector(
+  [
+    getJSCollectionsForCurrentPage,
+    (_state: AppState, JSObjectName: string) => JSObjectName,
+  ],
+  (jsCollections, JSObjectName) => {
+    let currentJSCollection = null;
+    for (const jsCollection of jsCollections) {
+      if (JSObjectName === jsCollection.config.name) {
+        currentJSCollection = jsCollection;
+        break;
+      }
+    }
+    return currentJSCollection;
+  },
+);
+
+export const getJSActionFromJSCollection = (
+  JSCollection: JSCollectionData,
+  functionName: string,
+) => {
+  const actions = JSCollection.config.actions;
+  let currentAction = null;
+  for (const jsAction of actions) {
+    if (functionName === jsAction.name) {
+      currentAction = jsAction;
+      break;
+    }
+  }
+  return currentAction;
+};
 
 export const getPlugin = (state: AppState, pluginId: string) => {
   return state.entities.plugins.list.find((plugin) => plugin.id === pluginId);
@@ -476,12 +548,12 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getCanvasWidgetsStructure = (state: AppState) =>
   state.entities.canvasWidgetsStructure;
 
-const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
+export const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId] : {},
+    currentPageId ? widgetsByPage[currentPageId].dsl : {},
 );
 
 export const getParentModalId = (
@@ -524,7 +596,7 @@ export const getAllWidgetsMap = createSelector(
   (widgetsByPage) => {
     return Object.entries(widgetsByPage).reduce(
       (res: any, [pageId, pageWidgets]: any) => {
-        const widgetsMap = Object.entries(pageWidgets).reduce(
+        const widgetsMap = Object.entries(pageWidgets.dsl).reduce(
           (res, [widgetId, widget]: any) => {
             const parentModalId = getParentModalId(widget, pageWidgets);
 
@@ -624,6 +696,9 @@ export const getExistingActionNames = createSelector(
     }
   },
 );
+
+export const getEditingEntityName = (state: AppState) =>
+  state.ui.explorer.entity.editingEntityName;
 
 export const getExistingJSCollectionNames = createSelector(
   getJSCollections,
@@ -918,4 +993,73 @@ export const getAllJSActionsData = (state: AppState) => {
     }
   });
   return jsActionsData;
+};
+
+export const selectActionByName = (actionName: string) =>
+  createSelector(getActionsForCurrentPage, (actions) => {
+    return actions.find((action) => action.config.name === actionName);
+  });
+
+export const selectJSCollectionByName = (collectionName: string) =>
+  createSelector(getJSCollectionsForCurrentPage, (collections) => {
+    return collections.find(
+      (collection) => collection.config.name === collectionName,
+    );
+  });
+
+export const getAllDatasourceTableKeys = createSelector(
+  (state: AppState) => getDatasourcesStructure(state),
+  (state: AppState) => getActions(state),
+  (state: AppState, dataTreePath: string | undefined) => dataTreePath,
+  (
+    datasourceStructures: ReturnType<typeof getDatasourcesStructure>,
+    actions: ReturnType<typeof getActions>,
+    dataTreePath: string | undefined,
+  ) => {
+    if (!dataTreePath || !datasourceStructures) return;
+    const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+    const action = find(actions, ({ config: { name } }) => name === entityName);
+    if (!action) return;
+    const datasource = action.config.datasource;
+    const datasourceId = "id" in datasource ? datasource.id : undefined;
+    if (!datasourceId || !(datasourceId in datasourceStructures)) return;
+    const tables: Record<string, string> = {};
+    const { tables: datasourceTable } = datasourceStructures[datasourceId];
+    if (!datasourceTable) return;
+    datasourceTable.forEach((table) => {
+      if (table?.name) {
+        tables[table.name] = "table";
+        table.columns.forEach((column) => {
+          tables[`${table.name}.${column.name}`] = column.type;
+        });
+      }
+    });
+
+    return tables;
+  },
+);
+
+export const getDatasourceScopeValue = (
+  state: AppState,
+  datasourceId: string,
+  formName: string,
+) => {
+  const formData = getFormValues(formName)(state) as Datasource;
+  const { plugins } = state.entities;
+  const { formConfigs } = plugins;
+  const datasource = getDatasource(state, datasourceId);
+  const pluginId = get(datasource, "pluginId", "");
+  const formConfig = formConfigs[pluginId];
+  if (!formConfig || (!!formConfig && formConfig.length === 0)) {
+    return null;
+  }
+  const configProperty = "datasourceConfiguration.authentication.scopeString";
+  const scopeValue = get(formData, configProperty);
+  const options = formConfig[0]?.children?.find(
+    (child: any) => child?.configProperty === configProperty,
+  )?.options;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
+  return label;
 };

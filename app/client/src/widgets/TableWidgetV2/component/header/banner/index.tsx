@@ -1,11 +1,12 @@
 import React from "react";
-import { AddNewRowBanner, AddNewRowBannerType } from "./AddNewRowBanner";
+import type { AddNewRowBannerType } from "./AddNewRowBanner";
+import { AddNewRowBanner } from "./AddNewRowBanner";
 
 export interface BannerPropType extends AddNewRowBannerType {
   isAddRowInProgress: boolean;
 }
 
-export function Banner(props: BannerPropType) {
+function BannerComponent(props: BannerPropType) {
   return props.isAddRowInProgress ? (
     <AddNewRowBanner
       accentColor={props.accentColor}
@@ -16,3 +17,4 @@ export function Banner(props: BannerPropType) {
     />
   ) : null;
 }
+export const Banner = React.memo(BannerComponent);

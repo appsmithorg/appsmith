@@ -13,7 +13,7 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
-} from "design-system-old";
+} from "@design-system/widgets-old";
 import { lightenColor } from "widgets/WidgetUtils";
 import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
 
@@ -611,7 +611,7 @@ export const TreeSelectContainer = styled.div<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input 
+    here set height to auto and not 100% because the input
     has fixed height and stretch the container.
   */
   ${({ labelPosition }) => {

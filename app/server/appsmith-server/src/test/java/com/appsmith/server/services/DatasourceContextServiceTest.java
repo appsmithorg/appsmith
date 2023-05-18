@@ -6,6 +6,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.UpdatableConnection;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
@@ -33,6 +34,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -317,6 +319,83 @@ public class DatasourceContextServiceTest {
         assertTrue(dsc2.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
     }
+
+    /**
+     * This test checks that if a cached datasource Mono goes to error state, then the datasource context is
+     * considered invalid.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceContextIsInvalid_whenCachedDatasourceContextMono_isInErrorState() {
+        doReturn(false).when(datasourceContextService).getIsStale(any(), any());
+
+        MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
+        MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
+
+        // Introduce an error to fail the datasource context mono
+        doReturn(Mono.error(new RuntimeException("error"))).when(spyMockPluginExecutor).datasourceCreate(any());
+
+        Datasource datasource = new Datasource();
+        datasource.setId("error_datasource_1");
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasource.getId(), "envId");
+
+        Object monitor = new Object();
+
+        Mono<DatasourceContext<?>> failedDatasourceContextMono =
+                datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+
+        StepVerifier.create(failedDatasourceContextMono)
+                .expectError(RuntimeException.class)
+                .verify();
+
+        assertFalse(datasourceContextService.isValidDatasourceContextAvailable(datasource, datasourceContextIdentifier));
+    }
+
+    /**
+     * This test verifies that if a cached datasource context Mono goes to an error state, then that Mono is invalidated
+     * and a new datasource context mono is created on calling
+     * {@link com.appsmith.server.services.ce.DatasourceContextServiceCEImpl#getCachedDatasourceContextMono(Datasource, PluginExecutor, Object, DatasourceContextIdentifier)}
+     * and not fetched from the cache.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testNewDatasourceContextCreate_whenCachedDatasourceContextMono_isInErrorState() {
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
+
+        MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
+        MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
+
+        // Introduce an error to fail the datasource context mono
+        doReturn(Mono.error(new RuntimeException("error_connection")))
+                .doReturn(Mono.just("valid_connection"))
+                .when(spyMockPluginExecutor).datasourceCreate(any());
+
+        Datasource datasource = new Datasource();
+        datasource.setId("error_datasource_2");
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasource.getId(), "envId");
+
+        Object monitor = new Object();
+
+        Mono<DatasourceContext<?>> failedDatasourceContextMono =
+                datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+        StepVerifier.create(failedDatasourceContextMono)
+                .expectError(RuntimeException.class)
+                .verify();
+
+        Mono<DatasourceContext<?>> validDatasourceContextMono =
+                datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+
+        StepVerifier.create(validDatasourceContextMono)
+                .assertNext(validDatasourceContext -> assertEquals(validDatasourceContext.getConnection(), "valid_connection"))
+                .verifyComplete();
+
+        assertNotEquals(failedDatasourceContextMono, validDatasourceContextMono);
+    }
+
 
     @Test
     public void verifyDsMapKeyEquality() {

@@ -1,11 +1,11 @@
 import React from "react";
-import styled from "styled-components";
-import { Alignment } from "@blueprintjs/core";
+import styled, { css } from "styled-components";
+import type { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { LabelPosition } from "components/constants";
-import { TextSize } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
@@ -13,12 +13,14 @@ import {
   CheckboxLabel,
   StyledCheckbox,
 } from "widgets/CheckboxWidget/component";
-import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import type { OptionProps, SelectAllState } from "../constants";
+import { SelectAllStates } from "../constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
-import { ThemeProp, AlignWidgetTypes } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -26,6 +28,7 @@ export interface InputContainerProps {
   valid?: boolean;
   optionAlignment?: string;
   isDynamicHeightEnabled?: boolean;
+  isAutoLayout: boolean;
 }
 
 const InputContainer = styled.div<ThemeProp & InputContainerProps>`
@@ -47,6 +50,12 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   flex-grow: 1;
   height: 100%;
   border: 1px solid transparent;
+
+  ${({ isAutoLayout }) =>
+    isAutoLayout &&
+    css`
+      min-width: 232px;
+    `}
 
   .${Classes.CONTROL} {
     display: flex;
@@ -143,12 +152,14 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelTooltip?: string;
   accentColor: string;
   borderRadius: string;
+  isAutoLayout: boolean;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
     accentColor,
     borderRadius,
     compactMode,
+    isAutoLayout,
     isDisabled,
     isDynamicHeightEnabled,
     isInline,
@@ -211,6 +222,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       <InputContainer
         data-cy="checkbox-group-container"
         inline={isInline}
+        isAutoLayout={isAutoLayout}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}
         optionCount={options.length}

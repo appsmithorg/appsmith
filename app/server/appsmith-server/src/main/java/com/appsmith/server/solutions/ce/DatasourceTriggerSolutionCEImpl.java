@@ -51,6 +51,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
                 .cache();
+
         final Mono<Plugin> pluginMono = datasourceMono
                 .map(datasource -> datasource.getPluginId())
                 .flatMap(pluginId -> pluginService.findById(pluginId))
@@ -73,7 +74,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         Mono<Tuple5> datasourceAndPluginEssentialsMono =
                 datasourceMono.flatMap(datasource -> {
                     return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
-                            .flatMap(tuple3-> {
+                            .flatMap(tuple3 -> {
                                 Datasource datasource1 = tuple3.getT1();
                                 DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                                 Map<String, BaseDomain> environmentMap = tuple3.getT3();
@@ -84,7 +85,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                                 .cache();
 
                                 return Mono.zip(validatedDatasourceMono, pluginMono, pluginExecutorMono,
-                                         Mono.just(datasourceContextIdentifier), Mono.just(environmentMap));
+                                        Mono.just(datasourceContextIdentifier), Mono.just(environmentMap));
                             });
                 });
 
@@ -106,7 +107,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                     return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
                                     return datasourceContextService.getDatasourceContext(datasource, datasourceContextIdentifier,
-                                                                                                     environmentMap);
+                                            environmentMap);
                                 }
                             })
                             // Now that we have the context (connection details), execute the action.
@@ -114,14 +115,14 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                             // However the context comes from evaluated datasource.
                             .flatMap(resourceContext -> {
                                 return (Mono<TriggerResultDTO>) pluginExecutor.trigger(resourceContext.getConnection(),
-                                                                                       datasource.getDatasourceConfiguration(),
-                                                                                       triggerRequestDTO);
+                                        datasource.getDatasourceConfiguration(),
+                                        triggerRequestDTO);
                             });
                 });
 
         // If the plugin hasn't, go for the default implementation
         Mono<TriggerResultDTO> defaultResultMono = datasourceMono
-                .flatMap(datasource -> entitySelectorTriggerSolution(datasource, triggerRequestDTO, environmentName))
+                .flatMap(datasource -> entitySelectorTriggerSolution(datasourceId, triggerRequestDTO, environmentName))
                 .map(entityNames -> {
                     List<Object> result = new ArrayList<>();
 
@@ -142,15 +143,15 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 .switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<Set<String>> entitySelectorTriggerSolution(Datasource datasource, TriggerRequestDTO request,
+    private Mono<Set<String>> entitySelectorTriggerSolution(String datasourceId, TriggerRequestDTO request,
                                                             String environmentName) {
         if (request.getDisplayType() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
         }
 
         final Map<String, Object> parameters = request.getParameters();
-        Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasource, false,
-                                                                                           environmentName);
+        Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasourceId, false,
+                environmentName);
 
         return structureMono
                 .map(structure -> {

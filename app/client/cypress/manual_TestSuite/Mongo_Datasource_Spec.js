@@ -2,8 +2,8 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const queryEditor = require("../../../locators/QueryEditor.json");
 let datasourceName;
 
-describe("Test Ideas for Mongo DB Form Input", function() {
-  it("Insert a Document", function() {
+describe("Test Ideas for Mongo DB Form Input", function () {
+  it("Insert a Document", function () {
     //Ensure by choosing command as 'Insert a Document' the following fields will be displayed 'Collection Name' and 'Documents'
     //Click on Command and enter command name
     //Clicking on Collection name field ensure Evaluvated value popup appears and Evaluvated value should match
@@ -13,7 +13,7 @@ describe("Test Ideas for Mongo DB Form Input", function() {
     //Try passing the invalid query in the document and run and verfiy the error message
   });
 
-  it("Find One or More Document", function() {
+  it("Find One or More Document", function () {
     //  Ensure by choosing command as 'Find one or more Document' the following fields will be displayed 'Collection Name' ,  'Query' ,  'Sort' , 'Projection' , 'Limit' and 'Skip'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match
@@ -24,7 +24,7 @@ describe("Test Ideas for Mongo DB Form Input", function() {
     //Compare the response with the document inserted earlier and value should match
   });
 
-  it("Update One Document", function() {
+  it("Update One Document", function () {
     //Ensure by choosing command as 'Update one Document' the following fields will be displayed 'Collection Name' ,  'Query' ,  'Sort'  and 'Update'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match
@@ -37,7 +37,7 @@ describe("Test Ideas for Mongo DB Form Input", function() {
     //Click on Update field and pass any invalid query and ensure query response with appropriate error message
   });
 
-  it("Update One or More Document", function() {
+  it("Update One or More Document", function () {
     //Ensure by choosing command as 'Update one or More Document' the following fields will be displayed 'Collection Name' ,  'Query' and 'Update'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match
@@ -50,7 +50,7 @@ describe("Test Ideas for Mongo DB Form Input", function() {
     //Click on Update field and pass any invalid query and ensure query response with appropriate error message
   });
 
-  it("Delet One or More Document", function() {
+  it("Delet One or More Document", function () {
     //Ensure by choosing command as 'Delete one or more Document' the following fields will be displayed 'Collection Name' ,  'Query' and 'limit'
     //Ensure limit has two option 'Single Document' and 'All Matching document'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
@@ -64,13 +64,13 @@ describe("Test Ideas for Mongo DB Form Input", function() {
     //Repeat 'Find one or More Document' scenario and verify if the specified document is deleted
   });
 
-  it("Perform Distinct Operation on a Document", function() {
+  it("Perform Distinct Operation on a Document", function () {
     //Ensure by choosing command as 'Count' the following fields will be displayed 'Collection Name' , 'Query' and 'Key/Field'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match
   });
 
-  it("Perform Aggregate Operation on a Document", function() {
+  it("Perform Aggregate Operation on a Document", function () {
     //Ensure by choosing command as 'Count' the following fields will be displayed 'Collection Name' and 'Array of Pipelines'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match

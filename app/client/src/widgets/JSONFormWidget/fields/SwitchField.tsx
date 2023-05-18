@@ -5,13 +5,13 @@ import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import { AlignWidget, AlignWidgetTypes } from "widgets/constants";
-import {
-  ActionUpdateDependency,
+import type { AlignWidget, AlignWidgetTypes } from "widgets/constants";
+import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
+import { ActionUpdateDependency } from "../constants";
 import SwitchComponent from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
@@ -47,10 +47,8 @@ function SwitchField({
   passedDefaultValue,
   schemaItem,
 }: SwitchFieldProps) {
-  const {
-    onBlur: onBlurDynamicString,
-    onFocus: onFocusDynamicString,
-  } = schemaItem;
+  const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
+    schemaItem;
   const { executeAction } = useContext(FormContext);
 
   const {

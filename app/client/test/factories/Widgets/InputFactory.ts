@@ -1,6 +1,6 @@
 import * as Factory from "factory.ts";
 import { generateReactKey } from "utils/generators";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const InputFactory = Factory.Sync.makeFactory<WidgetProps>({
   widgetName: Factory.each((i) => `Input${i + 1}`),

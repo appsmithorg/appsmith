@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Table Widget V2 property pane feature validation", function() {
+describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Test to add column", function() {
+  it("1. Test to add column", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Adding new column
     cy.addColumnV2("CustomColumn");
@@ -20,7 +20,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it("2. Edit column name and validate test for computed value", function() {
+  it("2. Edit column name and validate test for computed value", function () {
     // Open column detail by draggable id of the column
     cy.editColumn("customColumn1");
     // Validating single cell value

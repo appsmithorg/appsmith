@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/textNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Text Widget Truncate Functionality", function() {
+describe("Text Widget Truncate Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check default overflow property is No overflow", function() {
+  it("Check default overflow property is No overflow", function () {
     cy.openPropertyPane("textwidget");
     cy.get(".t--button-group-NONE")
       .last()
@@ -14,7 +14,7 @@ describe("Text Widget Truncate Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Validate long text is not truncating in default", function() {
+  it("Validate long text is not truncating in default", function () {
     cy.get(
       `.appsmith_widget_${dsl.dsl.children[0].widgetId} .t--draggable-textwidget`,
     ).click({
@@ -31,7 +31,7 @@ describe("Text Widget Truncate Functionality", function() {
     ).should("not.exist");
   });
 
-  it("Enable Truncate Text option and Validate", function() {
+  it("Enable Truncate Text option and Validate", function () {
     cy.wait(2000);
     cy.get("body").type("{esc}");
     cy.get(".t--button-group-TRUNCATE").click({ force: true });
@@ -42,7 +42,7 @@ describe("Text Widget Truncate Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Open modal on click and Validate", function() {
+  it("Open modal on click and Validate", function () {
     cy.get(
       `.appsmith_widget_${dsl.dsl.children[0].widgetId} .t--widget-textwidget-truncate`,
     ).click();
@@ -54,7 +54,7 @@ describe("Text Widget Truncate Functionality", function() {
     });
   });
 
-  it("Add Long Text to large text box and validate", function() {
+  it("Add Long Text to large text box and validate", function () {
     cy.get(
       `.appsmith_widget_${dsl.dsl.children[1].widgetId} .t--draggable-textwidget`,
     ).click({

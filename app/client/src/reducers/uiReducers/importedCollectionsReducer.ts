@@ -1,11 +1,11 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-import {
+import type {
   TemplateList,
   CollectionDataArray,
 } from "constants/collectionsConstants";

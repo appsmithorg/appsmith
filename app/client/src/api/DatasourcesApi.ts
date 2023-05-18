@@ -1,9 +1,9 @@
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import API from "api/Api";
-import { ApiResponse } from "./ApiResponses";
-import { AxiosPromise } from "axios";
+import type { ApiResponse } from "./ApiResponses";
+import type { AxiosPromise } from "axios";
 
-import { DatasourceAuthentication, Datasource } from "entities/Datasource";
+import type { DatasourceAuthentication, Datasource } from "entities/Datasource";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;

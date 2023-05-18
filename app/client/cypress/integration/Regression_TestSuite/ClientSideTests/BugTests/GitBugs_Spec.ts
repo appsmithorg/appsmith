@@ -1,8 +1,9 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { locators } from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
-describe("Git Bugs", function() {
+describe("Git Bugs", function () {
   before(() => {
     _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
@@ -12,7 +13,7 @@ describe("Git Bugs", function() {
     });
   });
 
-  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
+  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const largeResponseApiUrl = "https://jsonplaceholder.typicode.com/users";
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
@@ -24,7 +25,7 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateNetworkStatus("@postExecute");
   });
 
-  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
+  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
     _.gitSync.CreateNConnectToGit();
     _.gitSync.CreateGitBranch();
     _.dataSources.NavigateToDSCreateNew();
@@ -41,10 +42,14 @@ describe("Git Bugs", function() {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.SelectPropertiesDropDown("onClick", "Navigate to");
+    _.propPane.EnterJSContext(
+      "onClick",
+      "{{navigateTo('Page2', {testQP: 'Yes'}, 'SAME_WINDOW')}}",
+      true,
+      true,
+    );
+    _.jsEditor.DisableJSContext("onClick");
     _.agHelper.Sleep(500);
-    _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
-    _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(

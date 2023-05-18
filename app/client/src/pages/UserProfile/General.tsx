@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { debounce } from "lodash";
 import {
   notEmptyValidator,
   Text,
@@ -14,14 +13,19 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
-  createMessage,
+  USER_DISPLAY_NAME_CHAR_CHECK_FAILED,
+  USER_DISPLAY_NAME_PLACEHOLDER,
+  USER_DISPLAY_PICTURE_PLACEHOLDER,
+  USER_EMAIL_PLACEHOLDER,
+  USER_RESET_PASSWORD,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-const { disableLoginForm } = getAppsmithConfigs();
+import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
+import { createMessage } from "design-system-old/build/constants/messages";
+import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -33,8 +37,32 @@ const ForgotPassword = styled.a`
   display: inline-block;
 `;
 
+const nameValidator = (
+  value: string,
+): {
+  isValid: boolean;
+  message: string;
+} => {
+  const notEmpty = notEmptyValidator(value);
+  if (!notEmpty.isValid) {
+    return notEmpty;
+  }
+  if (!new RegExp(`^[${ALL_LANGUAGE_CHARACTERS_REGEX} 0-9.'-]+$`).test(value)) {
+    return {
+      isValid: false,
+      message: createMessage(USER_DISPLAY_NAME_CHAR_CHECK_FAILED),
+    };
+  }
+  return {
+    isValid: true,
+    message: "",
+  };
+};
+
 function General() {
   const user = useSelector(getCurrentUser);
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const [name, setName] = useState(user?.name);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
     try {
@@ -51,15 +79,15 @@ function General() {
       });
     }
   };
-
-  const timeout = 1000;
-  const onNameChange = debounce((newName: string) => {
-    dispatch(
-      updateUserDetails({
-        name: newName,
-      }),
-    );
-  }, timeout);
+  const saveName = () => {
+    name &&
+      nameValidator(name).isValid &&
+      dispatch(
+        updateUserDetails({
+          name,
+        }),
+      );
+  };
 
   if (user?.email === ANONYMOUS_USERNAME) return null;
 
@@ -67,37 +95,49 @@ function General() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Display Picture</Text>
+          <Text type={TextType.H4}>
+            {createMessage(USER_DISPLAY_PICTURE_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         <UserProfileImagePicker />
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Display name</Text>
+          <Text type={TextType.H4}>
+            {createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         {
           <div style={{ flex: 1 }}>
             <TextInput
               cypressSelector="t--display-name"
-              defaultValue={user?.name}
+              defaultValue={name}
               fill={false}
-              onChange={onNameChange}
-              placeholder="Display name"
-              validator={notEmptyValidator}
+              onBlur={saveName}
+              onChange={setName}
+              onKeyPress={(ev: React.KeyboardEvent) => {
+                if (ev.key === "Enter") {
+                  saveName();
+                }
+              }}
+              placeholder={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
+              validator={nameValidator}
             />
           </div>
         }
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Email</Text>
+          <Text type={TextType.H4}>
+            {createMessage(USER_EMAIL_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         <div style={{ flexDirection: "column", display: "flex" }}>
           {<Text type={TextType.P1}>{user?.email}</Text>}
 
-          {!disableLoginForm && (
+          {isFormLoginEnabled && (
             <ForgotPassword onClick={forgotPassword}>
-              Reset Password
+              {createMessage(USER_RESET_PASSWORD)}
             </ForgotPassword>
           )}
         </div>

@@ -16,6 +16,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
       type: "page",
       id: builderMatch?.params?.pageId,
       params: builderMatch?.params,
+      pageType: "canvas",
     };
 
   const baseMatch = matchBasePath(pathName);
@@ -32,6 +33,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
       type: "action",
       id: apiMatch?.params?.apiId,
       params: apiMatch?.params,
+      pageType: "apiEditor",
     };
 
   const queryMatch = matchPath<{ queryId: string }>(pathName, {
@@ -42,6 +44,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
       type: "action",
       id: queryMatch.params?.queryId,
       params: queryMatch?.params,
+      pageType: "queryEditor",
     };
 
   const datasourceMatch = matchPath<{ datasourceId: string }>(pathName, {
@@ -52,6 +55,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
       type: "datasource",
       id: datasourceMatch?.params?.datasourceId,
       params: datasourceMatch?.params,
+      pageType: "datasourceEditor",
     };
 
   const jsObjectMatch = matchPath<{ collectionId: string }>(pathName, {
@@ -62,6 +66,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
       type: "jsAction",
       id: jsObjectMatch?.params?.collectionId,
       params: jsObjectMatch?.params,
+      pageType: "jsEditor",
     };
   }
 

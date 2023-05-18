@@ -1,10 +1,11 @@
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
   setWorkspaceIdForImport,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import {
   createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
@@ -17,24 +18,24 @@ import {
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
+import type { SetProgress } from "design-system-old";
 import {
   DialogComponent as Dialog,
   FilePickerV2,
   FileType,
   Icon,
   IconSize,
-  SetProgress,
   Text,
   TextType,
 } from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getIsImportingApplication } from "selectors/applicationSelectors";
+import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -84,8 +85,8 @@ const Row = styled.div`
   }
 `;
 
-const FileImportCard = styled.div`
-  width: 320px;
+const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
+  width: ${(props) => (props.fillCardWidth ? "100%" : "320px")};
   height: 200px;
   border: 1px solid ${Colors.GREY_4};
   display: flex;
@@ -233,10 +234,12 @@ type ImportApplicationModalProps = {
   workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
+  appId?: string;
+  toApp?: boolean;
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, workspaceId } = props;
+  const { appId, isModalOpen, onClose, toApp = false, workspaceId } = props;
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -271,6 +274,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         });
         dispatch(
           importApplication({
+            appId: appId as string,
             workspaceId: workspaceId as string,
             applicationFile: file,
           }),
@@ -309,16 +313,18 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     >
       <TextWrapper>
         <Text color={Colors.COD_GRAY} type={TextType.P1}>
-          {createMessage(
-            importingApplication
-              ? UPLOADING_JSON
-              : IMPORT_APPLICATION_MODAL_LABEL,
-          )}
+          {toApp
+            ? null
+            : createMessage(
+                importingApplication
+                  ? UPLOADING_JSON
+                  : IMPORT_APPLICATION_MODAL_LABEL,
+              )}
         </Text>
       </TextWrapper>
       {!importingApplication && (
         <Row>
-          <FileImportCard className="t--import-json-card">
+          <FileImportCard className="t--import-json-card" fillCardWidth={toApp}>
             <FilePickerV2
               containerClickable
               description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
@@ -330,7 +336,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
               uploadIcon="file-line"
             />
           </FileImportCard>
-          <GitImportCard handler={onGitImport} />
+          {!toApp && <GitImportCard handler={onGitImport} />}
         </Row>
       )}
       {importingApplication && (

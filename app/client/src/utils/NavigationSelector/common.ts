@@ -1,5 +1,5 @@
 import { ENTITY_TYPE } from "entities/DataTree/types";
-import {
+import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
@@ -76,7 +76,7 @@ export const createObjectNavData = (
       } else {
         peekData[key] = isTernFunctionDef(defs[key])
           ? // eslint-disable-next-line @typescript-eslint/no-empty-function
-            function() {} // tern inference required here
+            function () {} // tern inference required here
           : data[key];
         entityNavigationData[key] = createNavData({
           id: childKey,

@@ -4,6 +4,31 @@ describe("List widget v2 Evaluated Popup", () => {
       x: 300,
       y: 300,
     });
+    [["{{null}}", "[]"]].forEach(([input, expected]) => {
+      cy.updateCodeInput(".t--property-control-items", input);
+      cy.wait(500);
+      cy.validateEvaluatedValue(expected);
+    });
+
+    cy.updateCodeInput(
+      ".t--property-control-items",
+      `{{[{
+        id: "001",
+        name: "Blue",
+        img: "https://assets.appsmith.com/widgets/default.png",
+      },
+      {
+        id: "002",
+        name: "Green",
+        img: "https://assets.appsmith.com/widgets/default.png",
+      },
+      {
+        id: "003",
+        name: "Red",
+        img: "https://assets.appsmith.com/widgets/default.png",
+      }]}}`,
+    );
+
     cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
     [
@@ -12,6 +37,15 @@ describe("List widget v2 Evaluated Popup", () => {
       ["{{currentItem.name}}_{{currentIndex}}", "Blue_0"],
       ["{{1000}}", "1000"],
       ['{{(() => "Text Widget")()}}', "Text Widget"],
+      ["NewLine\n{{currentItem.name}}", "NewLine\nBlue"],
+      [`\{{currentItem.name}}`, `\Blue`],
+      [
+        `{{
+          (function(){return true;})
+          ()}}
+        `,
+        "true",
+      ],
     ].forEach(([input, expected]) => {
       cy.updateCodeInput(".t--property-control-text", input);
       cy.wait(500);

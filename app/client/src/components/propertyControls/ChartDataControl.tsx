@@ -1,21 +1,22 @@
 import React from "react";
 import { get, isString } from "lodash";
 import styled from "styled-components";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import { FormIcons } from "icons/FormIcons";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Size, Category } from "design-system-old";
-import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
+import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 
 const Wrapper = styled.div`
@@ -138,7 +139,8 @@ function DataControlComponent(props: RenderComponentProps) {
         )}
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <CodeEditor
+        <LazyCodeEditor
+          AIAssisted
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={expectedSeriesName}
@@ -186,7 +188,8 @@ function DataControlComponent(props: RenderComponentProps) {
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
-        <CodeEditor
+        <LazyCodeEditor
+          AIAssisted
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={expectedSeriesData}

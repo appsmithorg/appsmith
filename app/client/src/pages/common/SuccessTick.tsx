@@ -1,6 +1,9 @@
-import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
-import styled, { CSSProperties } from "styled-components";
+import type { CSSProperties } from "styled-components";
+import styled from "styled-components";
 import React from "react";
+import { importSvg } from "design-system-old";
+
+const CheckmarkSvg = importSvg(() => import("assets/svg/checkmark.svg"));
 
 const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
   height: ${(props) => props.$height};

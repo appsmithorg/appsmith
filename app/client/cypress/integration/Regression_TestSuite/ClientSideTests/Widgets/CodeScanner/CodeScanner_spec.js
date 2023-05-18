@@ -49,6 +49,7 @@ describe("Code Scanner widget's functionality", () => {
 
         it("3.1.1.2 => Scanner should not be scanning and streaming video", () => {
           // Video should NOT be streaming
+          cy.wait(2000); //for deployed page to laod completey
           cy.get(codeScannerVideoOnPublishPage).should("not.exist");
 
           // Back to editor

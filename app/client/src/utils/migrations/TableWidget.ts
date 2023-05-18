@@ -7,22 +7,25 @@ import {
   generateTableColumnId,
   getAllTableColumnKeys,
 } from "widgets/TableWidget/component/TableHelpers";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
-  ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
 } from "widgets/TableWidget/component/Constants";
 import { Colors } from "constants/Colors";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
-import { DSLWidget } from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { stringToJS } from "components/editorComponents/ActionCreator/utils";
-import { StickyType } from "widgets/TableWidgetV2/component/Constants";
+import {
+  type ColumnProperties as ColumnPropertiesV2,
+  StickyType,
+} from "widgets/TableWidgetV2/component/Constants";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -710,6 +713,95 @@ export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
 
       widget.canFreezeColumn = false;
       widget.columnUpdatedAt = Date.now();
+    }
+  });
+};
+
+export const migrateTableSelectOptionAttributesForNewRow = (
+  currentDSL: DSLWidget,
+) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      const primaryColumns = widget?.primaryColumns as ColumnPropertiesV2;
+
+      // Set default value for allowSameOptionsInNewRow
+      if (primaryColumns) {
+        Object.values(primaryColumns).forEach((column) => {
+          if (
+            column.hasOwnProperty("columnType") &&
+            column.columnType === "select"
+          ) {
+            column.allowSameOptionsInNewRow = true;
+          }
+        });
+      }
+    }
+  });
+};
+
+export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
+  currentDSL: DSLWidget,
+) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      const tableId = widget.widgetName;
+
+      const oldBindingPrefix = `{{((isNewRow)=>(`;
+      const newBindingPrefix = `{{
+        (
+          (isNewRow, currentIndex, currentRow) => (
+      `;
+
+      const oldBindingSuffix = `))(${tableId}.isAddRowInProgress)}}`;
+      const newBindingSuffix = `
+      ))
+      (
+        ${tableId}.isAddRowInProgress,
+        ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
+        ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+          Object.keys(${tableId}.processedTableData[0])
+            .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+            .reduce((prev, curr) => {
+              prev[curr] = "";
+              return prev;
+            }, {}))
+      )
+    }}
+    `;
+      const applicableValidationNames = [
+        "min",
+        "max",
+        "regex",
+        "errorMessage",
+        "isColumnEditableCellRequired",
+      ];
+      const primaryColumns = widget?.primaryColumns as ColumnPropertiesV2;
+
+      Object.values(primaryColumns).forEach((column) => {
+        if (column.hasOwnProperty("validation")) {
+          const validations = column.validation;
+          for (const validationName in validations) {
+            if (applicableValidationNames.indexOf(validationName) == -1) {
+              continue;
+            }
+            const validationValue = validations[validationName];
+            if (typeof validationValue !== "string") {
+              continue;
+            }
+
+            let compressedValidationValue = validationValue.replace(/\s/g, "");
+            compressedValidationValue = compressedValidationValue.replace(
+              oldBindingPrefix,
+              newBindingPrefix,
+            );
+            compressedValidationValue = compressedValidationValue.replace(
+              oldBindingSuffix,
+              newBindingSuffix,
+            );
+            validations[validationName] = compressedValidationValue;
+          }
+        }
+      });
     }
   });
 };

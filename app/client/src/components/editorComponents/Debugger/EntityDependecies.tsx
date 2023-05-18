@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import {
   Classes,
@@ -13,7 +13,6 @@ import {
   TooltipComponent as Tooltip,
 } from "design-system-old";
 import InspectElement from "assets/images/InspectElement.svg";
-import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import {
   createMessage,
   INCOMING_ENTITIES,
@@ -28,6 +27,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
+import { importSvg } from "design-system-old";
+
+const LongArrowSVG = importSvg(
+  () => import("assets/images/long-arrow-right.svg"),
+);
 
 const ConnectionType = styled.span`
   span:nth-child(2) {

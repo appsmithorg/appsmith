@@ -1,3 +1,4 @@
+import { INTERCEPT } from "../../../../fixtures/variables";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
@@ -16,8 +17,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
   });
 
-  beforeEach(function() {
-    if (Cypress.env("Mongo") === 0) {
+  beforeEach(function () {
+    if (INTERCEPT.MONGO) {
       cy.log("Mongo DB is not found. Using intercept");
       dataSources.StartInterceptRoutesForMongo();
     } else cy.log("Mongo DB is found, hence using actual DB");
@@ -650,7 +651,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
   });
 
-  it("18. Verify application does not break when user runs the query with wrong collection name", function() {
+  it("18. Verify application does not break when user runs the query with wrong collection name", function () {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
@@ -659,11 +660,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
-
-    dataSources.RunQuery(true, false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) => expect($errorText).to.eq("ns not found."));
+    dataSources.RunQuery({ expectedStatus: false });
+    agHelper.AssertContains("ns not found.", "exist", dataSources._queryError);
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 

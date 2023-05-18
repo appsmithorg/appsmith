@@ -2,23 +2,26 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { WidgetProperties } from "selectors/propertyPaneSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import WidgetFactory from "utils/WidgetFactory";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
+import type { WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
-import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import type { Stylesheet } from "entities/AppTheming";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -186,12 +189,11 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onTabSelected",
             label: "onTabSelected",
             controlType: "ACTION_SELECTOR",
@@ -284,6 +286,12 @@ class TabsWidget extends BaseWidget<
     checkContainersForAutoHeight && checkContainersForAutoHeight();
   };
 
+  callPositionUpdates = (tabWidgetId: string) => {
+    const { updatePositionsOnTabChange } = this.context;
+    updatePositionsOnTabChange &&
+      updatePositionsOnTabChange(this.props.widgetId, tabWidgetId);
+  };
+
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
       triggerPropertyName: "onTabSelected",
@@ -293,6 +301,7 @@ class TabsWidget extends BaseWidget<
       },
     });
     setTimeout(this.callDynamicHeightUpdates, 0);
+    setTimeout(() => this.callPositionUpdates(tabWidgetId), 0);
   };
 
   static getStylesheetConfig(): Stylesheet {
@@ -306,6 +315,13 @@ class TabsWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedTab: "string",
     };
   }
 
@@ -330,7 +346,7 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidget(this.props, true);
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -342,6 +358,11 @@ class TabsWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
+        selectedTabWidgetId={this.getSelectedTabWidgetId()}
+        shouldScrollContents={
+          this.props.shouldScrollContents &&
+          this.props.appPositioningType !== AppPositioningTypes.AUTO
+        }
       >
         {this.renderComponent()}
       </TabsComponent>
@@ -349,7 +370,7 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabWidgetId = this.props.selectedTabWidgetId;
+    const selectedTabWidgetId = this.getSelectedTabWidgetId();
     const childWidgetData = {
       ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
@@ -386,6 +407,17 @@ class TabsWidget extends BaseWidget<
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
+
+  private getSelectedTabWidgetId() {
+    let selectedTabWidgetId = this.props.selectedTabWidgetId;
+    if (this.props.children) {
+      selectedTabWidgetId =
+        this.props.children.find((tab) =>
+          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        )?.widgetId ?? this.props.selectedTabWidgetId;
+    }
+    return selectedTabWidgetId;
+  }
 
   static getWidgetType(): string {
     return "TABS_WIDGET";

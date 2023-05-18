@@ -4,12 +4,12 @@ import homePage from "../../../../locators/HomePage";
 let duplicateApplicationDsl;
 let parentApplicationDsl;
 
-describe("Duplicate application", function() {
+describe("Duplicate application", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check whether the duplicate application has the same dsl as the original", function() {
+  it("Check whether the duplicate application has the same dsl as the original", function () {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
@@ -23,12 +23,8 @@ describe("Duplicate application", function() {
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.duplicateApp).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
 

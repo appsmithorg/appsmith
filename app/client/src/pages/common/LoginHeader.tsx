@@ -4,10 +4,14 @@ import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { BASE_URL } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
+import { importSvg } from "design-system-old";
+
+const AppsmithLogo = importSvg(
+  () => import("assets/svg/appsmith_logo_primary.svg"),
+);
 
 const StyledPageHeader = styled(StyledHeader)`
   width: 100%;

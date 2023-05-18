@@ -1,28 +1,25 @@
 import React, { useCallback, useRef } from "react";
 import { connect } from "react-redux";
-import {
-  change,
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { change, formValueSelector, reduxForm } from "redux-form";
 import classNames from "classnames";
 import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import { Action } from "entities/Action";
+import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import {
   getAction,
   getActionData,
 } from "../../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
-import CommonEditorForm, { CommonFormProps } from "../CommonEditorForm";
+import type { CommonFormProps } from "../CommonEditorForm";
+import CommonEditorForm from "../CommonEditorForm";
 import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
@@ -94,17 +91,13 @@ function GraphQLEditorForm(props: Props) {
     setVariableEditorWidth(newWidth);
   }, []);
 
-  const {
-    onMouseDown,
-    onMouseUp,
-    onTouchStart,
-    resizing,
-  } = useHorizontalResize(
-    sizeableRef,
-    onVariableEditorWidthChange,
-    undefined,
-    true,
-  );
+  const { onMouseDown, onMouseUp, onTouchStart, resizing } =
+    useHorizontalResize(
+      sizeableRef,
+      onVariableEditorWidthChange,
+      undefined,
+      true,
+    );
 
   return (
     <CommonEditorForm

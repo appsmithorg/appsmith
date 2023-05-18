@@ -1,12 +1,14 @@
-import React, { ChangeEvent } from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { EventOrValueHandler } from "redux-form";
+import type { ChangeEvent } from "react";
+import React from "react";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { EventOrValueHandler } from "redux-form";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
@@ -25,7 +27,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     if (expected) props.expected = expected;
 
     return (
-      <CodeEditor
+      <LazyCodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
         input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}
@@ -34,6 +36,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         theme={this.props.theme}
         useValidationMessage={useValidationMessage}
         {...props}
+        AIAssisted
       />
     );
   }

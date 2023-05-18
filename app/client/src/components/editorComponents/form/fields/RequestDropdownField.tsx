@@ -1,6 +1,7 @@
 import React from "react";
 import _ from "lodash";
-import { Field, WrappedFieldProps } from "redux-form";
+import type { WrappedFieldProps } from "redux-form";
+import { Field } from "redux-form";
 import DropdownFieldWrapper from "components/editorComponents/form/fields/DropdownFieldWrapper";
 
 interface RequestDropdownProps {

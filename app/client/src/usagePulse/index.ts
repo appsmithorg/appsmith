@@ -1,76 +1,90 @@
-import { isEditorPath } from "ce/pages/Editor/Explorer/helpers";
 import {
-  BUILDER_VIEWER_PATH_PREFIX,
-  VIEWER_PATH_DEPRECATED_REGEX,
-} from "constants/routes";
-import { APP_MODE } from "entities/App";
-import { isNil, noop } from "lodash";
-import { getAppMode } from "selectors/applicationSelectors";
-import store from "store";
+  getAppViewerPageIdFromPath,
+  isEditorPath,
+  isViewerPath,
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import history from "utils/history";
+import { fetchWithRetry, getUsagePulsePayload } from "./utils";
+import {
+  PULSE_API_ENDPOINT,
+  PULSE_API_MAX_RETRY_COUNT,
+  PULSE_API_RETRY_TIMEOUT,
+  PULSE_INTERVAL,
+  USER_ACTIVITY_LISTENER_EVENTS,
+} from "@appsmith/constants/UsagePulse";
+import PageApi from "api/PageApi";
+import { APP_MODE } from "entities/App";
+import type { FetchApplicationResponse } from "ce/api/ApplicationApi";
+import type { AxiosResponse } from "axios";
+import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
 
-const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
-const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
-const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
 class UsagePulse {
   static userAnonymousId: string | undefined;
   static Timer: ReturnType<typeof setTimeout>;
   static unlistenRouteChange: () => void;
+  static isTelemetryEnabled: boolean;
+  static isAnonymousUser: boolean;
 
   /*
    * Function to check if the given URL is trakable or not.
    * app builder and viewer urls are trackable
    */
-  static isTrackableUrl(url: string) {
-    return (
-      url.includes(BUILDER_VIEWER_PATH_PREFIX) ||
-      VIEWER_PATH_DEPRECATED_REGEX.test(url)
-    );
+  static async isTrackableUrl(path: string) {
+    if (isViewerPath(path)) {
+      if (UsagePulse.isAnonymousUser) {
+        /*
+          In App view mode for non-logged in user, first we must have to check if the app is public or not.
+          If it is private app with non-logged in user, we do not send pulse at this point instead we redirect to the login page.
+          And for login page no usage pulse is required.
+        */
+        const response: AxiosResponse<FetchApplicationResponse, any> =
+          await PageApi.fetchAppAndPages({
+            pageId: getAppViewerPageIdFromPath(path),
+            mode: APP_MODE.PUBLISHED,
+          });
+        const { data } = response.data || {};
+        if (data?.application && !data.application.isPublic) {
+          return false;
+        }
+      }
+      return true;
+    } else if (isEditorPath(path)) {
+      /*
+        During onboarding we show the Intro Modal and let user use the app for the first time.
+        During this exploration period, we do no send usage pulse.
+      */
+      const isFirstTimeOnboarding =
+        await getFirstTimeUserOnboardingIntroModalVisibility();
+      if (!isFirstTimeOnboarding) return true;
+    }
+    return false;
   }
 
   static sendPulse() {
-    let mode = getAppMode(store.getState());
+    const payload = getUsagePulsePayload(
+      UsagePulse.isTelemetryEnabled,
+      UsagePulse.isAnonymousUser,
+    );
 
-    if (isNil(mode)) {
-      mode = isEditorPath(window.location.pathname)
-        ? APP_MODE.EDIT
-        : APP_MODE.PUBLISHED;
-    }
-
-    const data: Record<string, unknown> = {
-      viewMode: mode === APP_MODE.PUBLISHED,
+    const fetchWithRetryConfig = {
+      url: PULSE_API_ENDPOINT,
+      payload,
+      retries: PULSE_API_MAX_RETRY_COUNT,
+      retryTimeout: PULSE_API_RETRY_TIMEOUT,
     };
 
-    if (UsagePulse.userAnonymousId) {
-      data["anonymousUserId"] = UsagePulse.userAnonymousId;
-    }
-
-    fetch(PULSE_API_ENDPOINT, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      keepalive: true,
-    }).catch(noop);
+    fetchWithRetry(fetchWithRetryConfig);
   }
 
   static registerActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.addEventListener(
-        event,
-        UsagePulse.startTrackingActivity,
-      );
+      window.document.body.addEventListener(event, UsagePulse.track);
     });
   }
 
   static deregisterActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.removeEventListener(
-        event,
-        UsagePulse.startTrackingActivity,
-      );
+      window.document.body.removeEventListener(event, UsagePulse.track);
     });
   }
 
@@ -78,9 +92,9 @@ class UsagePulse {
    * Function to register a history change event and trigger
    * a callback and unlisten when the user goes to a trackable URL
    */
-  static watchForTrackableUrl(callback: () => void) {
-    UsagePulse.unlistenRouteChange = history.listen(() => {
-      if (UsagePulse.isTrackableUrl(window.location.href)) {
+  static async watchForTrackableUrl(callback: () => void) {
+    UsagePulse.unlistenRouteChange = history.listen(async () => {
+      if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
         UsagePulse.unlistenRouteChange();
         setTimeout(callback, 0);
       }
@@ -98,21 +112,32 @@ class UsagePulse {
 
     UsagePulse.Timer = setTimeout(
       UsagePulse.registerActivityListener,
-      PULSE_INTERVAL * 1000,
+      PULSE_INTERVAL,
     );
   }
 
   /*
    * Point of entry for the user tracking
+   */
+  static startTrackingActivity(
+    isTelemetryEnabled: boolean,
+    isAnonymousUser: boolean,
+  ) {
+    UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
+    UsagePulse.isAnonymousUser = isAnonymousUser;
+    UsagePulse.track();
+  }
+
+  /*
    * triggers a pulse and schedules the pulse , if user is on a trackable url, otherwise
    * registers listeners to wait for the user to go to a trackable url
    */
-  static startTrackingActivity() {
-    if (UsagePulse.isTrackableUrl(window.location.href)) {
+  static async track() {
+    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
       UsagePulse.sendPulse();
       UsagePulse.scheduleNextActivityListeners();
     } else {
-      UsagePulse.watchForTrackableUrl(UsagePulse.startTrackingActivity);
+      await UsagePulse.watchForTrackableUrl(UsagePulse.track);
     }
   }
 

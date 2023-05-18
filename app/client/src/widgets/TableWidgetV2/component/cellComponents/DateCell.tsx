@@ -1,13 +1,13 @@
 import React, { useMemo, useRef, useState } from "react";
+import type { VerticalAlignment } from "../Constants";
 import {
   ALIGN_ITEMS,
-  VerticalAlignment,
   EDITABLE_CELL_PADDING_OFFSET,
   TABLE_SIZES,
 } from "../Constants";
 import DateComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { RenderDefaultPropsType } from "./PlainTextCell";
+import type { RenderDefaultPropsType } from "./PlainTextCell";
 import styled from "styled-components";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
@@ -107,8 +107,10 @@ const Wrapper = styled.div<{
         : "100%";
     } else {
       return props.paddedInput
-        ? `${TABLE_SIZES[props.compactMode].ROW_HEIGHT -
-            EDITABLE_CELL_PADDING_OFFSET}px`
+        ? `${
+            TABLE_SIZES[props.compactMode].ROW_HEIGHT -
+            EDITABLE_CELL_PADDING_OFFSET
+          }px`
         : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
     }
   }};
@@ -269,10 +271,9 @@ export const DateCell = (props: DateComponentProps) => {
       <Wrapper
         accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
-        className={`${
-          hasFocus ? FOCUS_CLASS : ""
-        } t--inlined-cell-editor ${!isValid &&
-          "t--inlined-cell-editor-has-error"}`}
+        className={`${hasFocus ? FOCUS_CLASS : ""} t--inlined-cell-editor ${
+          !isValid && "t--inlined-cell-editor-has-error"
+        }`}
         compactMode={compactMode}
         isEditableCellValid={isValid}
         paddedInput

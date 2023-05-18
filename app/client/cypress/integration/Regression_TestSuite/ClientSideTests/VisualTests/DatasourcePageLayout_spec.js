@@ -10,7 +10,7 @@ describe("Visual tests for datasources", () => {
   //  2. Run test in headless mode with any browser
   //      command: "npx cypress run --spec cypress/integration/<path>  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
-  it("Layout validation for datasource page", () => {
+  it("1. Layout validation for datasource page", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {

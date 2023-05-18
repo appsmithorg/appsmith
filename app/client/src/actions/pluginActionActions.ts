@@ -1,16 +1,19 @@
-import { ActionResponse, PaginationField } from "api/ActionAPI";
-import {
+import type { ActionResponse, PaginationField } from "api/ActionAPI";
+import type {
   EvaluationReduxAction,
   AnyReduxAction,
   ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Action } from "entities/Action";
+import type { JSUpdate } from "utils/JSPaneUtils";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
-import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -279,6 +282,13 @@ export const updateActionProperty = (
 
 export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+});
+
+export const executeJSUpdates = (
+  payload: Record<string, JSUpdate>,
+): ReduxAction<unknown> => ({
+  type: ReduxActionTypes.EXECUTE_JS_UPDATES,
+  payload,
 });
 
 export const setActionsToExecuteOnPageLoad = (

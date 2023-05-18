@@ -1,6 +1,11 @@
 const dsl = require("../../../../../fixtures/Listv2/copy_paste_listv2_dsl.json");
+const nestedSiblingDsl = require("../../../../../fixtures/Listv2/ListV2_nested_sibling_listwidget_dsl.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 function checkAutosuggestion(label, type) {
   cy.get(".CodeMirror-hints")
@@ -11,13 +16,18 @@ function checkAutosuggestion(label, type) {
       expect(afterContent).eq(`"${type}"`);
     });
 }
-describe(" Nested List Widgets ", function() {
+describe(" Nested List Widgets ", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-  before(() => {
-    cy.addDsl(dsl);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
   });
 
-  it("a. Pasting - should show toast when nesting is greater than 3", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("a. Pasting - should show toast when nesting is greater than 3", function () {
+    cy.addDsl(dsl);
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
     cy.get(".t--copy-widget").click({ force: true });
@@ -104,7 +114,7 @@ describe(" Nested List Widgets ", function() {
     checkAutosuggestion("pageSize", "Number");
 
     cy.get(".CodeMirror-hints").each(($el) => {
-      cy.wrap($el).should("not.have.text", "currentViewItems");
+      cy.wrap($el).should("not.have.text", "currentItemsView");
     });
 
     cy.get(".CodeMirror-hints").each(($el) => {
@@ -123,6 +133,71 @@ describe(" Nested List Widgets ", function() {
     cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
       "have.text",
       "1",
+    );
+  });
+
+  it("c. Accessing CurrentView, SelectedItemView and TriggeredItemView from Sibling List widget", () => {
+    cy.addDsl(nestedSiblingDsl);
+
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List2",
+          )} ${containerWidgetSelector} .t--widget-imagewidget`,
+        )
+        .should("have.length", 3),
+    );
+
+    cy.openPropertyPaneByWidgetName("Text4", "textwidget");
+    cy.testJsontextclear("text");
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.List3.currentItemsView",
+      {
+        force: true,
+      },
+    );
+
+    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("be.empty");
+
+    cy.openPropertyPaneByWidgetName("Text4", "textwidget");
+
+    cy.testJsontextclear("text");
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{level_1.currentView.List2.currentItemsView",
+      {
+        force: true,
+      },
+    );
+    cy.wait(300);
+
+    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("be.empty");
+
+    cy.openPropertyPaneByWidgetName("Text5", "textwidget");
+    cy.testJsontextclear("text");
+
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{List1.selectedItemView.List2.currentItemsView",
+      {
+        force: true,
+      },
+    );
+
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector} `)
+      .first()
+      .click({ force: true });
+
+    cy.wait(300);
+
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("Text5")} ${commonlocators.bodyTextStyle}`)
+        .first()
+        .contains("Text4"),
     );
   });
 });

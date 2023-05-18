@@ -3,15 +3,15 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 
-describe("JsonForm widget basis c usecases", function() {
-  it("Validate Drag and drop jsonform widget", function() {
+describe("JsonForm widget basis c usecases", function () {
+  it("Validate Drag and drop jsonform widget", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });
     cy.openPropertyPane("jsonformwidget");
     cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
   });
 
-  it("json form widget validate default data", function() {
+  it("json form widget validate default data", function () {
     cy.openPropertyPane("jsonformwidget");
     cy.get(jsonform.jsformInput).should(
       "have.value",
@@ -27,7 +27,7 @@ describe("JsonForm widget basis c usecases", function() {
     );
   });
 
-  it("json form widget validate reset button function", function() {
+  it("json form widget validate reset button function", function () {
     cy.openPropertyPane("jsonformwidget");
     cy.get(jsonform.jsformInput).clear({ force: true });
     cy.get(jsonform.jsformInput).type("TestReset");
@@ -52,7 +52,7 @@ describe("JsonForm widget basis c usecases", function() {
     );
   });
 
-  it("Validate copy/paste/delete widget ", function() {
+  it("Validate copy/paste/delete widget ", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //copy and paste
     cy.openPropertyPane("jsonformwidget");

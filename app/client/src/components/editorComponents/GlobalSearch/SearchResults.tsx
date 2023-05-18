@@ -1,19 +1,17 @@
 import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
-import { Hit as IHit } from "react-instantsearch-core";
+import type { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
 import { getTypographyByKey } from "design-system-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
+import type { SearchItem, SearchCategory } from "./utils";
 import {
   getItemType,
   getItemTitle,
   SEARCH_ITEM_TYPES,
-  SearchItem,
-  SearchCategory,
   comboHelpText,
   isSnippet,
 } from "./utils";
@@ -27,11 +25,14 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import { importSvg } from "design-system-old";
+
+const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 

@@ -1,11 +1,11 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
 
-describe("Widget Grouping", function() {
+describe("Widget Grouping", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Select widgets using cmd + click and group using cmd + G", function() {
+  it("Select widgets using cmd + click and group using cmd + G", function () {
     // Selection
     cy.get(`#${dsl.dsl.children[2].widgetId}`).click({
       ctrlKey: true,

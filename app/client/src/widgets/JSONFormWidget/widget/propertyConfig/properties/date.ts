@@ -1,10 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { dateFormatOptions } from "widgets/constants";
 
@@ -166,7 +163,7 @@ const PROPERTIES = {
       {
         propertyName: "onDateSelected",
         label: "onDateSelected",
-        helpText: "Triggers an action when a date is selected in the calendar",
+        helpText: "when a date is selected in the calendar",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

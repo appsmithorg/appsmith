@@ -1,22 +1,21 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let dataSet: any, valueToTest: any, jsName: any;
 
-
 describe("Validate JSObj binding to Table widget", () => {
   before(() => {
     cy.fixture("listwidgetdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
     });
 
-    cy.fixture("example").then(function(data: any) {
+    cy.fixture("example").then(function (data: any) {
       dataSet = data;
     });
   });
 
   it("1. Add users api and bind to JSObject", () => {
-    cy.fixture("datasources").then((datasourceFormData : any) => {
+    cy.fixture("datasources").then((datasourceFormData: any) => {
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-    })
+    });
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.dataSources._queryResponse("JSON"));
     _.apiPage.ReadApiResponsebyKey("name");
@@ -38,7 +37,7 @@ describe("Validate JSObj binding to Table widget", () => {
     });
   });
 
-  it("2. Validate the Api data is updated on List widget + Bug 12438", function() {
+  it("2. Validate the Api data is updated on List widget + Bug 12438", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(
       "Items",
@@ -74,9 +73,9 @@ describe("Validate JSObj binding to Table widget", () => {
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Validate the List widget + Bug 12438 ", function() {
+  it("3. Validate the List widget + Bug 12438 ", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
-    _.propPane.moveToStyleTab();
+    _.propPane.MoveToTab("STYLE");
     _.propPane.UpdatePropertyFieldValue("Item Spacing (px)", "50");
     cy.get(_.locators._textWidget).should("have.length", 6);
     _.deployMode.DeployApp(_.locators._textWidgetInDeployed);

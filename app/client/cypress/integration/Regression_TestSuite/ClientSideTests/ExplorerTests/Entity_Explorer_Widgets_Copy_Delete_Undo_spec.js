@@ -8,10 +8,10 @@ before(() => {
   cy.addDsl(dsl);
 });
 
-describe("Test Suite to validate copy/delete/undo functionalites", function() {
+describe("Test Suite to validate copy/delete/undo functionalites", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-  it("Drag and drop form widget and validate copy widget via toast message", function() {
+  it("Drag and drop form widget and validate copy widget via toast message", function () {
     cy.openPropertyPane("formwidget");
     cy.widgetText(
       "FormTest",
@@ -21,27 +21,21 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.get(commonlocators.copyWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(commonlocators.toastBody)
-      .first()
-      .contains("Copied");
+    cy.get(commonlocators.toastBody).first().contains("Copied");
   });
 
-  it("Delete Widget from sidebar and Undo action validation", function() {
+  it("Delete Widget from sidebar and Undo action validation", function () {
     cy.GlobalSearchEntity("Widgets");
-    cy.get(".t--entity-name")
-      .contains("FormTest")
-      .trigger("mouseover");
+    cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
       expect($lis.eq(2)).to.contain("{{FormTest.hasChanges}}");
     });
-    cy.get(".t--entity-name")
-      .contains("FormTest")
-      .trigger("mouseover");
+    cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Delete");
     //cy.DeleteWidgetFromSideBar();
@@ -62,12 +56,10 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(".t--entity-name")
-      .contains("FormTest")
-      .trigger("mouseover");
+    cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");

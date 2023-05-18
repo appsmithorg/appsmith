@@ -1,7 +1,25 @@
 #!/usr/bin/env bash
 
 set -e
-set -o xtrace
+# ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
+# As we want derived props alongwith the ip address we are sharing the ip address in separate keys
+# https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
+if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
+  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  curl \
+    --user "$APPSMITH_SEGMENT_CE_KEY:" \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "userId":"'"$ip"'",
+      "event":"Instance Start",
+      "properties": {
+        "ip": "'"$ip"'",
+        "ipAddress": "'"$ip"'"
+      }
+    }' \
+    https://api.segment.io/v1/track \
+    || true
+fi
 
 stacks_path=/appsmith-stacks
 
@@ -147,6 +165,15 @@ init_replica_set() {
     fi
   done
 
+  if [[ $isUriLocal -gt 0 && -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
+    echo "====================================================================================================" >&2
+    echo "==" >&2
+    echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
+    echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+    echo "==" >&2
+    echo "====================================================================================================" >&2
+  fi
+
   if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
     echo "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
@@ -173,15 +200,6 @@ init_replica_set() {
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
-    if [[ -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
-      echo "====================================================================================================" >&2
-      echo "==" >&2
-      echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
-      echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
-      echo "==" >&2
-      echo "====================================================================================================" >&2
-    fi
-
     echo "Checking Replica Set of external MongoDB"
 
     if appsmithctl check-replica-set; then
@@ -189,7 +207,7 @@ init_replica_set() {
     else
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                             *\033[0m"
-      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` role.      *\033[0m"
+      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has 'readWrite' role.      *\033[0m"
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       exit 1
     fi
@@ -255,6 +273,9 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  
+  # Copy Supervisor Listiner confs to conf.d
+  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -315,7 +336,7 @@ init_postgres() {
         echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-      
+
       mkdir -p $POSTGRES_DB_PATH
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -329,18 +350,18 @@ init_postgres() {
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-      
+
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
   else
-    runEmbeddedPostgres=0 
+    runEmbeddedPostgres=0
   fi
-  
+
 }
 
 seed_embedded_postgres(){
-    # Create mockdb database 
+    # Create mockdb database
     psql -U postgres -c "CREATE DATABASE mockdb;"
     # Create mockdb superuser
     su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
@@ -358,10 +379,23 @@ seed_embedded_postgres(){
 safe_init_postgres(){
 runEmbeddedPostgres=1
 # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
-init_postgres || runEmbeddedPostgres=0 
+init_postgres || runEmbeddedPostgres=0
+}
+
+init_loading_pages(){
+  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
+  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
+  local editor_load_page="/opt/appsmith/editor/loading.html" 
+  # Update default nginx page for initializing page
+  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  # Start nginx page to display the Appsmith is Initializing page
+  nginx
+  # Update editor nginx page for starting page
+  cp "$starting_page" "$editor_load_page"
 }
 
 # Main Section
+init_loading_pages
 init_env_file
 setup_proxy_variables
 unset_unused_variables
@@ -397,7 +431,10 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+
+# Stop nginx gracefully
+nginx -s quit
 
 # Handle CMD command
 exec "$@"

@@ -1,4 +1,5 @@
-import { isValid, SelectFieldProps } from "./SelectField";
+import type { SelectFieldProps } from "./SelectField";
+import { isValid } from "./SelectField";
 
 describe(".isValid", () => {
   it("returns true when isRequired is false", () => {

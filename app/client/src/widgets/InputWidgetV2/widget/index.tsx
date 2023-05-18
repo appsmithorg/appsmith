@@ -1,12 +1,11 @@
 import React from "react";
-import { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import InputComponent, { InputComponentProps } from "../component";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { InputComponentProps } from "../component";
+import InputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ValidationTypes,
-  ValidationResponse,
-} from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
@@ -15,23 +14,27 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
-import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   InputTypes,
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
-import { getParsedText } from "./Utilities";
-import { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
+import type { Stylesheet } from "entities/AppTheming";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -230,7 +233,7 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
 function InputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
-  propertyValue: unknown,
+  propertyValue: any,
 ) {
   const updates = [
     {
@@ -247,11 +250,37 @@ function InputTypeUpdateHook(
       });
     }
   }
+  //if input type is email or password default the autofill state to be true
+  // the user needs to explicity set autofill to fault disable autofill
+  updates.push({
+    propertyPath: "shouldAllowAutofill",
+    propertyValue: isInputTypeEmailOrPassword(propertyValue),
+  });
 
   return updates;
 }
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+      text: {
+        "!type": "string",
+        "!doc": "The text value of the input",
+        "!url": "https://docs.appsmith.com/widget-reference/input",
+      },
+      inputText: {
+        "!type": "string",
+        "!doc": "The unformatted text value of the input",
+        "!url": "https://docs.appsmith.com/widget-reference/input",
+      },
+      isValid: "bool",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isDisabled: "bool",
+    };
+  }
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
@@ -649,10 +678,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     } else {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
-
+    const autoFillProps =
+      !this.props.shouldAllowAutofill &&
+      isInputTypeEmailOrPassword(this.props.inputType)
+        ? { autoComplete: "off" }
+        : {};
     return (
       <InputComponent
         accentColor={this.props.accentColor}
+        {...autoFillProps}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}

@@ -4,7 +4,7 @@ const dsl = require("../../../fixtures/PgAdmindsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
-describe("PgAdmin Clone App", function() {
+describe("PgAdmin Clone App", function () {
   let datasourceName, tableName;
 
   before("Add dsl and create datasource", () => {
@@ -15,7 +15,7 @@ describe("PgAdmin Clone App", function() {
     });
   });
 
-  it("1. Create queries", function() {
+  it("1. Create queries", function () {
     // writing query to get all schema
     _.dataSources.CreateQueryAfterDSSaved(
       "SELECT schema_name FROM information_schema.schemata;",
@@ -58,15 +58,13 @@ describe("PgAdmin Clone App", function() {
     );
   });
 
-  it("2. Add new table from app page, View and Delete table", function() {
+  it("2. Add new table from app page, View and Delete table", function () {
     _.deployMode.DeployApp();
     // adding new table
     cy.xpath(appPage.addNewtable).click({ force: true });
     cy.wait(500);
     cy.generateUUID().then((UUID) => {
-      cy.xpath(appPage.addTablename)
-        .clear()
-        .type(`table${UUID}`);
+      cy.xpath(appPage.addTablename).clear().type(`table${UUID}`);
       tableName = `table${UUID}`;
     });
     // adding column to the table
@@ -77,29 +75,19 @@ describe("PgAdmin Clone App", function() {
     _.agHelper.UpdateInput(appPage.addColumnName, "ID");
     _.agHelper.SelectFromDropDown("Varchar", "", 1);
     // switching on the Primary Key toggle
-    cy.get(widgetsPage.switchWidgetInactive)
-      .first()
-      .click();
+    cy.get(widgetsPage.switchWidgetInactive).first().click();
     // switching on the Not Null toggle
-    cy.get(widgetsPage.switchWidgetInactive)
-      .last()
-      .click();
+    cy.get(widgetsPage.switchWidgetInactive).last().click();
     cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.addColumn).should("be.visible");
     cy.wait(500);
-    cy.xpath(appPage.submitButton)
-      .first()
-      .click({ force: true });
+    cy.xpath(appPage.submitButton).first().click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
-    cy.xpath(appPage.viewButton)
-      .first()
-      .click({ force: true });
+    cy.xpath(appPage.viewButton).first().click({ force: true });
     // deleting the table through modal
-    cy.xpath(appPage.deleteButton)
-      .last()
-      .click({ force: true });
+    cy.xpath(appPage.deleteButton).last().click({ force: true });
     cy.xpath(appPage.confirmButton).click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
   });

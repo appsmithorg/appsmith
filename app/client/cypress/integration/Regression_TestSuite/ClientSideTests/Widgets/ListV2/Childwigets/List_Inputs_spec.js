@@ -14,7 +14,7 @@ let agHelper = ObjectsRegistry.AggregateHelper;
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
-describe("Input Widgets", function() {
+describe("Input Widgets", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -27,7 +27,7 @@ describe("Input Widgets", function() {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1. Input Widgets default value", function() {
+  it("1. Input Widgets default value", function () {
     cy.dragAndDropToWidget("currencyinputwidget", "listwidgetv2", {
       x: 50,
       y: 50,
@@ -74,7 +74,7 @@ describe("Input Widgets", function() {
       .should("contain", items[0].phoneNumber);
   });
 
-  it("2. Input Widgets isValid", function() {
+  it("2. Input Widgets isValid", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 350,

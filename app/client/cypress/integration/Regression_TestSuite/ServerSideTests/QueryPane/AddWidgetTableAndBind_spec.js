@@ -7,7 +7,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 
 let datasourceName;
 
-describe("Addwidget from Query and bind with other widgets", function() {
+describe("Addwidget from Query and bind with other widgets", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -56,9 +56,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   });
 
   it("3. Input widget test with default value from table widget", () => {
-    cy.get(".t--entity-name")
-      .contains("Widgets")
-      .click();
+    cy.get(".t--entity-name").contains("Widgets").click();
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
     cy.wait("@updateLayout").should(
@@ -68,7 +66,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     );
   });
 
-  it("4. validation of data displayed in input widget based on row data selected", function() {
+  it("4. validation of data displayed in input widget based on row data selected", function () {
     cy.isSelectRow(1);
     cy.readTableV2dataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;

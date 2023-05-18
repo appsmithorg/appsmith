@@ -1,25 +1,28 @@
 import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import {
+import type { IconName } from "@blueprintjs/icons";
+import type {
   ButtonPlacement,
-  ButtonPlacementTypes,
   ButtonVariant,
-  ButtonVariantTypes,
   RecaptchaType,
-  RecaptchaTypes,
 } from "components/constants";
 import {
-  EventType,
-  ExecutionResult,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetType } from "constants/WidgetConstants";
+  ButtonPlacementTypes,
+  ButtonVariantTypes,
+  RecaptchaTypes,
+} from "components/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent, { ButtonType } from "../component";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -30,6 +33,18 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
     this.state = {
       isLoading: false,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Buttons are used to capture user intent and trigger actions based on that intent",
+      "!url": "https://docs.appsmith.com/widget-reference/button",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
+      isDisabled: "bool",
+      recaptchaToken: "string",
     };
   }
 
@@ -49,7 +64,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",
@@ -105,9 +120,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Validation",
+        hidden: isAirgapped,
         children: [
           {
             propertyName: "googleRecaptchaKey",
@@ -377,9 +392,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {};
   }
 
-  onButtonClick(e: React.MouseEvent<HTMLElement>) {
-    e.stopPropagation();
-
+  onButtonClick() {
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
@@ -396,6 +409,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       this.props.onReset();
     }
   }
+
+  hasOnClickAction = () => {
+    const { isDisabled, onClick, onReset, resetFormOnClick } = this.props;
+    return Boolean((onClick || onReset || resetFormOnClick) && !isDisabled);
+  };
 
   clickWithRecaptcha(token: string) {
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
@@ -444,7 +462,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        onClick={isDisabled ? undefined : this.onButtonClickBound}
+        onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
         text={this.props.text}

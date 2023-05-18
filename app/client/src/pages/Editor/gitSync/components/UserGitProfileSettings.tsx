@@ -26,13 +26,13 @@ import {
 const LabelContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 `;
 
 const InputContainer = styled.div<{ isValid: boolean }>`
   display: flex;
   align-items: center;
-  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 7 : 12]}px;
+  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 5 : 10]}px;
 
   & > div {
     ${(props) =>
@@ -174,7 +174,7 @@ function UserGitProfileSettings({
         </DefaultConfigContainer>
       ) : null}
 
-      <Space size={7} />
+      <Space size={5} />
 
       <>
         <LabelContainer>

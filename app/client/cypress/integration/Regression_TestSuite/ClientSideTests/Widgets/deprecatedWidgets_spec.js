@@ -1,11 +1,11 @@
 const dsl = require("../../../../fixtures/deprecatedWidgets.json");
 
-describe("Deprecation warning feature", function() {
+describe("Deprecation warning feature", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("should have deprecation warning on all the deprecated widgets", function() {
+  it("should have deprecation warning on all the deprecated widgets", function () {
     cy.get(`#div-selection-0`).click({
       force: true,
     });

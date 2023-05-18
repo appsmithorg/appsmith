@@ -1,7 +1,7 @@
 const dsl = require("../../../fixtures/tableWidgetDsl.json");
 
-describe("Test for Clipboard Copy", function() {
-  it(" Clipboard copy on selecting a row ", function() {
+describe("Test for Clipboard Copy", function () {
+  it(" Clipboard copy on selecting a row ", function () {
     // Add a table widget
     // Click on the Property Pane
     // Naviagte to Action Items
@@ -13,7 +13,7 @@ describe("Test for Clipboard Copy", function() {
     // Now paste the copied text
     // Ensure the text the same as written
   });
-  it(" Clipboard copy by adding an action button", function() {
+  it(" Clipboard copy by adding an action button", function () {
     // Add a table widget
     // Click on the Property Pane
     // Naviagte to Action Items
@@ -26,7 +26,7 @@ describe("Test for Clipboard Copy", function() {
     // Paste the text into the widget
     // Ensure the text the same as written
   });
-  it(" Clipboard copy function by converting it to  JS ", function() {
+  it(" Clipboard copy function by converting it to  JS ", function () {
     // Add a table widget
     // Click on the Property Pane
     // Naviagte to Action Items

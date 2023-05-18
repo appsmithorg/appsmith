@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, memo } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 
 import { isNameValid } from "utils/helpers";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 import log from "loglevel";
 import { inGuidedTour } from "selectors/onboardingSelectors";

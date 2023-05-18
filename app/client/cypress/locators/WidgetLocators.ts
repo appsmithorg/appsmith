@@ -20,6 +20,7 @@ export const WIDGET = {
   RATING: "ratewidget",
   CHECKBOXGROUP: "checkboxgroupwidget",
   CHECKBOX: "checkboxwidget",
+  CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
   PHONEINPUT: "phoneinputwidget",
