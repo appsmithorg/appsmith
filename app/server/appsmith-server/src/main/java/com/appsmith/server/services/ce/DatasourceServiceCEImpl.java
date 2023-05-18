@@ -58,7 +58,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static org.springframework.util.StringUtils.hasLength;
 
 @Slf4j
 public class DatasourceServiceCEImpl implements DatasourceServiceCE {
@@ -133,19 +135,21 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private Mono<Datasource> createEx(@NotNull Datasource datasource, Optional<AclPermission> permission) {
         // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
-        if (workspaceId == null) {
+        if (!hasLength(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
-        if (datasource.getId() != null) {
+        if (hasLength(datasource.getId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        if (datasource.getPluginId() == null) {
+        if (!hasLength(datasource.getPluginId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PLUGIN_ID));
         }
-        if (!StringUtils.hasLength(datasource.getGitSyncId())) {
+        if (!hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
-        if (datasource.getDatasourceStorages() == null || datasource.getDatasourceStorages().isEmpty()) {
+
+
+        if (isNullOrEmpty(datasource.getDatasourceStorages())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
         }
 
@@ -224,17 +228,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     // TODO: Remove the following snippet after client side API changes
     @Override
-    public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId) {
+    public Mono<Datasource> update(String id, Datasource datasource, String environmentId) {
         // since there was no datasource update differentiator between server invoked due to refresh token,
         // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
         // adding a default false value here, the value is true only when
         // the user calls the update event from datasource controller, else it's false.
-        return this.update(id, datasourceDTO, environmentId, Boolean.FALSE);
+        return this.update(id, datasource, environmentId, Boolean.FALSE);
     }
 
     @Override
-    public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate) {
-        Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
+    public Mono<Datasource> update(String id, Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate) {
 
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -263,8 +266,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
                     }
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
-                })
-                .map(this::convertToDatasourceDTO);
+                });
     }
 
 

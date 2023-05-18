@@ -86,11 +86,11 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<DatasourceDTO>> update(@PathVariable String id,
-                                                   @RequestBody DatasourceDTO datasourceDTO,
+    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
+                                                   @RequestBody Datasource datasource,
                                                    @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
-        return datasourceService.update(id, datasourceDTO, environmentId, Boolean.TRUE)
+        return datasourceService.update(id, datasource, environmentId, Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

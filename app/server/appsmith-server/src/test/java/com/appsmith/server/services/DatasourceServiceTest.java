@@ -518,8 +518,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasource1.setDatasourceConfiguration(datasourceConfiguration1);
 
-                    return datasourceService.update(datasource1.getId(), datasourceService.convertToDatasourceDTO(datasource1), FieldName.UNUSED_ENVIRONMENT_ID)
-                            .map(datasource2 -> datasourceService.convertToDatasource(datasource2, FieldName.UNUSED_ENVIRONMENT_ID));
+                    return datasourceService.update(datasource1.getId(), datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
                 });
 
         StepVerifier
@@ -1066,8 +1065,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
                     original.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
                             .setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.update(original.getId(), datasourceService.convertToDatasourceDTO(original), FieldName.UNUSED_ENVIRONMENT_ID)
-                            .map(datasource1 -> datasourceService.convertToDatasource(datasource1, FieldName.UNUSED_ENVIRONMENT_ID));
+                    return datasourceService.update(original.getId(), original, FieldName.UNUSED_ENVIRONMENT_ID);
                 });
 
         StepVerifier
@@ -1531,8 +1529,7 @@ public class DatasourceServiceTest {
                     datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
                             .setDatasourceConfiguration(datasourceConfiguration1);
 
-                    return datasourceService.update(datasource1.getId(), datasourceService.convertToDatasourceDTO(datasource1), FieldName.UNUSED_ENVIRONMENT_ID)
-                            .map(datasource2 -> datasourceService.convertToDatasource(datasource2, FieldName.UNUSED_ENVIRONMENT_ID));
+                    return datasourceService.update(datasource1.getId(), datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
                 });
 
         StepVerifier

@@ -54,9 +54,9 @@ public interface DatasourceServiceCE {
 
     Mono<DatasourceDTO> create(DatasourceDTO resource, String environmentId);
 
-    Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId);
+    Mono<Datasource> update(String id, Datasource datasource, String environmentId);
 
-    Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);
+    Mono<Datasource> update(String id, Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate);
 
     /**
      * THis method is used to update only the datasourceStorages which has been changed.
