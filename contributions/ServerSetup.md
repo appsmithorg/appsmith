@@ -1,6 +1,7 @@
 # Running Server Codebase
 
 
+
 [![How to Setup Appsmith for Server Side Development](../static/images/server-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=W2qbuUYGrQs)
 
 <br />
@@ -16,7 +17,6 @@ There are two ways to run Appsmith server.
 * [Using a Docker Image](#setup-with-docker)
 * [Running the code locally](#local-setup)
 
-
 ## Setup with Docker
 
 * You can run the server codebase in a docker container.
@@ -29,7 +29,6 @@ There are two ways to run Appsmith server.
     * Redis instance
 
 * ## Pre-requisites
-
     * [Docker](https://docs.docker.com/get-docker/)
 
 * ## Setup
@@ -72,6 +71,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 
 This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these. Next we will setup MongoDB and Redis using `Docker`.
 
+
 ### Setting up a local MongoDB instance
 * The following command will start a MongoDB docker instance locally:
 
@@ -85,15 +85,15 @@ This document doesn't provide instructions to install Java and Maven because the
 
 * MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 
-  ### Enabling replica set for mongo
+   ### Enabling replica set for mongo
     *  <b>Mongo running inside docker</b>
 
-       Please follow the below steps for enabling the replica set with mongo running inside the docker
+        Please follow the below steps for enabling the replica set with mongo running inside the docker
         1. Connect to the mongo db running with a mongo shell. Use the below command
             ```
             mongosh
             ```
-        2. Once you are inside the mongo shell run the below command.
+        2. Once you are inside the mongo shell run the below command. 
             ```
             rs.initiate({"_id": "rs0", "members" : [{"_id":0 , "host": "localhost:27017" }]})
             ```
