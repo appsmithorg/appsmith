@@ -3,6 +3,13 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
 
+const boxShadowOptions = {
+  none: "none",
+  S: "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+  M: "rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px",
+  L: "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+};
+
 describe("Container Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
@@ -85,15 +92,11 @@ describe("Container Widget Functionality", function () {
   it("Test border radius and verity", function () {
     // check if border radius is changed on button
 
-    cy.get(
-      `.t--property-control-borderradius  .ads-v2-segmented-control__segments-container`,
-    )
+    cy.get(`.t--property-control-borderradius  .t--js-toggle`)
       .eq(0)
       .click({ force: true });
 
-    cy.get(
-      `.t--property-control-borderradius  .ads-v2-segmented-control__segments-container`,
-    )
+    cy.get(`.t--property-control-borderradius  .t--js-toggle`)
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -104,15 +107,11 @@ describe("Container Widget Functionality", function () {
   });
 
   it("Test Box shadow and verity", function () {
-    cy.get(
-      `.t--property-control-boxshadow  .ads-v2-segmented-control__segments-container`,
-    )
+    cy.get(`.t--property-control-boxshadow  .t--js-toggle`)
       .eq(0)
       .click({ force: true });
 
-    cy.get(
-      `.t--property-control-boxshadow  .ads-v2-segmented-control__segments-container`,
-    )
+    cy.get(`.t--property-control-boxshadow  .t--js-toggle`)
       .eq(0)
       .invoke("css", "box-shadow")
       .then((boxShadow) => {

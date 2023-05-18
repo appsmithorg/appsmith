@@ -1,9 +1,15 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
-
+let dsName;
 describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   const backgroundColorGray700 = "rgb(76, 86, 100)";
   const backgroundColorGray1 = "rgb(241, 245, 249)";
   const backgroundColorGray2 = "rgba(0, 0, 0, 0)";
+
+  before("Creating mock db for test case 4 validations", () => {
+    _.dataSources.CreateMockDB("Users").then((mockDBName) => {
+      dsName = mockDBName;
+    });
+  });
 
   it("1. Mock datasource card design", () => {
     _.dataSources.NavigateToDSCreateNew();
@@ -136,5 +142,9 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
       });
     // .invoke("attr", "width")
     // .should("eq", "12");
+  });
+
+  after(() => {
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Delete");
   });
 });

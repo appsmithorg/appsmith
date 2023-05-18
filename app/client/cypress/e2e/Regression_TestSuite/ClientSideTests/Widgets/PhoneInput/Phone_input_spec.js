@@ -3,7 +3,17 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 
 const widgetName = "phoneinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
-
+const searchAndSelectOption = (optionValue) => {
+  cy.get(".t--property-control-defaultcountrycode input")
+    .last()
+    .scrollIntoView()
+    .click({ force: true })
+    .type(optionValue.substring(0, 3));
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(optionValue)
+    .click({ force: true });
+};
 describe("Phone input widget - ", () => {
   before(() => {
     cy.addDsl(dsl);
@@ -28,10 +38,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "(999) 999-9999:US:+1");
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(
-      ".t--property-control-defaultcountrycode input",
-      "Afghanistan (+93)",
-    );
+    searchAndSelectOption("Afghanistan (+93)");
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("1234567890");
@@ -54,21 +61,14 @@ describe("Phone input widget - ", () => {
     cy.get(".t--property-control-enableformatting label")
       .last()
       .click({ force: true });
-
-    cy.selectDropdownValue(
-      ".t--property-control-defaultcountrycode input",
-      "United States / Canada (+1)",
-    );
+    searchAndSelectOption("United States / Canada (+1)");
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
     cy.get(".t--widget-textwidget").should("contain", "9999999999:US:+1");
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(
-      ".t--property-control-defaultcountrycode input",
-      "India (+91)",
-    );
+    searchAndSelectOption("India (+91)");
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("1234567890");

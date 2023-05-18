@@ -667,15 +667,15 @@ export default [
                   controlType: "BUTTON_GROUP",
                   options: [
                     {
-                      startIcon: "text-bold",
+                      icon: "text-bold",
                       value: "BOLD",
                     },
                     {
-                      startIcon: "text-italic",
+                      icon: "text-italic",
                       value: "ITALIC",
                     },
                     {
-                      startIcon: "text-underline",
+                      icon: "text-underline",
                       value: "UNDERLINE",
                     },
                   ],
@@ -1699,11 +1699,11 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            startIcon: "text-bold",
+            icon: "text-bold",
             value: "BOLD",
           },
           {
-            startIcon: "text-italic",
+            icon: "text-italic",
             value: "ITALIC",
           },
         ],

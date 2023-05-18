@@ -15,10 +15,10 @@ describe(
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Google Sheets");
       VerifyFunctionDropdown([
-        "Read / Write / Delete | Selected Google Sheets",
-        "Read / Write / Delete | All Google Sheets",
-        "Read / Write | All Google Sheets",
-        "Read | All Google Sheets",
+        "Read / Write / Delete | Selected google sheets",
+        "Read / Write / Delete | All google sheets",
+        "Read / Write | All google sheets",
+        "Read | All google sheets",
       ]);
       dataSources.SaveDSFromDialog(false);
     });

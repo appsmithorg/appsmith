@@ -312,7 +312,12 @@ describe("Git sync apps", function () {
       .trigger("mouseover")
       .click({ force: true });
     // move jsObject and postgres query to new page
-    _.agHelper.ActionContextMenuWithInPane("Move to page", "Child_Page");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "get_users",
+      "Move to page",
+      "Child_Page",
+    );
     cy.runQuery();
     cy.wait(2000);
     _.entityExplorer.NavigateToSwitcher("Widgets");

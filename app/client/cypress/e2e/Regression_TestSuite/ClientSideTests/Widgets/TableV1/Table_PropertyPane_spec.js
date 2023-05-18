@@ -222,7 +222,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end", true);
   });
 
-  it("Test to validate text color and text background", function () {
+  it("11. Test to validate text color and text background", function () {
     cy.openPropertyPane("tablewidget");
 
     // Changing text color to rgb(126, 34, 206) and validate
@@ -249,7 +249,7 @@ describe("Table Widget property pane feature validation", function () {
       true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
-    _.propPane.EnterJSContext("Cell Background", "purple");
+    _.propPane.EnterJSContext("Cell background color", "purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
