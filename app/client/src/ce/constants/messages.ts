@@ -522,9 +522,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get Geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const GET_GEO_LOCATION = () => `Get geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
 export const POST_MESSAGE = () => `Post message`;
 
 //js actions
@@ -1510,7 +1510,7 @@ export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
 
 export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
 export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
-export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page name";
 export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "Page name cannot be empty";
 export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>

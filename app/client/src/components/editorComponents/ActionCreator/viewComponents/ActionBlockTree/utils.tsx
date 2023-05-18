@@ -177,7 +177,7 @@ function getActionHeading(
 
     case AppsmithFunction.clearInterval:
       return (
-        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add ID"
+        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add Id"
       );
 
     case AppsmithFunction.getGeolocation:

@@ -122,7 +122,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.QUERY_PARAMS_FIELD]: {
-    label: () => "Query Params",
+    label: () => "Query params",
     defaultText: "",
     exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: () => null,
@@ -421,7 +421,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
-    label: () => "Choose Page",
+    label: () => "Choose page",
     exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: (props: FieldProps) => props.pageDropdownOptions,
     defaultText: "Select page",

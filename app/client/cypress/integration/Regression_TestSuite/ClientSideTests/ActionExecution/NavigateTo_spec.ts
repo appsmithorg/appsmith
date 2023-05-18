@@ -29,7 +29,7 @@ describe("Navigate To feature", () => {
     agHelper.AssertElementLength(".bp3-menu-item", 2);
     cy.get(locator._dropDownValue("Page2")).click();
     cy.get("label")
-      .contains("Query Params")
+      .contains("Query params")
       .siblings()
       .find(".CodeEditorTarget")
       .then(($el) => {

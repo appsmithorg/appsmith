@@ -561,7 +561,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._pageNameSwitcher,
-      "Page Name",
+      "Page name",
       "have.text",
       0,
     );
@@ -575,7 +575,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
-      "Query Params",
+      "Query params",
       "have.text",
       0,
     );
@@ -605,7 +605,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._pageNameSwitcher,
-      "Page Name",
+      "Page name",
       "have.text",
       0,
     );
@@ -619,7 +619,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
-      "Query Params",
+      "Query params",
       "have.text",
       0,
     );
@@ -663,7 +663,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
-      "Query Params",
+      "Query params",
       "have.text",
       1,
     );
@@ -1359,7 +1359,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Watch Geolocation",
+      "Watch geolocation",
       "have.text",
       0,
     );
@@ -1383,7 +1383,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Stop watching Geolocation",
+      "Stop watching geolocation",
       "have.text",
       0,
     );
