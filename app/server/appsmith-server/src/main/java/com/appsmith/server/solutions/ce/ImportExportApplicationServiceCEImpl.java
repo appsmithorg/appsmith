@@ -1465,32 +1465,50 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             existingPage.setDeletedAt(newPage.getDeletedAt());
                             existingPage.setDeleted(newPage.getDeleted());
                             existingPage.setPolicies(existingPagePolicy);
-                            return newPageService.save(existingPage);
-                        } else if (application.getGitApplicationMetadata() != null) {
-                            final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
-                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), Optional.empty())
-                                    .switchIfEmpty(Mono.defer(() -> {
-                                        // This is the first page we are saving with given gitSyncId in this instance
-                                        DefaultResources defaultResources = new DefaultResources();
-                                        defaultResources.setApplicationId(defaultApplicationId);
-                                        defaultResources.setBranchName(branchName);
-                                        newPage.setDefaultResources(defaultResources);
+
+                            // check if user has permission to update the page, throw error otherwise
+                            return newPageService.isPermissionPresentForCurrentUser(existingPage, pagePermission.getEditPermission().getValue())
+                                    .flatMap(hasPermission -> {
+                                        if (hasPermission) {
+                                            return newPageService.save(existingPage);
+                                        } else {
+                                            return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, newPage.getUnpublishedPage().getName()));
+                                        }
+                                    });
+                        } else {
+                            // check if user has permission to add new page to the application
+                            return applicationService.isPermissionPresentForCurrentUser(application, applicationPermission.getPageCreatePermission().getValue())
+                                    .flatMap(hasPermission -> {
+                                        if (!hasPermission) {
+                                            return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, application.getId()));
+                                        }
+                                        if (application.getGitApplicationMetadata() != null) {
+                                            final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
+                                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), Optional.empty())
+                                                    .switchIfEmpty(Mono.defer(() -> {
+                                                        // This is the first page we are saving with given gitSyncId in this instance
+                                                        DefaultResources defaultResources = new DefaultResources();
+                                                        defaultResources.setApplicationId(defaultApplicationId);
+                                                        defaultResources.setBranchName(branchName);
+                                                        newPage.setDefaultResources(defaultResources);
+                                                        return saveNewPageAndUpdateDefaultResources(newPage, branchName);
+                                                    }))
+                                                    .flatMap(branchedPage -> {
+                                                        DefaultResources defaultResources = branchedPage.getDefaultResources();
+                                                        // Create new page but keep defaultApplicationId and defaultPageId same for both the pages
+                                                        defaultResources.setBranchName(branchName);
+                                                        newPage.setDefaultResources(defaultResources);
+                                                        newPage.getUnpublishedPage().setDeletedAt(branchedPage.getUnpublishedPage().getDeletedAt());
+                                                        newPage.setDeletedAt(branchedPage.getDeletedAt());
+                                                        newPage.setDeleted(branchedPage.getDeleted());
+                                                        // Set policies from existing branch object
+                                                        newPage.setPolicies(branchedPage.getPolicies());
+                                                        return newPageService.save(newPage);
+                                                    });
+                                        }
                                         return saveNewPageAndUpdateDefaultResources(newPage, branchName);
-                                    }))
-                                    .flatMap(branchedPage -> {
-                                        DefaultResources defaultResources = branchedPage.getDefaultResources();
-                                        // Create new page but keep defaultApplicationId and defaultPageId same for both the pages
-                                        defaultResources.setBranchName(branchName);
-                                        newPage.setDefaultResources(defaultResources);
-                                        newPage.getUnpublishedPage().setDeletedAt(branchedPage.getUnpublishedPage().getDeletedAt());
-                                        newPage.setDeletedAt(branchedPage.getDeletedAt());
-                                        newPage.setDeleted(branchedPage.getDeleted());
-                                        // Set policies from existing branch object
-                                        newPage.setPolicies(branchedPage.getPolicies());
-                                        return newPageService.save(newPage);
                                     });
                         }
-                        return saveNewPageAndUpdateDefaultResources(newPage, branchName);
                     });
         });
     }

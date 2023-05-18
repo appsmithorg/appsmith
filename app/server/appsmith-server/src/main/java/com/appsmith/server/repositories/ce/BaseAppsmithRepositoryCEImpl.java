@@ -5,7 +5,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -81,14 +80,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }
 
-    public Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
-
-        Query query = new Query(where(fieldName(QUser.user.email)).is(username));
-
-        return mongoOperations.findOne(query, User.class)
-                .flatMap(user -> getAllPermissionGroupsForUser(user))
+    public Mono<Boolean> isPermissionPresentForCurrentUser(T baseDomain, String permission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .map(userPermissionGroupIds -> {
-                    Optional<Policy> interestingPolicyOptional = policies.stream()
+                    Optional<Policy> interestingPolicyOptional = baseDomain.getPolicies().stream()
                             .filter(policy -> policy.getPermission().equals(permission))
                             .findFirst();
                     if (!interestingPolicyOptional.isPresent()) {

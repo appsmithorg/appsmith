@@ -1,8 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import java.util.Optional;
-
-
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
@@ -16,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
@@ -101,4 +99,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
+
+    Mono<Boolean> isPermissionPresentForCurrentUser(Application obj, String permission);
 }
