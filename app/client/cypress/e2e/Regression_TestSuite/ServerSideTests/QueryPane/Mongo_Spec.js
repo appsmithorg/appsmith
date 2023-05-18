@@ -456,6 +456,8 @@ describe("Validate Mongo query commands", function () {
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
 
     //Update document - Single document
+    cy.wait(2000);
+    cy.get("body").click(0, 0, { force: true });
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find document(s)",
