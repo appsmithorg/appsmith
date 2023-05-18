@@ -513,10 +513,7 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
-    cy.get(this._workspaceList(workspaceName))
-      .scrollIntoView()
-      .should("be.visible");
-    cy.get(this._optionsIcon).first().click({ force: true });
+    this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
     cy.wait("@leaveWorkspaceApiCall").should(
