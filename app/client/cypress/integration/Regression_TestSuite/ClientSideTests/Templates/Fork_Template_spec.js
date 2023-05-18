@@ -78,11 +78,13 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       "be.visible",
     );
     cy.get(reconnectDatasourceLocators.ListItemIcon).should("be.visible");
+    cy.wait(3000);
     cy.get(reconnectDatasourceLocators.ListItemIcon, {
       withinSubject: null,
     })
       .first()
       .trigger("mouseover");
     cy.get("[class$='popover-open']").should("be.visible");
+    cy.get(reconnectDatasourceLocators.ClostBtn).click();
   });
 });
