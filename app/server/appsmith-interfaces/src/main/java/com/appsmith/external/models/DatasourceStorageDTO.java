@@ -30,8 +30,7 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
         this.messages = datasourceStorage.getMessages() ;
     }
 
-    public DatasourceStorageDTO(DatasourceDTO datasource, String environmentId) {
-        this.id = datasource.getId();
+    public DatasourceStorageDTO(Datasource datasource, String environmentId) {
         this.datasourceId = datasource.getId();
         this.environmentId = environmentId;
         this.isConfigured = datasource.getIsConfigured();
