@@ -1625,10 +1625,10 @@ public class DatasourceServiceTest {
                             .allMatch(datasourceDTO -> Set.of("A", "B", "C", "D").contains(datasourceDTO.getName()));
 
                     datasources.stream().forEach(datasourceDTO -> {
-                        if(Set.of("A", "B", "C").contains(datasourceDTO.getName())) {
+                        if (Set.of("A", "B", "C").contains(datasourceDTO.getName())) {
                             assertThat(datasourceDTO.getIsRecentlyCreated()).isTrue();
                         } else {
-                            assertThat(datasourceDTO.getIsRecentlyCreated()).isFalse();
+                            assertThat(datasourceDTO.getIsRecentlyCreated()).isNull();
                         }
                     });
                 })
