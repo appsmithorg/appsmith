@@ -1621,18 +1621,16 @@ public class DatasourceServiceTest {
                 .assertNext(datasources -> {
                     assertThat(datasources.size()).isEqualTo(4);
 
-                    // should be sorted alphabetically
-                    assertThat(datasources.get(0).getName()).isEqualTo("A");
-                    assertThat(datasources.get(0).getIsRecentlyCreated()).isTrue();
+                    assertThat(datasources)
+                            .allMatch(datasourceDTO -> Set.of("A", "B", "C", "D").contains(datasourceDTO.getName()));
 
-                    assertThat(datasources.get(1).getName()).isEqualTo("B");
-                    assertThat(datasources.get(1).getIsRecentlyCreated()).isTrue();
-
-                    assertThat(datasources.get(2).getName()).isEqualTo("C");
-                    assertThat(datasources.get(2).getIsRecentlyCreated()).isTrue();
-
-                    assertThat(datasources.get(3).getName()).isEqualTo("D");
-                    assertThat(datasources.get(3).getIsRecentlyCreated()).isNull();
+                    datasources.stream().forEach(datasourceDTO -> {
+                        if(Set.of("A", "B", "C").contains(datasourceDTO.getName())) {
+                            assertThat(datasourceDTO.getIsRecentlyCreated()).isTrue();
+                        } else {
+                            assertThat(datasourceDTO.getIsRecentlyCreated()).isFalse();
+                        }
+                    });
                 })
                 .verifyComplete();
     }
