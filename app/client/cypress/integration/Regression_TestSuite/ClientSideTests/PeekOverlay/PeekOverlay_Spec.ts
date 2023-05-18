@@ -4,21 +4,21 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Peek overlay", () => {
   it("1. Main test", () => {
     cy.fixture("datasources").then((datasourceFormData: any) => {
-      // _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
-      // _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-      // _.apiPage.RunAPI();
-      // _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-      // _.jsEditor.CreateJSObject(JsObjectContent, {
-      //   paste: true,
-      //   completeReplace: true,
-      //   toRun: false,
-      //   shouldCreateNewJSObj: true,
-      //   lineNumber: 0,
-      //   prettify: true,
-      // });
-      // _.jsEditor.SelectFunctionDropdown("myFun2");
-      // _.jsEditor.RunJSObj();
-      // _.agHelper.Sleep();
+      _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
+      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
+      _.apiPage.RunAPI();
+      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
+      _.jsEditor.CreateJSObject(JsObjectContent, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        lineNumber: 0,
+        prettify: true,
+      });
+      _.jsEditor.SelectFunctionDropdown("myFun2");
+      _.jsEditor.RunJSObj();
+      _.agHelper.Sleep();
 
       // check number array
       _.peekOverlay.HoverCode(9, 4, "numArray");
