@@ -12,8 +12,8 @@ describe("Canvas context widget selection", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     _.entityExplorer.SelectEntityByName(page1, "Pages");
     cy.CreateAPI(api1);
-    cy.get(".t--close-editor").click().wait(1000);
-    cy.get(".t--back-button").click();
+    cy.get(".t--close-editor").click({ force: true });
+    cy.get(".t--back-button").click({ force: true });
     _.agHelper.RefreshPage();
   });
 
