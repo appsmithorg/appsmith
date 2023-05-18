@@ -46,8 +46,8 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentWorkspaceId } from "../../../../ce/selectors/workspaceSelectors";
-import { getInstanceId } from "../../../../ce/selectors/tenantSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;

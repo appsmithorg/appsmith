@@ -141,8 +141,8 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { getCurrentWorkspaceId } from "../ce/selectors/workspaceSelectors";
-import { getInstanceId } from "../ce/selectors/tenantSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
