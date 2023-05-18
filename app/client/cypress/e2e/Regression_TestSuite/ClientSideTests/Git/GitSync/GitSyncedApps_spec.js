@@ -311,20 +311,10 @@ describe("Git sync apps", function () {
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
-    // move jsObject and postgres query to new page
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "get_users",
-      "Move to page",
-      "Child_Page",
-    );
+    _.agHelper.ActionContextMenuWithInPane("Move to page", "Child_Page");
     cy.runQuery();
     cy.wait(2000);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(".t--close-editor").length) {
-        cy.get(".t--close-editor").click();
-      }
-    });
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
@@ -334,11 +324,7 @@ describe("Git sync apps", function () {
       "Child_Page",
     );
     cy.wait(2000);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(".t--close-editor").length) {
-        cy.get(".t--close-editor").click();
-      }
-    });
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });

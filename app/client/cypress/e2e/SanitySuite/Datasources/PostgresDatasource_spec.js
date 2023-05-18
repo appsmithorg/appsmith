@@ -11,7 +11,7 @@ describe("Postgres datasource test cases", function () {
 
   it("1. Create, test, save then delete a postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
@@ -24,7 +24,7 @@ describe("Postgres datasource test cases", function () {
 
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.fillPostgresDatasourceForm(true);
     cy.testSaveDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {

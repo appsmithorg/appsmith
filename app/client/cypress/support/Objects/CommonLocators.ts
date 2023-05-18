@@ -48,8 +48,14 @@ export class CommonLocators {
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
   _contextMenuInPane = "[data-testid='more-action-trigger']";
-  _contextMenuSubItemDiv = (item: string) =>
-    "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
+  _contextMenuItem = (item: string) =>
+    "//span[text()='" +
+    item +
+    "']/parent::div[@role='menuitem'] | //div[text()='" +
+    item +
+    "']/ancestor::div[@role='menuitem']| //span[text()='" +
+    item +
+    "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
@@ -147,6 +153,8 @@ export class CommonLocators {
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
+  _confirmationdialogbtn = (btnText: string) =>
+    `//div[@data-testid='t--query-run-confirmation-modal']//span[text()='${btnText}']`;
   _deleteIcon = "button .bp3-icon-delete";
   _datePickerValue = "div[data-testid='datepicker-container'] input";
   _switchToggle = (switchName: string) =>

@@ -62,13 +62,8 @@ describe("Entity explorer datasource structure", function () {
     );
 
     cy.deleteQueryUsingContext();
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.GlobalSearchEntity("MyQuery");
-    cy.get(`.t--entity-name:contains(MyQuery)`).scrollIntoView().click();
-    cy.deleteQueryUsingContext();
-
-    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
-
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.ActionContextMenuByEntityName("MyQuery");
     cy.deleteDatasource(datasourceName);
   });
 

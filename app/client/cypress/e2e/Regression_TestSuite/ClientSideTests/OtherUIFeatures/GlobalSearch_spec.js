@@ -16,7 +16,7 @@ describe("GlobalSearch", function () {
 
   it("1. Clicking on filter should show the filter menu", () => {
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
-    cy.contains(globalSearchLocators.docHint, "Snippets").click();
+    cy.contains(globalSearchLocators.docHint, "snippets").click();
     cy.get(globalSearchLocators.filterButton).click();
     cy.contains("Reset Filter").should("be.visible");
     cy.get("body").type("{esc}");
@@ -143,7 +143,7 @@ describe("GlobalSearch", function () {
 
   it("7. Api actions should have API as prefix", () => {
     cy.get(globalSearchLocators.createNew).click({ force: true });
-    cy.get(globalSearchLocators.blankDatasource).click({ force: true });
+    cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
     cy.get(datasourceLocators.datasourceTitleLocator).click();
     cy.get(`${datasourceLocators.datasourceTitleLocator} input`)
@@ -155,10 +155,9 @@ describe("GlobalSearch", function () {
     cy.saveDatasource();
 
     cy.get(globalSearchLocators.createNew).click({ force: true });
-    cy.contains(
-      globalSearchLocators.fileOperation,
-      "omnibarApiDatasource",
-    ).click();
+    cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
+      .first()
+      .click();
     cy.wait("@createNewApi");
     cy.get(datasourceHomeLocators.apiTxt)
       .invoke("val")

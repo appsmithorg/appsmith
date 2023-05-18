@@ -11,21 +11,19 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("1. Create an API and Execute the API and bind with Table V2", function () {
     // Create and execute an API and bind with table
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    _.apiPage.CreateAndFillApi(
+      this.data.paginationUrl + this.data.paginationParam,
+    );
     cy.RunAPI();
-  });
-
-  it("2. Validate Table V2 with API data and then add a column", function () {
+    //Validate Table V2 with API data and then add a column
     // Open property pane
     _.entityExplorer.SelectEntityByName("Table1");
-    // Clear Table data and enter Apil data into table data
-    cy.testJsontext("tabledata", "{{Api1.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     // Check Widget properties
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
     _.entityExplorer.SelectEntityByName("Text1");
-    // Change the Text value to selected row url
-    cy.testJsontext("text", "{{Table1.selectedRow.url}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
     // Open Table1 propert pane
     _.entityExplorer.SelectEntityByName("Table1");
     // Compare table 1st index data with itself
@@ -42,18 +40,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.addColumnV2("CustomColumn");
   });
 
-  it("3. Table widget toggle test for background color", function () {
+  it("2. Table widget toggle test for background color", function () {
     // Open id property pane
     cy.editColumn("id");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.moveToStyleTab();
     // Click on cell background JS button
-    cy.get(widgetsPage.toggleJsBcgColor).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    // Change the cell background color to green
-    cy.toggleJsAndUpdate("tabledata", "Green");
+    _.propPane.EnterJSContext("Cell Background", "Green");
     // Go back to table property pane
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait("@updateLayout");
@@ -66,7 +60,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     );
   });
 
-  it("4. Edit column name and validate test for computed value based on column type selected", function () {
+  it("3. Edit column name and validate test for computed value based on column type selected", function () {
     // opoen customColumn1 property pane
     cy.editColumn("customColumn1");
     cy.moveToContentTab();
@@ -82,7 +76,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.closePropertyPane();
   });
 
-  it("5. Update table json data and check the column names updated", function () {
+  it("4. Update table json data and check the column names updated", function () {
     // Open table propert pane
     _.entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();

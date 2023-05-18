@@ -88,7 +88,7 @@ export class HomePage {
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
-    "//span[text()='" + action + "']/ancestor::a";
+    ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private _templatesTab = ".t--templates-tab";
   private _workSpaceByName = (wsName: string) =>
@@ -513,10 +513,7 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
-    cy.get(this._workspaceList(workspaceName))
-      .scrollIntoView()
-      .should("be.visible");
-    cy.get(this._optionsIcon).first().click({ force: true });
+    this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
     cy.wait("@leaveWorkspaceApiCall").should(

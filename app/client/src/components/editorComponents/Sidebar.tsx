@@ -201,6 +201,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewingApp,
       })}
+      data-testid={active ? "sidebar-active" : "sidebar"}
       id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}

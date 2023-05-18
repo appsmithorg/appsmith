@@ -70,9 +70,9 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//h1[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
-      cy.xpath(template.selectAllPages).next().click();
+      cy.get(template.selectCheckbox).first().click();
       cy.wait(1000);
-      cy.xpath("//span[text()='SEND MESSAGES']").parent().next().click();
+      cy.get(template.selectCheckbox).eq(1).click();
       // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       cy.get(template.templateViewForkButton).click();
       cy.wait(5000);

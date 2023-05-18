@@ -87,9 +87,9 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath(template.selectAllPages).click();
+    cy.get(template.selectCheckbox).first().click();
     cy.wait(1000);
-    cy.xpath("//span[text()='2 Application Upload']").parent().next().click();
+    cy.get(template.selectCheckbox).eq(1).click();
     // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
     cy.get(template.templateViewForkButton).click();
     cy.wait("@fetchTemplate").should(

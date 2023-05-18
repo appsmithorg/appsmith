@@ -138,9 +138,9 @@ export class DataSources {
   _graphqlQueryEditor = ".t--graphql-query-editor";
   _graphqlVariableEditor = ".t--graphql-variable-editor";
   _graphqlPagination = {
-    _limitVariable: ".t--apiFormPaginationLimitVariable",
+    _limitVariable: ".t--apiFormPaginationLimitVariable .rc-select-selector",
     _limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
-    _offsetVariable: ".t--apiFormPaginationOffsetVariable",
+    _offsetVariable: ".t--apiFormPaginationOffsetVariable .rc-select-selector",
     _offsetValue: ".t--apiFormPaginationOffsetValue .CodeMirror textarea",
     _prevLimitVariable: ".t--apiFormPaginationPrevLimitVariable",
     _prevLimitValue: ".t--apiFormPaginationPrevLimitValue .CodeMirror textarea",
@@ -159,7 +159,7 @@ export class DataSources {
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
     "[data-testid='datasourceConfiguration.authentication.scopeString']";
-  _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
+  _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
@@ -237,7 +237,7 @@ export class DataSources {
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
     this.agHelper.GetNClick(this._selectTableDropdown);
     cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("public.city")`,
+      `div[role="listbox"] p[kind="span"]:contains("public.users")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
@@ -731,7 +731,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.ee.NavigateToSwitcher("Explorer");
+    this.ee.NavigateToSwitcher("Explorer", 0, true);
     this.ee.ExpandCollapseEntity("Datasources", false);
     //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);
@@ -992,7 +992,7 @@ export class DataSources {
       cy.get(this._graphqlPagination._limitVariable).click({
         force: true,
       });
-      cy.get(this._graphqlPagination._limitVariable)
+      cy.get(".rc-select-item-option")
         .contains(options.limit.variable)
         .click({ force: true });
 
@@ -1008,7 +1008,8 @@ export class DataSources {
       cy.get(this._graphqlPagination._offsetVariable).click({
         force: true,
       });
-      cy.get(this._graphqlPagination._offsetVariable)
+      cy.get(".rc-select-item-option")
+        .eq(2)
         .contains(options.offset.variable)
         .click({ force: true });
 
@@ -1122,7 +1123,11 @@ export class DataSources {
   }
 
   public FillMongoDatasourceFormWithURI(uri: string) {
-    this.ValidateNSelectDropdown("Use mongo connection string URI", "", "Yes");
+    this.ValidateNSelectDropdown(
+      "Use mongo connection string URI",
+      "No",
+      "Yes",
+    );
     this.agHelper.UpdateInputValue(
       this.locator._inputFieldByName("Connection string URI") + "//input",
       uri,

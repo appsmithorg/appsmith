@@ -473,13 +473,13 @@ describe("Migration Validate", function () {
     cy.selectEntityByName("Table1");
 
     cy.get(widgetsPage.bold)
-      .invoke("attr", "aria-selected")
+      .invoke("attr", "data-selected")
       .then((sel) => expect(Boolean(sel)).to.be.true);
-    cy.get(widgetsPage.textCenterAlign)
+    cy.xpath(widgetsPage.textCenterAlign)
       .eq(0)
       .invoke("attr", "data-selected")
       .then((sel) => expect(Boolean(sel)).to.be.true); //Text align
-    cy.get(widgetsPage.textCenterAlign)
+    cy.xpath(widgetsPage.textCenterAlign)
       .eq(1)
       .invoke("attr", "data-selected")
       .then((sel) => expect(Boolean(sel)).to.be.true); //Vertical align

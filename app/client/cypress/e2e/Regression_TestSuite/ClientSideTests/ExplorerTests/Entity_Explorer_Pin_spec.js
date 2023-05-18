@@ -18,19 +18,19 @@ const OpenExplorerMenu = (menu) => {
   switch (menu) {
     case ExplorerMenu.ADD_PAGE:
       agHelper.GetNClick(ee.locator._newPage);
-      cy.get(locator._canvas).trigger("mousemove", 500, 400);
+      cy.get(locator._canvas).trigger("mousemove", 500, 400, { force: true });
       break;
     case ExplorerMenu.ENTITY:
       cy.xpath(ee._contextMenu("Page1")).last().click({ force: true });
-      cy.get(locator._canvas).trigger("mousemove", 500, 400);
+      cy.get(locator._canvas).trigger("mousemove", 500, 400, { force: true });
       break;
     case ExplorerMenu.ADD_QUERY_JS:
       cy.get(ee.locator._createNew).last().click({ force: true });
-      cy.get(locator._canvas).trigger("mousemove", 500, 300);
+      cy.get(locator._canvas).trigger("mousemove", 500, 300, { force: true });
       break;
     case ExplorerMenu.ADD_LIBRARY:
-      library.openInstaller();
-      cy.get(locator._canvas).trigger("mousemove", 500, 100);
+      library.openInstaller(true);
+      cy.get(locator._canvas).trigger("mousemove", 500, 100, { force: true });
       break;
     default:
   }
@@ -75,7 +75,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       Cypress._.times(menu.length, (index) => {
         OpenExplorerMenu(menu[index]);
         agHelper.Sleep();
-        agHelper.AssertElementVisible(ee._entityExplorer);
+        cy.get("[data-testid=sidebar-active]").should("exist");
       });
 
       // when an entity is being edited

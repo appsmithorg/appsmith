@@ -5,7 +5,7 @@ let ee = ObjectsRegistry.EntityExplorer;
 const shortName = "shortName";
 const longName = "AVeryLongNameThatOverflows";
 const alternateName = "AlternateName";
-
+const tooltTipQuery = `.rc-tooltip.ads-v2-tooltip:not(.rc-tooltip-hidden) > .rc-tooltip-content > .rc-tooltip-inner > .ads-v2-text`;
 describe("Entity Explorer showing tooltips on long names", function () {
   it("1. Expect tooltip on long names only", function () {
     // create an API with a short name
@@ -14,7 +14,7 @@ describe("Entity Explorer showing tooltips on long names", function () {
     ee.ExpandCollapseEntity("Queries/JS", true);
     // assert that a tooltip does not show up during hover
     cy.get(`.t--entity-item:contains(${shortName})`).realHover();
-    cy.get(".bp3-tooltip > .bp3-popover-content").should("not.exist");
+    cy.get(tooltTipQuery).should("not.exist");
     // reset the hover
     cy.get("body").realHover({ position: "topLeft" });
 
@@ -24,7 +24,7 @@ describe("Entity Explorer showing tooltips on long names", function () {
 
     // assert that a tooltip does show up during hover
     cy.get(`.t--entity-item:contains(${longName})`).realHover();
-    cy.get(".bp3-tooltip > .bp3-popover-content").should("have.text", longName);
+    cy.get(tooltTipQuery).should("have.text", longName);
     // reset the hover
     cy.get("body").realHover({ position: "topLeft" });
 
@@ -40,6 +40,6 @@ describe("Entity Explorer showing tooltips on long names", function () {
     cy.wait("@saveAction");
 
     cy.get(`.t--entity-item:contains(${alternateName})`).realHover();
-    cy.get(".bp3-tooltip > .bp3-popover-content").should("not.exist");
+    cy.get(tooltTipQuery).should("not.exist");
   });
 });
