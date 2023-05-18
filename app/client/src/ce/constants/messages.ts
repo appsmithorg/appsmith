@@ -1022,22 +1022,22 @@ export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a datasource";
-export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a query";
-export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a widget";
-export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a widget";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First, add a datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next, add a datasource";
+export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next, create a query";
+export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next, add a widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First, add a widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
-  "Next: Connect data to widget";
+  "Next, connect data to widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
-  "Next: Deploy your application";
+  "Next, deploy your application";
 export const ONBOARDING_STATUS_STEPS_SIXTH = () => "Completed 🎉";
 export const ONBOARDING_STATUS_GET_STARTED = () => "Get started";
 
 //Tasks
 //1. datasource
 export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
-  "Start by adding your first Datasource";
+  "Start by adding your first datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
   "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
 export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "Add a datasource";
@@ -1082,10 +1082,10 @@ export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
 export const ACTION_EXECUTION_CANCEL = () => "Cancel request";
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
-export const WELCOME_FORM_FULL_NAME = () => "Full Name";
+export const WELCOME_FORM_FULL_NAME = () => "Full name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
-export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
-export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Create password";
+export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify password";
 export const WELCOME_FORM_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
 export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
@@ -1126,7 +1126,7 @@ export const DEPLOY_BUTTON_TOOLTIP = () =>
 export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
 export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
   `Shared with ${length} other`;
-export const DEBUGGER_TOOLTIP = () => "Open Debugger";
+export const DEBUGGER_TOOLTIP = () => "Open debugger";
 export const PAGE_PROPERTIES_TOOLTIP = () => "Page properties";
 export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
@@ -1136,7 +1136,7 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
-export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
+export const CONNECT_TO_GIT_OPTION = () => "Connect to git repository";
 //
 export const GO_TO_PAGE = () => "Go to page";
 export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
@@ -1159,7 +1159,7 @@ export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
 export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
-export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
+export const TEST_EMAIL_FAILURE = () => "Sending test email failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
@@ -1186,7 +1186,7 @@ export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
 export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Plan`;
+  `The ${featureName} feature is exclusive to workspaces on the Business edition`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1244,22 +1244,22 @@ export const API_PANE_DUPLICATE_HEADER = (headerName: string) =>
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query / JS Object";
+export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query/JS Object";
 export const LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP = () =>
   "Count of all the records in the source data for the list. This helps us calculate the number of pages to be shown";
 
 // Add datasource
-export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_TITLE = () => "Generate page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
 export const DELETE_WORKSPACE_SUCCESSFUL = () =>
   "Workspace deleted successfully";
 // theming
-export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const CHANGE_APP_THEME = (name: string) => `Theme ${name} applied`;
 export const SET_DEFAULT_SELECTED_THEME = (name: string) =>
   `Applied the ${name} theme, since custom theme was not found`;
-export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
-export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
+export const SAVE_APP_THEME = (name: string) => `Theme ${name} saved`;
+export const DELETE_APP_THEME = (name: string) => `Theme ${name} deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
   `Do you really want to delete this theme? This process cannot be undone.`;
 export const APP_THEME_BETA_CARD_HEADING = () => `🎨 Theme your app`;
@@ -1312,7 +1312,7 @@ export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
 export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
   `Used as background color for disabled buttons.`;
 export const ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE = () =>
-  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business.`;
+  `I would like to enable custom branding for my workspace and am interested in Appsmith Business.`;
 
 // Guided tour
 // -- STEPS ---
@@ -1337,9 +1337,9 @@ export const STEP_FOUR_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_FIVE_TITLE = () =>
   "Connect all input fields in the Customer Update Form with the table";
 export const STEP_FIVE_HINT_TEXT = () =>
-  `Now let's connect rest of widgets in the container to Table's selected row`;
+  `Now let's connect rest of widgets in the container to the table's selected row`;
 export const STEP_FIVE_SUCCESS_TEXT = () =>
-  "Great work! All inputs are now connected to the  table’s selected row";
+  "Great work! All inputs are now connected to the table’s selected row";
 export const STEP_FIVE_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_SIX_TITLE = () =>
   "Add an update button to trigger an update query";
@@ -1352,7 +1352,7 @@ export const STEP_EIGHT_TITLE = () =>
   "After successfully triggering the update query, fetch the updated customer data. ";
 export const STEP_EIGHT_SUCCESS_TEXT = () =>
   "Exceptional work! You’ve now built a way to see customer data and update it.";
-export const STEP_NINE_TITLE = () => "Final step: Test & deploy your app";
+export const STEP_NINE_TITLE = () => "Final step - test & deploy your app";
 export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
 export const PROCEED = () => "Proceed";
@@ -1549,7 +1549,7 @@ export const UPDATE_VIA_IMPORT_SETTING = {
     "This action will override your existing application. Please exercise caution while selecting the file to import.",
   settingActionButtonTxt: () => "Import",
   disabledForGit: () =>
-    "This feature is not supported for apps connected to Git version control. Please use Git Pull to update and sync your app.",
+    "This feature is not supported for apps connected to git version control. Please use git pull to update and sync your app.",
 };
 
 export const IN_APP_EMBED_SETTING = {
@@ -1563,7 +1563,7 @@ export const IN_APP_EMBED_SETTING = {
   limitEmbeddingTooltip: () => "This app can be embedded in approved URLs only",
   disableEmbeddingLabel: () => "Embedding disabled",
   disableEmbeddingTooltip: () =>
-    "This app cannot be embedded anywhere on the Internet",
+    "This app cannot be embedded anywhere on the internet",
   embed: () => "Embed",
   embedSnippetTitle: () => "Embed URL",
   change: () => "Change",
@@ -1631,7 +1631,7 @@ export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "Use snapshot";
-export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
+export const USE_SNAPSHOT_HEADER = () => "Use snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
   "Save a snapshot of your current layout for 5 days";
@@ -1651,7 +1651,7 @@ export const CONVERSION_WARNING_HEADER = () =>
   "All done, some adjustments needed";
 export const CONVERSION_WARNING_TEXT = () =>
   "You might need to manually position some of the widgets your layout contains";
-export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
+export const CONVERSION_ERROR_HEADER = () => "Conversion failed";
 export const CONVERSION_ERROR = () =>
   "Appsmith ran into a critical error while trying to convert to auto layout";
 export const SEND_REPORT = () => "Send us a report";
@@ -1664,10 +1664,10 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert to Fixed layout (Beta)";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert to Auto layout (Beta)";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to fixed layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed layout (Beta)";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to auto-layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout (Beta)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use snapshot";
@@ -1700,8 +1700,8 @@ export const ALERT_STYLE_OPTIONS = [
 ];
 
 export const customJSLibraryMessages = {
-  ADD_JS_LIBRARY: () => "Add JS Libraries",
-  REC_LIBRARY: () => "Recommended Libraries",
+  ADD_JS_LIBRARY: () => "Add JS libraries",
+  REC_LIBRARY: () => "Recommended libraries",
   INSTALLATION_SUCCESSFUL: (accessor: string) =>
     `Installation Successful. You can access the library via ${accessor}`,
   INSTALLATION_FAILED: () => "Installation failed",
@@ -1711,7 +1711,7 @@ export const customJSLibraryMessages = {
     `Couldn't uninstall ${name}. Please try again after sometime.`,
   UNINSTALL_SUCCESS: (accessor: string) =>
     `${accessor} is uninstalled successfully.`,
-  LEARN_MORE_DESC: () => "Learn more about Custom JS Libraries",
+  LEARN_MORE_DESC: () => "Learn more about Custom JS libraries",
   UNSUPPORTED_LIB: () => `Library is unsupported`,
   UNSUPPORTED_LIB_DESC: () =>
     `Unfortunately, this library cannot be supported due to platform limitations. Please try installing a different library.`,
