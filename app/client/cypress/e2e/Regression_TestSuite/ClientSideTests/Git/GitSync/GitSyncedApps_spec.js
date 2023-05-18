@@ -316,10 +316,11 @@ describe("Git sync apps", function () {
     _.agHelper.ActionContextMenuWithInPane("Move to page", "Child_Page");
     cy.runQuery();
     cy.wait(2000);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
+    cy.wait(2000);
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Move to page",
