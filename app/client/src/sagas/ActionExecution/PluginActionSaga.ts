@@ -509,7 +509,7 @@ export default function* executePluginActionTriggerSaga(
     pluginName: plugin?.name,
     datasourceId: datasourceId,
     isMock: !!datasource?.isMock,
-    actionType: action?.pluginType === PluginType.DB ? "Queries" : "API",
+    actionId: action?.id,
   });
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
@@ -579,7 +579,7 @@ export default function* executePluginActionTriggerSaga(
       pluginName: plugin?.name,
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
-      actionType: action?.pluginType === PluginType.DB ? "Queries" : "API",
+      actionId: action?.id,
       ...payload.pluginErrorDetails,
     });
     if (onError) {
@@ -605,7 +605,7 @@ export default function* executePluginActionTriggerSaga(
       pluginName: plugin?.name,
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
-      actionType: action?.pluginType === PluginType.DB ? "Queries" : "API",
+      actionId: action?.id,
     });
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
@@ -903,7 +903,7 @@ function* runActionSaga(
       datasourceId: datasource?.id,
       pluginName: plugin?.name,
       isMock: !!datasource?.isMock,
-      pluginErrorDetails: payload?.pluginErrorDetails,
+      ...payload?.pluginErrorDetails,
     });
     return;
   }
@@ -1028,7 +1028,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       pluginName: plugin?.name,
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
-      actionType: action?.pluginType === PluginType.DB ? "Queries" : "API",
+      actionId: pageAction?.id,
     });
 
     let payload = EMPTY_RESPONSE;
@@ -1113,7 +1113,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         pluginName: plugin?.name,
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
-        actionType: action?.pluginType === PluginType.DB ? "Queries" : "API",
+        actionId: pageAction?.id,
         ...payload.pluginErrorDetails,
       });
     } else {
@@ -1129,7 +1129,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         pluginName: plugin?.name,
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
-        actionType: action?.pluginType === PluginType.DB ? "Queries" : "API",
+        actionId: pageAction?.id,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
