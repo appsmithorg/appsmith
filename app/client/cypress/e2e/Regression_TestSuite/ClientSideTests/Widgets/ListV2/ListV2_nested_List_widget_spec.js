@@ -2,6 +2,7 @@ const dsl = require("../../../../../fixtures/Listv2/copy_paste_listv2_dsl.json")
 const nestedSiblingDsl = require("../../../../../fixtures/Listv2/ListV2_nested_sibling_listwidget_dsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -30,7 +31,7 @@ describe(" Nested List Widgets ", function () {
     cy.addDsl(dsl);
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
-    cy.get(".t--copy-widget").click({ force: true });
+    cy.get(widgetsPage.copyWidget).click({ force: true });
     cy.wait(500);
     //Paste inside List 1
     cy.get(`${widgetSelector("List1")} [type="CONTAINER_WIDGET"]`)
@@ -41,7 +42,7 @@ describe(" Nested List Widgets ", function () {
 
     //Copy List 2 and Paste inside list 2
     cy.openPropertyPaneByWidgetName("List2", "listwidgetv2");
-    cy.get(".t--copy-widget").click({ force: true });
+    cy.get(widgetsPage.copyWidget).click({ force: true });
     cy.wait(500);
     // Paste inside list 2
     cy.get(`${widgetSelector("List2")} [type="CONTAINER_WIDGET"]`)
@@ -54,7 +55,7 @@ describe(" Nested List Widgets ", function () {
 
     //Copy List2 and Past in List 1
     cy.openPropertyPaneByWidgetName("List2", "listwidgetv2");
-    cy.get(".t--copy-widget").click({ force: true });
+    cy.get(widgetsPage.copyWidget).click({ force: true });
     cy.wait(500);
     cy.get(`${widgetSelector("List1Copy")} [type="CONTAINER_WIDGET"]`)
       .first()
