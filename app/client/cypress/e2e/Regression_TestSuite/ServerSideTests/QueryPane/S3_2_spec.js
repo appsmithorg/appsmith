@@ -230,7 +230,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.CheckAndUnfoldEntityItem("Widgets");
-    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Delete");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
 
