@@ -29,7 +29,6 @@ describe("Branding", () => {
   it("1. Super user can access branding page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.url().should("contain", "/settings/general");

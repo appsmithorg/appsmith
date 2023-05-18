@@ -4,7 +4,6 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
 import {
   changeSelectedAppThemeAction,
@@ -20,6 +19,11 @@ import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
+import { importRemixIcon } from "design-system-old";
+
+const DeleteIcon = importRemixIcon(
+  () => import("remixicon-react/DeleteBinLineIcon"),
+);
 
 /**
  * ----------------------------------------------------------------------------

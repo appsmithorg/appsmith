@@ -13,8 +13,6 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
-import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
-import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import classNames from "classnames";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
@@ -32,6 +30,10 @@ import {
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
+import { importSvg } from "design-system-old";
+
+const SearchIcon = importSvg(() => import("assets/icons/ads/search.svg"));
+const CrossIcon = importSvg(() => import("assets/icons/ads/cross.svg"));
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -160,6 +162,7 @@ export default function ExplorerSubMenu({
                 autoComplete="off"
                 autoFocus
                 className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
+                data-testId="t--search-file-operation"
                 onChange={onChange}
                 placeholder="Search datasources"
                 type="text"

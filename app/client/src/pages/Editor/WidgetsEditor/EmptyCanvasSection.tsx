@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { ReactComponent as Layout } from "assets/images/layout.svg";
-import { ReactComponent as Database } from "assets/images/database.svg";
 import { Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,6 +25,11 @@ import {
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import type FeatureFlags from "entities/FeatureFlags";
 import { deleteCanvasCardsState } from "actions/editorActions";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { importSvg } from "design-system-old";
+
+const Layout = importSvg(() => import("assets/images/layout.svg"));
+const Database = importSvg(() => import("assets/images/database.svg"));
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -110,21 +113,25 @@ function CanvasTopSection() {
     });
   };
 
+  const isAirgappedInstance = isAirgapped();
+
   return (
     <Wrapper data-cy="canvas-ctas">
-      {!!featureFlags.TEMPLATES_PHASE_2 && !isAutoLayout && (
-        <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-          <Layout />
-          <Content>
-            <Text color={Colors.COD_GRAY} type={TextType.P1}>
-              {createMessage(TEMPLATE_CARD_TITLE)}
-            </Text>
-            <Text type={TextType.P3}>
-              {createMessage(TEMPLATE_CARD_DESCRIPTION)}
-            </Text>
-          </Content>
-        </Card>
-      )}
+      {!!featureFlags.TEMPLATES_PHASE_2 &&
+        !isAutoLayout &&
+        !isAirgappedInstance && (
+          <Card data-cy="start-from-template" onClick={showTemplatesModal}>
+            <Layout />
+            <Content>
+              <Text color={Colors.COD_GRAY} type={TextType.P1}>
+                {createMessage(TEMPLATE_CARD_TITLE)}
+              </Text>
+              <Text type={TextType.P3}>
+                {createMessage(TEMPLATE_CARD_DESCRIPTION)}
+              </Text>
+            </Content>
+          </Card>
+        )}
       <Card
         centerAlign={!featureFlags.TEMPLATES_PHASE_2}
         data-cy="generate-app"

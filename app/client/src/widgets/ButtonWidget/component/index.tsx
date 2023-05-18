@@ -14,7 +14,7 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
+import { Toaster, Variant } from "@design-system/widgets-old";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -396,13 +396,14 @@ function BtnWrapper(
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) {
+  const hasOnClick = Boolean(
+    props.onClick && !props.isLoading && !props.isDisabled,
+  );
   if (!props.googleRecaptchaKey) {
     return (
       <Wrapper
         className={props.className}
-        onClick={(e: React.MouseEvent<HTMLElement>) =>
-          props.onClick && !props.isLoading && props.onClick(e)
-        }
+        onClick={hasOnClick ? props.onClick : undefined}
       >
         {props.children}
       </Wrapper>

@@ -18,7 +18,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { Colors } from "constants/Colors";
-import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
+import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
 
 const StyledButton = styled(Button)<{ active: boolean }>`
   ${(props) =>

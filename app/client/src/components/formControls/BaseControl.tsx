@@ -20,7 +20,12 @@ export type ComparisonOperations =
   | "GREATER"
   | "IN"
   | "NOT_IN"
-  | "FEATURE_FLAG";
+  | "FEATURE_FLAG"
+  | "VIEW_MODE";
+
+export enum ComparisonOperationsEnum {
+  VIEW_MODE = "VIEW_MODE",
+}
 
 export type HiddenType = boolean | Condition | ConditionObject;
 

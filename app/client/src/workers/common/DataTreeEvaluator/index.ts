@@ -68,6 +68,7 @@ import {
   isEqual,
   isFunction,
   isObject,
+  isUndefined,
   set,
   union,
   unset,
@@ -107,6 +108,7 @@ import {
 import {
   addRootcauseToAsyncInvocationErrors,
   getFixedTimeDifference,
+  replaceThisDotParams,
 } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
@@ -169,6 +171,8 @@ export default class DataTreeEvaluator {
    * Sanitized eval values and errors
    */
   evalProps: EvalProps = {};
+  undefinedEvalValuesMap: Record<string, boolean> = {};
+
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -317,6 +321,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
+
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
@@ -697,7 +702,7 @@ export default class DataTreeEvaluator {
 
   setupUpdateTreeWithDifferences(
     updatedValuePaths: string[][],
-  ): ReturnType<typeof this.setupUpdateTree> {
+  ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
@@ -914,7 +919,7 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } =
             getEntityNameAndPropertyPath(fullPropertyPath);
           const entity = currentTree[entityName] as WidgetEntity | ActionEntity;
-          const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
+          let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
           const entityConfig = oldConfigTree[entityName];
 
           const isADynamicBindingPath =
@@ -942,9 +947,12 @@ export default class DataTreeEvaluator {
 
             const contextData: EvaluateContext = {};
             if (isAction(entity)) {
-              contextData.thisContext = {
-                params: {},
+              // Add empty object for this.params to avoid undefined errors
+              contextData.globalContext = {
+                [THIS_DOT_PARAMS_KEY]: {},
               };
+
+              unEvalPropertyValue = replaceThisDotParams(unEvalPropertyValue);
             }
             try {
               evalPropertyValue = this.getDynamicValue(
@@ -969,6 +977,13 @@ export default class DataTreeEvaluator {
           } else {
             evalPropertyValue = unEvalPropertyValue;
           }
+
+          this.updateUndefinedEvalValuesMap(
+            this.undefinedEvalValuesMap,
+            evalPropertyValue,
+            fullPropertyPath,
+          );
+
           if (isWidget(entity) && !isATriggerPath) {
             const isNewWidget =
               isFirstTree || isNewEntity(unevalUpdates, entityName);
@@ -1088,6 +1103,12 @@ export default class DataTreeEvaluator {
                 fullPath: fullPropertyPath,
                 unEvalValue: unEvalPropertyValue,
               });
+
+              this.updateUndefinedEvalValuesMap(
+                this.undefinedEvalValuesMap,
+                evalPropertyValue,
+                fullPropertyPath,
+              );
             }
             return currentTree;
           } else {
@@ -1108,6 +1129,21 @@ export default class DataTreeEvaluator {
         message: (error as Error).message,
       });
       return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+    }
+  }
+
+  updateUndefinedEvalValuesMap(
+    undefinedEvalValuesMap: Record<string, boolean>,
+    evalPropertyValue: unknown,
+    fullPropertyPath: string,
+  ) {
+    if (isUndefined(evalPropertyValue)) {
+      undefinedEvalValuesMap[fullPropertyPath] = true;
+    } else if (
+      fullPropertyPath in undefinedEvalValuesMap &&
+      !isUndefined(undefinedEvalValuesMap[fullPropertyPath])
+    ) {
+      delete undefinedEvalValuesMap[fullPropertyPath];
     }
   }
 

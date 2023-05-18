@@ -8,6 +8,7 @@
   "editButton": ".t--back-to-editor",
   "forkButton": ".t--fork-app",
   "signButton": ".t--sign-in",
+  "backToAppsButton": ".t--app-viewer-back-to-apps-button",
   "userProfileDropdownButton": ".t--profile-menu-icon",
   "userProfileDropdownMenu": ".t--profile-menu",
   "modal": ".bp3-dialog",

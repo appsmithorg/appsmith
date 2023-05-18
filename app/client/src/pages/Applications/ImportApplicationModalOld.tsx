@@ -39,10 +39,11 @@ type ImportApplicationModalProps = {
   workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
+  appId?: string;
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, workspaceId } = props;
+  const { appId, isModalOpen, onClose, workspaceId } = props;
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -77,6 +78,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
 
     dispatch(
       importApplication({
+        appId: appId as string,
         workspaceId: workspaceId as string,
         applicationFile: file,
       }),

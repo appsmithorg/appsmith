@@ -13,3 +13,11 @@ export const getIsBranchUpdated = (
 
   return branch1 !== branch2;
 };
+
+export const addClassToDocumentBody = (className: string) => {
+  document.body.classList.add(className);
+};
+
+export const removeClassFromDocumentBody = (className: string) => {
+  document.body.classList.remove(className);
+};

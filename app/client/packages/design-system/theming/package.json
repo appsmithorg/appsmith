@@ -5,17 +5,12 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "lint:ci": "eslint --cache .",
-    "prettier:ci": "prettier --check .",
+    "lint": "eslint --cache .",
+    "prettier": "prettier --check .",
     "build:tokens": "npx ts-node ./src/utils/buildTokens.ts"
   },
-  "dependencies": {
-    "react": "*",
-    "react-dom": "*"
-  },
   "devDependencies": {
-    "@types/react": "*",
-    "@types/react-dom": "*"
+    "eslint": "^8.38.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"

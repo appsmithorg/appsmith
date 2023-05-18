@@ -1,12 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { getActionBlocks } from "@shared/ast";
-import type { ActionCreatorProps } from "./types";
-import { getCodeFromMoustache, isEmptyBlock } from "./utils";
+import { getActionBlocks, getCallExpressions } from "@shared/ast";
+import type { ActionCreatorProps, ActionTree } from "./types";
+import {
+  getCodeFromMoustache,
+  getSelectedFieldFromValue,
+  isEmptyBlock,
+} from "./utils";
 import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
 import { useSelector } from "react-redux";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import { generateReactKey } from "../../../utils/generators";
+import { useApisQueriesAndJsActionOptions } from "./helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
 
 export const ActionCreatorContext = React.createContext<{
   label: string;
@@ -42,6 +49,8 @@ const ActionCreator = React.forwardRef(
     const updatedIdRef = useRef<string>("");
     const previousBlocks = useRef<string[]>([]);
     const evaluationVersion = useSelector(selectEvaluationVersion);
+
+    const actionOptions = useApisQueriesAndJsActionOptions(() => null);
 
     useEffect(() => {
       setActions((prev) => {
@@ -129,7 +138,52 @@ const ActionCreator = React.forwardRef(
       childUpdate.current = true;
       if (newValueWithoutMoustache) {
         newActions[id] = newValueWithoutMoustache;
+        const prevValue = actions[id];
+        const option = getSelectedFieldFromValue(
+          newValueWithoutMoustache,
+          actionOptions,
+        );
+
+        const actionType = (option?.type ||
+          option?.value) as ActionTree["actionType"];
+
+        // If the previous value was empty, we're adding a new action
+        if (prevValue === "") {
+          AnalyticsUtil.logEvent("ACTION_ADDED", {
+            actionType: getActionTypeLabel(actionType),
+            code: newValueWithoutMoustache,
+            callback: null,
+          });
+        } else {
+          const prevRootCallExpression = getCallExpressions(
+            actions[id],
+            evaluationVersion,
+          )[0];
+          const newRootCallExpression = getCallExpressions(
+            newValueWithoutMoustache,
+            evaluationVersion,
+          )[0];
+
+          // We don't want the modified event to be triggered when the success/failure
+          // callbacks are modified/added/removed
+          // So, we check if the root call expression is the same
+          if (prevRootCallExpression?.code !== newRootCallExpression?.code) {
+            AnalyticsUtil.logEvent("ACTION_MODIFIED", {
+              actionType: getActionTypeLabel(actionType),
+              code: newValueWithoutMoustache,
+              callback: null,
+            });
+          }
+        }
       } else {
+        const option = getSelectedFieldFromValue(newActions[id], actionOptions);
+        const actionType = (option?.type ||
+          option?.value) as ActionTree["actionType"];
+        AnalyticsUtil.logEvent("ACTION_DELETED", {
+          actionType: getActionTypeLabel(actionType),
+          code: newActions[id],
+          callback: null,
+        });
         delete newActions[id];
         !actions[id] && setActions(newActions);
       }

@@ -1,3 +1,4 @@
+import type { MouseEventHandler } from "react";
 import React from "react";
 
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -18,8 +19,10 @@ import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -28,6 +31,19 @@ export class ContainerWidget extends BaseWidget<
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/container",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/container",
+      },
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
   }
 
   static getPropertyPaneContentConfig() {
@@ -230,6 +246,8 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;

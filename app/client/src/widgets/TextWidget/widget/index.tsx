@@ -11,13 +11,15 @@ import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleC
 import type { Color } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { pick } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";
 import TextComponent from "../component";
 import { OverflowTypes } from "../constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -409,6 +411,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{ this.text }}`,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "‌Text widget is used to display textual information. Whether you want to display a paragraph or information or add a heading to a container, a text widget makes it easy to style and display text",
+      "!url": "https://docs.appsmith.com/widget-reference/text",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
     };
   }
 

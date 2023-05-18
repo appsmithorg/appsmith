@@ -20,7 +20,8 @@ export class DeployMode {
   _clearDropdown = "button.select-button span.cancel-icon";
   private _jsonFormMultiSelectOptions = (option: string) =>
     `//div[@title='${option}']//input[@type='checkbox']/ancestor::div[@title='${option}']`;
-  private _backtoHome = ".t--back-to-home";
+  private _backtoHome =
+    ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
 
   //refering PublishtheApp from command.js

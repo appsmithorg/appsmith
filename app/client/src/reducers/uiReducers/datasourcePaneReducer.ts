@@ -3,6 +3,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
 import _ from "lodash";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: DatasourcePaneReduxState = {
   drafts: {},
@@ -12,6 +13,7 @@ const initialState: DatasourcePaneReduxState = {
   viewMode: true,
   collapsibleState: {},
   defaultKeyValueArrayConfig: [],
+  responseTabHeight: ActionExecutionResizerHeight,
 };
 
 export interface DatasourcePaneReduxState {
@@ -27,6 +29,7 @@ export interface DatasourcePaneReduxState {
   viewMode: boolean;
   collapsibleState: Record<string, boolean>;
   defaultKeyValueArrayConfig: Array<string>;
+  responseTabHeight: number;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {

@@ -148,10 +148,22 @@ function* updateURLSaga(action: ReduxURLChangeAction) {
   });
 }
 
+function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
+  yield race({
+    task: call(startAppEngine, action),
+    cancel: take(ReduxActionTypes.RESET_EDITOR_REQUEST),
+  });
+}
+
 export default function* watchInitSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, startAppEngine),
-    takeLatest(ReduxActionTypes.INITIALIZE_PAGE_VIEWER, startAppEngine),
+    takeLatest(
+      [
+        ReduxActionTypes.INITIALIZE_EDITOR,
+        ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+      ],
+      appEngineSaga,
+    ),
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
     takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
   ]);

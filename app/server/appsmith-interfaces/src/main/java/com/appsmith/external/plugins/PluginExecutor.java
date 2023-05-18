@@ -286,4 +286,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     default Set<String> getSelfReferencingDataPaths() {
         return Set.of("prev", "next");
     }
+
+    default Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
+        return Mono.just(datasourceConfiguration);
+    }
 }

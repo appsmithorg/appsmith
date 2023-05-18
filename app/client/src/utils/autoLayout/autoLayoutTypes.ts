@@ -9,6 +9,11 @@ export type FlexBoxAlignmentColumnInfo = {
   [key: number]: AlignmentColumnInfo;
 };
 
+export type AlignmentColumnData = {
+  alignment: FlexLayerAlignment;
+  columns: number;
+};
+
 export interface LayerChild {
   id: string;
   align: FlexLayerAlignment;

@@ -99,6 +99,7 @@ export const getDataTreeForAutocomplete = createSelector(
     return tree;
   },
 );
+
 export const getPathEvalErrors = createSelector(
   [
     getDataTreeForAutocomplete,

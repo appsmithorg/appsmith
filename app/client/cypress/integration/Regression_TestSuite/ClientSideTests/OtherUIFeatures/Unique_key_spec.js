@@ -19,7 +19,7 @@ describe("Unique react keys", function () {
     cy.addDsl(dsl);
   });
 
-  it("Should not create duplicate versions of widget on drop from explorer", function () {
+  it("1. Should not create duplicate versions of widget on drop from explorer", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
@@ -31,7 +31,7 @@ describe("Unique react keys", function () {
     cy.get(widgetsPage.selectwidget).should("have.length", 2);
   });
 
-  it("Should not create duplicate versions of widget on widget copy", function () {
+  it("2. Should not create duplicate versions of widget on widget copy", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });

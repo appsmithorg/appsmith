@@ -21,6 +21,7 @@ import UserApi from "@appsmith/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
+import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import {
   validateResponse,
   getResponseErrorMessage,
@@ -57,12 +58,12 @@ import {
   initPageLevelSocketConnection,
 } from "actions/websocketActions";
 import {
-  getEnableFirstTimeUserOnboarding,
-  getFirstTimeUserOnboardingApplicationId,
+  getEnableStartSignposting,
+  getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import {
   segmentInitUncertain,
@@ -72,6 +73,9 @@ import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
+import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -364,12 +368,14 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, name, role, useCase } = action.payload;
+    const { email, intercomConsentGiven, name, role, useCase } = action.payload;
+
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
       role,
       useCase,
+      intercomConsentGiven,
     });
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -380,9 +386,16 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
       });
     }
   } catch (error) {
+    const payload: ErrorActionPayload = {
+      show: true,
+      error: {
+        message:
+          (error as Error).message ?? createMessage(UPDATE_USER_DETAILS_FAILED),
+      },
+    };
     yield put({
       type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
-      payload: (error as Error).message,
+      payload,
     });
   }
 }
@@ -474,11 +487,27 @@ export function* updatePhoto(
     const response: ApiResponse = yield call(UserApi.uploadPhoto, {
       file: action.payload.file,
     });
+    if (!response.responseMeta.success) {
+      throw response.responseMeta.error;
+    }
     //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
+
+    const payload: ErrorActionPayload = {
+      show: true,
+      error: {
+        message:
+          (error as any).message ??
+          createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
+      },
+    };
+    yield put({
+      type: ReduxActionErrorTypes.USER_PROFILE_PICTURE_UPLOAD_FAILED,
+      payload,
+    });
   }
 }
 
@@ -498,20 +527,15 @@ export function* fetchFeatureFlags() {
 }
 
 export function* updateFirstTimeUserOnboardingSage() {
-  const enable: string | null = yield getEnableFirstTimeUserOnboarding();
-
+  const enable: boolean | null = yield call(getEnableStartSignposting);
   if (enable) {
-    const applicationId: string =
-      yield getFirstTimeUserOnboardingApplicationId() || "";
+    const applicationIds: string[] =
+      yield getFirstTimeUserOnboardingApplicationIds() || [];
     const introModalVisibility: string | null =
       yield getFirstTimeUserOnboardingIntroModalVisibility();
     yield put({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: true,
-    });
-    yield put({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: applicationId,
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+      payload: applicationIds,
     });
     yield put({
       type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,

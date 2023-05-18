@@ -103,6 +103,7 @@
   "tabBinding": "{{Tabs1.selectedTab",
   "pageloadBinding": "{{PageLoadApi.data[1].id}}{{Input1.text}}",
   "currentRowEmail": "{{currentRow.email}}",
+  "currentIndex": "{{currentIndex}}",
   "currentRowOrderAmt": "{{currentRow.orderAmount}}",
   "momentDate": "{{moment()}}",
   "defaultRowIndexBinding": "{{Table1.selectedRowIndex",

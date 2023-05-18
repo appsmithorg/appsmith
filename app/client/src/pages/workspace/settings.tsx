@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useRouteMatch,
   useLocation,
@@ -117,22 +117,31 @@ export default function Settings() {
     currentWorkspace?.userPermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
+  const shouldRedirect = useMemo(
+    () =>
+      currentWorkspace &&
+      ((!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+        (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)),
+    [
+      currentWorkspace,
+      isMemberofTheWorkspace,
+      hasManageWorkspacePermissions,
+      currentTab,
+    ],
+  );
 
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   useEffect(() => {
-    if (
-      (!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
-      (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)
-    ) {
+    if (shouldRedirect) {
       history.replace(APPLICATIONS_URL);
     }
     if (currentWorkspace) {
       setPageTitle(`${currentWorkspace?.name}`);
     }
-  }, [currentWorkspace]);
+  }, [currentWorkspace, shouldRedirect]);
 
   useEffect(() => {
     if (!currentWorkspace) {

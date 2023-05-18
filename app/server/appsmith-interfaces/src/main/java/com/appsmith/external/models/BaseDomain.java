@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,6 +79,13 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
+    // This field will only be used for git related functionality to sync the action object across different instances.
+    // This field will be deprecated once we move to the new git sync implementation.
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Internal.class)
+    @Deprecated
+    String gitSyncId;
+
     @Deprecated
     public void sanitiseToExportDBObject() {
         this.setCreatedAt(null);
@@ -86,5 +94,15 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         this.setPolicies(null);
         this.setCreatedBy(null);
         this.setModifiedBy(null);
+    }
+
+    public void makePristine() {
+        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
+        // updating an existing document). If it contains any policies, they are also reset.
+        this.setId(null);
+        this.setUpdatedAt(null);
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
+        }
     }
 }

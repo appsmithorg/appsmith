@@ -52,6 +52,9 @@ const ExplorerDatasourceEntity = React.memo(
           pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
+          params: {
+            viewMode: true,
+          },
         });
       } else {
         url = datasourcesEditorIdURL({

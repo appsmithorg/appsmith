@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
+import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -47,6 +46,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -381,7 +381,7 @@ class GlobalHotKeys extends React.Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
-  isDebuggerOpen: state.ui.debugger.isOpen,
+  isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),

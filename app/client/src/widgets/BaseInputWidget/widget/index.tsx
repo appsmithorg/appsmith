@@ -10,6 +10,8 @@ import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
+import { isInputTypeEmailOrPassword } from "widgets/InputWidgetV2/widget/Utilities";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
 import { checkInputTypeTextByProps } from "../utils";
@@ -240,6 +242,24 @@ class BaseInputWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "shouldAllowAutofill",
+            label: "Allow autofill",
+            helpText: "Allow users to autofill values from browser",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: InputWidgetProps) => {
+              //should be shown for only inputWidgetV2 and for email or password input types
+              return !(
+                isInputTypeEmailOrPassword(props?.inputType) &&
+                props.type === "INPUT_WIDGET_V2"
+              );
+            },
+            dependencies: ["inputType"],
           },
           {
             propertyName: "allowFormatting",

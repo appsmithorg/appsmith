@@ -15,6 +15,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
+import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
@@ -377,6 +378,15 @@ class SwitchGroupWidget extends BaseWidget<
   static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Switch group widget allows users to create many switch components which can easily by used in a form",
+      "!url": "https://docs.appsmith.com/widget-reference/switch-group",
+      selectedValues: "[string]",
     };
   }
 

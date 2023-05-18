@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
 import { change, Field, formValueSelector } from "redux-form";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
@@ -12,7 +11,7 @@ import get from "lodash/get";
 import merge from "lodash/merge";
 import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
 import { DEFAULT_DATASOURCE } from "entities/Datasource";
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import type {
   EditorTheme,
   HintHelper,
@@ -54,6 +53,8 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -275,7 +276,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   handleDatasourceHighlight = () => {
     const { datasource } = this.props;
-    const authType = get(
+    const authType: string = get(
       datasource,
       "datasourceConfiguration.authentication.authenticationType",
       "",
@@ -351,6 +352,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   from: { ch: 0, line: 0 },
                   to: editor.getCursor(),
                 };
+
+                const CodeMirror = getCodeMirrorNamespaceFromEditor(editor);
                 CodeMirror.on(
                   hints,
                   "pick",
@@ -382,8 +385,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
         evaluatedPath = extractApiUrlPath(evaluatedPath);
       }
-      const evaluatedQueryParameters = entity.config.queryParameters
-        ?.filter((p: KeyValuePair) => p.key)
+      const evaluatedQueryParameters = entity?.config?.queryParameters
+        ?.filter((p: KeyValuePair) => !!p?.key)
         .map(
           (p: KeyValuePair, i: number) =>
             `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
@@ -491,7 +494,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     return (
       <DatasourceContainer data-replay-id={btoa(props.input.name || "")}>
-        <CodeEditor
+        <LazyCodeEditor
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"

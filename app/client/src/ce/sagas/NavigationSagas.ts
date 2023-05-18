@@ -4,7 +4,7 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
@@ -15,7 +15,7 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { contextSwitchingSaga } from "ce/sagas/ContextSwitchingSaga";
+import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";

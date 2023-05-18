@@ -12,10 +12,18 @@ type ApplicationNameProps = {
   navStyle: NavigationSetting["navStyle"];
   primaryColor: string;
   forSidebar?: boolean;
+  fontWeight?: "regular" | "bold";
 };
 
 const ApplicationName = (props: ApplicationNameProps) => {
-  const { appName, forSidebar, navColorStyle, navStyle, primaryColor } = props;
+  const {
+    appName,
+    fontWeight,
+    forSidebar,
+    navColorStyle,
+    navStyle,
+    primaryColor,
+  } = props;
   const applicationNameRef = useRef<HTMLDivElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const isMobile = useIsMobileDevice();
@@ -42,6 +50,7 @@ const ApplicationName = (props: ApplicationNameProps) => {
     >
       <StyledApplicationName
         className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap t--app-viewer-application-name"
+        fontWeight={fontWeight || "bold"}
         forSidebar={forSidebar}
         isMobile={isMobile}
         navColorStyle={navColorStyle}

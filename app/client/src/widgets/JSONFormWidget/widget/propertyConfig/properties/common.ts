@@ -2,7 +2,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";
 import {
   ARRAY_ITEM_KEY,
@@ -278,6 +278,24 @@ const COMMON_PROPERTIES = {
         validation: { type: ValidationTypes.BOOLEAN },
         dependencies: ["schema", "sourceData"],
         updateHook: updateChildrenDisabledStateHook,
+      },
+      {
+        propertyName: "shouldAllowAutofill",
+        label: "Allow autofill",
+        helpText: "Allow users to autofill values from browser",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) => {
+          //should be shown for only inputWidgetV2 and for email or password input types
+          return getSchemaItem(...args).fieldTypeNotIncludes([
+            FieldType.EMAIL_INPUT,
+            FieldType.PASSWORD_INPUT,
+          ]);
+        },
+        dependencies: ["schema", "sourceData"],
       },
     ],
     events: [

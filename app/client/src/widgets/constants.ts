@@ -14,6 +14,7 @@ import type {
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -65,6 +66,7 @@ export interface WidgetConfiguration {
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
+    autocompleteDefinitions?: AutocompletionDefinitions;
   };
 }
 
@@ -95,6 +97,15 @@ interface LayoutProps {
   isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
 }
+
+export type AutocompleteDefinitionFunction = (
+  widgetProps: WidgetProps,
+  extraDefsToDefine?: ExtraDef,
+) => Record<string, any>;
+
+export type AutocompletionDefinitions =
+  | Record<string, any>
+  | AutocompleteDefinitionFunction;
 
 const staticProps = omit(
   WIDGET_STATIC_PROPS,

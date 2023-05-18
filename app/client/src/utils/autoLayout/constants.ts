@@ -1,3 +1,5 @@
+export const SNAPSHOT_EXPIRY_IN_DAYS = 5;
+
 export enum LayoutDirection {
   Horizontal = "Horizontal",
   Vertical = "Vertical",
@@ -70,6 +72,9 @@ export enum FlexVerticalAlignment {
   Center = "center",
   Bottom = "end",
 }
+
+export const ROW_GAP = 12;
+export const MOBILE_ROW_GAP = 8;
 
 export const defaultAutoLayoutWidgets = [
   "CONTAINER_WIDGET",

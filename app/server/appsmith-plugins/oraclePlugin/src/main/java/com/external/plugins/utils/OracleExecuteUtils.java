@@ -1,9 +1,9 @@
 package com.external.plugins.utils;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.jdbc.OracleArray;
-import oracle.sql.Datum;
+import oracle.jdbc.OracleBlob;
+import oracle.sql.CLOB;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.sql.Connection;
@@ -12,31 +12,29 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
+import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static java.lang.Boolean.FALSE;
 
 public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String DATE_COLUMN_TYPE_NAME = "date";
     public static final String TIMESTAMP_TYPE_NAME = "timestamp";
     public static final String TIMESTAMPTZ_TYPE_NAME = "TIMESTAMP WITH TIME ZONE";
-    public static final String INTERVAL_TYPE_NAME = "interval";
+    public static final String TIMESTAMPLTZ_TYPE_NAME = "TIMESTAMP WITH LOCAL TIME ZONE";
+    public static final String CLOB_TYPE_NAME = "CLOB";
+    public static final String NCLOB_TYPE_NAME = "NCLOB";
+    public static final String RAW_TYPE_NAME = "RAW";
+    public static final String BLOB_TYPE_NAME = "BLOB";
     public static final String AFFECTED_ROWS_KEY = "affectedRows";
-    public static final String INT8 = "int8";
-    public static final String INT4 = "int4";
-    public static final String DECIMAL = "decimal";
-    public static final String VARCHAR = "varchar";
-    public static final String BOOL = "bool";
-    public static final String DATE = "date";
-    public static final String TIME = "time";
-    public static final String FLOAT8 = "float8";
 
     /**
      * Every PL/SQL block must have `BEGIN` and `END` keywords to define the block. Apart from these they could also
@@ -83,15 +81,8 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
             }
         }
 
-        if (connectionFromPool != null) {
-            try {
-                // Return the connection back to the pool
-                connectionFromPool.close();
-            } catch (SQLException e) {
-                System.out.println(Thread.currentThread().getName() +
-                        ": Execute Error returning Oracle connection to pool" + e.getMessage());
-            }
-        }
+        safelyCloseSingleConnectionFromHikariCP(connectionFromPool, MessageFormat.format("{0}: Execute Error returning " +
+                "Oracle connection to pool", Thread.currentThread().getName()));
     }
 
     /**
@@ -147,35 +138,39 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                     } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                LocalDateTime.of(
-                                        resultSet.getDate(i).toLocalDate(),
-                                        resultSet.getTime(i).toLocalTime()
-                                )
-                        ) + "Z";
-
-                    } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPLTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE_TIME.format(
                                 resultSet.getObject(i, OffsetDateTime.class)
                         );
-
-                    } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = resultSet.getObject(i).toString();
-
+                    } else if (CLOB_TYPE_NAME.equalsIgnoreCase(typeName) || NCLOB_TYPE_NAME.equals(typeName)) {
+                        /**
+                         * clob, nclob are textual data.
+                         * Ref: https://docs.oracle.com/javadb/10.10.1.2/ref/rrefclob.html
+                         */
+                        value = String.valueOf(((CLOB)resultSet.getObject(i)).getTarget().getPrefetchedData());
                     } else if (resultSet.getObject(i) instanceof OracleArray) {
                         value = ((OracleArray)resultSet.getObject(i)).getArray();
+                    } else if (RAW_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        /**
+                         * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
+                         * base64 encoded string. The correct way to read the data for these types is for the user to
+                         * cast them to a type before reading them, example:
+                         * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
+                         */
+                        value = Base64.getEncoder().encodeToString((byte[]) resultSet.getObject(i));
+                    }
+                    else if (BLOB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        /**
+                         * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
+                         * base64 encoded string. The correct way to read the data for these types is for the user to
+                         * cast them to a type before reading them, example:
+                         * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
+                         */
+                        value = ((OracleBlob)resultSet.getObject(i)).getBytes(1L,
+                                (int) ((OracleBlob)resultSet.getObject(i)).length());
                     }
                     else {
-                        value = resultSet.getObject(i);
-
-                        /**
-                         * 'Datum' class is the root of Oracle native datatype hierarchy.
-                         * Ref: https://docs.oracle.com/cd/A97329_03/web.902/q20224/oracle/sql/Datum.html
-                         */
-                        if (value instanceof Datum) {
-                            value = new String(((Datum) value).getBytes());
-                        }
+                        value = resultSet.getObject(i).toString();
                     }
 
                     row.put(metaData.getColumnName(i), value);
@@ -183,32 +178,6 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
 
                 rowsList.add(row);
             }
-        }
-    }
-
-    public static String toOraclePrimitiveTypeName(DataType type) {
-        switch (type) {
-            case LONG:
-                return INT8;
-            case INTEGER:
-                return INT4;
-            case FLOAT:
-                return DECIMAL;
-            case STRING:
-                return VARCHAR;
-            case BOOLEAN:
-                return BOOL;
-            case DATE:
-                return DATE;
-            case TIME:
-                return TIME;
-            case DOUBLE:
-                return FLOAT8;
-            case ARRAY:
-                throw new IllegalArgumentException("Array of Array datatype is not supported.");
-            default:
-                throw new IllegalArgumentException(
-                        "Unable to map the computed data type to primitive Postgresql type");
         }
     }
 }

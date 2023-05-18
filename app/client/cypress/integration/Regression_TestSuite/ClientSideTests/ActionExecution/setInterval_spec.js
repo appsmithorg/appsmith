@@ -29,9 +29,8 @@ describe("Test Create Api and Bind to Button widget", function () {
       "onClick",
       "{{setInterval(() => {  Api1.run();}, 5000, 'myInterval');}}",
     );
-  });
 
-  it("2. Works in the published version", () => {
+    //Works in the published version"
     cy.PublishtheApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
@@ -50,7 +49,7 @@ describe("Test Create Api and Bind to Button widget", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("3. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
+  it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
     cy.SearchEntityandOpen("Button1");
     jsEditor.DisableJSContext("onClick");
     cy.get(".action-block-tree").click({ force: true });

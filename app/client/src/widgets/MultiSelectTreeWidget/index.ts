@@ -69,11 +69,15 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
     disabledPropsDefaults: {
       labelPosition: LabelPosition.Top,
       labelTextSize: "0.875rem",
+    },
+    defaults: {
+      rows: 6.6,
     },
     autoDimension: {
       height: true,

@@ -96,6 +96,7 @@ const logCyclicDependecyErrors = (
             name: error?.code?.toString(),
             id: error?.code?.toString(),
           },
+          isExpanded: false,
         });
         return acc;
       }, []),

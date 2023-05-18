@@ -6,7 +6,7 @@ import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,

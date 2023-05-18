@@ -1,4 +1,9 @@
 {
     "copyUrl": ".t--copy-url",
-    "forkButton": ".t--fork-app"
+    "forkButton": ".t--fork-app",
+    "shareButton": "button:contains('Share')",
+    "placeholderTxt": "//input[@placeholder='Enter email address(es)']",
+    "placeholderTxtEE": "//input[@placeholder='Enter email address(es) or group(s)']",
+    "closeModalPopup": ".bp3-dialog-close-button span svg",
+    "closeModalPopupMember": ".t--close-form-dialog span svg"
 }

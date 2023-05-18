@@ -140,7 +140,12 @@ describe("Tab widget test", function () {
     cy.get(Layoutpage.tabWidget)
       .contains("Tab3-for-testing-scroll-navigation-controls")
       .should("have.class", "is-selected");
-    cy.get(Layoutpage.tabDelete).eq(3).click({ force: true });
+    cy.xpath(
+      Layoutpage.deleteTab.replace(
+        "tabName",
+        "Tab3-for-testing-scroll-navigation-controls",
+      ),
+    ).click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 2")
       .should("have.class", "is-selected");

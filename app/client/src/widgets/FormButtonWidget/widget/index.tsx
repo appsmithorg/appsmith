@@ -21,10 +21,24 @@ import type { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {
     super(props);
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Form button is provided by default to every form. It is used for form submission and resetting form inputs",
+      "!url": "https://docs.appsmith.com/widget-reference/form",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
+      isDisabled: "bool",
+      recaptchaToken: "string",
+    };
   }
 
   static getPropertyPaneConfig() {

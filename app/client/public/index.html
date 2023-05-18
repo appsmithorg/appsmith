@@ -15,6 +15,39 @@
       transition: all ease-in 0.3s;
     }
   </style>
+  <%=
+    (function () {
+      // This code emits additional `link rel="preload"` tags for edit.html and view.html.
+      // This helps to load edit and view modes faster.
+      //
+      // If you code-split some code and need to preload it as well, here’s how to do that:
+      //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
+      //  2) Add the name into the `chunksToPreload` array below
+      let chunksToPreload = [];
+      if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'edit-mode') {
+        chunksToPreload = [
+          ...compilation.namedChunkGroups.get("editor").chunks,
+          ...compilation.namedChunkGroups.get("global-search").chunks,
+        ]
+      } else if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'view-mode') {
+        chunksToPreload = [...compilation.namedChunkGroups.get("AppViewer").chunks]
+      }
+
+      return chunksToPreload.flatMap(i => [...i.files])
+        .map(url => `<link rel="preload" as="${getPreloadValueForFile(url)}" href="${webpackConfig.output.publicPath + url}" />`)
+        .join('\n')
+
+      function getPreloadValueForFile(fileName) {
+        if (fileName.endsWith('.js')) {
+          return 'script';
+        } else if (fileName.endsWith('.css')) {
+          return 'style';
+        }
+
+        throw new Error(`Unknown preload type for file: ${fileName}`);
+      }
+    })()
+  %>
   <script>
     // '' (empty strings), 'false' are falsy
     // could return either boolean or string based on value
@@ -53,9 +86,12 @@
     gapiLoaded = () => {
       window.googleAPIsLoaded = true;
     }
+    onError = () => {
+      window.googleAPIsLoaded = false;
+    };
   </script>
   <!-- Adding this Library to access google file picker API in case of limiting google sheet access -->
-  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()" onerror="onError()"></script>
 </head>
 
 <body class="appsmith-light-theme">
@@ -112,7 +148,14 @@
     });
 
     const registerPageServiceWorker = () => {
-      if ("serviceWorker" in navigator) {
+      if (
+        "serviceWorker" in navigator
+        // Disable the service worker in Cypress tests. We primarily do this to make
+        // the Performance/LinkRelPreload_Spec.js test work (as it collects URLs all network requests,
+        // and service worker requests fail it.) But, anecdotally, disabling the service worker
+        // also seems to make the tests a bit faster, as the network load is lower.
+        && !window.Cypress
+      ) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/pageService.js").catch(error => {
             console.error("Service Worker Registration failed: " + error);
@@ -144,10 +187,6 @@
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
-      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
-      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
-      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),

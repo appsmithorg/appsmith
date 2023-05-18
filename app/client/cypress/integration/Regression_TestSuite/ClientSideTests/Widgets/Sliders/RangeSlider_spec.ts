@@ -159,7 +159,8 @@ describe("Range Slider spec", () => {
       .GetElement(locator._sliderThumb)
       .eq(0)
       .focus()
-      .type("{rightArrow}");
+      .type("{rightArrow}")
+      .wait(500);
 
     // Assert the Text widget has value 20
     agHelper

@@ -11,8 +11,6 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import CopyIcon from "remixicon-react/FileCopyLineIcon";
-import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
@@ -26,6 +24,14 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { importRemixIcon } from "design-system-old";
+
+const CopyIcon = importRemixIcon(
+  () => import("remixicon-react/FileCopyLineIcon"),
+);
+const DeleteIcon = importRemixIcon(
+  () => import("remixicon-react/DeleteBinLineIcon"),
+);
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA

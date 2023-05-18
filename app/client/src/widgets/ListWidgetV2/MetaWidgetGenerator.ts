@@ -11,7 +11,6 @@ import {
 import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
@@ -30,10 +29,12 @@ import type {
 } from "./widget";
 import { DEFAULT_TEMPLATE_BOTTOM_ROW, DynamicPathType } from "./widget";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import WidgetFactory from "utils/WidgetFactory";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];
@@ -957,16 +958,13 @@ class MetaWidgetGenerator {
     const { metaWidgetId, metaWidgetName, templateWidgetName } =
       metaWidgetCacheProps;
     const { excludedPaths = [] } = options;
-    const dynamicPaths = [
-      ...(metaWidget.dynamicBindingPathList || []),
-      ...(metaWidget.dynamicTriggerPathList || []),
-    ];
+    const dynamicPaths = this.getDynamicPaths(metaWidget);
     let referencesEntityDef: Record<string, string> = {};
     const pathTypes = new Set();
 
     if (!dynamicPaths.length) return;
 
-    dynamicPaths.forEach(({ key: path }) => {
+    dynamicPaths.forEach(({ isTriggerPath, key: path }) => {
       if (excludedPaths.includes(path)) return;
 
       let propertyValue: string = get(metaWidget, path);
@@ -1021,7 +1019,29 @@ class MetaWidgetGenerator {
         const suffix = [...pathTypes]
           .map((type) => `${metaWidgetName}.${type}`)
           .join(", ");
-        const propertyBinding = `{{((${prefix}) => ${js})(${suffix})}}`;
+        const bindingPrefix = `{{((${prefix}) =>`;
+        const bindingSuffix = `)(${suffix})}}`;
+        /**
+         * For trigger paths the `js` binding is enclosed with `{ }`
+         * where as the binding paths do not have `{}` as enclosed.
+         *
+         * Example
+         * (() => { showAlert("Hello") })() // For trigger paths
+         * (() => currentItem.name )() // For binding paths
+         *
+         * It is expected for binding paths to return a value from the binding so to make it
+         *  return by default js binding cannot be wrapped around `{ }`.
+         * But in case of trigger paths, it is not expected for the js binding to return anything
+         *  but only execute other actions. When wrapped around `{ }`, it gives an advantage when
+         *  action selectors are used to define a trigger/event. Action selectors by default adds a
+         *  semi-colon(;) at the end of every action. If the wrapper `{}` is not present then a binding
+         *  (() => showAlert("Hello"); )()
+         *  would throw an error as the addition of a semi-colon is an invalid JavaScript syntax.
+         *  Hence we convert the above IIFE to (() => { showAlert("Hello"); } )() to make the semi-colon work.
+         */
+        const propertyBinding = isTriggerPath
+          ? `${bindingPrefix} { ${js} } ${bindingSuffix}`
+          : `${bindingPrefix} ${js} ${bindingSuffix}`;
 
         set(metaWidget, path, propertyBinding);
       }
@@ -1298,6 +1318,20 @@ class MetaWidgetGenerator {
       !isEqual(this.cachedItemKeys.curr, this.cachedItemKeys.prev) ||
       this.shouldUpdateCachedKeyDataMap()
     );
+  };
+
+  private getDynamicPaths = (metaWidget: MetaWidget) => {
+    const dynamicPaths: (DynamicPath & { isTriggerPath: boolean })[] = [];
+
+    (metaWidget.dynamicBindingPathList || []).forEach((path) => {
+      dynamicPaths.push({ ...path, isTriggerPath: false });
+    });
+
+    (metaWidget.dynamicTriggerPathList || []).forEach((path) => {
+      dynamicPaths.push({ ...path, isTriggerPath: true });
+    });
+
+    return dynamicPaths;
   };
 
   /**
@@ -1717,8 +1751,9 @@ class MetaWidgetGenerator {
     widgetType: string,
     blacklistedWidgetProperties?: string[],
   ) => {
-    const config = get(entityDefinitions, widgetType);
-    const entityDefinition = typeof config === "function" ? config({}) : config;
+    const config = WidgetFactory.getAutocompleteDefinitions(widgetType);
+    const entityDefinition =
+      typeof config === "function" ? config({} as WidgetProps) : config;
     const blacklistedKeys = ["!doc", "!url"].concat(
       blacklistedWidgetProperties || [],
     );

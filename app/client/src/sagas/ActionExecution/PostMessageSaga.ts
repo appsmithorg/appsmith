@@ -42,6 +42,7 @@ export function* executePostMessage(
   } catch (error) {
     logActionExecutionError(
       (error as Error).message,
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );

@@ -1,5 +1,5 @@
-const homePage = require("../../../locators/HomePage");
-const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
+import homePage from "../../../locators/HomePage";
+import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 
 describe("Import, Export and Fork application and validate data binding", function () {
   let workspaceId;
@@ -86,10 +86,10 @@ describe("Import, Export and Fork application and validate data binding", functi
       const url = anchor.prop("href");
       cy.request(url).then(({ body, headers }) => {
         expect(headers).to.have.property("content-type", "application/json");
-        expect(headers).to.have.property(
-          "content-disposition",
-          `attachment; filename*=UTF-8''${appName}.json`,
-        );
+        expect(headers)
+          .to.have.property("content-disposition")
+          .that.includes("attachment;")
+          .and.includes(`filename*=UTF-8''${appName}.json`);
         cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
         cy.generateUUID().then((uid) => {
           workspaceId = uid;

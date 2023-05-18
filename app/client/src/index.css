@@ -5,6 +5,8 @@
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
+@import "assets/fonts/custom/index.css";
+@import "assets/fonts/google/index.css";
 
 body {
   margin: 0;
@@ -16,6 +18,11 @@ body {
 
 body.dragging * {
   cursor: grabbing !important;
+}
+
+body.overlay {
+  opacity: 0;
+  pointer-events: none;
 }
 
 code {
@@ -38,10 +45,13 @@ span.bp3-popover-target {
 
 span.bp3-popover-target > * {
   flex-grow: 1;
+}
+
+.action-selector-popup span.bp3-popover-target > * {
   max-width: 100%;
 }
 
-.bp3-button-text {
+.action-selector-popup .bp3-button-text {
   text-overflow: ellipsis;
   overflow: hidden;
   min-width: 0;

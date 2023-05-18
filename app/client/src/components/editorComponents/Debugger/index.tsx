@@ -1,29 +1,31 @@
 import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
+import { get } from "lodash";
 import DebuggerTabs from "./DebuggerTabs";
 import type { AppState } from "@appsmith/reducers";
 import {
-  setCanvasDebuggerSelectedTab,
+  setDebuggerSelectedTab,
+  setErrorCount,
   showDebugger as showDebuggerAction,
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
+  getDebuggerSelectedTab,
   getMessageCount,
   hideDebuggerIconSelector,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
-import { matchBuilderPath } from "constants/routes";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
+import { BottomBarCTAStyles } from "ce/components/BottomBar/styles";
+import { Colors } from "constants/Colors";
 
 function Debugger() {
-  const showDebugger = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
   return showDebugger ? <DebuggerTabs /> : null;
 }
@@ -37,93 +39,114 @@ const TriggerContainer = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  padding: 9px 16px;
+  border-left: 1px solid ${Colors.GRAY_200};
+  cursor: pointer;
   ${BottomBarCTAStyles}
 
   .debugger-count {
-    color: ${Colors.WHITE};
+    color: ${(props) =>
+      props.errorCount
+        ? props.theme.colors.debugger.floatingButton.errorCount
+        : Colors.GRAY_700};
     ${getTypographyByKey("btnSmall")}
-    height: 16px;
-    width: 16px;
-    background-color: ${(props) =>
-      props.errorCount + props.warningCount > 0
-        ? props.errorCount === 0
-          ? props.theme.colors.debugger.floatingButton.warningCount
-          : props.theme.colors.debugger.floatingButton.errorCount
-        : props.theme.colors.debugger.floatingButton.noErrorCount};
-    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 0px;
-    left: 80%;
-    font-size: 10px;
-    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 400;
+    line-height 14px;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
   }
+`;
+
+export const ResizerMainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 50px);
+  overflow: hidden;
+  gap: 10px;
+  .db-form-resizer-content {
+    flex-direction: column;
+  }
+`;
+
+export const ResizerContentContainer = styled.div`
+  overflow: auto;
+  flex: 1;
+  position: relative;
+  display: flex;
 `;
 
 export function DebuggerTrigger() {
   const dispatch = useDispatch();
+  const theme = useTheme();
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+  const selectedTab = useSelector(getDebuggerSelectedTab);
   const messageCounters = useSelector(getMessageCount);
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
+  dispatch(setErrorCount(totalMessageCount));
 
   const onClick = (e: any) => {
-    const isOnCanvas = matchBuilderPath(window.location.pathname);
-    if (isOnCanvas) {
-      dispatch(showDebuggerAction(!showDebugger));
-      if (!showDebugger)
-        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-          source: "CANVAS",
-        });
-
-      return;
+    // If debugger is already open and selected tab is error tab then we will close debugger.
+    if (showDebugger && selectedTab === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      dispatch(showDebuggerAction(false));
     } else {
-      if (totalMessageCount > 0) {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-      } else {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
+      // If debugger is not open then we will open debugger and show error tab.
+      if (!showDebugger) {
+        dispatch(showDebuggerAction(true));
       }
+      // Select error tab if debugger is open and selected tab is not error tab.
+      // And also when we are opening debugger.
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
     }
+    if (!showDebugger)
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "CANVAS",
+      });
     stopEventPropagation(e);
   };
 
-  const tooltipContent =
-    totalMessageCount > 0
-      ? `View details for ${totalMessageCount} ${
-          totalMessageCount > 1 ? "errors" : "error"
-        }`
-      : "View logs";
+  //tooltip will always show error count as we are opening error tab on click of debugger.
+  const tooltipContent = `View details for ${totalMessageCount} ${
+    totalMessageCount > 1 ? "errors" : "error"
+  }`;
 
   if (hideDebuggerIcon) return null;
 
   return (
-    <TriggerContainer
-      className="t--debugger"
-      errorCount={messageCounters.errors}
-      warningCount={messageCounters.warnings}
+    <TooltipComponent
+      content={tooltipContent}
+      modifiers={{
+        preventOverflow: { enabled: true },
+      }}
     >
-      <TooltipComponent
-        content={tooltipContent}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
+      <TriggerContainer
+        className="t--debugger"
+        errorCount={messageCounters.errors}
+        onClick={onClick}
+        warningCount={messageCounters.warnings}
       >
         <Icon
-          fillColor={Colors.GRAY_700}
-          name="bug-line"
-          onClick={onClick}
-          size={IconSize.XXXL}
+          fillColor={
+            totalMessageCount
+              ? get(theme, "colors.debugger.error.hoverIconColor")
+              : Colors.GREY_7
+          }
+          name={totalMessageCount ? "close-circle" : "close-circle-line"}
+          size={IconSize.XL}
         />
-      </TooltipComponent>
-      {!!messageCounters.errors && (
         <div className="debugger-count t--debugger-count">
-          {totalMessageCount > 9 ? "9+" : totalMessageCount}
+          {totalMessageCount > 99 ? "99+" : totalMessageCount}
         </div>
-      )}
-    </TriggerContainer>
+      </TriggerContainer>
+    </TooltipComponent>
   );
 }
 

@@ -21,6 +21,7 @@ function testJsontextClear(endp) {
 }
 
 const verifyDefaultItem = () => {
+  cy.wait(1000);
   cy.waitUntil(() =>
     cy
       .get(
@@ -28,7 +29,7 @@ const verifyDefaultItem = () => {
       )
       .then((val) => {
         const data = JSON.parse(val.text());
-        cy.wrap(data?.Text11?.text).should("equal", "4");
+        cy.waitUntil(() => cy.wrap(data?.Text11?.text).should("equal", "4"));
       }),
   );
 

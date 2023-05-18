@@ -2,13 +2,12 @@ import React from "react";
 import styled, { css } from "styled-components";
 import kebabCase from "lodash/kebabCase";
 import type { ReactNode } from "react";
-import type themeTokens from "../tokens/themeTokens.json";
-
-type Theme = typeof themeTokens;
+import type { ThemeTokens } from "../";
 
 export interface ThemeProviderProps {
-  theme: Theme;
+  theme: ThemeTokens;
   children: ReactNode;
+  className?: string;
 }
 
 /**
@@ -30,7 +29,11 @@ const StyledProvider = styled.div<ThemeProviderProps>`
 `;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, theme } = props;
+  const { children, className, theme } = props;
 
-  return <StyledProvider theme={theme}>{children}</StyledProvider>;
+  return (
+    <StyledProvider className={className} theme={theme}>
+      {children}
+    </StyledProvider>
+  );
 };

@@ -18,15 +18,18 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.GraphQLPluginError;
 import com.external.utils.GraphQLHintMessageUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import okio.Buffer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -40,17 +43,19 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
+import java.io.EOFException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -71,7 +76,9 @@ public class GraphQLPluginTest {
 
     private static GraphQLHintMessageUtils hintMessageUtils;
 
-    public class MockSharedConfig implements SharedConfig {
+    private static MockWebServer mockEndpoint;
+
+    public static class MockSharedConfig implements SharedConfig {
 
         @Override
         public int getCodecSize() {
@@ -99,12 +106,19 @@ public class GraphQLPluginTest {
             .waitingFor(Wait.forHttp("/").forStatusCode(404));
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         hintMessageUtils = new GraphQLHintMessageUtils();
+        mockEndpoint = new MockWebServer();
+        mockEndpoint.start();
+    }
+
+    @AfterEach
+    public void tearDown() throws IOException {
+        mockEndpoint.shutdown();
     }
 
     private DatasourceConfiguration getDefaultDatasourceConfig() {
-        String address = graphqlContainer.getContainerIpAddress();
+        String address = graphqlContainer.getHost();
         Integer port = graphqlContainer.getFirstMappedPort();
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://" + address + ":" + port + "/graphql");
@@ -115,15 +129,16 @@ public class GraphQLPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "query {\n" +
-                "\tallPosts(first: 1) {\n" +
-                "\t\tnodes {\n" +
-                "\t\t\tid\n" +
-                "\t\t}\n" +
-                "\t}\n" +
-                "}";
+        String requestBody = """
+                query {
+                  allPosts(first: 1) {
+                    nodes {
+                      id
+                    }
+                  }
+                }""";
         actionConfig.setBody(requestBody);
-        List<Property> properties = new ArrayList<Property>();
+        List<Property> properties = new ArrayList<>();
         properties.add(new Property("smartSubstitution", "true"));
         properties.add(new Property("queryVariables", ""));
         actionConfig.setPluginSpecifiedTemplates(properties);
@@ -134,19 +149,21 @@ public class GraphQLPluginTest {
     public void testValidGraphQLApiExecutionWithQueryVariablesWithHttpPost() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        String queryBody = "query($limit: Int) {\n" +
-                "\tallPosts(first: $limit) {\n" +
-                "\t\tnodes {\n" +
-                "\t\t\tid\n" +
-                "\t\t}\n" +
-                "\t}\n" +
-                "}";
+        String queryBody = """
+                query($limit: Int) {
+                  allPosts(first: $limit) {
+                    nodes {
+                      id
+                    }
+                  }
+                }""";
         actionConfig.setBody(queryBody);
-        List<Property> properties = new ArrayList<Property>();
+        List<Property> properties = new ArrayList<>();
         properties.add(new Property("", "true"));
-        properties.add(new Property("", "{\n" +
-                "  \"limit\": 2\n" +
-                "}"));
+        properties.add(new Property("", """
+                {
+                  "limit": 2
+                }"""));
         actionConfig.setPluginSpecifiedTemplates(properties);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
@@ -168,22 +185,24 @@ public class GraphQLPluginTest {
 
         //changing the url to add whitespaces at the start and end of the url
         String url = dsConfig.getUrl();
-        url = String.format("%-" + (url.length() + 4) + "s" ,url);
-        url = String.format("%" + (url.length() + 4) + "s" ,url);
+        url = String.format("%-" + (url.length() + 4) + "s", url);
+        url = String.format("%" + (url.length() + 4) + "s", url);
         dsConfig.setUrl(url);
-        String queryBody = "query($limit: Int) {\n" +
-                "\tallPosts(first: $limit) {\n" +
-                "\t\tnodes {\n" +
-                "\t\t\tid\n" +
-                "\t\t}\n" +
-                "\t}\n" +
-                "}";
+        String queryBody = """
+                query($limit: Int) {
+                  allPosts(first: $limit) {
+                    nodes {
+                      id
+                    }
+                  }
+                }""";
         actionConfig.setBody(queryBody);
-        List<Property> properties = new ArrayList<Property>();
+        List<Property> properties = new ArrayList<>();
         properties.add(new Property("", "true"));
-        properties.add(new Property("", "{\n" +
-                "  \"limit\": 2\n" +
-                "}"));
+        properties.add(new Property("", """
+                {
+                  "limit": 2
+                }"""));
         actionConfig.setPluginSpecifiedTemplates(properties);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
@@ -201,12 +220,14 @@ public class GraphQLPluginTest {
         dsConfig.setUrl("https://rickandmortyapi.com/graphql");
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        actionConfig.setBody("query Query {\n" +
-                "  character(id: 1) {\n" +
-                "    created\n" +
-                "  }\n" +
-                "}\n");
-        List<Property> properties = new ArrayList<Property>();
+        actionConfig.setBody("""
+                query Query {
+                  character(id: 1) {
+                    created
+                  }
+                }
+                """);
+        List<Property> properties = new ArrayList<>();
         properties.add(new Property("smartSubstitution", "true"));
         properties.add(new Property("queryVariables", ""));
         actionConfig.setPluginSpecifiedTemplates(properties);
@@ -264,22 +285,23 @@ public class GraphQLPluginTest {
     public void testInvalidQueryBodyError() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setBody("query Capsules {\n" +
-                "  capsules(limit: 1, offset: 0) {\n" +
-                "    dragon \n" +
-                "      id\n" +
-                "      name\n" +
-                "    }\n" +
-                "  }\n" +
-                "}");
+        actionConfig.setBody("""
+                query Capsules {
+                  capsules(limit: 1, offset: 0) {
+                    dragon\s
+                      id
+                      name
+                    }
+                  }
+                }""");
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithPluginException);
-                    String expectedMessage = "Invalid GraphQL body: Invalid Syntax : There are more tokens in the " +
-                            "query that have not been consumed offending token '}' at line 8 column 1";
-                    assertTrue(expectedMessage.equals(error.getMessage()));
+                    String expectedMessage = "Invalid GraphQL body: Invalid syntax encountered. There are extra " +
+                            "tokens in the text that have not been consumed. Offending token '}' at line 8 column 1";
+                    assertEquals(expectedMessage, error.getMessage());
                 });
     }
 
@@ -287,32 +309,40 @@ public class GraphQLPluginTest {
     public void testInvalidQueryVariablesError() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setBody("query Capsules($limit: Int, $offset: Int) {\n" +
-                "  capsules(limit: $limit, offset: $offset) {\n" +
-                "    dragon {\n" +
-                "      id\n" +
-                "      name\n" +
-                "    }\n" +
-                "  }\n" +
-                "}");
-        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{\n" +
-                "  \"limit\": 1\n" +
-                "  \"offset\": 0\n" +
-                "}");
+        actionConfig.setBody("""
+                query Capsules($limit: Int, $offset: Int) {
+                  capsules(limit: $limit, offset: $offset) {
+                    dragon {
+                      id
+                      name
+                    }
+                  }
+                }""");
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("""
+                {
+                  "limit": 1
+                  "offset": 0
+                }""");
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithPluginException);
                     String expectedMessage = "GraphQL query variables are not in proper JSON format: Expected a ',' " +
                             "or '}' at 18 [character 3 line 3]";
-                    assertTrue(expectedMessage.equals(error.getMessage()));
+                    assertEquals(expectedMessage, error.getMessage());
                 });
     }
 
     @Test
     public void testValidSignature() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("http://httpbin.org/headers");
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
         dsConfig.setProperties(List.of(
@@ -329,22 +359,29 @@ public class GraphQLPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
-                    final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-                    final String issuer = Jwts.parserBuilder()
-                            .setSigningKey(key)
-                            .build()
-                            .parseClaimsJws(token)
-                            .getBody()
-                            .getIssuer();
-                    assertEquals("Appsmith", issuer);
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
-                    fields.forEachRemaining(field -> {
-                        if ("X-Appsmith-Signature".equalsIgnoreCase(field.getKey())) {
-                            assertEquals(token, field.getValue().get(0).asText());
-                        }
-                    });
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        String token = recordedRequest.getHeaders().get("X-Appsmith-Signature");
+
+                        final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                        final String issuer = Jwts.parserBuilder()
+                                .setSigningKey(key)
+                                .build()
+                                .parseClaimsJws(token)
+                                .getBody()
+                                .getIssuer();
+                        assertEquals("Appsmith", issuer);
+                        final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                        fields.forEachRemaining(field -> {
+                            if ("X-Appsmith-Signature".equalsIgnoreCase(field.getKey())) {
+                                assertEquals(token, field.getValue().get(0).asText());
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
 
                 })
                 .verifyComplete();
@@ -362,7 +399,7 @@ public class GraphQLPluginTest {
 
         StepVerifier
                 .create(invalidsMono)
-                .assertNext(invalids -> invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
+                .assertNext(invalids -> assertTrue(invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL"))));
     }
 
     /**
@@ -375,19 +412,28 @@ public class GraphQLPluginTest {
     @Test
     public void testSmartSubstitutionInQueryBodyForNumberStringBooleanAndSchemaTypes() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("https://postman-echo.com/post");
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setBody("query Capsules {\n" +
-                "  capsules(myNum: {{Input1.text}}, myStr: {{Input2.text}}, myBool: {{Input3.text}}) {\n" +
-                "    dragon {\n" +
-                "      {{Input4.text}}\n" +
-                "      name\n" +
-                "    }\n" +
-                "  }\n" +
-                "}\n" +
-                "\n" +
-                "\n");
+        actionConfig.setBody("""
+                query Capsules {
+                  capsules(myNum: {{Input1.text}}, myStr: {{Input2.text}}, myBool: {{Input3.text}}) {
+                    dragon {
+                      {{Input4.text}}
+                      name
+                    }
+                  }
+                }
+
+
+                """);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
@@ -414,21 +460,35 @@ public class GraphQLPluginTest {
         executeActionDTO.setParams(params);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String expectedQueryBody = "query Capsules {\n  capsules(myNum: 3, myStr: \"this is a string! Yay" +
-                            " :D\", myBool: true) {\n    dragon {\n      id\n      name\n    }\n  }\n}\n\n\n";
+                    String expectedQueryBody = """
+                            query Capsules {
+                              capsules(myNum: 3, myStr: "this is a string! Yay :D", myBool: true) {
+                                dragon {
+                                  id
+                                  name
+                                }
+                              }
+                            }
+
+
+                            """;
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = new ObjectMapper();
                     try {
-                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        // Object resultData = ((JSONObject) resultJson.get("json")).get("query");
-                        String resultData = ((JSONObject) resultJson.get("json")).getAsString("query");
-                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+                        JSONObject resultJson = (JSONObject) jsonParser.parse(new String(bodyBytes));
+                        String resultData = resultJson.getAsString("query");
                         assertEquals(expectedQueryBody, resultData);
-                    } catch (ParseException | JsonProcessingException e) {
+                    } catch (ParseException | EOFException | InterruptedException e) {
                         assert false : e.getMessage();
                     }
 
@@ -436,23 +496,23 @@ public class GraphQLPluginTest {
                     ActionExecutionRequest request = result.getRequest();
                     List<Map.Entry<String, String>> parameters =
                             (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
-                    assertEquals(parameters.size(), 4);
+                    assertEquals(4, parameters.size());
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getKey(), "3");
-                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_INTEGER");
+                    assertEquals("3", parameterEntry.getKey());
+                    assertEquals("GRAPHQL_BODY_INTEGER", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(1);
-                    assertEquals(parameterEntry.getKey(), "this is a string! Yay :D");
-                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_STRING");
+                    assertEquals("this is a string! Yay :D", parameterEntry.getKey());
+                    assertEquals("GRAPHQL_BODY_STRING", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(2);
-                    assertEquals(parameterEntry.getKey(), "true");
-                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_BOOLEAN");
+                    assertEquals("true", parameterEntry.getKey());
+                    assertEquals("GRAPHQL_BODY_BOOLEAN", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(3);
-                    assertEquals(parameterEntry.getKey(), "id");
-                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_PARTIAL");
+                    assertEquals("id", parameterEntry.getKey());
+                    assertEquals("GRAPHQL_BODY_PARTIAL", parameterEntry.getValue());
                 })
                 .verifyComplete();
     }
@@ -463,7 +523,14 @@ public class GraphQLPluginTest {
     @Test
     public void testSmartSubstitutionInQueryBodyForFullBodySubstitution() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("https://postman-echo.com/post");
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setBody("{{Input1.text}}");
@@ -472,14 +539,15 @@ public class GraphQLPluginTest {
         List<Param> params = new ArrayList<>();
         Param param1 = new Param();
         param1.setKey("Input1.text");
-        param1.setValue("query Capsules {\n" +
-                "  capsules(limit: 1, offset: 0) {\n" +
-                "    dragon {\n" +
-                "      id\n" +
-                "      name\n" +
-                "    }\n" +
-                "  }\n" +
-                "}");
+        param1.setValue("""
+                query Capsules {
+                  capsules(limit: 1, offset: 0) {
+                    dragon {
+                      id
+                      name
+                    }
+                  }
+                }""");
         param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         executeActionDTO.setParams(params);
@@ -489,23 +557,29 @@ public class GraphQLPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String expectedQueryBody = "query Capsules {\n" +
-                            "  capsules(limit: 1, offset: 0) {\n" +
-                            "    dragon {\n" +
-                            "      id\n" +
-                            "      name\n" +
-                            "    }\n" +
-                            "  }\n" +
-                            "}";
+                    String expectedQueryBody = """
+                            query Capsules {
+                              capsules(limit: 1, offset: 0) {
+                                dragon {
+                                  id
+                                  name
+                                }
+                              }
+                            }""";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = new ObjectMapper();
                     try {
-                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        // Object resultData = ((JSONObject) resultJson.get("json")).get("query");
-                        String resultData = ((JSONObject) resultJson.get("json")).getAsString("query");
-                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
+
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        JSONObject resultJson = (JSONObject) jsonParser.parse(new String(bodyBytes));
+                        String resultData = resultJson.getAsString("query");
                         assertEquals(expectedQueryBody, resultData);
-                    } catch (ParseException | JsonProcessingException e) {
+                    } catch (ParseException | EOFException | InterruptedException e) {
                         assert false : e.getMessage();
                     }
 
@@ -513,18 +587,19 @@ public class GraphQLPluginTest {
                     ActionExecutionRequest request = result.getRequest();
                     List<Map.Entry<String, String>> parameters =
                             (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
-                    assertEquals(parameters.size(), 1);
+                    assertEquals(1, parameters.size());
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getKey(), "query Capsules {\n" +
-                            "  capsules(limit: 1, offset: 0) {\n" +
-                            "    dragon {\n" +
-                            "      id\n" +
-                            "      name\n" +
-                            "    }\n" +
-                            "  }\n" +
-                            "}");
-                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_FULL");
+                    assertEquals(parameterEntry.getKey(), """
+                            query Capsules {
+                              capsules(limit: 1, offset: 0) {
+                                dragon {
+                                  id
+                                  name
+                                }
+                              }
+                            }""");
+                    assertEquals("GRAPHQL_BODY_FULL", parameterEntry.getValue());
                 })
                 .verifyComplete();
     }
@@ -532,18 +607,26 @@ public class GraphQLPluginTest {
     @Test
     public void testSmartSubstitutionQueryVariables() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("https://postman-echo.com/post");
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        String queryVariables = "{\n" +
-                "\t\"name\" : {{Input1.text}},\n" +
-                "\t\"email\" : {{Input2.text}},\n" +
-                "\t\"username\" : {{Input3.text}},\n" +
-                "\t\"password\" : \"{{Input4.text}}\",\n" +
-                "\t\"newField\" : \"{{Input5.text}}\",\n" +
-                "\t\"tableRow\" : {{Table1.selectedRow}},\n" +
-                "\t\"table\" : \"{{Table1.tableData}}\"\n" +
-                "}";
+        String queryVariables = """
+                {
+                  "name" : {{Input1.text}},
+                  "email" : {{Input2.text}},
+                  "username" : {{Input3.text}},
+                  "password" : "{{Input4.text}}",
+                  "newField" : "{{Input5.text}}",
+                  "tableRow" : {{Table1.selectedRow}},
+                  "table" : "{{Table1.tableData}}"
+                }""";
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue(queryVariables);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -590,43 +673,48 @@ public class GraphQLPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
+                    String expectedResultData = "{\"password\":\"12\\/01\\/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = new ObjectMapper();
                     try {
-                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        Object resultData = ((JSONObject) resultJson.get("json")).get("variables");
-                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
-                        assertEquals(resultBody, parsedJsonAsString);
-                    } catch (ParseException | JsonProcessingException e) {
-                        e.printStackTrace();
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        JSONObject resultJson = (JSONObject) jsonParser.parse(new String(bodyBytes));
+                        Object resultData = resultJson.getAsString("variables");
+                        assertEquals(expectedResultData, resultData);
+                    } catch (ParseException | EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
                     }
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
                     List<Map.Entry<String, String>> parameters =
                             (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
-                    assertEquals(parameters.size(), 7);
+                    assertEquals(7, parameters.size());
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getKey(), "this is a string! Yay :D");
-                    assertEquals(parameterEntry.getValue(), "STRING");
+                    assertEquals("this is a string! Yay :D", parameterEntry.getKey());
+                    assertEquals("STRING", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(1);
-                    assertEquals(parameterEntry.getKey(), "true");
-                    assertEquals(parameterEntry.getValue(), "BOOLEAN");
+                    assertEquals("true", parameterEntry.getKey());
+                    assertEquals("BOOLEAN", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(2);
-                    assertEquals(parameterEntry.getKey(), "0");
-                    assertEquals(parameterEntry.getValue(), "INTEGER");
+                    assertEquals("0", parameterEntry.getKey());
+                    assertEquals("INTEGER", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(3);
-                    assertEquals(parameterEntry.getKey(), "12/01/2018");
-                    assertEquals(parameterEntry.getValue(), "STRING");
+                    assertEquals("12/01/2018", parameterEntry.getKey());
+                    assertEquals("STRING", parameterEntry.getValue());
 
                     parameterEntry = parameters.get(4);
-                    assertEquals(parameterEntry.getKey(), "null");
-                    assertEquals(parameterEntry.getValue(), "NULL");
+                    assertEquals("null", parameterEntry.getKey());
+                    assertEquals("NULL", parameterEntry.getValue());
                 })
                 .verifyComplete();
     }
@@ -634,7 +722,15 @@ public class GraphQLPluginTest {
     @Test
     public void testRequestWithApiKeyHeader() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("https://postman-echo.com/post");
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
+
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "Token", "test");
         dsConfig.setAuthentication(authenticationDTO);
 
@@ -711,7 +807,7 @@ public class GraphQLPluginTest {
         Set<String> expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("myHeader1");
         expectedDuplicateHeaders.add("myHeader2");
-        assertTrue(expectedDuplicateHeaders.equals(duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
+        assertEquals(expectedDuplicateHeaders, duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY));
 
         /* Test duplicate query params in datasource configuration only */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly =
@@ -722,7 +818,7 @@ public class GraphQLPluginTest {
         Set<String> expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("myParam1");
         expectedDuplicateParams.add("myParam2");
-        assertTrue(expectedDuplicateParams.equals(duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
+        assertEquals(expectedDuplicateParams, duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY));
 
         /* Test duplicate headers in datasource + action configuration */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders =
@@ -732,19 +828,19 @@ public class GraphQLPluginTest {
         expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("myHeader1");
         expectedDuplicateHeaders.add("myHeader2");
-        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_CONFIG_ONLY)));
+        assertEquals(expectedDuplicateHeaders, allDuplicateHeaders.get(DATASOURCE_CONFIG_ONLY));
 
         // Header duplicates in action config only
         expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("myHeader4");
         expectedDuplicateHeaders.add("myHeader4");
-        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(ACTION_CONFIG_ONLY)));
+        assertEquals(expectedDuplicateHeaders, allDuplicateHeaders.get(ACTION_CONFIG_ONLY));
 
         // Header duplicates with one instance in action and another in datasource config
         expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("myHeader3");
         expectedDuplicateHeaders.add("apiKey");
-        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG)));
+        assertEquals(expectedDuplicateHeaders, allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG));
 
         /* Test duplicate query params in action + datasource config */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
@@ -755,17 +851,17 @@ public class GraphQLPluginTest {
         expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("myParam1");
         expectedDuplicateParams.add("myParam2");
-        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(DATASOURCE_CONFIG_ONLY)));
+        assertEquals(expectedDuplicateParams, allDuplicateParams.get(DATASOURCE_CONFIG_ONLY));
 
         // Query param duplicates in action config only
         expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("myParam4");
-        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(ACTION_CONFIG_ONLY)));
+        assertEquals(expectedDuplicateParams, allDuplicateParams.get(ACTION_CONFIG_ONLY));
 
         // Query param duplicates in action + datasource config
         expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("myParam3");
-        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(DATASOURCE_AND_ACTION_CONFIG)));
+        assertEquals(expectedDuplicateParams, allDuplicateParams.get(DATASOURCE_AND_ACTION_CONFIG));
     }
 
     @Test
@@ -798,7 +894,7 @@ public class GraphQLPluginTest {
         // Header duplicates with one instance in action and another in datasource config
         HashSet<String> expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("Authorization");
-        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG)));
+        assertEquals(expectedDuplicateHeaders, allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG));
     }
 
     @Test
@@ -833,7 +929,7 @@ public class GraphQLPluginTest {
         // Param duplicates with one instance in action and another in datasource config
         HashSet<String> expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("access_token");
-        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(DATASOURCE_AND_ACTION_CONFIG)));
+        assertEquals(expectedDuplicateParams, allDuplicateParams.get(DATASOURCE_AND_ACTION_CONFIG));
     }
 
     /**
@@ -872,7 +968,7 @@ public class GraphQLPluginTest {
                             " because this datasource has duplicate definition(s) for header(s): [myHeader1]. Please " +
                             "remove the duplicate definition(s) to resolve this warning. Please note that some of the" +
                             " authentication mechanisms also implicitly define a header.");
-                    assertTrue(expectedDatasourceHintMessages.equals(datasourceHintMessages));
+                    assertEquals(expectedDatasourceHintMessages, datasourceHintMessages);
 
                     Set<String> actionHintMessages = tuple.getT2();
                     Set<String> expectedActionHintMessages = new HashSet<>();
@@ -883,7 +979,7 @@ public class GraphQLPluginTest {
                     expectedActionHintMessages.add("Your API query may not run as expected because its datasource has" +
                             " duplicate definition(s) for header(s): [myHeader1]. Please remove the duplicate " +
                             "definition(s) from the datasource to resolve this warning.");
-                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                    assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
                 .verifyComplete();
     }
@@ -927,7 +1023,7 @@ public class GraphQLPluginTest {
                     expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
                             "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from " +
                             "the 'Params' tab to resolve this warning.");
-                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                    assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
                 .verifyComplete();
     }
@@ -965,7 +1061,7 @@ public class GraphQLPluginTest {
                             " the 'Headers' section of either the API query or the datasource. Please note that some " +
                             "of the authentication mechanisms also implicitly define a header.");
 
-                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                    assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
                 .verifyComplete();
     }
@@ -1004,7 +1100,7 @@ public class GraphQLPluginTest {
                             " the 'Params' section of either the API query or the datasource. Please note that some " +
                             "of the authentication mechanisms also implicitly define a param.");
 
-                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                    assertEquals(expectedActionHintMessages, actionHintMessages);
                 })
                 .verifyComplete();
     }
@@ -1012,7 +1108,14 @@ public class GraphQLPluginTest {
     @Test
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("https://postman-echo.com/post");
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setEncodeParamsToggle(true);
@@ -1028,9 +1131,18 @@ public class GraphQLPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
-                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
-                    assertEquals(expected_url, url.toString());
+                    try {
+                        RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+
+                        assert recordedRequest != null;
+                        String recordedRequestPath = recordedRequest.getPath();
+
+                        String expectedUrl = "/?query_key=query+val";
+                        assertEquals(expectedUrl, recordedRequestPath);
+                    } catch (InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
                 })
                 .verifyComplete();
     }
@@ -1088,7 +1200,7 @@ public class GraphQLPluginTest {
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
 
-        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        Map<String, Object> paginationDataMap = new HashMap<>();
         setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.name", "first");
         setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.value", "3");
         setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.name", "endCursor");
@@ -1118,7 +1230,7 @@ public class GraphQLPluginTest {
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
 
-        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        Map<String, Object> paginationDataMap = new HashMap<>();
         setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.limit.name", "last");
         setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.limit.value", "3");
         setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.cursor.name", "startCursor");
@@ -1150,7 +1262,7 @@ public class GraphQLPluginTest {
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
 
-        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        Map<String, Object> paginationDataMap = new HashMap<>();
         setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.name", "first");
         setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.value", "3");
         setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.name", "endCursor");
@@ -1171,11 +1283,14 @@ public class GraphQLPluginTest {
 
     @Test
     public void verifyUniquenessOfGraphQLPluginErrorCode() {
-        assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode).distinct().count() == GraphQLPluginError.values().length);
+        assertEquals(GraphQLPluginError.values().length, Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode).distinct().count());
 
-        assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-GQL"))
-                .collect(Collectors.toList()).size() == 0);
+        assertEquals(0,
+                Arrays.stream(GraphQLPluginError.values())
+                        .map(GraphQLPluginError::getAppErrorCode)
+                        .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-GQL"))
+                        .toList()
+                        .size());
 
     }
 

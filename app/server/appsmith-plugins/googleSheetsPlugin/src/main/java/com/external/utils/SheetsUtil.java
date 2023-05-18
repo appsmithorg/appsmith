@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 public class SheetsUtil {
 
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+    private static final int USER_AUTHORIZED_SHEET_IDS_INDEX = 1;
     static Pattern COLUMN_NAME_PATTERN = Pattern.compile("[a-zA-Z]+");
 
     public static int getColumnNumber(String columnName) {
@@ -33,11 +34,12 @@ public class SheetsUtil {
     public static Set<String> getUserAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
         OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         if (!isEmpty(datasourceConfiguration.getProperties())
-                && datasourceConfiguration.getProperties().get(0) != null
-                && datasourceConfiguration.getProperties().get(0).getValue() != null
+                && datasourceConfiguration.getProperties().size() > 1
+                && datasourceConfiguration.getProperties().get(USER_AUTHORIZED_SHEET_IDS_INDEX) != null
+                && datasourceConfiguration.getProperties().get(USER_AUTHORIZED_SHEET_IDS_INDEX).getValue() != null
                 && oAuth2.getScope() != null
                 && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
-            ArrayList<String> temp = (ArrayList) datasourceConfiguration.getProperties().get(0).getValue();
+            ArrayList<String> temp = (ArrayList) datasourceConfiguration.getProperties().get(USER_AUTHORIZED_SHEET_IDS_INDEX).getValue();
             return new HashSet<String>(temp);
         }
         return null;

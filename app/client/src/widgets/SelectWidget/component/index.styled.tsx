@@ -101,9 +101,6 @@ export const StyledSingleDropDown = styled(
     align-items: center;
     justify-content: space-between;
     background: white;
-    .auto-layout & {
-      min-height: 36px;
-    }
     min-height: 32px;
     padding-left: 12px;
     padding: 0px 10px;
@@ -229,7 +226,7 @@ export const DropdownContainer = styled.div<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input 
+    here set height to auto and not 100% because the input
     has fixed height and stretch the container.
   */
     ${({ labelPosition }) => {

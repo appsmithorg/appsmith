@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
-set -o xtrace
-
+# ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
+# As we want derived props alongwith the ip address we are sharing the ip address in separate keys
+# https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
   ip="$(curl -sS https://api64.ipify.org || echo unknown)"
   curl \
@@ -12,7 +13,8 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
       "userId":"'"$ip"'",
       "event":"Instance Start",
       "properties": {
-        "ip": "'"$ip"'"
+        "ip": "'"$ip"'",
+        "ipAddress": "'"$ip"'"
       }
     }' \
     https://api.segment.io/v1/track \
@@ -271,6 +273,9 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  
+  # Copy Supervisor Listiner confs to conf.d
+  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -377,7 +382,20 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+init_loading_pages(){
+  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
+  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
+  local editor_load_page="/opt/appsmith/editor/loading.html" 
+  # Update default nginx page for initializing page
+  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  # Start nginx page to display the Appsmith is Initializing page
+  nginx
+  # Update editor nginx page for starting page
+  cp "$starting_page" "$editor_load_page"
+}
+
 # Main Section
+init_loading_pages
 init_env_file
 setup_proxy_variables
 unset_unused_variables
@@ -413,7 +431,10 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+
+# Stop nginx gracefully
+nginx -s quit
 
 # Handle CMD command
 exec "$@"

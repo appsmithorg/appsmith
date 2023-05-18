@@ -1,5 +1,5 @@
-const homePage = require("../../../locators/HomePage");
-const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
+import homePage from "../../../locators/HomePage";
+import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe("Reconnect Datasource Modal validation while importing application", function () {
@@ -27,13 +27,15 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           if (isPartialImport) {
             // should reconnect modal
             cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-            cy.get(".t--ds-list .t--ds-list-title").should("be.visible");
+            cy.get(".t--ds-list .t--ds-list-title", {
+              withinSubject: null,
+            }).should("be.visible");
             cy.get(".t--ds-list .t--ds-list-title").should(
               "have.text",
               "Untitled Datasource",
             );
             // not configured yet
-            cy.get(".t--ds-list .cs-icon")
+            cy.get(".t--ds-list .t--ds-list-icon")
               .invoke("attr", "name")
               .should("eq", "info");
             // check db type

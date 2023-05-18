@@ -1,4 +1,4 @@
-import { isEditorPath } from "ce/pages/Editor/Explorer/helpers";
+import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "entities/App";
 import { isNil, noop } from "lodash";
 import nanoid from "nanoid";

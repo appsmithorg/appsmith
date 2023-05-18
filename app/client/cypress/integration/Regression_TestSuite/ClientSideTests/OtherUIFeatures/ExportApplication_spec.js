@@ -16,7 +16,7 @@ describe("Export application as a JSON file", function () {
     cy.wait(5000);
   });
 
-  it("Check if exporting app flow works as expected", function () {
+  it("1. Check if exporting app flow works as expected", function () {
     cy.get(commonlocators.homeIcon).click({ force: true });
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
@@ -32,16 +32,16 @@ describe("Export application as a JSON file", function () {
       const url = anchor.prop("href");
       cy.request(url).then(({ headers }) => {
         expect(headers).to.have.property("content-type", "application/json");
-        expect(headers).to.have.property(
-          "content-disposition",
-          `attachment; filename*=UTF-8''${appname}.json`,
-        );
+        expect(headers)
+          .to.have.property("content-disposition")
+          .that.includes("attachment;")
+          .and.includes(`filename*=UTF-8''${appname}.json`);
       });
     });
     cy.LogOut();
   });
 
-  it("User with admin access,should be able to export the app", function () {
+  it("2. User with admin access,should be able to export the app", function () {
     if (CURRENT_REPO === REPO.CE) {
       cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.generateUUID().then((uid) => {
@@ -91,7 +91,7 @@ describe("Export application as a JSON file", function () {
     }
   });
 
-  it("User with developer access,should not be able to export the app", function () {
+  it("3. User with developer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
@@ -136,7 +136,7 @@ describe("Export application as a JSON file", function () {
     cy.LogOut();
   });
 
-  it("User with viewer access,should not be able to export the app", function () {
+  it("4. User with viewer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
       workspaceId = uid;

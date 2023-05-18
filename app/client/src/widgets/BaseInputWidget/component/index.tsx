@@ -22,7 +22,7 @@ import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { Icon } from "design-system-old";
+import { Icon } from "@design-system/widgets-old";
 import type { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
@@ -367,10 +367,6 @@ const TextInputWrapper = styled.div<{
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   min-height: 32px;
 
-  .auto-layout & {
-    min-height: 36px;
-  }
-
   &:hover {
     border-color: ${({ disabled, hasError }) => {
       if (disabled) {
@@ -587,6 +583,7 @@ class BaseInputComponent extends React.Component<
       this.textAreaInputComponent()
     ) : (
       <InputGroup
+        autoComplete={this.props.autoComplete}
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
@@ -761,6 +758,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   compactMode: boolean;
   isInvalid: boolean;
   autoFocus?: boolean;
+  autoComplete?: string;
   iconName?: IconName;
   iconAlign?: Omit<Alignment, "center">;
   showError: boolean;

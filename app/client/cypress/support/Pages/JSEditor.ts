@@ -344,20 +344,10 @@ export class JSEditor {
   1. Parse errors that render the JS Object invalid and all functions unrunnable
   2. Parse errors within functions that throw errors when executing those functions
  */
-  public AssertParseError(
-    exists: boolean,
-    isFunctionExecutionParseError: boolean,
-  ) {
-    const {
-      _jsFunctionExecutionParseErrorCallout,
-      _jsObjectParseErrorCallout,
-    } = this;
+  public AssertParseError(exists: boolean) {
+    const { _jsObjectParseErrorCallout } = this;
     // Assert presence/absence of parse error
-    cy.get(
-      isFunctionExecutionParseError
-        ? _jsFunctionExecutionParseErrorCallout
-        : _jsObjectParseErrorCallout,
-    ).should(exists ? "exist" : "not.exist");
+    cy.get(_jsObjectParseErrorCallout).should(exists ? "exist" : "not.exist");
   }
 
   public SelectFunctionDropdown(funName: string) {

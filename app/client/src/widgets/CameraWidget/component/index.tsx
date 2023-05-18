@@ -43,14 +43,31 @@ import {
   MediaCaptureActionTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
-import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/camera-offline.svg";
-import { ReactComponent as CameraIcon } from "assets/icons/widget/camera/camera.svg";
-import { ReactComponent as CameraMutedIcon } from "assets/icons/widget/camera/camera-muted.svg";
-import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/microphone.svg";
-import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camera/microphone-muted.svg";
-import { ReactComponent as FullScreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
-import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera/exit-fullscreen.svg";
 import type { ThemeProp } from "widgets/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { importSvg } from "design-system-old";
+
+const CameraOfflineIcon = importSvg(
+  () => import("assets/icons/widget/camera/camera-offline.svg"),
+);
+const CameraIcon = importSvg(
+  () => import("assets/icons/widget/camera/camera.svg"),
+);
+const CameraMutedIcon = importSvg(
+  () => import("assets/icons/widget/camera/camera-muted.svg"),
+);
+const MicrophoneIcon = importSvg(
+  () => import("assets/icons/widget/camera/microphone.svg"),
+);
+const MicrophoneMutedIcon = importSvg(
+  () => import("assets/icons/widget/camera/microphone-muted.svg"),
+);
+const FullScreenIcon = importSvg(
+  () => import("assets/icons/widget/camera/fullscreen.svg"),
+);
+const ExitFullScreenIcon = importSvg(
+  () => import("assets/icons/widget/camera/exit-fullscreen.svg"),
+);
 
 const overlayerMixin = css`
   position: absolute;
@@ -866,6 +883,8 @@ function CameraComponent(props: CameraComponentProps) {
   });
   const fullScreenHandle = useFullScreenHandle();
 
+  const isAirgappedInstance = isAirgapped();
+
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
       updateMediaTracksEnabled(webcamRef.current.stream);
@@ -1101,7 +1120,7 @@ function CameraComponent(props: CameraComponentProps) {
         <>
           <CameraOfflineIcon />
           <span className="error-text">{error}</span>
-          {error === "Permission denied" && (
+          {error === "Permission denied" && !isAirgappedInstance && (
             <a
               href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
               rel="noreferrer"
@@ -1170,6 +1189,7 @@ function CameraComponent(props: CameraComponentProps) {
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       disabled={!!error || disabled}
+      onClick={(event) => event.stopPropagation()}
     >
       <FullScreen handle={fullScreenHandle}>{renderComponent()}</FullScreen>
     </CameraContainer>

@@ -257,6 +257,8 @@ public class Application extends BaseDomain {
         this.setIsManualUpdate(false);
         this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
+        this.setExportWithConfiguration(null);
+        this.setForkWithConfiguration(null);
         super.sanitiseToExportDBObject();
     }
 

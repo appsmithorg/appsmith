@@ -4,6 +4,9 @@ import { Text } from "./";
 <Meta
   title="Design-system/widgets/Text"
   component={Text}
+  parameters={{
+    width: 500,
+  }}
   args={{
     lineClamp: undefined,
     children:
@@ -25,7 +28,7 @@ Text is a component that renders a capsized text.
 
 <ArgsTable of={Text} story="Text" />
 
-# Trucated text
+# Truncated text
 
 <Canvas>
   <Story

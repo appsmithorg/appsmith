@@ -37,12 +37,14 @@ describe("Lint error reporting", () => {
     });
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.PressEscape();
+    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
     agHelper.GetNClick(locator._errorTab);
     debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
     );
 
     agHelper.RefreshPage();
+    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
     agHelper.GetNClick(locator._errorTab);
     debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",

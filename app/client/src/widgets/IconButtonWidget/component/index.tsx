@@ -276,16 +276,15 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
+  const hasOnClick = !isDisabled && hasOnClickAction;
+
   const iconBtnWrapper = (
     <IconButtonContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       hasOnClickAction={hasOnClickAction}
-      onClick={() => {
-        if (isDisabled) return;
-        onClick();
-      }}
+      onClick={hasOnClick ? onClick : undefined}
       renderMode={renderMode}
     >
       <StyledButton

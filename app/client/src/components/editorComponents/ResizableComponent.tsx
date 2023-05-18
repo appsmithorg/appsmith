@@ -58,7 +58,7 @@ import {
   TopRightHandleStyles,
   VisibilityContainer,
 } from "./ResizeStyledComponents";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

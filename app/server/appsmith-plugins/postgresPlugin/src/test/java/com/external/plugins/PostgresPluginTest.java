@@ -322,18 +322,12 @@ public class PostgresPluginTest {
     }
 
     @Test
-    public void testTestDatasource_withCorrectCredentialsNoPwd_returnsWithoutInvalids() {
+    public void validateDatasource_withCorrectCredentialsNoPwd_returnsWithoutInvalids() {
         DatasourceConfiguration dsConfig = createDatasourceConfigurationWithoutPwd();
 
-        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+        final Set<String> datasourceValidationInvalids = pluginExecutor.validateDatasource(dsConfig);
 
-        StepVerifier.create(testDatasourceMono)
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertTrue(datasourceTestResult.isSuccess());
-                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
-                })
-                .verifyComplete();
+        assertTrue(datasourceValidationInvalids.size() == 0);
 
     }
 

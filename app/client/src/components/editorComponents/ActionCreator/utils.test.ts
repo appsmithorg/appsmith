@@ -18,7 +18,9 @@ import {
   textSetter,
   isValueValidURL,
   objectSetter,
+  sortSubMenuOptions,
 } from "./utils";
+import type { TreeDropdownOption } from "design-system-old";
 
 describe("Test argStringToArray", () => {
   const cases = [
@@ -699,6 +701,338 @@ describe("Test isValueValidURL", () => {
     "test case %d",
     (_, input, expected) => {
       const result = isValueValidURL(input as string);
+      expect(result).toStrictEqual(expected);
+    },
+  );
+});
+
+describe("sortSubMenuOptions", () => {
+  const cases = [
+    {
+      index: 0,
+      input: [
+        {
+          label: "1",
+          id: "6433b0017bd3732ec082375c",
+          value: "'1'",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
+          label: "Page1",
+          id: "6398aba6b8c4dd68403825a3",
+          value: "'Page1'",
+        },
+        {
+          label: "12",
+          id: "6433b0017bd3732ec082375csdsdsds",
+          value: "'12'",
+        },
+        {
+          label: "2",
+          id: "6433b0017bd3732ec082375csdsdsdssdsds",
+          value: "'2'",
+        },
+        {
+          label: "Page10",
+          id: "6426cd4646c8f921c25eb1b3",
+          value: "'Page10'",
+        },
+        {
+          label: "Page2",
+          id: "6399a035b8c4dd684038282e",
+          value: "'Page2'",
+        },
+      ],
+      expected: [
+        {
+          label: "1",
+          id: "6433b0017bd3732ec082375c",
+          value: "'1'",
+        },
+        {
+          label: "2",
+          id: "6433b0017bd3732ec082375csdsdsdssdsds",
+          value: "'2'",
+        },
+        {
+          label: "12",
+          id: "6433b0017bd3732ec082375csdsdsds",
+          value: "'12'",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
+          label: "Page1",
+          id: "6398aba6b8c4dd68403825a3",
+          value: "'Page1'",
+        },
+        {
+          label: "Page2",
+          id: "6399a035b8c4dd684038282e",
+          value: "'Page2'",
+        },
+        {
+          label: "Page10",
+          id: "6426cd4646c8f921c25eb1b3",
+          value: "'Page10'",
+        },
+      ],
+    },
+    {
+      index: 1,
+      input: [
+        {
+          label: "New window",
+          value: "'NEW_WINDOW'",
+          id: "NEW_WINDOW",
+        },
+        {
+          label: "Same window",
+          value: "'SAME_WINDOW'",
+          id: "SAME_WINDOW",
+        },
+      ],
+      expected: [
+        {
+          label: "New window",
+          value: "'NEW_WINDOW'",
+          id: "NEW_WINDOW",
+        },
+        {
+          label: "Same window",
+          value: "'SAME_WINDOW'",
+          id: "SAME_WINDOW",
+        },
+      ],
+    },
+    {
+      index: 2,
+      input: [
+        {
+          label: "Error",
+          value: "'error'",
+          id: "error",
+        },
+        {
+          label: "Info",
+          value: "'info'",
+          id: "info",
+        },
+        {
+          label: "Success",
+          value: "'success'",
+          id: "success",
+        },
+        {
+          label: "Warning",
+          value: "'warning'",
+          id: "warning",
+        },
+      ],
+      expected: [
+        {
+          label: "Error",
+          value: "'error'",
+          id: "error",
+        },
+        {
+          label: "Info",
+          value: "'info'",
+          id: "info",
+        },
+        {
+          label: "Success",
+          value: "'success'",
+          id: "success",
+        },
+        {
+          label: "Warning",
+          value: "'warning'",
+          id: "warning",
+        },
+      ],
+    },
+    {
+      index: 3,
+      input: [
+        {
+          label: "CSV",
+          value: "'text/csv'",
+          id: "text/csv",
+        },
+        {
+          label: "Select file type (optional)",
+          value: "",
+          id: "",
+        },
+        {
+          label: "HTML",
+          value: "'text/html'",
+          id: "text/html",
+        },
+        {
+          label: "Plain text",
+          value: "'text/plain'",
+          id: "text/plain",
+        },
+        {
+          label: "PNG",
+          value: "'image/png'",
+          id: "image/png",
+        },
+        {
+          label: "JPEG",
+          value: "'image/jpeg'",
+          id: "image/jpeg",
+        },
+        {
+          label: "SVG",
+          value: "'image/svg+xml'",
+          id: "image/svg+xml",
+        },
+        {
+          label: "JSON",
+          value: "'application/json'",
+          id: "application/json",
+        },
+      ],
+      expected: [
+        {
+          label: "Select file type (optional)",
+          value: "",
+          id: "",
+        },
+        {
+          label: "CSV",
+          value: "'text/csv'",
+          id: "text/csv",
+        },
+        {
+          label: "HTML",
+          value: "'text/html'",
+          id: "text/html",
+        },
+        {
+          label: "JPEG",
+          value: "'image/jpeg'",
+          id: "image/jpeg",
+        },
+        {
+          label: "JSON",
+          value: "'application/json'",
+          id: "application/json",
+        },
+        {
+          label: "Plain text",
+          value: "'text/plain'",
+          id: "text/plain",
+        },
+        {
+          label: "PNG",
+          value: "'image/png'",
+          id: "image/png",
+        },
+        {
+          label: "SVG",
+          value: "'image/svg+xml'",
+          id: "image/svg+xml",
+        },
+      ],
+    },
+    {
+      index: 4,
+      input: [
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
+          label: "New Modal",
+          value: "Modal",
+          id: "create",
+          icon: "plus",
+          className: "t--create-modal-btn",
+        },
+        {
+          id: "lz8id1xnk7",
+          label: "Modal1",
+          value: "Modal1",
+        },
+        {
+          id: "j5gg12lloy",
+          label: "Modal2",
+          value: "Modal2",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "bfv7i1qt72",
+          label: "Modal10",
+          value: "Modal10",
+        },
+      ],
+      expected: [
+        {
+          label: "New Modal",
+          value: "Modal",
+          id: "create",
+          icon: "plus",
+          className: "t--create-modal-btn",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
+          id: "lz8id1xnk7",
+          label: "Modal1",
+          value: "Modal1",
+        },
+        {
+          id: "j5gg12lloy",
+          label: "Modal2",
+          value: "Modal2",
+        },
+        {
+          id: "bfv7i1qt72",
+          label: "Modal10",
+          value: "Modal10",
+        },
+      ],
+    },
+  ];
+
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (_, input, expected) => {
+      const result = sortSubMenuOptions(input as TreeDropdownOption[]);
       expect(result).toStrictEqual(expected);
     },
   );

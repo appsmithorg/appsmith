@@ -69,6 +69,9 @@ import {
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
+import type { AutocompletionDefinitions } from "./constants";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 
 /***
  * BaseWidget
@@ -119,6 +122,10 @@ abstract class BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 
@@ -566,7 +573,7 @@ abstract class BaseWidget<
         componentWidth={componentWidth}
         direction={this.props.direction || LayoutDirection.Horizontal}
         flexVerticalAlignment={
-          this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
+          this.props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile || false}
@@ -583,6 +590,15 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
+  addWidgetComponentBoundary = (
+    content: ReactNode,
+    widgetProps: WidgetProps,
+  ) => (
+    <WidgetComponentBoundary widgetType={widgetProps.type}>
+      {content}
+    </WidgetComponentBoundary>
+  );
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -599,7 +615,7 @@ abstract class BaseWidget<
       return <Skeleton />;
     }
 
-    const content =
+    let content =
       renderMode === RenderModes.CANVAS
         ? this.getCanvasView()
         : this.getPageView();
@@ -639,19 +655,31 @@ abstract class BaseWidget<
 
       const { componentHeight, componentWidth } = this.getComponentDimensions();
 
+      const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
+        this.props,
+        this.props.mainCanvasWidth || 0,
+      );
+
       return (
         <AutoLayoutDimensionObserver
           height={componentHeight}
           isFillWidget={
             this.props.responsiveBehavior === ResponsiveBehavior.Fill
           }
+          minHeight={minHeight ?? 0}
+          minWidth={minWidth ?? 0}
           onDimensionUpdate={this.updateWidgetDimensions}
+          shouldObserveHeight={shouldObserveHeight || false}
+          shouldObserveWidth={shouldObserveWidth || false}
+          type={this.props.type}
           width={componentWidth}
         >
           {content}
         </AutoLayoutDimensionObserver>
       );
     }
+
+    content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
   };
 
@@ -785,6 +813,7 @@ export interface WidgetBaseProps {
    * rather than the evaluated values in withWidgetProps HOC.
    *  */
   additionalStaticProps?: string[];
+  mainCanvasWidth?: number;
 }
 
 export type WidgetRowCols = {

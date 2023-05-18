@@ -15,7 +15,7 @@ describe("Fork application across workspaces", function () {
     cy.addDsl(dsl);
   });
 
-  it("Check if the forked application has the same dsl as the original", function () {
+  it("1. Check if the forked application has the same dsl as the original", function () {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
@@ -50,7 +50,7 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it("Non signed user should be able to fork a public forkable app", function () {
+  it("2. Non signed user should be able to fork a public forkable app", function () {
     cy.NavigateToHome();
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon).first().click();

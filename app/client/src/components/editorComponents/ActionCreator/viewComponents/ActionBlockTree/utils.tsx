@@ -221,3 +221,9 @@ export function getActionInfo(
 
   return { Icon, actionTypeLabel, action };
 }
+
+export function getActionTypeLabel(
+  actionType: ActionTree["actionType"],
+): string {
+  return FIELD_GROUP_CONFIG[actionType].label;
+}

@@ -39,13 +39,13 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
     cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue).eq(3).click({ force: true });
+    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
     cy.wait(200);
     cy.get(formWidgetsPage.labelCheckboxGroup).should(
       "not.have.value",
       "test4",
     );
-    cy.get(formWidgetsPage.deleteradiovalue).eq(3).click({ force: true });
+    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
     cy.wait(200);
     /**
      * @param{Show Alert} Css for InputChange

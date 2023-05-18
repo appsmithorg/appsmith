@@ -13,9 +13,9 @@ import {
 
 import type {
   EvaluationReduxAction,
-  AnyReduxAction,
   ReduxAction,
   ReduxActionType,
+  AnyReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -75,7 +75,7 @@ import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
-import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
@@ -104,7 +104,9 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { executeJSUpdates } from "actions/pluginActionActions";
+import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -129,6 +131,8 @@ export function* updateDataTreeHandler(
   postEvalActions?: Array<AnyReduxAction>,
 ) {
   const { evalTreeResponse, requiresLogging, unevalTree } = data;
+  const postEvalActionsToDispatch: Array<AnyReduxAction> =
+    postEvalActions || [];
 
   const {
     dataTree,
@@ -144,6 +148,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
+    undefinedEvalValuesMap,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -191,7 +196,7 @@ export function* updateDataTreeHandler(
 
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
-    yield call(makeUpdateJSCollection, jsUpdates);
+    postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
 
     if (requiresLogging) {
       yield fork(
@@ -202,6 +207,7 @@ export function* updateDataTreeHandler(
         isCreateFirstTree,
         isNewWidgetAdded,
         configTree,
+        undefinedEvalValuesMap,
       );
     }
 
@@ -215,8 +221,8 @@ export function* updateDataTreeHandler(
     );
   }
   yield put(setDependencyMap(dependencies));
-  if (postEvalActions && postEvalActions.length) {
-    yield call(postEvalActionDispatcher, postEvalActions);
+  if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
+    yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
 }
 
@@ -385,6 +391,7 @@ export function* executeTriggerRequestSaga(
 }
 
 export function* clearEvalCache() {
+  yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
   return true;
 }
@@ -399,6 +406,7 @@ function* executeAsyncJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
+  isExecuteJSFunc: boolean,
 ) {
   let response: JSFunctionExecutionResponse;
   const functionCall = `${collectionName}.${action.name}()`;
@@ -420,7 +428,7 @@ function* executeAsyncJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      logActionExecutionError(e.message);
+      logActionExecutionError(e.message, isExecuteJSFunc);
     }
     response = { errors: [e], result: undefined };
   }
@@ -431,6 +439,7 @@ export function* executeJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
+  isExecuteJSFunc: boolean,
 ) {
   let response: {
     errors: unknown[];
@@ -444,6 +453,7 @@ export function* executeJSFunction(
       collectionName,
       action,
       collectionId,
+      isExecuteJSFunc,
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
@@ -685,6 +695,47 @@ export function* evaluateArgumentSaga(action: any) {
           name,
           errors: lintErrors,
           isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateActionSelectorFieldSaga(action: any) {
+  const { id, type, value } = action.payload;
+  try {
+    const workerResponse: {
+      errors: Array<unknown>;
+      result: unknown;
+    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+      expression: value,
+    });
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {}, "");
+      if (!validation.isValid)
+        validation.messages?.map((message) => {
+          lintErrors.unshift({
+            ...validation,
+            ...{
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+            },
+          });
+        });
+    }
+
+    yield put(
+      setEvaluatedActionSelectorField({
+        id,
+        evaluatedValue: {
+          value: workerResponse.result as string,
+          errors: lintErrors,
         },
       }),
     );

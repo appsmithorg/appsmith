@@ -27,7 +27,7 @@ import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToD
 import type { LintTreeSagaRequestData } from "workers/Linting/types";
 import { WorkerMessenger } from "../fns/utils/Messenger";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-export let replayMap: Record<string, ReplayEntity<any>>;
+export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
@@ -112,7 +112,7 @@ export default function (request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      if (shouldReplay) {
+      if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
       dataTreeEvaluator = new DataTreeEvaluator(
@@ -169,7 +169,7 @@ export default function (request: EvalWorkerSyncRequest) {
         );
       }
       isCreateFirstTree = false;
-      if (shouldReplay) {
+      if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
       const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
@@ -231,7 +231,7 @@ export default function (request: EvalWorkerSyncRequest) {
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
-    if (shouldReplay) {
+    if (shouldReplay && replayMap) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
       replayMap[CANVAS]?.clearLogs();
     }
@@ -275,6 +275,7 @@ export default function (request: EvalWorkerSyncRequest) {
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
+    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
   };
 
   return evalTreeResponse;

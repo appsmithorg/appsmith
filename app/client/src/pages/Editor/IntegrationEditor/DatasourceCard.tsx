@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { isNil } from "lodash";
+import { debounce, isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import CollapseComponent from "components/utils/CollapseComponent";
@@ -12,7 +12,7 @@ import {
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { Position } from "@blueprintjs/core";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
 import {
@@ -227,6 +227,8 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const isDeletingDatasource = !!datasource.isDeleting;
 
+  const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
+
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
       setConfirmDelete(false);
@@ -247,7 +249,6 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
-            viewMode: "false",
             ...getQueryParams(),
           },
         }),
@@ -363,6 +364,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               >
                 <MenuComponent
                   menuItemWrapperWidth="160px"
+                  onClose={onCloseMenu}
                   position={Position.BOTTOM_RIGHT}
                   target={
                     <MoreOptionsContainer>
