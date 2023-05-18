@@ -311,6 +311,8 @@ describe("Git sync apps", function () {
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
+    cy.wait(2000); // adding wait for query to load
+    _.entityExplorer.SelectEntityByName("get_users", "Queries/JS");
     _.agHelper.ActionContextMenuWithInPane("Move to page", "Child_Page");
     cy.runQuery();
     cy.wait(2000);
@@ -355,6 +357,7 @@ describe("Git sync apps", function () {
     // verfiy data binding on all pages in deploy mode
     cy.wait(4000);
     cy.latestDeployPreview();
+    cy.wait(2000);
     cy.get(".bp3-input").should("be.visible");
     cy.get(".bp3-input")
       .first()
