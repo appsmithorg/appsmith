@@ -88,7 +88,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       cy.wait(2000);
       cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePage.appEditIcon).first().click({ force: true });
-      cy.wait(6000);
+      cy.wait(10000);
       _.agHelper.AssertAutoSave();
       cy.switchGitBranch(branchName);
       cy.get(homePage.publishButton).click({ force: true });
