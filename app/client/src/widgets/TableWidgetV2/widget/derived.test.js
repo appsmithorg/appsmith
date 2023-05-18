@@ -332,11 +332,13 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [
       {
+        __originalIndex__: 0,
         id: 234,
         name: "Jane Doe",
         extra: "Extra2",
       },
       {
+        __originalIndex__: 1,
         id: 123,
         name: "John Doe",
         extra: "Extra1",
@@ -502,16 +504,19 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [
       {
+        __originalIndex__: 0,
         id: 1234,
         name: "Jim Doe",
         extra: "",
       },
       {
+        __originalIndex__: 1,
         id: 234,
         name: "Jane Doe",
         extra: "Extra2",
       },
       {
+        __originalIndex__: 2,
         id: 123,
         name: "John Doe",
         extra: "Extra1",
@@ -661,21 +666,25 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [
       {
+        __originalIndex__: 0,
         id: 2345,
         name: "Jane Doeson",
         age: 30,
       },
       {
+        __originalIndex__: 1,
         id: 1234,
         name: "Jim Doe",
         age: 28,
       },
       {
+        __originalIndex__: 2,
         id: 234,
         name: "Jane Doe",
         age: 22,
       },
       {
+        __originalIndex__: 3,
         id: 123,
         name: "John Doe",
         age: null,
@@ -825,21 +834,25 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [
       {
+        __originalIndex__: 0,
         id: 1234,
         name: "Jim Doe",
         age: 28,
       },
       {
+        __originalIndex__: 1,
         id: 2345,
         name: "Jane Doeson",
         age: 30,
       },
       {
+        __originalIndex__: 2,
         id: 234,
         name: "Jane Doe",
         age: 22,
       },
       {
+        __originalIndex__: 3,
         id: 123,
         name: "",
         age: null,
