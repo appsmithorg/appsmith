@@ -28,6 +28,8 @@ import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
+import RapidMode from "./RapidMode.ts";
+
 import "./WorkspaceCommands";
 import "./queryCommands";
 import "./widgetCommands";
@@ -38,17 +40,6 @@ import "./LicenseCommands";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 import "cypress-plugin-tab";
 /// <reference types="cypress-xpath" />
-
-let rapidMode = {
-  enabled: false, // Set to true to disable app creation
-  appName: "cf023e29", // Replace it with your app name
-  pageName: "page1", // Replace it with the page name
-  pageID: "644d0ec870cec01248edfc9a", // Replace it with pageID
-
-  url: function () {
-    return `app/${this.appName}/${this.pageName}-${this.pageID}/edit`;
-  },
-};
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
@@ -63,7 +54,7 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function () {
-  if (rapidMode.enabled) {
+  if (RapidMode.config.enabled) {
     cy.startServerAndRoutes();
     cy.getCookie("SESSION").then((cookie) => {
       if (!cookie) {
@@ -72,13 +63,15 @@ before(function () {
     });
 
     Cypress.Cookies.preserveOnce("SESSION", "remember_token");
-    cy.visit(rapidMode.url());
-    cy.wait("@getWorkspace");
+    if (!RapidMode.config.usesDSL) {
+      cy.visit(RapidMode.url());
+      cy.wait("@getWorkspace");
+    }
   }
 });
 
 before(function () {
-  if (rapidMode.enabled) {
+  if (RapidMode.config.enabled) {
     return;
   }
   //console.warn = () => {}; //to remove all warnings in cypress console
@@ -121,7 +114,7 @@ before(function () {
 });
 
 before(function () {
-  if (rapidMode.enabled) {
+  if (RapidMode.config.enabled) {
     return;
   }
   //console.warn = () => {};
@@ -171,7 +164,7 @@ beforeEach(function () {
 });
 
 after(function () {
-  if (rapidMode.enabled) {
+  if (RapidMode.config.enabled) {
     return;
   }
   //-- Deleting the application by Api---//
