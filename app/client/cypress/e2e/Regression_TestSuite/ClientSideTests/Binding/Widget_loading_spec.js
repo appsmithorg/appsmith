@@ -20,15 +20,15 @@ describe("Binding the multiple widgets and validating default data", function ()
     cy.testSaveDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
+      //Create and runs query
+      cy.NavigateToActiveDSQueryPane(datasourceName);
+      cy.get(queryLocators.templateMenu).click();
+      _.dataSources.EnterQuery("select * from users limit 10");
+
+      cy.EvaluateCurrentValue("select * from users limit 10");
+
+      _.dataSources.RunQuery();
     });
-    //Create and runs query
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
-    _.dataSources.EnterQuery("select * from users limit 10");
-
-    cy.EvaluateCurrentValue("select * from users limit 10");
-
-    _.dataSources.RunQuery();
   });
 
   it("2. Button widget test with on action query run", function () {
