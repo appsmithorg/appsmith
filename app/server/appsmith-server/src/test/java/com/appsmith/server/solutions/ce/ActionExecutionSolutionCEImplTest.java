@@ -406,4 +406,49 @@ class ActionExecutionSolutionCEImplTest {
                 .verifyComplete();
     }
 
+    @Test
+    void testParseExecuteActionPart_malformedRequestBody() {
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        // creating a multipart part object from below string which would be malformed for parsing into a json. the following line
+        // {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}
+        // misses a curly brace at the end
+        String partsWithBlobRefs = """
+                --boundary\r
+                Content-Disposition: form-data; name="executeActionDTO"\r
+                \r
+                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}\r
+                --boundary\r
+                Content-Disposition: form-data; name="parameterMap"\r
+                \r
+                {"Input1.text":"k0"}\r
+                --boundary\r
+                Content-Disposition: form-data; name="k0"; filename="blob"\r
+                Content-Type: text/plain\r
+                \r
+                {"name": "randomName", "data": "blob:12345678-1234-1234-1234-123456781234"}\r
+                --boundary\r
+                Content-Disposition: form-data; name="blob:12345678-1234-1234-1234-123456781234"; filename="blob"\r
+                Content-Type: text/plain\r
+                \r
+                xy\\nz\r
+                --boundary--""";
+
+        MockServerHttpRequest mock = MockServerHttpRequest
+                .method(HttpMethod.POST, URI.create("https://example.com"))
+                .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
+                .body(partsWithBlobRefs);
+
+        final Flux<Part> partsFlux = BodyExtractors.toParts()
+                .extract(mock, this.context);
+
+        Part part = partsFlux.blockFirst();
+        Mono<Void> result = actionExecutionSolution.parseExecuteActionPart(part, executeActionDTO);
+        StepVerifier.create(result)
+                .verifyErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithException);
+                    String expectedMessage = "Server cannot understand the request, malformed payload. Contact support for help.";
+                    assertEquals(expectedMessage, error.getMessage());
+                });
+    }
+
 }

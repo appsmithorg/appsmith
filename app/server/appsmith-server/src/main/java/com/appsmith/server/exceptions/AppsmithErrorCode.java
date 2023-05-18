@@ -64,7 +64,7 @@ public enum AppsmithErrorCode {
     GOOGLE_RECAPTCHA_TIMEOUT("AE-APP-5042", "Google recaptcha timeout"),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
-    MALFORMED_REQUEST("AE-BAD-4000", "Malformed request body"),
+    MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
     INVALID_CRUD_PAGE_REQUEST("AE-CRD-4039", "Invalid crud page request"),
     EMPTY_CURL_INPUT_STATEMENT("AE-CRL-4054", "Invalid CURL input statement"),
