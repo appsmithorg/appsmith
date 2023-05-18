@@ -14,12 +14,12 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes } from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { Button, Option, Text } from "design-system";
+import { Button, Text } from "design-system";
+import RequestDropdownField from "./RequestDropdownField";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -163,16 +163,13 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       <DynamicDropdownFieldWrapper
                         data-replay-id={btoa(`${field}.type`)}
                       >
-                        <DynamicDropdownField
+                        {/* eslint-disable-next-line */}
+                        {/* @ts-ignore*/}
+                        <RequestDropdownField
                           name={`${field}.type`}
+                          options={MULTI_PART_DROPDOWN_OPTIONS}
                           placeholder={DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER}
-                        >
-                          {MULTI_PART_DROPDOWN_OPTIONS.map((option) => (
-                            <Option key={option.value} value={option.value}>
-                              {option.label}
-                            </Option>
-                          ))}
-                        </DynamicDropdownField>
+                        />
                       </DynamicDropdownFieldWrapper>
                     </DynamicTextFieldWithDropdownWrapper>
                   ) : (

@@ -15,7 +15,7 @@ function RequestDropdownField(props: SelectOptionProps) {
   return (
     <Field
       component={renderComponent}
-      format={(value: string) => _.find(props.options, { value }) || ""}
+      format={(value: string) => _.find(props.options, { value }) || undefined}
       normalize={(option: { value: string }) => option.value}
       {...props}
     />
