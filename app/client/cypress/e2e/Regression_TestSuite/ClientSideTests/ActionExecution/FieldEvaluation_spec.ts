@@ -11,7 +11,7 @@ describe("Field value evaluation", () => {
   });
 
   it("1. Evaluation works for fields", () => {
-    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "{{Button1.text}}",
