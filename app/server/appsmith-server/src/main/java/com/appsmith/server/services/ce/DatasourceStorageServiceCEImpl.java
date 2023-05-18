@@ -137,16 +137,19 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage) {
+    public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration) {
         Set<String> invalids = new HashSet<>();
         datasourceStorage.setInvalids(invalids);
 
-        if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
-        }
+        // TODO: Get rid of this condition once client starts to have this information
+        if (!Boolean.TRUE.equals(onlyConfiguration)) {
+            if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
+            }
 
-        if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
+            if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
+            }
         }
 
         if (datasourceStorage.getDatasourceConfiguration() == null) {
@@ -169,12 +172,17 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 });
     }
 
+    @Override
+    public Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage) {
+        return this.validateDatasourceStorage(datasourceStorage, true);
+    }
+
     private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
 
         return Mono.just(datasourceStorage)
                 .map(this::checkEnvironment)
                 .map(this::sanitizeDatasourceStorage)
-                .flatMap(this::validateDatasourceStorage)
+                .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
                 .flatMap(unsavedDatasource -> {
                     return repository.save(unsavedDatasource)
                             .map(savedDatasource -> {

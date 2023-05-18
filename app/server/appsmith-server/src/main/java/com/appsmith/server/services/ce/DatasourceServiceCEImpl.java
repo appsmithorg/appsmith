@@ -385,7 +385,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
         return Mono.justOrEmpty(datasourceStorage)
-                .flatMap(datasourceStorageService::validateDatasourceStorage)
+                .flatMap(datasourceStorageService::validateDatasourceConfiguration)
                 .flatMap(storage -> {
                     Mono<DatasourceTestResult> datasourceTestResultMono;
                     if (CollectionUtils.isEmpty(storage.getInvalids())) {

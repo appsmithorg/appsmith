@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -55,7 +56,15 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
         datasource.setInvalids(null);
         datasource.setHasDatasourceStorage(true);
         return Mono.zip(datasourceStorageRepository.save(datasourceStorage), datasourceRepository.save(datasource))
-                .map(Tuple2::getT1);
+                .map(Tuple2::getT1)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return transferDatasourceStorage(datasource, environmentId);
+                    }
+                    throw error;
+                });
     }
 
     @Transactional

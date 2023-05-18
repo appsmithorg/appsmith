@@ -512,7 +512,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
                                     datasourceStorage.setDatasourceId("unused_datasource_id");
-                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage);
+                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage, false);
                                 }
 
                                 // The external datasourceStorage have already been validated. No need to validate again.

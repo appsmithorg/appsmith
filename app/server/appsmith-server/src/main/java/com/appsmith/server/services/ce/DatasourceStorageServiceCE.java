@@ -1,10 +1,8 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.server.acl.AclPermission;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,7 +25,8 @@ public interface DatasourceStorageServiceCE {
 
     Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate);
 
-    Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage);
+    Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration);
+    Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage);
 
     DatasourceStorage checkEnvironment(DatasourceStorage datasourceStorage);
 
