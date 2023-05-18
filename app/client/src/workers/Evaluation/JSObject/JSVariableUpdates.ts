@@ -56,6 +56,6 @@ export function applyJSVariableUpdatesToEvalTree(updatesMap: UpdatedPathsMap) {
   updateEvalTreeValueFromContext(modifiedVariablesList);
 
   if (modifiedVariablesList.length > 0) {
-    evalTreeWithChanges(modifiedVariablesList);
+    evalTreeWithChanges(modifiedVariablesList, false);
   }
 }

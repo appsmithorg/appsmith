@@ -140,7 +140,7 @@ export function* updateDataTreeHandler(
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
-    jsUpdates = {},
+    jsUpdates,
     logs,
     unEvalUpdates,
     isCreateFirstTree = false,

@@ -1666,55 +1666,55 @@ export default class DataTreeEvaluator {
     });
   }
 
-  applySetterMethod(path: string, value: any) {
+  applySetterMethod(path: string, value: unknown) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = get(this.evalTree, entityName);
     const updatedProperties: string[][] = [];
     const overriddenProperties: string[] = [];
 
-    if (!isWidget(entity)) return;
-
     const evalMetaUpdates: EvalMetaUpdates = [];
 
-    overrideWidgetProperties({
-      entity,
-      propertyPath,
-      value,
-      currentTree: this.evalTree,
-      configTree: this.oldConfigTree,
-      evalMetaUpdates,
-      fullPropertyPath: path,
-      isNewWidget: false,
-      shouldUpdateGlobalContext: true,
-      overriddenProperties,
-    });
+    if (isWidget(entity)) {
+      overrideWidgetProperties({
+        entity,
+        propertyPath,
+        value,
+        currentTree: this.evalTree,
+        configTree: this.oldConfigTree,
+        evalMetaUpdates,
+        fullPropertyPath: path,
+        isNewWidget: false,
+        shouldUpdateGlobalContext: true,
+        overriddenProperties,
+      });
+
+      overriddenProperties.forEach((propPath) => {
+        updatedProperties.push([entityName, propPath]);
+
+        if (propPath.split(".")[0] === "meta") {
+          const metaPropertyPath = propPath.split(".").slice(1);
+
+          evalMetaUpdates.push({
+            widgetId: entity.widgetId,
+            metaPropertyPath,
+            value,
+          });
+
+          WorkerMessenger.request({
+            method: MAIN_THREAD_ACTION.SET_META_PROP_FROM_SETTER,
+            data: { evalMetaUpdates },
+          });
+        }
+      });
+    }
 
     set(this.evalTree, path, value);
     set(self, path, value);
 
-    overriddenProperties.forEach((propPath) => {
-      updatedProperties.push([entityName, propPath]);
-    });
-
-    if (propertyPath.split(".")[0] === "meta") {
-      const metaPropertyPath = propertyPath.split(".").slice(1);
-
-      evalMetaUpdates.push({
-        widgetId: entity.widgetId,
-        metaPropertyPath,
-        value,
-      });
-
-      WorkerMessenger.request({
-        method: MAIN_THREAD_ACTION.SET_META_PROP_FROM_SETTER,
-        data: { evalMetaUpdates },
-      });
-    }
-
     return new Promise((resolve) => {
       updatedProperties.push([entityName, propertyPath]);
 
-      evalTreeWithChanges(updatedProperties, resolve);
+      evalTreeWithChanges(updatedProperties, true, resolve);
     });
   }
 

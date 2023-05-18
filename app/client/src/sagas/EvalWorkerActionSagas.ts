@@ -12,7 +12,6 @@ import type {
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";
-import { evaluateTreeSaga } from "../sagas/EvaluationsSaga";
 import { updateMetaPropsFromEvaluation } from "../sagas/EvaluationsSaga";
 import {
   evalWorker,
@@ -175,10 +174,6 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       if (evalMetaUpdates.length) {
         yield call(updateMetaPropsFromEvaluation, evalMetaUpdates);
       }
-
-      yield call(evaluateTreeSaga, [], false, true, true);
-
-      yield call(evalWorker.respond, message.messageId);
     }
   }
 

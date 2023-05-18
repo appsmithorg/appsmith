@@ -774,7 +774,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           path: "isRequired",
         },
         setValue: {
-          path: "meta.inputText",
+          path: "defaultText",
         },
       },
     };
