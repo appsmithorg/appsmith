@@ -18,15 +18,15 @@ import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   JS_ORIGIN_URI_FORM,
   REDIRECT_URL_FORM,
 } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
-
-const { disableLoginForm } = getAppsmithConfigs();
+import {
+  getThirdPartyAuths,
+  getIsFormLoginEnabled,
+} from "@appsmith/selectors/tenantSelectors";
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -182,7 +182,6 @@ export const FormAuthCallout: AuthMethodType = {
   subText: "Enable your workspace to sign in with Appsmith Form.",
   image: Lock,
   type: "LINK",
-  isConnected: !disableLoginForm,
 };
 
 export const GoogleAuthCallout: AuthMethodType = {
@@ -234,6 +233,7 @@ const AuthMethods = [
 ];
 
 function AuthMain() {
+  FormAuthCallout.isConnected = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
     socialLoginList.includes("google");
