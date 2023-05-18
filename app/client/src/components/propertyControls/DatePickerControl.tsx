@@ -86,7 +86,7 @@ class DatePickerControl extends BaseControl<
           minDate={this.minDate}
           onChange={this.onDateSelected}
           parseDate={this.parseDate}
-          placeholder="YYYY-MM-DD HH:mm"
+          placeholderText="YYYY-MM-DD HH:mm"
           portalId="date-picker-control"
           selected={value}
           showActionsBar
