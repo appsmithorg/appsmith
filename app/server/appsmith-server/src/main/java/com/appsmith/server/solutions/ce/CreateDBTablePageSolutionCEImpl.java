@@ -7,7 +7,7 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
@@ -285,7 +285,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                         );
                     }
 
-                    DatasourceConfigurationStructure templateDatasourceConfigurationStructure = applicationJson
+                    DatasourceStorageStructure templateDatasourceStorageStructure = applicationJson
                             .getDatasourceConfigurationStructureList()
                             .stream()
                             .filter(configurationStructure -> StringUtils.equals(configurationStructure.getDatasourceId(), templateDatasource.getName()))
@@ -293,7 +293,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .orElse(null);
 
 
-                    DatasourceStructure templateStructure = templateDatasourceConfigurationStructure.getStructure();
+                    DatasourceStructure templateStructure = templateDatasourceStorageStructure.getStructure();
                     // We are supporting datasources for both with and without datasource structure. So if datasource
                     // structure is present then we can assign the mapping dynamically as per the template datasource tables.
                     // Those datasources for which we don't have structure like Google sheet etc we are following a

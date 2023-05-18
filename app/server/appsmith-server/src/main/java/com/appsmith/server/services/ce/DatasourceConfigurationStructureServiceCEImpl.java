@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.repositories.DatasourceConfigurationStructureRepository;
 import com.mongodb.client.result.UpdateResult;
@@ -15,13 +15,13 @@ public class DatasourceConfigurationStructureServiceCEImpl implements Datasource
     protected final DatasourceConfigurationStructureRepository repository;
 
     @Override
-    public Mono<DatasourceConfigurationStructure> getByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+    public Mono<DatasourceStorageStructure> getByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 
     @Override
-    public Mono<DatasourceConfigurationStructure> save(DatasourceConfigurationStructure datasourceConfigurationStructure) {
-        return repository.save(datasourceConfigurationStructure);
+    public Mono<DatasourceStorageStructure> save(DatasourceStorageStructure datasourceStorageStructure) {
+        return repository.save(datasourceStorageStructure);
     }
 
     @Override

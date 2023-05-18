@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.QDatasourceConfigurationStructure;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -17,7 +17,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 public class CustomDatasourceConfigurationStructureRepositoryCEImpl
-        extends BaseAppsmithRepositoryImpl<DatasourceConfigurationStructure>
+        extends BaseAppsmithRepositoryImpl<DatasourceStorageStructure>
         implements CustomDatasourceConfigurationStructureRepositoryCE {
     public CustomDatasourceConfigurationStructureRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
                                                                   MongoConverter mongoConverter,
@@ -30,7 +30,7 @@ public class CustomDatasourceConfigurationStructureRepositoryCEImpl
         return mongoOperations.upsert(
                 query(where(fieldName(QDatasourceConfigurationStructure.datasourceConfigurationStructure.datasourceId)).is(datasourceId)),
                 Update.update(fieldName(QDatasourceConfigurationStructure.datasourceConfigurationStructure.structure), structure),
-                DatasourceConfigurationStructure.class
+                DatasourceStorageStructure.class
         );
     }
 }

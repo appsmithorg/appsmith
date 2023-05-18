@@ -8,7 +8,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -86,7 +86,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
             return Mono.empty();
         }
 
-        Mono<DatasourceConfigurationStructure> configurationStructureMono = datasourceConfigurationStructureService
+        Mono<DatasourceStorageStructure> configurationStructureMono = datasourceConfigurationStructureService
                 .getByDatasourceIdAndEnvironmentId(datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
 
         Mono<DatasourceStructure> fetchAndStoreNewStructureMono = pluginExecutorHelper
