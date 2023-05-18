@@ -19,13 +19,8 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import {
-  Category,
-  FormGroup as StyledFormGroup,
-  Checkbox,
-  CheckboxType,
-} from "design-system-old";
-import { Button } from "design-system";
+import { FormGroup as StyledFormGroup } from "design-system-old";
+import { Button, Checkbox } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 import { Colors } from "constants/Colors";
 import { isAirgapped } from "ce/utils/airgapHelpers";
@@ -69,7 +64,7 @@ export default function DetailsForm(
         <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
           <div className="flex flex-row justify-between w-100">
             <StyledFormGroup
-              className="!w-52 t--welcome-form-full-name"
+              className="!w-52 t--welcome-form-full-name test"
               label={createMessage(WELCOME_FORM_FIRST_NAME)}
             >
               <FormTextField
@@ -127,7 +122,7 @@ export default function DetailsForm(
             >
               <Field
                 asyncControl
-                component={withDropdown(roleOptions, "260px")}
+                component={withDropdown(roleOptions, "100%")}
                 name="role"
                 placeholder={createMessage(
                   WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
@@ -149,7 +144,7 @@ export default function DetailsForm(
             >
               <Field
                 asyncControl
-                component={withDropdown(useCaseOptions, "260px")}
+                component={withDropdown(useCaseOptions, "100%")}
                 name="useCase"
                 placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
                 type="text"
@@ -170,12 +165,12 @@ export default function DetailsForm(
 
             {!isAirgapped() && (
               <Checkbox
-                isDefaultChecked={false}
-                label="I want security and product updates."
+                defaultSelected={false}
                 name="signupForNewsletter"
-                type={CheckboxType.PRIMARY}
                 value="true"
-              />
+              >
+                I want security and product updates.
+              </Checkbox>
             )}
           </div>
         )}
@@ -183,7 +178,7 @@ export default function DetailsForm(
           <Button
             className="t--welcome-form-next-button w-100"
             isDisabled={props.invalid}
-            kind={Category.primary}
+            kind="primary"
             onClick={() => {
               if (isFirstPage()) setFormState(1);
             }}

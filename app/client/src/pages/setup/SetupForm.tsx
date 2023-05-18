@@ -55,19 +55,19 @@ export type DetailsFormValues = {
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
   if (!values.firstName) {
-    errors.firstName = "Please enter a valid First Name";
+    errors.firstName = "This field is required.";
   }
 
   if (!values.email || !isEmail(values.email)) {
-    errors.email = "Please enter a valid Email address";
+    errors.email = "Enter a valid email address.";
   }
 
   if (!values.password || !isStrongPassword(values.password)) {
-    errors.password = "Please enter a strong password";
+    errors.password = "Please enter a strong password.";
   }
 
   if (!values.verifyPassword || values.password != values.verifyPassword) {
-    errors.verifyPassword = "Please reenter the password";
+    errors.verifyPassword = "Passwords don't match.";
   }
 
   if (!values.role) {

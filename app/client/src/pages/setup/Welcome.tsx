@@ -38,17 +38,22 @@ const StyledTextBanner = styled.div`
   justify-content: center;
 `;
 
-const StyledBannerHeader = styled.h1`
+const StyledBannerHeader = styled.div`
   font-size: 72px;
   margin: 0px 0px;
   font-weight: 600;
+  margin-right: 1rem;
+  width: 100%;
+  text-align: center;
 `;
 
-const StyledBannerBody = styled.p`
+const StyledBannerBody = styled.div`
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
-  width: 400px;
   font-weight: 500;
+  margin-right: 8rem;
+  width: 100%;
+  text-align: center;
 `;
 
 const StyledImageBanner = styled.div`
