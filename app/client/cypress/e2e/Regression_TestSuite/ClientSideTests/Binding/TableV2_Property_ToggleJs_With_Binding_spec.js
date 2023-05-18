@@ -3,6 +3,7 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
@@ -15,10 +16,9 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("id");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.toggleTextAlign).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata", testdata.bindingAlign);
+    cy.wait(500);
+
+    _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
 
     cy.readTableV2dataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
@@ -30,8 +30,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.toggleTextAlign).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
     cy.wait(1000);
     cy.get(widgetsPage.textSize).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -46,11 +45,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.toggleTextSize).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingNewSize, 0);
-
+    cy.wait(500);
+    _.propPane.EnterJSContext("Text size", testdata.bindingNewSize);
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
     cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");
   });
@@ -61,13 +57,11 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.get(widgetsPage.toggleTextSize).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(widgetsPage.toggleVerticalAlig).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingVerticalAlig, 2);
-
+    _.propPane.EnterJSContext(
+      "Vertical alignment",
+      testdata.bindingVerticalAlig,
+    );
     cy.readTableV2dataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTableV2dataValidateCSS("1", "0", "align-items", "flex-end");
   });
@@ -84,11 +78,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       */
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(widgetsPage.toggleTextStyle).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingStyle, 1);
-
+    _.propPane.EnterJSContext("Emphasis", testdata.bindingStyle);
     cy.readTableV2dataValidateCSS("0", "0", "font-style", "normal");
     cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
   });
@@ -101,11 +91,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(widgetsPage.toggleVerticalAlig).first().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(widgetsPage.toggleJsColor).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata", testdata.bindingTextColor);
-
+    _.propPane.EnterJSContext("Text color", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
@@ -116,14 +102,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.toggleJsColor).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(widgetsPage.toggleJsBcgColor).first().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 4);
-
+    _.propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",

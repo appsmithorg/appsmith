@@ -36,8 +36,8 @@ describe("Create app same name in different workspace", function () {
     cy.get(".t--applications-container")
       .contains(workspaceId)
       .closest(homePage.workspaceCompleteSection)
-      .find(homePage.workspaceNamePopover)
       .find(homePage.optionsIcon)
+      .find(homePage.workspaceNamePopover)
       .click({ force: true });
     cy.xpath(homePage.members).click({ force: true });
     cy.get(homePage.inviteUserMembersPage).click({ force: true });

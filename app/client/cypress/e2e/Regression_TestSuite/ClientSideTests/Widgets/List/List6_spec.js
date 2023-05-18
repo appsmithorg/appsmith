@@ -44,6 +44,8 @@ describe("Binding the list widget with text widget", function () {
       "response.body.responseMeta.status",
       200,
     );
+    _.entityExplorer.ExpandCollapseEntity("List1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
     _.entityExplorer.SelectEntityByName("Text3");
 
     cy.wait(1000);
@@ -70,6 +72,7 @@ describe("Binding the list widget with text widget", function () {
   });
 
   it("3. Validate text widget data based on changes in list widget Data3", function () {
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.SelectEntityByName("List1");
 
     _.propPane.UpdatePropertyFieldValue(
@@ -81,6 +84,9 @@ describe("Binding the list widget with text widget", function () {
       "response.body.responseMeta.status",
       200,
     );
+
+    _.entityExplorer.ExpandCollapseEntity("List1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
     _.entityExplorer.SelectEntityByName("Text3");
 
     cy.wait(1000);

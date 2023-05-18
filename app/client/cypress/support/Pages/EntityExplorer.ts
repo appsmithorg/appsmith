@@ -25,8 +25,6 @@ export class EntityExplorer {
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
-  private _contextMenuItem = (item: string) =>
-    "//span[text()='" + item + "']/parent::div[@role='menuitem']";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
@@ -216,13 +214,13 @@ export class EntityExplorer {
       .scrollIntoView()
       .last()
       .click({ force: true });
-    cy.xpath(this._contextMenuItem(action)).click({ force: true });
+    cy.xpath(this.locator._contextMenuItem(action)).click({ force: true });
     this.agHelper.Sleep(1000);
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this._contextMenuItem(subAction)).click({ force: true });
+      cy.xpath(this.locator._contextMenuItem(subAction)).click({ force: true });
       this.agHelper.Sleep(300);
     }
     if (action == "Delete") {
@@ -235,7 +233,7 @@ export class EntityExplorer {
     cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
       .last()
       .click({ force: true });
-    cy.xpath(this._contextMenuItem("Delete")).click({ force: true });
+    cy.xpath(this.locator._contextMenuItem("Delete")).click({ force: true });
     this.agHelper.Sleep(500);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
     this.AssertEntityAbsenceInExplorer(widgetNameinLeftSidebar);
@@ -272,7 +270,7 @@ export class EntityExplorer {
       .first()
       .click()
       .wait(100); //for menu template to appear
-    this.agHelper.GetNClick(this._contextMenuItem(action), 0, true);
+    this.agHelper.GetNClick(this.locator._contextMenuItem(action), 0, true);
     this.agHelper.Sleep(500);
   }
 

@@ -43,10 +43,10 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
 
   return (
     <StyledTabs
-      defaultValue={tabs[selectedIndex]}
       onValueChange={(value) => {
         setSelectedIndex(tabs.indexOf(value) || 0);
       }}
+      value={tabs[selectedIndex]}
     >
       <TabsList>
         {props.contentComponent && <Tab value={tabs[0]}>Content</Tab>}

@@ -44,7 +44,7 @@ describe("Table Widget", function () {
     });
     cy.get(publish.backToEditor).click().wait(1000);
     cy.CheckAndUnfoldEntityItem("Widgets");
-    _.entityExplorer.ActionContextMenuByEntityName("Switch1", "Delete");
-    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Delete");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("Switch1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
   });
 });

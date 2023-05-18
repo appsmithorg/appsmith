@@ -3,6 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableNewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
@@ -248,8 +249,7 @@ describe("Table Widget property pane feature validation", function () {
       true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
-    cy.get(widgetsPage.toggleJsBcgColor).click();
-    cy.updateCodeInput(".t--property-control-cellbackgroundcolor", "purple");
+    _.propPane.EnterJSContext("Cell Background", "purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",

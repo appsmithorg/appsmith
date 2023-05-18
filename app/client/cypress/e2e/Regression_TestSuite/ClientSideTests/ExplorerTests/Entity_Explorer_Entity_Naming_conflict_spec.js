@@ -1,6 +1,10 @@
 const dsl = require("../../../../fixtures/basicTabledsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let ee = ObjectsRegistry.EntityExplorer;
+
 describe("Tab widget test", function () {
   const apiName = "Table1";
   const tableName = "Table";
@@ -18,7 +22,7 @@ describe("Tab widget test", function () {
       .type(tableName, { force: true })
       .should("have.value", tableName);
     //Rename Table widget with api name validation test
-    cy.GlobalSearchEntity("Table1");
+    ee.AssertEntityPresenceInExplorer("Table1");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.RenameEntity(apiName);
     cy.validateMessage(apiName);

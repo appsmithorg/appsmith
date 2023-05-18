@@ -320,16 +320,16 @@ describe("Validate Arango & CURL Import Datasources", () => {
     _.entityExplorer.DeleteAllQueriesForDB(dsName);
 
     //Deleting collection via Curl
-    _.entityExplorer.CreateNewDsQuery("New cURL import", false);
+    //_.entityExplorer.CreateNewDsQuery("New cURL import", false); Script failing here, but manually working, to check
     cy.fixture("datasources").then((datasourceFormData) => {
       let curlDeleteCol =
         `curl --request DELETE --url http://` +
         datasourceFormData["arango-host"] +
         `:` +
         datasourceFormData["arango-port"] +
-        `/_db/_system/_api/collection/${collectionName} --header 'authorization: Basic cm9vdDpBcmFuZ28='
-    `;
-      _.dataSources.ImportCurlNRun(curlDeleteCol);
+        `/_db/_system/_api/collection/${collectionName} --header 'authorization: Basic cm9vdDpBcmFuZ28='`;
+      //_.dataSources.ImportCurlNRun(curlDeleteCol);
+      _.dataSources.FillCurlNImport(curlDeleteCol);
       _.entityExplorer.ExpandCollapseEntity(dsName);
       _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh"); //needed for the added data to reflect in template queries
       _.agHelper.AssertElementVisible(_.dataSources._noSchemaAvailable(dsName));

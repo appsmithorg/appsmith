@@ -48,9 +48,7 @@ describe("Switch column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + switchSelector).should("exist");
     });
-  });
-
-  it("2. Toggle visiblity", () => {
+    // Toggle visiblity
     propPane.ToggleOnOrOff("Visible", "off");
     cy.PublishtheApp();
     cy.getTableV2DataSelector("0", "4").then((selector) => {
@@ -66,7 +64,7 @@ describe("Switch column type funtionality test", () => {
     });
   });
 
-  it("3. Check the horizontal, vertical alignment of switch, and the cell background color", () => {
+  it("2. Check the horizontal, vertical alignment of switch, and the cell background color", () => {
     cy.get(".t--propertypane").contains("Style").click({ force: true });
     // Check horizontal alignment
     cy.get(
@@ -89,8 +87,7 @@ describe("Switch column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + " div").should("have.css", "align-items", "flex-end");
       // Set and check the cell background color
-      cy.get(widgetsJson.toggleJsBcgColor).click();
-      cy.updateCodeInput(".t--property-control-cellbackground", "purple");
+      propPane.EnterJSContext("Cell Background", "purple");
       cy.wait("@updateLayout");
       cy.get(selector + " div").should(
         "have.css",
@@ -100,7 +97,7 @@ describe("Switch column type funtionality test", () => {
     });
   });
 
-  it("4. Verify disabled(editable off), enabled states and interactions on switch", () => {
+  it("3. Verify disabled(editable off), enabled states and interactions on switch", () => {
     cy.get(".t--propertypane").contains("Content").click({ force: true });
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + switchSelector;
@@ -137,7 +134,7 @@ describe("Switch column type funtionality test", () => {
     });
   });
 
-  it("5. Verify filter condition", () => {
+  it("4. Verify filter condition", () => {
     cy.get(widgetsJson.tableFilterPaneToggle).click();
     cy.get(publishPage.attributeDropdown).click();
     cy.get(".t--dropdown-option").contains("completed").click();
@@ -167,7 +164,7 @@ describe("Switch column type funtionality test", () => {
     });
   });
 
-  it("6. Verify if onChange is hidden on custom columns", () => {
+  it("5. Verify if onChange is hidden on custom columns", () => {
     cy.get(commonLocators.editPropBackButton).click();
     cy.get(widgetsJson.addColumn).click();
     cy.editColumn("customColumn1");
