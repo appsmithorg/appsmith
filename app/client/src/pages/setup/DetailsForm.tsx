@@ -137,6 +137,7 @@ export default function DetailsForm(
                   label={createMessage(WELCOME_FORM_ROLE)}
                   name="role_name"
                   placeholder=""
+                  size="md"
                   type="text"
                 />
               </StyledFormGroup>
@@ -159,6 +160,7 @@ export default function DetailsForm(
                   label={createMessage(WELCOME_FORM_CUSTOM_USE_CASE)}
                   name="custom_useCase"
                   placeholder=""
+                  size="md"
                   type="text"
                 />
               </StyledFormGroup>
