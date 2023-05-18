@@ -423,6 +423,7 @@ class CodeEditor extends Component<Props, State> {
         } else {
           editor.setSize("100%", "100%");
         }
+
         CodeEditor.updateMarkings(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -550,6 +551,7 @@ class CodeEditor extends Component<Props, State> {
         // handles case when inputValue changes from a truthy to a falsy value
         this.setEditorInput("");
       }
+
       if (
         this.props.entitiesForNavigation !== prevProps.entitiesForNavigation ||
         this.props.marking !== prevProps.marking
