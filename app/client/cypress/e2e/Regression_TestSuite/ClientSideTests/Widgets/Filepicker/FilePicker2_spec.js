@@ -26,8 +26,8 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("2. FilePicker Widget Functionality", function () {
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("FilePicker1");
-
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     //Checking the edit props for FilePicker and also the properties of FilePicker widget
@@ -35,8 +35,8 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("3. It checks the loading state of filepicker on call the action", function () {
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("FilePicker1");
-
     const fixturePath = "testFile.mov";
     cy.executeDbQuery("FirstAPI", "onFilesSelected");
     cy.get(commonlocators.filePickerButton).click();
