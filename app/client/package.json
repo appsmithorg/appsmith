@@ -269,7 +269,7 @@
     "cypress-multi-reporters": "^1.2.4",
     "cypress-network-idle": "^1.14.2",
     "cypress-plugin-tab": "^1.0.5",
-    "cypress-real-events": "^1.7.1",
+    "cypress-real-events": "^1.8.1",
     "cypress-tags": "^1.1.2",
     "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.6.0",

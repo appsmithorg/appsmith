@@ -22,10 +22,10 @@ describe("Peek overlay", () => {
 
       // check number array
       _.peekOverlay.HoverCode(9, 4, "numArray");
-      // _.peekOverlay.IsOverlayOpen();
-      // _.peekOverlay.VerifyDataType("array");
-      // _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
-      // _.peekOverlay.ResetHover();
+      _.peekOverlay.IsOverlayOpen();
+      _.peekOverlay.VerifyDataType("array");
+      _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
+      _.peekOverlay.ResetHover();
 
       // check basic object
       // _.peekOverlay.HoverCode("JSObject1.objectData");
