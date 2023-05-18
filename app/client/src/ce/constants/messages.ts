@@ -1607,6 +1607,7 @@ export const APP_METADATA_SETTING = {
   imageUrlOnPlatformLabel: () => "Image URL",
   forWebsiteLabel: () => "Specific to website",
   isFeaturedOnWebsiteLabel: () => "Featured",
+  allowPageImportLabel: () => "Allow page import",
   excerptOnWebsiteLabel: () => "Excerpt",
   mdTextOnWebsiteLabel: () => "Markdown description",
   imageUrlOnWebsiteLabel: () => "Image URL",

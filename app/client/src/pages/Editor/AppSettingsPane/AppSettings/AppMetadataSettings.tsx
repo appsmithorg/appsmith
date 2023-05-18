@@ -52,6 +52,15 @@ export function AppMetadataSettings() {
           "https://s3.us-east-2.amazonaws.com/template.appsmith.com/order-fulfillment-tracker.png"
         }
       />
+
+      <SwitchSetting
+        keyName="showNavbar"
+        label={createMessage(APP_METADATA_SETTING.allowPageImportLabel)}
+        updateSetting={() => {
+          return false;
+        }}
+        value
+      />
       <hr />
 
       <Text type={TextType.H1}>{APP_METADATA_SETTING.forWebsiteLabel()}</Text>
