@@ -76,7 +76,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@data-testid='t--dropdown-actionConfiguration.formData.command.data']";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
@@ -482,12 +482,12 @@ export class DataSources {
 
   public FillAirtableDSForm() {
     this.ValidateNSelectDropdown(
-      "Authentication type",
-      "Please select an option.",
-      "Bearer token",
+      "Authentication Type",
+      "Please select an option",
+      "Bearer Token",
     );
     this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Bearer token"),
+      this.locator._inputFieldByName("Bearer Token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
@@ -788,7 +788,8 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
+      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      //cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
       //to expand the dropdown
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
