@@ -58,10 +58,6 @@ const validate = (values: DetailsFormValues) => {
     errors.firstName = "Please enter a valid First Name";
   }
 
-  if (!values.lastName) {
-    errors.lastName = "Please enter a valid Last Name";
-  }
-
   if (!values.email || !isEmail(values.email)) {
     errors.email = "Please enter a valid Email address";
   }

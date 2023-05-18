@@ -83,12 +83,7 @@ export default function DetailsForm(
               className="!w-52 t--welcome-form-full-name"
               label={createMessage(WELCOME_FORM_LAST_NAME)}
             >
-              <FormTextField
-                autoFocus
-                name="lastName"
-                placeholder="Doe"
-                type="text"
-              />
+              <FormTextField name="lastName" placeholder="Doe" type="text" />
             </StyledFormGroup>
           </div>
           <StyledFormGroup
