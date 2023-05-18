@@ -1009,6 +1009,7 @@ export class DataSources {
         force: true,
       });
       cy.get(".rc-select-item-option")
+        .eq(2)
         .contains(options.offset.variable)
         .click({ force: true });
 
