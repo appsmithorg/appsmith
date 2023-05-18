@@ -10,7 +10,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationField;
@@ -1812,7 +1811,7 @@ public class ActionExecutionSolutionCETest {
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(installed_plugin.getId());
-        DatasourceDTO mockDatasource = mockDataService.createMockDataSet(mockDataSource, FieldName.UNUSED_ENVIRONMENT_ID).block();
+        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource, FieldName.UNUSED_ENVIRONMENT_ID).block();
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1824,7 +1823,7 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, FieldName.UNUSED_ENVIRONMENT_ID));
+        action.setDatasource(mockDatasource);
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();

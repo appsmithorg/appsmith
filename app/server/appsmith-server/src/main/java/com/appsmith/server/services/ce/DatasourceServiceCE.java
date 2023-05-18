@@ -19,12 +19,12 @@ public interface DatasourceServiceCE {
     Mono<Datasource> validateDatasource(Datasource datasource);
 
     /**
-     * @param datasourceDTO - The datasource which is about to be tested
+     * @param datasource    - The datasource which is about to be tested
      * @param environmentId - environmentName, name of the environment on which the datasource is getting tested,
      *                      this variable is unused in the CE version of the code.
      * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
      */
-    Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId);
+    Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentId);
 
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
 

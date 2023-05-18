@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -140,7 +141,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
 
-
         if (isNullOrEmpty(datasource.getDatasourceStorages())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
         }
@@ -152,7 +152,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             // We need to create the datasource as well
 
             // Determine valid name for datasource
-            if (!StringUtils.hasLength(datasource.getName())) {
+            if (!hasLength(datasource.getName())) {
                 datasourceMono = sequenceService
                         .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
                         .map(sequenceNumber -> {
@@ -163,8 +163,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasourceMono = datasourceMono
                     .map(datasource1 -> {
                         // Everything we create needs to use configs from storage
-                        datasource1.setDatasourceConfiguration(null);
-                        datasource1.setHasDatasourceStorage(true);
+                        datasource1.setHasDatasourceStorage(true); // TODO: remove this after migiration
                         return datasource1;
                     })
                     .flatMap(datasource1 -> {
@@ -193,9 +192,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 }
                                 return Mono.just(datasourceStorage);
                             })
-                            .map(datasourceStorage -> new DatasourceStorageDTO(datasourceStorage))
-                            .collectMap(datasourceStorageDTO -> datasourceStorageDTO.getEnvironmentId(),
-                                    datasourceStorageDTO -> datasourceStorageDTO)
+                            .map(DatasourceStorageDTO::new)
+                            .collectMap(DatasourceStorageDTO::getEnvironmentId)
                             .map(storages -> {
                                 datasource1.setDatasourceStorages(storages);
                                 return datasource1;
@@ -238,7 +236,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
-        Mono<Datasource> datasourceMono = findByIdWithStorages(id) // This will be removed once we have done our transition
+        Mono<Datasource> datasourceMono = findByIdWithStorages(id) // TODO: remove once migration is done
                 .then(repository.findById(id, datasourcePermission.getEditPermission()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
 
@@ -265,13 +263,18 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> updateDatasourceStorages(Datasource datasource, Boolean IsUserRefreshedUpdate) {
         String datasourceId = datasource.getId();
+        Set<String> environmentKeySet = datasource.getDatasourceStorages()
+                .keySet()
+                .stream()
+                .map(this:: getTrueEnvironmentId)
+                .collect(Collectors.toSet());
 
         Mono<Map<String, DatasourceStorageDTO>> savedStoragesMono =
-                Flux.fromIterable(datasource.getDatasourceStorages().keySet())
+                Flux.fromIterable(environmentKeySet)
                         .flatMap(environmentId -> datasourceStorageService
                                 .updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE))
-                        .collectMap(datasourceStorage -> datasourceStorage.getEnvironmentId(),
-                                datasourceStorage -> new DatasourceStorageDTO(datasourceStorage));
+                        .map(DatasourceStorageDTO::new)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId);
 
 
         // querying for each of the datasource
@@ -351,8 +354,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
      * the password from the db if its a saved datasource before testing.
      */
     @Override
-    public Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId) {
-        Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
+    public Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentId) {
+
         DatasourceStorage datasourceStorage = datasourceStorageService
                 .getDatasourceStorageFromDatasource(datasource, environmentId);
 
@@ -427,8 +430,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return repository.findById(id)
                 .flatMap(datasource -> {
                     return datasourceStorageService.findByDatasource(datasource)
-                            .collectMap(datasourceStorage -> datasourceStorage.getEnvironmentId(),
-                                    datasourceStorage -> new DatasourceStorageDTO(datasourceStorage))
+                            .map(DatasourceStorageDTO::new)
+                            .collectMap(DatasourceStorageDTO::getEnvironmentId)
                             .map(storages -> {
                                 datasource.setDatasourceStorages(storages);
                                 return datasource;
@@ -482,8 +485,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .findByDatasource(datasource)
                         .flatMap(datasourceStorageService::populateHintMessages)
                         .map(DatasourceStorageDTO::new)
-                        .collectMap(datasourceStorageDTO -> datasourceStorageDTO.getEnvironmentId(),
-                                datasourceStorageDTO -> datasourceStorageDTO)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId)
                         .flatMap(datasourceStorages -> {
                             datasource.setDatasourceStorages(datasourceStorages);
                             return Mono.just(datasource);

@@ -2,7 +2,6 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
@@ -113,11 +112,11 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceDTO datasourceDTO,
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource,
                                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
 
-        log.debug("Going to test the datasource with name: {} and id: {}", datasourceDTO.getName(), datasourceDTO.getId());
-        return datasourceService.testDatasource(datasourceDTO, environmentId)
+        log.debug("Going to test the datasource with name: {} and id: {}", datasource.getName(), datasource.getId());
+        return datasourceService.testDatasource(datasource, environmentId)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
@@ -165,7 +164,7 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping(Url.MOCKS)
-    public Mono<ResponseDTO<DatasourceDTO>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
                                                               @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         return mockDataService.createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));

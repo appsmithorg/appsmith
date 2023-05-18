@@ -1,8 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -190,11 +192,15 @@ public class MockDataServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
-                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    DatasourceConfiguration datasourceConfiguration = createdDatasource.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID)
+                            .getDatasourceConfiguration();
+
+                    DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(datasourceConfiguration.getProperties().get(0).getValue()).isEqualTo("Yes");
+                    assertThat(datasourceConfiguration.getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                     Assertions.assertTrue(createdDatasource.getIsMock());
@@ -254,7 +260,11 @@ public class MockDataServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
-                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    DatasourceConfiguration datasourceConfiguration = createdDatasource.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID)
+                            .getDatasourceConfiguration();
+
+                    DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(auth.getDatabaseName()).isEqualTo("users");
@@ -284,7 +294,7 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<DatasourceDTO> datasourceMono = mockDataService.createMockDataSet(mockDataSource, null)
+        Mono<Datasource> datasourceMono = mockDataService.createMockDataSet(mockDataSource, null)
                 .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource, null));
 
         List<PermissionGroup> permissionGroups = Mono.just(workspace)
@@ -323,11 +333,15 @@ public class MockDataServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
-                    DBAuth auth = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+                    DatasourceConfiguration datasourceConfiguration = createdDatasource.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID)
+                            .getDatasourceConfiguration();
+
+                    DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(datasourceConfiguration.getProperties().get(0).getValue()).isEqualTo("Yes");
+                    assertThat(datasourceConfiguration.getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                 })

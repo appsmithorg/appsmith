@@ -8,7 +8,6 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
@@ -487,8 +486,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     String accessToken = tuple.getT2();
                     String projectID = tuple.getT3();
                     OAuth2ResponseDTO response = new OAuth2ResponseDTO();
-                    DatasourceDTO datasourceDTO = datasourceService.convertToDatasourceDTO(new Datasource(datasourceStorage));
-                    response.setDatasource(datasourceDTO);
+                    Datasource datasource = new Datasource(datasourceStorage);
+                    response.setDatasource(datasource);
                     response.setToken(accessToken);
                     response.setProjectID(projectID);
                     return datasourceStorageService.save(datasourceStorage).thenReturn(response);

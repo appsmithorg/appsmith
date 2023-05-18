@@ -5,7 +5,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
@@ -98,7 +97,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
     }
 
     @Override
-    public Mono<DatasourceDTO> createMockDataSet(MockDataSource mockDataSource, String environmentId) {
+    public Mono<Datasource> createMockDataSet(MockDataSource mockDataSource, String environmentId) {
 
         Mono<MockDataDTO> mockDataSet;
         if (cacheExpiryTime == null || !Instant.now().isBefore(cacheExpiryTime)) {
@@ -132,8 +131,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             datasource.setDatasourceStorages(storages);
 
             return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
-                    .then(createSuffixedDatasource(datasource, trueEnvironmentId))
-                    .map(datasource1 -> datasourceService.convertToDatasourceDTO(datasource));
+                    .then(createSuffixedDatasource(datasource, trueEnvironmentId));
         });
 
     }

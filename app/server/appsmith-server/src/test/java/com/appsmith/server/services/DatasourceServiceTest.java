@@ -6,7 +6,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -619,17 +618,16 @@ public class DatasourceServiceTest {
         storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        Mono<DatasourceDTO> datasourceDTOMono = pluginMono
+        Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
                     return datasource;
                 })
-                .flatMap(datasourceService::create)
-                .map(datasourceService::convertToDatasourceDTO);
+                .flatMap(datasourceService::create);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)
@@ -680,17 +678,17 @@ public class DatasourceServiceTest {
         storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        Mono<DatasourceDTO> datasourceDTOMono = pluginMono
+        Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
                     return datasource;
                 })
-                .flatMap(datasourceService::create)
-                .map(datasourceService::convertToDatasourceDTO);
+                .flatMap(datasourceService::create);
+
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
+        Mono<DatasourceTestResult> testResultMono = datasourceMono
                 .flatMap(datasource1 -> {
                     ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
                     return datasourceService.testDatasource(datasource1, null);
@@ -1296,17 +1294,17 @@ public class DatasourceServiceTest {
         storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        Mono<DatasourceDTO> datasourceDTOMono = pluginMono
+        Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
                     return datasource;
                 })
-                .flatMap(datasourceService::create)
-                .map(datasourceService::convertToDatasourceDTO);
+                .flatMap(datasourceService::create);
+
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)
