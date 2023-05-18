@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import type { SelectOptionProps } from "design-system";
 import { Select, Option } from "design-system";
 
-function DropdownFieldWrapper(props: SelectOptionProps) {
+type DropdownFieldWrapperProps = SelectOptionProps & { placeholder?: string };
+
+function DropdownFieldWrapper(props: DropdownFieldWrapperProps) {
   const selectedValueHandler = () => {
     if (
       props.input &&
@@ -12,8 +14,6 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
       return props.input.value.value;
     } else if (props.input && typeof props.input.value === "string") {
       return props.input.value;
-    } else if (props.placeholder) {
-      return props.placeholder;
     }
   };
   const [selectedOption, setSelectedOption] = useState<any>({
@@ -33,6 +33,7 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
       defaultValue={selectedOption.value}
       isDisabled={props.disabled}
       onSelect={onSelectHandler}
+      placeholder={props.placeholder}
       value={selectedOption.value}
     >
       {props.options.map((option: SelectOptionProps) => {

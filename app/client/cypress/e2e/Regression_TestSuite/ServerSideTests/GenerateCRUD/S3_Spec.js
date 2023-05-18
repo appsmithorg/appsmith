@@ -187,6 +187,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       200,
     );
 
+    cy.wait(2000);
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
       .contains("assets-test.appsmith.com")

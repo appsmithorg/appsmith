@@ -7,7 +7,7 @@ let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Tab widget test", function () {
   const apiName = "Table1";
-  const tableName = "Table";
+  const tableName = "Table1";
   before(() => {
     cy.addDsl(dsl);
   });
