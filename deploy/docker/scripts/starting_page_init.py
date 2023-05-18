@@ -45,9 +45,7 @@ def remove_loading_page():
         try:
             if os.path.exists(LOADING_PAGE_EDITOR):
                 os.remove(LOADING_PAGE_EDITOR)
-                break
-            else:
-                break
+            break
         except OSError as e:
             logging.error("Failed to remove loading page: " + e)
         time.sleep(1)
