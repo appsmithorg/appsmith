@@ -182,7 +182,7 @@ public enum AppsmithError {
 
     UNKNOWN_SERVER_VARIABLE_TYPE(500, AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(), "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, "Unexpected server variable type", ErrorType.INTERNAL_ERROR, null),
     MIGRATION_FAILED(500, AppsmithErrorCode.MIGRATION_FAILED.getCode(), "Migration {0} failed. Reason: {1}. Note: {2}", AppsmithErrorAction.DEFAULT, "Migration failed", ErrorType.INTERNAL_ERROR, null),
-    OPEN_AI_ERROR(500, AppsmithErrorCode.OPEN_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Open AI error", ErrorType.EE_FEATURE_ERROR, null),
+    APPSMITH_AI_ERROR(500, AppsmithErrorCode.APPSMITH_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Appsmith AI error", ErrorType.EE_FEATURE_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

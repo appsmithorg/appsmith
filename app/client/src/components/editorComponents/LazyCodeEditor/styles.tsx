@@ -1,28 +1,36 @@
 import styled, { keyframes } from "styled-components";
 import { ContentKind } from "./types";
+import { CodeEditorColors } from "../CodeEditor/styledComponents";
 
 export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;
+  showLineNumbers?: boolean;
+  isReadOnly?: boolean;
 }>`
   width: 100%;
   background-color: #fff !important;
-  font-family: monospace !important;
   font-weight: 400 !important;
   line-height: 21px !important;
 
   min-height: inherit;
-  padding-top: 6px !important;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-  padding-bottom: 6px !important;
+  padding: 6px;
 
   pre {
+    font-family: ${(props) => props.theme.fonts.code};
     margin: 0 !important;
     overflow: hidden !important;
-    font-size: 14px !important;
-    font-family: monospace !important;
+    font-size: ${(props) => (props.isReadOnly ? "12px" : "13px")} !important;
     padding: 0 !important;
+    tab-size: 2 !important;
     background: white !important;
+    ${(props) => {
+      if (props.isReadOnly) {
+        return "padding-left: 35px !important";
+      }
+      if (props.showLineNumbers) {
+        return "padding-left: 47px !important";
+      }
+    }};
 
     word-wrap: break-word !important;
     white-space: pre-wrap !important;
@@ -30,7 +38,7 @@ export const HighlighedCodeContainer = styled("div")<{
 
     color: ${({ contentKind }) =>
       contentKind === ContentKind.CODE
-        ? "#063289"
+        ? CodeEditorColors.KEYWORD
         : contentKind === ContentKind.PLACEHOLDER
         ? "#858282"
         : "inherit"} !important;
@@ -43,6 +51,8 @@ export const LazyEditorWrapper = styled("div")`
 
 export const ContentWrapper = styled("div")<{
   contentKind: ContentKind;
+  showLineNumbers?: boolean;
+  folding?: boolean;
 }>`
   overflow: hidden;
   width: 100%;
@@ -51,6 +61,7 @@ export const ContentWrapper = styled("div")<{
   min-height: 34px;
   border: 1px solid;
   border-color: inherit;
+  ${(props) => props.showLineNumbers && "border: none"}
 `;
 
 const opacityAnimation = keyframes`
