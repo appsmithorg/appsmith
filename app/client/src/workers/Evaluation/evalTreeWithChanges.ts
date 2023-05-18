@@ -13,6 +13,7 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
+import { setEvalContext } from "./evaluate";
 
 export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   let evalOrder: string[] = [];
@@ -44,6 +45,13 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       dataTreeEvaluator.oldConfigTree,
       unEvalUpdates,
     );
+
+    setEvalContext({
+      dataTree: dataTreeEvaluator.evalTree,
+      isDataField: false,
+      isTriggerBased: true,
+    });
+
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
