@@ -14,19 +14,18 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
+import com.external.plugins.utils.MssqlDatasourceUtils;
+import com.external.plugins.utils.MssqlExecuteUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -35,28 +34,20 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
+import java.text.MessageFormat;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.concurrent.TimeoutException;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.external.plugins.utils.MssqlDatasourceUtils.getConnectionFromConnectionPool;
+import static com.external.plugins.utils.MssqlDatasourceUtils.logHikariCPStatus;
+import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -64,8 +55,6 @@ import static java.lang.Boolean.TRUE;
 public class MssqlPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-
-    private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
@@ -87,85 +76,7 @@ public class MssqlPlugin extends BasePlugin {
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
-
-        private static final String TABLES_QUERY = "SELECT \n" +
-                "   col.name AS column_name,\n" +
-                "   typ.name AS column_type,\n" +
-                "   CASE WHEN def.name IS NOT NULL THEN OBJECT_DEFINITION(def.object_id) END as default_expr,\n" +
-                "   tbl.name AS table_name,\n" +
-                "   TRIM(tbl.type) AS table_type,\n" +
-                "   sch.name AS schema_name\n" +
-                "FROM sys.columns col\n" +
-                "   INNER JOIN sys.tables tbl ON col.object_id = tbl.object_id\n" +
-                "   INNER JOIN sys.types typ ON col.user_type_id = typ.user_type_id\n" +
-                "   INNER JOIN sys.schemas sch ON tbl.schema_id = sch.schema_id\n" +
-                "   LEFT OUTER JOIN sys.default_constraints def ON col.default_object_id = def.object_id\n" +
-                "WHERE tbl.is_ms_shipped = 0\n" +
-                "ORDER BY tbl.name, col.column_id;\n";
-
-//                "SELECT \n" +
-//                        "    c.name AS table_name,\n" +
-//                        "    col.name AS name,\n" +
-//                        "    typ.name AS column_type,\n" +
-//                        "    CASE WHEN col.is_nullable = 0 THEN 'NO' ELSE 'YES' END AS is_nullable,\n" +
-//                        "    CASE WHEN def.definition IS NOT NULL THEN def.definition ELSE '' END AS default_expr,\n" +
-//                        "    sch.name AS schema_name\n" +
-//                        "FROM sys.columns col\n" +
-//                        "INNER JOIN sys.tables c ON col.object_id = c.object_id\n" +
-//                        "INNER JOIN sys.schemas sch ON c.schema_id = sch.schema_id\n" +
-//                        "INNER JOIN sys.types typ ON col.user_type_id = typ.user_type_id\n" +
-//                        "LEFT OUTER JOIN sys.default_constraints def ON col.default_object_id = def.object_id\n" +
-//                        "WHERE c.is_ms_shipped = 0\n" +
-    //                        "ORDER BY c.name, col.column_id;\n";
-
-
-        private static final String KEYS_QUERY_1 = "SELECT * FROM sys.foreign_key_columns";
-
-        private static final String KEYS_QUERY = "SELECT \n" +
-                "    c.name as constraint_name,\n" +
-                "    c.type_desc AS constraint_type,\n" +
-                "    s.name as self_schema,\n" +
-                "    t.name as self_table,\n" +
-                "    STRING_AGG(col.name, ',') WITHIN GROUP (ORDER BY ic.key_ordinal) as self_columns,\n" +
-                "    fs.name as foreign_schema,\n" +
-                "    ft.name as foreign_table,\n" +
-                "    STRING_AGG(fcol.name, ',') WITHIN GROUP (ORDER BY ifk.key_ordinal) as foreign_columns,\n" +
-                "    OBJECT_DEFINITION(c.object_id) as definition\n" +
-                "FROM \n" +
-                "    sys.objects c\n" +
-                "INNER JOIN \n" +
-                "    sys.tables t ON t.object_id = c.parent_object_id\n" +
-                "INNER JOIN \n" +
-                "    sys.schemas s ON s.schema_id = t.schema_id\n" +
-                "LEFT JOIN \n" +
-                "    sys.index_columns ic ON ic.object_id = t.object_id AND ic.index_id = (\n" +
-                "        SELECT TOP 1 i.index_id\n" +
-                "        FROM sys.indexes i\n" +
-                "        WHERE i.object_id = t.object_id\n" +
-                "          AND i.is_unique_constraint = 1\n" +
-                "    )\n" +
-                "LEFT JOIN \n" +
-                "    sys.columns col ON col.object_id = t.object_id AND col.column_id = ic.column_id\n" +
-                "LEFT JOIN \n" +
-                "    sys.foreign_key_columns fkc ON fkc.constraint_object_id = c.object_id\n" +
-                "LEFT JOIN \n" +
-                "    sys.tables ft ON ft.object_id = fkc.referenced_object_id\n" +
-                "LEFT JOIN \n" +
-                "    sys.schemas fs ON fs.schema_id = ft.schema_id\n" +
-                "LEFT JOIN \n" +
-                "    sys.columns fcol ON fcol.object_id = ft.object_id AND fcol.column_id = fkc.referenced_column_id\n" +
-                "GROUP BY \n" +
-                "    c.name, \n" +
-                "    c.type_desc, \n" +
-                "    s.name, \n" +
-                "    t.name, \n" +
-                "    OBJECT_DEFINITION(c.object_id), \n" +
-                "    fs.name, \n" +
-                "    ft.name\n" +
-                "ORDER BY \n" +
-                "    self_schema, \n" +
-                "    self_table;";
+        public static final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
@@ -275,14 +186,9 @@ public class MssqlPlugin extends BasePlugin {
                             log.error("Error checking validity of MsSQL connection.", error);
                         }
 
-                        HikariPoolMXBean poolProxy = hikariDSConnection.getHikariPoolMXBean();
-
-                        int idleConnections = poolProxy.getIdleConnections();
-                        int activeConnections = poolProxy.getActiveConnections();
-                        int totalConnections = poolProxy.getTotalConnections();
-                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug("Before executing MsSQL query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
-                                query, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+                        // Log HikariCP status
+                        logHikariCPStatus(MessageFormat.format("Before executing Mssql query [{0}]", query),
+                                hikariDSConnection);;
 
                         try {
                             if (FALSE.equals(preparedStatement)) {
@@ -310,92 +216,18 @@ public class MssqlPlugin extends BasePlugin {
                                 resultSet = preparedQuery.getResultSet();
                             }
 
-                            if (!isResultSet) {
-                                Object updateCount = FALSE.equals(preparedStatement) ?
-                                        ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
-                                        ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
-
-                                rowsList.add(Map.of("affectedRows", updateCount));
-                            } else {
-                                ResultSetMetaData metaData = resultSet.getMetaData();
-                                int colCount = metaData.getColumnCount();
-                                columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
-
-                                while (resultSet.next()) {
-                                    // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                                    Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                                    for (int i = 1; i <= colCount; i++) {
-                                        Object value;
-                                        final String typeName = metaData.getColumnTypeName(i);
-
-                                        if (resultSet.getObject(i) == null) {
-                                            value = null;
-
-                                        } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                            value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
-
-                                        } else if ("timestamp".equalsIgnoreCase(typeName)) {
-                                            value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                                    LocalDateTime.of(
-                                                            resultSet.getDate(i).toLocalDate(),
-                                                            resultSet.getTime(i).toLocalTime()
-                                                    )
-                                            ) + "Z";
-
-                                        } else if ("timestamptz".equalsIgnoreCase(typeName)) {
-                                            value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                                    resultSet.getObject(i, OffsetDateTime.class)
-                                            );
-
-                                        } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
-                                            value = resultSet.getString(i);
-
-                                        } else if ("interval".equalsIgnoreCase(typeName)) {
-                                            value = resultSet.getObject(i).toString();
-
-                                        } else {
-                                            value = resultSet.getObject(i);
-
-                                        }
-
-                                        row.put(metaData.getColumnName(i), value);
-                                    }
-
-                                    rowsList.add(row);
-                                }
-
-                            }
+                            MssqlExecuteUtils.populateRowsAndColumns(rowsList, columnsList, resultSet, isResultSet, preparedStatement,
+                                    statement, preparedQuery);
 
                         } catch (SQLException e) {
                             return Mono.error(new AppsmithPluginException(MssqlPluginError.QUERY_EXECUTION_FAILED, MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(), "SQLSTATE: "+ e.getSQLState()));
 
                         } finally {
-                            sqlConnectionFromPool.close();
-                            if (resultSet != null) {
-                                try {
-                                    resultSet.close();
-                                } catch (SQLException e) {
-                                    log.warn("Error closing MsSQL ResultSet", e);
-                                }
-                            }
+                            // Log HikariCP status
+                            logHikariCPStatus(MessageFormat.format("After executing Mssql query [{0}]", query),
+                                    hikariDSConnection);
 
-                            if (statement != null) {
-                                try {
-                                    statement.close();
-                                } catch (SQLException e) {
-                                    log.warn("Error closing MsSQL Statement", e);
-                                }
-                            }
-
-                            if (preparedQuery != null) {
-                                try {
-                                    preparedQuery.close();
-                                } catch (SQLException e) {
-                                    log.warn("Error closing MsSQL Statement", e);
-                                }
-                            }
-
+                            closeConnectionPostExecution(resultSet, statement, preparedQuery, sqlConnectionFromPool);
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -502,123 +334,7 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
-            final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
-
-            return Mono.fromSupplier(() -> {
-                Connection connectionFromPool;
-                try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection);
-                } catch (SQLException | StaleConnectionException e) {
-                    // The function can throw either StaleConnectionException or SQLException. The
-                    // underlying hikari
-                    // library throws SQLException in case the pool is closed or there is an issue
-                    // initializing
-                    // the connection pool which can also be translated in our world to
-                    // StaleConnectionException
-                    // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
-                }
-                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
-
-                int idleConnections = poolProxy.getIdleConnections();
-                int activeConnections = poolProxy.getActiveConnections();
-                int totalConnections = poolProxy.getTotalConnections();
-                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                log.debug(
-                        "Before getting mssql db structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                        activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
-                try (Statement statement = connectionFromPool.createStatement()) {
-
-                    // Get tables and fill up their columns.
-                    try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
-//                        List<Map<String, Object>> table = new ArrayList<>();
-//                        var metadata = columnsResultSet.getMetaData();
-//                        var columnCount = metadata.getColumnCount();
-//                        while (columnsResultSet.next()) {
-//                            Map<String, Object> row = new HashMap<>();
-//                            for (int i = 1; i <= columnCount; i++) {
-//                                row.put(metadata.getColumnName(i), columnsResultSet.getObject(i));
-//                            }
-//                            table.add(row);
-//                        }
-//                        log.info(table.toString());
-                        while (columnsResultSet.next()) {
-                            final String columnName = columnsResultSet.getString("column_name");
-                            final String columnType = columnsResultSet.getString("column_type");
-                            final String defaultExpr = columnsResultSet.getString("default_expr");
-                            final String tableName = columnsResultSet.getString("table_name");
-                            final char tableType = columnsResultSet.getString("table_type").charAt(0);
-                            final String schemaName = columnsResultSet.getString("schema_name");
-                            final String fullTableName = schemaName + "." + tableName;
-                            if (!tablesByName.containsKey(fullTableName)) {
-                                tablesByName.put(fullTableName, new DatasourceStructure.Table(
-                                        tableType == 'U' ? DatasourceStructure.TableType.TABLE
-                                                : DatasourceStructure.TableType.VIEW,
-                                        schemaName,
-                                        fullTableName,
-                                        new ArrayList<>(),
-                                        new ArrayList<>(),
-                                        new ArrayList<>()));
-                            }
-
-                            final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                            boolean isAutogenerated = StringUtils.hasText(defaultExpr)
-                                    && defaultExpr.toLowerCase().contains("nextval");
-
-                            table.getColumns().add(
-                                    new DatasourceStructure.Column(columnName, columnType, defaultExpr, isAutogenerated));
-                        }
-                    }
-
-                    try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {
-                        List<Map<String, Object>> table = new ArrayList<>();
-                        var metadata = constraintsResultSet.getMetaData();
-                        var columnCount = metadata.getColumnCount();
-                        while (constraintsResultSet.next()) {
-                            Map<String, Object> row = new HashMap<>();
-                            for (int i = 1; i <= columnCount; i++) {
-                                row.put(metadata.getColumnName(i), constraintsResultSet.getObject(i));
-                            }
-                            table.add(row);
-                        }
-                        log.info(table.toString());
-                    }
-                }
-                catch (SQLException throwable) {
-                    return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                            MssqlErrorMessages.GET_STRUCTURE_ERROR_MSG,
-                            throwable.getMessage(),
-                            "SQLSTATE: " + throwable.getSQLState()));
-                } finally {
-                    idleConnections = poolProxy.getIdleConnections();
-                    activeConnections = poolProxy.getActiveConnections();
-                    totalConnections = poolProxy.getTotalConnections();
-                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                    log.debug(
-                            "After postgres db structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                            activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
-
-                    if (connectionFromPool != null) {
-                        try {
-                            // Return the connection back to the pool
-                            connectionFromPool.close();
-                        } catch (SQLException e) {
-                            log.debug("Error returning Postgres connection to pool during get structure", e);
-                        }
-                    }
-                }
-
-                        structure.setTables(new ArrayList<>(tablesByName.values()));
-                        for (DatasourceStructure.Table table : structure.getTables()) {
-                            table.getKeys().sort(Comparator.naturalOrder());
-                        }
-                        log.debug("Got the structure of postgres db");
-                        return structure;
-                    })
-                    .map(resultStructure -> (DatasourceStructure) resultStructure)
-                    .subscribeOn(scheduler);
+            return MssqlDatasourceUtils.getStructure(connection, datasourceConfiguration);
         }
 
         @Override
@@ -815,24 +531,5 @@ public class MssqlPlugin extends BasePlugin {
                         "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
                                 " Appsmith customer support to resolve this.");
         }
-    }
-
-    /**
-     * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
-     * In case a connection is not available in the pool, SQL Exception is thrown
-     *
-     * @param hikariDSConnectionPool
-     * @return SQL Connection
-     */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
-
-        if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
-            log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        Connection sqlDataSourceConnection = hikariDSConnectionPool.getConnection();
-
-        return sqlDataSourceConnection;
     }
 }
