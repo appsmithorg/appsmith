@@ -46,7 +46,6 @@ function dragAndDropToWidget(widgetType) {
 
 function validateToastExist() {
   cy.validateToastMessage("ListWidget_Blue_0");
-  cy.get(commonlocators.toastBody).first().click();
   cy.wait(1000);
 }
 
@@ -75,7 +74,6 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Blue_0");
-    cy.get(commonlocators.toastBody).first().click();
     cy.waitUntil(() =>
       cy.get(commonlocators.toastmsg).should("not.be.visible"),
     );
@@ -84,7 +82,6 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Green_1");
-    cy.get(commonlocators.toastBody).first().click();
     cy.waitUntil(() =>
       cy.get(commonlocators.toastmsg).should("not.be.visible"),
     );
@@ -94,7 +91,6 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Red_2");
-    cy.get(commonlocators.toastBody).first().click();
     cy.waitUntil(() =>
       cy.get(commonlocators.toastmsg).should("not.be.visible"),
     );
@@ -132,6 +128,7 @@ describe("List widget v2 onItemClick", () => {
       .first()
       .click({ force: true });
     validateToastExist();
+    cy.get(commonlocators.toastBody).first().click();
 
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
     cy.get(".t--property-control-onclick").then(($el) => {
