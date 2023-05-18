@@ -1,12 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../fixtures/tableWidgetCondnFormatDsl.json");
 
-describe("Table Widget condtional formatting to remain consistent", function() {
+describe("Table Widget condtional formatting to remain consistent", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("check the cell styles before and after sorting", function() {
+  it("check the cell styles before and after sorting", function () {
     cy.openPropertyPane("tablewidget");
 
     //Check Font weight, font style, and text color before sorting
@@ -18,9 +18,7 @@ describe("Table Widget condtional formatting to remain consistent", function() {
     cy.readTabledataValidateCSS("1", "1", "font-style", "italic");
     cy.readTabledataValidateCSS("1", "1", "color", "rgb(255, 0, 0)");
 
-    cy.get(".draggable-header")
-      .contains("id")
-      .click({ force: true });
+    cy.get(".draggable-header").contains("id").click({ force: true });
 
     //Check Font weight, font style, and text color after sorting
     cy.readTabledataValidateCSS("3", "1", "font-weight", "700");

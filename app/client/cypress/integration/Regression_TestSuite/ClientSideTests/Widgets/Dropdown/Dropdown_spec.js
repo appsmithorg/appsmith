@@ -4,7 +4,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Dropdown Widget Functionality", function() {
+describe("Dropdown Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -140,7 +140,7 @@ describe("Dropdown Widget Functionality", function() {
     ).should("exist");
   });
 
-  it("Dropdown Functionality To Check disabled Widget", function() {
+  it("Dropdown Functionality To Check disabled Widget", function () {
     cy.openPropertyPane("selectwidget");
     // Disable the visible JS
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -150,7 +150,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.goToEditFromPublish();
   });
 
-  it("Dropdown Functionality To UnCheck disabled Widget", function() {
+  it("Dropdown Functionality To UnCheck disabled Widget", function () {
     cy.openPropertyPane("selectwidget");
     // Check the visible JS
     cy.togglebar(commonlocators.visibleCheckbox);

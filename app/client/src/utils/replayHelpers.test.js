@@ -2,14 +2,14 @@ import { shouldDisallowToast } from "./replayHelpers";
 
 describe("Checks ReplayDSL functionality", () => {
   var localStorage = {};
-  localStorage.setItem = function(key, val) {
+  localStorage.setItem = function (key, val) {
     this[key] = val + "";
   };
-  localStorage.getItem = function(key) {
+  localStorage.getItem = function (key) {
     return this[key];
   };
   Object.defineProperty(localStorage, "length", {
-    get: function() {
+    get: function () {
       return Object.keys(this).length - 2;
     },
   });

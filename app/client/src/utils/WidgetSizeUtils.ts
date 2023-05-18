@@ -3,12 +3,10 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { FlattenedWidgetProps } from "widgets/constants";
-import WidgetFactory, {
-  NonSerialisableWidgetConfigs,
-  WidgetType,
-} from "./WidgetFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import type { NonSerialisableWidgetConfigs, WidgetType } from "./WidgetFactory";
+import WidgetFactory from "./WidgetFactory";
 
 /**
  * This returns the number of rows which is not occupied by a Canvas Widget within
@@ -23,9 +21,8 @@ export const getCanvasHeightOffset = (
   props: WidgetProps,
 ) => {
   // Get the non serialisable configs for the widget type
-  const config:
-    | Record<NonSerialisableWidgetConfigs, unknown>
-    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
+  const config: Record<NonSerialisableWidgetConfigs, unknown> | undefined =
+    WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
   let offset = 0;
   // If this widget has a registered canvasHeightOffset function
   if (config?.canvasHeightOffset) {
@@ -163,6 +160,12 @@ export function getCanvasBottomRow(
 
   if (Array.isArray(children) && children.length > 0) {
     const bottomRow = children.reduce((prev, next) => {
+      if (canvasWidgets[next].detachFromLayout) {
+        return prev;
+      }
+      if (canvasWidgets[next].bottomRow === canvasWidgets[next].topRow) {
+        return prev;
+      }
       return canvasWidgets[next].bottomRow > prev
         ? canvasWidgets[next].bottomRow
         : prev;

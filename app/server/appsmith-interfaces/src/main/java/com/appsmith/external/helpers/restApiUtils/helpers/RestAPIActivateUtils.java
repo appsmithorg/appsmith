@@ -2,12 +2,14 @@ package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.constants.ResponseDataType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.util.WebClientUtils;
@@ -44,17 +46,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.restApiUtils.helpers.DataUtils.FIELD_API_CONTENT_TYPE;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @NoArgsConstructor
 public class RestAPIActivateUtils {
 
-    public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
-    public static String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
-    public static int MAX_REDIRECTS = 5;
-    public static Set BINARY_DATA_TYPES = Set.of("application/zip", "application/octet-stream", "application/pdf",
-            "application/pkcs8", "application/x-binary");
-
+    public static final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+    public static final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
+    public static final int MAX_REDIRECTS = 5;
+    public static final Set BINARY_DATA_TYPES = Set.of(
+                                                    "application/zip",
+                                                    "application/octet-stream",
+                                                    "application/pdf",
+                                                    "application/pkcs8",
+                                                    "application/x-binary"
+                                            );
     public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
@@ -93,7 +101,7 @@ public class RestAPIActivateUtils {
                     try {
                         headerInJsonString = objectMapper.writeValueAsString(headers);
                     } catch (JsonProcessingException e) {
-                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                        throw Exceptions.propagate(e);
                     }
 
                     // Set headers in the result now
@@ -163,12 +171,6 @@ public class RestAPIActivateUtils {
 
                     result.setMessages(hintMessages);
                     return result;
-                })
-                .onErrorResume(error -> {
-                    errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
-                    errorResult.setIsExecutionSuccess(false);
-                    errorResult.setErrorInfo(error);
-                    return Mono.just(errorResult);
                 });
 
     }
@@ -190,7 +192,6 @@ public class RestAPIActivateUtils {
                 .uri(uri)
                 .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                 .exchange()
-                .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                 .flatMap(response -> {
                     if (response.statusCode().is3xxRedirection()) {
                         String redirectUrl = response.headers().header("Location").get(0);
@@ -215,8 +216,8 @@ public class RestAPIActivateUtils {
     }
 
     public WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
-                                  String reqContentType, ObjectMapper objectMapper,
-                                  ExchangeStrategies EXCHANGE_STRATEGIES, RequestCaptureFilter requestCaptureFilter) {
+                                  String reqContentType,    ExchangeStrategies EXCHANGE_STRATEGIES,
+                                  RequestCaptureFilter requestCaptureFilter) {
         // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
         if (apiConnection != null) {
             webClientBuilder.filter(apiConnection);
@@ -266,7 +267,7 @@ public class RestAPIActivateUtils {
         /**
          * First, check if headers are defined in API datasource and add them.
          */
-        if (datasourceConfiguration.getHeaders() != null) {
+        if (!isEmpty(datasourceConfiguration.getHeaders())) {
             addHeaders(webClientBuilder, datasourceConfiguration.getHeaders());
         }
 
@@ -275,7 +276,7 @@ public class RestAPIActivateUtils {
          * In case there is a conflict with the datasource headers then the header defined in the API action config
          * will override it.
          */
-        if (actionConfiguration.getHeaders() != null) {
+        if (!isEmpty(actionConfiguration.getHeaders())) {
             addHeaders(webClientBuilder, actionConfiguration.getHeaders());
         }
     }

@@ -2,6 +2,7 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.external.constants.ErrorMessages;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,8 +48,8 @@ public class FileCreateMethod implements ExecutionMethod {
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetName() == null || methodConfig.getSpreadsheetName().isBlank()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing required field Spreadsheet Name");
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
         }
         return true;
     }
@@ -72,7 +73,7 @@ public class FileCreateMethod implements ExecutionMethod {
 
                 if (!bodyNode.isArray()) {
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
                 }
 
                 Sheet sheet = new Sheet();
@@ -140,8 +141,9 @@ public class FileCreateMethod implements ExecutionMethod {
 
             } catch (JsonProcessingException e) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to parse request body. Expected a list of row objects.");
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        ErrorMessages.EXPECTED_LIST_OF_ROW_OBJECTS_ERROR_MSG,
+                        e.getMessage());
             }
         }
 

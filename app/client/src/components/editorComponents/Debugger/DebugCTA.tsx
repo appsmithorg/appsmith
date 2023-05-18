@@ -1,11 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  setCanvasDebuggerSelectedTab,
-  showDebugger,
-} from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
@@ -15,12 +12,12 @@ import {
   IconSize,
   Variant,
 } from "design-system-old";
-import { Message } from "entities/AppsmithConsole";
+import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
-import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const EVDebugButton = styled.button`
   ${getTypographyByKey("btnSmall")};
@@ -134,7 +131,7 @@ function DebugCTA(props: DebugCTAProps) {
         source: props.source,
       });
     dispatch(showDebugger(true));
-    dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   };
 
   return <DebugButton className={props.className} onClick={onClick} />;

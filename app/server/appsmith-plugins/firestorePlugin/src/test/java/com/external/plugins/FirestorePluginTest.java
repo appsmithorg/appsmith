@@ -15,6 +15,8 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.exceptions.FirestoreErrorMessages;
+import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
@@ -26,6 +28,10 @@ import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.GeoPoint;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.internal.EmulatorCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -617,8 +623,7 @@ public class FirestorePluginTest {
 
                     // Check error message.
                     assertEquals(
-                            "Validation failed for field 'Service Account Credentials'. Please check the " +
-                                    "value provided in the 'Service Account Credentials' field.",
+                            FirestoreErrorMessages.DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG,
                             error.getMessage());
 
                     // Check that the error does not get logged externally.
@@ -628,7 +633,7 @@ public class FirestorePluginTest {
     }
 
     @Test
-    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+    public void testDatasource_withCorrectCredentials_returnsWithoutInvalids() {
 
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
 
@@ -640,6 +645,54 @@ public class FirestorePluginTest {
                     assertNotNull(datasourceTestResult);
                     assertTrue(datasourceTestResult.isSuccess());
                     assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasource_withValidProjectId_WithoutMetaDataAccess() {
+
+        //This test validates the Firestore connection, not the ProjectId given by the user
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection));
+        final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                    assertFalse(datasourceTestResult.getMessages().isEmpty());
+                    assertTrue(datasourceTestResult.getMessages().stream().anyMatch(s -> s.equals(FirestoreErrorMessages
+                            .META_DATA_ACCESS_MISSING_MESSAGE)));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasource_withInvalidProjectId_WithMetaDataAccess() {
+
+        //This validates firestore connection and the ProjectId given by the user
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        //We cannot use the datasource create flow here as the client authentication json is unknown. Hence, using the
+        //default emulator credentials
+        FirebaseOptions firebaseOptions = FirebaseOptions.builder()
+                .setProjectId("test-project-invalid")
+                .setDatabaseUrl(emulator.getEmulatorEndpoint())
+                .setCredentials(new EmulatorCredentials())
+                .build();
+        FirebaseApp.initializeApp(firebaseOptions);
+        Firestore firestore = FirestoreClient.getFirestore();
+        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestore));
+        final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+                    assertFalse(datasourceTestResult.getInvalids().isEmpty());
+                    assertTrue(datasourceTestResult.getInvalids().stream().anyMatch(s -> s.equals(
+                            FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID)));
                 })
                 .verifyComplete();
     }
@@ -1304,10 +1357,9 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
 
-                    String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Delete Key " +
-                            "Value Pair Path'. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(expectedErrorMessage.equals(result.getBody()));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    String expectedErrorMessage = FirestoreErrorMessages.UNEXPECTED_PROPERTY_DELETE_KEY_PATH_ERROR_MSG;
+                    assertTrue(expectedErrorMessage.equals(result.getPluginErrorDetails().getAppsmithErrorMessage()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
 
@@ -1332,10 +1384,9 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
 
-                    String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Timestamp " +
-                            "Value Path'. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(expectedErrorMessage.equals(result.getBody()));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    String expectedErrorMessage = FirestoreErrorMessages.UNEXPECTED_PROPERTY_TIMESTAMP_ERROR_MSG;
+                    assertTrue(expectedErrorMessage.equals(result.getPluginErrorDetails().getAppsmithErrorMessage()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -1359,9 +1410,8 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
 
-                    String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Delete Key " +
-                            "Value Pair Path'. Please check out Appsmith's documentation to find the correct syntax.";
-                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    String expectedErrorMessage = FirestoreErrorMessages.FAILED_TO_PARSE_DELETE_KEY_PATH_ERROR_MSG;
+                    assertTrue(expectedErrorMessage.equals(result.getPluginErrorDetails().getAppsmithErrorMessage()));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
@@ -1387,9 +1437,8 @@ public class FirestorePluginTest {
 
                     assertFalse(result.getIsExecutionSuccess());
 
-                    String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Timestamp " +
-                            "Value Path'. Please check out Appsmith's documentation to find the correct syntax.";
-                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    String expectedErrorMessage = FirestoreErrorMessages.FAILED_TO_PARSE_TIMESTAMP_VALUE_PATH_ERROR_MSG;
+                    assertTrue(expectedErrorMessage.equals(result.getPluginErrorDetails().getAppsmithErrorMessage()));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
@@ -1549,5 +1598,15 @@ public class FirestorePluginTest {
                     }
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfFirestorePluginErrorCode() {
+        assert (Arrays.stream(FirestorePluginError.values()).map(FirestorePluginError::getAppErrorCode).distinct().count() == FirestorePluginError.values().length);
+
+        assert (Arrays.stream(FirestorePluginError.values()).map(FirestorePluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-FST"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

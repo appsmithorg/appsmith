@@ -7,7 +7,7 @@ import {
   IconSize,
   TooltipComponent as Tooltip,
 } from "design-system-old";
-import { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";
 
 type FieldHelperProps = {

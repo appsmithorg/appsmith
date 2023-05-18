@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 import Marker from "./Marker";
-import { MapComponentProps } from ".";
+import type { MapComponentProps } from ".";
 
 type ClustererProps = {
   map?: google.maps.Map;
@@ -52,6 +52,7 @@ const Clusterer: React.FC<ClustererProps> = (props) => {
       {markers.map((marker, index) => (
         <Marker
           clickable
+          color={marker.color}
           draggable={
             selectedMarker &&
             selectedMarker?.lat === marker.lat &&

@@ -121,10 +121,7 @@ export default {
         const sanitizedData = {};
 
         for (const [key, value] of Object.entries(entry)) {
-          let sanitizedKey = key
-            .split(separatorRegex)
-            .join("_")
-            .slice(0, 200);
+          let sanitizedKey = key.split(separatorRegex).join("_").slice(0, 200);
           sanitizedKey = _.isNaN(Number(sanitizedKey))
             ? sanitizedKey
             : `_${sanitizedKey}`;
@@ -396,10 +393,7 @@ export default {
       startsWith: (a, b) => {
         try {
           return (
-            a
-              .toString()
-              .toLowerCase()
-              .indexOf(b.toString().toLowerCase()) === 0
+            a.toString().toLowerCase().indexOf(b.toString().toLowerCase()) === 0
           );
         } catch (e) {
           return false;
@@ -441,10 +435,7 @@ export default {
 
     const finalTableData = sortedTableData.filter((item) => {
       const searchFound = getSearchKey()
-        ? Object.values(item)
-            .join(", ")
-            .toLowerCase()
-            .includes(getSearchKey())
+        ? Object.values(item).join(", ").toLowerCase().includes(getSearchKey())
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;

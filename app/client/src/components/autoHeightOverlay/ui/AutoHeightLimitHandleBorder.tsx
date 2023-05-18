@@ -5,9 +5,7 @@ interface AutoHeightLimitHandleBorderProps {
   isActive: boolean;
 }
 
-const AutoHeightLimitHandleBorder = styled.div<
-  AutoHeightLimitHandleBorderProps
->`
+const AutoHeightLimitHandleBorder = styled.div<AutoHeightLimitHandleBorderProps>`
   background-image: linear-gradient(
     to right,
     ${OVERLAY_COLOR} 50%,

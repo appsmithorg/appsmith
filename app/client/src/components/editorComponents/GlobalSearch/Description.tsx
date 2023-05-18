@@ -4,7 +4,7 @@ import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
 import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "design-system-old";
-import { SearchItem } from "./utils";
+import type { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "components/utils/Skeleton";

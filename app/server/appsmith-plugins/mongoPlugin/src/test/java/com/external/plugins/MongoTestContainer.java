@@ -31,7 +31,7 @@ public class MongoTestContainer extends GenericContainer {
         }
 
         /*
-         * this is overriden to prepare mongo with sample dataset after the test container is started
+         * this is overridden to prepare Mongo with sample dataset after the test container is started
          */
         @Override
         protected void containerIsStarted(InspectContainerResponse containerInfo) {

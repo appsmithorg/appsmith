@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
@@ -29,6 +30,8 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
     private final ConfigService configService;
 
+    private final CommonConfig commonConfig;
+
     /**
      * To create a usage pulse
      * @param usagePulseDTO UsagePulseDTO
@@ -38,6 +41,12 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
     public Mono<UsagePulse> createPulse(UsagePulseDTO usagePulseDTO) {
         if (null == usagePulseDTO.getViewMode()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.VIEW_MODE));
+        }
+
+        // Remove usage pulse logging for appsmith-cloud until multi-tenancy is introduced
+        // TODO remove this condition after multi-tenancy is introduced
+        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
+            return Mono.just(new UsagePulse());
         }
 
         UsagePulse usagePulse = new UsagePulse();

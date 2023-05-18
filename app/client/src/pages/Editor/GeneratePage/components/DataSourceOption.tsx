@@ -3,16 +3,14 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
-import {
-  Classes,
+import type {
   DropdownOption,
   RenderDropdownOptionType,
-  Text,
-  TextType,
-  TooltipComponent,
 } from "design-system-old";
+import { Classes, Text, TextType, TooltipComponent } from "design-system-old";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
 
@@ -76,6 +74,7 @@ const OptionWrapper = styled.div<{
 const CreateIconWrapper = styled.div`
   margin: 0px 8px 0px 0px;
   cursor: pointer;
+  height: 20px;
 `;
 
 const ImageWrapper = styled.div`
@@ -95,7 +94,6 @@ interface DataSourceOptionType extends RenderDropdownOptionType {
   cypressSelector: string;
   optionWidth: string;
 }
-
 function DataSourceOption({
   cypressSelector,
   extraProps,
@@ -164,9 +162,9 @@ function DataSourceOption({
             <DatasourceImage
               alt=""
               className="dataSourceImage"
-              src={
-                pluginImages[(dropdownOption as DropdownOption).data.pluginId]
-              }
+              src={getAssetUrl(
+                pluginImages[(dropdownOption as DropdownOption).data.pluginId],
+              )}
             />
           </ImageWrapper>
         ) : null}

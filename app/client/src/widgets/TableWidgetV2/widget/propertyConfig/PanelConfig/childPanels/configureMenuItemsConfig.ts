@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { ICON_NAMES } from "widgets/MenuButtonWidget/constants";
 import {
   booleanForEachRowValidation,
@@ -83,14 +83,15 @@ export default {
       children: [
         {
           helpText:
-            "Triggers an action when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
+            "when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
           propertyName: "onClick",
           label: "onClick",
           controlType: "ACTION_SELECTOR",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: true,
-          additionalAutoComplete: getSourceDataAndCaluclateKeysForEventAutoComplete,
+          additionalAutoComplete:
+            getSourceDataAndCaluclateKeysForEventAutoComplete,
           evaluatedDependencies: ["primaryColumns"],
         },
       ],

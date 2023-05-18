@@ -9,9 +9,10 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
+const locators = ObjectsRegistry.CommonLocators;
 
-describe("MaintainContext&Focus", function() {
-  it("1. Import the test application", () => {
+describe("MaintainContext&Focus", function () {
+  before("Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
@@ -33,7 +34,7 @@ describe("MaintainContext&Focus", function() {
     });
   });
 
-  it("2. Focus on different entities", () => {
+  it("1. Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
@@ -86,7 +87,8 @@ describe("MaintainContext&Focus", function() {
     cy.wait("@saveAction");
   });
 
-  it("3. Maintains focus on the property pane", () => {
+  it("2. Maintains focus on property/Api/Query/Js Pane", () => {
+    //Maintains focus on the property pane
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
@@ -94,9 +96,8 @@ describe("MaintainContext&Focus", function() {
       ch: 2,
       line: 0,
     });
-  });
 
-  it("4. Maintains focus on Api Pane", () => {
+    //Maintains focus on the API pane
     cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").should(
       "have.class",
@@ -113,9 +114,8 @@ describe("MaintainContext&Focus", function() {
       "react-tabs__tab--selected",
     );
     cy.assertCursorOnCodeInput(apiwidget.headerValue);
-  });
 
-  it("5. Maintains focus on Query panes", () => {
+    //Maintains focus on Query panes
     cy.SearchEntityandOpen("SQL_Query");
     cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
       ch: 5,
@@ -131,25 +131,23 @@ describe("MaintainContext&Focus", function() {
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
-  });
 
-  it("6. Maintains focus on JS Objects", () => {
+    //Maintains focus on JS Objects
     cy.SearchEntityandOpen("JSObject1");
-    cy.assertCursorOnCodeInput(".js-editor", { ch: 4, line: 4 });
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
 
     cy.SearchEntityandOpen("JSObject2");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
   });
 
-  it("7. Check if selected tab on right tab persists", () => {
+  it("3. Check if selected tab on right tab persists", () => {
     ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
     apiPage.SelectRightPaneTab("connections");
     ee.SelectEntityByName("SQL_Query");
     ee.SelectEntityByName("Rest_Api_1");
     apiPage.AssertRightPaneSelectedTab("connections");
-  });
 
-  it("8. Check if the URL is persisted while switching pages", () => {
+    //Check if the URL is persisted while switching pages
     cy.Createpage("Page2");
 
     ee.SelectEntityByName("Page1", "Pages");
@@ -164,40 +162,20 @@ describe("MaintainContext&Focus", function() {
       "Rest_Api_1",
     );
   });
-  it("9. Datasource edit mode has to be maintained", () => {
+
+  it("4. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
+    dataSources.ExpandSection(0);
     agHelper.GoBack();
     ee.SelectEntityByName("Github", "Datasources");
-    dataSources.AssertViewMode();
+    dataSources.AssertDSEditViewMode("View");
     ee.SelectEntityByName("Appsmith", "Datasources");
-    dataSources.AssertEditMode();
+    dataSources.AssertDSEditViewMode("Edit");
+    dataSources.AssertSectionCollapseState(0, false);
   });
 
-  it("10. Datasource collapse state has to be maintained", () => {
-    // Create datasource 1
-    agHelper.GoBack();
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("PostgreSQL");
-    agHelper.RenameWithInPane("Postgres1", false);
-    // Expand section with index 1
-    dataSources.ExpandSection(1);
-    // Create and switch to datasource 2
-    dataSources.SaveDSFromDialog(true);
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("MongoDB");
-    agHelper.RenameWithInPane("Mongo1", false);
-    // Validate if section with index 1 is collapsed
-    dataSources.AssertSectionCollapseState(1, false);
-    // Switch back to datasource 1
-    dataSources.SaveDSFromDialog(false);
-    dataSources.CreateNewQueryInDS("Postgres1");
-    ee.SelectEntityByName("Postgres1");
-    // Validate if section with index 1 is expanded
-    dataSources.AssertSectionCollapseState(1, false);
-  });
-
-  it("11. Maintain focus of form control inputs", () => {
+  it("5. Maintain focus of form control inputs", () => {
     ee.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     cy.SearchEntityandOpen("S3_Query");
@@ -211,5 +189,19 @@ describe("MaintainContext&Focus", function() {
     agHelper.Sleep();
     agHelper.GetNClick(dataSources._queryResponse("SETTINGS"));
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
+  });
+
+  it("6. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
+    cy.SearchEntityandOpen("JSObject1");
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
+    cy.get(locators._codeMirrorTextArea).type("showA");
+    agHelper.GetNAssertElementText(locators._hints, "showAlert()");
+    agHelper.PressEscape();
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
+  });
+
+  it("11. Bug 22960 Maintain focus of code editor when Escape is pressed", () => {
+    agHelper.PressEscape();
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
   });
 });

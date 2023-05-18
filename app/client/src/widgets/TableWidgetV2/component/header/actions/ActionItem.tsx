@@ -2,11 +2,17 @@ import React, { useCallback } from "react";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
-import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
-import { ReactComponent as AddIcon } from "assets/icons/control/add.svg";
 import Tooltip from "components/editorComponents/Tooltip";
 import { TooltipContentWrapper } from "../../TableStyledWrappers";
+import { importSvg } from "design-system-old";
+
+const FilterIcon = importSvg(
+  () => import("assets/icons/control/filter-icon.svg"),
+);
+const DownloadIcon = importSvg(
+  () => import("assets/icons/control/download-data-icon.svg"),
+);
+const AddIcon = importSvg(() => import("assets/icons/control/add.svg"));
 
 export const TableIconWrapper = styled.div<{
   selected?: boolean;
@@ -40,7 +46,7 @@ export const TableIconWrapper = styled.div<{
     margin-left: 4px;
     white-space: nowrap;
     color: ${(props) => props.titleColor || Colors.GRAY};
-    margin-top: 3px;
+    margin-top: 2px;
   }
 `;
 
@@ -117,4 +123,4 @@ function ActionItem(props: ActionItemProps) {
   }
 }
 
-export default ActionItem;
+export default React.memo(ActionItem);

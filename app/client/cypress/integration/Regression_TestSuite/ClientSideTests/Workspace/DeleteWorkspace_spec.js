@@ -1,20 +1,17 @@
 /// <reference types="Cypress" />
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import homePage from "../../../../locators/HomePage";
-let HomePage = ObjectsRegistry.HomePage;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Delete workspace test spec", function() {
+describe("Delete workspace test spec", function () {
   let newWorkspaceName;
 
-  it("should delete the workspace", function() {
+  it("1. Should delete the workspace", function () {
     cy.visit("/applications");
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.visit("/applications");
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Delete Workspace").click();
-      cy.contains("Are you sure").click();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      newWorkspaceName = "Deleteworkspace" + uid;
+      _.homePage.CreateNewWorkspace(newWorkspaceName);
+      _.homePage.DeleteWorkspace(newWorkspaceName);
       cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(200);
       });
@@ -22,16 +19,15 @@ describe("Delete workspace test spec", function() {
     });
   });
 
-  it("should show option to delete workspace for an admin user", function() {
+  it("2. Should show option to delete workspace for an admin user", function () {
     cy.visit("/applications");
     cy.wait(2000);
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.visit("/applications");
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Delete Workspace");
-      HomePage.InviteUserToWorkspace(
+    cy.generateUUID().then((uid) => {
+      newWorkspaceName = uid;
+      _.homePage.CreateNewWorkspace(newWorkspaceName);
+      cy.wait(500);
+      cy.contains(".cs-text", "Delete Workspace"); //only to check if Delete workspace is shown to an admin user
+      _.homePage.InviteUserToWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",

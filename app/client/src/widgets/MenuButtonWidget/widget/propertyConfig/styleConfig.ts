@@ -1,7 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { MenuButtonWidgetProps } from "../../constants";
+import type { MenuButtonWidgetProps } from "../../constants";
 
 export default [
   {

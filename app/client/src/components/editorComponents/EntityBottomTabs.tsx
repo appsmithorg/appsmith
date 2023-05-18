@@ -1,9 +1,9 @@
-import React, { RefObject, useMemo } from "react";
+import type { RefObject } from "react";
+import React, { useMemo } from "react";
+import type { CollapsibleTabProps, TabProp } from "design-system-old";
 import {
-  CollapsibleTabProps,
   collapsibleTabRequiredPropKeys,
   TabComponent,
-  TabProp,
 } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";

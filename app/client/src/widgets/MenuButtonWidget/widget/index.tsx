@@ -1,16 +1,18 @@
-import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import {
-  EventType,
-  ExecuteTriggerPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import MenuButtonComponent from "../component";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { Stylesheet } from "entities/AppTheming";
+import { isArray, orderBy } from "lodash";
+import { default as React } from "react";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
-import { MenuButtonWidgetProps, MenuItem, MenuItemsSource } from "../constants";
+import MenuButtonComponent from "../component";
+import type { MenuButtonWidgetProps, MenuItem } from "../constants";
+import { MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import { isArray, orderBy } from "lodash";
-import { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -26,6 +28,16 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       menuColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Menu button widget is used to represent a set of actions in a group.",
+      "!url": "https://docs.appsmith.com/widget-reference/menu-button",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      label: "string",
     };
   }
 
@@ -53,12 +65,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   getVisibleItems = () => {
-    const {
-      configureMenuItems,
-      menuItems,
-      menuItemsSource,
-      sourceData,
-    } = this.props;
+    const { configureMenuItems, menuItems, menuItemsSource, sourceData } =
+      this.props;
     if (menuItemsSource === MenuItemsSource.STATIC) {
       const visibleItems = Object.keys(menuItems)
         .map((itemKey) => menuItems[itemKey])

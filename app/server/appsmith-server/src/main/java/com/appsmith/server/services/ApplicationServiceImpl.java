@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -29,7 +28,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
-                                  CommentThreadRepository commentThreadRepository,
                                   SessionUserService sessionUserService,
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
@@ -40,7 +38,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
+                configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
                 userRepository, datasourcePermission, applicationPermission);
 
     }

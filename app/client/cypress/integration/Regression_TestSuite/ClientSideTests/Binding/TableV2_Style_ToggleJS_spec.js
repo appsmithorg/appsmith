@@ -9,12 +9,12 @@ const propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Table Widget V2 property pane feature validation", function() {
+describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Table widget V2 toggle test for text alignment", function() {
+  it("1. Table widget V2 toggle test for text alignment", function () {
     ee.SelectEntityByName("Table1");
     cy.editColumn("id");
     cy.moveToStyleTab();
@@ -25,18 +25,16 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
   });
 
-  it("2. Table widget V2 change text size and validate", function() {
+  it("2. Table widget V2 change text size and validate", function () {
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.textSize)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.textSize).last().click({ force: true });
     agHelper.Sleep();
     cy.selectTxtSize("XL");
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "30px");
   });
 
-  it("3. Table widget toggle test for vertical Alignment", function() {
+  it("3. Table widget toggle test for vertical Alignment", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
     propPane.EnterJSContext("Vertical Alignment", testdata.bindingVerticalAlig);
@@ -45,7 +43,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.readTableV2dataValidateCSS("1", "0", "align-items", "flex-end");
   });
 
-  it("4. Table widget toggle test for text size", function() {
+  it("4. Table widget toggle test for text size", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
     propPane.EnterJSContext("Text Size", testdata.bindingNewSize);
@@ -54,7 +52,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");
   });
 
-  it("5. Table widget V2 toggle test for style Alignment", function() {
+  it("5. Table widget V2 toggle test for style Alignment", function () {
     agHelper.Sleep();
     propPane.EnterJSContext("Emphasis", testdata.bindingStyle);
     cy.wait("@updateLayout");
@@ -62,7 +60,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
   });
 
-  it("6. Table widget toggle test for text color", function() {
+  it("6. Table widget toggle test for text color", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
     propPane.EnterJSContext("Text Color", testdata.bindingTextColor);
@@ -71,7 +69,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
 
-  it("7. Table widget toggle test for background color", function() {
+  it("7. Table widget toggle test for background color", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
     propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);

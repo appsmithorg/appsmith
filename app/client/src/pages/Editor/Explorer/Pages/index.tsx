@@ -13,7 +13,7 @@ import {
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
-import { createPage, updatePage } from "actions/pageActions";
+import { createNewPageFromEntities, updatePage } from "actions/pageActions";
 import {
   currentPageIcon,
   defaultPageIcon,
@@ -21,9 +21,8 @@ import {
   pageIcon,
 } from "../ExplorerIcons";
 import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
@@ -36,10 +35,8 @@ import {
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { tailwindLayers } from "constants/Layers";
-import useResize, {
-  CallbackResponseType,
-  DIRECTION,
-} from "utils/hooks/useResize";
+import type { CallbackResponseType } from "utils/hooks/useResize";
+import useResize, { DIRECTION } from "utils/hooks/useResize";
 import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
@@ -48,8 +45,7 @@ import {
   hasCreatePagePermission,
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { AppState } from "@appsmith/reducers";
-import { pageChanged } from "actions/focusHistoryActions";
+import type { AppState } from "@appsmith/reducers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -67,10 +63,12 @@ const StyledEntity = styled(Entity)<{ pagesSize?: number }>`
       overflow-y: auto;
     }
   }
+
   &.page .${EntityClassNames.PRE_RIGHT_ICON} {
     width: 20px;
     right: 0;
   }
+
   &.page:hover {
     & .${EntityClassNames.PRE_RIGHT_ICON} {
       display: none;
@@ -129,16 +127,6 @@ function Pages() {
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EntityExplorer,
       });
-      const currentURL = navigateToUrl.split(/(?=\?)/g);
-      dispatch(
-        pageChanged(
-          page.pageId,
-          currentURL[0],
-          currentURL[1],
-          location.pathname,
-          location.search,
-        ),
-      );
     },
     [location.pathname],
   );
@@ -150,11 +138,8 @@ function Pages() {
       "Page",
       pages.map((page: Page) => page.pageName),
     );
-    // Default layout is extracted by adding dynamically computed properties like min-height.
-    const defaultPageLayouts = [
-      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
-    ];
-    dispatch(createPage(applicationId, name, defaultPageLayouts));
+
+    dispatch(createNewPageFromEntities(applicationId, name));
   }, [dispatch, pages, applicationId]);
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);

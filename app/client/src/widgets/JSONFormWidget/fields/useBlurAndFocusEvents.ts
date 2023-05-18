@@ -1,4 +1,4 @@
-import { ControllerRenderProps } from "react-hook-form";
+import type { ControllerRenderProps } from "react-hook-form";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { useCallback, useContext, useEffect, useRef } from "react";
 

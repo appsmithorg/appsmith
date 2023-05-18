@@ -8,7 +8,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
-describe("Entity explorer datasource structure", function() {
+describe("Entity explorer datasource structure", function () {
   beforeEach(() => {
     //cy.ClearSearch();
     cy.startRoutesForDatasource();
@@ -18,7 +18,7 @@ describe("Entity explorer datasource structure", function() {
     });
   });
 
-  it("1. Entity explorer datasource structure", function() {
+  it("1. Entity explorer datasource structure", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.wait("@createNewApi").should(
       "have.nested.property",
@@ -50,9 +50,7 @@ describe("Entity explorer datasource structure", function() {
     //   .click();
     // cy.get(".bp3-popover-content").should("be.visible");
 
-    cy.get(explorer.templateMenuIcon)
-      .first()
-      .click({ force: true });
+    cy.get(explorer.templateMenuIcon).first().click({ force: true });
     cy.get(".t--structure-template-menu-popover")
       .last()
       .contains("SELECT")
@@ -66,9 +64,7 @@ describe("Entity explorer datasource structure", function() {
     cy.deleteQueryUsingContext();
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.GlobalSearchEntity("MyQuery");
-    cy.get(`.t--entity-name:contains(MyQuery)`)
-      .scrollIntoView()
-      .click();
+    cy.get(`.t--entity-name:contains(MyQuery)`).scrollIntoView().click();
     cy.deleteQueryUsingContext();
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
@@ -76,7 +72,7 @@ describe("Entity explorer datasource structure", function() {
     cy.deleteDatasource(datasourceName);
   });
 
-  it("2. Refresh datasource structure", function() {
+  it("2. Refresh datasource structure", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
 

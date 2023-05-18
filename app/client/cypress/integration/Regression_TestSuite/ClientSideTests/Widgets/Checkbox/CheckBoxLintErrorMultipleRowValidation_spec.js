@@ -1,11 +1,11 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/snippetDsl.json");
 
-describe("Linting warning validation with Checkbox widget", function() {
+describe("Linting warning validation with Checkbox widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Linting warning validation", function() {
+  it("Linting warning validation", function () {
     cy.openPropertyPane("checkboxwidget");
     /**
      * @param{Text} Random Text
@@ -19,12 +19,8 @@ describe("Linting warning validation with Checkbox widget", function() {
       .wait(500);
 
     //lint mark validation
-    cy.get(commonlocators.lintError)
-      .first()
-      .should("be.visible");
-    cy.get(commonlocators.lintError)
-      .last()
-      .should("be.visible");
+    cy.get(commonlocators.lintError).first().should("be.visible");
+    cy.get(commonlocators.lintError).last().should("be.visible");
 
     cy.get(commonlocators.lintError)
       .last()

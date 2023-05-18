@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -45,6 +46,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
     private final UserRepository userRepository;
+
+    private final ProjectProperties projectProperties;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -139,7 +142,9 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                                             "numPages", statsData.getT5(),
                                             "numActions", statsData.getT6(),
                                             "numDatasources", statsData.getT7(),
-                                            "numUsers", statsData.getT8()
+                                            "numUsers", statsData.getT8(),
+                                            "version", projectProperties.getVersion(),
+                                            "edition", ProjectProperties.EDITION
                                     ),
                                     "event", "instance_stats"
                             )))

@@ -47,7 +47,7 @@ const StyledImage = styled.img`
 `;
 
 const REQUEST_TEMPLATE_URL =
-  "https://app.appsmith.com/applications/6241b5a8c99df2369931a653/pages/6241b5a8c99df2369931a656";
+  "https://app.appsmith.com/app/request-templates/request-list-6241c12fc99df2369931a714";
 
 function RequestTemplate() {
   const onClick = () => {

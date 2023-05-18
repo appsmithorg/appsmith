@@ -1,16 +1,17 @@
 import React, { useEffect, useCallback } from "react";
-import {
-  Field,
-  FieldArray,
+import type {
   WrappedFieldArrayProps,
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
+import { Field, FieldArray } from "redux-form";
 import styled from "styled-components";
-import BaseControl, { ControlProps, ControlData } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { ControlProps, ControlData } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
+import type { TextInputProps } from "design-system-old";
 import {
   Case,
   Classes,
@@ -18,7 +19,6 @@ import {
   IconSize,
   Text,
   TextInput,
-  TextInputProps,
   TextType,
 } from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";

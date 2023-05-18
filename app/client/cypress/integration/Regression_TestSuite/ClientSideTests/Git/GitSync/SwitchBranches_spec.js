@@ -12,7 +12,7 @@ let parentBranchKey = "ParentBranch",
   branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync:", function() {
+describe("Git sync:", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -25,16 +25,10 @@ describe("Git sync:", function() {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-
     cy.wait(3000);
-    // cy.generateUUID().then((uid) => {
-    //   repoName = uid;
-    //   cy.createTestGithubRepo(repoName);
-    //   cy.connectToGitRepo(repoName);
-    // });
   });
 
-  it("1. create branch input", function() {
+  it("1. create branch input", function () {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.get(gitSyncLocators.branchButton).click();
 
@@ -62,16 +56,13 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeBranchList).click();
   });
 
-  it("2. creates a new branch", function() {
+  it("2. creates a new branch and create branch specific resources", function () {
     cy.get(commonLocators.canvas).click({ force: true });
     //cy.createGitBranch(parentBranchKey);
     _.gitSync.CreateGitBranch(parentBranchKey, true);
     cy.get("@gitbranchName").then((branName) => {
       parentBranchKey = branName;
     });
-  });
-
-  it("3. creates branch specific resources", function() {
     cy.Createpage("ParentPage1");
     cy.get(pages.addEntityAPI)
       .last()
@@ -118,19 +109,27 @@ describe("Git sync:", function() {
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
+
+    // A switch here should not show a 404 page
+    cy.switchGitBranch(parentBranchKey);
+    // When entity not found, takes them to the home page
+    cy.get(`.t--entity.page`)
+      .contains("Page1")
+      .closest(".t--entity")
+      .should("be.visible")
+      .should("have.class", "activePage");
+
     cy.GlobalSearchEntity("ParentPage1");
     cy.contains("ParentPage1").click();
-    cy.get(commonLocators.canvas);
-
-    cy.switchGitBranch(parentBranchKey);
 
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
     cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
   });
 
   // rename entities
-  it("4. makes branch specific resource updates", function() {
+  it("3. makes branch specific resource updates", function () {
     cy.switchGitBranch(childBranchKey);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -152,7 +151,7 @@ describe("Git sync:", function() {
     // );
   });
 
-  it("5. enables switching branch from the URL", () => {
+  it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
       cy.GlobalSearchEntity("ParentPage1");
       cy.contains("ParentPage1").click();
@@ -204,7 +203,7 @@ describe("Git sync:", function() {
   });
 
   //Rename - hence skipping for Gitea
-  it.skip("6. test sync and prune branches", () => {
+  it.skip("5. test sync and prune branches", () => {
     // uncomment once prune branch flow is complete
     let tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";
@@ -244,7 +243,7 @@ describe("Git sync:", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it("7. error faced when user switches branch with new page", function() {
+  it("6. no error faced when user switches branch with new page", function () {
     cy.goToEditFromPublish(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
       _.gitSync.CreateGitBranch(childBranchKey, true);
@@ -254,17 +253,19 @@ describe("Git sync:", function() {
       cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
       cy.wait(400);
-      cy.get(gitSyncLocators.branchListItem)
-        .contains("master")
-        .click();
+      cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
-      cy.contains("Page not found");
+      cy.get(`.t--entity.page`)
+        .contains("Page1")
+        .closest(".t--entity")
+        .should("be.visible")
+        .should("have.class", "activePage");
+      cy.get(".t--canvas-artboard").should("be.visible");
     });
-    cy.go("back");
     cy.reload();
   });
 
-  it("8. branch list search", function() {
+  it("7. branch list search", function () {
     cy.get(".bp3-spinner").should("not.exist");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;

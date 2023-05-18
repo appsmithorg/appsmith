@@ -1,15 +1,17 @@
 import * as React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 
-import RangeSliderComponent, {
-  RangeSliderComponentProps,
-} from "../component/RangeSlider";
+import type { RangeSliderComponentProps } from "../component/RangeSlider";
+import RangeSliderComponent from "../component/RangeSlider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,
@@ -55,6 +57,17 @@ class RangeSliderWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Range slider widget is used to capture user feedback from a range of values",
+      "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      start: "number",
+      end: "number",
+    };
   }
 
   componentDidUpdate(prevProps: RangeSliderWidgetProps) {

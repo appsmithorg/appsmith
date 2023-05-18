@@ -1,7 +1,7 @@
-import React, { ReactNode } from "react";
-import CustomizedDropdown, {
-  CustomizedDropdownProps,
-} from "pages/common/CustomizedDropdown/index";
+import type { ReactNode } from "react";
+import React from "react";
+import type { CustomizedDropdownProps } from "pages/common/CustomizedDropdown/index";
+import CustomizedDropdown from "pages/common/CustomizedDropdown/index";
 
 type SelectComponentProps = {
   input: {

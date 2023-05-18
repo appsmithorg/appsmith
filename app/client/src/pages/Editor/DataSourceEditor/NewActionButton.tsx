@@ -16,11 +16,11 @@ import {
 } from "@appsmith/constants/messages";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { Datasource } from "entities/Datasource";
-import { Plugin } from "api/PluginApi";
-import { EventLocation } from "utils/AnalyticsUtil";
+import type { Datasource } from "entities/Datasource";
+import type { Plugin } from "api/PluginApi";
+import type { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
 
 const ActionButton = styled(Button)`

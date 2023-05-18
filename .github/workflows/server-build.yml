@@ -10,6 +10,12 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
+
 
   pull_request:
     branches: [release, master]
@@ -132,13 +138,17 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
-          APPSMITH_AUDITLOG_ENABLED: true
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
         run: |
+          if [[ "${{ inputs.skip-tests }}" == "true" ]]
+          then
+            args=-DskipTests
+          fi
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          ./build.sh
+          ./build.sh $args
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
@@ -152,7 +162,7 @@ jobs:
       - name: Upload server build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
       - name: Save the status of the run

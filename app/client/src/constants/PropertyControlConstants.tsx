@@ -1,16 +1,17 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import {
+import type {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { Stylesheet } from "entities/AppTheming";
-import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
+import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { Stylesheet } from "entities/AppTheming";
+import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
 const ControlTypes = getPropertyControlTypes();
-export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
+export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
   sectionName: string;
@@ -77,9 +78,7 @@ export type PropertyPaneControlConfig = {
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
   useValidationMessage?: boolean;
-  additionalAutoComplete?: (
-    props: any,
-  ) => Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
@@ -146,5 +145,5 @@ export type PropertyPaneConfig =
   | PropertyPaneControlConfig;
 
 export interface ActionValidationConfigMap {
-  [configPropety: string]: ValidationConfig;
+  [configProperty: string]: ValidationConfig;
 }

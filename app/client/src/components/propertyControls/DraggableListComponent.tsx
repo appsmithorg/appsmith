@@ -36,10 +36,11 @@ export type DroppableComponentProps<TItem extends BaseItemProps> = {
   updateItems: (items: TItem[]) => void;
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
+  keyAccessor?: string;
 };
 
 export class DroppableComponent<
-  TItem extends BaseItemProps
+  TItem extends BaseItemProps,
 > extends React.Component<DroppableComponentProps<TItem>> {
   constructor(props: DroppableComponentProps<TItem>) {
     super(props);
@@ -71,6 +72,7 @@ export class DroppableComponent<
       isVisible: item.isVisible,
       isDuplicateLabel: item.isDuplicateLabel,
       isChecked: item.isChecked,
+      isDragDisabled: item?.isDragDisabled,
     };
   }
 
@@ -125,6 +127,7 @@ export class DroppableComponent<
         focusedIndex={this.props.focusedIndex}
         itemHeight={45}
         items={this.props.items}
+        keyAccessor={this.props?.keyAccessor}
         onUpdate={this.onUpdate}
         shouldReRender={false}
         updateDragging={this.updateDragging}

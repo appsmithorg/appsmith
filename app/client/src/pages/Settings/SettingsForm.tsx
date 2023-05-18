@@ -4,10 +4,12 @@ import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import { connect, useDispatch } from "react-redux";
-import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "@appsmith/reducers";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import { connect, useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { useParams, withRouter } from "react-router";
+import type { AppState } from "@appsmith/reducers";
+import type { InjectedFormProps } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
 import {
   getSettings,
   getSettingsSavingState,
@@ -18,10 +20,8 @@ import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
 import { DisconnectService } from "./DisconnectService";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import {
-  SettingTypes,
-  Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
@@ -30,10 +30,7 @@ import {
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
-import {
-  connectedMethods,
-  saveAllowed,
-} from "@appsmith/utils/adminSettingsHelpers";
+import { saveAllowed } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
@@ -45,6 +42,10 @@ import {
   MaxWidthWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -80,10 +81,12 @@ export function SettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+  const socialLoginList = useSelector(getThirdPartyAuths);
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings)) {
+      if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
@@ -133,7 +136,11 @@ export function SettingsForm(
     }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
-      if (setting && setting.controlType == SettingTypes.TOGGLE) {
+      if (
+        setting &&
+        (setting.controlType == SettingTypes.TOGGLE ||
+          setting.controlType == SettingTypes.CHECKBOX)
+      ) {
         const settingsStr = props.settingsConfig[settingName].toString();
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =
@@ -167,9 +174,18 @@ export function SettingsForm(
 
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
-    if (connectedMethods.length >= 2) {
+    const connectedMethodsCount =
+      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+    if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
-        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+        if (
+          !setting.isHidden &&
+          [
+            SettingTypes.LINK,
+            SettingTypes.ACCORDION,
+            SettingTypes.UNEDITABLEFIELD,
+          ].indexOf(setting.controlType) === -1
+        ) {
           updatedSettings[setting.id] = "";
         }
       });

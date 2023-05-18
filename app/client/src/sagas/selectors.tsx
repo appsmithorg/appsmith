@@ -1,26 +1,29 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import memoize from "proxy-memoize";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetProps } from "widgets/BaseWidget";
-import _, { omit } from "lodash";
-import {
-  WidgetType,
-  WIDGET_PROPS_TO_SKIP_FROM_EVAL,
-} from "constants/WidgetConstants";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import _, { defaults, omit } from "lodash";
+import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
-import { Plugin } from "api/PluginApi";
-import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
+import type { Plugin } from "api/PluginApi";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
+
+export const getWidgetsByName = createSelector(getWidgets, (widgets) => {
+  return _.keyBy(widgets, "widgetName");
+});
 
 export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   const widgetForEval: CanvasWidgetsReduxState = {};
@@ -33,11 +36,23 @@ export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   return widgetForEval;
 });
 
+export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
+  return state.entities.metaWidgets;
+};
+
+export const getCanvasAndMetaWidgets = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (canvasWidget, metaWidget) => defaults({}, canvasWidget, metaWidget),
+);
+
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
-  [getWidgetsMeta, (_state: AppState, widgetId: string) => widgetId],
-  (metaState, widgetId: string) => metaState[widgetId],
+  [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
+  (metaState, widget: WidgetProps) => {
+    return metaState[widget.metaWidgetId || widget.widgetId];
+  },
 );
 
 export const getWidgetByID = (widgetId: string) => {
@@ -75,14 +90,10 @@ export const getDataTreeForActionCreator = memoize((state: AppState) => {
   const dataTree: DataTreeForActionCreator = {};
   Object.keys(state.evaluations.tree).forEach((key) => {
     const value: any = state.evaluations.tree[key];
-    if (value.meta)
-      dataTree[key] = {
-        meta: value.meta,
-      };
-    if (value.ENTITY_TYPE)
-      dataTree[key] = {
-        ENTITY_TYPE: value.ENTITY_TYPE,
-      };
+    dataTree[key] = {
+      meta: value?.meta || null,
+      ENTITY_TYPE: value?.ENTITY_TYPE || null,
+    };
   });
   return dataTree;
 });

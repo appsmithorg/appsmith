@@ -18,8 +18,8 @@ import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
 import ConflictInfo from "../components/ConflictInfo";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { Theme } from "constants/DefaultTheme";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import type { Theme } from "constants/DefaultTheme";
 
 const StyledGitErrorPopup = styled.div`
   & {

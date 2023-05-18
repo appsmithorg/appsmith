@@ -1,22 +1,21 @@
 import { all, select, takeEvery } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
 } from "selectors/entitiesSelector";
-import { Action, PluginType } from "entities/Action";
-import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import {
   generateTemplateFormURL,
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
 } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
@@ -36,9 +35,8 @@ function* handleDatasourceCreatedSaga(
   const isGeneratePageInitiator = getIsGeneratePageInitiator(
     queryParams.isGeneratePageMode,
   );
-  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
-    getGenerateCRUDEnabledPluginMap,
-  );
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
+    yield select(getGenerateCRUDEnabledPluginMap);
 
   // isGeneratePageInitiator ensures that datasource is being created from generate page with data
   // then we check if the current plugin is supported for generate page with data functionality

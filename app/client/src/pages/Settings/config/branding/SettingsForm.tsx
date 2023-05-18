@@ -1,17 +1,16 @@
 import React from "react";
-import {
+import type {
   Control,
-  Controller,
   FormState,
   UseFormReset,
   UseFormHandleSubmit,
   UseFormSetValue,
   UseFormResetField,
 } from "react-hook-form";
-import QuestionIcon from "remixicon-react/QuestionFillIcon";
+import { Controller } from "react-hook-form";
 import { Button, Size, TooltipComponent } from "design-system-old";
 
-import { Inputs } from "./BrandingPage";
+import type { Inputs } from "./BrandingPage";
 import {
   ADMIN_BRANDING_LOGO_REQUIREMENT,
   ADMIN_BRANDING_FAVICON_REQUIREMENT,
@@ -28,6 +27,11 @@ import { ImageInput } from "pages/Settings/FormGroup/ImageInput";
 import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
 import { useBrandingForm } from "@appsmith/pages/AdminSettings/config/branding/useBrandingForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importRemixIcon } from "design-system-old";
+
+const QuestionIcon = importRemixIcon(
+  () => import("remixicon-react/QuestionFillIcon"),
+);
 
 type SettingsFormProps = {
   disabled?: boolean;

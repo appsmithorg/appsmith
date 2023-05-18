@@ -5,14 +5,15 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget Functionality", function() {
+describe("Dropdown Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
     cy.wait(3000);
   });
 
-  it("1. Dropdown-Modal Validation", function() {
+  it("1. Dropdown-Modal Validation", function () {
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
     cy.EnableAllCodeEditors();
@@ -34,13 +35,16 @@ describe("Dropdown Widget Functionality", function() {
     // );
   });
 
-  it("2. Dropdown-Call-Api Validation", function() {
+  it("2. Dropdown-Call-Api Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the Dropdown widget.
     // Creating the api
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("dropdownApi");
     cy.log("Creation of buttonApi Action successful");
-    cy.enterDatasourceAndPath(this.data.paginationUrl, "users?page=4&size=3");
+    cy.enterDatasourceAndPath(
+      this.data.paginationUrl,
+      "mock-api?records=20&page=4&size=3",
+    );
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
@@ -48,10 +52,9 @@ describe("Dropdown Widget Functionality", function() {
     cy.reload();
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
-    // Adding the api in the onClickAction of the button widget.
-    cy.addAPIFromLightningMenu("dropdownApi");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
+    cy.executeDbQuery("dropdownApi", "onOptionChange");
+    // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
+    cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
 
     cy.PublishtheApp();
 
@@ -65,7 +68,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("3. Dropdown-Call-Query Validation", function() {
+  it("3. Dropdown-Call-Query Validation", function () {
     //creating a query and calling it from the onOptionChangeAction of the Dropdown widget.
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
@@ -100,10 +103,10 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("selectwidget");
-    // Adding the query in the onClickAction of the button widget.
-    cy.addQueryFromLightningMenu("Query1");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
+    // Adding the query in the onOptionChangeAction of the dropdown widget.
+    cy.executeDbQuery("Query1", "onOptionChange");
+    // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
+    cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
     cy.PublishtheApp();
 
@@ -117,7 +120,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("4. Toggle JS - Dropdown-Call-Query Validation", function() {
+  it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
     cy.SearchEntityandOpen("Dropdown1");
@@ -139,7 +142,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("5. Toggle JS - Dropdown-CallAnApi Validation", function() {
+  it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
     cy.SearchEntityandOpen("Dropdown1");
@@ -159,22 +162,18 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("selectwidget");
-    // Click on onOptionChange JS button
-    cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
-    cy.get(commonlocators.dropdownSelectButton)
-      .eq(0)
-      .click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("No action")
-      .click();
   });
 
-  it("6. Dropdown Widget Functionality to Verify On Option Change Action", function() {
+  it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
+    // Clear the JS code
+    _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
+    cy.get(_.locators._jsToggle("onoptionchange")).click();
+
     // Dropdown On Option Change
-    cy.addEvent("Option Changed", ".t--property-control-onoptionchange");
+    _.jsEditor.DisableJSContext("onOptionChange");
+    cy.getAlert("onOptionChange", "Option Changed");
     cy.PublishtheApp();
     // Change the Option
     cy.get(formWidgetsPage.selectWidget)

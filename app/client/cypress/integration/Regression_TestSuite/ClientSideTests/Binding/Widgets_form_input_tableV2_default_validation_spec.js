@@ -2,12 +2,12 @@ const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Binding the multiple input Widget", function() {
+describe("Binding the multiple input Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Input widget test with default value from table widget v2", function() {
+  it("1. Input widget test with default value from table widget v2", function () {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
@@ -19,7 +19,7 @@ describe("Binding the multiple input Widget", function() {
     );
   });
 
-  it("2. Validation of data displayed in all widgets based on row selected", function() {
+  it("2. Validation of data displayed in all widgets based on row selected", function () {
     cy.isSelectRow(1);
     cy.readTableV2dataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;

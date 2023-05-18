@@ -11,11 +11,14 @@ import {
   allowedFirstDayOfWeekRange,
 } from "./propertyUtils";
 import _ from "lodash";
-import { ColumnTypes, TableWidgetProps } from "../constants";
+import type { ColumnTypes, TableWidgetProps } from "../constants";
+import { StickyType } from "../component/Constants";
 
 describe("PropertyUtils - ", () => {
   it("totalRecordsCountValidation - should test with all possible values", () => {
-    const ERROR_MESSAGE = "This value must be a number";
+    const ERROR_MESSAGE = [
+      { name: "ValidationError", message: "This value must be a number" },
+    ];
 
     const values = [
       [
@@ -23,7 +26,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 0,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -31,7 +34,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 0,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -39,7 +42,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 0,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -47,7 +50,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: false,
           parsed: 0,
-          message: [ERROR_MESSAGE],
+          messages: ERROR_MESSAGE,
         },
       ],
       [
@@ -55,7 +58,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: false,
           parsed: 0,
-          message: [ERROR_MESSAGE],
+          messages: ERROR_MESSAGE,
         },
       ],
       [
@@ -63,7 +66,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: false,
           parsed: 0,
-          message: [ERROR_MESSAGE],
+          messages: ERROR_MESSAGE,
         },
       ],
       [
@@ -71,7 +74,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 1,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -79,7 +82,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 1,
-          message: [""],
+          messages: [],
         },
       ],
     ];
@@ -153,7 +156,7 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
-        (props as any) as TableWidgetProps,
+        props as any as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
       ),
@@ -196,7 +199,7 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
-        (props as any) as TableWidgetProps,
+        props as any as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
       ),
@@ -213,7 +216,7 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
-        (props as any) as TableWidgetProps,
+        props as any as TableWidgetProps,
         "",
         "someOtherRandomStyleValue",
       ),
@@ -221,7 +224,7 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
-        ({} as any) as TableWidgetProps,
+        {} as any as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
       ),
@@ -229,7 +232,7 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
-        ({} as any) as TableWidgetProps,
+        {} as any as TableWidgetProps,
         "",
         "someOtherRandomStyleValue",
       ),
@@ -237,11 +240,23 @@ describe("PropertyUtils - ", () => {
   });
 
   it("updateColumnOrderHook - should test with all possible values", () => {
+    const defaultStickyValuesForPrimaryCols = {
+      column1: {
+        sticky: StickyType.NONE,
+      },
+      column2: {
+        sticky: StickyType.NONE,
+      },
+      column3: {
+        sticky: StickyType.NONE,
+      },
+    };
     expect(
       updateColumnOrderHook(
-        ({
-          columnOrder: ["column1", "columns2"],
-        } as any) as TableWidgetProps,
+        {
+          columnOrder: ["column1", "column2"],
+          primaryColumns: defaultStickyValuesForPrimaryCols,
+        } as any as TableWidgetProps,
         "primaryColumns.column3",
         {
           id: "column3",
@@ -250,7 +265,7 @@ describe("PropertyUtils - ", () => {
     ).toEqual([
       {
         propertyPath: "columnOrder",
-        propertyValue: ["column1", "columns2", "column3"],
+        propertyValue: ["column1", "column2", "column3"],
       },
       {
         propertyPath: "primaryColumns.column3",
@@ -263,9 +278,9 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnOrderHook(
-        ({
-          columnOrder: ["column1", "columns2"],
-        } as any) as TableWidgetProps,
+        {
+          columnOrder: ["column1", "column2"],
+        } as any as TableWidgetProps,
         "",
         {
           id: "column3",
@@ -274,16 +289,16 @@ describe("PropertyUtils - ", () => {
     ).toEqual(undefined);
 
     expect(
-      updateColumnOrderHook(({} as any) as TableWidgetProps, "", {
+      updateColumnOrderHook({} as any as TableWidgetProps, "", {
         id: "column3",
       }),
     ).toEqual(undefined);
 
     expect(
       updateColumnOrderHook(
-        ({
-          columnOrder: ["column1", "columns2"],
-        } as any) as TableWidgetProps,
+        {
+          columnOrder: ["column1", "column2"],
+        } as any as TableWidgetProps,
         "primaryColumns.column3.iconAlignment",
         {
           id: "column3",
@@ -313,7 +328,7 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
-          (prop as any) as TableWidgetProps,
+          prop as any as TableWidgetProps,
           "primaryColumns.column",
           ["text"] as ColumnTypes[],
           true,
@@ -332,7 +347,7 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
-          (prop as any) as TableWidgetProps,
+          prop as any as TableWidgetProps,
           "primaryColumns.column",
           ["text"] as ColumnTypes[],
           true,
@@ -351,9 +366,9 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
-          (prop as any) as TableWidgetProps,
+          prop as any as TableWidgetProps,
           "primaryColumns.column.buttonColor",
-          (["Button"] as any) as ColumnTypes[],
+          ["Button"] as any as ColumnTypes[],
         ),
       ).toBe(true);
     });
@@ -369,9 +384,9 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
-          (prop as any) as TableWidgetProps,
+          prop as any as TableWidgetProps,
           "primaryColumns.column.buttonColor",
-          (["Button"] as any) as ColumnTypes[],
+          ["Button"] as any as ColumnTypes[],
         ),
       ).toBe(false);
     });
@@ -383,7 +398,7 @@ describe("uniqueColumnAliasValidation", () => {
     expect(
       uniqueColumnAliasValidation(
         "column",
-        ({
+        {
           primaryColumns: {
             column: {
               alias: "column",
@@ -395,7 +410,7 @@ describe("uniqueColumnAliasValidation", () => {
               alias: "column2",
             },
           },
-        } as unknown) as TableWidgetProps,
+        } as unknown as TableWidgetProps,
         _,
       ),
     ).toEqual({
@@ -409,7 +424,7 @@ describe("uniqueColumnAliasValidation", () => {
     expect(
       uniqueColumnAliasValidation(
         "",
-        ({
+        {
           primaryColumns: {
             column: {
               alias: "column",
@@ -421,7 +436,7 @@ describe("uniqueColumnAliasValidation", () => {
               alias: "column2",
             },
           },
-        } as unknown) as TableWidgetProps,
+        } as unknown as TableWidgetProps,
         _,
       ),
     ).toEqual({
@@ -435,7 +450,7 @@ describe("uniqueColumnAliasValidation", () => {
     expect(
       uniqueColumnAliasValidation(
         "column1",
-        ({
+        {
           primaryColumns: {
             column: {
               alias: "column",
@@ -447,7 +462,7 @@ describe("uniqueColumnAliasValidation", () => {
               alias: "column2",
             },
           },
-        } as unknown) as TableWidgetProps,
+        } as unknown as TableWidgetProps,
         _,
       ),
     ).toEqual({

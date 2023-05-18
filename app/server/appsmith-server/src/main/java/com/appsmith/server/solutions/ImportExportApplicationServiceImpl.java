@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Component
@@ -40,7 +41,6 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               NewPageRepository newPageRepository,
                                               NewActionService newActionService,
                                               SequenceService sequenceService,
-                                              ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
@@ -51,12 +51,13 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               ApplicationPermission applicationPermission,
                                               PagePermission pagePermission,
                                               ActionPermission actionPermission,
-                                              Gson gson) {
+                                              Gson gson,
+                                              TransactionalOperator transactionalOperator) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
-                newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
+                newActionService, sequenceService, actionCollectionRepository,
                 actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
-                workspacePermission, applicationPermission, pagePermission, actionPermission, gson);
+                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator);
     }
 }

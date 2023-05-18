@@ -10,7 +10,7 @@ export const Title = styled.p`
 `;
 
 export const Subtitle = styled.div`
-  margin-top: 8px;
+  margin-top: 4px;
   ${getTypographyByKey("p1")};
   color: ${Colors.GREY_900};
 `;

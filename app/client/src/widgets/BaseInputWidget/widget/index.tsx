@@ -1,22 +1,24 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import { WidgetType } from "constants/WidgetConstants";
-import {
-  EventType,
-  ExecutionResult,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import type { IconName } from "@blueprintjs/icons";
+import { LabelPosition } from "components/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import React from "react";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
+import { isInputTypeEmailOrPassword } from "widgets/InputWidgetV2/widget/Utilities";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
-import { LabelPosition } from "components/constants";
 import { checkInputTypeTextByProps } from "../utils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
-  K extends WidgetState
+  K extends WidgetState,
 > extends BaseWidget<T, K> {
   constructor(props: T) {
     super(props);
@@ -43,6 +45,7 @@ class BaseInputWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -241,6 +244,24 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "shouldAllowAutofill",
+            label: "Allow autofill",
+            helpText: "Allow users to autofill values from browser",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: InputWidgetProps) => {
+              //should be shown for only inputWidgetV2 and for email or password input types
+              return !(
+                isInputTypeEmailOrPassword(props?.inputType) &&
+                props.type === "INPUT_WIDGET_V2"
+              );
+            },
+            dependencies: ["inputType"],
+          },
+          {
             propertyName: "allowFormatting",
             label: "Enable Formatting",
             helpText: "Formats the phone number as per the country selected",
@@ -259,7 +280,7 @@ class BaseInputWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the text is changed",
+            helpText: "when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",
@@ -268,7 +289,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the input field receives focus",
+            helpText: "when the input field receives focus",
             propertyName: "onFocus",
             label: "onFocus",
             controlType: "ACTION_SELECTOR",
@@ -277,7 +298,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the input field loses focus",
+            helpText: "when the input field loses focus",
             propertyName: "onBlur",
             label: "onBlur",
             controlType: "ACTION_SELECTOR",
@@ -286,8 +307,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText:
-              "Triggers an action on submit (when the enter key is pressed)",
+            helpText: "on submit (when the enter key is pressed)",
             propertyName: "onSubmit",
             label: "onSubmit",
             controlType: "ACTION_SELECTOR",
@@ -336,6 +356,7 @@ class BaseInputWidget<
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

@@ -1,19 +1,19 @@
 import React from "react";
 import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router";
-import { Plugin } from "api/PluginApi";
+import type { RouteComponentProps } from "react-router";
+import type { Plugin } from "api/PluginApi";
 import {
   getDatasourcesByPluginId,
   getPluginByPackageName,
 } from "selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
-import { SaaSAction } from "entities/Action";
+import type { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 // Design
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";

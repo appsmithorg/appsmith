@@ -1,18 +1,12 @@
 import { useCallback } from "react";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import { flashElementsById, quickScrollToWidget } from "utils/helpers";
-import { useDispatch, useSelector } from "react-redux";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useDispatch } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { navigateToCanvas } from "./utils";
-import {
-  getCanvasWidgets,
-  getCurrentPageWidgets,
-} from "selectors/entitiesSelector";
-import { inGuidedTour } from "selectors/onboardingSelectors";
+import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import store from "store";
-import { NavigationMethod } from "utils/history";
+import type { NavigationMethod } from "utils/history";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export const useNavigateToWidget = () => {
@@ -20,33 +14,16 @@ export const useNavigateToWidget = () => {
 
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
-  const canvasWidgets = useSelector(getCanvasWidgets);
-  const guidedTourEnabled = useSelector(inGuidedTour);
-  const multiSelectWidgets = (widgetId: string, pageId: string) => {
-    navigateToCanvas(pageId);
-    flashElementsById(widgetId);
+  const multiSelectWidgets = (widgetId: string) => {
     selectWidget(SelectionRequestType.PushPop, [widgetId]);
   };
 
   const selectSingleWidget = (
     widgetId: string,
     widgetType: WidgetType,
-    pageId: string,
     navigationMethod?: NavigationMethod,
   ) => {
-    selectWidget(SelectionRequestType.One, [widgetId]);
-    navigateToCanvas(pageId, widgetId, navigationMethod);
-    quickScrollToWidget(widgetId, canvasWidgets);
-    // Navigating to a widget from query pane seems to make the property pane
-    // appear below the entity explorer hence adding a timeout here
-    setTimeout(() => {
-      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-      // we skip scrolling altogether during guided tour as we don't have
-      // too many widgets during the same
-      if (params.pageId === pageId && !guidedTourEnabled) {
-        flashElementsById(widgetId);
-      }
-    }, 0);
+    selectWidget(SelectionRequestType.One, [widgetId], navigationMethod);
   };
 
   const navigateToWidget = useCallback(
@@ -58,7 +35,20 @@ export const useNavigateToWidget = () => {
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
       isShiftSelect?: boolean,
+      /** Don't use unsafeSelect unless absolutely necessary.
+       * This will skip all checks
+       * and navigate to the widget directly and may cause ux issues */
+      unsafeSelect?: boolean,
     ) => {
+      if (unsafeSelect) {
+        selectWidget(
+          SelectionRequestType.UnsafeSelect,
+          [widgetId],
+          navigationMethod,
+          pageId,
+        );
+        return;
+      }
       const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
@@ -67,9 +57,9 @@ export const useNavigateToWidget = () => {
       if (isShiftSelect) {
         selectWidget(SelectionRequestType.ShiftSelect, [widgetId]);
       } else if (isMultiSelect) {
-        multiSelectWidgets(widgetId, pageId);
+        multiSelectWidgets(widgetId);
       } else {
-        selectSingleWidget(widgetId, widgetType, pageId, navigationMethod);
+        selectSingleWidget(widgetId, widgetType, navigationMethod);
       }
     },
     [dispatch, params, selectWidget],

@@ -1,7 +1,7 @@
 import { get } from "lodash";
 
-import { ButtonGroupWidgetProps } from ".";
-import { Stylesheet } from "entities/AppTheming";
+import type { ButtonGroupWidgetProps } from ".";
+import type { Stylesheet } from "entities/AppTheming";
 
 /**
  * this is a getter function to get stylesheet value of the property from the config

@@ -1,9 +1,8 @@
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
-  DataTreeAction,
-  DataTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity } from "entities/DataTree/types";
+import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
 
@@ -60,11 +59,11 @@ export const checkIfCursorInsideBinding = (
   return cursorBetweenBinding;
 };
 
-export const isActionEntity = (entity: any): entity is DataTreeAction => {
+export const isActionEntity = (entity: any): entity is ActionEntity => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
 };
 
-export const isWidgetEntity = (entity: any): entity is DataTreeWidget => {
+export const isWidgetEntity = (entity: any): entity is WidgetEntity => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 };
 
@@ -123,3 +122,16 @@ export const removeNewLineCharsIfRequired = (
   }
   return resultVal;
 };
+
+// Checks if string at the position of the cursor is empty
+export function isCursorOnEmptyToken(editor: CodeMirror.Editor) {
+  const currentCursorPosition = editor.getCursor();
+  const { string: stringAtCurrentPosition } = editor.getTokenAt(
+    currentCursorPosition,
+  );
+  const isEmptyString = !(
+    stringAtCurrentPosition && trim(stringAtCurrentPosition)
+  );
+
+  return isEmptyString;
+}

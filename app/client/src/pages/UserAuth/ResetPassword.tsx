@@ -1,25 +1,22 @@
 import React, { useLayoutEffect } from "react";
-import { AppState } from "@appsmith/reducers";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
+import type { AppState } from "@appsmith/reducers";
+import type { RouteComponentProps } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { InjectedFormProps, reduxForm, Field } from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { reduxForm, Field } from "redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import FormTextField from "components/utils/ReduxFormTextField";
-import {
-  Button,
-  FormGroup,
-  FormMessage,
-  FormMessageProps,
-  MessageAction,
-  Size,
-} from "design-system-old";
+import type { FormMessageProps, MessageAction } from "design-system-old";
+import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
-import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
+import type { ResetPasswordFormValues } from "./helpers";
+import { resetPasswordSubmitHandler } from "./helpers";
 import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
 import {
@@ -39,7 +36,7 @@ import {
 } from "@appsmith/constants/messages";
 import Container from "./Container";
 import { useTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};

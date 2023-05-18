@@ -1,52 +1,94 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
+let mockDBNameUsers: string, mockDBNameMovies: string;
 
-const ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
-let mockDBNameUsers: any, mockDBNameMovies: any;
+describe("Entity explorer context menu should hide on scrolling", function () {
+  it(
+    "excludeForAirgap",
+    "1. Bug #15474 - Entity explorer menu must close on scroll",
+    function () {
+      // Setup to make the explorer scrollable
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.entityExplorer.ExpandCollapseEntity("Datasources");
+      _.agHelper.ContainsNClick("Libraries");
+      _.dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+        mockDBNameUsers = $createdMockUsers;
+        _.dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
 
-describe("Entity explorer context menu should hide on scrolling", function() {
-  it("1. Bug #15474 - Entity explorer menu must close on scroll", function() {
-    // Setup to make the explorer scrollable
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.ExpandCollapseEntity("Datasources");
-    agHelper.ContainsNClick("Libraries");
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Users"));
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBNameUsers = $createdMock.response?.body.data.name;
-      cy.wrap(mockDBNameUsers).as('usersDB')
-      dataSources.CreateQuery(mockDBNameUsers);
-    })
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Movies"));
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBNameMovies = $createdMock.response?.body.data.name;
-      cy.wrap(mockDBNameMovies).as('moviesDB')
-      dataSources.CreateQuery(mockDBNameMovies);
-    });
-    cy.get('@usersDB').then((dbName : any)=> {
-      agHelper.Sleep();//time for mock schema to load
-      ee.ExpandCollapseEntity(dbName);
-    })
-    cy.get('@moviesDB').then((dbName: any)=> {
-      agHelper.Sleep();//time for mock schema to load
-      ee.ExpandCollapseEntity(dbName);
-    })
-    ee.ExpandCollapseEntity("public.users");
-    ee.ExpandCollapseEntity("movies")
-    agHelper.GetNClick(locator._createNew);
-    agHelper.AssertElementVisible(ee._createNewPopup);
-    agHelper.ScrollTo(ee._entityExplorerWrapper, "bottom");
-    agHelper.AssertElementAbsence(ee._createNewPopup);
-  });
+        _.dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
+          mockDBNameMovies = $createdMockMovies;
+          _.dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+
+          _.agHelper.Sleep();
+          _.entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
+          _.agHelper.Sleep();
+          _.entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
+
+          _.entityExplorer.ExpandCollapseEntity("public.users");
+          _.entityExplorer.ExpandCollapseEntity("movies");
+          _.agHelper.GetNClick(_.locators._createNew);
+          _.agHelper.AssertElementVisible(_.entityExplorer._createNewPopup);
+          _.agHelper.ScrollTo(
+            _.entityExplorer._entityExplorerWrapper,
+            "bottom",
+          );
+          _.agHelper.AssertElementAbsence(_.entityExplorer._createNewPopup);
+        });
+      });
+    },
+  );
+
+  it(
+    "airgap",
+    "1. Bug #15474 - Entity explorer menu must close on scroll - airgap",
+    function () {
+      // Setup to make the explorer scrollable
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.entityExplorer.ExpandCollapseEntity("Datasources");
+      _.agHelper.ContainsNClick("Libraries");
+      _.dataSources.CreateDataSource("Postgres");
+      cy.get("@dsName").then(($createdMockUsers: any) => {
+        mockDBNameUsers = $createdMockUsers;
+        _.dataSources.NavigateToActiveTab();
+        _.dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
+
+        _.dataSources.CreateDataSource("Mongo");
+        cy.get("@dsName").then(($createdMockMovies: any) => {
+          _.dataSources.NavigateToActiveTab();
+          mockDBNameMovies = $createdMockMovies;
+          _.dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+
+          _.agHelper.Sleep();
+          _.entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
+          _.agHelper.Sleep();
+          _.entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
+
+          _.entityExplorer.ExpandCollapseEntity("public.users");
+          _.entityExplorer.ExpandCollapseEntity("listingAndReviews");
+          _.agHelper.GetNClick(_.locators._createNew);
+          _.agHelper.AssertElementVisible(_.entityExplorer._createNewPopup);
+          _.agHelper.ScrollTo(
+            _.entityExplorer._entityExplorerWrapper,
+            "bottom",
+          );
+          _.agHelper.AssertElementAbsence(_.entityExplorer._createNewPopup);
+        });
+      });
+    },
+  );
 
   after(() => {
     //clean up
-    ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
-    dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
-    dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Query1",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Query2",
+      "Delete",
+      "Are you sure?",
+    );
+    _.dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tr_.ee
+    _.dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
   });
 });

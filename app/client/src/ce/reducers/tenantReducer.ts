@@ -1,5 +1,5 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -16,6 +16,7 @@ export interface TenantReduxState<T> {
   tenantConfiguration: Record<string, T>;
   new: boolean;
   isLoading: boolean;
+  instanceId: string;
 }
 
 export const defaultBrandingConfig = {
@@ -33,14 +34,16 @@ export const initialState: TenantReduxState<any> = {
   },
   new: false,
   isLoading: true,
+  instanceId: "",
 };
 
 export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG]: (
     state: TenantReduxState<any>,
+    action: ReduxAction<{ isBackgroundRequest: boolean }>,
   ) => ({
     ...state,
-    isLoading: true,
+    isLoading: !action.payload.isBackgroundRequest,
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
     state: TenantReduxState<any>,
@@ -53,6 +56,7 @@ export const handlers = {
       ...action.payload.tenantConfiguration,
     },
     isLoading: false,
+    instanceId: action.payload.instanceId,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
     state: TenantReduxState<any>,

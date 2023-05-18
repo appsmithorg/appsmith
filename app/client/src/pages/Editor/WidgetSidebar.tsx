@@ -9,7 +9,7 @@ import {
   WIDGET_SIDEBAR_CAPTION,
 } from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
-import { WidgetCardProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);

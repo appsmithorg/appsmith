@@ -1,24 +1,29 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import derivedProperties from "./parseDerivedProperties";
-import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
-import equal from "fast-deep-equal/es6";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import MultiSelectComponent from "../component";
-import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
-import { Layers } from "constants/Layers";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { Stylesheet } from "entities/AppTheming";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Layers } from "constants/Layers";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import equal from "fast-deep-equal/es6";
+import type { LoDashStatic } from "lodash";
+import { isArray, isFinite, isString, xorWith } from "lodash";
+import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import React from "react";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import MultiSelectComponent from "../component";
+import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -27,17 +32,26 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid = false;
   let parsed: any[] = [];
-  let message = "";
+  let message = { name: "", message: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: options shouldn't get un-eval values;
   let options = props.options;
 
-  const DEFAULT_ERROR_MESSAGE =
-    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-  const MISSING_FROM_OPTIONS =
-    "Some or all default values are missing from options. Please update the values.";
-  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT =
-    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data";
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    message:
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+  };
+  const MISSING_FROM_OPTIONS = {
+    name: "ValidationError",
+    message:
+      "Some or all default values are missing from options. Please update the values.",
+  };
+  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
+    name: "ValidationError",
+    message:
+      "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
+  };
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -96,7 +110,10 @@ export function defaultOptionValueValidation(
         parsed = value;
       } else {
         parsed = [];
-        message = "values must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "values must be unique. Duplicate values found",
+        };
       }
     } else if (value.every(hasLabelValue)) {
       /*
@@ -107,7 +124,10 @@ export function defaultOptionValueValidation(
         parsed = value;
       } else {
         parsed = [];
-        message = "path:value must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "path:value must be unique. Duplicate values found",
+        };
       }
     } else {
       /*
@@ -183,6 +203,34 @@ class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      filterText: {
+        "!type": "string",
+        "!doc": "The filter text for Server side filtering",
+      },
+      selectedOptionValues: {
+        "!type": "[string]",
+        "!doc": "The array of values selected in a multi select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      selectedOptionLabels: {
+        "!type": "[string]",
+        "!doc":
+          "The array of selected option labels in a multi select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      isDirty: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -273,6 +321,7 @@ class MultiSelectWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -450,7 +499,7 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
@@ -459,7 +508,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown opens",
+            helpText: "when the dropdown opens",
             propertyName: "onDropdownOpen",
             label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
@@ -468,7 +517,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown closes",
+            helpText: "when the dropdown closes",
             propertyName: "onDropdownClose",
             label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
@@ -502,6 +551,7 @@ class MultiSelectWidget extends BaseWidget<
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

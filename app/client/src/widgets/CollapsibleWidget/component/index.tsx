@@ -1,11 +1,12 @@
-import React, { ReactNode, useRef, useEffect, RefObject } from "react";
+import type { ReactNode, RefObject } from "react";
+import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
-import { Color } from "constants/Colors";
+import type { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { pick } from "lodash";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { useCollapse } from "./use-collapse";
 
 const scrollContents = css`
@@ -41,9 +42,7 @@ const StyledContainerComponent = styled.div<
     cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
     background: ${(props) => {
       return props.onClickCapture && props.backgroundColor
-        ? tinycolor(props.backgroundColor)
-            .darken(5)
-            .toString()
+        ? tinycolor(props.backgroundColor).darken(5).toString()
         : props.backgroundColor;
     }};
   }

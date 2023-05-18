@@ -30,17 +30,3 @@ export interface Policy {
     users: string[];
     groups: string[];
 }
-
-export interface CommentThread {
-    applicationId: string;
-}
-
-export interface Comment {
-    threadId: string;
-    policies: Policy[];
-    createdAt: string;
-    updatedAt: string;
-    creationTime: string;
-    updationTime: string;
-    deleted: boolean;
-}

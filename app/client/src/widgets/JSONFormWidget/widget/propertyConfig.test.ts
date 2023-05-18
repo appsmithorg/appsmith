@@ -1,4 +1,4 @@
-import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { set } from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 
@@ -52,12 +52,12 @@ describe(".onGenerateFormClick", () => {
       schemaTestData.initialDataset.dataSource,
     );
 
-    const params = ({
+    const params = {
       batchUpdateProperties: mockBatchUpdateProperties,
       props: {
         widgetProperties,
       },
-    } as unknown) as OnButtonClickProps;
+    } as unknown as OnButtonClickProps;
 
     onGenerateFormClick(params);
 
@@ -95,12 +95,12 @@ describe(".onGenerateFormClick", () => {
       schemaTestData.initialDataset.dataSource,
     );
 
-    const params = ({
+    const params = {
       batchUpdateProperties: mockBatchUpdateProperties,
       props: {
         widgetProperties,
       },
-    } as unknown) as OnButtonClickProps;
+    } as unknown as OnButtonClickProps;
 
     onGenerateFormClick(params);
 
@@ -140,12 +140,12 @@ describe(".onGenerateFormClick", () => {
       schemaTestData.withRemovedAddedKeyToInitialDataset.dataSource,
     );
 
-    const params = ({
+    const params = {
       batchUpdateProperties: mockBatchUpdateProperties,
       props: {
         widgetProperties,
       },
-    } as unknown) as OnButtonClickProps;
+    } as unknown as OnButtonClickProps;
 
     onGenerateFormClick(params);
 

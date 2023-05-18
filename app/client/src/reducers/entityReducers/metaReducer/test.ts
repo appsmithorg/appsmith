@@ -1,9 +1,7 @@
 import metaReducer, { initialState } from "./index";
 import { updateMetaState } from "actions/metaActions";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 let currentMetaState = initialState;
 
@@ -101,6 +99,15 @@ describe("Reset widget meta action", () => {
           evaluatedWidget: {
             defaultSelectedValues: ["GREEN"],
             selectedValues: ["GREEN", "BLUE", "YELLOW"],
+            widgetId: inputWidget.widgetId,
+            propertyOverrideDependency: {
+              selectedValues: {
+                DEFAULT: "defaultSelectedValues",
+                META: "meta.selectedValues",
+              },
+            },
+          },
+          evaluatedWidgetConfig: {
             widgetId: inputWidget.widgetId,
             propertyOverrideDependency: {
               selectedValues: {

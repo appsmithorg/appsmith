@@ -8,22 +8,23 @@ import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "../../../cellComponents/AutoToolTipComponent";
-import {
-  OperatorTypes,
-  Condition,
-  Operator,
-  ReactTableFilter,
-} from "../../../Constants";
-import { DropdownOption } from "./index";
+import type { Condition, Operator, ReactTableFilter } from "../../../Constants";
+import { OperatorTypes } from "../../../Constants";
+import type { DropdownOption } from "./index";
 import { RenderOptionWrapper } from "../../../TableStyledWrappers";
 
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
+import { importRemixIcon } from "design-system-old";
 
-import CloseIcon from "remixicon-react/CloseCircleFillIcon";
-import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
+const CloseIcon = importRemixIcon(
+  () => import("remixicon-react/CloseCircleFillIcon"),
+);
+const ArrowDownIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowDownSLineIcon"),
+);
 
 const LabelWrapper = styled.div`
   width: 95px;
@@ -313,6 +314,7 @@ type CascadeFieldProps = {
   condition: Condition;
   value: any;
   operator: Operator;
+  id: string;
   index: number;
   hasAnyFilters: boolean;
   applyFilter: (
@@ -475,14 +477,15 @@ function CaseCaseFieldReducer(
 }
 
 function CascadeField(props: CascadeFieldProps) {
-  const memoizedState = React.useMemo(() => calculateInitialState(props), [
-    props,
-  ]);
+  const memoizedState = React.useMemo(
+    () => calculateInitialState(props),
+    [props],
+  );
   return <Fields state={memoizedState} {...props} />;
 }
 
 function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
-  const { applyFilter, hasAnyFilters, index, removeFilter } = props;
+  const { applyFilter, hasAnyFilters, id, index, removeFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
@@ -534,7 +537,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   useEffect(() => {
     if (!isDeleted && isUpdate) {
       applyFilter(
-        { operator, column, condition, value },
+        { id, operator, column, condition, value },
         index,
         isOperatorChange,
       );

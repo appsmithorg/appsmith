@@ -1,13 +1,12 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -17,9 +16,10 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -58,7 +58,8 @@ function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -84,9 +85,7 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class MenuButtonDynamicItemsControl extends BaseControl<
-  MenuButtonDynamicItemsControlProps
-> {
+class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsControlProps> {
   render() {
     const {
       dataTreePath,
@@ -166,7 +165,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
         } else if (${widgetName}.primaryColumns.${columnName}.sourceData.length) {
           primaryColumnData = ${widgetName}.primaryColumns.${columnName}.sourceData;
         }
-        
+
         return primaryColumnData.map((currentItem, currentIndex) => `;
     } else {
       return `{{${widgetName}.sourceData.map((currentItem, currentIndex) => ( `;

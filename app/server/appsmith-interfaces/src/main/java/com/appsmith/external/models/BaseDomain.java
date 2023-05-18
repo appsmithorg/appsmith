@@ -1,7 +1,8 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -32,62 +33,76 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
+    @JsonView(Views.Public.class)
     private String id;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Indexed
     @CreatedDate
     protected Instant createdAt;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @LastModifiedDate
     protected Instant updatedAt;
 
     @CreatedBy
+    @JsonView(Views.Public.class)
     protected String createdBy;
 
     @LastModifiedBy
+    @JsonView(Views.Public.class)
     protected String modifiedBy;
 
     // Deprecating this so we can move on to using `deletedAt` for all domain models.
     @Deprecated(forRemoval = true)
+    @JsonView(Views.Public.class)
     protected Boolean deleted = false;
 
+    @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
     @Override
+    @JsonView(Views.Public.class)
     public boolean isNew() {
         return this.getId() == null;
     }
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
     }
 
     @Transient
+    @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
-    // This field will be used to store the default/root resource IDs for branched resources generated for git
-    // connected applications and will be used to connect resources across the branches
-    @JsonIgnore
-    DefaultResources defaultResources;
-
     // This field will only be used for git related functionality to sync the action object across different instances.
+    // This field will be deprecated once we move to the new git sync implementation.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
+    @Deprecated
     String gitSyncId;
 
-    public void sanitiseToExportBaseObject() {
-        this.setDefaultResources(null);
+    @Deprecated
+    public void sanitiseToExportDBObject() {
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
         this.setUserPermissions(null);
         this.setPolicies(null);
         this.setCreatedBy(null);
         this.setModifiedBy(null);
+    }
+
+    public void makePristine() {
+        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
+        // updating an existing document). If it contains any policies, they are also reset.
+        this.setId(null);
+        this.setUpdatedAt(null);
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
+        }
     }
 }

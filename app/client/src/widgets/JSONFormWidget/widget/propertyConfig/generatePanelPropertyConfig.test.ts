@@ -1,4 +1,4 @@
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import generatePanelPropertyConfig from "./generatePanelPropertyConfig";
 
 describe(".generatePanelPropertyConfig", () => {
@@ -16,10 +16,10 @@ describe(".generatePanelPropertyConfig", () => {
       expect(currentPropertyConfig?.titlePropertyName).toEqual("label");
       expect(currentPropertyConfig?.panelIdPropertyName).toEqual("identifier");
 
-      const fieldConfigurationProperty = (currentPropertyConfig
-        ?.contentChildren?.[0].children as PropertyPaneControlConfig[]).find(
-        ({ propertyName }) => propertyName === "children",
-      );
+      const fieldConfigurationProperty = (
+        currentPropertyConfig?.contentChildren?.[0]
+          .children as PropertyPaneControlConfig[]
+      ).find(({ propertyName }) => propertyName === "children");
 
       expect(fieldConfigurationProperty).not.toBeUndefined();
       expect(fieldConfigurationProperty?.label).toEqual("Field Configuration");

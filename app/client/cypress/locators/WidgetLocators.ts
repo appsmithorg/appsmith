@@ -20,6 +20,7 @@ export const WIDGET = {
   RATING: "ratewidget",
   CHECKBOXGROUP: "checkboxgroupwidget",
   CHECKBOX: "checkboxwidget",
+  CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
   PHONEINPUT: "phoneinputwidget",
@@ -43,6 +44,8 @@ export const PROPERTY_SELECTOR = {
   propertyName: ".t--property-control-propertyname",
   onClickFieldName: "onClick",
   TextFieldName: "Text",
+  tableData: ".t--property-control-tabledata",
+  tableColumnNames: '[data-rbd-draggable-id] input[type="text"]',
 };
 type ValueOf<T> = T[keyof T];
 

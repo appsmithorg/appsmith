@@ -1,12 +1,12 @@
-import { NodeSpace, TreeNode } from "./constants";
+import type { NodeSpace, TreeNode } from "./constants";
 import { generateTree } from "./generateTree";
 
 describe("Generate Auto Height Layout tree", () => {
   it("Does not conflict when only one horizontal edge is the same", () => {
-    const input: NodeSpace[] = [
-      { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
-      { left: 100, top: 0, bottom: 30, right: 120, id: "2" },
-    ];
+    const input: Record<string, NodeSpace> = {
+      "1": { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
+      "2": { left: 100, top: 0, bottom: 30, right: 120, id: "2" },
+    };
     const previousTree: Record<string, TreeNode> = {};
     const layoutUpdated = false;
     const expected = {
@@ -36,10 +36,10 @@ describe("Generate Auto Height Layout tree", () => {
   });
 
   it("Does conflict when part of the boxes overlap horizontally", () => {
-    const input: NodeSpace[] = [
-      { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
-      { left: 80, top: 40, bottom: 80, right: 120, id: "2" },
-    ];
+    const input: Record<string, NodeSpace> = {
+      "1": { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
+      "2": { left: 80, top: 40, bottom: 80, right: 120, id: "2" },
+    };
     const previousTree: Record<string, TreeNode> = {};
     const layoutUpdated = false;
     const expected = {
@@ -69,10 +69,10 @@ describe("Generate Auto Height Layout tree", () => {
   });
 
   it("Uses existing originals if available in prevTree when layout hasn't updated", () => {
-    const input: NodeSpace[] = [
-      { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
-      { left: 80, top: 30, bottom: 40, right: 120, id: "2" },
-    ];
+    const input: Record<string, NodeSpace> = {
+      "1": { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
+      "2": { left: 80, top: 30, bottom: 40, right: 120, id: "2" },
+    };
     const previousTree: Record<string, TreeNode> = {
       "1": {
         aboves: [],
@@ -121,10 +121,10 @@ describe("Generate Auto Height Layout tree", () => {
   });
 
   it("Ignores existing originals if available in prevTree when layout has updated", () => {
-    const input: NodeSpace[] = [
-      { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
-      { left: 80, top: 30, bottom: 40, right: 120, id: "2" },
-    ];
+    const input: Record<string, NodeSpace> = {
+      "1": { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
+      "2": { left: 80, top: 30, bottom: 40, right: 120, id: "2" },
+    };
     const previousTree: Record<string, TreeNode> = {
       "1": {
         aboves: [],

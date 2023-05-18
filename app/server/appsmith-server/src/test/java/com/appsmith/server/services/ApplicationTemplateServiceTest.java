@@ -144,15 +144,14 @@ public class ApplicationTemplateServiceTest {
 
         // make sure we've received the response returned by the mockCloudServices
         StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
-                .assertNext(applicationTemplates -> assertThat(applicationTemplates.size()).isEqualTo(1))
+                .assertNext(applicationTemplates -> assertThat(applicationTemplates).hasSize(1))
                 .verifyComplete();
 
         // verify that mockCloudServices was called with the query param id i.e. id=id-one&id=id-two
         RecordedRequest recordedRequest = mockCloudServices.takeRequest();
+        assert recordedRequest.getRequestUrl() != null;
         List<String> queryParameterValues = recordedRequest.getRequestUrl().queryParameterValues("id");
-        assertThat(queryParameterValues).contains("id-one");
-        assertThat(queryParameterValues).contains("id-two");
-        assertThat(queryParameterValues.size()).isEqualTo(2);
+        assertThat(queryParameterValues).containsExactly("id-one", "id-two");
     }
 
     @Test

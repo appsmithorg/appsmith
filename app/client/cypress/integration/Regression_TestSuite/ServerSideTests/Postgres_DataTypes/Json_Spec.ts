@@ -9,12 +9,17 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Json & JsonB Datatype tests", function() {
-  before(() => {
+describe("Json & JsonB Datatype tests", function () {
+  before("Importing App & setting theme", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
+    ee.NavigateToSwitcher("widgets");
+    appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
   beforeEach(() => {
@@ -26,14 +31,6 @@ describe("Json & JsonB Datatype tests", function() {
   });
 
   //#region Json Datatype
-
-  it("0. Importing App & setting theme", () => {
-    cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-    ee.NavigateToSwitcher("widgets");
-    appSettings.OpenPaneAndChangeThemeColors(33, 39);
-  });
 
   it("1. Creating table query - jsonbooks", () => {
     query = `CREATE TABLE jsonbooks(serialId SERIAL PRIMARY KEY, details JSON)`;
@@ -109,10 +106,10 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -129,10 +126,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -149,10 +146,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -170,13 +167,13 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //Since recently updated column to pushed to last!
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -271,10 +268,10 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("2");
     });
   });
@@ -302,10 +299,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -330,21 +327,7 @@ describe("Json & JsonB Datatype tests", function() {
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+    ee.DeleteAllQueriesForDB(dsName);
   });
 
   //#endregion
@@ -462,10 +445,10 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -488,10 +471,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -511,10 +494,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -543,13 +526,13 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //Since recently updated column to pushed to last!
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -639,10 +622,10 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("1");
     });
   });
@@ -674,10 +657,10 @@ describe("Json & JsonB Datatype tests", function() {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).not.to.eq("");
     });
   });
@@ -704,24 +687,7 @@ describe("Json & JsonB Datatype tests", function() {
   it("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createEnum", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropEnum", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("getEnum", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+    ee.DeleteAllQueriesForDB(dsName);
   });
 
   //#endregion

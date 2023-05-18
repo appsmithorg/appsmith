@@ -1,10 +1,11 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.server.domains.Layout;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
@@ -13,6 +14,8 @@ public interface LayoutActionServiceCE {
     Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout);
 
     Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName);
+
+    Mono<Integer> updateMultipleLayouts(String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 

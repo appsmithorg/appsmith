@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
-import { DebouncedFunc } from "lodash";
+import type { DebouncedFunc } from "lodash";
+import type { MenuItemProps } from "design-system-old";
 import {
   Button,
   IconSize,
   Menu,
   MenuItem,
-  MenuItemProps,
   Icon,
   SearchVariant,
 } from "design-system-old";
@@ -110,7 +110,10 @@ export function SettingsPageHeader(props: PageHeaderProps) {
   return (
     <Container isMobile={isMobile}>
       <HeaderWrapper margin={`0px`}>
-        <TooltipComponent content={title}>
+        <TooltipComponent
+          content={title}
+          disabled={title && title.length < 32 ? true : false}
+        >
           <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
         </TooltipComponent>
       </HeaderWrapper>

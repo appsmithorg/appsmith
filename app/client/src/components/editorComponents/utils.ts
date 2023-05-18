@@ -1,4 +1,4 @@
-import { JSAction } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import { JSResponseState } from "./JSResponseView";
 
 export const isHtml = (str: string) => {

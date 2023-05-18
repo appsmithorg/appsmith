@@ -1,9 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type {
   ConditionalOutput,
   FormEvalOutput,
   FormEvaluationState,
@@ -70,7 +68,7 @@ const triggers = createReducer(initialState, {
             isLoading: action.payload.value,
           },
         };
-        triggersToBeFetched[key] = newValue as FormEvalOutput;
+        triggersToBeFetched[key] = newValue as unknown as FormEvalOutput;
       }
     });
     return {

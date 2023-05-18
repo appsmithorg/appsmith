@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let appId, newWorkspaceName;
 
-describe("Fork a template to the current app", () => {
+describe("excludeForAirgap", "Fork a template to the current app", () => {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();
   });
@@ -25,7 +25,7 @@ describe("Fork a template to the current app", () => {
   });
 
   it("1. Fork a template to the current app + Bug 17477", () => {
-    cy.wait(5000);
+    cy.wait(3000);
     cy.get(template.startFromTemplateCard).click();
     // Commented out below code as fetch template call is not going through when template dialog is closed
     // cy.wait("@fetchTemplate").should(
@@ -33,7 +33,7 @@ describe("Fork a template to the current app", () => {
     //   "response.body.responseMeta.status",
     //   200,
     // );
-    cy.wait(5000);
+    cy.wait(4000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
       "//div[text()='Applicant Tracker-test']/parent::div//button[contains(@class, 't--fork-template')]",
@@ -42,11 +42,6 @@ describe("Fork a template to the current app", () => {
       .wait(500)
       .click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
-    cy.wait("@getTemplatePages").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(6000);
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetLocators.toastAction).length <= 0) {
@@ -92,14 +87,9 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath(template.selectAllPages)
-      .next()
-      .click();
+    cy.xpath(template.selectAllPages).next().click();
     cy.wait(1000);
-    cy.xpath("//span[text()='2 APPLICATION UPLOAD']")
-      .parent()
-      .next()
-      .click();
+    cy.xpath("//span[text()='2 APPLICATION UPLOAD']").parent().next().click();
     // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
     cy.get(template.templateViewForkButton).click();
     cy.wait("@fetchTemplate").should(

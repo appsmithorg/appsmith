@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { Keys } from "@blueprintjs/core";
 import {
   showActionConfirmationModal,
@@ -14,7 +14,7 @@ import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
 } from "@appsmith/constants/messages";
-import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 type Props = {
   modals: ModalInfo[];

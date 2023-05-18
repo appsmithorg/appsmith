@@ -11,7 +11,6 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
-import CodeEditor from "../CodeEditor";
 import { Button, Size, TabComponent } from "design-system-old";
 import {
   evaluateArgument,
@@ -22,13 +21,13 @@ import {
   unsetEvaluatedArgument,
 } from "actions/globalSearchActions";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
-import { Snippet, SnippetArgument } from "./utils";
+import type { Snippet, SnippetArgument } from "./utils";
 import {
   createMessage,
   SNIPPET_COPY,
@@ -37,10 +36,13 @@ import {
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
 import { getTypographyByKey, Toaster, Variant } from "design-system-old";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
+import LazyCodeEditor from "../LazyCodeEditor";
+import { importSvg } from "design-system-old";
+
+const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -156,7 +158,7 @@ const SnippetContainer = styled.div`
 
 const removeDynamicBinding = (value: string) => {
   const regex = /{{([\s\S]*?)}}/g;
-  return value.replace(regex, function(match, capture) {
+  return value.replace(regex, function (match, capture) {
     return capture;
   });
 };
@@ -170,7 +172,7 @@ export const getSnippet = (
   const templateSubstitutionRegex = /%%(.*?)%%/g;
   const snippetReplacedWithCustomizedValues = snippet.replace(
     templateSubstitutionRegex,
-    function(match, capture) {
+    function (match, capture) {
       const substitution = removeDynamicBinding(args[capture] || "");
       return replaceWithDynamicBinding
         ? `{{${capture}}}`
@@ -345,7 +347,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 onKeyDown={(e) => e.stopPropagation()}
               >
                 <span>{arg.name}</span>
-                <CodeEditor
+                <LazyCodeEditor
                   errors={evaluatedArguments[arg.name]?.errors}
                   evaluatedValue={evaluatedArguments[arg.name]?.value}
                   expected={getExpectedValue({ type: arg.type })}

@@ -8,8 +8,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Testing if user.email is avaible on page load", function() {
-  it("Bug: 20275: {{appsmith.user.email}} is not available on page load", function() {
+describe("Testing if user.email is avaible on page load", function () {
+  it("Bug: 20275: {{appsmith.user.email}} is not available on page load", function () {
     const JS_OBJECT_BODY = `export default{
         myFun1: ()=>{
           showAlert(appsmith.user.email)

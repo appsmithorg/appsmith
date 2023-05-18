@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.repositories.UsagePulseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,16 @@ public class UsagePulseServiceTest {
     @Autowired
     private UsagePulseService usagePulseService;
 
+    @Autowired
+    private CommonConfig commonConfig;
+
+    @Autowired
+    private UsagePulseRepository repository;
+
+    @BeforeEach
+    public void setup() {
+        commonConfig.setCloudHosting(false);
+    }
     /**
      * To verify anonymous user usage pulses are logged properly
      */
@@ -97,5 +110,28 @@ public class UsagePulseServiceTest {
         StepVerifier.create(usagePulseService.createPulse(usagePulseDTO))
                 .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.VIEW_MODE))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "anonymousUser")
+    public void createUsagePulse_forAppsmithCloud_pulseNotSavedInDB() {
+        UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
+        String anonymousUserId = "testAnonymousUserId";
+        usagePulseDTO.setViewMode(false);
+        usagePulseDTO.setAnonymousUserId(anonymousUserId);
+
+        usagePulseService.createPulse(usagePulseDTO).block();
+        Long usagePulseCount = repository.count().block();
+        usagePulseService.createPulse(usagePulseDTO).block();
+        Long usagePulseCountForSelfHostedInstance = repository.count().block();
+
+        commonConfig.setCloudHosting(true);
+        usagePulseService.createPulse(usagePulseDTO).block();
+        Long usagePulseCountForCloud = repository.count().block();
+
+        assertThat(usagePulseCount).isNotNull();
+        assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCount + 1);
+        assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCountForCloud);
+
     }
 }

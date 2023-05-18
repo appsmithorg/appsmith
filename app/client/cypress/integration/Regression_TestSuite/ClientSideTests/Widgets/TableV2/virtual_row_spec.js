@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const PropertyPane = ObjectsRegistry.PropertyPane;
 const totalRows = 100;
 
-describe("Table Widget Virtualized Row", function() {
+describe("Table Widget Virtualized Row", function () {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });
     const row = {
@@ -31,11 +31,11 @@ describe("Table Widget Virtualized Row", function() {
   it("2. should check that virtual rows are getting rendered when scrolling through the table", () => {
     cy.get(".tr[data-rowindex]").should("not.have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
-    cy.get(".tbody > div").scrollTo("bottom");
+    cy.get(".virtual-list.simplebar-content").scrollTo("bottom");
     cy.wait(500);
     cy.get(".tr[data-rowindex='0']").should("not.exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
-    cy.get(".tbody > div").scrollTo("top");
+    cy.get(".virtual-list.simplebar-content").scrollTo("top");
     cy.wait(500);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("not.exist");
@@ -49,11 +49,11 @@ describe("Table Widget Virtualized Row", function() {
     cy.get(".tr[data-rowindex]").should("have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
-    cy.get(".tbody").scrollTo("bottom");
+    cy.get(".table .simplebar-content-wrapper").scrollTo("bottom");
     cy.wait(500);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
-    cy.get(".tbody").scrollTo("top");
+    cy.get(".table .simplebar-content-wrapper").scrollTo("top");
     cy.wait(500);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");

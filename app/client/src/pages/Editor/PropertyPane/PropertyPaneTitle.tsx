@@ -1,11 +1,5 @@
-import React, {
-  memo,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import type { ReactElement } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,20 +9,22 @@ import {
   TooltipComponent,
 } from "design-system-old";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 
-import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import type { PopoverPosition } from "@blueprintjs/core";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
+import { importSvg } from "design-system-old";
+
+const BackIcon = importSvg(() => import("assets/icons/control/back.svg"));
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -58,10 +54,8 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   );
   const guidedTourEnabled = useSelector(inGuidedTour);
 
-  const {
-    dispatchInteractionAnalyticsEvent,
-    eventEmitterRef,
-  } = useInteractionAnalyticsEvent<HTMLDivElement>();
+  const { dispatchInteractionAnalyticsEvent, eventEmitterRef } =
+    useInteractionAnalyticsEvent<HTMLDivElement>();
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf

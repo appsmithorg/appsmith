@@ -45,7 +45,7 @@ const PageNumberInputWrapper = styled(NumericInput)<{
 
 const MIN_PAGE_COUNT = 1;
 
-export function PageNumberInput(props: {
+function PageNumberInputComponent(props: {
   pageNo: number;
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
@@ -109,3 +109,4 @@ export function PageNumberInput(props: {
     />
   );
 }
+export const PageNumberInput = React.memo(PageNumberInputComponent);

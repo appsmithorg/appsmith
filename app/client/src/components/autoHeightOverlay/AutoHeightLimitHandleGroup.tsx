@@ -4,7 +4,7 @@ import AutoHeightLimitHandleBorder from "./ui/AutoHeightLimitHandleBorder";
 import { useDrag } from "react-use-gesture";
 import { heightToRows } from "./utils";
 import AutoHeightLimitHandleLabel from "./ui/AutoHeightLimitHandleLabel";
-import { onDragCallbacksProps, onMouseHoverCallbacksProps } from "./types";
+import type { onDragCallbacksProps, onMouseHoverCallbacksProps } from "./types";
 import AutoHeightLimitHandleDot from "./ui/AutoHeightLimitHandleDot";
 
 const AutoHeightLimitHandleGroupContainer = styled.div`
@@ -35,9 +35,7 @@ interface AutoHeightLimitHandleContainerProps {
   height: number;
 }
 
-const AutoHeightLimitHandleContainer = styled.div<
-  AutoHeightLimitHandleContainerProps
->`
+const AutoHeightLimitHandleContainer = styled.div<AutoHeightLimitHandleContainerProps>`
   position: absolute;
   display: flex;
   align-items: center;

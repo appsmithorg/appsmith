@@ -1,20 +1,20 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../../fixtures/basicNumberDataTableDsl.json");
 
-describe("Validate Table Widget Table Data", function() {
+describe("Validate Table Widget Table Data", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check number key in table data convert table binding and header properly", function() {
+  it("Check number key in table data convert table binding and header properly", function () {
     cy.openPropertyPane("tablewidget");
 
     // numeric table data
     const tableData = [
       {
-        "1": "abc",
-        "2": "bcd",
-        "3": "cde",
+        1: "abc",
+        2: "bcd",
+        3: "cde",
         Dec: "mon",
         demo: "3",
         demo_1: "1",
@@ -23,9 +23,9 @@ describe("Validate Table Widget Table Data", function() {
         rowIndex: "0",
       },
       {
-        "1": "asd",
-        "2": "dfg",
-        "3": "jkl",
+        1: "asd",
+        2: "dfg",
+        3: "jkl",
         Dec: "mon2",
         demo: "2",
         demo_1: "1",

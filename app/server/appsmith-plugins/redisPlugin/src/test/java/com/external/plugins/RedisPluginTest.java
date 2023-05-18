@@ -8,6 +8,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.exceptions.RedisErrorMessages;
+import com.external.plugins.exceptions.RedisPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +24,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.JedisPool;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,8 +77,7 @@ public class RedisPluginTest {
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
 
-        assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
-                        "desired endpoint."),
+        assertEquals(Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -89,8 +88,7 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
-                        "desired endpoint."),
+        assertEquals(Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -119,11 +117,10 @@ public class RedisPluginTest {
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         assertEquals(
-                Set.of("Could not find password. Please edit the 'Password' field to provide the password."),
+                Set.of(RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
         );
     }
-
     @Test
     public void itShouldValidateDatasource() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -155,6 +152,28 @@ public class RedisPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void itShouldThrowErrorIfHostnameIsInvalid() {
+
+        String invalidHost = "invalidHost";
+        String errorMessage = "Failed connecting to " + invalidHost + ":" + port;
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(invalidHost);
+        endpoint.setPort(Long.valueOf(port));
+
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+        Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
+
+        StepVerifier.create(datasourceTestResultMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().contains(errorMessage));
+                })
+                .verifyComplete();
+    }
     @Test
     public void itShouldThrowErrorIfEmptyBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
@@ -323,5 +342,15 @@ public class RedisPluginTest {
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     assertTrue(node.get("result").asText().contains("db=0"));
                 }).verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfRedisPluginErrorCode() {
+        assert (Arrays.stream(RedisPluginError.values()).map(RedisPluginError::getAppErrorCode).distinct().count() == RedisPluginError.values().length);
+
+        assert (Arrays.stream(RedisPluginError.values()).map(RedisPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RDS"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

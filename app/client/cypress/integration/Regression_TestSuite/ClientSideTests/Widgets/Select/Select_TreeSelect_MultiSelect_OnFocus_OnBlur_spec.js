@@ -2,7 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/selectMultiSelectTreeSelectWidgetDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
-describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur", function() {
+describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -60,14 +60,10 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       "ondropdownclose",
       "{{showAlert('TreeSelect1 dropdown closed', 'success')}}",
     );
-
-    cy.get(formWidgetsPage.treeSelect)
-      .last()
-      .click({ force: true });
+    cy.wait(500);
+    cy.get(formWidgetsPage.treeSelect).first().click({ force: true });
     cy.validateToastMessage("TreeSelect1 dropdown opened");
-    cy.get(formWidgetsPage.treeSelect)
-      .last()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelect).first().click({ force: true });
     cy.validateToastMessage("TreeSelect1 dropdown closed");
   });
 
@@ -84,14 +80,10 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       "ondropdownclose",
       "{{showAlert('MultiTreeSelect1 dropdown closed', 'success')}}",
     );
-
-    cy.get(formWidgetsPage.multiTreeSelect)
-      .first()
-      .click({ force: true });
+    cy.wait(500);
+    cy.get(formWidgetsPage.multiTreeSelect).last().click({ force: true });
     cy.validateToastMessage("MultiTreeSelect1 dropdown opened");
-    cy.get(formWidgetsPage.multiTreeSelect)
-      .first()
-      .click({ force: true });
+    cy.get(formWidgetsPage.multiTreeSelect).last().click({ force: true });
     cy.validateToastMessage("MultiTreeSelect1 dropdown closed");
   });
 });

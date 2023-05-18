@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { find, noop } from "lodash";
-import { DropdownOption } from "components/constants";
+import type { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
 import { StyledMenu } from "design-system-old";
+import type { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
   PopoverPosition,
-  IPopoverSharedProps,
   Popover,
   Classes,
-  Position,
   MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
-import { entityTooltipCSS } from "./Entity";
+import {
+  EntityClassNames,
+  entityTooltipCSS,
+} from "pages/Editor/Explorer/Entity";
 import { useCloseMenuOnScroll } from "./hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 
@@ -186,7 +188,10 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   const list = optionTree.map(renderTreeOption);
   const menuItems = (
-    <StyledMenu className="t--entity-context-menu" width={menuWidth}>
+    <StyledMenu
+      className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      width={menuWidth}
+    >
       {list}
     </StyledMenu>
   );

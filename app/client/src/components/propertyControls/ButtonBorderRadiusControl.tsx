@@ -1,10 +1,12 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
+import type { IButtonProps } from "@blueprintjs/core";
+import { Button, ButtonGroup } from "@blueprintjs/core";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 export enum ButtonBorderRadiusTypes {
   SHARP = "SHARP",
@@ -42,9 +44,7 @@ export interface ButtonBorderRadiusOptionsControlProps extends ControlProps {
   onChange: (borderRaidus: ButtonBorderRadius) => void;
 }
 
-class ButtonBorderRadiusOptionsControl extends BaseControl<
-  ButtonBorderRadiusOptionsControlProps
-> {
+class ButtonBorderRadiusOptionsControl extends BaseControl<ButtonBorderRadiusOptionsControlProps> {
   constructor(props: ButtonBorderRadiusOptionsControlProps) {
     super(props);
   }

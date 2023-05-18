@@ -1,9 +1,12 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ProviderService;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,7 @@ public class ProviderControllerCE extends BaseController<ProviderService, Provid
         super(service);
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/categories")
     public Mono<ResponseDTO<List<String>>> getAllCategories() {
         return service.getAllCategories()

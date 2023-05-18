@@ -1,11 +1,17 @@
 import styled from "styled-components";
+import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  CodeEditorBorder,
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Skin, Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import {
+  NAVIGATION_CLASSNAME,
+  PEEKABLE_CLASSNAME,
+  PEEK_STYLE_PERSIST_CLASS,
+} from "./MarkHelpers/entityMarker";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -35,6 +41,16 @@ const editorBackground = (theme?: EditorTheme) => {
       break;
   }
   return bg;
+};
+
+export const CodeEditorColors = {
+  KEYWORD: "#304eaa",
+  FOLD_MARKER: "#442334",
+  STRING: "#1659df",
+  OPERATOR: "#009595",
+  NUMBER: "#555",
+  COMMENT: "#008000",
+  FUNCTION_ARGS: "hsl(288, 44%, 44%)",
 };
 
 export const EditorWrapper = styled.div<{
@@ -110,28 +126,144 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
-      padding: 0 6px;
       border-radius: 0px;
-      border: 1px solid ${(props) => {
-        switch (true) {
-          case props.border === "none":
-            return "transparent";
-          case props.border === "bottom-side":
-            return Colors.MERCURY;
-          case props.hasError:
-            return "red";
-          case props.isFocused:
-            return "var(--appsmith-input-focus-border-color)";
-          default:
-            return Colors.GREY_5;
-        }
-      }};
+      font-family: ${(props) => props.theme.fonts.code};
+      font-size: ${(props) => (props.isReadOnly ? "12px" : "13px")};
+      border: 1px solid
+        ${(props) => {
+          switch (true) {
+            case props.border === "none":
+              return "transparent";
+            case props.border === "bottom-side":
+              return Colors.MERCURY;
+            case props.hasError:
+              return "red";
+            case props.isFocused:
+              return "var(--appsmith-input-focus-border-color)";
+            default:
+              return Colors.GREY_5;
+          }
+        }};
+      ${(props) => props.border === "none" && "border: none"};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
-          color: ${(props) => props.theme.colors.textDefault};
+          color: ${CodeEditorColors.OPERATOR};
         }
+      }
+      .cm-property {
+        color: hsl(21, 70%, 53%);
+      }
+      .cm-keyword {
+        color: ${CodeEditorColors.KEYWORD};
+      }
+
+      .CodeMirror-foldgutter {
+        width: 0.9em;
+      }
+
+      /* gutter arrow to collapse or expand code */
+      .CodeMirror-guttermarker-subtle {
+        color: #442334 !important;
+        &:after {
+          font-size: 14px;
+          position: absolute;
+          right: 4px;
+        }
+      }
+
+      /* Text selection */
+      div.CodeMirror-selected {
+        background: #dbeafe !important;
+      }
+      .cm-string,
+      .token.string {
+        color: ${CodeEditorColors.STRING};
+      }
+
+      /* json response in the debugger */
+      .cm-string.cm-property {
+        color: hsl(21, 70%, 53%);
+      }
+
+      // /* +, =>, -, etc. operators */
+      // span.cm-operator {
+      //   color: #009595;
+      // }A
+
+      /* function arguments */
+      .cm-def {
+        color: #364252; /* This is gray-7 from our new shades of gray */
+      }
+
+      /* variable declarations */
+      .cm-keyword + span + .cm-def {
+        color: #364252;
+      }
+
+      /* function arguments */
+      .cm-def,
+      .cm-property + span + .cm-def,
+      .cm-def + span + .cm-def {
+        color: ${CodeEditorColors.FUNCTION_ARGS};
+      }
+
+      .cm-atom + span + .cm-property,
+      .cm-variable-2 + span + .cm-property {
+        color: #364252;
+      }
+
+      /* object keys, object methods */
+      .cm-keyword + span + .cm-property,
+      .cm-variable + span + .cm-property,
+      .cm-property + span + .cm-property,
+      .cm-number + span + .cm-property,
+      .cm-string + span + .cm-property,
+      .cm-operator + span + .cm-property {
+        color: hsl(30, 77%, 40%);
+      }
+
+      span.cm-number {
+        color: ${CodeEditorColors.NUMBER};
+      }
+
+      .cm-s-duotone-light span.cm-variable-2,
+      .cm-s-duotone-light span.cm-variable-3 {
+        color: #364252;
+      }
+
+      .cm-positive,
+      .cm-string-2,
+      .cm-type,
+      .cm-url {
+        color: #364252;
+      }
+
+      .binding-brackets,
+      .CodeMirror-matchingbracket,
+      .binding-highlight {
+        font-weight: 400;
+      }
+
+      .navigable-entity-highlight:hover {
+        background-color: #ededed !important;
+        font-weight: 600;
+      }
+
+      .binding-brackets {
+        // letter-spacing: -1.8px;
+        color: hsl(222, 70%, 77%);
+      }
+
+      /* some sql fixes */
+      .cm-m-sql.cm-keyword {
+        font-weight: 400;
+        text-transform: uppercase;
+      }
+
+      .CodeMirror-activeline-background {
+        background-color: #ececec;
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
@@ -163,12 +295,21 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
-    .navigable-entity-highlight {
-      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
-      &:hover {
-        text-decoration: underline;
-      }
+
+    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
+      background-color: #ededed;
     }
+
+    .${NAVIGATION_CLASSNAME} {
+      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
+      ${(props) =>
+        props.ctrlPressed &&
+        `&:hover {
+        text-decoration: underline;
+        background-color:	#ededed;
+      }`}
+    }
+
     .CodeMirror-matchingbracket {
       text-decoration: none;
       color: #ffd600 !important;
@@ -185,12 +326,12 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #FFF0F0;
-      border: 1px solid #F22B2B;
+      background: #fff0f0;
+      border: 1px solid #f22b2b;
     }
     .datasource-highlight-success {
-      background: #E3FFF3;
-      border: 1px solid #03B365;
+      background: #e3fff3;
+      border: 1px solid #03b365;
     }
     .CodeMirror {
       flex: 1;
@@ -227,8 +368,18 @@ export const EditorWrapper = styled.div<{
       padding: ${(props) => props.theme.spaces[2]}px 0px;
       background-color: ${(props) => props.disabled && "#eef2f5"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+      pre.CodeMirror-line,
+      pre.CodeMirror-line-like {
+        padding: 0 ${(props) => props.theme.spaces[2]}px;
+      }
     }
   }
+
+  pre.CodeMirror-line,
+  pre.CodeMirror-line-like {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+  }
+
   ${(props) =>
     props.className === "js-editor" &&
     `
@@ -236,6 +387,7 @@ export const EditorWrapper = styled.div<{
     .cm-tab {
       border-right: 1px dotted #ccc;
     }
+    height: 100%;
   `}
 
   .bp3-popover-target {
@@ -370,33 +522,12 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .commands-button {
-      display: flex;
+    button {
+      visibility: visible;
     }
   }
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
-  }
-  .commands-button {
-    z-index: 2;
-    width: 20px;
-    position: absolute;
-    right: 0;
-    transform: translate(-50%, 50%);
-    height: 20px;
-    background: transparent;
-    display: none;
-    color: #f86a2b;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    padding: 0 0 3px;
-    margin: 0 !important;
-    &:hover {
-      background: #f86a2b;
-      color: white;
-    }
   }
 `;

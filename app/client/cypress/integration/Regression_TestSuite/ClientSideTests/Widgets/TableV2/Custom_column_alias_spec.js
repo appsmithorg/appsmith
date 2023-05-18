@@ -61,18 +61,9 @@ describe("Custom column alias functionality", () => {
     cy.get(widgetsPage.addColumn).click({ force: true });
     cy.wait(500);
     cy.editColumn("customColumn2");
-    cy.get(commonlocators.changeColType)
-      .last()
-      .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Button")
-      .click();
-    cy.get(".t--property-control-onclick .t--open-dropdown-Select-Action")
-      .last()
-      .click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("clicked!!", ".t--property-control-onsave");
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Button").click();
+    cy.getAlert("onClick", "clicked!!");
     cy.wait(1000);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",

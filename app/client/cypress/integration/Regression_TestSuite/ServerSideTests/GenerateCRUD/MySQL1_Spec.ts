@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+// import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
@@ -13,7 +13,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // beforeEach(function() {
-  //   if (Cypress.env("MySQL") === 0) {
+  //   if (INTERCEPT.MYSQL) {
   //     cy.log("MySQL DB is not found. Using intercept");
   //     //dataSources.StartInterceptRoutesForMySQL();
   //   } else cy.log("MySQL DB is found, hence using actual DB");
@@ -89,7 +89,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
+  it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -169,25 +169,25 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("Classic Cars");
     });
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Motorcycles");
     });
-    table.ReadTableRowColumnData(2, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Planes");
     });
-    table.ReadTableRowColumnData(3, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Ships");
     });
-    table.ReadTableRowColumnData(4, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Trains");
     });
-    table.ReadTableRowColumnData(5, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Trucks and Buses");
     });
-    table.ReadTableRowColumnData(6, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 0, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Vintage Cars");
     });
     //Validating loaded JSON form
@@ -233,7 +233,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(3);
 
     //validating update happened fine!
-    table.ReadTableRowColumnData(3, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(
         "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
       );
@@ -268,19 +268,20 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
   });
 
-  it("10. Verify application does not break when user runs the query with wrong table name", function() {
+  it("10. Verify application does not break when user runs the query with wrong table name", function () {
     ee.SelectEntityByName("DropProductlines", "Queries/JS");
-    dataSources.RunQuery(false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.eq("Unknown table 'fakeapi.productlines'"),
-      );
+    dataSources.RunQuery({ toValidateResponse: false });
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains("Unknown table 'fakeapi.productlines'");
+    });
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("11. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409);//Customers page & queries still active
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Customers page & queries still active
   });
 
   function GenerateCRUDNValidateDeployPage(
@@ -302,13 +303,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 

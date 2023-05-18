@@ -1,6 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { BarType } from "./constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -21,6 +22,7 @@ export const CONFIG = {
     progress: 50,
     steps: 1,
     version: 1,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -28,6 +30,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };
 

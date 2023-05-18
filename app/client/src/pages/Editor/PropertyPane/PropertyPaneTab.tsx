@@ -2,12 +2,13 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabComponent, TabProp, TabTitle } from "design-system-old";
-import { Tab, TabList, Tabs } from "react-tabs";
+import type { TabProp } from "design-system-old";
+import { TabComponent, TabTitle } from "design-system-old";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;
@@ -120,6 +121,8 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
             </Tab>
           )}
         </TabList>
+        {props.contentComponent && <TabPanel />}
+        {props.styleComponent && <TabPanel />}
       </StyledTabs>
       <StyledTabComponent selectedIndex={selectedIndex} tabs={tabs} />
     </>

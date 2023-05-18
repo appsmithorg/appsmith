@@ -2,12 +2,12 @@ const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { seconds, testTimeout } from "../../../../../support/timeout";
 
-describe("Table widget edge case scenario testing", function() {
+describe("Table widget edge case scenario testing", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check if the selectedRowIndices does not contain 2d array", function() {
+  it("Check if the selectedRowIndices does not contain 2d array", function () {
     testTimeout(seconds(120)); //2mins
 
     cy.openPropertyPane("tablewidget");

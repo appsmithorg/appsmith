@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.google.common.collect.Sets;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.DepthFirstIterator;
 
-import jakarta.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.COMMENT_ON_THREADS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
@@ -47,12 +46,10 @@ import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
@@ -113,7 +110,6 @@ public class PolicyGeneratorCE {
         createApplicationPolicyGraph();
         createPagePolicyGraph();
         createActionPolicyGraph();
-        createCommentPolicyGraph();
         createThemePolicyGraph();
         createPermissionGroupPolicyGraph();
     }
@@ -232,14 +228,6 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
-    protected void createCommentPolicyGraph() {
-        hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREADS);
-
-        lateralGraph.addEdge(COMMENT_ON_THREADS, READ_THREADS);
-
-        hierarchyGraph.addEdge(COMMENT_ON_THREADS, READ_COMMENTS);
-    }
-
     protected void createThemePolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEMES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEMES);
@@ -334,5 +322,28 @@ public class PolicyGeneratorCE {
         }
 
         return new HashSet<>(policyMap.values());
+    }
+
+    public Set<AclPermission> getChildPermissions(AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+        Set<AclPermission> childPermissionSet = new HashSet<>();
+        Set<AclPermission> lateralPermissions = lateralGraph.outgoingEdgesOf(aclPermission)
+                .stream().map(defaultEdge -> lateralGraph.getEdgeTarget(defaultEdge))
+                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
+                .collect(Collectors.toSet());
+        childPermissionSet.addAll(lateralPermissions);
+        Set<AclPermission> directChildPermissions = hierarchyGraph.outgoingEdgesOf(aclPermission)
+                .stream().map(defaultEdge -> hierarchyGraph.getEdgeTarget(defaultEdge))
+                .filter(permission -> destinationEntity == null || permission.getEntity().equals(destinationEntity))
+                .collect(Collectors.toSet());
+        childPermissionSet.addAll(directChildPermissions);
+        childPermissionSet.addAll(getAllChildPermissions(directChildPermissions, destinationEntity));
+        return childPermissionSet;
+    }
+
+    public Set<AclPermission> getAllChildPermissions(Collection<AclPermission> aclPermissions, Class<? extends BaseDomain> destinationEntity) {
+        return aclPermissions.stream()
+                .map(permission -> getChildPermissions(permission, destinationEntity))
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
     }
 }

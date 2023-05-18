@@ -17,19 +17,35 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
+    "<rootDir>/node_modules/(?!codemirror|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
     "\\.svg$": "<rootDir>/test/__mocks__/svgMock.js",
-    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|txt)$":
       "<rootDir>/test/__mocks__/fileMock.js",
     "^worker-loader!": "<rootDir>/test/__mocks__/workerMock.js",
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
-    "design-system-old": "<rootDir>/node_modules/design-system-old/build",
-    "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
+    "design-system-old": "<rootDir>/../node_modules/design-system-old/build",
+    "^proxy-memoize$":
+      "<rootDir>/../node_modules/proxy-memoize/dist/wrapper.cjs",
+    // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
+    // contains sources that are transpiled to ES5. As Jest does not transpile our sources to ES5,
+    // this results in mixing ES6 and ES5 code and causes errors like:
+    //   Class constructor GlobalHotKeys cannot be invoked without 'new'
+    // Note: this isn’t issue in the live app because we transpile *everything* down to ES5 there.
+    "^@blueprintjs/core$":
+      "<rootDir>/../node_modules/@blueprintjs/core/lib/esnext",
+    "^@blueprintjs/datetime$":
+      "<rootDir>/../node_modules/@blueprintjs/datetime/lib/esnext",
+    "^@blueprintjs/icons$":
+      "<rootDir>/../node_modules/@blueprintjs/icons/lib/esnext",
+    "^@blueprintjs/popover2$":
+      "<rootDir>/../node_modules/@blueprintjs/popover2/lib/esnext",
+    "^@blueprintjs/select$":
+      "<rootDir>/../node_modules/@blueprintjs/select/lib/esnext",
   },
   globals: {
     "ts-jest": {
@@ -55,10 +71,6 @@ module.exports = {
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
-      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
-      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
-      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
@@ -77,7 +89,6 @@ module.exports = {
         CONFIG_LOG_LEVEL_INDEX > -1
           ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
           : LOG_LEVELS[1],
-      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
       cloudHosting: "CLOUD_HOSTING",
       enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
@@ -87,7 +98,6 @@ module.exports = {
       intercomAppID: "APP_ID",
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
 
-      disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",

@@ -7,6 +7,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MySQLErrorMessages;
+import com.external.plugins.exceptions.MySQLPluginError;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactoryOptions;
@@ -83,9 +85,9 @@ public class MySqlDatasourceUtils {
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                                    "Please reach out to Appsmith customer support to resolve this.");
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            MySQLErrorMessages.SSL_CONFIGURATION_FETCHING_ERROR_MSG
+                            );
         }
 
         /*
@@ -109,9 +111,9 @@ public class MySqlDatasourceUtils {
                 break;
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                " Appsmith customer support to resolve this.");
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        String.format(MySQLErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG, sslAuthType)
+                        );
         }
 
         return ob;
@@ -122,39 +124,39 @@ public class MySqlDatasourceUtils {
 
         if (datasourceConfiguration.getConnection() != null
                 && datasourceConfiguration.getConnection().getMode() == null) {
-            invalids.add("Missing Connection Mode.");
+            invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
         }
 
         if (StringUtils.isEmpty(datasourceConfiguration.getUrl()) &&
                 CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-            invalids.add("Missing endpoint and url");
+            invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
         } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
-                    invalids.add("Host value cannot be empty");
+                    invalids.add(MySQLErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                 } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
-                    invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                    invalids.add(String.format(MySQLErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                 }
             }
         }
 
         if (datasourceConfiguration.getAuthentication() == null) {
-            invalids.add("Missing authentication details.");
+            invalids.add(MySQLErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
         } else {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (StringUtils.isEmpty(authentication.getUsername())) {
-                invalids.add("Missing username for authentication.");
+                invalids.add(MySQLErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
             }
 
             if (StringUtils.isEmpty(authentication.getPassword()) && StringUtils.isEmpty(authentication.getUsername())) {
-                invalids.add("Missing password for authentication.");
+                invalids.add(MySQLErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
             } else if (StringUtils.isEmpty(authentication.getPassword())) {
                 // it is valid if it has the username but not the password
                 authentication.setPassword("");
             }
 
             if (StringUtils.isEmpty(authentication.getDatabaseName())) {
-                invalids.add("Missing database name.");
+                invalids.add(MySQLErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
             }
         }
 
@@ -164,8 +166,7 @@ public class MySqlDatasourceUtils {
         if (datasourceConfiguration.getConnection() == null
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-            invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                    "Please reach out to Appsmith customer support to resolve this.");
+            invalids.add(MySQLErrorMessages.DS_SSL_CONFIGURATION_FETCHING_FAILED_ERROR_MSG);
         }
 
         return invalids;

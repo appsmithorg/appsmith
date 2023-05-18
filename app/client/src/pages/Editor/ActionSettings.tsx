@@ -1,8 +1,8 @@
 import React from "react";
-import { ControlProps } from "components/formControls/BaseControl";
+import type { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
 import log from "loglevel";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 
 interface ActionSettingsProps {
@@ -21,9 +21,6 @@ const ActionSettingsWrapper = styled.div`
   padding-bottom: 1px;
   .form-config-top {
     flex-grow: 1;
-  }
-  .t--form-control-INPUT_TEXT > div {
-    width: 520px !important;
   }
   .t--form-control-SWITCH {
     display: flex;

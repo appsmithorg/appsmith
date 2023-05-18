@@ -23,17 +23,16 @@ describe("Page Settings", () => {
       _.deployMode.NavigateBacktoEditor();
     });
     _.agHelper.Sleep();
-  });
 
-  it("3. Check SetAsHome page setting", () => {
-    _.ee.AddNewPage();
+    //Check SetAsHome page setting
+    _.entityExplorer.AddNewPage();
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.ToggleHomePage();
     _.pageSettings.AssertHomePage("Page3");
   });
 
-  it("4. Check SetPageNavigation settings", () => {
+  it("3. Check SetPageNavigation settings", () => {
     _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
     _.agHelper.AssertElementExist(_.locators._deployedPage);
     _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
@@ -43,30 +42,26 @@ describe("Page Settings", () => {
     _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
     _.agHelper.AssertElementAbsence(_.locators._deployedPage);
     _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
-  });
 
-  it("5. Page name allows accented character", () => {
+    // Page name allows accented character
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.UpdatePageNameAndVerifyUrl("Page3œßð", "Page3");
     _.appSettings.ClosePane();
-  });
 
-  it("6. Page name doesn't allow special character", () => {
+    //Page name doesn't allow special character
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.UpdatePageNameAndVerifyTextValue("Page3!@#", "Page3 ");
     _.appSettings.ClosePane();
-  });
 
-  it("7. Page name doesn't allow empty", () => {
+    // Page name doesn't allow empty
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.AssertPageErrorMessage("", "Page name cannot be empty");
     _.appSettings.ClosePane();
-  });
 
-  it("8. Bug #18698 : Page name doesn't allow duplicate name", () => {
+    //Bug #18698 : Page name doesn't allow duplicate name
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.AssertPageErrorMessage(
@@ -74,9 +69,8 @@ describe("Page Settings", () => {
       "Page2 is already being used.",
     );
     _.appSettings.ClosePane();
-  });
 
-  it("9. Page name doesn't allow keywords", () => {
+    //Page name doesn't allow keywords
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.AssertPageErrorMessage(
@@ -84,9 +78,8 @@ describe("Page Settings", () => {
       "appsmith is already being used.",
     );
     _.appSettings.ClosePane();
-  });
 
-  it("10. Custom slug doesn't allow special/accented characters", () => {
+    //Custom slug doesn't allow special/accented characters
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page2");
     _.pageSettings.UpdateCustomSlugAndVerifyTextValue(

@@ -91,88 +91,35 @@ jobs:
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
-      - name: Use Node.js 16.14.0
+      # Set up Node.js cache yarn dependencies.
+      # actions/setup-node@v3 now support caching of dependencies using actions/cache under the hood
+      # https://github.com/actions/setup-node#caching-global-packages-data
+      - name: Set up Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
-      - name: Get yarn cache directory path
-        if: steps.run_result.outputs.run_result != 'success'
-        id: yarn-dep-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-      - name: Cache npm dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        id: yarn-dep-cache
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-yarn-dependencies
-        with:
-          path: |
-            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-dep-
-
-      # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
-
-      # Setup Java
-      - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Download the react build artifact
-        if: steps.run_result.outputs.run_result != 'success'
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
-          path: app/client/build
+          name: cicontainer
 
-      - name: Download the server build artifact
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: app/server/dist
+      - name: Load Docker image from tar file
+        working-directory: "."
+        run: |
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
 
-      # Start server
-      - name: start server
+      - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/server
         env:
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-          APPSMITH_ENCRYPTION_PASSWORD: "password"
-          APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
-          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
-          APPSMITH_CLOUD_SERVICES_USERNAME: ""
-          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
-          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+        working-directory: "."
         run: |
-          ls -l
-          ls -l scripts/
-          ls -l dist/
-          # Run the server in the background and redirect logs to a log file
-          ./scripts/start-dev-server.sh &> server-logs.log &
+          mkdir -p cicontainerlocal/stacks/configuration/
 
-      - name: Installing Yarn serve
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          yarn global add serve
-          echo "$(yarn global bin)" >> $GITHUB_PATH
-
-      - name: Load docker image
+      - name: Run docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -181,9 +128,15 @@ jobs:
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
           docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3000:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
-          
+          cd cicontainerlocal
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway \
+            cicontainer
 
       # Start rts
       - name: Start RTS Server
@@ -192,7 +145,7 @@ jobs:
         run: |
           cp .env.example .env        
           ./start-server.sh &
-          
+
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -236,33 +189,22 @@ jobs:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: ${{ steps.perf_infra_ref.outputs.ref }}
-          path: app/client/perf
+          path: perf
 
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         shell: bash
         run: yarn install --frozen-lockfile
 
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if lsof -i :8080; then
-            echo "Server Found"
-          else
-            echo "Server Not Started. Printing logs from server process"
-            cat app/server/nohup.out
-            exit 1
-          fi
-
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         run: chmod +x ./start-test.sh
 
       - name: Run performance tests
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         shell: bash
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
@@ -287,7 +229,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            app/client/perf/traces
+            perf/traces
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -295,8 +237,8 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: performance-test-logs
-          path: app/client/perf/traces/reports
+          path: perf/traces/reports
 
-        # Set status = success
+      # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

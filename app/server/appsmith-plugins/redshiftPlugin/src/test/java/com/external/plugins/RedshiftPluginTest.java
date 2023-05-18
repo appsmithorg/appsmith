@@ -104,12 +104,8 @@ public class RedshiftPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithPluginException &&
-                                throwable.getMessage().equals(
-                                        new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                                "Failed to initialize pool: The connection attempt failed."
-                                        )
-                                                .getMessage()
+                                ((AppsmithPluginException) throwable).getDownstreamErrorMessage().equals(
+                                        "Failed to initialize pool: The connection attempt failed."
                                 )
                 )
                 .verify();

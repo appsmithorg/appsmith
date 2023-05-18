@@ -1,18 +1,19 @@
 import _ from "lodash";
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-import { DefaultCurrentUserDetails, User } from "constants/userConstants";
-import FeatureFlags from "entities/FeatureFlags";
+import type { User } from "constants/userConstants";
+import { DefaultCurrentUserDetails } from "constants/userConstants";
+import type FeatureFlags from "entities/FeatureFlags";
 
 const initialState: UsersReduxState = {
   loadingStates: {
     fetchingUsers: false,
-    fetchingUser: false,
+    fetchingUser: true,
   },
   list: [],
   users: [],
@@ -90,6 +91,15 @@ const usersReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_USER_INTERCOM_CONSENT]: (state: UsersReduxState) => {
+    return {
+      ...state,
+      currentUser: {
+        ...state.currentUser,
+        isIntercomConsentGiven: true,
+      },
+    };
+  },
   [ReduxActionTypes.FETCH_USER_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,
@@ -116,6 +126,7 @@ const usersReducer = createReducer(initialState, {
   ) => ({
     ...initialState,
     error: action.payload.error,
+    loadingStates: { ...state.loadingStates, fetchingUser: false },
   }),
   [ReduxActionErrorTypes.FETCH_USER_ERROR]: (state: UsersReduxState) => ({
     ...state,

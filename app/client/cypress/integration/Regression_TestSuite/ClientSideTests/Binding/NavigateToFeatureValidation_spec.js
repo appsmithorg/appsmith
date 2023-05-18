@@ -8,7 +8,7 @@ const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Table Widget with Input Widget and Navigate to functionality validation", function() {
+describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -21,13 +21,17 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality with multiple page", function() {
+  it("Table Widget Functionality with multiple page", function () {
     cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
   });
 
-  it("Create MyPage and valdiate if its successfully created", function() {
+  it("Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -36,7 +40,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
-  it("Validate NavigateTo Page functionality ", function() {
+  it("Validate NavigateTo Page functionality ", function () {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });

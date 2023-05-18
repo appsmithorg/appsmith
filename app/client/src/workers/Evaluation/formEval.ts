@@ -1,4 +1,4 @@
-import {
+import type {
   DynamicValues,
   EvaluatedFormConfig,
   FormEvalOutput,
@@ -7,13 +7,14 @@ import {
   DynamicValuesConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ActionConfig } from "entities/Action";
-import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
-import { FormConfigType } from "components/formControls/BaseControl";
+import type { ActionConfig } from "entities/Action";
+import type { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
+import type { FormConfigType } from "components/formControls/BaseControl";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DatasourceConfiguration } from "entities/Datasource";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -37,7 +38,8 @@ let finalEvalObj: FormEvalOutput;
 let evalConfigPaths: string[] = [];
 
 // This regex matches the config property string up to countless places.
-export const MATCH_ACTION_CONFIG_PROPERTY = /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
+export const MATCH_ACTION_CONFIG_PROPERTY =
+  /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
 export function matchExact(r: RegExp, str: string) {
   const match = str.match(r);
   return match || [];
@@ -289,6 +291,8 @@ function evaluateDynamicValuesConfig(
 function evaluateFormConfigElements(
   actionConfiguration: ActionConfig,
   config: FormConfigEvalObject,
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  datasourceConfiguration?: DatasourceConfiguration,
 ) {
   const paths = Object.keys(config);
   if (paths.length > 0) {
@@ -309,6 +313,7 @@ function evaluate(
   currentEvalState: FormEvalOutput,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
+  datasourceConfiguration?: DatasourceConfiguration,
 ) {
   Object.keys(currentEvalState).forEach((key: string) => {
     try {
@@ -362,37 +367,47 @@ function evaluate(
                 !actionDiffPath ||
                 hasRouteChanged
               ) {
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).allowedToFetch = output;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).isLoading = output;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).evaluatedConfig = evaluateDynamicValuesConfig(
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).allowedToFetch = output;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).isLoading = output;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).evaluatedConfig = evaluateDynamicValuesConfig(
                   actionConfiguration,
                   (currentEvalState[key].fetchDynamicValues as DynamicValues)
                     .config,
                 ) as DynamicValuesConfig;
               } else {
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).allowedToFetch = false;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).isLoading = false;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).allowedToFetch = false;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).isLoading = false;
               }
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&
               currentEvalState[key].hasOwnProperty("evaluateFormConfig") &&
               !!currentEvalState[key].evaluateFormConfig
             ) {
-              (currentEvalState[key]
-                .evaluateFormConfig as EvaluatedFormConfig).updateEvaluatedConfig = output;
+              (
+                currentEvalState[key].evaluateFormConfig as EvaluatedFormConfig
+              ).updateEvaluatedConfig = output;
               currentEvalState[key].visible = output;
               if (output && !!currentEvalState[key].evaluateFormConfig)
-                (currentEvalState[key]
-                  .evaluateFormConfig as EvaluatedFormConfig).evaluateFormConfigObject = evaluateFormConfigElements(
+                (
+                  currentEvalState[key]
+                    .evaluateFormConfig as EvaluatedFormConfig
+                ).evaluateFormConfigObject = evaluateFormConfigElements(
                   actionConfiguration,
-                  (currentEvalState[key]
-                    .evaluateFormConfig as EvaluatedFormConfig)
-                    .evaluateFormConfigObject,
+                  (
+                    currentEvalState[key]
+                      .evaluateFormConfig as EvaluatedFormConfig
+                  ).evaluateFormConfigObject,
+                  datasourceConfiguration,
                 );
             }
           });
@@ -410,6 +425,7 @@ function getFormEvaluation(
   currentEvalState: FormEvaluationState,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
+  datasourceConfiguration?: DatasourceConfiguration,
 ): FormEvaluationState {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
   if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
@@ -462,6 +478,7 @@ function getFormEvaluation(
         currentEvalState[formId],
         actionDiffPath,
         hasRouteChanged,
+        datasourceConfiguration,
       );
     } else {
       conditionToBeEvaluated = {
@@ -473,6 +490,7 @@ function getFormEvaluation(
         conditionToBeEvaluated,
         actionDiffPath,
         hasRouteChanged,
+        datasourceConfiguration,
       );
     }
 
@@ -527,6 +545,7 @@ export function setFormEvaluationSaga(
     const {
       actionConfiguration,
       actionDiffPath,
+      datasourceConfiguration,
       formId,
       hasRouteChanged,
     } = payload;
@@ -540,6 +559,7 @@ export function setFormEvaluationSaga(
         currentEvalState,
         actionDiffPath,
         hasRouteChanged,
+        datasourceConfiguration,
       );
     }
   }

@@ -5,21 +5,26 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ResetWidgetDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import {
   ActionValidationError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
+import type {
+  DataTree,
+  ConfigTree,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
 export default function* resetWidgetActionSaga(
-  payload: ResetWidgetDescription["payload"],
+  action: TResetWidgetDescription,
 ) {
+  const { payload } = action;
   const { widgetName } = payload;
   if (getType(widgetName) !== Types.STRING) {
     throw new ActionValidationError(
@@ -30,6 +35,7 @@ export default function* resetWidgetActionSaga(
     );
   }
   const dataTree: DataTree = yield select(getDataTree);
+  const configTree: ConfigTree = yield select(getConfigTree);
 
   const widget: FlattenedWidgetProps | undefined = yield select(
     getWidgetByName,
@@ -39,8 +45,15 @@ export default function* resetWidgetActionSaga(
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }
   const evaluatedEntity = dataTree[widget.widgetName];
+  const evaluatedEntityConfig = configTree[widget.widgetName];
   if (isWidget(evaluatedEntity)) {
-    yield put(resetWidgetMetaProperty(widget.widgetId, evaluatedEntity));
+    yield put(
+      resetWidgetMetaProperty(
+        widget.widgetId,
+        evaluatedEntity,
+        evaluatedEntityConfig as WidgetEntityConfig,
+      ),
+    );
     if (payload.resetChildren) {
       yield put(resetChildrenMetaProperty(widget.widgetId));
     }

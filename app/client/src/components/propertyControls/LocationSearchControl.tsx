@@ -4,11 +4,9 @@ import styled from "styled-components";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 import { StyledInputGroup } from "./StyledControls";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-
-const { google } = getAppsmithConfigs();
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const MapStatusText = styled.span`
   font-size: 14px;
@@ -64,7 +62,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   render() {
     return (
       <Wrapper
-        apiKey={google.apiKey}
+        apiKey={this.props.widgetProperties.googleMapsApiKey}
         libraries={["geometry", "drawing", "places"]}
         render={renderMapStatus}
       >

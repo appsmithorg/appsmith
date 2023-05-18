@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/TextTableV2dsl.json");
 
-describe("Text-Table v2 Binding Functionality", function() {
+describe("Text-Table v2 Binding Functionality", function () {
   Cypress.on("uncaught:exception", (err, runnable) => {
     // returning false here prevents Cypress from
     // failing the test
@@ -13,7 +13,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("1. Text-Table Binding Functionality For Id", function() {
+  it("1. Text-Table Binding Functionality For Id", function () {
     cy.openPropertyPane("tablewidgetv2");
     /**
      * @param(Index)  Provide index value to select the row.
@@ -28,10 +28,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.readTableV2data("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
-      cy.get(commonlocators.evaluatedTypeTitle)
-        .first()
-        .find("span")
-        .click();
+      cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
@@ -43,7 +40,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     });
   });
 
-  it("2. Text-Table Binding Functionality For Email", function() {
+  it("2. Text-Table Binding Functionality For Email", function () {
     cy.get(publish.backToEditor).click();
     cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
@@ -55,10 +52,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.readTableV2data("2", "1").then((tabData) => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
-      cy.get(commonlocators.evaluatedTypeTitle)
-        .first()
-        .find("span")
-        .click();
+      cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
@@ -70,7 +64,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     });
   });
 
-  it("3. Text-Table Binding Functionality For Total Length", function() {
+  it("3. Text-Table Binding Functionality For Total Length", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
@@ -79,10 +73,8 @@ describe("Text-Table v2 Binding Functionality", function() {
       .then((listing) => {
         const listingCount = listing.length.toString();
         cy.get(commonlocators.TextInside).contains(listingCount);
-        cy.get(commonlocators.evaluatedTypeTitle)
-          .first()
-          .find("span")
-          .click();
+        cy.findAndExpandEvaluatedTypeTitle();
+
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(listingCount);
         cy.PublishtheApp();
@@ -95,7 +87,7 @@ describe("Text-Table v2 Binding Functionality", function() {
       });
   });
 
-  it("4. Table Widget Functionality To Verify Default Row Selection is working", function() {
+  it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidgetv2");
     cy.testJsontext("defaultselectedrow", "2");
@@ -115,7 +107,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     });
   });
 
-  it("5. Text-Table Binding Functionality For Username", function() {
+  it("5. Text-Table Binding Functionality For Username", function () {
     cy.get(publish.backToEditor).click();
     /**
      * @param(Index)  Provide index value to select the row.
@@ -130,10 +122,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.readTableV2data("1", "2").then((tabData) => {
       const tabValue = `\"${tabData}\"`;
       cy.get(commonlocators.TextInside).contains(tabValue);
-      cy.get(commonlocators.evaluatedTypeTitle)
-        .first()
-        .find("span")
-        .click();
+      cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();

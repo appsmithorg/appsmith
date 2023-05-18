@@ -19,12 +19,15 @@ describe("Canvas Widgets Reducer", () => {
     };
     const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
     const payload = {
-      xyz123: [
-        {
-          propertyPath: "someValue.apple",
-          propertyValue: "apple",
-        },
-      ],
+      widgetsToUpdate: {
+        xyz123: [
+          {
+            propertyPath: "someValue.apple",
+            propertyValue: "apple",
+          },
+        ],
+      },
+      shouldEval: false,
     };
     const expected = {
       "0": { children: ["xyz123"] },
@@ -53,12 +56,15 @@ describe("Canvas Widgets Reducer", () => {
     };
     const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
     const payload = {
-      xyz123: [
-        {
-          propertyPath: "someValue.games.ball",
-          propertyValue: ["football"],
-        },
-      ],
+      widgetsToUpdate: {
+        xyz123: [
+          {
+            propertyPath: "someValue.games.ball",
+            propertyValue: ["football"],
+          },
+        ],
+      },
+      shouldEval: false,
     };
     const expected = {
       "0": { children: ["xyz123"] },
@@ -90,12 +96,15 @@ describe("Canvas Widgets Reducer", () => {
     };
     const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
     const payload = {
-      xyz123: [
-        {
-          propertyPath: "someValue.apple",
-          propertyValue: "orange",
-        },
-      ],
+      widgetsToUpdate: {
+        xyz123: [
+          {
+            propertyPath: "someValue.apple",
+            propertyValue: "orange",
+          },
+        ],
+      },
+      shouldEval: false,
     };
 
     // Reference equality check using toBe
@@ -118,12 +127,15 @@ describe("Canvas Widgets Reducer", () => {
     };
     const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
     const payload = {
-      xyz123: [
-        {
-          propertyPath: "someValue.apple",
-          propertyValue: "orange",
-        },
-      ],
+      widgetsToUpdate: {
+        xyz123: [
+          {
+            propertyPath: "someValue.apple",
+            propertyValue: "orange",
+          },
+        ],
+      },
+      shouldEval: true,
     };
 
     const result = reducer(initialState, { type, payload }).xyz123.someValue

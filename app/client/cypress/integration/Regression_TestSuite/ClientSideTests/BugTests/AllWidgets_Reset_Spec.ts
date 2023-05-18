@@ -5,7 +5,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane,
-  table = ObjectsRegistry.TableV2,
+  table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators;
 
 import { WIDGET } from "../../../../locators/WidgetLocators";
@@ -187,7 +187,7 @@ function selectTabAndReset() {
 }
 
 function selectTableAndReset() {
-  table.SelectTableRow(1);
+  table.SelectTableRow(1, 0, true, "v2");
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "#2",
@@ -202,9 +202,7 @@ function selectTableAndReset() {
 }
 
 function selectSwitchGroupAndReset() {
-  cy.get(".bp3-control-indicator")
-    .last()
-    .click({ force: true });
+  cy.get(".bp3-control-indicator").last().click({ force: true });
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "RED",
@@ -219,9 +217,7 @@ function selectSwitchGroupAndReset() {
 }
 
 function selectSwitchAndReset() {
-  cy.get(".bp3-control-indicator")
-    .last()
-    .click({ force: true });
+  cy.get(".bp3-control-indicator").last().click({ force: true });
   cy.get(".t--switch-widget-active").should("not.exist");
   agHelper.ClickButton("Submit");
   cy.get(".t--switch-widget-active").should("be.visible");
@@ -229,9 +225,7 @@ function selectSwitchAndReset() {
 
 function selectAndReset() {
   cy.get(".select-button").click({ force: true });
-  cy.get(".menu-item-text")
-    .contains("Blue")
-    .click({ force: true });
+  cy.get(".menu-item-text").contains("Blue").click({ force: true });
   cy.wait(1000);
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
@@ -247,9 +241,7 @@ function selectAndReset() {
 }
 
 function selectCurrencyInputAndReset() {
-  cy.get(".bp3-input")
-    .click({ force: true })
-    .type("123");
+  cy.get(".bp3-input").click({ force: true }).type("123");
   cy.wait(1000);
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
@@ -284,9 +276,7 @@ function multiTreeSelectAndReset() {
 }
 
 function radiogroupAndReset() {
-  cy.get("input")
-    .last()
-    .click({ force: true });
+  cy.get("input").last().click({ force: true });
   cy.wait(1000);
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
@@ -320,9 +310,7 @@ function listwidgetAndReset() {
 }
 
 function ratingwidgetAndReset() {
-  cy.get(".bp3-icon-star svg")
-    .last()
-    .click({ force: true });
+  cy.get(".bp3-icon-star svg").last().click({ force: true });
   cy.wait(1000);
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
@@ -358,9 +346,7 @@ function checkboxGroupAndReset() {
 }
 
 function checkboxAndReset() {
-  cy.get("input")
-    .last()
-    .click({ force: true });
+  cy.get("input").last().click({ force: true });
   cy.wait(1000);
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,

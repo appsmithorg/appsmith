@@ -1,22 +1,17 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _ from "lodash";
+import _, { isEmpty } from "lodash";
 import memoize from "micro-memoize";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  DynamicPath,
-  getEntityDynamicBindingPathList,
-} from "utils/DynamicBindingUtils";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import {
-  ENTITY_TYPE,
-  WidgetEntityConfig,
-  UnEvalTreeWidget,
-} from "./dataTreeFactory";
-import {
+import type { WidgetEntityConfig, WidgetEntity } from "./dataTreeFactory";
+import { ENTITY_TYPE } from "./dataTreeFactory";
+import type {
   OverridingPropertyPaths,
-  OverridingPropertyType,
   PropertyOverrideDependency,
 } from "./types";
+import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 
@@ -26,7 +21,7 @@ import { setOverridingProperty } from "./utils";
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  dataTreeWidgetWithoutMetaProps: UnEvalTreeWidget;
+  dataTreeWidgetWithoutMetaProps: WidgetEntity;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;
@@ -78,7 +73,7 @@ const generateDataTreeWidgetWithoutMeta = (
     blockedDerivedProps[propertyName] = true;
   });
 
-  // Map of properties that can both be overridden by meta and default values
+  // Map of properties that can be overridden by both meta and default values
   const overridingMetaPropsMap: Record<string, boolean> = {};
 
   Object.entries(defaultProps).forEach(
@@ -109,18 +104,14 @@ const generateDataTreeWidgetWithoutMeta = (
     },
   );
 
-  const {
-    bindingPaths,
-    reactivePaths,
-    triggerPaths,
-    validationPaths,
-  } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
-    ...derivedPropertyMap,
-    ...defaultMetaProps,
-    ...unInitializedDefaultProps,
-    ..._.keyBy(dynamicBindingPathList, "key"),
-    ...overridingPropertyPaths,
-  });
+  const { bindingPaths, reactivePaths, triggerPaths, validationPaths } =
+    getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
+      ...derivedPropertyMap,
+      ...defaultMetaProps,
+      ...unInitializedDefaultProps,
+      ..._.keyBy(dynamicBindingPathList, "key"),
+      ...overridingPropertyPaths,
+    });
 
   /**
    * Spread operator does not merge deep objects properly.
@@ -216,13 +207,15 @@ export const generateDataTreeWidget = (
   const overridingMetaProps: Record<string, unknown> = {};
 
   // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
-  // initial value is set to metaProps value or undefined (set to undefined to ensure that its path is present in the unevalTree).
-  Object.entries(defaultMetaProps).forEach(([key]) => {
+  // initial value is set to metaProps value or defaultMetaProps value.
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : undefined;
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
     }
   });
+
+  entityConfig.isMetaPropDirty = !isEmpty(widgetMetaProps);
 
   const meta = _.merge({}, overridingMetaProps, widgetMetaProps);
 
@@ -236,7 +229,9 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
-  dataTreeWidget["__config__"] = entityConfig;
 
-  return dataTreeWidget;
+  return {
+    unEvalEntity: { ...dataTreeWidget, type: widget.type },
+    configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
+  };
 };

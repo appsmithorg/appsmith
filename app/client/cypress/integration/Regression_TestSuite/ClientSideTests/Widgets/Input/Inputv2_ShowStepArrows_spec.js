@@ -2,7 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetName = "inputwidgetv2";
 
-describe("Input Widget V2 showStepArrows Functionality - ", function() {
+describe("Input Widget V2 showStepArrows Functionality - ", function () {
   it("1. Validate that dataType - NUMBER, For new widgets being dragged, the value for showStepArrows should be set to false", () => {
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });
     cy.openPropertyPane(widgetName);

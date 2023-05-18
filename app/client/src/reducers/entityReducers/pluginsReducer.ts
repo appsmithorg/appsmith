@@ -1,16 +1,16 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { DefaultPlugin, Plugin } from "api/PluginApi";
-import {
+import type { DefaultPlugin, Plugin } from "api/PluginApi";
+import type {
   PluginFormPayloadWithId,
   PluginFormsPayload,
   GetPluginFormConfigRequest,
 } from "actions/pluginActions";
-import {
+import type {
   FormEditorConfigs,
   FormSettingsConfigs,
   FormDependencyConfigs,

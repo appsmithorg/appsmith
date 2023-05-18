@@ -4,14 +4,15 @@ import {
   apiFailureResponseInterceptor,
   axiosConnectionAbortedCode,
 } from "./ApiUtils";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { ActionExecutionResponse } from "api/ActionAPI";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { ActionExecutionResponse } from "api/ActionAPI";
 import {
   createMessage,
   ERROR_0,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import * as Sentry from "@sentry/react";
 
 describe("axios api interceptors", () => {
   describe("Axios api request interceptor", () => {
@@ -31,6 +32,7 @@ describe("axios api interceptors", () => {
         headers: {
           // @ts-expect-error: content-length should be string
           "content-length": 123,
+          "content-type": "application/json",
         },
         config: {
           url: "https://app.appsmith.com/v1/api/actions/execute",
@@ -39,9 +41,8 @@ describe("axios api interceptors", () => {
         },
       };
 
-      const interceptedResponse: ActionExecutionResponse = apiSuccessResponseInterceptor(
-        response,
-      );
+      const interceptedResponse: ActionExecutionResponse =
+        apiSuccessResponseInterceptor(response);
 
       expect(interceptedResponse).toHaveProperty("clientMeta");
       expect(interceptedResponse.clientMeta).toHaveProperty("size");
@@ -52,6 +53,9 @@ describe("axios api interceptors", () => {
     it("just returns the response data for other requests", () => {
       const response: AxiosResponse = {
         data: "Test data",
+        headers: {
+          "content-type": "application/json",
+        },
         config: {
           url: "https://app.appsmith.com/v1/api/actions",
           //@ts-expect-error: type mismatch
@@ -59,9 +63,8 @@ describe("axios api interceptors", () => {
         },
       };
 
-      const interceptedResponse: ActionExecutionResponse = apiSuccessResponseInterceptor(
-        response,
-      );
+      const interceptedResponse: ActionExecutionResponse =
+        apiSuccessResponseInterceptor(response);
       expect(interceptedResponse).toBe("Test data");
     });
   });
@@ -91,6 +94,30 @@ describe("axios api interceptors", () => {
         message: createMessage(SERVER_API_TIMEOUT_ERROR),
         code: ERROR_CODES.REQUEST_TIMEOUT,
       });
+    });
+
+    it("checks for response meta", () => {
+      const sentrySpy = jest.spyOn(Sentry, "captureException");
+      const response: AxiosResponse = {
+        data: "Test data",
+        headers: {
+          "content-type": "application/json",
+        },
+        config: {
+          url: "https://app.appsmith.com/v1/api/user",
+          //@ts-expect-error: type mismatch
+          timer: 0,
+        },
+      };
+      apiSuccessResponseInterceptor(response);
+      expect(sentrySpy).toHaveBeenCalled();
+
+      const interceptedFailureResponse = apiFailureResponseInterceptor({
+        response,
+      });
+
+      expect(interceptedFailureResponse).rejects.toStrictEqual("Test data");
+      expect(sentrySpy).toHaveBeenCalled();
     });
   });
 });

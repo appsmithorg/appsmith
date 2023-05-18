@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/formWidgetWithInputValCheckDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Form Widget with Input Functionality", function() {
+describe("Form Widget with Input Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check if the default value of text input is 0", function() {
+  it("Check if the default value of text input is 0", function () {
     //Check if the Input widget is visible
     cy.get(widgetsPage.inputWidget).should("be.visible");
 

@@ -1,31 +1,29 @@
 import React, { Component } from "react";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import { Placement } from "popper.js";
+import type { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
 import _ from "lodash";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
-import { Indices } from "constants/Layers";
+import type { Indices } from "constants/Layers";
 import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
 } from "widgets/TableWidget/component/TableUtilities";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
-import {
-  EvaluationError,
-  getEvalErrorPath,
-  getEvalValuePath,
-} from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getEvalErrorPath, getEvalValuePath } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
@@ -342,9 +340,7 @@ export default PrimaryColumnsControl;
  * render popup if primary column labels are not unique
  * show unique name error in PRIMARY_COLUMNS
  */
-class EvaluatedValuePopupWrapperClass extends Component<
-  EvaluatedValuePopupWrapperProps
-> {
+class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapperProps> {
   getPropertyValidation = (
     dataTree: DataTree,
     dataTreePath?: string,
@@ -385,11 +381,8 @@ class EvaluatedValuePopupWrapperClass extends Component<
       hideEvaluatedValue,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const { errors, isInvalid, pathEvaluatedValue } =
+      this.getPropertyValidation(dynamicData, dataTreePath);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;

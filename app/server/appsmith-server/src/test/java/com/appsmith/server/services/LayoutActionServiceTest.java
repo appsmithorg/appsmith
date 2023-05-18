@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -52,9 +53,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -239,7 +242,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testOnPageLoadActionsAfterActionDelete() {
+    public void deleteUnpublishedAction_WhenActionDeleted_OnPageLoadActionsIsEmpty() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
@@ -372,7 +375,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void actionExecuteOnLoadChangeOnUpdateLayout() {
+    public void updateLayout_WhenOnLoadChanged_ActionExecuted() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action1 = new ActionDTO();
@@ -876,7 +879,7 @@ public class LayoutActionServiceTest {
     @SneakyThrows(JsonProcessingException.class)
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateLayout_withSelfReferencingWidget_updatesLayout() {
+    public void updateLayout_withSelfReferencingWidget_updatesLayout() {
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
         }));
 
@@ -906,6 +909,57 @@ public class LayoutActionServiceTest {
                     assertEquals("{{ firstWidget.testField }}", fieldValue);
                 })
                 .verifyComplete();
+    }
+
+    @SneakyThrows(JsonProcessingException.class)
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
+        // clone the current page to create another page for testing
+        PageDTO secondPage = applicationPageService.clonePage(testPage.getId()).block();
+
+        List<PageDTO> testPages = List.of(testPage, secondPage);
+        UpdateMultiplePageLayoutDTO multiplePageLayoutDTO = new UpdateMultiplePageLayoutDTO();
+        multiplePageLayoutDTO.setPageLayouts(new ArrayList<>());
+
+        for (int i = 0; i < testPages.size(); i++) {
+            PageDTO page = testPages.get(i);
+            Layout layout = page.getLayouts().get(0);
+            layout.setDsl(createTestDslWithTestWidget("Layout"+(i+1)));
+
+            UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayoutDTO = new UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO();
+            pageLayoutDTO.setPageId(page.getId());
+            pageLayoutDTO.setLayoutId(layout.getId());
+            pageLayoutDTO.setLayout(layout);
+            multiplePageLayoutDTO.getPageLayouts().add(pageLayoutDTO);
+        }
+        Mono<Tuple2<PageDTO, PageDTO>> pagesMono = Mono.zip(
+                newPageService.findPageById(testPage.getId(), READ_PAGES, false),
+                newPageService.findPageById(secondPage.getId(), READ_PAGES, false)
+        );
+
+        Mono<Tuple2<PageDTO, PageDTO>> updateAndGetPagesMono = layoutActionService.updateMultipleLayouts(testApp.getId(), null, multiplePageLayoutDTO)
+                .then(pagesMono);
+
+        StepVerifier.create(updateAndGetPagesMono)
+                .assertNext(objects -> {
+                    // verify that the layout of each page has been updated
+                    JSONObject dsl1 = objects.getT1().getLayouts().get(0).getDsl();
+                    JSONObject dsl2 = objects.getT2().getLayouts().get(0).getDsl();
+                    ArrayList<LinkedHashMap> childArray1 = (ArrayList) dsl1.get("children");
+                    ArrayList<LinkedHashMap> childArray2 = (ArrayList) dsl2.get("children");
+
+                    assertEquals(childArray1.size(), 1);
+                    assertEquals(childArray2.size(), 1);
+
+                    LinkedHashMap<String, String> widget1 = childArray1.get(0);
+                    LinkedHashMap<String, String> widget2 = childArray2.get(0);
+                    List<String> widgetNames = List.of(
+                            widget1.get("widgetName"),
+                            widget2.get("widgetName")
+                    );
+                    assertThat(widgetNames).contains("Layout1", "Layout2");
+                }).verifyComplete();
     }
 
     /**
@@ -999,7 +1053,7 @@ public class LayoutActionServiceTest {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void testPageLoadActionWhenSetBothWaysExplicitlyAndImplicitlyViaWidget() {
+    public void updateLayout_WhenPageLoadActionSetBothWaysExplicitlyAndImplicitlyViaWidget_ActionsSaved() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action1 = new ActionDTO();
@@ -1179,4 +1233,20 @@ public class LayoutActionServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * Creates a DSL JSON based on the provided parameters
+     * @return JSONObject of the DSL
+     */
+    private JSONObject createTestDslWithTestWidget(String testWidgetName) throws JsonProcessingException {
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", testWidgetName);
+
+        ArrayList<JSONObject> children = (ArrayList) parentDsl.get("children");
+        children.add(firstWidget);
+        parentDsl.put("children", children);
+        return parentDsl;
+    }
 }

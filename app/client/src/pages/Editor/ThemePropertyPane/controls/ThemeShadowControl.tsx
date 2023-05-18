@@ -1,8 +1,12 @@
 import React, { useCallback } from "react";
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import { ButtonGroup, TooltipComponent } from "design-system-old";
-import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { invertedBoxShadowOptions } from "constants/ThemeConstants";
+import { importRemixIcon } from "design-system-old";
+
+const CloseLineIcon = importRemixIcon(
+  () => import("remixicon-react/CloseLineIcon"),
+);
 
 interface ThemeBoxShadowControlProps {
   options: {

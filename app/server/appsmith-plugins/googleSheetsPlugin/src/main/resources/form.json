@@ -20,25 +20,42 @@
           "initialValue": "authorization_code"
         },
         {
-          "label": "Scope",
+          "label": "Account",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "comparison": "VIEW_MODE",
+            "value": false
+          },
+          "initialValue": "Authorize datasource to fetch account name"
+        },
+        {
+          "label": "Permissions | Scope",
           "configProperty": "datasourceConfiguration.authentication.scopeString",
           "controlType": "DROP_DOWN",
-          "isRequired": true,
           "options": [
             {
-              "label": "Read Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
+              "label": "Read / Write / Delete | Selected Google Sheets",
+              "value": "https://www.googleapis.com/auth/drive.file"
             },
             {
-              "label": "Read, Edit and Create Files",
+              "label": "Read / Write / Delete | All Google Sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            },
+            {
+              "label": "Read / Write | All Google Sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
             },
             {
-              "label": "Read, Edit, Create and Delete Files",
-              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+              "label": "Read | All Google Sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
-          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+          "initialValue": "https://www.googleapis.com/auth/drive.file",
+          "customStyles": {
+            "width": "340px"
+          }
         }
       ]
     }

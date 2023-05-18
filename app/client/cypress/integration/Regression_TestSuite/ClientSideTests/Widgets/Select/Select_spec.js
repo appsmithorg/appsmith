@@ -50,9 +50,7 @@ describe("Select widget", () => {
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
     // Assert if the search input is empty now
-    cy.get(commonlocators.selectInputSearch)
-      .invoke("val")
-      .should("be.empty");
+    cy.get(commonlocators.selectInputSearch).invoke("val").should("be.empty");
   });
 
   it("4. Does not clear the search field when widget is closed and serverSideFiltering is on", () => {
@@ -86,6 +84,6 @@ describe("Select widget", () => {
     // enter tooltip in property pan
     cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
     // tooltip help icon shows
-    cy.get(".select-tooltip").should("be.visible");
+    cy.get(".select-tooltip").scrollIntoView().should("be.visible");
   });
 });

@@ -1,7 +1,8 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { cloneDeep, isUndefined } from "lodash";
-import { areIntersecting, Rect } from "utils/boxHelpers";
-import {
+import type { Rect } from "utils/boxHelpers";
+import { areIntersecting } from "utils/boxHelpers";
+import type {
   BlockSpace,
   CollidingSpace,
   CollidingSpaceMap,
@@ -10,18 +11,20 @@ import {
   CollisionTree,
   CollisionTreeCache,
   GridProps,
-  HORIZONTAL_RESIZE_MIN_LIMIT,
-  MathComparators,
   MovementLimitMap,
   OrientationAccessors,
   PrevReflowState,
-  ReflowDirection,
   ReflowedSpace,
   ReflowedSpaceMap,
   SecondOrderCollisionMap,
-  SpaceAttributes,
   SpaceMap,
   SpaceMovementMap,
+} from "./reflowTypes";
+import {
+  HORIZONTAL_RESIZE_MIN_LIMIT,
+  MathComparators,
+  ReflowDirection,
+  SpaceAttributes,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "./reflowTypes";
 
@@ -126,7 +129,7 @@ export function sortCollidingSpacesByDistance(
  * @returns comparator function
  */
 function getDistanceComparator(isAscending = true) {
-  return function(spaceA: CollidingSpace, spaceB: CollidingSpace) {
+  return function (spaceA: CollidingSpace, spaceB: CollidingSpace) {
     const accessorA = getAccessor(spaceA.direction);
     const accessorB = getAccessor(spaceB.direction);
 
@@ -165,12 +168,8 @@ export function getShouldReflow(
     let canHorizontalMove = true,
       canVerticalMove = true;
     for (const movementLimit of spaceMovements) {
-      const {
-        coordinateKey,
-        directionalIndicator,
-        isHorizontal,
-        maxMovement,
-      } = movementLimit;
+      const { coordinateKey, directionalIndicator, isHorizontal, maxMovement } =
+        movementLimit;
 
       const canMove = compareNumbers(
         delta[coordinateKey],
@@ -254,9 +253,8 @@ export function getDelta(
     return { X, Y };
   }
 
-  const { direction: directionalAccessor, isHorizontal } = getAccessor(
-    direction,
-  );
+  const { direction: directionalAccessor, isHorizontal } =
+    getAccessor(direction);
   const diff =
     OGSpacePosition[directionalAccessor] -
     newSpacePosition[directionalAccessor];
@@ -477,23 +475,19 @@ export function getCollidingSpacesInDirection(
   let order = 1;
   for (const occupiedSpace of currentOccupiedSpaces) {
     // determines if the space acn be added to the list of colliding spaces, if so in what direction
-    const {
-      changedDirection,
-      collidingValue,
-      isHorizontal,
-      shouldAddToArray,
-    } = ShouldAddToCollisionSpacesArray(
-      newSpacePosition,
-      OGPosition,
-      occupiedSpace,
-      direction,
-      accessor,
-      isDirectCollidingSpace,
-      gridProps,
-      globalDirection,
-      prevMovementMap,
-      prevSecondOrderCollisionMap,
-    );
+    const { changedDirection, collidingValue, isHorizontal, shouldAddToArray } =
+      ShouldAddToCollisionSpacesArray(
+        newSpacePosition,
+        OGPosition,
+        occupiedSpace,
+        direction,
+        accessor,
+        isDirectCollidingSpace,
+        gridProps,
+        globalDirection,
+        prevMovementMap,
+        prevSecondOrderCollisionMap,
+      );
 
     let currentDirection = direction,
       currentCollidingValue = newSpacePosition[accessor.direction],
@@ -1343,9 +1337,8 @@ export function changeExitContainerDirection(
       ];
   }
 
-  collidingSpaceMap[exitContainerId].direction = getOppositeDirection(
-    exitEdgeDirection,
-  );
+  collidingSpaceMap[exitContainerId].direction =
+    getOppositeDirection(exitEdgeDirection);
   collidingSpaceMap[exitContainerId].collidingValue =
     spacePositionMap[collidingSpaceMap[exitContainerId].collidingId][
       exitDirectionAccessor
@@ -1727,12 +1720,8 @@ export function getOrientationAccessors(
  * @returns
  */
 export function getMaxSpaceAttributes(accessor: CollisionAccessors) {
-  const {
-    parallelMax,
-    parallelMin,
-    perpendicularMax,
-    perpendicularMin,
-  } = accessor;
+  const { parallelMax, parallelMin, perpendicularMax, perpendicularMin } =
+    accessor;
 
   return {
     primary: { max: perpendicularMax, min: perpendicularMin },

@@ -1,22 +1,29 @@
-import {
+import type {
   DataTree,
-  DataTreeWidget,
-  ENTITY_TYPE,
+  AppsmithEntity,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
+  getJSCollections,
   getPlugins,
 } from "selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { builderURL, jsCollectionIdURL } from "RouteBuilder";
-import { keyBy } from "lodash";
+import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getActionChildrenNavData } from "utils/NavigationSelector/ActionChildren";
+import { createNavData } from "utils/NavigationSelector/common";
+import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
+import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
+import { getAppsmithNavData } from "utils/NavigationSelector/AppsmithNavData";
+import {
+  getEntityNameAndPropertyPath,
+  isJSAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { AppState } from "@appsmith/reducers";
 
 export type NavigationData = {
   name: string;
@@ -24,29 +31,46 @@ export type NavigationData = {
   type: ENTITY_TYPE;
   url: string | undefined;
   navigable: boolean;
-  children: Record<string, NavigationData>;
+  children: EntityNavigationData;
+  peekable: boolean;
+  peekData?: unknown;
+  key?: string;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(
   getActionsForCurrentPage,
   getPlugins,
-  getJSCollectionsForCurrentPage,
+  getJSCollections,
   getWidgets,
   getCurrentPageId,
   getDataTree,
-  (actions, plugins, jsActions, widgets, pageId, dataTree: DataTree) => {
+  (_: any, entityName: string | undefined) => entityName,
+  (
+    actions,
+    plugins,
+    jsActions,
+    widgets,
+    pageId,
+    dataTree: DataTree,
+    entityName: string | undefined,
+  ) => {
+    // data tree retriggers this
+    jsActions = jsActions.filter((a) => a.config.pageId === pageId);
     const navigationData: EntityNavigationData = {};
+    if (!dataTree) return navigationData;
 
     actions.forEach((action) => {
       const plugin = plugins.find(
         (plugin) => plugin.id === action.config.pluginId,
       );
       const config = getActionConfig(action.config.pluginType);
+      // dataTree used to get entityDefinitions and peekData
+      const result = getActionChildrenNavData(action, dataTree);
       if (!config) return;
-      navigationData[action.config.name] = {
-        name: action.config.name,
+      navigationData[action.config.name] = createNavData({
         id: action.config.id,
+        name: action.config.name,
         type: ENTITY_TYPE.ACTION,
         url: config.getURL(
           pageId,
@@ -54,91 +78,70 @@ export const getEntitiesForNavigation = createSelector(
           action.config.pluginType,
           plugin,
         ),
-        navigable: true,
-        children: {},
-      };
+        peekable: true,
+        peekData: result?.peekData,
+        children: result?.childNavData || {},
+      });
     });
 
     jsActions.forEach((jsAction) => {
-      navigationData[jsAction.config.name] = {
-        name: jsAction.config.name,
+      // dataTree for null check and peekData
+      const result = getJsChildrenNavData(jsAction, pageId, dataTree);
+      navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
+        name: jsAction.config.name,
         type: ENTITY_TYPE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
-        navigable: true,
-        children: getJsObjectChildren(jsAction, pageId),
-      };
+        peekable: true,
+        peekData: result?.peekData,
+        children: result?.childNavData || {},
+      });
     });
 
     Object.values(widgets).forEach((widget) => {
-      navigationData[widget.widgetName] = {
-        name: widget.widgetName,
+      // dataTree to get entityDefinitions, for url (can use getWidgetByName?) and peekData
+      const result = getWidgetChildrenNavData(widget, dataTree, pageId);
+      navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
+        name: widget.widgetName,
         type: ENTITY_TYPE.WIDGET,
-        url: builderURL({ pageId, hash: widget.widgetId }),
-        navigable: true,
-        children: getWidgetChildren(widget, dataTree, pageId),
-      };
+        url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
+        peekable: true,
+        peekData: result?.peekData,
+        children: result?.childNavData || {},
+      });
     });
+    // dataTree to get entity definitions and peekData
+    navigationData["appsmith"] = getAppsmithNavData(
+      dataTree.appsmith as AppsmithEntity,
+    );
+    if (
+      entityName &&
+      isJSAction(dataTree[entityName]) &&
+      entityName in navigationData
+    ) {
+      return {
+        ...navigationData,
+        this: navigationData[entityName],
+      };
+    }
     return navigationData;
   },
 );
 
-const getJsObjectChildren = (jsAction: JSCollectionData, pageId: string) => {
-  const children = [
-    ...jsAction.config.actions,
-    ...jsAction.config.variables,
-  ].map((jsChild) => ({
-    name: `${jsAction.config.name}.${jsChild.name}`,
-    key: jsChild.name,
-    id: `${jsAction.config.name}.${jsChild.name}`,
-    type: ENTITY_TYPE.JSACTION,
-    url: jsCollectionIdURL({
-      pageId,
-      collectionId: jsAction.config.id,
-      functionName: jsChild.name,
-    }),
-    navigable: true,
-    children: {},
-  }));
-
-  return keyBy(children, (data) => data.key);
-};
-
-const getWidgetChildren = (
-  widget: FlattenedWidgetProps,
-  dataTree: DataTree,
-  pageId: string,
-) => {
-  if (widget.type === "FORM_WIDGET") {
-    const children: EntityNavigationData = {};
-    const dataTreeWidget: DataTreeWidget = dataTree[
-      widget.widgetName
-    ] as DataTreeWidget;
-    const formChildren: EntityNavigationData = {};
-    if (dataTreeWidget) {
-      Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
-        const childWidgetId = (dataTree[widgetName] as DataTreeWidget).widgetId;
-        formChildren[widgetName] = {
-          name: widgetName,
-          id: `${widget.widgetName}.data.${widgetName}`,
-          type: ENTITY_TYPE.WIDGET,
-          navigable: true,
-          children: {},
-          url: builderURL({ pageId, hash: childWidgetId }),
-        };
-      });
-    }
-    children.data = {
-      name: "data",
-      id: `${widget.widgetName}.data`,
-      type: ENTITY_TYPE.WIDGET,
-      navigable: false,
-      children: formChildren,
-      url: undefined,
-    };
-
-    return children;
-  }
-  return {};
-};
+export const getJSFunctionNavigationUrl = createSelector(
+  [
+    (state: AppState, entityName: string) =>
+      getEntitiesForNavigation(state, entityName),
+    (_, __, jsFunctionFullName: string | undefined) => jsFunctionFullName,
+  ],
+  (entitiesForNavigation, jsFunctionFullName) => {
+    if (!jsFunctionFullName) return undefined;
+    const { entityName: jsObjectName, propertyPath: jsFunctionName } =
+      getEntityNameAndPropertyPath(jsFunctionFullName);
+    const jsObjectNavigationData = entitiesForNavigation[jsObjectName];
+    const jsFuncNavigationData =
+      jsObjectNavigationData && jsObjectNavigationData.children[jsFunctionName];
+    return jsFuncNavigationData?.url;
+  },
+);

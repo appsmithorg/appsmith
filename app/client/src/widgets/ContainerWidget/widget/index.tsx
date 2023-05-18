@@ -1,34 +1,49 @@
+import type { MouseEventHandler } from "react";
 import React from "react";
 
-import {
-  CONTAINER_GRID_PADDING,
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import ContainerComponent, { ContainerStyle } from "../component";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
+import type { ContainerStyle } from "../component";
+import ContainerComponent from "../component";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-
 import { compact, map, sortBy } from "lodash";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
+import { Positioning } from "utils/autoLayout/constants";
+import { getSnappedGrid } from "sagas/WidgetOperationUtils";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
-class ContainerWidget extends BaseWidget<
+export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
 > {
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/container",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/container",
+      },
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
   }
 
   static getPropertyPaneContentConfig() {
@@ -110,6 +125,7 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",
@@ -157,27 +173,9 @@ class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
-    // For all widgets inside a container, we remove both container padding as well as widget padding from component width
-    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
-    if (
-      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-      this.props.type === "CONTAINER_WIDGET"
-    ) {
-      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-      padding = CONTAINER_GRID_PADDING * 2;
-    }
-    if (this.props.noPad) {
-      // Widgets like ListWidget choose to have no container padding so will only have widget padding
-      padding = WIDGET_PADDING * 2;
-    }
-    let width = componentWidth;
-    width -= padding;
-    return {
-      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      snapColumnSpace: componentWidth
-        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
-        : 0,
-    };
+    const { snapGrid } = getSnappedGrid(this.props, componentWidth);
+
+    return snapGrid;
   };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
@@ -194,7 +192,12 @@ class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
-
+    // Pass layout controls to children
+    childWidget.positioning =
+      childWidget?.positioning || this.props.positioning;
+    childWidget.useAutoLayout = this.props.positioning
+      ? this.props.positioning === Positioning.Vertical
+      : false;
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
@@ -203,46 +206,27 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      sortBy(compact(this.props.children), (child) => child.topRow),
+      this.props.positioning !== Positioning.Fixed
+        ? this.props.children
+        : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const snapRows = getCanvasSnapRows(props.bottomRow);
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
+      this.props.positioning !== Positioning.Vertical;
 
     return (
-      <ContainerComponent {...props}>
-        {props.type === "CANVAS_WIDGET" &&
-          props.renderMode === RenderModes.CANVAS && (
-            <>
-              <CanvasDraggingArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                noPad={this.props.noPad}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-              <CanvasSelectionArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-
-              <WidgetsMultiSelectBox
-                {...this.getSnapSpaces()}
-                noContainerOffset={!!props.noContainerOffset}
-                widgetId={this.props.widgetId}
-                widgetType={this.props.type}
-              />
-            </>
-          )}
-
+      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
+        <WidgetsMultiSelectBox
+          {...this.getSnapSpaces()}
+          noContainerOffset={!!props.noContainerOffset}
+          widgetId={this.props.widgetId}
+          widgetType={this.props.type}
+        />
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>
@@ -262,8 +246,11 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+  positioning?: Positioning;
 }
 
 export default ContainerWidget;

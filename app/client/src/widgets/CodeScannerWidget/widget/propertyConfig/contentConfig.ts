@@ -1,10 +1,8 @@
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import {
-  CodeScannerWidgetProps,
-  ScannerLayout,
-} from "widgets/CodeScannerWidget/constants";
-
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
+import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 export default [
   {
     sectionName: "Basic",
@@ -26,6 +24,7 @@ export default [
             value: ScannerLayout.CLICK_TO_SCAN,
           },
         ],
+        hidden: isAutoLayout,
         isJSConvertible: false,
         isBindProperty: false,
         isTriggerProperty: false,
@@ -95,11 +94,12 @@ export default [
       },
     ],
   },
+
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a valid code is detected",
+        helpText: "when a valid code is detected",
         propertyName: "onCodeDetected",
         label: "onCodeDetected",
         controlType: "ACTION_SELECTOR",

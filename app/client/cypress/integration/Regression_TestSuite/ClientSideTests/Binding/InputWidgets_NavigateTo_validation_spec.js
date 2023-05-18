@@ -9,8 +9,9 @@ const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
 
-describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
+describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -24,7 +25,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.wait(5000); //dsl to settle!
   });
 
-  it("1. Create MyPage and valdiate if its successfully created", function() {
+  it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     cy.wait(5000); //dsl to settle!
@@ -34,19 +35,13 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
-  it("2. Input widget test with default value from table widget", function() {
+  it("2. Input widget test with default value from table widget", function () {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(widgetsPage.inputOnTextChange)
-      .first()
-      .click({ force: true });
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Navigate to")
-      .click();
+    propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-Page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)
@@ -54,7 +49,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.assertPageSave();
   });
 
-  it("3. Validate NavigateTo Page functionality ", function() {
+  it("3. Validate NavigateTo Page functionality ", function () {
     cy.wait(4000);
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
@@ -66,10 +61,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
         .invoke("attr", "value")
         .should("contain", tabValue);
       cy.get(widgetsPage.chartWidget).should("not.exist");
-      cy.get(publish.inputGrp)
-        .first()
-        .type("123")
-        .wait(2000);
+      cy.get(publish.inputGrp).first().type("123").wait(2000);
       cy.waitUntil(() => cy.get(widgetsPage.chartWidget).should("be.visible"), {
         errorMsg: "Execute call did not complete evn after 20 secs",
         timeout: 20000,

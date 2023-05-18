@@ -25,13 +25,16 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import {
+import type {
   ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
-import { APP_MODE } from "entities/App";
+import type { APP_MODE } from "entities/App";
 import { call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -41,9 +44,9 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
-  AppEnginePayload,
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from ".";
@@ -52,7 +55,9 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "ce/sagas/userSagas";
+} from "@appsmith/sagas/userSagas";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -141,26 +146,38 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   private *loadPluginsAndDatasources() {
-    const initActions = [
+    const isAirgappedInstance = isAirgapped();
+    const initActions: ReduxAction<unknown>[] = [
       fetchPlugins(),
       fetchDatasources(),
-      fetchMockDatasources(),
-      fetchPageDSLs(),
     ];
+
+    if (!isAirgappedInstance) {
+      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+    }
+    initActions.push(fetchPageDSLs() as ReduxAction<{ type: string }>);
 
     const successActions = [
       ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
-    ];
+    ].filter((action) =>
+      !isAirgappedInstance
+        ? true
+        : action !== ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
+    );
 
     const errorActions = [
       ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
       ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
       ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
-    ];
+    ].filter((action) =>
+      !isAirgappedInstance
+        ? true
+        : action !== ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
+    );
 
     const initActionCalls: boolean = yield call(
       failFastApiCalls,
@@ -190,14 +207,25 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *completeChore() {
+    const isFirstTimeUserOnboardingComplete: boolean = yield select(
+      getFirstTimeUserOnboardingComplete,
+    );
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    AnalyticsUtil.logEvent("EDITOR_OPEN", {
-      appId: currentApplication.id,
-      appName: currentApplication.name,
-    });
+    if (currentApplication) {
+      AnalyticsUtil.logEvent("EDITOR_OPEN", {
+        appId: currentApplication.id,
+        appName: currentApplication.name,
+      });
+    }
     yield put(loadGuidedTourInit());
+    if (isFirstTimeUserOnboardingComplete) {
+      yield put({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+        payload: [],
+      });
+    }
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
@@ -211,7 +239,7 @@ export default class AppEditorEngine extends AppEngine {
         branch: branchInStore,
       }),
     );
-    // init of temporay remote url from old application
+    // init of temporary remote url from old application
     yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
     // add branch query to path and fetch status
     if (branchInStore) {

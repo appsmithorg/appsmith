@@ -19,9 +19,12 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.exceptions.MssqlErrorMessages;
+import com.external.plugins.exceptions.MssqlPluginError;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -125,9 +128,8 @@ public class MssqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                        "parameter: Query."));
+            if (! StringUtils.hasLength(query)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MssqlErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
 
             Boolean isPreparedStatement;
@@ -149,7 +151,7 @@ public class MssqlPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do bind replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(hikariDSConnection, actionConfiguration, FALSE, null, null);
@@ -158,7 +160,7 @@ public class MssqlPlugin extends BasePlugin {
             //Prepared Statement
             // First extract all the bindings in order
             List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
-            // Replace all the bindings with a ? as expected in a prepared statement.
+            // Replace all the bindings with a `?` as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(hikariDSConnection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
@@ -208,12 +210,6 @@ public class MssqlPlugin extends BasePlugin {
                             // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                             // here, this should never happen.
                             log.error("Error checking validity of MsSQL connection.", error);
-                        }
-
-                        if (query == null) {
-                            sqlConnectionFromPool.close();
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Missing required parameter: Query."));
                         }
 
                         HikariPoolMXBean poolProxy = hikariDSConnection.getHikariPoolMXBean();
@@ -309,7 +305,7 @@ public class MssqlPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(MssqlPluginError.QUERY_EXECUTION_FAILED, MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(), "SQLSTATE: "+ e.getSQLState()));
 
                         } finally {
                             sqlConnectionFromPool.close();
@@ -406,25 +402,25 @@ public class MssqlPlugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add("Missing endpoint.");
+                invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
-                invalids.add("Missing Connection Mode.");
+                invalids.add(MssqlErrorMessages.DS_MISSING_CONNECTION_MODE_ERROR_MSG);
             }
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (auth == null) {
-                invalids.add("Missing authentication details.");
+                invalids.add(MssqlErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
 
             } else {
                 if (StringUtils.isEmpty(auth.getUsername())) {
-                    invalids.add("Missing username for authentication.");
+                    invalids.add(MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
 
                 if (StringUtils.isEmpty(auth.getPassword())) {
-                    invalids.add("Missing password for authentication.");
+                    invalids.add(MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
                 }
 
             }
@@ -437,7 +433,7 @@ public class MssqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(MssqlPluginError.QUERY_EXECUTION_FAILED, MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, "Unsupported Operation"));
         }
 
         @Override
@@ -511,9 +507,7 @@ public class MssqlPlugin extends BasePlugin {
                 }
 
             } catch (SQLException | IllegalArgumentException | IOException e) {
-                String message = "Query preparation failed while inserting value: "
-                        + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(MssqlErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, binding), e.getMessage());
             }
 
             return preparedStatement;
@@ -589,17 +583,53 @@ public class MssqlPlugin extends BasePlugin {
                     .append(";");
         }
 
-        urlBuilder.append("encrypt=false");
+        addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 
         try {
             hikariDatasource = new HikariDataSource(hikariConfig);
         } catch (HikariPool.PoolInitializationException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, MssqlErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG, e.getMessage());
         }
 
         return hikariDatasource;
+    }
+
+    private static void addSslOptionsToUrlBuilder(DatasourceConfiguration datasourceConfiguration,
+                                                  StringBuilder urlBuilder) throws AppsmithPluginException {
+        /*
+         * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+         */
+        if (datasourceConfiguration.getConnection() == null
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                            "Please reach out to Appsmith customer support to resolve this.");
+        }
+
+        /*
+         * - By default, the driver configures SSL in the no verify mode.
+         */
+        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        switch (sslAuthType) {
+            case DISABLE:
+                urlBuilder.append("encrypt=false;");
+
+                break;
+            case NO_VERIFY:
+                urlBuilder.append("encrypt=true;");
+                urlBuilder.append("trustServerCertificate=true;");
+
+                break;
+            default:
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                " Appsmith customer support to resolve this.");
+        }
     }
 
     /**

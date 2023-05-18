@@ -16,17 +16,14 @@ import {
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
 } from "@appsmith/constants/forms";
-import {
-  FormErrors,
-  formValueSelector,
-  getFormSyncErrors,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { FormErrors, InjectedFormProps } from "redux-form";
+import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { noop } from "utils/AppsmithUtils";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -123,6 +120,7 @@ export type SetupFormProps = DetailsFormValues & {
   >;
 
 function SetupForm(props: SetupFormProps) {
+  const isAirgappedInstance = isAirgapped();
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
@@ -206,12 +204,17 @@ function SetupForm(props: SetupFormProps) {
           ref={formRef}
         >
           <SetupStep active={showDetailsForm}>
-            <DetailsForm {...props} onNext={onNext} />
+            <DetailsForm
+              {...props}
+              onNext={!isAirgappedInstance ? onNext : () => noop}
+            />
           </SetupStep>
-          <SetupStep active={!showDetailsForm}>
-            <DataCollectionForm />
-            <NewsletterForm />
-          </SetupStep>
+          {!isAirgappedInstance && (
+            <SetupStep active={!showDetailsForm}>
+              <DataCollectionForm />
+              <NewsletterForm />
+            </SetupStep>
+          )}
         </form>
         <SpaceFiller />
       </SetupFormContainer>

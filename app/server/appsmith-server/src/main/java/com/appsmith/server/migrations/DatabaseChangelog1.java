@@ -12,7 +12,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
@@ -24,10 +24,6 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentNotification;
-import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -36,20 +32,14 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QComment;
-import com.appsmith.server.domains.QCommentNotification;
-import com.appsmith.server.domains.QCommentThread;
-import com.appsmith.server.domains.QCommentThreadNotification;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
-import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
@@ -127,7 +117,6 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -2290,10 +2279,10 @@ public class DatabaseChangelog1 {
 
         Query query = query(new Criteria().andOperator(
                 where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
-                where(fieldName(QDatasource.datasource.structure)).exists(true)
+                where("structure").exists(true)
         ));
 
-        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+        Update update = new Update().set("structure", null);
 
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
@@ -4358,87 +4347,6 @@ public class DatabaseChangelog1 {
                 );
             }
         }
-
-        // Update comment threads
-        final Query threadQuery = query(where(fieldName(QCommentThread.commentThread.deleted)).ne(true));
-        threadQuery.fields()
-                .include(fieldName(QCommentThread.commentThread.applicationId))
-                .include(fieldName((QCommentThread.commentThread.pageId)));
-
-        List<CommentThread> threads = mongoTemplate.find(threadQuery, CommentThread.class);
-
-        for (CommentThread thread : threads) {
-            DefaultResources defaults = new DefaultResources();
-            defaults.setPageId(thread.getPageId());
-            defaults.setApplicationId(thread.getApplicationId());
-
-            final Update defaultResourceUpdates = new Update();
-
-            defaultResourceUpdates.set(fieldName(QCommentThread.commentThread.defaultResources), defaults);
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QCommentThread.commentThread.id)).is(thread.getId())),
-                    defaultResourceUpdates,
-                    CommentThread.class
-            );
-        }
-
-        // Update comment
-        final Query commentQuery = query(where(fieldName(QComment.comment.deleted)).ne(true));
-        commentQuery.fields()
-                .include(fieldName(QComment.comment.applicationId))
-                .include(fieldName((QComment.comment.pageId)));
-
-        List<Comment> comments = mongoTemplate.find(commentQuery, Comment.class);
-
-        for (Comment comment : comments) {
-            DefaultResources defaults = new DefaultResources();
-            defaults.setPageId(comment.getPageId());
-            defaults.setApplicationId(comment.getApplicationId());
-
-            final Update defaultResourceUpdates = new Update();
-
-            defaultResourceUpdates.set(fieldName(QComment.comment.defaultResources), defaults);
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QComment.comment.id)).is(comment.getId())),
-                    defaultResourceUpdates,
-                    Comment.class
-            );
-        }
-
-        // Update notification
-        final Query notificationQuery = query(where(fieldName(QNotification.notification.deleted)).ne(true));
-
-        List<? extends Notification> notifications = mongoTemplate.find(notificationQuery, Notification.class);
-
-        notifications.forEach(notification -> {
-            final Update defaultResourceUpdates = new Update();
-            DefaultResources defaults = new DefaultResources();
-            if (notification instanceof CommentNotification) {
-                Comment comment = ((CommentNotification) notification).getComment();
-                defaults.setPageId(comment.getPageId());
-                defaults.setApplicationId(comment.getApplicationId());
-
-                defaultResourceUpdates.set(
-                        fieldName(QCommentNotification.commentNotification.comment) + "." + DEFAULT_RESOURCES,
-                        defaults
-                );
-            } else if (notification instanceof CommentThreadNotification) {
-                CommentThread thread = ((CommentThreadNotification) notification).getCommentThread();
-                defaults.setPageId(thread.getPageId());
-                defaults.setApplicationId(thread.getApplicationId());
-
-                defaultResourceUpdates.set(
-                        fieldName(QCommentThreadNotification.commentThreadNotification.commentThread) + "." + DEFAULT_RESOURCES,
-                        defaults
-                );
-            }
-
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QNotification.notification.id)).is(notification.getId())),
-                    defaultResourceUpdates,
-                    Notification.class
-            );
-        });
     }
 
     @ChangeSet(order = "102", id = "flush-spring-redis-keys", author = "")
@@ -4928,7 +4836,7 @@ public class DatabaseChangelog1 {
                         .named("unpublishedCollection_pageId")
         );
 
-        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
                         .named("defaultApplicationId_gitSyncId_compound_index")

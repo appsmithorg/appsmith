@@ -1,14 +1,16 @@
 import { isEqual } from "lodash";
 import { WorkerErrorTypes } from "@appsmith/workers/common/types";
-import { JSLibraries, resetJSLibraries } from "workers/common/JSLibrary";
-import {
+import { JSLibraries } from "workers/common/JSLibrary";
+import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
+import type {
   LintWorkerRequest,
   LintTreeResponse,
-  LINT_WORKER_ACTIONS,
   LintTreeRequest,
 } from "./types";
-import { getlintErrorsFromTree } from "./utils";
-import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
+import { LINT_WORKER_ACTIONS } from "./types";
+import type { TMessage } from "utils/MessageUtil";
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import { getlintErrorsFromTree } from ".";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (event: MessageEvent<TMessage<LintWorkerRequest>>) => {
@@ -63,11 +65,32 @@ function eventRequestHandler({
 }): LintTreeResponse | unknown {
   switch (method) {
     case LINT_WORKER_ACTIONS.LINT_TREE: {
-      const lintTreeResponse: LintTreeResponse = { errors: {} };
+      const lintTreeResponse: LintTreeResponse = {
+        errors: {},
+        updatedJSEntities: [],
+      };
       try {
-        const { pathsToLint, unevalTree } = requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree(pathsToLint, unevalTree);
+        const {
+          asyncJSFunctionsInDataFields,
+          cloudHosting,
+          configTree,
+          jsPropertiesState,
+          pathsToLint,
+          unevalTree: unEvalTree,
+        } = requestData as LintTreeRequest;
+        const { errors: lintErrors, updatedJSEntities } = getlintErrorsFromTree(
+          {
+            pathsToLint,
+            unEvalTree,
+            jsPropertiesState,
+            cloudHosting,
+            asyncJSFunctionsInDataFields,
+            configTree,
+          },
+        );
+
         lintTreeResponse.errors = lintErrors;
+        lintTreeResponse.updatedJSEntities = updatedJSEntities;
       } catch (e) {}
       return lintTreeResponse;
     }
@@ -89,6 +112,7 @@ function eventRequestHandler({
       }
       return true;
     }
+
     default: {
       // eslint-disable-next-line no-console
       console.error("Action not registered on lintWorker ", method);

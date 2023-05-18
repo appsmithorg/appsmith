@@ -1,25 +1,31 @@
-import React from "react";
-import { compact, xor } from "lodash";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import CheckboxGroupComponent from "../component";
-import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
 } from "components/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { compact, xor } from "lodash";
+import { default as React } from "react";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import CheckboxGroupComponent from "../component";
+import type { OptionProps, SelectAllState } from "../constants";
+import { SelectAllStates } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -54,6 +60,19 @@ class CheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Checkbox group widget allows users to easily configure multiple checkboxes together.",
+      "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isDisabled: "bool",
+      isValid: "bool",
+      options: "[$__dropdownOption__$]",
+      selectedValues: "[string]",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -141,6 +160,7 @@ class CheckboxGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -290,7 +310,7 @@ class CheckboxGroupWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the check state is changed",
+            helpText: "when the check state is changed",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
@@ -520,6 +540,9 @@ class CheckboxGroupWidget extends BaseWidget<
               GRID_DENSITY_MIGRATION_V1 >
             1
           )
+        }
+        isAutoLayout={
+          this.props.appPositioningType === AppPositioningTypes.AUTO
         }
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}

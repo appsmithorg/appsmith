@@ -32,9 +32,8 @@ public enum FeatureFlagEnum {
     CONTEXT_SWITCHING,
     DATASOURCE_ENVIRONMENTS,
     AUTO_LAYOUT,
-    LIMITING_GOOGLE_SHEET_ACCESS,
+    ONE_CLICK_BINDING,
 
-    // Put EE flags below this line, to avoid conflicts.
+    // Add EE flags below this line, to avoid conflicts.
     RBAC,
-    USAGE_AND_BILLING,
 }

@@ -1,78 +1,141 @@
 import { Node } from "acorn";
-import { getAST } from "../index";
-import { generate } from "astring";
 import { simple } from "acorn-walk";
+import {
+  getAST,
+  IdentifierNode,
+  isExportDefaultDeclarationNode,
+  isObjectExpression,
+  isPropertyNode,
+  isTypeOfFunction,
+  LiteralNode,
+  NodeWithLocation,
+  PropertyNode,
+} from "../index";
+import { generate } from "astring";
 import {
   getFunctionalParamsFromNode,
   isPropertyAFunctionNode,
-  isVariableDeclarator,
-  isObjectExpression,
-  PropertyNode,
   functionParam,
 } from "../index";
-
-type JsObjectProperty = {
-  key: string;
-  value: string;
-  type: string;
-  arguments?: Array<functionParam>;
-};
+import { SourceType, NodeTypes } from "../../index";
+import { attachComments } from "escodegen";
+import { extractContentByPosition } from "../utils";
 
 const jsObjectVariableName =
   "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
 
 export const jsObjectDeclaration = `var ${jsObjectVariableName} =`;
 
-export const parseJSObjectWithAST = (
-  jsObjectBody: string
-): Array<JsObjectProperty> => {
-  /* 
-      jsObjectVariableName value is added such actual js code would never name same variable name. 
-      if the variable name will be same then also we won't have problem here as jsObjectVariableName will be last node in VariableDeclarator hence overriding the previous JSObjectProperties.
-      Keeping this just for sanity check if any caveat was missed.
-    */
-  const jsCode = `${jsObjectDeclaration} ${jsObjectBody}`;
+export interface JSPropertyPosition {
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
+  keyStartLine: number;
+  keyEndLine: number;
+  keyStartColumn: number;
+  keyEndColumn: number;
+}
 
-  const ast = getAST(jsCode);
+interface baseJSProperty {
+  key: string;
+  value: string;
+  type: string;
+  position: Partial<JSPropertyPosition>;
+  rawContent: string;
+}
 
-  const parsedObjectProperties = new Set<JsObjectProperty>();
-  let JSObjectProperties: Array<PropertyNode> = [];
+type JSFunctionProperty = baseJSProperty & {
+  arguments: functionParam[];
+  // If function uses the "async" keyword
+  isMarkedAsync: boolean;
+};
+type JSVarProperty = baseJSProperty;
+
+export type TParsedJSProperty = JSVarProperty | JSFunctionProperty;
+
+export const isJSFunctionProperty = (
+  t: TParsedJSProperty,
+): t is JSFunctionProperty => {
+  return isTypeOfFunction(t.type);
+};
+
+export const parseJSObject = (code: string) => {
+  let ast: Node = { end: 0, start: 0, type: "" };
+  const result: TParsedJSProperty[] = [];
+  try {
+    const comments: any = [];
+    const token: any = [];
+    ast = getAST(code, {
+      sourceType: SourceType.module,
+      onComment: comments,
+      onToken: token,
+      ranges: true,
+      locations: true,
+    });
+    attachComments(ast, comments, token);
+  } catch (e) {
+    return { parsedObject: result, success: false };
+  }
+
+  const parsedObjectProperties = new Set<TParsedJSProperty>();
+  let JSObjectProperties: NodeWithLocation<PropertyNode>[] = [];
 
   simple(ast, {
-    VariableDeclarator(node: Node) {
+    ExportDefaultDeclaration(node, ancestors: Node[]) {
       if (
-        isVariableDeclarator(node) &&
-        node.id.name === jsObjectVariableName &&
-        node.init &&
-        isObjectExpression(node.init)
-      ) {
-        JSObjectProperties = node.init.properties;
-      }
+        !isExportDefaultDeclarationNode(node) ||
+        !isObjectExpression(node.declaration)
+      )
+        return;
+      JSObjectProperties = node.declaration
+        .properties as NodeWithLocation<PropertyNode>[];
     },
   });
 
   JSObjectProperties.forEach((node) => {
-    let params = new Set<functionParam>();
-    const propertyNode = node;
-    let property: JsObjectProperty = {
-      key: generate(propertyNode.key),
-      value: generate(propertyNode.value),
-      type: propertyNode.value.type,
+    const propertyKey = node.key as NodeWithLocation<
+      LiteralNode | IdentifierNode
+    >;
+    let property: TParsedJSProperty = {
+      key: generate(node.key),
+      value: generate(node.value),
+      rawContent: extractContentByPosition(code, {
+        from: {
+          line: node.loc.start.line - 1,
+          ch: node.loc.start.column,
+        },
+        to: {
+          line: node.loc.end.line - 1,
+          ch: node.loc.end.column - 1,
+        },
+      }),
+      type: node.value.type,
+      position: {
+        startLine: node.loc.start.line,
+        startColumn: node.loc.start.column,
+        endLine: node.loc.end.line,
+        endColumn: node.loc.end.column,
+        keyStartLine: propertyKey.loc.start.line,
+        keyEndLine: propertyKey.loc.end.line,
+        keyStartColumn: propertyKey.loc.start.column,
+        keyEndColumn: propertyKey.loc.end.column,
+      },
     };
 
-    if (isPropertyAFunctionNode(propertyNode.value)) {
+    if (isPropertyAFunctionNode(node.value)) {
       // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
       // currently we don't consume it anywhere hence avoiding to calculate that.
-      params = getFunctionalParamsFromNode(propertyNode.value);
+      const params = getFunctionalParamsFromNode(node.value);
       property = {
         ...property,
         arguments: [...params],
+        isMarkedAsync: node.value.async,
       };
     }
 
-    // here we use `generate` function to convert our AST Node to JSCode
     parsedObjectProperties.add(property);
   });
 
-  return [...parsedObjectProperties];
+  return { parsedObject: [...parsedObjectProperties], success: true };
 };

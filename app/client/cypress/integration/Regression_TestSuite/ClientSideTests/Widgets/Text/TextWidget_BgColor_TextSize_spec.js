@@ -2,11 +2,11 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/textWidgetDsl.json");
 
-describe("Text Widget Cell Background and Text Size Validation", function() {
+describe("Text Widget Cell Background and Text Size Validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Change the cell background color", function() {
+  it("Change the cell background color", function () {
     cy.openPropertyPane("textwidget");
     cy.moveToStyleTab();
     /**
@@ -25,9 +25,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     );
 
     //Toggle to JS mode
-    cy.get(widgetsPage.cellBackgroundToggle)
-      .click()
-      .wait(200);
+    cy.get(widgetsPage.cellBackgroundToggle).click().wait(200);
 
     //Check if the typed color red is reflecting in the background color and in the evaluated value
     cy.updateCodeInput(widgetsPage.cellBackground, "red");
@@ -60,19 +58,15 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       "rgba(0, 0, 0, 0)",
     );
 
-    cy.get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("not.be.visible");
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
   });
 
-  it("Change the text sizes", function() {
+  it("Change the text sizes", function () {
     cy.openPropertyPane("textwidget");
     cy.moveToStyleTab();
 
     //Check the label text size with dropdown
-    cy.get(widgetsPage.textSizeNew)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.textSizeNew).last().click({ force: true });
 
     cy.wait(100);
     cy.selectTextSize("S");
@@ -84,9 +78,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     );
 
     //Toggle JS mode
-    cy.get(widgetsPage.toggleTextSizeNew)
-      .click()
-      .wait(200);
+    cy.get(widgetsPage.toggleTextSizeNew).click().wait(200);
 
     //Check if the typed size HEADING2 is reflecting in the background color and in the evaluated value
     cy.updateCodeInput(".t--property-control-fontsize", "18px");
@@ -106,8 +98,6 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       "16px",
     );
 
-    cy.get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("not.be.visible");
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
   });
 });

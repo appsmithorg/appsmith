@@ -37,18 +37,14 @@ describe("JSON Form Widget Unicode keys", () => {
     cy.get(`${fieldPrefix}-xn__l2bm1c label`).contains("नाम");
     cy.get(`${fieldPrefix}-xn__l2bm1c input`).then((input) => {
       cy.wrap(input).should("have.value", "John");
-      cy.wrap(input)
-        .invoke("attr", "type")
-        .should("contain", "text");
+      cy.wrap(input).invoke("attr", "type").should("contain", "text");
     });
 
     cy.get(`${fieldPrefix}-xn__80a1afdk69b label`).should("have.length", 2);
     cy.get(`${fieldPrefix}-xn__80a1afdk69b-xn__mgbuhw label`).contains("شارع");
     cy.get(`${fieldPrefix}-xn__80a1afdk69b-xn__mgbuhw input`).then((input) => {
       cy.wrap(input).should("have.value", "Koramangala");
-      cy.wrap(input)
-        .invoke("attr", "type")
-        .should("contain", "text");
+      cy.wrap(input).invoke("attr", "type").should("contain", "text");
     });
 
     cy.get(`${fieldPrefix}-xn__12ca5huag4ce3a label`).should("have.length", 2);
@@ -59,9 +55,7 @@ describe("JSON Form Widget Unicode keys", () => {
     cy.get(`${fieldPrefix}-xn__12ca5huag4ce3a-0--xn__ohco9d4d input`).then(
       (input) => {
         cy.wrap(input).should("have.value", "MIT");
-        cy.wrap(input)
-          .invoke("attr", "type")
-          .should("contain", "text");
+        cy.wrap(input).invoke("attr", "type").should("contain", "text");
       },
     );
 
@@ -97,26 +91,20 @@ describe("JSON Form Widget Unicode keys", () => {
     cy.get(`${fieldPrefix}-xn____xvdesr5bxbc label`).contains("पहला नाम");
     cy.get(`${fieldPrefix}-xn____xvdesr5bxbc input`).then((input) => {
       cy.wrap(input).should("have.value", "John");
-      cy.wrap(input)
-        .invoke("attr", "type")
-        .should("contain", "text");
+      cy.wrap(input).invoke("attr", "type").should("contain", "text");
     });
 
     cy.get(`${fieldPrefix}-xn____qtdi9jva8ac1kf label`).contains("अंतिम नाम");
     cy.get(`${fieldPrefix}-xn____qtdi9jva8ac1kf input`).then((input) => {
       cy.wrap(input).should("have.value", "Doe");
-      cy.wrap(input)
-        .invoke("attr", "type")
-        .should("contain", "text");
+      cy.wrap(input).invoke("attr", "type").should("contain", "text");
     });
 
     cy.get(`${fieldPrefix}-xn__80a1afdk69b label`).should("have.length", 2);
     cy.get(`${fieldPrefix}-xn__80a1afdk69b-xn__mgbuhw label`).contains("شارع");
     cy.get(`${fieldPrefix}-xn__80a1afdk69b-xn__mgbuhw input`).then((input) => {
       cy.wrap(input).should("have.value", "Koramangala");
-      cy.wrap(input)
-        .invoke("attr", "type")
-        .should("contain", "text");
+      cy.wrap(input).invoke("attr", "type").should("contain", "text");
     });
 
     cy.get(`${fieldPrefix}-xn__12ca5huag4ce3a label`).should("have.length", 3);
@@ -127,9 +115,7 @@ describe("JSON Form Widget Unicode keys", () => {
     cy.get(`${fieldPrefix}-xn__12ca5huag4ce3a-0--xn__ohco9d4d input`).then(
       (input) => {
         cy.wrap(input).should("have.value", "MIT");
-        cy.wrap(input)
-          .invoke("attr", "type")
-          .should("contain", "text");
+        cy.wrap(input).invoke("attr", "type").should("contain", "text");
       },
     );
 
@@ -139,9 +125,7 @@ describe("JSON Form Widget Unicode keys", () => {
     cy.get(`${fieldPrefix}-xn__12ca5huag4ce3a-0--xn__u9j436hvxmjkd input`).then(
       (input) => {
         cy.wrap(input).should("have.value", "21/03/2010");
-        cy.wrap(input)
-          .invoke("attr", "type")
-          .should("contain", "text");
+        cy.wrap(input).invoke("attr", "type").should("contain", "text");
       },
     );
 
@@ -213,20 +197,14 @@ describe("JSON Form Widget Unicode keys", () => {
     // नाम field
     cy.openFieldConfiguration("xn__l2bm1c");
     cy.testJsontext("propertyname", "नाम नाम");
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // open field суроға -> شارع
     cy.openFieldConfiguration("xn__80a1afdk69b");
     cy.openFieldConfiguration("xn__mgbuhw", false);
     cy.testJsontext("propertyname", "شارع1 شارع");
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // Validate initial form data
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).then(($el) => {

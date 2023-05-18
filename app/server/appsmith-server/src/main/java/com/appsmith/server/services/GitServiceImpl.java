@@ -6,6 +6,7 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
@@ -14,10 +15,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
-import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +32,7 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           NewActionService newActionService,
                           ActionCollectionService actionCollectionService,
                           GitFileUtils fileUtils,
-                          @Qualifier("importExportServiceCEImplV2") ImportExportApplicationService importExportApplicationService,
+                          ImportExportApplicationService importExportApplicationService,
                           GitExecutor gitExecutor,
                           ResponseUtils responseUtils,
                           EmailConfig emailConfig,
@@ -47,13 +45,14 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           ApplicationPermission applicationPermission,
                           PagePermission pagePermission,
                           ActionPermission actionPermission,
-                          WorkspaceService workspaceService) {
+                          WorkspaceService workspaceService,
+                          RedisUtils redisUtils) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission, workspaceService);
+                actionPermission, workspaceService, redisUtils);
     }
 
 }

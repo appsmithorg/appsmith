@@ -64,7 +64,8 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    private String rtsBaseDomain = "http://127.0.0.1:8091";
+    @Value("${appsmith.rts.port:8091}")
+    private String rtsPort;
 
     private List<String> allowedDomains;
 
@@ -128,5 +129,8 @@ public class CommonConfig {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
-
+    
+    public String getRtsBaseUrl() {
+        return "http://127.0.0.1:" + rtsPort;
+    }
 }

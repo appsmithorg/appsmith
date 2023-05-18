@@ -1,10 +1,11 @@
 import * as React from "react";
 
 import { ButtonGroup, TooltipComponent } from "design-system-old";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -42,9 +43,7 @@ const optionsValues = new Set(Object.values(borderRadiusOptions));
  * COMPONENT
  *-----------------------------------------------------------------------------
  */
-class BorderRadiusOptionsControl extends BaseControl<
-  BorderRadiusOptionsControlProps
-> {
+class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {

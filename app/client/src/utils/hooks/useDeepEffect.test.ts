@@ -32,12 +32,12 @@ describe(".useDeepEffect", () => {
     process.env.NODE_ENV = "production";
     renderHook(() =>
       useDeepEffect(() => {
-        "";
+        ("");
       }, [true, 1, "string"]),
     );
     renderHook(() =>
       useDeepEffect(() => {
-        "";
+        ("");
       }, []),
     );
     // @ts-expect-error: Types are not available

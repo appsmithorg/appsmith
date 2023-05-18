@@ -1,6 +1,6 @@
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,

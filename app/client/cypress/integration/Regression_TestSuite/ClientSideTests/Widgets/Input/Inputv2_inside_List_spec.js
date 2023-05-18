@@ -10,11 +10,7 @@ describe("Input widget V2 - ", () => {
 
   it("1. Validate input widget resets OnSubmit", () => {
     cy.openPropertyPane(widgetName);
-    cy.get(
-      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-    ).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!");
+    cy.getAlert("onSubmit", "Submitted!!");
     cy.get(widgetInput).clear({ force: true });
     cy.wait(300);
     cy.get(widgetInput).type("test{enter}"); //Clicking enter submits the form here
@@ -55,9 +51,7 @@ describe("Input widget V2 - ", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
 
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
     [
@@ -139,9 +133,7 @@ describe("Input widget V2 - ", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Email");
 
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -179,9 +171,7 @@ describe("Input widget V2 - ", () => {
     cy.get(`.t--widget-${widgetName} input`).clear({ force: true });
     cy.wait(300);
     if (text) {
-      cy.get(`.t--widget-${widgetName} input`)
-        .click()
-        .type(text);
+      cy.get(`.t--widget-${widgetName} input`).click().type(text);
     }
     cy.get(".t--widget-textwidget").should("contain", expected);
   }

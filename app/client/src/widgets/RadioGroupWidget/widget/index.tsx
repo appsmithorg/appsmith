@@ -1,21 +1,26 @@
-import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isArray, compact, isNumber } from "lodash";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { RadioOption } from "../constants";
+import { compact, isArray, isNumber } from "lodash";
+import React from "react";
+
 import { LabelPosition } from "components/constants";
-import RadioGroupComponent from "../component";
-import { Stylesheet } from "entities/AppTheming";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import RadioGroupComponent from "../component";
+import type { RadioOption } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 /**
  * Validation rules:
@@ -33,7 +38,7 @@ export function optionsCustomValidation(
     _: any,
   ) => {
     let _isValid = true;
-    let message = "";
+    let message = { name: "", message: "" };
     let valueType = "";
     const uniqueLabels: Record<string | number, string> = {};
 
@@ -47,15 +52,21 @@ export function optionsCustomValidation(
         uniqueLabels[value] = "";
       } else {
         _isValid = false;
-        message = "path:value must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "path:value must be unique. Duplicate values found",
+        };
         break;
       }
 
       //Check if the required field "label" is present:
       if (!label) {
         _isValid = false;
-        message =
-          "Invalid entry at index: " + i + ". Missing required key: label";
+        message = {
+          name: "ValidationError",
+          message:
+            "Invalid entry at index: " + i + ". Missing required key: label",
+        };
         break;
       }
 
@@ -66,25 +77,34 @@ export function optionsCustomValidation(
         (typeof label !== "string" && typeof label !== "number")
       ) {
         _isValid = false;
-        message =
-          "Invalid entry at index: " +
-          i +
-          ". Value of key: label is invalid: This value does not evaluate to type string";
+        message = {
+          name: "ValidationError",
+          message:
+            "Invalid entry at index: " +
+            i +
+            ". Value of key: label is invalid: This value does not evaluate to type string",
+        };
         break;
       }
 
       //Check if all the data types for the value prop is the same.
       if (typeof value !== valueType) {
         _isValid = false;
-        message = "All value properties in options must have the same type";
+        message = {
+          name: "TypeError",
+          message: "All value properties in options must have the same type",
+        };
         break;
       }
 
       //Check if the each object has value property.
       if (_.isNil(value)) {
         _isValid = false;
-        message =
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>';
+        message = {
+          name: "TypeError",
+          message:
+            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+        };
         break;
       }
     }
@@ -100,7 +120,11 @@ export function optionsCustomValidation(
     isValid: false,
     parsed: [],
     messages: [
-      'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      {
+        name: "TypeError",
+        message:
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      },
     ],
   };
   try {
@@ -127,7 +151,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 
@@ -136,7 +165,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: value,
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 
@@ -147,6 +181,18 @@ function defaultOptionValidation(
 }
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
+      "!url": "https://docs.appsmith.com/widget-reference/radio",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      options: "[$__dropdownOption__$]",
+      selectedOptionValue: "string",
+      isRequired: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -165,8 +211,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               params: {
                 fn: optionsCustomValidation,
                 expected: {
-                  type:
-                    'Array<{ "label": "string", "value": "string" | number}>',
+                  type: 'Array<{ "label": "string", "value": "string" | number}>',
                   example: `[{"label": "One", "value": "one"}]`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
@@ -221,6 +266,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -351,8 +397,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a user changes the selected option",
+            helpText: "when a user changes the selected option",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",

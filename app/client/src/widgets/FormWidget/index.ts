@@ -1,5 +1,20 @@
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { GridDefaults } from "constants/WidgetConstants";
+import get from "lodash/get";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -15,6 +30,17 @@ export const CONFIG = {
       active: true,
     },
   },
+  canvasHeightOffset: (props: WidgetProps): number => {
+    const offset =
+      props.borderWidth && props.borderWidth > 1
+        ? Math.round(
+            (2 * parseInt(props.borderWidth, 10) || 0) /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          )
+        : 0;
+
+    return offset;
+  },
   searchTags: ["group"],
   defaults: {
     rows: 40,
@@ -25,6 +51,7 @@ export const CONFIG = {
     widgetName: "Form",
     backgroundColor: Colors.WHITE,
     children: [],
+    positioning: Positioning.Fixed,
     blueprint: {
       view: [
         {
@@ -94,7 +121,121 @@ export const CONFIG = {
           },
         },
       ],
+      operations: [
+        {
+          type: BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return {};
+            return { rows: 10 };
+          },
+        },
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (
+            widget: FlattenedWidgetProps,
+            widgets: CanvasWidgetsReduxState,
+            parent: FlattenedWidgetProps,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return [];
+
+            //get Canvas Widget
+            const canvasWidget: FlattenedWidgetProps = get(
+              widget,
+              "children.0",
+            );
+
+            //get Children Ids of the StatBox
+            const childrenIds: string[] = get(widget, "children.0.children");
+
+            //get Children props of the StatBox
+            const children: FlattenedWidgetProps[] = childrenIds.map(
+              (childId) => widgets[childId],
+            );
+
+            //get the Text Widgets
+            const textWidget = children.filter(
+              (child) => child.type === "TEXT_WIDGET",
+            )?.[0];
+
+            const [buttonWidget1, buttonWidget2] = children.filter(
+              (child) => child.type === "BUTTON_WIDGET",
+            );
+
+            //Create flex layer object based on the children
+            const flexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: textWidget.widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: buttonWidget2.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                  {
+                    id: buttonWidget1.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+            ];
+
+            //create properties to be updated
+            return getWidgetBluePrintUpdates({
+              [widget.widgetId]: {
+                dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+                bottomRow: widget.topRow + 10,
+                mobileBottomRow: (widget.mobileTopRow || widget.topRow) + 10,
+              },
+              [canvasWidget.widgetId]: {
+                flexLayers,
+                useAutoLayout: true,
+                positioning: Positioning.Vertical,
+                bottomRow: 100,
+                mobileBottomRow: 100,
+              },
+              [textWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                topRow: 0,
+                bottomRow: 4,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [buttonWidget2.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 2 * 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+              },
+              [buttonWidget1.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+            });
+          },
+        },
+      ],
     },
+    responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -104,6 +245,23 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "100px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

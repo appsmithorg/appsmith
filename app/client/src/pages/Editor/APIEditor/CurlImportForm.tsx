@@ -1,19 +1,27 @@
 import React from "react";
-import { reduxForm, InjectedFormProps, Form, Field } from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { reduxForm, Form, Field } from "redux-form";
 import { connect } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { AppState } from "@appsmith/reducers";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
-import { BuilderRouteParams } from "constants/routes";
-import { curlImportFormValues, curlImportSubmitHandler } from "./helpers";
+import type { BuilderRouteParams } from "constants/routes";
+import type { curlImportFormValues } from "./helpers";
+import { curlImportSubmitHandler } from "./helpers";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { Button, Size } from "design-system-old";
 import FormRow from "components/editorComponents/FormRow";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "../DataSourceEditor/Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px
@@ -99,6 +107,7 @@ interface ReduxStateProps {
   actions: ActionDataState;
   initialValues: Record<string, unknown>;
   isImportingCurl: boolean;
+  showDebugger: boolean;
 }
 
 export type StateAndRouteProps = ReduxStateProps &
@@ -109,7 +118,7 @@ type Props = StateAndRouteProps &
 
 class CurlImportForm extends React.Component<Props> {
   render() {
-    const { handleSubmit, isImportingCurl } = this.props;
+    const { handleSubmit, isImportingCurl, showDebugger } = this.props;
     return (
       <>
         <CloseEditor />
@@ -138,24 +147,29 @@ class CurlImportForm extends React.Component<Props> {
             </ActionButtons>
           </FormRow>
         </MainConfiguration>
-        <StyledForm onSubmit={handleSubmit(curlImportSubmitHandler)}>
-          <label className="inputLabel">Paste CURL Code Here</label>
-          <CurlHintText>
-            Hint: Try typing in the following curl command and then click on the
-            &apos;Import&apos; button: curl -X GET
-            https://mock-api.appsmith.com/users
-          </CurlHintText>
-          <CurlImportFormContainer>
-            <Field
-              autoFocus
-              className="textAreaStyles"
-              component="textarea"
-              name="curl"
-            />
-            <Field component="input" name="pageId" type="hidden" />
-            <Field component="input" name="name" type="hidden" />
-          </CurlImportFormContainer>
-        </StyledForm>
+        <ResizerMainContainer>
+          <ResizerContentContainer>
+            <StyledForm onSubmit={handleSubmit(curlImportSubmitHandler)}>
+              <label className="inputLabel">Paste CURL Code Here</label>
+              <CurlHintText>
+                Hint: Try typing in the following curl command and then click on
+                the &apos;Import&apos; button: curl -X GET
+                https://mock-api.appsmith.com/users
+              </CurlHintText>
+              <CurlImportFormContainer>
+                <Field
+                  autoFocus
+                  className="textAreaStyles"
+                  component="textarea"
+                  name="curl"
+                />
+                <Field component="input" name="pageId" type="hidden" />
+                <Field component="input" name="name" type="hidden" />
+              </CurlImportFormContainer>
+            </StyledForm>
+          </ResizerContentContainer>
+          {showDebugger && <Debugger />}
+        </ResizerMainContainer>
       </>
     );
   }
@@ -163,6 +177,9 @@ class CurlImportForm extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
   const { pageId: destinationPageId } = props.match.params;
+
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   if (destinationPageId) {
     return {
@@ -172,12 +189,14 @@ const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
         name: createNewApiName(state.entities.actions, destinationPageId),
       },
       isImportingCurl: state.ui.imports.isImportingCurl,
+      showDebugger,
     };
   }
   return {
     actions: state.entities.actions,
     initialValues: {},
     isImportingCurl: state.ui.imports.isImportingCurl,
+    showDebugger,
   };
 };
 

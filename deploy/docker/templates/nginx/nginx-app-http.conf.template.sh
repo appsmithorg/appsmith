@@ -26,7 +26,7 @@ server {
   listen ${PORT:-80} default_server;
   server_name $CUSTOM_DOMAIN;
 
-  client_max_body_size 100m;
+  client_max_body_size 150m;
 
   gzip on;
   gzip_types *;
@@ -70,7 +70,20 @@ server {
   proxy_set_header X-Forwarded-Host  \$origin_host;
 
   location / {
-    try_files \$uri /index.html =404;
+    try_files /loading.html \$uri /index.html =404;
+  }
+
+  location ~ ^/static/(js|css|media)\b {
+    # Files in these folders are hashed, so we can set a long cache time.
+    add_header Cache-Control "max-age=31104000, immutable";  # 360 days
+  }
+
+  location ~ ^/app/[^/]+/[^/]+/edit\b {
+    try_files /edit.html /index.html =404;
+  }
+
+  location /app/ {
+    try_files /view.html /index.html =404;
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.
@@ -91,7 +104,7 @@ server {
   }
 
   location /rts {
-    proxy_pass http://localhost:8091;
+    proxy_pass http://localhost:${APPSMITH_RTS_PORT:-8091};
     proxy_http_version 1.1;
     proxy_set_header Host \$host;
     proxy_set_header Connection 'upgrade';

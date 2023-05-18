@@ -1,4 +1,4 @@
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   deselectAll,
   pushPopWidgetSelection,
@@ -60,7 +60,7 @@ describe("Wigdet selection methods", () => {
   describe("Deselect", () => {
     it("returns an empty selection", () => {
       const result = deselectAll([]);
-      expect(result).toMatchObject({ widgets: [], lastWidgetSelected: "" });
+      expect(result).toStrictEqual([]);
     });
     it("will error out when request has any widgets", () => {
       expect(() => deselectAll(["any"])).toThrow("Wrong payload supplied");
@@ -70,10 +70,7 @@ describe("Wigdet selection methods", () => {
   describe("Select One", () => {
     it("returns a selection", () => {
       const result = selectOneWidget(["widgetId"]);
-      expect(result).toMatchObject({
-        widgets: ["widgetId"],
-        lastWidgetSelected: "widgetId",
-      });
+      expect(result).toStrictEqual(["widgetId"]);
     });
     it("will error out when wrong payload supplied", () => {
       expect(() => selectOneWidget([])).toThrow("Wrong payload supplied");
@@ -89,10 +86,7 @@ describe("Wigdet selection methods", () => {
         ["widgetId1", "widgetId2"],
         allWidgetsMock,
       );
-      expect(result).toMatchObject({
-        widgets: ["widgetId1", "widgetId2"],
-        lastWidgetSelected: "widgetId1",
-      });
+      expect(result).toStrictEqual(["widgetId1", "widgetId2"]);
     });
 
     it("returns no selection if widgets are not siblings", () => {
@@ -112,10 +106,7 @@ describe("Wigdet selection methods", () => {
         ["w1"],
         "w1",
       );
-      expect(result).toMatchObject({
-        widgets: ["w5", "w1", "w2", "w3", "w4"],
-        lastWidgetSelected: "w5",
-      });
+      expect(result).toStrictEqual(["w1", "w5", "w2", "w3", "w4"]);
     });
 
     it("backwards selection", () => {
@@ -125,10 +116,7 @@ describe("Wigdet selection methods", () => {
         ["w5"],
         "w5",
       );
-      expect(result).toMatchObject({
-        widgets: ["w2", "w5", "w3", "w4"],
-        lastWidgetSelected: "w2",
-      });
+      expect(result).toStrictEqual(["w5", "w2", "w3", "w4"]);
     });
 
     it("appended selection on overlap", () => {
@@ -138,10 +126,7 @@ describe("Wigdet selection methods", () => {
         ["w5", "w3"],
         "w5",
       );
-      expect(result).toMatchObject({
-        widgets: ["w1", "w5", "w3", "w2", "w4"],
-        lastWidgetSelected: "w1",
-      });
+      expect(result).toStrictEqual(["w5", "w3", "w1", "w2", "w4"]);
     });
 
     it("a single selection when last selected is not a sibling", () => {
@@ -151,10 +136,7 @@ describe("Wigdet selection methods", () => {
         ["w7"],
         "w7",
       );
-      expect(result).toMatchObject({
-        widgets: ["w2"],
-        lastWidgetSelected: "w2",
-      });
+      expect(result).toStrictEqual(["w2"]);
     });
 
     it("unselect when already selected", () => {
@@ -164,7 +146,7 @@ describe("Wigdet selection methods", () => {
         ["w1", "w2"],
         "w2",
       );
-      expect(result).toMatchObject({ widgets: ["w1"], lastWidgetSelected: "" });
+      expect(result).toStrictEqual(["w1"]);
     });
   });
   describe("Push Pop Select", () => {
@@ -174,10 +156,7 @@ describe("Wigdet selection methods", () => {
         ["w2", "w3"],
         ["w1", "w2", "w3"],
       );
-      expect(result).toMatchObject({
-        widgets: ["w2", "w3", "w1"],
-        lastWidgetSelected: "w1",
-      });
+      expect(result).toStrictEqual(["w2", "w3", "w1"]);
     });
 
     it("removes a selection", () => {
@@ -186,33 +165,24 @@ describe("Wigdet selection methods", () => {
         ["w2", "w1"],
         ["w1", "w2", "w3"],
       );
-      expect(result).toMatchObject({ widgets: ["w2"], lastWidgetSelected: "" });
+      expect(result).toStrictEqual(["w2"]);
     });
 
     it("removes other if new selection is not a sibling", () => {
       const result = pushPopWidgetSelection(["w1"], ["w3", "w4"], ["w1", "w2"]);
-      expect(result).toMatchObject({
-        widgets: ["w1"],
-        lastWidgetSelected: "w1",
-      });
+      expect(result).toStrictEqual(["w1"]);
     });
   });
 
   describe("UnSelect", () => {
     it("returns selection without the widget", () => {
       const result = unselectWidget(["w1"], ["w1", "w2", "w3"]);
-      expect(result).toMatchObject({
-        widgets: ["w2", "w3"],
-        lastWidgetSelected: "w2",
-      });
+      expect(result).toStrictEqual(["w2", "w3"]);
     });
 
     it("returns selection even if not selected", () => {
       const result = unselectWidget(["w1"], ["w2", "w3"]);
-      expect(result).toMatchObject({
-        widgets: ["w2", "w3"],
-        lastWidgetSelected: "w2",
-      });
+      expect(result).toStrictEqual(["w2", "w3"]);
     });
   });
 });

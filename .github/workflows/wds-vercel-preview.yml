@@ -1,0 +1,123 @@
+name: Build WDS Vercel Preview
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [ build-wds-preview-command ]
+jobs:
+  vercel-deploy-preview:
+    if: github.event_name == 'repository_dispatch'
+    name: vercel-wds-build
+    runs-on: ubuntu-latest
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WDS_PROJECT_ID }}
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.14.0"
+        
+      - name: Pull Vercel Environment Information
+        working-directory: ./app/client/packages/storybook
+        run: vercel pull --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
+      
+      - name: Build Project Artifacts
+        working-directory: ./app/client/packages/storybook
+        run: vercel build --yes --token=${{ secrets.VERCEL_TOKEN }}
+        
+        
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: ./app/client/packages/storybook
+        id: set-dpurl
+        run: |
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_WDS_TOKEN }} >> ~/run_result.txt
+          echo "::set-output name=dpurl::$(cat ~/run_result.txt)"
+          
+      - name: vercel-notify
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+           issue-number: ${{ github.event.client_payload.pull_request.number }}
+           body: |
+             Deploy-Preview-URL: ${{ steps.set-dpurl.outputs.dpurl }}
+             
+  vercel-deploy-release:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WDS_PROJECT_ID }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: release
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.14.0"
+
+      - name: Pull Vercel Environment Information
+        working-directory: ./app/client/packages/storybook
+        run: vercel pull --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: ./app/client/packages/storybook
+        run: vercel build --prod --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
+
+
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: ./app/client/packages/storybook
+        id: set-dpurl
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_WDS_TOKEN }} 
+      
+  vercel-deploy-prod:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WDS_PROD_PROJECT_ID }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.14.0"
+
+      - name: Pull Vercel Environment Information
+        working-directory: ./app/client/packages/storybook
+        run: vercel pull --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: ./app/client/packages/storybook
+        run: vercel build --prod --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
+
+
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: ./app/client/packages/storybook
+        id: set-dpurl
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_WDS_TOKEN }} 
+      

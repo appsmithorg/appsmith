@@ -1,9 +1,10 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { WorkerErrorTypes } from "@appsmith/workers/common/types";
-import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
+import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
-import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
+import type { TMessage } from "utils/MessageUtil";
+import { MessageType } from "utils/MessageUtil";
+import { WorkerMessenger } from "./fns/utils/Messenger";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function syncRequestMessageListener(
@@ -20,7 +21,7 @@ function syncRequestMessageListener(
   const responseData = messageHandler(body);
   if (!responseData) return;
   const endTime = performance.now();
-  respond(messageId, responseData, endTime - startTime);
+  WorkerMessenger.respond(messageId, responseData, endTime - startTime);
 }
 
 async function asyncRequestMessageListener(
@@ -37,35 +38,7 @@ async function asyncRequestMessageListener(
   const data = await messageHandler(body);
   if (!data) return;
   const end = performance.now();
-  respond(messageId, data, end - start);
-}
-
-function respond(messageId: string, data: unknown, timeTaken: number) {
-  try {
-    sendMessage.call(self, {
-      messageId,
-      messageType: MessageType.RESPONSE,
-      body: { data, timeTaken },
-    });
-  } catch (e) {
-    console.error(e);
-    sendMessage.call(self, {
-      messageId,
-      messageType: MessageType.RESPONSE,
-      body: {
-        timeTaken: timeTaken.toFixed(2),
-        data: {
-          errors: [
-            {
-              type: WorkerErrorTypes.CLONE_ERROR,
-              message: (e as Error)?.message,
-              context: JSON.stringify(data),
-            },
-          ],
-        },
-      },
-    });
-  }
+  WorkerMessenger.respond(messageId, data, end - start);
 }
 
 self.addEventListener("message", syncRequestMessageListener);

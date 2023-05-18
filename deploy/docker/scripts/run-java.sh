@@ -8,13 +8,38 @@ set -o noglob
 declare -a proxy_args
 proxy_configured=0
 
-if [[ ${HTTP_PROXY-} =~ ^http://(.*):([[:digit:]]*)/?$ && ${BASH_REMATCH[2]} != 0 ]]; then
-  proxy_args+=(-Dhttp.proxyHost="${BASH_REMATCH[1]}" -Dhttp.proxyPort="${BASH_REMATCH[2]}")
+match-proxy-url() {
+  # Examples:
+  #   http://proxy.example.com:8080/
+  #   http://user:pass@proxyhost:123
+  #   http://proxyhost:123
+  [[ $1 =~ ^http://(([^@:]*):([^@]*)?@)?([^@:]*):([0-9]+)/?$ ]]
+  proxy_user="${BASH_REMATCH[2]-}"
+  proxy_pass="${BASH_REMATCH[3]-}"
+  proxy_host="${BASH_REMATCH[4]-}"
+  proxy_port="${BASH_REMATCH[5]-}"
+  [[ -n $proxy_host ]]
+}
+
+if match-proxy-url "${HTTP_PROXY-}"; then
+  proxy_args+=(-Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port")
+  if [[ -n $proxy_user ]]; then
+    proxy_args+=(-Dhttp.proxyUser="$proxy_user")
+  fi
+  if [[ -n $proxy_pass ]]; then
+    proxy_args+=(-Dhttp.proxyPassword="$proxy_pass")
+  fi
   proxy_configured=1
 fi
 
-if [[ ${HTTPS_PROXY-} =~ ^https?://(.*):([[:digit:]]*)/?$ && ${BASH_REMATCH[2]} != 0 ]]; then
-  proxy_args+=(-Dhttps.proxyHost="${BASH_REMATCH[1]}" -Dhttps.proxyPort="${BASH_REMATCH[2]}")
+if match-proxy-url "${HTTPS_PROXY-}"; then
+  proxy_args+=(-Dhttps.proxyHost="$proxy_host" -Dhttps.proxyPort="$proxy_port")
+  if [[ -n $proxy_user ]]; then
+    proxy_args+=(-Dhttps.proxyUser="$proxy_user")
+  fi
+  if [[ -n $proxy_pass ]]; then
+    proxy_args+=(-Dhttps.proxyPassword="$proxy_pass")
+  fi
   proxy_configured=1
 fi
 
@@ -25,7 +50,7 @@ if [[ -z "${NO_PROXY-}" ]]; then
 fi
 
 if [[ $proxy_configured == 1 ]]; then
-  proxy_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY/,/|}")
+  proxy_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY//,/|}")
 fi
 
 # Wait until RTS started and listens on port 8091

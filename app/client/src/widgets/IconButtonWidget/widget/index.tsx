@@ -1,15 +1,19 @@
+import type { IconName } from "@blueprintjs/icons";
 import React from "react";
-import { IconName } from "@blueprintjs/icons";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
-import IconButtonComponent from "../component";
 import { IconNames } from "@blueprintjs/icons";
-import { ButtonVariant, ButtonVariantTypes } from "components/constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { ButtonVariant } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
+import type { Stylesheet } from "entities/AppTheming";
+import IconButtonComponent from "../component";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -50,7 +54,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             },
           },
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",
@@ -245,6 +249,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         }
       />
     );
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Icon button widget is just an icon, along with all other button properties.",
+      "!url": "https://docs.appsmith.com/widget-reference/icon-button",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
   }
 
   static getWidgetType(): WidgetType {

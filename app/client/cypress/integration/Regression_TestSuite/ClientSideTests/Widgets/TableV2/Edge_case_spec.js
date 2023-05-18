@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Table widget v2 edge case scenario testing", function() {
+describe("Table widget v2 edge case scenario testing", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -14,7 +14,7 @@ describe("Table widget v2 edge case scenario testing", function() {
     cy.addDsl(dsl);
   });
 
-  it("1. Check if the selectedRowIndices does not contain 2d array", function() {
+  it("1. Check if the selectedRowIndices does not contain 2d array", function () {
     cy.openPropertyPane("tablewidgetv2");
 
     //Enable Multi row select
@@ -58,17 +58,14 @@ describe("Table widget v2 edge case scenario testing", function() {
     );
   });
 
-  it("2. Check if the selectedRowIndices does not contain -1", function() {
+  it("2. Check if the selectedRowIndices does not contain -1", function () {
     cy.openPropertyPane("tablewidgetv2");
 
     //Update the property default selected row to blank
     cy.updateCodeInput(".t--property-control-defaultselectedrow", "");
 
-    //Check if the evaluated value is undefined
-    cy.get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .should("have.text", "-1");
+    // ensure evaluatedvaluepopup does not show up for empty strings
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
 
     //Check the value present in the textfield which is selectedRowIndices is blank
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "[]");

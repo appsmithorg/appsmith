@@ -4,6 +4,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -89,6 +90,8 @@ public class GitServiceCEImplTest {
     ActionPermission actionPermission;
     @MockBean
     WorkspaceService workspaceService;
+    @MockBean
+    RedisUtils redisUtils;
 
     @BeforeEach
     public void setup() {
@@ -97,7 +100,7 @@ public class GitServiceCEImplTest {
                 newPageService, newActionService, actionCollectionService, gitFileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission, workspaceService
+                actionPermission, workspaceService, redisUtils
         );
     }
 
@@ -124,6 +127,23 @@ public class GitServiceCEImplTest {
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
         doReturn(Mono.just(3L))
+                .when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+
+        StepVerifier
+                .create(gitService1.isRepoLimitReached("workspaceId", true))
+                .assertNext(aBoolean -> assertEquals(true, aBoolean))
+                .verifyComplete();
+    }
+
+    // This test is to check if the limit is reached when the count of connected apps is more than the limit
+    // This happens when public visible git repo is synced with application and then the visibility is changed
+    @Test
+    public void isRepoLimitReached_connectedAppCountIsMoreThanLimit_Success() {
+        doReturn(Mono.just(3))
+                .when(gitCloudServicesUtils).getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+
+        GitServiceCE gitService1 = Mockito.spy(gitService);
+        doReturn(Mono.just(4L))
                 .when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
 
         StepVerifier

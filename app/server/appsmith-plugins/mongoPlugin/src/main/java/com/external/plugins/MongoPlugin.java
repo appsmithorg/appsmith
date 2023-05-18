@@ -31,6 +31,8 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.MongoSpecialDataTypes;
 import com.external.plugins.datatypes.MongoSpecificDataTypes;
+import com.external.plugins.exceptions.MongoPluginError;
+import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -132,6 +134,7 @@ import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -270,17 +273,9 @@ public class MongoPlugin extends BasePlugin {
                     // For raw queries do smart replacements in BSON body
                     final Object body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, OBJECT_TYPE);
                     if (body != null) {
-                        try {
-                            String updatedRawQuery = smartSubstituteBSON((String) body,
-                                    executeActionDTO.getParams(), parameters);
-                            setDataValueSafelyInFormData(formData, BODY, updatedRawQuery);
-                        } catch (AppsmithPluginException e) {
-                            ActionExecutionResult errorResult = new ActionExecutionResult();
-                            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-                            errorResult.setIsExecutionSuccess(false);
-                            errorResult.setBody(e.getMessage());
-                            return Mono.just(errorResult);
-                        }
+                        String updatedRawQuery = smartSubstituteBSON((String) body,
+                                executeActionDTO.getParams(), parameters);
+                        setDataValueSafelyInFormData(formData, BODY, updatedRawQuery);
                     }
                 }
             }
@@ -317,18 +312,24 @@ public class MongoPlugin extends BasePlugin {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
                 throw new StaleConnectionException();
             }
-
-            MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
-
-            final Map<String, Object> formData = actionConfiguration.getFormData();
-
-            String query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
-            Bson command = Document.parse(query);
-
-            Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
+            Mono<Document> mongoOutputMono;
             ActionExecutionResult result = new ActionExecutionResult();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
-                    , null, null));
+            String query;
+            List<RequestParamDTO> requestParams;
+            try {
+                MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+
+                final Map<String, Object> formData = actionConfiguration.getFormData();
+
+                query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
+                Bson command = Document.parse(query);
+
+                mongoOutputMono = Mono.from(database.runCommand(command));
+                requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
+                        , null, null));
+            } catch (Exception error) {
+                return Mono.error(new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error));
+            }
 
             return mongoOutputMono
                     .onErrorMap(
@@ -343,7 +344,7 @@ public class MongoPlugin extends BasePlugin {
                             error -> new AppsmithPluginException(
                                     error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    error.getErrorMessage()
+                                    MongoPluginErrorMessages.QUERY_INVALID_ERROR_MSG
                             )
                     )
                     /**
@@ -455,8 +456,8 @@ public class MongoPlugin extends BasePlugin {
                             JSONObject statusJson = new JSONObject().put("ok", status);
                             headerArray.put(statusJson);
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
-                        } catch (Exception e) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                        } catch (JsonProcessingException e) {
+                            return Mono.error(new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
                         }
 
                         return Mono.just(result);
@@ -465,13 +466,15 @@ public class MongoPlugin extends BasePlugin {
                         if (error instanceof StaleConnectionException) {
                             log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
+                        } else if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
                         actionExecutionResult.setErrorInfo(error, mongoErrorUtils);
                         return Mono.just(actionExecutionResult);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -698,12 +701,13 @@ public class MongoPlugin extends BasePlugin {
                             error ->
                                     new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                            MongoPluginErrorMessages.DS_CREATION_FAILED_ERROR_MSG,
                                             error.getMessage()
                                     )
                     )
                     .onErrorMap(e -> {
-                        if (!(e instanceof AppsmithPluginException)) {
-                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        if (! (e instanceof AppsmithPluginException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, MongoPluginErrorMessages.DS_CREATION_FAILED_ERROR_MSG, e.getMessage());
                         }
 
                         return e;
@@ -727,21 +731,18 @@ public class MongoPlugin extends BasePlugin {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isUsingURI(datasourceConfiguration)) {
                 if (!hasNonEmptyURI(datasourceConfiguration)) {
-                    invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
-                            "URI' field to provide a connection uri to connect with.");
+                    invalids.add(MongoPluginErrorMessages.DS_EMPTY_CONNECTION_URI_ERROR_MSG);
                 } else {
                     String mongoUri = (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     if (!mongoUri.matches(MONGO_URI_REGEX)) {
-                        invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
-                                "check the URI once.");
+                        invalids.add(MongoPluginErrorMessages.DS_INVALID_CONNECTION_STRING_URI_ERROR_MSG);
                     } else {
                         Map extractedInfo = extractInfoFromConnectionStringURI(mongoUri, MONGO_URI_REGEX);
                         if (extractedInfo == null) {
-                            invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
-                                    "Please check the URI once.");
+                            invalids.add(MongoPluginErrorMessages.DS_INVALID_CONNECTION_STRING_URI_ERROR_MSG);
                         } else {
                             if (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null) {
-                                invalids.add("Missing default database name.");
+                                invalids.add(MongoPluginErrorMessages.DS_MISSING_DEFAULT_DATABASE_NAME_ERROR_MSG);
                             }
                             if (!isAuthenticated(authentication, mongoUri)) {
                                 String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
@@ -763,12 +764,11 @@ public class MongoPlugin extends BasePlugin {
             } else {
                 List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
                 if (CollectionUtils.isEmpty(endpoints)) {
-                    invalids.add("Missing endpoint(s).");
+                    invalids.add(MongoPluginErrorMessages.DS_MISSING_ENDPOINTS_ERROR_MSG);
 
                 } else if (Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())) {
                     if (endpoints.size() == 1 && endpoints.get(0).getPort() != null) {
-                        invalids.add("REPLICA_SET connections should not be given a port." +
-                                " If you are trying to specify all the shards, please add more than one.");
+                        invalids.add(MongoPluginErrorMessages.DS_NO_PORT_EXPECTED_IN_REPLICA_SET_CONNECTION_ERROR_MSG);
                     }
 
                 }
@@ -779,12 +779,7 @@ public class MongoPlugin extends BasePlugin {
                             .anyMatch(endPoint -> isHostStringConnectionURI(endPoint));
 
                     if (usingUri) {
-                        invalids.add("It seems that you are trying to use a mongo connection string URI. Please " +
-                                "extract relevant fields and fill the form with extracted values. For " +
-                                "details, please check out the Appsmith's documentation for Mongo database. " +
-                                "Alternatively, you may use 'Import from Connection String URI' option from the " +
-                                "dropdown labelled 'Use Mongo Connection String URI' to use the URI connection string" +
-                                " directly.");
+                        invalids.add(MongoPluginErrorMessages.DS_USING_URI_BUT_EXPECTED_FORM_FIELDS_ERROR_MSG);
                     }
                 }
 
@@ -792,11 +787,11 @@ public class MongoPlugin extends BasePlugin {
                     DBAuth.Type authType = authentication.getAuthType();
 
                     if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
-                        invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
+                        invalids.add(String.format(MongoPluginErrorMessages.DS_INVALID_AUTH_TYPE_ERROR_MSG, VALID_AUTH_TYPES_STR));
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add("Missing default database name.");
+                        invalids.add(MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME);
                     }
 
                 }
@@ -807,8 +802,7 @@ public class MongoPlugin extends BasePlugin {
                 if (datasourceConfiguration.getConnection() == null
                         || datasourceConfiguration.getConnection().getSsl() == null
                         || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                    invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
-                            "form. Please reach out to Appsmith customer support to resolve this.");
+                    invalids.add(MongoPluginErrorMessages.DS_SSL_CONFIGURATION_FETCHING_ERROR_MSG);
                 }
             }
 
@@ -820,14 +814,8 @@ public class MongoPlugin extends BasePlugin {
 
             Function<TimeoutException, Throwable> timeoutExceptionThrowableFunction = error -> new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
-                    "Connection timed out. Please check if the datasource configuration fields have " +
-                            "been filled correctly."
+                    MongoPluginErrorMessages.DS_TIMEOUT_ERROR_MSG
             );
-
-            final String defaultDatabaseName;
-            if (datasourceConfiguration.getConnection() != null) {
-                defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
-            } else defaultDatabaseName = null;
 
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
@@ -836,16 +824,43 @@ public class MongoPlugin extends BasePlugin {
                         return documentMono.doFinally(ignored -> mongoClient.close()).then(documentMono);
                     })
                     .flatMap(names -> {
+
+                        final String defaultDatabaseName;
+                        if (datasourceConfiguration.getConnection() != null) {
+                            defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+                        } else {
+                            defaultDatabaseName = null;
+                        }
+
+                        final String authDatabaseName;
+                        if (datasourceConfiguration.getAuthentication() != null &&
+                                !isBlank(((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName())) {
+                            authDatabaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
+                        } else {
+                            return Mono.just(new DatasourceTestResult(
+                                    MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
+                        }
+
+                        final Optional<String> authDB = names.stream()
+                                .filter(name -> name.equals(authDatabaseName))
+                                .findFirst();
+
+                        if(authDB.isEmpty()) {
+                            return Mono.just(new DatasourceTestResult(
+                                    MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
+                        }
+
                         if (defaultDatabaseName == null || defaultDatabaseName.isBlank()) {
                             return Mono.just(new DatasourceTestResult());
                         }
+
                         final Optional<String> defaultDB = names.stream()
                                 .filter(name -> name.equals(defaultDatabaseName))
                                 .findFirst();
 
                         if (defaultDB.isEmpty()) {
                             // value entered in default database name is invalid
-                            return Mono.just(new DatasourceTestResult("Default Database Name is invalid, no database found with this name."));
+                            return Mono.just(new DatasourceTestResult(MongoPluginErrorMessages.DS_DEFAULT_DATABASE_NAME_INVALID_ERROR_MSG));
                         }
                         return Mono.just(new DatasourceTestResult());
                     })
@@ -916,8 +931,8 @@ public class MongoPlugin extends BasePlugin {
                                 if (MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE.equals(error.getErrorCode())) {
                                     return new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                            "Appsmith has failed to get database structure. Please provide read permission on" +
-                                                    " the database to fix this."
+                                            MongoPluginErrorMessages.DS_GET_STRUCTURE_ERROR_MSG
+
                                     );
                                 }
 
@@ -975,7 +990,7 @@ public class MongoPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         /**
@@ -1005,7 +1020,7 @@ public class MongoPlugin extends BasePlugin {
                             }
                         } catch (Exception e) {
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR,
+                                    MongoPluginError.FORM_TO_NATIVE_TRANSLATION_ERROR,
                                     e.getMessage()
                             );
                         }

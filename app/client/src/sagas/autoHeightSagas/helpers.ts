@@ -1,10 +1,11 @@
+import type { AppState } from "@appsmith/reducers";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
-import {
+import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -12,13 +13,24 @@ import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
 
   return isPreviewMode || appMode === APP_MODE.PUBLISHED;
+}
+
+export function* shouldAllInvisibleWidgetsInAutoHeightContainersCollapse() {
+  const flag: boolean = yield select((state: AppState) => {
+    return !!state.ui.applications.currentApplication?.collapseInvisibleWidgets;
+  });
+
+  return flag;
 }
 
 export function* getChildOfContainerLikeWidget(
@@ -32,7 +44,7 @@ export function* getChildOfContainerLikeWidget(
     // Get the current tabs widget meta
     const tabsMeta: { selectedTabWidgetId: string } | undefined = yield select(
       getWidgetMetaProps,
-      containerLikeWidget.widgetId,
+      containerLikeWidget,
     );
     // If we have a meta for the tabs widget
     if (tabsMeta) return tabsMeta.selectedTabWidgetId;
@@ -84,6 +96,9 @@ export function* getMinHeightBasedOnChildren(
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
   // Get all widgets in the DSL
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  // Skip this whole process if the parent is collapsed: Process:
+  // Get the DataTree
+  const dataTree: DataTree = yield select(getDataTree);
 
   const { children = [], parentId } = stateWidgets[widgetId];
   // If we need to consider the parent height
@@ -140,6 +155,23 @@ export function* getMinHeightBasedOnChildren(
     // detachFromLayout helps us identify such widgets
     if (detachFromLayout) continue;
 
+    // Seems like sometimes, the children comes in as a string instead of string array.
+    // I'm not completely sure why that is, or which widgets use "children" properties as strings
+    // So, we're skipping computations for the children if such a thing happens.
+    if (tree[childWidgetId] === undefined) continue;
+
+    // Get this parentContainerWidget from the DataTree
+    const dataTreeWidget = dataTree[stateWidgets[childWidgetId].widgetName];
+    // If the widget exists, is not visible and we can collapse widgets
+
+    if (
+      dataTreeWidget &&
+      (dataTreeWidget as WidgetEntity).isVisible !== true &&
+      shouldCollapse
+    ) {
+      continue;
+    }
+
     // Get the child widget's dimenstions from the tree
     const { bottomRow, topRow } = tree[childWidgetId];
 
@@ -168,4 +200,93 @@ export function* getMinHeightBasedOnChildren(
   }
 
   return minHeightInRows;
+}
+/**
+ * This function takes a widgetId and computes whether it can have zero height
+ * Widget can have zero height if it has auto height enabled
+ *
+ *
+ * Or if it is a child of a widget which has auto height enabled
+ * (This is verified using shouldAllInvisibleWidgetsInAutoHeightContainersCollapse)
+ *
+ * @param stateWidgets The canvas widgets redux state needed for computations
+ * @param widgetId The widget which is trying to collapse
+ * @returns true if this widget can be collapsed to zero height
+ */
+export function* shouldCollapseThisWidget(
+  stateWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) {
+  const shouldCollapse: boolean = yield shouldWidgetsCollapse();
+  const canCollapseAllWidgets: boolean =
+    yield shouldAllInvisibleWidgetsInAutoHeightContainersCollapse();
+  const widget = stateWidgets[widgetId];
+
+  // If we're in preview or view mode
+  if (shouldCollapse) {
+    // If this widget has auto height enabled
+    if (isAutoHeightEnabledForWidget(widget)) {
+      return true;
+    }
+
+    // Get the parent Canvas widgetId
+    const parentId = widget.parentId;
+
+    if (parentId === MAIN_CONTAINER_WIDGET_ID && canCollapseAllWidgets) {
+      return true;
+    }
+
+    // Get the grandparent or the parent container like widget
+    const parentContainerLikeWidgetId = parentId
+      ? stateWidgets[parentId].parentId
+      : false;
+
+    // If the parent container like widget exists
+    if (parentContainerLikeWidgetId) {
+      const parentContainerLikeWidget =
+        stateWidgets[parentContainerLikeWidgetId];
+      // If we can collapse widgets within all auto height container like widgets
+      // and if the parent container like widget exists
+      // and if auto height is enabled for the parent container
+      // or if the parent is the main container
+      if (
+        parentContainerLikeWidget &&
+        canCollapseAllWidgets &&
+        isAutoHeightEnabledForWidget(parentContainerLikeWidget)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * This function converts a standard object containing the properties to update
+ * into the expected structure of { propertyPath: string, propertyValue: unknown }
+ * @param originalObject The original object to mutate
+ * @param widgetId The widgetId which will be the key in the object to mutate
+ * @param propertiesToUpdate The properties which need to be added in the original object's widgetId key
+ * @returns mutated object
+ */
+export function mutation_setPropertiesToUpdate(
+  originalObject: Record<
+    string,
+    Array<{ propertyPath: string; propertyValue: unknown }>
+  >,
+  widgetId: string,
+  propertiesToUpdate: Record<string, unknown>,
+) {
+  if (!originalObject.hasOwnProperty(widgetId)) {
+    originalObject[widgetId] = [];
+  }
+
+  for (const [key, value] of Object.entries(propertiesToUpdate)) {
+    originalObject[widgetId].push({
+      propertyPath: key,
+      propertyValue: value,
+    });
+  }
+
+  return originalObject;
 }

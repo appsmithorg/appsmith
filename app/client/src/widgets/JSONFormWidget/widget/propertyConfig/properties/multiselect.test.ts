@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { JSONFormWidgetProps } from "../..";
+import type { JSONFormWidgetProps } from "../..";
 import { defaultOptionValueValidation } from "./multiSelect";
 
 describe(".defaultOptionValueValidation", () => {
@@ -9,7 +9,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -26,7 +26,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: null,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -43,7 +43,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -60,7 +60,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: ["green", "red"],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -77,7 +77,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: ["green", "red"],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -94,7 +94,7 @@ describe(".defaultOptionValueValidation", () => {
     const expectedOutput = {
       isValid: true,
       parsed: ["green", "red"],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -130,7 +130,7 @@ describe(".defaultOptionValueValidation", () => {
           value: "red",
         },
       ],
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
 
     const response = defaultOptionValueValidation(
@@ -150,7 +150,11 @@ describe(".defaultOptionValueValidation", () => {
           isValid: false,
           parsed: [],
           messages: [
-            "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            {
+              name: "TypeError",
+              message:
+                "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            },
           ],
         },
       ],
@@ -160,7 +164,11 @@ describe(".defaultOptionValueValidation", () => {
           isValid: false,
           parsed: [],
           messages: [
-            "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            {
+              name: "TypeError",
+              message:
+                "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            },
           ],
         },
       ],
@@ -170,7 +178,11 @@ describe(".defaultOptionValueValidation", () => {
           isValid: false,
           parsed: [],
           messages: [
-            "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            {
+              name: "TypeError",
+              message:
+                "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            },
           ],
         },
       ],
@@ -180,7 +192,11 @@ describe(".defaultOptionValueValidation", () => {
           isValid: false,
           parsed: [],
           messages: [
-            "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            {
+              name: "TypeError",
+              message:
+                "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            },
           ],
         },
       ],
@@ -189,7 +205,12 @@ describe(".defaultOptionValueValidation", () => {
         {
           isValid: false,
           parsed: [],
-          messages: ["value must be unique. Duplicate values found"],
+          messages: [
+            {
+              name: "ValidationError",
+              message: "value must be unique. Duplicate values found",
+            },
+          ],
         },
       ],
       [
@@ -206,7 +227,12 @@ describe(".defaultOptionValueValidation", () => {
         {
           isValid: false,
           parsed: [],
-          messages: ["value must be unique. Duplicate values found"],
+          messages: [
+            {
+              name: "ValidationError",
+              message: "value must be unique. Duplicate values found",
+            },
+          ],
         },
       ],
       [
@@ -222,7 +248,11 @@ describe(".defaultOptionValueValidation", () => {
           isValid: false,
           parsed: [],
           messages: [
-            "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            {
+              name: "TypeError",
+              message:
+                "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            },
           ],
         },
       ],
@@ -238,7 +268,11 @@ describe(".defaultOptionValueValidation", () => {
           isValid: false,
           parsed: [],
           messages: [
-            "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            {
+              name: "TypeError",
+              message:
+                "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+            },
           ],
         },
       ],

@@ -1,17 +1,14 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ControlType } from "constants/PropertyControlConstants";
 import { TextInput } from "design-system-old";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { InputType } from "components/constants";
-import {
-  Field,
-  WrappedFieldMetaProps,
-  WrappedFieldInputProps,
-  formValueSelector,
-} from "redux-form";
+import type { InputType } from "components/constants";
+import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
+import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
 
 export const StyledInfo = styled.span`
@@ -23,8 +20,9 @@ export const StyledInfo = styled.span`
 `;
 
 const FieldWrapper = styled.div`
-  width: 35vw;
   position: relative;
+  min-width: 380px;
+  max-width: 520px;
 `;
 
 const SecretDisplayIndicator = styled.input`
@@ -191,7 +189,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
         return "text";
     }
   }
-
   getControlType(): ControlType {
     return "INPUT_TEXT";
   }

@@ -1,8 +1,8 @@
 import React from "react";
 import Select from "react-select";
 
-import { WrappedFieldInputProps } from "redux-form";
-import { SelectComponentsConfig } from "react-select/src/components";
+import type { WrappedFieldInputProps } from "redux-form";
+import type { SelectComponentsConfig } from "react-select/src/components";
 import { LayersContext } from "constants/Layers";
 import { Colors } from "constants/Colors";
 

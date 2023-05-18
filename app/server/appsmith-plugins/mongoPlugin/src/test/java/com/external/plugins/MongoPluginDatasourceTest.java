@@ -188,6 +188,39 @@ public class MongoPluginDatasourceTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testDatasourceFailWithEmptyDefaultDatabaseNameAndInvalidAuthDBName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setDefaultDatabaseName("");
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setDatabaseName("abcd");
+        dsConfig.setAuthentication(dbAuth);
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.getInvalids().stream().anyMatch(error ->
+                            error.contains("Authentication Database Name is invalid, " +
+                                    "no database found with this name.")));
+                    assertFalse(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasourceSuccessWithEmptyDefaultDatabaseNameAndValidAuthDBName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setDefaultDatabaseName("");
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setDatabaseName("test");
+        dsConfig.setAuthentication(dbAuth);
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
+
     /*
      * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.
      */
@@ -230,6 +263,9 @@ public class MongoPluginDatasourceTest {
     @Test
     public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setDatabaseName("test");
+        dsConfig.setAuthentication(dbAuth);
 
         final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
 

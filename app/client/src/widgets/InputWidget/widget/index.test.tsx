@@ -1,4 +1,5 @@
-import { defaultValueValidation, InputWidgetProps } from "./index";
+import type { InputWidgetProps } from "./index";
+import { defaultValueValidation } from "./index";
 import _ from "lodash";
 
 describe("#defaultValueValidation", () => {
@@ -40,24 +41,34 @@ describe("#defaultValueValidation", () => {
     "abcd",
   ];
   const expectedOutputs = [
-    { isValid: true, parsed: undefined, messages: [""] },
-    { isValid: true, parsed: undefined, messages: [""] },
-    { isValid: true, parsed: 0, messages: [""] },
-    { isValid: true, parsed: 123, messages: [""] },
-    { isValid: true, parsed: -23, messages: [""] },
-    { isValid: true, parsed: 0.000001, messages: [""] },
-    { isValid: true, parsed: -23, messages: [""] },
-    { isValid: true, parsed: 0, messages: [""] },
-    { isValid: true, parsed: 100, messages: [""] },
+    { isValid: true, parsed: undefined, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: undefined, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 0, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 123, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: -23, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 0.000001, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: -23, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 0, messages: [{ name: "", message: "" }] },
+    { isValid: true, parsed: 100, messages: [{ name: "", message: "" }] },
     {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be a number",
+        },
+      ],
     },
     {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be a number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be a number",
+        },
+      ],
     },
   ];
 
@@ -123,7 +134,7 @@ describe("#defaultValueValidation", () => {
     expect(response).toStrictEqual({
       isValid: true,
       parsed: undefined,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 });

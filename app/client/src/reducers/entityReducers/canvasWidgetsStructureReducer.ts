@@ -1,18 +1,14 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxActionTypes,
+import type {
   UpdateCanvasPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { CanvasWidgetStructure } from "widgets/constants";
-import { pick } from "lodash";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetType,
-  WIDGET_DSL_STRUCTURE_PROPS,
-} from "constants/WidgetConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
+import { denormalize } from "utils/canvasStructureHelpers";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -35,31 +31,6 @@ const initialState: CanvasWidgetsStructureReduxState = {
   topRow: 0,
   bottomRow: CANVAS_DEFAULT_MIN_ROWS,
 };
-
-/**
- * Generate dsl type skeletal structure from canvas widgets
- * @param rootWidgetId
- * @param widgets
- * @returns
- */
-function denormalize(
-  rootWidgetId: string,
-  widgets: Record<string, FlattenedWidgetProps>,
-): CanvasWidgetStructure {
-  const rootWidget = widgets[rootWidgetId];
-
-  const children = (rootWidget.children || []).map((childId) =>
-    denormalize(childId, widgets),
-  );
-
-  const staticProps = Object.keys(WIDGET_DSL_STRUCTURE_PROPS);
-
-  const structure = pick(rootWidget, staticProps) as CanvasWidgetStructure;
-
-  structure.children = children;
-
-  return structure;
-}
 
 const canvasWidgetsStructureReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (

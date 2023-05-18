@@ -10,7 +10,7 @@ import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
   thinScrollbar,
@@ -27,23 +27,22 @@ import {
   getIsSavingWorkspaceInfo,
   getUserApplicationsWorkspaces,
   getUserApplicationsWorkspacesList,
-} from "selectors/applicationSelectors";
-import {
-  ApplicationPayload,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "@appsmith/selectors/applicationSelectors";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
+import type { IconName } from "design-system-old";
 import {
   AppIconCollection,
   Button,
@@ -52,7 +51,6 @@ import {
   EditableText,
   EditInteractionKind,
   Icon,
-  IconName,
   IconSize,
   Menu,
   MenuItem,
@@ -64,15 +62,16 @@ import {
 } from "design-system-old";
 import {
   duplicateApplication,
+  setShowAppInviteUsersDialog,
   updateApplication,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
-import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
+import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
   saveWorkspace,
@@ -85,13 +84,11 @@ import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers"
 import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import {
   createMessage,
-  INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
   SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
-import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { setHeaderMeta } from "actions/themeActions";
 import SharedUserList from "pages/common/SharedUserList";
@@ -114,6 +111,9 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { importSvg } from "design-system-old";
+
+const NoAppsFoundIcon = importSvg(() => import("assets/svg/no-apps-icon.svg"));
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -294,14 +294,14 @@ export function Item(props: {
   label: string;
   textType: TextType;
   icon?: IconName;
-  isFetchingApplications: boolean;
+  isFetchingApplications?: boolean;
 }) {
   return (
     <ItemWrapper>
       {props.icon && <StyledIcon />}
       <Text
         className={
-          props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
+          !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
         type={props.textType}
       >
@@ -331,12 +331,7 @@ export function LeftPaneSection(props: {
 }) {
   return (
     <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
-      {/* <MenuItem text={props.heading}/> */}
-      <Item
-        isFetchingApplications={props.isFetchingApplications}
-        label={props.heading}
-        textType={TextType.SIDE_HEAD}
-      />
+      <Item label={props.heading} textType={TextType.SIDE_HEAD} />
       {props.children}
     </LeftPaneDataSection>
   );
@@ -442,28 +437,24 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {!isFetchingApplications &&
-            fetchedUserWorkspaces &&
-            canCreateWorkspace && (
-              <MenuItem
-                cypressSelector="t--workspace-new-workspace-auto-create"
-                icon="plus"
-                onSelect={() =>
-                  submitCreateWorkspaceForm(
-                    {
-                      name: getNextEntityName(
-                        "Untitled workspace ",
-                        fetchedUserWorkspaces.map(
-                          (el: any) => el.workspace.name,
-                        ),
-                      ),
-                    },
-                    dispatch,
-                  )
-                }
-                text={CREATE_WORKSPACE_FORM_NAME}
-              />
-            )}
+          {canCreateWorkspace && (
+            <MenuItem
+              cypressSelector="t--workspace-new-workspace-auto-create"
+              icon="plus"
+              onSelect={() =>
+                submitCreateWorkspaceForm(
+                  {
+                    name: getNextEntityName(
+                      "Untitled workspace ",
+                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
+                    ),
+                  },
+                  dispatch,
+                )
+              }
+              text={CREATE_WORKSPACE_FORM_NAME}
+            />
+          )}
           {userWorkspaces &&
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem
@@ -660,6 +651,10 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   let updatedWorkspaces;
   if (!isFetchingApplications) {
     updatedWorkspaces = userWorkspaces;
@@ -754,10 +749,7 @@ export function ApplicationsSection(props: any) {
                     <FormDialogComponent
                       Form={WorkspaceInviteUsersForm}
                       canOutsideClickClose
-                      message={createMessage(
-                        INVITE_USERS_MESSAGE,
-                        cloudHosting,
-                      )}
+                      onOpenOrClose={handleFormOpenOrClose}
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,
@@ -873,20 +865,21 @@ export function ApplicationsSection(props: any) {
                               text="Import"
                             />
                           )}
-                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
-                          <MenuItem
-                            icon="member"
-                            onSelect={() =>
-                              getOnSelectAction(
-                                DropdownOnSelectActions.REDIRECT,
-                                {
-                                  path: `/workspace/${workspace.id}/settings/members`,
-                                },
-                              )
-                            }
-                            text="Members"
-                          />
-                        )}
+                        {hasManageWorkspacePermissions &&
+                          canInviteToWorkspace && (
+                            <MenuItem
+                              icon="member"
+                              onSelect={() =>
+                                getOnSelectAction(
+                                  DropdownOnSelectActions.REDIRECT,
+                                  {
+                                    path: `/workspace/${workspace.id}/settings/members`,
+                                  },
+                                )
+                              }
+                              text="Members"
+                            />
+                          )}
                         {canInviteToWorkspace && (
                           <MenuItem
                             icon="logout"
@@ -935,12 +928,15 @@ export function ApplicationsSection(props: any) {
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
-                      hasCreateNewApplicationPermission={
-                        hasCreateNewApplicationPermission
-                      }
                       isMobile={isMobile}
                       key={application.id}
+                      permissions={{
+                        hasCreateNewApplicationPermission,
+                        hasManageWorkspacePermissions,
+                        canInviteToWorkspace,
+                      }}
                       update={updateApplicationDispatch}
+                      workspaceId={workspace.id}
                     />
                   </PaddingWrapper>
                 );
@@ -1015,7 +1011,7 @@ export interface ApplicationState {
 
 export class Applications<
   Props extends ApplicationProps,
-  State extends ApplicationState
+  State extends ApplicationState,
 > extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

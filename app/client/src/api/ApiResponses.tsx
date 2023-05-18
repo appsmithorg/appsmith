@@ -1,5 +1,5 @@
 export type APIResponseError = {
-  code: number;
+  code: string | number;
   message: string;
 };
 

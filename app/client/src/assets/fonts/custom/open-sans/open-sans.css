@@ -1,0 +1,80 @@
+/* open-sans-300 - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 300;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-300.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-300italic - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: italic;
+  font-weight: 300;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-300italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-regular - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-regular.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-italic - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: italic;
+  font-weight: 400;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-500 - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-500.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-500italic - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: italic;
+  font-weight: 500;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-500italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-700 - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 700;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-700.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
+/* open-sans-700italic - cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Open Sans";
+  font-style: italic;
+  font-weight: 700;
+  src: url("./open-sans-v34/open-sans-v34-cyrillic_cyrillic-ext_greek_greek-ext_hebrew_latin_latin-ext_vietnamese-700italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}

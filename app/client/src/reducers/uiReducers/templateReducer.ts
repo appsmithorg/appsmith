@@ -1,10 +1,10 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Template, TemplateFiltersResponse } from "api/TemplatesApi";
+import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,

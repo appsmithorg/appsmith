@@ -6,10 +6,10 @@ import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "selectors/entitiesSelector";
-import { AppState } from "@appsmith/reducers";
-import { JSCollection } from "entities/JSCollection";
+import type { AppState } from "@appsmith/reducers";
+import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
-import { PluginType } from "entities/Action";
+import type { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
@@ -80,7 +80,7 @@ export const ExplorerJSCollectionEntity = memo(
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}
-        icon={JsFileIconV2}
+        icon={JsFileIconV2()}
         key={jsAction.id}
         name={jsAction.name}
         searchKeyword={props.searchKeyword}

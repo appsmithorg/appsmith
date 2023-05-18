@@ -1,34 +1,38 @@
+import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  DependencyMap,
   EVAL_ERROR_PATH,
-  EvaluationError,
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { Diff } from "deep-diff";
-import {
+import type { Diff } from "deep-diff";
+import type {
   DataTree,
-  DataTreeAction,
-  DataTreeAppsmith,
+  AppsmithEntity,
   DataTreeEntity,
-  DataTreeWidget,
-  ENTITY_TYPE,
-  DataTreeJSAction,
+  WidgetEntity,
+  DataTreeEntityConfig,
+  ConfigTree,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-
-import _, { find, get, isEmpty, set } from "lodash";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import _, { difference, find, get, has, isNil, set } from "lodash";
+import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
+import type {
+  JSActionEntityConfig,
+  PrivateWidgets,
+  JSActionEntity,
+  ActionEntity,
+} from "entities/DataTree/types";
+import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-import { PrivateWidgets } from "entities/DataTree/types";
-import { EvalProps } from "workers/common/DataTreeEvaluator";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -39,7 +43,7 @@ export enum DataTreeDiffEvent {
   NEW = "NEW",
   DELETE = "DELETE",
   EDIT = "EDIT",
-  NOOP = "NOOP",
+  NOOP = "NOOP", // No Operation (don’t do anything)
 }
 
 export type DataTreeDiff = {
@@ -74,9 +78,7 @@ function isInt(val: string | number): boolean {
 }
 
 // Removes the entity name from the property path
-export function getEntityNameAndPropertyPath(
-  fullPath: string,
-): {
+export function getEntityNameAndPropertyPath(fullPath: string): {
   entityName: string;
   propertyPath: string;
 } {
@@ -91,6 +93,35 @@ export function getEntityNameAndPropertyPath(
   const entityName = fullPath.substring(0, indexOfFirstDot);
   const propertyPath = fullPath.substring(indexOfFirstDot + 1);
   return { entityName, propertyPath };
+}
+
+function translateCollectionDiffs(
+  propertyPath: string,
+  data: unknown,
+  event: DataTreeDiffEvent,
+) {
+  const dataTreeDiffs: DataTreeDiff[] = [];
+  if (Array.isArray(data)) {
+    data.forEach((diff, idx) => {
+      dataTreeDiffs.push({
+        event,
+        payload: {
+          propertyPath: `${propertyPath}[${idx}]`,
+        },
+      });
+    });
+  } else if (isTrueObject(data)) {
+    Object.keys(data).forEach((diffKey) => {
+      const path = `${propertyPath}.${diffKey}`;
+      dataTreeDiffs.push({
+        event,
+        payload: {
+          propertyPath: path,
+        },
+      });
+    });
+  }
+  return dataTreeDiffs;
 }
 
 //these paths are not required to go through evaluate tree as these are internal properties
@@ -124,10 +155,9 @@ export const translateDiffEventToDataTreeDiffEvent = (
     value: "",
   };
 
-  //we do not need evaluate these paths coz these are internal paths
-  const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
-    propertyPath,
-  );
+  //we do not need evaluate these paths because these are internal paths
+  const isUninterestingPathForUpdateTree =
+    isUninterestingChangeForDependencyUpdate(propertyPath);
   if (!!isUninterestingPathForUpdateTree) {
     return result;
   }
@@ -148,44 +178,15 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      let rhsChange, lhsChange;
-      if (isJsAction) {
-        rhsChange = typeof difference.rhs === "string";
-        lhsChange = typeof difference.lhs === "string";
-      } else {
-        rhsChange =
-          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
+      const rhsChange =
+        typeof difference.rhs === "string" &&
+        (isDynamicValue(difference.rhs) || isJsAction);
 
-        lhsChange =
-          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
-      }
+      const lhsChange =
+        typeof difference.lhs === "string" &&
+        (isDynamicValue(difference.lhs) || isJsAction);
 
-      // JsObject function renaming
-      // remove .data from a String instance manually
-      // since it won't be identified when calculating diffs
-      // source for .data in a String instance -> `updateLocalUnEvalTree`
-      if (
-        isJsAction &&
-        rhsChange &&
-        difference.lhs instanceof String &&
-        _.get(difference.lhs, "data")
-      ) {
-        result = [
-          {
-            event: DataTreeDiffEvent.DELETE,
-            payload: {
-              propertyPath: `${propertyPath}.data`,
-            },
-          },
-          {
-            event: DataTreeDiffEvent.EDIT,
-            payload: {
-              propertyPath,
-              value: difference.rhs,
-            },
-          },
-        ];
-      } else if (rhsChange || lhsChange) {
+      if (rhsChange || lhsChange) {
         result = [
           {
             event: DataTreeDiffEvent.EDIT,
@@ -199,44 +200,38 @@ export const translateDiffEventToDataTreeDiffEvent = (
          * If lhs is an array/object
          * Add delete events for all memberExpressions
          */
-        if (Array.isArray(difference.lhs)) {
-          difference.lhs.forEach((diff, idx) => {
-            (result as DataTreeDiff[]).push({
-              event: DataTreeDiffEvent.DELETE,
-              payload: {
-                propertyPath: `${propertyPath}[${idx}]`,
-              },
-            });
-          });
-        }
 
-        if (isTrueObject(difference.lhs)) {
-          Object.keys(difference.lhs).forEach((diffKey) => {
-            const path = `${propertyPath}.${diffKey}`;
-            (result as DataTreeDiff[]).push({
-              event: DataTreeDiffEvent.DELETE,
-              payload: {
-                propertyPath: path,
-              },
-            });
-          });
-        }
+        const dataTreeDeleteDiffs = translateCollectionDiffs(
+          propertyPath,
+          difference.lhs,
+          DataTreeDiffEvent.DELETE,
+        );
+        result = result.concat(dataTreeDeleteDiffs);
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
-        ) {
+        if (difference.lhs === undefined && !isNil(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
-        ) {
-          result.event = DataTreeDiffEvent.DELETE;
-          result.payload = { propertyPath };
+        if (difference.rhs === undefined && !isNil(difference.lhs)) {
+          result = [
+            {
+              event: DataTreeDiffEvent.EDIT,
+              payload: {
+                propertyPath,
+                value: difference.rhs,
+              },
+            },
+          ];
+
+          const dataTreeDeleteDiffs = translateCollectionDiffs(
+            propertyPath,
+            difference.lhs,
+            DataTreeDiffEvent.DELETE,
+          );
+
+          result = dataTreeDeleteDiffs.concat(result);
         }
       } else if (
         isTrueObject(difference.lhs) &&
@@ -247,22 +242,18 @@ export const translateDiffEventToDataTreeDiffEvent = (
         // in such a case we want to delete all nested paths of the
         // original lhs object
 
-        result = Object.keys(difference.lhs).map((diffKey) => {
-          const path = `${propertyPath}.${diffKey}`;
-          return {
-            event: DataTreeDiffEvent.DELETE,
-            payload: {
-              propertyPath: path,
-            },
-          };
-        });
+        result = translateCollectionDiffs(
+          propertyPath,
+          difference.lhs,
+          DataTreeDiffEvent.DELETE,
+        );
 
         // when an object is being replaced by an array
         // list all new array accessors that are being added
         // so dependencies will be created based on existing bindings
         if (Array.isArray(difference.rhs)) {
           result = result.concat(
-            translateDiffArrayIndexAccessors(
+            translateCollectionDiffs(
               propertyPath,
               difference.rhs,
               DataTreeDiffEvent.NEW,
@@ -277,22 +268,18 @@ export const translateDiffEventToDataTreeDiffEvent = (
         // from being any other type like string or number to an object
         // in such a case we want to add all nested paths of the
         // new rhs object
-        result = Object.keys(difference.rhs).map((diffKey) => {
-          const path = `${propertyPath}.${diffKey}`;
-          return {
-            event: DataTreeDiffEvent.NEW,
-            payload: {
-              propertyPath: path,
-            },
-          };
-        });
+        result = translateCollectionDiffs(
+          propertyPath,
+          difference.rhs,
+          DataTreeDiffEvent.NEW,
+        );
 
         // when an array is being replaced by an object
         // remove all array accessors that are deleted
         // so dependencies by existing bindings are removed
         if (Array.isArray(difference.lhs)) {
           result = result.concat(
-            translateDiffArrayIndexAccessors(
+            translateCollectionDiffs(
               propertyPath,
               difference.lhs,
               DataTreeDiffEvent.DELETE,
@@ -362,8 +349,8 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<DataTreeEntity>,
-): entity is DataTreeWidget {
+  entity: Partial<DataTreeEntity> | WidgetEntityConfig,
+): entity is WidgetEntity | WidgetEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -371,9 +358,15 @@ export function isWidget(
   );
 }
 
+export const shouldSuppressAutoComplete = (widget: WidgetEntity) =>
+  Boolean(widget.suppressAutoComplete);
+
+export const shouldSuppressDebuggerError = (widget: WidgetEntity) =>
+  Boolean(widget.suppressDebuggerError);
+
 export function isAction(
   entity: Partial<DataTreeEntity>,
-): entity is DataTreeAction {
+): entity is ActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -383,7 +376,7 @@ export function isAction(
 
 export function isAppsmithEntity(
   entity: DataTreeEntity,
-): entity is DataTreeAppsmith {
+): entity is AppsmithEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -391,7 +384,16 @@ export function isAppsmithEntity(
   );
 }
 
-export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
+export function isJSActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is JSActionEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -399,7 +401,7 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
-export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -407,6 +409,10 @@ export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
     "pluginType" in entity &&
     entity.pluginType === PluginType.JS
   );
+}
+
+export function isDataTreeEntity(entity: unknown) {
+  return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
@@ -498,7 +504,7 @@ export const getAllPaths = (
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
       getAllPaths(records[i], tempKey, result);
     }
-  } else if (typeof records === "object" && records) {
+  } else if (isTrueObject(records)) {
     for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
       getAllPaths(records[key], tempKey, result);
@@ -532,36 +538,43 @@ export const trimDependantChangePaths = (
 export function getSafeToRenderDataTree(
   tree: DataTree,
   widgetTypeConfigMap: WidgetTypeConfigMap,
+  configTree: ConfigTree,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
+    const entity = tree[entityKey];
+
     if (!isWidget(entity)) {
       return tree;
     }
+    const entityConfig = configTree[entityKey] as WidgetEntityConfig;
+
     const safeToRenderEntity = { ...entity };
     // Set user input values to their parsed values
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { parsed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
-      _.set(safeToRenderEntity, property, parsed);
-    });
-    // Set derived values to undefined or else they would go as bindings
-    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
-      (property) => {
-        _.set(safeToRenderEntity, property, undefined);
+    Object.entries(entityConfig.validationPaths).forEach(
+      ([property, validation]) => {
+        const value = _.get(entity, property);
+        // Pass it through parse
+        const { parsed } = validateWidgetProperty(
+          validation,
+          value,
+          entityConfig,
+          property,
+        );
+        _.set(safeToRenderEntity, property, parsed);
       },
     );
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(
+      widgetTypeConfigMap[entityConfig.type].derivedProperties,
+    ).forEach((property) => {
+      _.set(safeToRenderEntity, property, undefined);
+    });
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
 
 export const addErrorToEntityProperty = ({
+  configTree,
   dataTree,
   errors,
   evalProps,
@@ -571,14 +584,15 @@ export const addErrorToEntityProperty = ({
   dataTree: DataTree;
   fullPropertyPath: string;
   evalProps: EvalProps;
+  configTree: ConfigTree;
 }) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
-  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
-    entityName
-  ];
-  const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(
+    dataTree,
+    configTree,
+  )[entityName];
+  const logBlackList = get(configTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrors = get(evalProps, errorPath, []) as EvaluationError[];
@@ -595,16 +609,13 @@ export const resetValidationErrorsForEntityProperty = ({
   fullPropertyPath: string;
   evalProps: EvalProps;
 }) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
   if (propertyPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
-    const existingErrorsExceptValidation = (_.get(
-      evalProps,
-      errorPath,
-      [],
-    ) as EvaluationError[]).filter(
+    const existingErrorsExceptValidation = (
+      _.get(evalProps, errorPath, []) as EvaluationError[]
+    ).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
     _.set(evalProps, errorPath, existingErrorsExceptValidation);
@@ -626,26 +637,29 @@ export const isTrueObject = (
  * @returns datatype of the received value as string
  */
 export const findDatatype = (value: unknown) => {
-  return Object.prototype.toString
-    .call(value)
-    .slice(8, -1)
-    .toLowerCase();
+  return Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
 };
 
-export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
+export const isDynamicLeaf = (
+  unEvalTree: DataTree,
+  propertyPath: string,
+  configTree: ConfigTree,
+) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
   // Ignore if this was a delete op
-  if (!(entityName in unEvalTree)) return false;
+  if (!unEvalTree.hasOwnProperty(entityName)) return false;
 
+  const entityConfig = configTree[entityName];
   const entity = unEvalTree[entityName];
   if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entity.reactivePaths ||
-    (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
+    relativePropertyPath in entityConfig.reactivePaths ||
+    (isWidget(entityConfig) &&
+      relativePropertyPath in entityConfig?.triggerPaths)
   );
 };
 
@@ -653,7 +667,7 @@ export const addWidgetPropertyDependencies = ({
   entity,
   entityName,
 }: {
-  entity: DataTreeWidget;
+  entity: WidgetEntityConfig;
   entityName: string;
 }) => {
   const dependencies: DependencyMap = {};
@@ -695,13 +709,15 @@ export const isPrivateEntityPath = (
 
 export const getAllPrivateWidgetsInDataTree = (
   dataTree: DataTree,
+  configTree: ConfigTree,
 ): PrivateWidgets => {
   let privateWidgets: PrivateWidgets = {};
 
   Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
-    if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
-      privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+    const entityConfig = configTree[entityName] as WidgetEntityConfig;
+    if (isWidget(entity) && !_.isEmpty(entityConfig.privateWidgets)) {
+      privateWidgets = { ...privateWidgets, ...entityConfig.privateWidgets };
     }
   });
 
@@ -710,12 +726,39 @@ export const getAllPrivateWidgetsInDataTree = (
 
 export const getDataTreeWithoutPrivateWidgets = (
   dataTree: DataTree,
+  configTree: ConfigTree,
 ): DataTree => {
-  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree, configTree);
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
+
+const getDataTreeWithoutSuppressedAutoComplete = (
+  dataTree: DataTree,
+): DataTree => {
+  const entityIds = Object.keys(dataTree).filter((entityName) => {
+    const entity = dataTree[entityName];
+    return isWidget(entity) && shouldSuppressAutoComplete(entity);
+  });
+
+  return _.omit(dataTree, entityIds);
+};
+
+export const getDataTreeForAutocomplete = (
+  dataTree: DataTree,
+  configTree: ConfigTree,
+): DataTree => {
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+    dataTree,
+    configTree,
+  );
+  const treeWithoutSuppressedAutoComplete =
+    getDataTreeWithoutSuppressedAutoComplete(treeWithoutPrivateWidgets);
+
+  return treeWithoutSuppressedAutoComplete;
+};
+
 /**
  *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
  *
@@ -723,7 +766,7 @@ export const getDataTreeWithoutPrivateWidgets = (
  *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
  *
  * @param {{
- *   entity: DataTreeWidget;
+ *   entity: WidgetEntity;
  *   propertyPath: string;
  *   value: unknown;
  *   currentTree: DataTree;
@@ -732,30 +775,37 @@ export const getDataTreeWithoutPrivateWidgets = (
  * @return {*}
  */
 export const overrideWidgetProperties = (params: {
-  entity: DataTreeWidget;
+  entity: WidgetEntity;
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
+  configTree: ConfigTree;
   evalMetaUpdates: EvalMetaUpdates;
+  fullPropertyPath: string;
   isNewWidget: boolean;
 }) => {
   const {
+    configTree,
     currentTree,
     entity,
     evalMetaUpdates,
+    fullPropertyPath,
     isNewWidget,
     propertyPath,
     value,
   } = params;
   const clonedValue = klona(value);
-  if (propertyPath in entity.overridingPropertyPaths) {
+  const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
+
+  const configEntity = configTree[entityName] as WidgetEntityConfig;
+  if (propertyPath in configEntity.overridingPropertyPaths) {
     const overridingPropertyPaths =
-      entity.overridingPropertyPaths[propertyPath];
+      configEntity.overridingPropertyPaths[propertyPath];
 
     const pathsNotToOverride = widgetPathsNotToOverride(
       isNewWidget,
-      entity,
       propertyPath,
+      configEntity,
     );
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
@@ -780,13 +830,13 @@ export const overrideWidgetProperties = (params: {
       }
     });
   } else if (
-    propertyPath in entity.propertyOverrideDependency &&
+    propertyPath in configEntity.propertyOverrideDependency &&
     clonedValue === undefined
   ) {
     // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
     // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
-      entity.propertyOverrideDependency[propertyPath];
+      configEntity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = klona(defaultValue);
@@ -808,17 +858,19 @@ export const overrideWidgetProperties = (params: {
 };
 export function isValidEntity(
   entity: DataTreeEntity,
-): entity is DataTreeObjectEntity {
+): entity is DataTreeEntityObject {
   if (!isObject(entity)) {
     return false;
   }
   return "ENTITY_TYPE" in entity;
 }
 export const isATriggerPath = (
-  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
   propertyPath: string,
 ) => {
-  return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
+  return (
+    isWidget(entityConfig) && isPathDynamicTrigger(entityConfig, propertyPath)
+  );
 };
 
 // Checks if entity newly got added to the unevalTree
@@ -829,20 +881,17 @@ export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
   });
 };
 
-export const widgetPathsNotToOverride = (
+const widgetPathsNotToOverride = (
   isNewWidget: boolean,
-  entity: DataTreeWidget,
   propertyPath: string,
+  entityConfig: WidgetEntityConfig,
 ) => {
   let pathsNotToOverride: string[] = [];
-  const overriddenPropertyPaths = entity.overridingPropertyPaths[propertyPath];
+  const overriddenPropertyPaths =
+    entityConfig.overridingPropertyPaths[propertyPath];
 
-  // To tell whether a widget has pre-existing meta values (although newly added), we stringify its meta object to get rid of undefined values
-  // An empty parsedMetaObj implies that the widget has no pre-existing meta values.
-  // MetaWidgets can have pre-existing meta values
-  const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
-
-  if (isNewWidget && !isEmpty(parsedMetaObj)) {
+  // Check if widget has pre-existing meta values (although newly added to the unevalTree)
+  if (isNewWidget && entityConfig.isMetaPropDirty) {
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
@@ -850,13 +899,68 @@ export const widgetPathsNotToOverride = (
     pathsNotToOverride = [...overriddenMetaPaths];
     // paths which these meta values override should also not get overridden
     overriddenMetaPaths.forEach((path) => {
-      if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
+      if (entityConfig.overridingPropertyPaths.hasOwnProperty(path)) {
         pathsNotToOverride = [
           ...pathsNotToOverride,
-          ...entity.overridingPropertyPaths[path],
+          ...entityConfig.overridingPropertyPaths[path],
         ];
       }
     });
   }
   return pathsNotToOverride;
 };
+
+const isWidgetDefaultPropertyPath = (
+  widget: WidgetEntityConfig,
+  propertyPath: string,
+) => {
+  for (const property of Object.keys(widget.propertyOverrideDependency)) {
+    const overrideDependency = widget.propertyOverrideDependency[property];
+    if (overrideDependency.DEFAULT === propertyPath) return true;
+  }
+  return false;
+};
+
+const isMetaWidgetTemplate = (widget: WidgetEntity) => {
+  return !!widget.siblingMetaWidgets;
+};
+
+// When a default value changes in a template(widgets used to generate other widgets), meta values of metaWidgets not present in the unevalTree become stale
+export function getStaleMetaStateIds(args: {
+  entity: WidgetEntity;
+  entityConfig: WidgetEntityConfig;
+  propertyPath: string;
+  isNewWidget: boolean;
+  metaWidgets: string[];
+}) {
+  const { entity, entityConfig, isNewWidget, metaWidgets, propertyPath } = args;
+  return !isNewWidget &&
+    isWidgetDefaultPropertyPath(entityConfig, propertyPath) &&
+    isMetaWidgetTemplate(entity)
+    ? difference(entity.siblingMetaWidgets, metaWidgets)
+    : [];
+}
+
+export function convertJSFunctionsToString(
+  jscollections: Record<string, JSActionEntity>,
+  configTree: ConfigTree,
+) {
+  const collections = klona(jscollections);
+  Object.keys(collections).forEach((collectionName) => {
+    const jsCollection = collections[collectionName];
+    const jsCollectionConfig = configTree[
+      collectionName
+    ] as JSActionEntityConfig;
+    const jsFunctions = jsCollectionConfig.meta;
+    for (const funcName in jsFunctions) {
+      if (jsCollection[funcName] instanceof String) {
+        if (has(jsCollection, [funcName, "data"])) {
+          set(jsCollection, [`${funcName}.data`], jsCollection[funcName].data);
+        }
+        set(jsCollection, funcName, jsCollection[funcName].toString());
+      }
+    }
+  });
+
+  return collections;
+}

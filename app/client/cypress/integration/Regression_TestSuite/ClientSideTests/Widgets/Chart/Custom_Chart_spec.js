@@ -4,7 +4,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Chart Widget Functionality around custom chart feature", function() {
+describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -13,7 +13,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.openPropertyPane("chartwidget");
   });
 
-  it("1. Fill the Chart Widget Properties.", function() {
+  it("1. Fill the Chart Widget Properties.", function () {
     //changing the Chart Name
     /**
      * @param{Text} Random Text
@@ -23,7 +23,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.widgetText(
       "Test",
       viewWidgetsPage.chartWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     //changing the Chart Title
     /**
@@ -65,7 +65,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("2. Custom Chart Widget Functionality", function() {
+  it("2. Custom Chart Widget Functionality", function () {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Custom Chart");
@@ -82,14 +82,12 @@ describe("Chart Widget Functionality around custom chart feature", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("3. Toggle JS - Custom Chart Widget Functionality", function() {
+  it("3. Toggle JS - Custom Chart Widget Functionality", function () {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     //changing the Chart type
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
@@ -108,23 +106,21 @@ describe("Chart Widget Functionality around custom chart feature", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
 
     //Close edit prop
-    cy.PublishtheApp();
+    cy.PublishtheApp(false);
   });
 
-  it("4. Chart-Copy Verification", function() {
+  it("4. Chart-Copy Verification", function () {
     //Copy Chart and verify all properties
     cy.wait(1000);
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
     cy.PublishtheApp();
   });
 
-  it("5. Chart-Delete Verification", function() {
+  it("5. Chart-Delete Verification", function () {
     // Delete the Chart widget
     cy.deleteWidget(viewWidgetsPage.chartWidget);
     cy.PublishtheApp();

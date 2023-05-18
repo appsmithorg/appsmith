@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { IconProps, IconWrapper } from "constants/IconConstants";
-import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
+import type { IconProps } from "constants/IconConstants";
+import { IconWrapper } from "constants/IconConstants";
 import { Popover, Position } from "@blueprintjs/core";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
@@ -8,15 +8,20 @@ import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
-import { DatasourceTable } from "entities/Datasource";
+import type { DatasourceTable } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
+import { importSvg } from "design-system-old";
+
+const LightningIcon = importSvg(
+  () => import("assets/icons/control/lightning.svg"),
+);
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {

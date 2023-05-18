@@ -26,7 +26,7 @@ import {
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateJSCollectionBody } from "../../../../actions/jsPaneActions";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
 
 type EntityContextMenuProps = {
   id: string;

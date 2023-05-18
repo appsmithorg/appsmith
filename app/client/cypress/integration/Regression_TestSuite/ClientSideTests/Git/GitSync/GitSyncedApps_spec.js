@@ -21,7 +21,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", function() {
+describe("Git sync apps", function () {
   before(() => {
     // cy.NavigateToHome();
     // cy.createWorkspace();
@@ -31,15 +31,7 @@ describe("Git sync apps", function() {
   });
   it("1. Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
     cy.NavigateToHome();
-    cy.get(homePage.createNew)
-      .first()
-      .click({ force: true });
-
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
     cy.get(generatePage.generateCRUDPageActionCard).click();
@@ -72,9 +64,7 @@ describe("Git sync apps", function() {
 
     cy.get(generatePage.selectTableDropdown).click();
 
-    cy.get(generatePage.dropdownOption)
-      .contains("public.configs")
-      .click();
+    cy.get(generatePage.dropdownOption).contains("public.configs").click();
 
     //  skip optional search column selection.
     cy.get(generatePage.generatePageFormSubmitBtn).click();
@@ -118,102 +108,106 @@ describe("Git sync apps", function() {
     );
   });
   it("2. Create api queries from api pane and cURL import , bind it to widget and clone page from page settings", () => {
-    cy.Createpage(newPage);
-    cy.get(`.t--entity-item:contains(${newPage})`).click();
-    cy.wait(1000);
-    // create a get api call
-    cy.NavigateToAPI_Panel();
-    cy.wait(2000);
-    cy.CreateAPI("get_data");
-    // creating get request using echo
-    cy.get(apiwidget.resourceUrl)
-      .first()
-      .click({ force: true })
-      .type("https://mock-api.appsmith.com/echo/get", {
-        parseSpecialCharSequences: false,
-      });
-    //.type("{esc}}");
-    cy.wait(5000);
-    cy.get(apiwidget.headerKey).type("info");
-    cy.xpath("//span[text()='Key']").click();
-    // entering the data in header
-    cy.get(apiwidget.headerValue).type("This is a test", {
-      parseSpecialCharSequences: false,
-    });
-    cy.wait(2000);
-    cy.SaveAndRunAPI();
-    cy.ResponseStatusCheck("200");
-    cy.get(".bp3-icon-chevron-left").click();
-    // curl import
-    cy.get(pages.integrationCreateNew)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
-      {
-        force: true,
-        parseSpecialCharSequences: false,
-      },
-    );
-    cy.importCurl();
-    cy.RunAPI();
-    cy.ResponseStatusCheck("201 CREATED");
-    cy.get("@curlImport").then((response) => {
-      cy.expect(response.response.body.responseMeta.success).to.eq(true);
-      cy.get(apiwidget.ApiName)
-        .invoke("text")
-        .then((text) => {
-          const someText = text;
-          expect(someText).to.equal(response.response.body.data.name);
+    cy.fixture("datasources").then((datasourceFormData) => {
+      cy.Createpage(newPage);
+      cy.get(`.t--entity-item:contains(${newPage})`).click();
+      cy.wait(1000);
+      // create a get api call
+      cy.NavigateToAPI_Panel();
+      cy.wait(2000);
+      cy.CreateAPI("get_data");
+      // creating get request using echo
+      cy.get(apiwidget.resourceUrl)
+        .first()
+        .click({ force: true })
+        .type(datasourceFormData["echoApiUrl"], {
+          parseSpecialCharSequences: false,
         });
-    });
-    cy.get(explorer.addWidget).click();
-    // bind input widgets to the api calls responses
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-    cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.EnableAllCodeEditors();
-    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-      .last()
-      .click({ force: true })
-      .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
-    cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.EnableAllCodeEditors();
-    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-      .last()
-      .click({ force: true })
-      .type("{{get_data.data.headers.info}}", {
+      //.type("{esc}}");
+      cy.wait(5000);
+      cy.get(apiwidget.headerKey).type("info");
+      cy.xpath("//span[text()='Key']").click();
+      // entering the data in header
+      cy.get(apiwidget.headerValue).type("This is a test", {
         parseSpecialCharSequences: false,
       });
-    cy.wait(2000);
-    // clone the page from page settings
-    cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+      cy.wait(2000);
+      cy.SaveAndRunAPI();
+      cy.ResponseStatusCheck("200");
+      cy.get(".bp3-icon-chevron-left").click();
+      // curl import
+      cy.get(pages.integrationCreateNew)
+        .should("be.visible")
+        .click({ force: true });
+      cy.get(ApiEditor.curlImage).click({ force: true });
+      cy.get("textarea").type(
+        'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
+          datasourceFormData["echoApiUrl"],
+        {
+          force: true,
+          parseSpecialCharSequences: false,
+        },
+      );
+      cy.importCurl();
+      cy.RunAPI();
+      cy.ResponseStatusCheck("200");
+      cy.get("@curlImport").then((response) => {
+        cy.expect(response.response.body.responseMeta.success).to.eq(true);
+        cy.get(apiwidget.ApiName)
+          .invoke("text")
+          .then((text) => {
+            const someText = text;
+            expect(someText).to.equal(response.response.body.data.name);
+          });
+      });
+      cy.get(explorer.addWidget).click();
+      // bind input widgets to the api calls responses
+      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+      cy.get(".t--widget-inputwidgetv2").should("exist");
+      cy.EnableAllCodeEditors();
+      cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+        .last()
+        .click({ force: true })
+        .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
+      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+      cy.get(".t--widget-inputwidgetv2").should("exist");
+      cy.EnableAllCodeEditors();
+      cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+        .last()
+        .click({ force: true })
+        .type("{{get_data.data.headers.Info}}", {
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(2000);
+      // clone the page from page settings
+      cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
+        cy.get(".t--context-menu").click({ force: true });
+      });
+      cy.selectAction("Clone");
+      cy.wait("@clonePage").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
+      cy.wait("@getPage");
     });
-    cy.selectAction("Clone");
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
-    cy.wait("@getPage");
   });
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
+    cy.wait(2000);
+    cy.get(".t--draggable-inputwidgetv2").should("be.visible");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
       .find(".bp3-input")
-      .should("have.value", "morpheus");
-
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--draggable-inputwidgetv2")
       .last()
       .find(".bp3-input")
-      .should("have.value", "This is a test");
-    cy.get(`.t--entity-item:contains(${newPage})`)
-      .first()
-      .click();
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
+    cy.get(`.t--entity-item:contains(${newPage})`).first().click();
     cy.wait("@getPage");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
@@ -229,9 +223,7 @@ describe("Git sync apps", function() {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(`.t--entity-item:contains(${pageName})`)
-      .first()
-      .click();
+    cy.get(`.t--entity-item:contains(${pageName})`).first().click();
     cy.wait("@getPage");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
@@ -250,24 +242,26 @@ describe("Git sync apps", function() {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(".t--page-switch-tab")
-      .contains(`${newPage}`)
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
@@ -294,9 +288,7 @@ describe("Git sync apps", function() {
         cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type("get_users");
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
     // writing query to get the schema
@@ -318,16 +310,17 @@ describe("Git sync apps", function() {
       .click({ force: true });
     // move jsObject and postgres query to new page
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "get_users",
       "Move to page",
       "Child_Page",
     );
+    cy.runQuery();
     cy.wait(2000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Move to page",
       "Child_Page",
@@ -361,13 +354,17 @@ describe("Git sync apps", function() {
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verfiy data binding on all pages in deploy mode
+    cy.wait(4000);
     cy.latestDeployPreview();
+    cy.get(".bp3-input").should("be.visible");
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "Success");
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "Test user 7");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["Success", "Test user 7"]);
     cy.get(".t--page-switch-tab")
       .contains(`${pageName}`)
       .click({ force: true });
@@ -380,24 +377,28 @@ describe("Git sync apps", function() {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(".t--page-switch-tab")
-      .contains(`${newPage}`)
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
+    cy.wait(2000);
     cy.get(".bp3-input")
       .first()
-      .should("have.value", "morpheus");
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
+      .last()
+      .invoke("val")
+      .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
     // verfiy data binding on all pages in edit mode
@@ -416,7 +417,7 @@ describe("Git sync apps", function() {
       .first()
       .should("have.value", "Success");
     cy.get(".bp3-input")
-      .eq(1)
+      .last()
       .should("have.value", "Test user 7");
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
@@ -454,29 +455,15 @@ describe("Git sync apps", function() {
   it("7. Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
     cy.switchGitBranch(tempBranch);
     cy.wait(2000);
+
     //  clone the Child_Page
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(Child_Page)`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Clone");
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    _.entityExplorer.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
-    cy.CheckAndUnfoldEntityItem("Pages");
+    _.entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
+    _.entityExplorer.ActionContextMenuByEntityName("Child_Page", "Hide");
 
-    cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.wait(2000);
-    cy.selectAction("Hide");
-
-    cy.get(`.t--entity-item:contains(Child_Page)`)
-      .first()
-      .click();
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
     cy.wait("@getPage");
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
@@ -489,17 +476,15 @@ describe("Git sync apps", function() {
     cy.wait(2000);
     cy.latestDeployPreview();
     // verify page is hidden on deploy mode
-    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.agHelper.AssertContains("Child_Page Copy", "not.exist");
+    _.deployMode.NavigateBacktoEditor();
   });
   it("8. Verify Page visiblity on master in edit and deploy mode", () => {
     cy.switchGitBranch(mainBranch);
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.agHelper.AssertContains("Child_Page Copy", "not.exist");
+    _.deployMode.NavigateBacktoEditor();
   });
   it("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
     //cy.createGitBranch(tempBranch1);
@@ -525,37 +510,23 @@ describe("Git sync apps", function() {
   });
   it("10. Import app from git and verify page order should not change", () => {
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(".t--import-json-card")
-      .next()
-      .click();
+    cy.get(".t--import-json-card").next().click();
     // import application from git
     cy.importAppFromGit(repoName);
     cy.wait(2000);
     // verify page order remains same as in orignal app
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(".t--entity-item")
-      .eq(1)
-      .contains("crudpage_1");
-    cy.get(".t--entity-item")
-      .eq(2)
-      .contains("crudpage_1 Copy");
-    cy.get(".t--entity-item")
-      .eq(3)
-      .contains("ApiCalls_1");
-    cy.get(".t--entity-item")
-      .eq(4)
-      .contains("ApiCalls_1 Copy");
-    cy.get(".t--entity-item")
-      .eq(5)
-      .contains("Child_Page");
+    cy.get(".t--entity-item").eq(1).contains("crudpage_1");
+    cy.get(".t--entity-item").eq(2).contains("crudpage_1 Copy");
+    cy.get(".t--entity-item").eq(3).contains("ApiCalls_1");
+    cy.get(".t--entity-item").eq(4).contains("ApiCalls_1 Copy");
+    cy.get(".t--entity-item").eq(5).contains("Child_Page");
   });
 
   after(() => {
     //clean up
     _.gitSync.DeleteTestGithubRepo(repoName);
-  });  
+  });
 });

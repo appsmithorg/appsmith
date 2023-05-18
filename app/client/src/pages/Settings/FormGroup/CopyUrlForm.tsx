@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { Field, InjectedFormProps, reduxForm } from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { HelpIcons } from "icons/HelpIcons";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";

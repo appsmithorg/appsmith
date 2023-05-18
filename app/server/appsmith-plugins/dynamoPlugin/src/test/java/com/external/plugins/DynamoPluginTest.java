@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.exceptions.DynamoPluginError;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -502,6 +505,16 @@ public class DynamoPluginTest {
                     assertTrue(datasourceTestResult.getInvalids().isEmpty());
                 })
                 .verifyComplete();
+
+    }
+
+    @Test
+    public void verifyUniquenessOfDynamoDBPluginErrorCode() {
+        assert (Arrays.stream(DynamoPluginError.values()).map(DynamoPluginError::getAppErrorCode).distinct().count() == DynamoPluginError.values().length);
+
+        assert (Arrays.stream(DynamoPluginError.values()).map(DynamoPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-DYN"))
+                .collect(Collectors.toList()).size() == 0);
 
     }
 }

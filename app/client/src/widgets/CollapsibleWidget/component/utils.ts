@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import type { RefObject } from "react";
 
 export const noop = () => {
   return;
@@ -16,5 +16,7 @@ export function getElementHeight(
 
 type AnyFunction = (...args: any[]) => unknown;
 
-export const callAll = (...fns: AnyFunction[]) => (...args: any[]): void =>
-  fns.forEach((fn) => fn && fn(...args));
+export const callAll =
+  (...fns: AnyFunction[]) =>
+  (...args: any[]): void =>
+    fns.forEach((fn) => fn && fn(...args));

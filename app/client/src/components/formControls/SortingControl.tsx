@@ -1,14 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
-import { Icon, IconSize } from "design-system-old";
+import { Classes, Icon, IconSize } from "design-system-old";
 import styled, { css } from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
-import { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
 import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
+import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -37,32 +38,52 @@ const orderFieldConfig: any = {
     {
       label: OrderDropDownValues.ASCENDING,
       value: OrderDropDownValues.ASCENDING,
+      icon: "sort-asc",
     },
     {
       label: OrderDropDownValues.DESCENDING,
       value: OrderDropDownValues.DESCENDING,
+      icon: "sort-desc",
     },
   ],
-  customStyles: {
-    width: "10vw",
-  },
 };
 
 // main container for the fsorting component
 const SortingContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: min-content;
   justify-content: space-between;
 `;
 
 // container for the two sorting dropdown
-const SortingDropdownContainer = styled.div`
+const SortingDropdownContainer = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
   width: min-content;
   justify-content: space-between;
   margin-bottom: 10px;
+
+  // Hide the icon by default
+  .t--form-control-DROP_DOWN .remixicon-icon {
+    display: none;
+  }
+  // We still want the dropdown to show the 'expand-more' icon
+  .t--form-control-DROP_DOWN span[name="expand-more"] .remixicon-icon {
+    display: initial;
+  }
+  ${(props) =>
+    props.size === "small" &&
+    `
+  // Hide the dropdown labels to decrease the width
+  // The design system component has inline style hence the !important
+  .t--form-control-DROP_DOWN .${Classes.TEXT} {
+    display: none !important;
+  }
+  // Show the icons hidden initially
+  .t--form-control-DROP_DOWN .remixicon-icon {
+    display: initial;
+  }
+  `}
 `;
 
 // container for the column dropdown section
@@ -118,6 +139,10 @@ function SortingComponent(props: any) {
     props.fields.remove(index);
   };
 
+  const targetRef = useRef<HTMLDivElement>(null);
+  const size = useResponsiveBreakpoints(targetRef, [{ small: 450 }]);
+  const isBreakpointSmall = size === "small";
+
   useEffect(() => {
     // this path represents the path to the sortBy object, wherever the location is in the actionConfiguration object
     let sortingObjectPath;
@@ -162,7 +187,7 @@ function SortingComponent(props: any) {
   }, [props.fields.length]);
 
   return (
-    <SortingContainer className={`t--${props?.configProperty}`}>
+    <SortingContainer className={`t--${props?.configProperty}`} ref={targetRef}>
       {props.fields &&
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
@@ -177,7 +202,7 @@ function SortingComponent(props: any) {
             undefined,
           );
           return (
-            <SortingDropdownContainer key={index}>
+            <SortingDropdownContainer key={index} size={size}>
               <ColumnDropdownContainer>
                 <FormControl
                   config={{
@@ -193,6 +218,10 @@ function SortingComponent(props: any) {
                   ...orderFieldConfig,
                   configProperty: `${OrderPath}`,
                   nestedFormControl: true,
+                  customStyles: {
+                    width: isBreakpointSmall ? "65px" : "144px",
+                  },
+                  optionWidth: isBreakpointSmall ? "144px" : undefined,
                 }}
                 formName={props.formName}
               />

@@ -1,27 +1,30 @@
-import React, { lazy, Suspense } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import Skeleton from "components/utils/Skeleton";
-import { retryPromise } from "utils/AppsmithUtils";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-
+import { LabelPosition } from "components/constants";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
-import { Stylesheet } from "entities/AppTheming";
+import { retryPromise } from "utils/AppsmithUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+
+import type { Stylesheet } from "entities/AppTheming";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
   HTML = "html",
 }
 const RichTextEditorComponent = lazy(() =>
-  retryPromise(() =>
-    import(/* webpackChunkName: "rte",webpackPrefetch: 2 */ "../component"),
-  ),
+  retryPromise(() => import(/* webpackChunkName: "rte" */ "../component")),
 );
 
 const converter = new showdown.Converter();
@@ -29,6 +32,14 @@ class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
+      isDisabled: "string",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -211,11 +222,12 @@ class RichTextEditorWidget extends BaseWidget<
           },
         ],
       },
+
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the text is changed",
+            helpText: "when the text is changed",
             propertyName: "onTextChange",
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",

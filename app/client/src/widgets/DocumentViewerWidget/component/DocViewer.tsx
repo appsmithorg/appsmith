@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import mammoth from "mammoth";
+import mammoth from "mammoth/mammoth.browser";
 import styled from "styled-components";
 import Interweave from "interweave";
 
@@ -24,7 +24,7 @@ export default function DocViewer(props: { blob?: Blob }) {
             { arrayBuffer: buffer },
             { includeEmbeddedStyleMap: true, includeDefaultStyleMap: true },
           )
-          .then((result) => {
+          .then((result: { value: string }) => {
             setState({ isLoading: false, isError: false });
             setHtmlContent(result.value);
           })

@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
 
-describe("Text Widget Functionality", function() {
+describe("Text Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -12,12 +12,12 @@ describe("Text Widget Functionality", function() {
     cy.openPropertyPane("textwidget");
   });
 
-  it("Text-TextStyle Heading, Text Name Validation", function() {
+  it("Text-TextStyle Heading, Text Name Validation", function () {
     //changing the Text Name and verifying
     cy.widgetText(
       this.data.TextName,
       widgetsPage.textWidget,
-      widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
     //Changing the text label
     cy.testCodeMirror(this.data.TextLabelValue);
@@ -34,7 +34,7 @@ describe("Text Widget Functionality", function() {
       .should("have.css", "font-size", "16px");
   });
 
-  it("Text Email Parsing Validation", function() {
+  it("Text Email Parsing Validation", function () {
     cy.testCodeMirror("ab.end@domain.com");
     cy.wait("@updateLayout");
     cy.PublishtheApp();
@@ -45,7 +45,7 @@ describe("Text Widget Functionality", function() {
     );
   });
 
-  it("Text-TextStyle Label Validation", function() {
+  it("Text-TextStyle Label Validation", function () {
     cy.testCodeMirror(this.data.TextLabelValue);
     cy.moveToStyleTab();
     //Changing the Text Style's and validating
@@ -60,7 +60,7 @@ describe("Text Widget Functionality", function() {
       .should("have.css", "font-size", "14px");
   });
 
-  it("Text-TextStyle Body Validation", function() {
+  it("Text-TextStyle Body Validation", function () {
     cy.moveToStyleTab();
     cy.ChangeTextStyle(
       this.data.TextBody,
@@ -73,11 +73,9 @@ describe("Text Widget Functionality", function() {
       .should("have.css", "font-size", "20px");
   });
 
-  it("Text widget depends on itself", function() {
+  it("Text widget depends on itself", function () {
     cy.testJsontext("text", `{{${this.data.TextName}}}`);
-    cy.get(commonlocators.toastBody)
-      .first()
-      .contains("Cyclic");
+    cy.get(commonlocators.toastBody).first().contains("Cyclic");
     cy.PublishtheApp();
     cy.get(commonlocators.bodyTextStyle).should(
       "have.text",

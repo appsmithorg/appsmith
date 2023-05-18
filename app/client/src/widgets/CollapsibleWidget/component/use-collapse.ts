@@ -1,11 +1,5 @@
-import {
-  useEffect,
-  useState,
-  CSSProperties,
-  MouseEvent,
-  useRef,
-  TransitionEvent,
-} from "react";
+import type { CSSProperties, MouseEvent, TransitionEvent } from "react";
+import { useEffect, useState, useRef } from "react";
 import { flushSync } from "react-dom";
 
 import { callAll, getElementHeight, noop } from "./utils";

@@ -1,11 +1,11 @@
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { fillPathname, viewerURL } from "RouteBuilder";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { getPageById } from "selectors/editorSelectors";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
 import URLRedirect from ".";

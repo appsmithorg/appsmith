@@ -10,6 +10,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -29,28 +30,26 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 AnalyticsService analyticsService,
                                 DatasourceService datasourceService,
                                 PluginService pluginService,
-                                DatasourceContextService datasourceContextService,
                                 PluginExecutorHelper pluginExecutorHelper,
                                 MarketplaceService marketplaceService,
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
-                                SessionUserService sessionUserService,
                                 PolicyUtils policyUtils,
-                                AuthenticationValidator authenticationValidator,
                                 ConfigService configService,
                                 ResponseUtils responseUtils,
                                 PermissionGroupService permissionGroupService,
                                 DatasourcePermission datasourcePermission,
                                 ApplicationPermission applicationPermission,
                                 PagePermission pagePermission,
-                                ActionPermission actionPermission) {
+                                ActionPermission actionPermission,
+                                ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
-                policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
-                authenticationValidator, configService, responseUtils, permissionGroupService, datasourcePermission,
-                applicationPermission, pagePermission, actionPermission);
+                datasourceService, pluginService, pluginExecutorHelper, marketplaceService,
+                policyGenerator, newPageService, applicationService, policyUtils,
+                configService, responseUtils, permissionGroupService, datasourcePermission,
+                applicationPermission, pagePermission, actionPermission, observationRegistry);
 
     }
 }

@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import {
-  ReduxActionTypes,
+import type {
   ReduxAction,
   ShowPropertyPanePayload,
 } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const initialState: TableFilterPaneReduxState = {
   isVisible: false,

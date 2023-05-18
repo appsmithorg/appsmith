@@ -3,17 +3,11 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 import homePage from "../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const ee = ObjectsRegistry.EntityExplorer;
-const dataSources = ObjectsRegistry.DataSources;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
+describe("Validate Mongo query commands", function () {
   // afterEach(function() {
   //   if (this.currentTest.state === "failed") {
   //     Cypress.runner.stop();
@@ -25,7 +19,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
   //     cy.actionContextMenuByEntityName(queryName);
   // });
 
-  it("1. Creates a new Mongo datasource", function() {
+  before("Creates a new Mongo datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
     cy.fillMongoDatasourceForm();
@@ -36,7 +30,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.testSaveDatasource();
   });
 
-  it("2. Validate Raw query command, run and then delete the query", function() {
+  it("1. Validate Raw query command, run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
@@ -64,13 +58,13 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     // cy.EvaluateCurrentValue(`{"find": "listingAndReviews","limit": 10}`);
 
     cy.runQuery();
-    dataSources.CheckResponseRecordsCount(10);
+    _.dataSources.CheckResponseRecordsCount(10);
     cy.deleteQueryUsingContext();
   });
 
-  it("3. Validate Find documents command & Run and then delete the query", function() {
+  it("2. Validate Find documents command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.setQueryTimeout(20000);
+    _.dataSources.SetQueryTimeout(20000);
 
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
     //cy.expect(queryLocators.findDocs).to.exist;
@@ -80,65 +74,87 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Find Document(s)",
     );
 
-    cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
-    cy.runQuery();
-    dataSources.CheckResponseRecordsCount(10);
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
+    _.dataSources.RunQuery();
+    _.dataSources.CheckResponseRecordsCount(10);
 
-    cy.typeValueNValidate("{beds : {$lte: 2}}", formControls.mongoFindQuery);
-    cy.runQuery();
-    dataSources.CheckResponseRecordsCount(10);
+    _.agHelper.EnterValue("{beds : {$lte: 2}}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+    _.dataSources.RunQuery();
+    _.dataSources.CheckResponseRecordsCount(10);
 
-    cy.typeValueNValidate(
-      "{number_of_reviews: -1}",
-      formControls.mongoFindSort,
-    ); //sort descending
-    cy.runQuery();
-    dataSources.CheckResponseRecordsCount(10);
+    _.agHelper.EnterValue("{number_of_reviews: -1}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Sort",
+    }); //sort descending
+    _.dataSources.RunQuery();
+    _.dataSources.CheckResponseRecordsCount(10);
 
-    cy.typeValueNValidate(
-      "{house_rules: 1, description:1}",
-      formControls.mongoFindProjection,
-    ); //Projection field
-    cy.runQuery();
+    _.agHelper.EnterValue("{house_rules: 1, description:1}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Projection",
+    }); //Projection field
+    _.dataSources.RunQuery();
 
-    cy.typeValueNValidate("5", formControls.mongoFindLimit); //Limit field
-    cy.onlyQueryRun();
+    _.agHelper.EnterValue("5", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Limit",
+    }); //Limit field
+
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body[0].description).to.contains(
         "The ideal apartment to visit the magnificent city of Porto and the northern region of Portugal, with family or with a couple of friends",
         "Response is not as expected for Find commmand with multiple conditions",
       );
     });
-    dataSources.CheckResponseRecordsCount(5);
+    _.dataSources.CheckResponseRecordsCount(5);
 
-    cy.typeValueNValidate("2", formControls.mongoFindSkip); //Skip field
-    cy.onlyQueryRun();
-
+    _.agHelper.EnterValue("2", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Skip",
+    });
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body[0].description).to.contains(
         "My place is close to the beach, family-friendly activities, great views, and a short drive to art and culture, and restaurants and dining",
         "Response is not as expected for Find commmand with multiple conditions",
       );
     });
-    dataSources.CheckResponseRecordsCount(5);
+    _.dataSources.CheckResponseRecordsCount(5);
     cy.deleteQueryUsingContext();
   });
 
-  it("4. Validate Count command & Run and then delete the query", function() {
+  it("3. Validate Count command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    //cy.setQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find Document(s)",
       "Count",
     );
-    cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
-    cy.runQuery();
-    cy.typeValueNValidate(
-      "{guests_included : {$gte: 2}}",
-      formControls.mongoCountQuery,
-    );
-    cy.onlyQueryRun();
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
+    _.dataSources.RunQuery();
+    _.agHelper.EnterValue("{guests_included : {$gte: 2}}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.n).to.be.above(
         0,
@@ -148,20 +164,29 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("5. Validate Distinct command & Run and then delete the query", function() {
+  it("4. Validate Distinct command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find Document(s)",
       "Distinct",
     );
-    cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
-    cy.typeValueNValidate(
-      "{price : {$gte: 100}}",
-      formControls.mongoDistinctQuery,
-    );
-    cy.typeValueNValidate("property_type", formControls.mongoDistinctKey);
-    cy.onlyQueryRun();
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
+    _.agHelper.EnterValue("{price : {$gte: 100}}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+    _.agHelper.EnterValue("property_type", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Key",
+    });
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.values[0]).to.eq(
         "Aparthotel",
@@ -171,20 +196,25 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("6. Validate Aggregate command & Run and then delete the query", function() {
+  it("5. Validate Aggregate command & Run and then delete the query", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find Document(s)",
       "Aggregate",
     );
+    _.agHelper.EnterValue("listingAndReviews", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
+    _.agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Array of Pipelines",
+    });
 
-    cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
-    cy.typeValueNValidate(
-      '[{ $project: { count: { $size:"$amenities" }}}]',
-      formControls.mongoAggregateArrayOfPipelines,
-    );
-    cy.onlyQueryRun();
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ request, response }) => {
       // cy.log(request.method + ": is req.method")
       //expect(request.method).to.equal('POST')
@@ -198,7 +228,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("7. Verify generation of NewPage from collection [Select] + Bug 12162", function() {
+  it("6. Verify generation of NewPage from collection [Select] + Bug 12162", function () {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -242,14 +272,12 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //   });
   });
 
-  it("8. Validate Deletion of the Newly Created Page", () => {
+  it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--delete-datasource").contains("Are you sure?").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -262,17 +290,16 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     );
   });
 
-  it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
+  it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
     let id;
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(`${datasourceName}`);
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
     cy.xpath(queryLocators.listingAndReviewContext)
       .invoke("show")
       .click({ force: true });
 
-    cy.xpath("//div[text()='Find']")
-      .click()
-      .wait(100); //wait for Find form to open
+    cy.xpath("//div[text()='Find']").click().wait(100); //wait for Find form to open
+
     cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
       let localcolData = colData.replace("{", "").replace("}", "");
       cy.log("Collection value is fieldData: " + localcolData);
@@ -300,10 +327,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0]._id).to.eq(
-        id
-          .split(":")[1]
-          .trim()
-          .replace(/['"]+/g, ""),
+        id.split(":")[1].trim().replace(/['"]+/g, ""),
       );
     });
 
@@ -336,24 +360,19 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0]._id).to.eq(
-        id
-          .split(":")[1]
-          .trim()
-          .replace(/['"]+/g, ""),
+        id.split(":")[1].trim().replace(/['"]+/g, ""),
       );
     });
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 
-  it("10. Delete the datasource after NewPage deletion is success", () => {
+  it("9. Delete the datasource after NewPage deletion is success", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--delete-datasource").contains("Are you sure?").click();
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
@@ -365,11 +384,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
   });
 
-  it("11. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function() {
+  it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
     cy.NavigateToHome();
-    cy.get(homePage.createNew)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.createNew).first().click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -392,25 +409,33 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       cy.NavigateToActiveDSQueryPane(dbName);
     });
 
-    cy.setQueryTimeout(30000);
+    _.dataSources.SetQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Find Document(s)",
       "Insert Document(s)",
     );
 
-    cy.typeValueNValidate("NonAsciiTest", formControls.mongoCollection);
+    let nonAsciiDoc = `[{"_id":1, "Från" :"Alen" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Basilika - Thai 'Siam Qu_.entityExplorern'"},
+    {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
+    {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
-    let nonAsciiDoc = `[{"_id":1, "Från" :"Raksha" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Basilika - Thai 'Siam Queen'"},
-    {"_id":2, "Från" :"Vivek" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
-    {"_id":3, "Från" :"Prapulla" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
+    _.agHelper.EnterValue("NonAsciiTest", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection",
+    });
 
-    cy.typeValueNValidate(nonAsciiDoc, formControls.mongoInsertDocuments);
-    cy.EvaluateCurrentValue(nonAsciiDoc);
+    _.agHelper.EnterValue(nonAsciiDoc, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Documents",
+    });
+
     cy.getEntityName().then((entity) => {
       cy.wrap(entity).as("entity");
     });
-    cy.runQuery();
+    _.dataSources.RunQuery();
 
     //Find the Inserted Document
     cy.ValidateAndSelectDropdownOption(
@@ -419,8 +444,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Find Document(s)",
     );
 
-    cy.runQuery();
-    dataSources.CheckResponseRecordsCount(3);
+    _.dataSources.RunQuery();
+    _.dataSources.CheckResponseRecordsCount(3);
 
     cy.get("@dSName").then((dbName) => {
       //cy.CheckAndUnfoldEntityItem("Datasources");
@@ -433,9 +458,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath("//div[text()='NonAsciiTest']").should("exist");
 
     //Verifying Suggested Widgets functionality
-    cy.get(queryLocators.suggestedTableWidget)
-      .click()
-      .wait(1000);
+    cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("1st Response is :" + JSON.stringify(response.body));
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
@@ -443,9 +466,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
-    cy.get(queryLocators.suggestedWidgetChart)
-      .click()
-      .wait(1000);
+    cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("2nd Response is :" + JSON.stringify(response.body));
       //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
@@ -460,12 +481,25 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Find Document(s)",
       "Update Document(s)",
     );
-    cy.typeValueNValidate("{_id: {$eq:1}}", formControls.mongoUpdateManyQuery);
-    cy.typeValueNValidate(
-      "{$set:{ 'Frõ': 'InActive'}}",
-      formControls.mongoUpdateManyUpdate,
-    );
-    cy.onlyQueryRun();
+
+    _.agHelper.EnterValue("{_id: {$eq:1}}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+
+    _.agHelper.EnterValue("{$set:{ 'Frõ': 'InActive'}}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Update",
+    });
+
+    //cy.typeValueNValidate("{_id: {$eq:1}}", formControls.mongoUpdateManyQuery);
+    // cy.typeValueNValidate(
+    //   "{$set:{ 'Frõ': 'InActive'}}",
+    //   formControls.mongoUpdateManyUpdate,
+    // );
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.nModified).to.eq(1);
     });
@@ -493,29 +527,37 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Update Document(s)",
       "Delete Document(s)",
     );
-    cy.typeValueNValidate(
-      "{_id : {$eq: 1 }}",
-      formControls.mongoDeleteDocumentsQuery,
-    );
+
+    _.agHelper.EnterValue("{_id : {$eq: 1 }}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
     cy.ValidateAndSelectDropdownOption(
       formControls.mongoDeleteLimitDropdown,
       "Single Document",
     );
-    cy.onlyQueryRun();
+    _.dataSources.RunQuery({ toValidateResponse: false });
+
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.n).to.eq(1);
     });
 
-    cy.typeValueNValidate(
-      "{_id : {$lte: 3 }}",
-      formControls.mongoDeleteDocumentsQuery,
-    );
+    // cy.typeValueNValidate(
+    //   "{_id : {$lte: 3 }}",
+    //   formControls.mongoDeleteDocumentsQuery,
+    // );
+    _.agHelper.EnterValue("{_id : {$lte: 3 }}", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
     cy.ValidateAndSelectDropdownOption(
       formControls.mongoDeleteLimitDropdown,
       "Single Document",
       "All Matching Documents",
     );
-    cy.onlyQueryRun();
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.n).to.eq(2);
     });
@@ -526,7 +568,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Delete Document(s)",
       "Find Document(s)",
     );
-    cy.onlyQueryRun();
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.length).to.eq(0); //checking that body is empty array
     });
@@ -537,9 +579,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Find Document(s)",
       "Raw",
     );
-    //cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
-    cy.runQuery();
+    cy.wait(1000); //Waiting a bit before runing the command
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");

@@ -1,11 +1,11 @@
 const dsl = require("../../../../../fixtures/Table/ImageResizeDSL.json");
 
-describe("Table Widget Image Resize feature validation", function() {
+describe("Table Widget Image Resize feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Verify image size on selecting different Image Sizes", function() {
+  it("1. Verify image size on selecting different Image Sizes", function () {
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });
@@ -32,7 +32,7 @@ describe("Table Widget Image Resize feature validation", function() {
     cy.closePropertyPane();
   });
 
-  it("2. Verify image size with cell wrapping turned on", function() {
+  it("2. Verify image size with cell wrapping turned on", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("title");
     cy.moveToContentTab();

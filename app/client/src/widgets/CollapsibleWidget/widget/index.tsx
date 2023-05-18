@@ -8,9 +8,11 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import ContainerComponent, { ContainerStyle } from "../component";
+import type { ContainerStyle } from "../component";
+import ContainerComponent from "../component";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -20,7 +22,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,

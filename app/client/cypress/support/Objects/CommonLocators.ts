@@ -1,4 +1,5 @@
 export class CommonLocators {
+  _body = "body";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
@@ -119,6 +120,7 @@ export class CommonLocators {
   _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span";
   _evaluatedCurrentValue =
     "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre";
+  _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _multiSelectOptions = (option: string) =>
@@ -172,4 +174,16 @@ export class CommonLocators {
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
+  _modalWrapper = "[data-cy='modal-wrapper']";
+  _editorBackButton = ".t--close-editor";
+  _evaluateMsg = ".t--evaluatedPopup-error";
+  _canvas = "[data-testid=widgets-editor]";
+  _enterPreviewMode = "[data-cy='edit-mode']";
+  _exitPreviewMode = "[data-cy='preview-mode']";
+
+  _ds_imageSelector = ".ads-dialog-trigger";
+  _ds_imageSelector_label = ".ads-dialog-trigger .label";
+  _ds_uppy_fileInput = ".uppy-Dashboard-input";
+  _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
+  _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 }

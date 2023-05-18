@@ -11,8 +11,8 @@ let homePage = ObjectsRegistry.HomePage,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("AForce - Community Issues page validations", function() {
-  before(function() {
+describe("AForce - Community Issues page validations", function () {
+  before(function () {
     agHelper.ClearLocalStorageCache();
   });
 
@@ -39,7 +39,7 @@ describe("AForce - Community Issues page validations", function() {
         homePage.AssertImportToast();
       }
       //Validate table is not empty!
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
     });
 
     //Validating order of header columns!
@@ -66,15 +66,15 @@ describe("AForce - Community Issues page validations", function() {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("serversidepagination", "checked");
 
-    agHelper
-      .EvaluateExistingPropertyFieldValue("Default Selected Row")
-      .then(($selectedRow) => {
+    propPane
+      .ValidatePropertyFieldValue("Default Selected Row", "0")
+      .then(($selectedRow: any) => {
         selectedRow = Number($selectedRow);
         table.AssertSelectedRow(selectedRow);
       });
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Verify hidden columns are infact hidden in deployed app!
     table.AssertTableHeaderOrder(
@@ -83,38 +83,38 @@ describe("AForce - Community Issues page validations", function() {
 
     table.AssertSelectedRow(selectedRow); //Assert default selected row
 
-    table.AssertPageNumber(1);
-    table.NavigateToNextPage(); //page 2
+    table.AssertPageNumber(1, "On", "v2");
+    table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     table.AssertSelectedRow(selectedRow);
 
-    table.NavigateToNextPage(); //page 3
+    table.NavigateToNextPage(true, "v2"); //page 3
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitForTableEmpty(); //page 3
-    table.NavigateToPreviousPage(); //page 2
+    table.WaitForTableEmpty("v2"); //page 3
+    table.NavigateToPreviousPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     table.AssertSelectedRow(selectedRow);
 
-    table.NavigateToPreviousPage(); //page 1
+    table.NavigateToPreviousPage(true, "v2"); //page 1
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     table.AssertSelectedRow(selectedRow);
-    table.AssertPageNumber(1);
+    table.AssertPageNumber(1, "On", "v2");
   });
 
   it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("serversidepagination", "Off");
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
-    table.AssertPageNumber(1, "Off");
+    table.WaitUntilTableLoad(0, 0, "v2");
+    table.AssertPageNumber(1, "Off", "v2");
     table.AssertSelectedRow(selectedRow);
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("serversidepagination", "On");
   });
@@ -122,14 +122,14 @@ describe("AForce - Community Issues page validations", function() {
   it("4. Change Default selected row in table and verify", () => {
     propPane.UpdatePropertyFieldValue("Default Selected Row", "1");
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
-    table.AssertPageNumber(1);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    table.AssertPageNumber(1, "On", "v2");
     table.AssertSelectedRow(1);
-    table.NavigateToNextPage(); //page 2
-    table.AssertPageNumber(2);
+    table.NavigateToNextPage(true, "v2"); //page 2
+    table.AssertPageNumber(2, "On", "v2");
     table.AssertSelectedRow(1);
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
@@ -138,8 +138,8 @@ describe("AForce - Community Issues page validations", function() {
     propPane.TypeTextIntoField("Default Search Text", "Bug");
     deployMode.DeployApp();
     table.AssertSearchText("Bug");
-    table.WaitUntilTableLoad();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
 
     ee.SelectEntityByName("Table1", "Widgets");
@@ -148,22 +148,22 @@ describe("AForce - Community Issues page validations", function() {
 
     deployMode.DeployApp();
     table.AssertSearchText("Question");
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     ee.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default Search Text", "Epic", false);
     propPane.TypeTextIntoField("Default Search Text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
     table.AssertSearchText("Epic");
-    table.WaitForTableEmpty();
+    table.WaitForTableEmpty("v2");
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.RemoveText("defaultsearchtext");
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
@@ -171,101 +171,97 @@ describe("AForce - Community Issues page validations", function() {
     agHelper.AssertExistingToggleState("enableclientsidesearch", "checked");
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     table.SearchTable("Bug");
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     cy.xpath(table._searchBoxCross).click();
 
     table.SearchTable("Question");
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     cy.xpath(table._searchBoxCross).click();
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     table.SearchTable("Bug");
-    table.WaitForTableEmpty();
+    table.WaitForTableEmpty("v2");
     cy.xpath(table._searchBoxCross).click();
 
     table.SearchTable("Question");
-    table.WaitForTableEmpty();
+    table.WaitForTableEmpty("v2");
     cy.xpath(table._searchBoxCross).click();
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "On");
   });
 
   it("7. Validate Filter table", () => {
-    var filterTitle = new Array();
+    let filterTitle = new Array();
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //One filter
     table.OpenNFilterTable("Type", "is exactly", "Bug");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 0).then(($cellData) => {
+      table.ReadTableRowColumnData(i, 0, "v2").then(($cellData) => {
         expect($cellData).to.eq("Bug");
       });
     }
-    table.RemoveFilterNVerify("Question", true, false);
+    table.RemoveFilterNVerify("Question", true, false, 0, "v2");
 
     //Two filters - OR
     table.OpenNFilterTable("Type", "starts with", "Trouble");
     for (let i = 0; i < 5; i++) {
-      table.ReadTableRowColumnData(i, 0).then(($cellData) => {
+      table.ReadTableRowColumnData(i, 0, "v2").then(($cellData) => {
         expect($cellData).to.eq("Troubleshooting");
       });
     }
 
     table.OpenNFilterTable("Title", "contains", "query", "OR", 1);
-    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, "v2").then(($cellData) => {
       expect($cellData).to.be.oneOf(["Troubleshooting", "Question"]);
     });
 
     for (let i = 0; i < 8; i++) {
-      table.ReadTableRowColumnData(i, 1, 100).then(($cellData) => {
+      table.ReadTableRowColumnData(i, 1, "v2", 100).then(($cellData) => {
         if ($cellData.toLowerCase().includes("query"))
           filterTitle.push($cellData);
       });
     }
     cy.wrap(filterTitle).as("filterTitleText"); // alias it for later
-    cy.get("@filterTitleText")
-      .its("length")
-      .should("eq", 2);
+    cy.get("@filterTitleText").its("length").should("eq", 2);
 
-    table.RemoveFilterNVerify("Question", true, false);
+    table.RemoveFilterNVerify("Question", true, false, 0, "v2");
 
     //Two filters - AND
     table.OpenNFilterTable("Votes", "greater than", "2");
-    table.ReadTableRowColumnData(0, 1, 3000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 3000).then(($cellData) => {
       expect($cellData).to.eq("Combine queries from different datasources");
     });
 
     table.OpenNFilterTable("Title", "contains", "button", "AND", 1);
-    table.ReadTableRowColumnData(0, 1, 3000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 3000).then(($cellData) => {
       expect($cellData).to.eq(
         "Change the video in the video player with a button click",
       );
     });
-    table.RemoveFilterNVerify("Question", true, false);
+    table.RemoveFilterNVerify("Question", true, false, 0, "v2");
   });
 
   it("8. Validate Adding a New issue from Add Modal", () => {
     // agHelper.DeployApp()
-    // table.WaitUntilTableLoad()
+    // table.WaitUntilTableLoad(0,0,"v2")
 
-    cy.get(table._addIcon)
-      .closest("div")
-      .click();
+    cy.get(table._addIcon).closest("div").click();
     agHelper.AssertElementVisible(locator._modal);
     agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
@@ -293,24 +289,25 @@ describe("AForce - Community Issues page validations", function() {
     );
 
     agHelper.ClickButton("Confirm");
-    agHelper.AssertElementAbsence(locator._toastMsg);//Making sure internal api doesnt throw error
+    agHelper.AssertElementAbsence(locator._toastMsg); //Making sure internal api doesnt throw error
     agHelper.Sleep(3000);
     table.SearchTable("Suggestion", 2);
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
 
-    table.ReadTableRowColumnData(0, 0, 4000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
       expect(cellData).to.be.equal("Suggestion");
     });
 
-    table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
       expect(cellData).to.be.equal("Adding Title Suggestion via script");
     });
   });
 
   it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
+    agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     agHelper.Sleep(2000);
-    table.SelectTableRow(0, 1);
+    table.SelectTableRow(0, 1, true, "v2");
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper
       .GetNClick(locator._inputWidgetv1InDeployed, 0, true, 0)
@@ -359,11 +356,11 @@ describe("AForce - Community Issues page validations", function() {
     );
     agHelper.ClickButton("Save");
     agHelper.Sleep(2000);
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("Troubleshooting");
     });
 
-    table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
       expect(cellData).to.be.equal(
         "Adding Title Suggestion via script-updating title",
       );
@@ -373,22 +370,21 @@ describe("AForce - Community Issues page validations", function() {
   });
 
   it("10. Validate Deleting the newly created issue", () => {
+    agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
-    table.SelectTableRow(0);
+    table.SelectTableRow(0, 0, true, "v2");
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
-    cy.get(table._trashIcon)
-      .closest("div")
-      .click({ force: true });
+    cy.get(table._trashIcon).closest("div").click({ force: true });
     agHelper.WaitUntilEleDisappear(locator._widgetInDeployed("tabswidget"));
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
-    table.WaitForTableEmpty();
+    table.WaitForTableEmpty("v2");
 
     //2nd search is not working, hence commenting below
     // cy.xpath(table._searchBoxCross).click()
     // table.SearchTable('Troubleshooting')
-    // table.WaitUntilTableLoad()
-    // table.ReadTableRowColumnData(0, 1).then((cellData) => {
+    // table.WaitUntilTableLoad(0,0,"v2")
+    // table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
     //   expect(cellData).not.to.be.equal("Adding Title Suggestion via script-updating title");
     // });
   });

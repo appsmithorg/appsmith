@@ -1178,9 +1178,9 @@ describe("Validates Derived Properties", () => {
     const input = {
       tableData: [
         {
-          "1": "abc",
-          "2": "bcd",
-          "3": "cde",
+          1: "abc",
+          2: "bcd",
+          3: "cde",
           Dec: "mon",
           demo: "3",
           demo_1: "1",
@@ -1194,9 +1194,9 @@ describe("Validates Derived Properties", () => {
           ÜserÑame: "john",
         },
         {
-          "1": "asd",
-          "2": "dfg",
-          "3": "jkl",
+          1: "asd",
+          2: "dfg",
+          3: "jkl",
           Dec: "mon2",
           demo: "2",
           demo_1: "1",

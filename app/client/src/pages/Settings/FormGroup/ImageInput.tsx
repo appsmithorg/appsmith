@@ -1,14 +1,13 @@
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { Button, Size } from "design-system-old";
 import React, { memo, useRef, useState, useEffect } from "react";
 
-import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 
-import { FormGroup, SettingComponentProps } from "./Common";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ImageInputProps = {
   value?: any;
@@ -43,7 +42,7 @@ export const ImageInput = (props: ImageInputProps) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
 
-        reader.onloadend = function() {
+        reader.onloadend = function () {
           setPreview(reader.result);
         };
 
@@ -61,7 +60,11 @@ export const ImageInput = (props: ImageInputProps) => {
         className ? className : ""
       }`}
     >
-      <img alt="Preview" className="h-8" src={preview || value} />
+      <img
+        alt="Preview"
+        className="h-8"
+        src={getAssetUrl((preview as any) || value)}
+      />
       <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
         <Button
           icon="upload-line"

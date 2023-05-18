@@ -2,7 +2,6 @@
 *.iml
 .env
 
-app/client/cypress.env.json
 stacks
 
 # to ignore the node_modeules folder
@@ -33,3 +32,7 @@ app/client/yalc.lock
 .idea
 .fleet/*
 app/client/.fleet/*
+
+# Observability related local storage
+utils/observability/tempo-data/*
+
