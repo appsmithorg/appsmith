@@ -260,7 +260,7 @@ export function parseJSActions(
     });
   }
 
-  functionDeterminer.setupEval(unEvalDataTree);
+  functionDeterminer.setupEval(unEvalDataTree, dataTreeEvalRef.getConfigTree());
   jsPropertiesState.stopUpdate();
 
   Object.keys(jsUpdates).forEach((entityName) => {
