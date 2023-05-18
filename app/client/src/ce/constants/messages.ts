@@ -1061,8 +1061,8 @@ export const USE_SNIPPET = () => "Snippet";
 export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
-export const WELCOME_HEADER = () => "Almost there!";
-export const WELCOME_BODY = () => "Let's setup your account first!";
+export const WELCOME_HEADER = () => "Almost there";
+export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor

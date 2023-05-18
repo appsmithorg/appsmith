@@ -24,7 +24,7 @@ const LandingPageContent = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
   position: relative;
   z-index: 100;
@@ -36,6 +36,7 @@ const StyledTextBanner = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 6%;
 `;
 
 const StyledBannerHeader = styled.div`
