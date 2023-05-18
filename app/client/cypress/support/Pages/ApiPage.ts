@@ -61,7 +61,7 @@ export class ApiPage {
   _noBodyMessageDiv = "#NoBodyMessageDiv";
   _noBodyMessage = "This request does not have a body";
   _imageSrc = "//img/parent::div";
-  private _trashDelete = "span[name='delete']";
+  private _trashDelete = "[data-testid=t--trash-icon]";
   private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
