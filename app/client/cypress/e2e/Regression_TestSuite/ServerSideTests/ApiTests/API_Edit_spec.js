@@ -89,7 +89,7 @@ describe("API Panel Test Functionality", function () {
         "https://www.facebook.com/users/{{Button2.text}}?key=test&val={{Button2.text}}",
         { force: true, parseSpecialCharSequences: false },
       )
-      .wait(1000)
+      .wait(3000)
       .type("{enter}", { parseSpecialCharSequences: true });
 
     cy.validateEvaluatedValue(
