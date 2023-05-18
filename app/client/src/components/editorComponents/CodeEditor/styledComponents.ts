@@ -408,6 +408,15 @@ export const EditorWrapper = styled.div<{
     text-shadow: none;
     font: inherit;
   }
+
+  ${(props) =>
+    props.isReadOnly &&
+    `
+  &&&&&&&& .CodeMirror-scroll {
+    width: 100%;
+  }
+  `}
+
   .CodeEditorTarget {
     width: 100%;
 
