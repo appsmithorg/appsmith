@@ -92,9 +92,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table
