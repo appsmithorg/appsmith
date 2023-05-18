@@ -182,6 +182,7 @@ public class ImportExportApplicationServiceTests {
     CustomJSLibService customJSLibService;
 
     PagePermission pagePermission = new PagePermissionImpl();
+    ApplicationPermission applicationPermission = new ApplicationPermissionImpl();
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -3716,10 +3717,8 @@ public class ImportExportApplicationServiceTests {
                     return applicationPageService.createPage(pageDTO).thenReturn(createdApp);
                 })
                 .zipWith(applicationJson)
-                .flatMap(objects -> {
-                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, objects.getT2(), objects.getT1().getId(), null)
-                            .zipWith(Mono.just(objects.getT1()));
-                }).flatMap(objects -> {
+                .flatMap(objects -> importExportApplicationService.importApplicationInWorkspace(workspaceId, objects.getT2(), objects.getT1().getId(), null)
+                        .zipWith(Mono.just(objects.getT1()))).flatMap(objects -> {
                     Application newApp = objects.getT1();
                     Application oldApp = objects.getT2();
                     // after import, application id should not change
@@ -3943,7 +3942,7 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void extractFileAndUpdateExistingApplication_WhenUserLacksPageEditPermission_ThrowsException() {
+    public void extractFileAndUpdateExistingApplication_WhenUserLacksPageEditOrCreatePermission_ThrowsException() {
         String uuid = UUID.randomUUID().toString();
         /*
         1. Create application and create a page
@@ -3956,13 +3955,20 @@ public class ImportExportApplicationServiceTests {
         testApplication.setName("TestApplication" + uuid);
         testApplication.setWorkspaceId(workspaceId);
 
-        Mono<Application> importAppMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.extractApplicationJson(
+                createFilePart("test_assets/ImportExportServiceTest/valid-application.json")
+        ).cache();
+
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+                .cache();
+
+        Mono<Application> importAppMonoWithNoPageEditPermission = createApplicationMono
                 .flatMap(createdApp -> {
                     ApplicationPage applicationPage = createdApp.getPages().get(0);
                     // get the page with edit permission
                     return newPageService.findById(applicationPage.getId(), pagePermission.getEditPermission());
                 })
-                .zipWith(importExportApplicationService.extractApplicationJson(createFilePart("test_assets/ImportExportServiceTest/valid-application.json")))
+                .zipWith(applicationJsonMono)
                 .flatMap(objects -> {
                     NewPage newPage = objects.getT1();
                     ApplicationJson applicationJson = objects.getT2();
@@ -3984,7 +3990,29 @@ public class ImportExportApplicationServiceTests {
                 });
 
         StepVerifier
-                .create(importAppMono)
+                .create(importAppMonoWithNoPageEditPermission)
+                // not matching error message because we throw a generic error message
+                .expectError(AppsmithException.class)
+                .verify();
+
+        Mono<Application> importAppMonoWithNoPageCreatePermission = createApplicationMono
+                .flatMap(createdApp -> {
+                    // remove page create permission from the application
+                    createdApp.getPolicies().removeIf(
+                            policy -> policy.getPermission().equals(applicationPermission.getPageCreatePermission().getValue())
+                    );
+                    return applicationService.save(createdApp);
+                })
+                .zipWith(applicationJsonMono)
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    ApplicationJson applicationJson = objects.getT2();
+                    return importExportApplicationService
+                            .importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), null);
+                });
+
+        StepVerifier
+                .create(importAppMonoWithNoPageCreatePermission)
                 // not matching error message because we throw a generic error message
                 .expectError(AppsmithException.class)
                 .verify();
