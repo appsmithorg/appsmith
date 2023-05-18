@@ -19,14 +19,20 @@ export class PeekOverlay {
   };
   private readonly agHelper = ObjectsRegistry.AggregateHelper;
 
-  HoverCode(peekableAttribute: string, visibleText?: string) {
-    (visibleText
-      ? this.agHelper.GetNAssertContains(
-          this.locators._peekableCode(peekableAttribute),
-          visibleText,
-        )
-      : this.agHelper.GetElement(this.locators._peekableCode(peekableAttribute))
-    ).realHover();
+  // Please skip for now - testing on CI because local setup doesn't work
+  HoverCode(lineNumber: number, tokenNumber: number, verifyText: string) {
+    this.agHelper
+      .GetElement("CodeMirror-line", lineNumber)
+      .children()
+      .eq(tokenNumber)
+      .should("have.text", verifyText);
+    // (visibleText
+    //   ? this.agHelper.GetNAssertContains(
+    //       this.locators._peekableCode(peekableAttribute),
+    //       visibleText,
+    //     )
+    //   : this.agHelper.GetElement(this.locators._peekableCode(peekableAttribute))
+    // ).realHover();
     this.agHelper.Sleep();
   }
 
