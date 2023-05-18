@@ -127,22 +127,22 @@ describe("JSObjects OnLoad Actions tests", function () {
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
 
       _.agHelper.Sleep(2000);
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
       _.agHelper
         .GetText(_.locators._textAreainputWidgetv2InDeployed, "text", 1)
