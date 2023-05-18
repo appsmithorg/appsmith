@@ -830,6 +830,7 @@ export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
 export const REVOKE_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
 export const REVOKE = () => "REVOKE";
+export const REVOKE_BACK = () => "BACK";
 export const REVOKE_ACCESS = () => "REVOKE ACCESS";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>

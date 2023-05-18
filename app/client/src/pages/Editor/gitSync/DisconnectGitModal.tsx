@@ -5,7 +5,12 @@ import {
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
+import {
+  revokeGit,
+  setDisconnectingGitApplication,
+  setIsDisconnectGitModalOpen,
+  setIsGitSyncModalOpen,
+} from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
   Button,
@@ -32,6 +37,7 @@ import {
   LEARN_MORE,
   NONE_REVERSIBLE_MESSAGE,
   REVOKE,
+  REVOKE_BACK,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -68,6 +74,15 @@ const CloseBtnContainer = styled.div`
 
 const ButtonContainer = styled.div`
   margin-top: 24px;
+  display: flex;
+
+  button {
+    margin-right: 16px;
+  }
+
+  button:last-of-type {
+    margin-right: 0;
+  }
 `;
 
 function DisconnectGitModal() {
@@ -77,6 +92,13 @@ function DisconnectGitModal() {
   const gitDisconnectDocumentUrl = useSelector(getDisconnectDocUrl);
   const [appName, setAppName] = useState("");
   const [isRevoking, setIsRevoking] = useState(false);
+
+  const handleClickOnBack = useCallback(() => {
+    dispatch(setIsDisconnectGitModalOpen(false));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(setDisconnectingGitApplication({ id: "", name: "" }));
+  }, [dispatch]);
+
   const handleClose = useCallback(() => {
     dispatch(setIsDisconnectGitModalOpen(false));
   }, [dispatch, setIsDisconnectGitModalOpen]);
@@ -193,6 +215,14 @@ function DisconnectGitModal() {
               tag="button"
               text={createMessage(REVOKE)}
               variant={Variant.danger}
+            />
+            <Button
+              category={Category.secondary}
+              className="t--git-revoke-back-button"
+              onClick={handleClickOnBack}
+              size={Size.large}
+              tag="button"
+              text={createMessage(REVOKE_BACK)}
             />
           </ButtonContainer>
         </BodyContainer>
