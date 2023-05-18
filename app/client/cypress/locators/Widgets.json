@@ -140,7 +140,7 @@
     "toastActionText": ".t--toast-action span",
     "defaultColName": "[data-rbd-draggable-id='customColumn1'] input",
     "defaultColNameV2": "[data-rbd-draggable-id='customColumn1'] input[type='text']",
-    "selectWidget": ".t--open-dropdown-Select-Widget",
+    "selectWidget": ".t--open-dropdown-Select-widget",
     "switchWidget": ".t--widget-switchwidget",
     "toastMsg": ".t--toast-action span",
     "deleteToast": "div[class = 'undo-section'] span[type='h6']",

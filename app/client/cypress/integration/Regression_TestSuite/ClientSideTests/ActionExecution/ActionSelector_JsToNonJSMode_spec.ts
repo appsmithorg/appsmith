@@ -114,7 +114,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Store valuea",
+      "Store value",
       "have.text",
       2,
     );
@@ -909,7 +909,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Remove valueAdd Key",
+      "Remove valueAdd key",
       "have.text",
       0,
     );
@@ -1294,7 +1294,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Clear intervalAdd ID",
+      "Clear intervalAdd Id",
       "have.text",
       0,
     );
@@ -1407,7 +1407,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Get GeolocationAdd callback",
+      "Get geolocationAdd callback",
       "have.text",
       0,
     );

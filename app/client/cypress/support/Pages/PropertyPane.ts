@@ -78,7 +78,7 @@ export class PropertyPane {
   _actionCallbackTitle = ".action-callback-add";
   _actionTreeCollapse = ".callback-collapse";
   _actionPopupTextLabel = '[data-testid="text-view-label"]';
-  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
+  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-modal";
   _selectorViewButton = ".selector-view .bp3-button-text";
   _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
   _pageNameSwitcher = "#switcher--page-name";
