@@ -238,3 +238,7 @@ div.bp3-popover-arrow {
   background-color: transparent !important;
   cursor: default !important;
 }
+
+.react-datepicker__children-container {
+  margin-top: -10px !important;
+}
