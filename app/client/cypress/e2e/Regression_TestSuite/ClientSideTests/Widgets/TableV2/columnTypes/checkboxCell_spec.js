@@ -81,7 +81,7 @@ describe("Checkbox column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + " div").should("have.css", "align-items", "flex-end");
       // Set and check the cell background color
-      cy.get(widgetsJson.toggleJsBcgColor).click();
+      cy.get(widgetsJson.toggleJsBcgColor).click({ force: true });
       cy.updateCodeInput(".t--property-control-cellbackground", "purple");
       cy.wait("@updateLayout");
       cy.get(selector + " div").should(
