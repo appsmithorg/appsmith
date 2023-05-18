@@ -163,7 +163,9 @@ export function TemplatesContent(props: TemplatesContentProps) {
     dispatch(setTemplateSearchQuery(query));
   };
   const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
-  const templates = useSelector(getSearchedTemplateList);
+  const templates = useSelector(getSearchedTemplateList).filter(
+    (template) => !!template.allowPageImport,
+  );
   const filterCount = useSelector(getTemplateFiltersLength);
 
   let resultsText =
