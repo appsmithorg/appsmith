@@ -17,8 +17,7 @@ describe("Canvas context Property Pane", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     ee.SelectEntityByName(page1, "Pages");
     apiPage.CreateApi(api1);
-    cy.get(".t--close-editor").click().wait(500);
-    cy.get(".t--back-button").click();
+    ee.NavigateToSwitcher("Widgets");
   });
 
   beforeEach(() => {
