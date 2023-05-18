@@ -288,7 +288,7 @@ describe("Debugger logs", function () {
     cy.get("@jsObjName").then((jsObjName) => {
       agHelper.Sleep(2000);
       agHelper.GetNClick(jsEditor._runButton);
-      agHelper.GetNClick(jsEditor._logsTab);
+      agHelper.GetNClick(jsEditor._logsTab, 0, true);
       debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
       debuggerHelper.DoesConsoleLogExist(`${logString} Success`);
       ee.DragDropWidgetNVerify("textwidget", 200, 600);
