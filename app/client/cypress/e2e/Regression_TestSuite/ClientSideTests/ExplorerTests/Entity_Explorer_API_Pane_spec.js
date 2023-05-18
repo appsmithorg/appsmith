@@ -18,19 +18,19 @@ describe("Entity explorer API pane related testcases", function () {
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No widget to display"),
     );
-    agHelper.AssertElementVisible(locator._visibleTextDiv("New widget"));
+    agHelper.AssertElementVisible(locator._visibleTextSpan("New widget"));
 
     ee.ExpandCollapseEntity("Queries/JS");
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No query/JS to display"),
     );
-    agHelper.AssertElementVisible(locator._visibleTextDiv("New query/JS"));
+    agHelper.AssertElementVisible(locator._visibleTextSpan("New query/JS"));
 
     ee.ExpandCollapseEntity("Datasources");
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No datasource to display"),
     );
-    agHelper.AssertElementVisible(locator._visibleTextDiv("New datasource"));
+    agHelper.AssertElementVisible(locator._visibleTextSpan("New datasource"));
   });
 
   it("2. Move to page / edit API name /properties validation", function () {

@@ -43,7 +43,7 @@ describe("1. CommandClickNavigation", function () {
 
     //Assert link and and style
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.SelectEntityByName("Text1", "Container1");
 
     cy.updateCodeInput(".t--property-control-text", "{{ Graphql_Query.data }}");
@@ -59,7 +59,7 @@ describe("1. CommandClickNavigation", function () {
     // Assert navigation only when cmd or ctrl is pressed
 
     _.agHelper.Sleep();
-    cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click();
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({ force: true });
     cy.url().should("not.contain", "/api/");
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({
@@ -119,6 +119,7 @@ describe("1. CommandClickNavigation", function () {
       repoName = repName;
     });
 
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.SelectEntityByName("Text1", "Container1");
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
 

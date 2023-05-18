@@ -79,14 +79,10 @@ export default function BranchMoreMenu({ branchName, open, setOpen }: Props) {
   };
 
   return (
-    <Menu
-      className="git-branch-more-menu"
-      data-testid="t--git-branch-more-menu"
-      modal
-      open={open}
-    >
+    <Menu data-testid="t--git-branch-more-menu" modal open={open}>
       <MenuTrigger>
         <Button
+          className="git-branch-more-menu"
           isIconButton
           kind="tertiary"
           onClick={(e) => {
