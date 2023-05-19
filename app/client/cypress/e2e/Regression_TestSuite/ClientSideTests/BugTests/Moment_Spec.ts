@@ -20,6 +20,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.agHelper.RenameWithInPane("getAstronauts");
     _.dataSources.EnterQuery(query);
+    _.agHelper.RenameWithInPane("getAstronauts");
     _.jsEditor.CreateJSObject(
       `export default {
       runAstros: () => {
@@ -106,6 +107,12 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       _.deployMode.NavigateBacktoEditor();
       _.agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
       _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "JSObject1",
+        "Delete",
+        "Are you sure?",
+        true,
+      );
       _.entityExplorer.DeleteAllQueriesForDB(dsName);
       _.agHelper.WaitUntilAllToastsDisappear();
       _.deployMode.DeployApp(
