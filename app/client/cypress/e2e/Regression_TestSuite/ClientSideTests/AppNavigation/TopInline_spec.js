@@ -63,7 +63,7 @@ describe("Test Top + Inline navigation style", function () {
   });
 
   it("3. Page change from inside this dropdown should work", () => {
-    const pageName = "Page5 - with long long name";
+    const pageName = "Page6 - with long long name";
 
     cy.get(appNavigationLocators.topInlineMoreDropdownItem)
       .contains(pageName)
