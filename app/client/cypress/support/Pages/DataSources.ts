@@ -379,7 +379,11 @@ export class DataSources {
 
   public NavigateToDSCreateNew() {
     this.ee.HoverOnEntityItem("Datasources");
-    this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+    Cypress._.times(2, () => {
+      this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+      this.agHelper.Sleep();
+    });
+
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
@@ -702,13 +706,8 @@ export class DataSources {
     );
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Delete"),
-      0,
-      false,
-      200,
-    );
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
+    this.agHelper.GetNClick(this._deleteDatasourceButton, 0, false, 200); //Delete
+    this.agHelper.GetNClick(this._deleteDatasourceButton, 0, false, 200); //Are you sure?
     this.ValidateDSDeletion(expectedRes);
   }
 
