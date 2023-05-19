@@ -261,12 +261,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
 
     @Override
-    public Mono<Datasource> updateDatasourceStorages(Datasource datasource, String environmentId, Boolean IsUserRefreshedUpdate) {
-        if (datasource == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
-        }
-
-        String datasourceId = datasource.getId();
+    public Mono<Datasource> updateDatasourceStorages(DatasourceStorageDTO datasourceStorageDTO, String environmentId, Boolean IsUserRefreshedUpdate) {
+        String datasourceId = datasourceStorageDTO.getDatasourceId();
 
         if (!hasText(datasourceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -276,23 +272,21 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT_ID));
         }
 
-
         // querying for each of the datasource
         Mono<Datasource> datasourceMono = repository.findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
-        Mono<DatasourceStorageDTO> datasourceStorageDTOMono = datasourceStorageService
-                .updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE)
-                .map(DatasourceStorageDTO::new);
-
-
         return datasourceMono
-                .flatMap(datasource1 -> datasourceStorageDTOMono
-                        .map(datasourceStorageDTO -> {
-                            String envId = datasourceStorageDTO.getEnvironmentId();
-                            datasource.getDatasourceStorages().put(envId, datasourceStorageDTO);
-                            return datasource;
-                        })
+                .flatMap(datasource1 -> {
+                    datasource1.getDatasourceStorages().put(environmentId, datasourceStorageDTO);
+                    return datasourceStorageService.updateByDatasourceAndEnvironmentId(datasource1, environmentId, Boolean.TRUE)
+                            .map(DatasourceStorageDTO::new)
+                            .map(datasourceStorageDTO1 -> {
+                                String envId = datasourceStorageDTO1.getEnvironmentId();
+                                datasource1.getDatasourceStorages().put(envId, datasourceStorageDTO1);
+                                return datasource1;
+                            });
+                        }
                 );
     }
 

@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
@@ -59,12 +60,12 @@ public interface DatasourceServiceCE {
     /**
      * THis method is used to update only the datasourceStorages which has been changed.
      *
-     * @param datasource
+     * @param datasourceStorageDTO
      * @param environmentId
      * @param IsUserRefreshedUpdate
      * @return
      */
-    Mono<Datasource> updateDatasourceStorages(Datasource datasource, String environmentId, Boolean IsUserRefreshedUpdate);
+    Mono<Datasource> updateDatasourceStorages(DatasourceStorageDTO datasourceStorageDTO, String environmentId, Boolean IsUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
 

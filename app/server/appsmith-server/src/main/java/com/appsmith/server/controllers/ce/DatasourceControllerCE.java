@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
@@ -95,10 +96,12 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/datasource-storages")
-    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@RequestBody @NotNull Datasource datasource,
+    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@RequestBody @NotNull DatasourceStorageDTO datasourceStorageDTO,
                                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to update datasource from datasource controller with id: {} and environmentId: {}", datasource.getId(), environmentId);
-        return datasourceService.updateDatasourceStorages(datasource, environmentId , Boolean.TRUE)
+        log.debug("Going to update datasource from datasource controller with id: {} and environmentId: {}",
+                datasourceStorageDTO.getDatasourceId(), environmentId);
+
+        return datasourceService.updateDatasourceStorages(datasourceStorageDTO, environmentId , Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

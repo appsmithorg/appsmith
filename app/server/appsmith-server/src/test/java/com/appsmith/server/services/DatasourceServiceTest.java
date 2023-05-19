@@ -429,10 +429,11 @@ public class DatasourceServiceTest {
                     ssl.getKeyFile().setName("ssl_key_file_id2");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
-                    datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
-                            .setDatasourceConfiguration(datasourceConfiguration1);
+                    DatasourceStorageDTO datasourceStorageDTO = datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration1);
+
                     return datasourceService
-                            .updateDatasourceStorages(datasource1, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
+                            .updateDatasourceStorages(datasourceStorageDTO, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
                 });
 
         StepVerifier
@@ -1418,8 +1419,10 @@ public class DatasourceServiceTest {
                     Connection connection1 = new Connection();
                     datasourceConfiguration1.setConnection(connection1);
                     datasourceConfiguration1.setUrl("http://localhost");
-                    datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID).setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.updateDatasourceStorages(datasource1, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
+
+                    DatasourceStorageDTO datasourceStorageDTO = datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration1);
+                    return datasourceService.updateDatasourceStorages(datasourceStorageDTO, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
                 });
 
         StepVerifier
