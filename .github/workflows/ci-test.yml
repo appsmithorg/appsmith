@@ -369,7 +369,7 @@ jobs:
           record: true
           install: false
           parallel: true
-          config-file: cypress_ci.json
+          config-file: cypress_ci.config.ts
           group: "Electrons on Github Action Fat Container"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
