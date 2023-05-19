@@ -475,7 +475,8 @@ export function getDynamicBindingsChangesSaga(
     );
 
     // ideally as we check for the datasource url, we should check for the path field as well.
-    const datasourceUrl = action.datasource?.datasourceConfiguration?.url || "";
+    const datasourceUrl =
+      action?.datasource?.datasourceConfiguration?.url || "";
     const datasourcePathField = action.actionConfiguration?.path;
     const datasourceFormPathField = formData?.actionConfiguration?.path;
     isDynamicValue(datasourceUrl) &&

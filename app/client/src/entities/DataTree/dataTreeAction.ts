@@ -31,9 +31,10 @@ export const generateDataTreeAction = (
 
   if (
     action.config.datasource &&
+    "datasourceConfiguration" in action.config.datasource &&
     "datasourceConfiguration" in action.config.datasource
   ) {
-    datasourceUrl = action.config.datasource.datasourceConfiguration.url;
+    datasourceUrl = action.config.datasource.datasourceConfiguration?.url || "";
   }
 
   const dependencyMap: DependencyMap = {};
@@ -62,7 +63,7 @@ export const generateDataTreeAction = (
       },
       config: action.config.actionConfiguration,
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
-      datasourceUrl,
+      datasourceUrl: datasourceUrl,
     },
     configEntity: {
       actionId: action.config.id,
