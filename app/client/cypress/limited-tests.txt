@@ -1,1 +1,1 @@
-cypress/e2e/**/**/*
+cypress/e2e/Regression_TestSuite/ClientSideTests/Widgets/Multiselect/MultiSelect3_spec.js
