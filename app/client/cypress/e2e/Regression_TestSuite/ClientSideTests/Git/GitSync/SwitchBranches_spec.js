@@ -61,7 +61,7 @@ describe("Git sync:", function () {
     });
 
     _.entityExplorer.AddNewPage();
-    _.entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1");
+    _.entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
     _.dataSources.NavigateToDSCreateNew();
     _.apiPage.CreateApi("ParentApi1");
     _.jsEditor.CreateJSObject();
@@ -74,7 +74,7 @@ describe("Git sync:", function () {
       childBranchKey = branName;
     });
     _.entityExplorer.AddNewPage();
-    _.entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1");
+    _.entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
     _.dataSources.NavigateToDSCreateNew();
     _.apiPage.CreateApi("ChildApi1");
     _.jsEditor.CreateJSObject();
@@ -108,9 +108,14 @@ describe("Git sync:", function () {
     _.entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
+      true,
     );
     _.entityExplorer.SelectEntityByName("ParentApi1", "Queries/JS");
-    _.entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
+    _.entityExplorer.RenameEntityFromExplorer(
+      "ParentApi1",
+      "ParentApiRenamed",
+      true,
+    );
 
     cy.switchGitBranch(parentBranchKey);
 
