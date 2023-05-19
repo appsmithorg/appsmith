@@ -1,10 +1,6 @@
-import pages from "../../../../../locators/Pages.json";
 import commonLocators from "../../../../../locators/commonlocators.json";
 import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePage from "../../../../../locators/HomePage";
-import jsActions from "../../../../../locators/jsActionLocators.json";
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let parentBranchKey = "ParentBranch",
@@ -29,7 +25,7 @@ describe("Git sync:", function () {
   });
 
   it("1. create branch input", function () {
-    cy.get(commonLocators.canvas).click({ force: true });
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
