@@ -21,6 +21,7 @@ import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,12 +94,11 @@ public class DatasourceControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{id}//datasource-storages")
-    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@PathVariable String id,
-                                                                  @RequestBody Datasource datasource,
+    @PutMapping("/datasource-storages")
+    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@RequestBody @NotNull Datasource datasource,
                                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to update resource from datasource controller with id: {}", id);
-        return datasourceService.updateDatasourceStorages(datasource, Boolean.TRUE)
+        log.debug("Going to update datasource from datasource controller with id: {} and environmentId: {}", datasource.getId(), environmentId);
+        return datasourceService.updateDatasourceStorages(datasource, environmentId , Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

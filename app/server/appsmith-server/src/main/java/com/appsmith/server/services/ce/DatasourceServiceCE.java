@@ -60,10 +60,11 @@ public interface DatasourceServiceCE {
      * THis method is used to update only the datasourceStorages which has been changed.
      *
      * @param datasource
+     * @param environmentId
      * @param IsUserRefreshedUpdate
      * @return
      */
-    Mono<Datasource> updateDatasourceStorages(Datasource datasource, Boolean IsUserRefreshedUpdate);
+    Mono<Datasource> updateDatasourceStorages(Datasource datasource, String environmentId, Boolean IsUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
 

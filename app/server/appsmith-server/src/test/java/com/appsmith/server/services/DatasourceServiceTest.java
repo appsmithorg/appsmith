@@ -432,7 +432,7 @@ public class DatasourceServiceTest {
                     datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
                             .setDatasourceConfiguration(datasourceConfiguration1);
                     return datasourceService
-                            .updateDatasourceStorages(datasource1, Boolean.TRUE);
+                            .updateDatasourceStorages(datasource1, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
                 });
 
         StepVerifier
@@ -1419,7 +1419,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasourceConfiguration1.setUrl("http://localhost");
                     datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID).setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.updateDatasourceStorages(datasource1, Boolean.TRUE);
+                    return datasourceService.updateDatasourceStorages(datasource1, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
                 });
 
         StepVerifier

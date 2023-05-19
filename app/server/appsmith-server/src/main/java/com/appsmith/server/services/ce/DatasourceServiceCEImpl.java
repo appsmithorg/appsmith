@@ -56,12 +56,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.util.StringUtils.hasLength;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 public class DatasourceServiceCEImpl implements DatasourceServiceCE {
@@ -261,32 +261,39 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
 
     @Override
-    public Mono<Datasource> updateDatasourceStorages(Datasource datasource, Boolean IsUserRefreshedUpdate) {
-        String datasourceId = datasource.getId();
-        Set<String> environmentKeySet = datasource.getDatasourceStorages()
-                .keySet()
-                .stream()
-                .map(this:: getTrueEnvironmentId)
-                .collect(Collectors.toSet());
+    public Mono<Datasource> updateDatasourceStorages(Datasource datasource, String environmentId, Boolean IsUserRefreshedUpdate) {
+        if (datasource == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
+        }
 
-        Mono<Map<String, DatasourceStorageDTO>> savedStoragesMono =
-                Flux.fromIterable(environmentKeySet)
-                        .flatMap(environmentId -> datasourceStorageService
-                                .updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE))
-                        .map(DatasourceStorageDTO::new)
-                        .collectMap(DatasourceStorageDTO::getEnvironmentId);
+        String datasourceId = datasource.getId();
+
+        if (!hasText(datasourceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        if (!hasText(environmentId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT_ID));
+        }
 
 
         // querying for each of the datasource
         Mono<Datasource> datasourceMono = repository.findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
+        Mono<DatasourceStorageDTO> datasourceStorageDTOMono = datasourceStorageService
+                .updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE)
+                .map(DatasourceStorageDTO::new);
 
-        return datasourceMono.flatMap(datasource1 -> savedStoragesMono
-                        .map(storages -> {
-                            datasource1.setDatasourceStorages(storages);
-                            return datasource1;
-                        }));
+
+        return datasourceMono
+                .flatMap(datasource1 -> datasourceStorageDTOMono
+                        .map(datasourceStorageDTO -> {
+                            String envId = datasourceStorageDTO.getEnvironmentId();
+                            datasource.getDatasourceStorages().put(envId, datasourceStorageDTO);
+                            return datasource;
+                        })
+                );
     }
 
     @Override
