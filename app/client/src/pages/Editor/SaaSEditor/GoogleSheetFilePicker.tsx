@@ -50,6 +50,7 @@ function GoogleSheetFilePicker({
         document.querySelector(".picker-dialog-bg");
       if (!!element) {
         element.style.opacity = "1";
+        element.style.pointerEvents = "auto";
       }
       elements.forEach((element) => {
         element.style.pointerEvents = "auto";
