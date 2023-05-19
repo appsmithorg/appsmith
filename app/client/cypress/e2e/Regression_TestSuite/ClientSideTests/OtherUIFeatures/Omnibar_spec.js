@@ -59,7 +59,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.wait(1000);
     // click on open documention from error tab
-    cy.get(commonlocators.debuggerDescription).next().click({ multiple: true });
+    cy.get(commonlocators.debuggerDescription).next().first().click();
     cy.xpath(commonlocators.openDocumentationfromErrorTab)
       .first()
       .click({ force: true });
