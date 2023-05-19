@@ -1186,7 +1186,7 @@ export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
 export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business edition`;
+  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1282,7 +1282,7 @@ export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
   "Custom branding for your workspaces";
 export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
-  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
+  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
 export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
