@@ -46,10 +46,21 @@ function GoogleSheetFilePicker({
     // Since we need to display file picker on blank page, as soon as file picker is visible
     // Add overlay on the file picker background
     if (pickerVisible) {
-      const element: HTMLElement | null =
-        document.querySelector(".picker-dialog-bg");
-      if (!!element) {
-        element.style.opacity = "1";
+      const elements: NodeListOf<HTMLElement> | null =
+        document.querySelectorAll(".picker-dialog-bg");
+      const dialogElement: HTMLElement | null =
+        document.querySelector(".picker-dialog");
+      if (!!elements && elements.length) {
+        elements[0].style.opacity = "1";
+      }
+      // This is for when we have the <ReconnectDatasourceModal /> modal open. The ads modal component disables
+      // all pointer events outside the modal when it is open. Adding auto to enable click events
+      // for the file picker
+      elements.forEach((element) => {
+        element.style.pointerEvents = "auto";
+      });
+      if (!!dialogElement) {
+        dialogElement.style.pointerEvents = "auto";
       }
     }
   }, [pickerVisible]);
