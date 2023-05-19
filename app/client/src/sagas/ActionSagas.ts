@@ -120,6 +120,11 @@ import {
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
+import { getFormValues } from "redux-form";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "ce/constants/forms";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -703,6 +708,15 @@ export function* setActionPropertySaga(
     return;
   }
 
+  // we use the formData to crosscheck, just in case value is not updated yet.
+  const formData: Action = yield select(
+    getFormValues(
+      actionObj?.pluginType === PluginType.API
+        ? API_EDITOR_FORM_NAME
+        : QUERY_EDITOR_FORM_NAME,
+    ),
+  );
+
   AppsmithConsole.info({
     logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
@@ -725,6 +739,7 @@ export function* setActionPropertySaga(
     actionObj,
     value,
     propertyName,
+    formData,
   );
   yield all(
     Object.keys(effects).map((field) =>
@@ -736,6 +751,7 @@ export function* setActionPropertySaga(
       ),
     ),
   );
+
   if (propertyName === "executeOnLoad") {
     yield put({
       type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
