@@ -1,5 +1,4 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
