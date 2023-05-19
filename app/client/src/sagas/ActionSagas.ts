@@ -736,6 +736,12 @@ export function* setActionPropertySaga(
       ),
     ),
   );
+
+  // Currently we batch update actions, which can asynchronously update the action state.
+  // As a result, when a new set action property is called, it can cause a selection of the old action state values.
+  // In order to mitigate this, we wait for all the batch updates to be successful, before allowing a new action property to be set.
+  yield take(ReduxActionTypes.BATCH_UPDATES_SUCCESS);
+
   if (propertyName === "executeOnLoad") {
     yield put({
       type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
