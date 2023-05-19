@@ -32,6 +32,7 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import RapidMode from "./RapidMode";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -612,10 +613,13 @@ Cypress.Commands.add("generateUUID", () => {
 });
 
 Cypress.Commands.add("addDsl", (dsl) => {
-  let currentURL, pageid, layoutId, appId;
+  let pageid, layoutId, appId;
   cy.url().then((url) => {
-    currentURL = url;
-    pageid = currentURL.split("/")[5]?.split("-").pop();
+    if (RapidMode.config.enabled && RapidMode.config.usesDSL) {
+      pageid = RapidMode.config.pageID;
+    } else {
+      pageid = url.split("/")[5]?.split("-").pop();
+    }
 
     //Fetch the layout id
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -640,7 +644,12 @@ Cypress.Commands.add("addDsl", (dsl) => {
       }).then((response) => {
         cy.log(response.body);
         expect(response.status).equal(200);
-        cy.reload();
+        if (RapidMode.config.enabled && RapidMode.config.usesDSL) {
+          cy.visit(RapidMode.url());
+        } else {
+          cy.reload();
+        }
+
         cy.wait("@getWorkspace");
       });
     });
