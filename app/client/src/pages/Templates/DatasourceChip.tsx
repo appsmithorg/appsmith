@@ -16,6 +16,10 @@ const StyledDatasourceChip = styled(Tag)`
     display: flex;
     align-items: center;
   }
+
+  .plugin-name {
+    flex-shrink: 0;
+  }
 `;
 
 interface DatasourceChipProps {
@@ -33,7 +37,7 @@ function DatasourceChip(props: DatasourceChipProps) {
   return (
     <StyledDatasourceChip isClosable={false} size="md">
       <img className="image" src={plugin.iconLocation} />
-      {plugin.name}
+      <span className="plugin-name">{plugin.name}</span>
     </StyledDatasourceChip>
   );
 }

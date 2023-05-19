@@ -32,8 +32,8 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.AssertContains("Successfully generated a page");
     //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad();
 
     //CRUD page 3
@@ -50,8 +50,8 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.AssertContains("Successfully generated a page");
     //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad();
   });
   it("2. Navigate & Assert toast", () => {

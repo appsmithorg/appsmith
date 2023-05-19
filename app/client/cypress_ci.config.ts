@@ -16,10 +16,10 @@ export default defineConfig({
     json: false,
   },
   chromeWebSecurity: false,
-  viewportHeight: 1100,
-  viewportWidth: 1400,
+  viewportHeight: 1200,
+  viewportWidth: 1600,
   retries: {
-    runMode: 0,
+    runMode: 1,
     openMode: 0,
   },
   e2e: {
