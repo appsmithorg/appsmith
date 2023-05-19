@@ -18,8 +18,8 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     query = `SELECT id, name, date_of_birth, date_of_death, nationality FROM public."astronauts" LIMIT 20;`;
     _.dataSources.NavigateFromActiveDS(dsName, true);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.agHelper.RenameWithInPane("getAstronauts");
     _.dataSources.EnterQuery(query);
+    _.agHelper.RenameWithInPane("getAstronauts");
     _.jsEditor.CreateJSObject(
       `export default {
       runAstros: () => {
