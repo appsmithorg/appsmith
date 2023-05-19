@@ -376,38 +376,23 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
-  const onClose = () => {
-    localStorage.setItem("importedAppPendingInfo", "null");
-    dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport(""));
-    dispatch(setPageIdForImport(""));
-    dispatch(resetDatasourceConfigForImportFetchedFlag());
-    setSelectedDatasourceId("");
-  };
-
-  const handleClose = useCallback((e) => {
-    let isACloseTrigger = false;
-    if (e.target) {
-      function isOverlayClicked() {
-        return e.target.classList.contains("reconnect-datasource-modal");
+  const handleClose = useCallback(
+    (open: boolean) => {
+      const element: HTMLElement | null =
+        document.querySelector(".picker-dialog-bg");
+      if (!!element && !open) {
+        return;
       }
-      function isCloseButtonClicked() {
-        const closeButton = document.querySelector(
-          ".ads-v2-modal__content-header-close-button",
-        );
-        if (!!closeButton) {
-          return closeButton.contains(e.target as Node);
-        }
-        return false;
-      }
-      isACloseTrigger = isOverlayClicked();
-      isACloseTrigger = isACloseTrigger || isCloseButtonClicked();
-    }
 
-    if (isACloseTrigger) {
-      onClose();
-    }
-  }, []);
+      localStorage.setItem("importedAppPendingInfo", "null");
+      dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
+      dispatch(setWorkspaceIdForImport(""));
+      dispatch(setPageIdForImport(""));
+      dispatch(resetDatasourceConfigForImportFetchedFlag());
+      setSelectedDatasourceId("");
+    },
+    [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen],
+  );
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
     setIsTesting(false);
