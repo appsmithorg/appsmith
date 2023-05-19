@@ -365,7 +365,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.SHOW_MODAL_FIELD]: {
-    label: () => "Modal Name",
+    label: () => "Modal name",
     options: (props: FieldProps) => props.modalDropdownList,
     defaultText: "Select modal",
     exampleText: "showModal('Modal1')",
@@ -378,7 +378,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.CLOSE_MODAL_FIELD]: {
-    label: () => "Modal Name",
+    label: () => "Modal name",
     options: (props: FieldProps) => props.modalDropdownList,
     defaultText: "Select modal",
     exampleText: "closeModal('Modal1')",
