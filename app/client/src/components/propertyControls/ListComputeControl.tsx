@@ -13,7 +13,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import CodeEditor from "components/editorComponents/LazyCodeEditor";
 import type { ListWidgetProps } from "widgets/ListWidgetV2/widget";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { getBindingTemplate } from "widgets/ListWidgetV2/constants";
@@ -54,6 +54,7 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <CodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

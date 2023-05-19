@@ -10,7 +10,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import { pick } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";

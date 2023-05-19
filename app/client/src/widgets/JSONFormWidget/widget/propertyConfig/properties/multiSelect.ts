@@ -5,7 +5,7 @@ import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import type { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(

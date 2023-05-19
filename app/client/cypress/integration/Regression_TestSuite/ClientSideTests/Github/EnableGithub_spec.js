@@ -2,7 +2,7 @@ import adminSettings from "../../../../locators/AdminsSettings";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("SSO with Github test functionality", function () {
+describe("excludeForAirgap", "SSO with Github test functionality", function () {
   it("1. Go to admin settings and enable Github with not all mandatory fields filled", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

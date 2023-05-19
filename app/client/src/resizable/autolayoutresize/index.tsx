@@ -22,7 +22,7 @@ import {
   getWrapperStyle,
 } from "resizable/common";
 import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
-import { getWidgets } from "sagas/selectors";
+import { getWidget, getWidgets } from "sagas/selectors";
 import {
   getContainerOccupiedSpacesSelectorWhileResizing,
   getDimensionMap,
@@ -43,8 +43,19 @@ import PerformanceTracker, {
 import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
+import type { AppState } from "@appsmith/reducers";
 
 export function ReflowResizable(props: ResizableProps) {
+  // Auto Layouts resizable is dependent on the app state of the widget so on delete it crashes the app
+  // so adding this check to render auto layout resize only when the widget does have an app state.
+  const widget = useSelector((state: AppState) =>
+    getWidget(state, props.widgetId),
+  );
+
+  return widget ? <AutoLayoutResizable {...props} /> : null;
+}
+
+function AutoLayoutResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
   const occupiedSpacesBySiblingWidgets = useSelector(

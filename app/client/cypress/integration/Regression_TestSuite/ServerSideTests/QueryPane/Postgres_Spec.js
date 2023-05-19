@@ -84,9 +84,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.get(queryLocators.templateMenu).click({ force: true });
     //cy.typeValueNValidate(tableCreateQuery);//Since type method is slow for such big text - using paste!
-
-    cy.get(".CodeMirror textarea").paste(tableCreateQuery);
-    cy.get(".CodeMirror textarea").focus();
+    cy.get(".CodeMirror textarea").focus().paste(tableCreateQuery);
     cy.EvaluateCurrentValue(tableCreateQuery);
     cy.wait(3000);
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method

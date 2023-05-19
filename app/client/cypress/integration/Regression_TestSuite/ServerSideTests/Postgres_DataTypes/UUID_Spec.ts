@@ -11,14 +11,11 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("UUID Datatype tests", function () {
-  before(() => {
+  before("Importing App & setting theme", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-  });
-
-  it("0. Importing App & setting theme", () => {
     cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
@@ -414,27 +411,7 @@ describe("UUID Datatype tests", function () {
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
-
-    //Deleting APi's also
-    ee.ActionContextMenuByEntityName("guid", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("nill", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("version4", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("version1", "Delete", "Are you sure?");
+    ee.DeleteAllQueriesForDB(dsName);
   });
 
   it("16. Verify Deletion of datasource", () => {

@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ClearRefinements, RefinementList } from "react-instantsearch-dom";
 import styled from "styled-components";
-import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
-import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getSnippetFilterLabel } from "./utils";
 import { useStore } from "react-redux";
+import { importSvg } from "design-system-old";
+
+const FilterIcon = importSvg(() => import("assets/icons/menu/filter.svg"));
+const CloseFilterIcon = importSvg(
+  () => import("assets/icons/menu/close-filter.svg"),
+);
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;

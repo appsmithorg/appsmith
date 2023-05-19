@@ -1,6 +1,7 @@
 import { getFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import type { Datasource } from "entities/Datasource";
 import { SEARCH_ITEM_TYPES } from "./utils";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 describe("getFilteredAndSortedFileOperations", () => {
   it("works without any datasources", () => {
@@ -83,6 +84,10 @@ describe("getFilteredAndSortedFileOperations", () => {
       {},
       true,
       true,
+      [
+        PERMISSION_TYPE.CREATE_ACTIONS,
+        PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
+      ],
     );
 
     expect(fileOptions[0]).toEqual(
@@ -141,6 +146,10 @@ describe("getFilteredAndSortedFileOperations", () => {
       { abc: 1, "123": 3 },
       true,
       true,
+      [
+        PERMISSION_TYPE.CREATE_ACTIONS,
+        PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
+      ],
     );
 
     expect(fileOptions[0]).toEqual(
@@ -199,6 +208,10 @@ describe("getFilteredAndSortedFileOperations", () => {
       {},
       true,
       true,
+      [
+        PERMISSION_TYPE.CREATE_ACTIONS,
+        PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
+      ],
     );
 
     expect(fileOptions[0]).toEqual(

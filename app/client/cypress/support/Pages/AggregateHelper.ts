@@ -1,6 +1,7 @@
 import "cypress-wait-until";
 const uuid = require("uuid");
 import { ObjectsRegistry } from "../Objects/Registry";
+import type CodeMirror from "codemirror";
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -24,6 +25,8 @@ export class AggregateHelper {
   }`;
   private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
+  private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
+  private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -779,14 +782,11 @@ export class AggregateHelper {
   ) {
     const { directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
-      cy.get(propFieldName).then(($field: any) => {
-        this.UpdateCodeInput($field, valueToEnter);
-      });
+      this.UpdateCodeInput(propFieldName, valueToEnter);
     } else if (inputFieldName && !propFieldName && !directInput) {
-      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
-        ($field: any) => {
-          this.UpdateCodeInput($field, valueToEnter);
-        },
+      this.UpdateCodeInput(
+        this.locator._inputFieldByName(inputFieldName),
+        valueToEnter,
       );
     }
     this.AssertAutoSave();
@@ -821,13 +821,28 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
-    cy.wrap(selector)
-      .find(".CodeMirror")
+    this.EnableAllCodeEditors();
+
+    const isXPathSelector =
+      selector.startsWith("//") || selector.startsWith("(//");
+    // A previous version of this code used a more simple `this.GetElement(xPathOrCssSelector).find(".CodeMirror")` command.
+    // However, occasionally, this would lead to a race condition: React would re-render between calls to `this.GetElement()`
+    // and `.find(".CodeMirror")`, causing the element from the first call to be detached from the DOM.
+    // Relevant docs: http://web.archive.org/web/20210618235924/https://docs.cypress.io/guides/core-concepts/retry-ability#Only-the-last-command-is-retried
+    //
+    // This was fixed in Cypress 12 (https://github.com/cypress-io/cypress/issues/7306), which started to retry
+    // the entire query chain (https://docs.cypress.io/guides/core-concepts/retry-ability#Only-queries-are-retried),
+    // but until we’ve upgraded to v12, we can’t rely on that and have to fit everything into a single query.
+    const codeMirrorSelector = isXPathSelector
+      ? selector +
+        "//*[contains(concat(' ', normalize-space(@class), ' '), ' CodeMirror ')]"
+      : selector + " .CodeMirror";
+    this.GetElement(codeMirrorSelector)
       .find("textarea")
       .parents(".CodeMirror")
       .first()
-      .then((ins: any) => {
-        const input = ins[0].CodeMirror;
+      .then((ins) => {
+        const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
         input.focus();
         this.Sleep(200);
         input.setValue(value);
@@ -1167,6 +1182,16 @@ export class AggregateHelper {
     } else {
       return this.GetElement(selector).eq(index).should("not.be.disabled");
     }
+  }
+
+  // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.
+  // Called “EnableAllCodeEditors” to match the command in the JS part of the Cypress codebase
+  // with the same name.
+  public EnableAllCodeEditors() {
+    cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
+    cy.get(this.lazyCodeEditorRendered).each(($el) => {
+      cy.wrap($el).find(".CodeMirror").should("exist");
+    });
   }
 
   public AssertNewTabOpened(openTabFunc: () => void) {

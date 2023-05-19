@@ -1,5 +1,4 @@
 import styled from "styled-components";
-
 import LoaderIcon from "remixicon-react/Loader2FillIcon";
 
 export const StyledSpinner = styled(LoaderIcon)`

@@ -335,20 +335,21 @@ function ReconnectDatasourceModal() {
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
     const variant = Variant.danger;
-
+    const oauthReason = status;
+    const isReconnectDS = true;
+    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
+      dsName,
+      oauthReason,
+      orgId,
+      pluginName,
+      isReconnectDS,
+    });
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       Toaster.show({ text: display_message || message, variant });
-      const oAuthStatus = status;
-      AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
-        dsName,
-        oAuthStatus,
-        orgId,
-        pluginName,
-      });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));

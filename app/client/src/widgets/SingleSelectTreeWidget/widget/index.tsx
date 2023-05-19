@@ -11,7 +11,7 @@ import { isArray } from "lodash";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { ReactNode } from "react";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
