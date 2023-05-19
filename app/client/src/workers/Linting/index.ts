@@ -25,7 +25,7 @@ export function getlintErrorsFromTree({
 }: getlintErrorsFromTreeProps): getlintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const updatedJSEntities = new Set<string>();
-  globalData.initialize(unEvalTree, cloudHosting);
+  globalData.initialize(unEvalTree, configTree, cloudHosting);
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
     pathsToLint,
     unEvalTree,

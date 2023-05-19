@@ -133,6 +133,7 @@ export default class DataTreeEvaluator {
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
+  configTree: ConfigTree = {};
 
   /**
    * This contains raw evaluated value without any validation or parsing.
@@ -188,6 +189,14 @@ export default class DataTreeEvaluator {
     this.evalTree = evalTree;
   }
 
+  getConfigTree() {
+    return this.configTree;
+  }
+
+  setConfigTree(configTree: ConfigTree) {
+    if (configTree) this.configTree = configTree;
+  }
+
   getUnParsedEvalTree() {
     return this.unParsedEvalTree;
   }
@@ -212,6 +221,8 @@ export default class DataTreeEvaluator {
     evalOrder: string[];
     lintOrder: string[];
   } {
+    this.setConfigTree(configTree);
+
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
@@ -394,6 +405,7 @@ export default class DataTreeEvaluator {
     pathsToClearErrorsFor: any[];
     isNewWidgetAdded: boolean;
   } {
+    this.setConfigTree(configTree);
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
@@ -1289,6 +1301,7 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
+    configTree: ConfigTree,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
@@ -1297,6 +1310,7 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
+      configTree,
       context,
       callbackData,
     );

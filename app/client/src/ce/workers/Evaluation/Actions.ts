@@ -2,6 +2,7 @@
 
 import set from "lodash/set";
 import type {
+  ConfigTree,
   DataTree,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
@@ -14,7 +15,6 @@ import {
 } from "@appsmith/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
-import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import { isEmpty } from "lodash";
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -37,6 +37,7 @@ export enum ExecutionType {
 
 function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
   const setterMethodMap: Record<string, any> = {};
+  if (!entityConfig) return setterMethodMap;
   // @ts-expect-error: a
   if (entityConfig.__setters) {
     // @ts-expect-error: a
@@ -58,8 +59,10 @@ export const addDataTreeToContext = (args: {
   dataTree: Readonly<DataTree>;
   removeEntityFunctions?: boolean;
   isTriggerBased: boolean;
+  configTree: ConfigTree;
 }) => {
   const {
+    configTree,
     dataTree,
     EVAL_CONTEXT,
     isTriggerBased,
@@ -79,12 +82,9 @@ export const addDataTreeToContext = (args: {
       set(entityFunctionCollection, fullPath, func);
     }
 
-    const entityConfig = dataTreeEvaluator?.oldConfigTree?.[entityName];
-    if (!entityConfig) continue;
+    const entityConfig = configTree[entityName];
     const entityMethodMap = getEntityMethodFromConfig(entityConfig);
-
     if (isEmpty(entityMethodMap)) continue;
-
     EVAL_CONTEXT[entityName] = Object.assign(
       {},
       dataTree[entityName],
