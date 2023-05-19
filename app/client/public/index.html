@@ -34,7 +34,8 @@
       }
 
       return chunksToPreload.flatMap(i => [...i.files])
-        .map(url => `<link rel="preload" as="${getPreloadValueForFile(url)}" href="${webpackConfig.output.publicPath + url}" />`)
+        // `fetchpriority="low"` ensures preloads don’t compete for bandwidth with the main script: https://3perf.slack.com/archives/C01SGCF8PM0/p1684511126862229?thread_ts=1684466888.430869&cid=C01SGCF8PM0
+        .map(url => `<link rel="preload" fetchpriority="low" as="${getPreloadValueForFile(url)}" href="${webpackConfig.output.publicPath + url}" />`)
         .join('\n')
 
       function getPreloadValueForFile(fileName) {
