@@ -17,6 +17,7 @@ import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext"
 import { klona } from "klona/full";
 import { isEmpty } from "lodash";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
+import { applySetterMethod } from "workers/Evaluation/setters";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -47,7 +48,7 @@ function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
       setterMethodMap[setterMethodName] = function (value: any) {
         if (!dataTreeEvaluator) return;
 
-        return dataTreeEvaluator?.applySetterMethod(path, value);
+        return applySetterMethod(path, value);
       };
     }
   }

@@ -13,11 +13,9 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import { setEvalContext } from "./evaluate";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
-  shouldResetEvalContext: boolean,
   callback?: (value: unknown) => void,
 ) {
   let evalOrder: string[] = [];
@@ -89,14 +87,6 @@ export function evalTreeWithChanges(
   });
 
   if (callback) {
-    if (shouldResetEvalContext) {
-      setEvalContext({
-        dataTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
-    }
-
     callback(dataTree);
   }
 }
