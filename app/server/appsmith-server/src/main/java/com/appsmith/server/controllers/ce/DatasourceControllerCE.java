@@ -70,7 +70,7 @@ public class DatasourceControllerCE {
     @GetMapping("")
     public Mono<ResponseDTO<List<DatasourceDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources from datasource controller {}", params);
-        return datasourceService.getAll(params).collectList()
+        return datasourceService.getAllWithStorages(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

@@ -133,7 +133,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
 
             return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
                     .then(createSuffixedDatasource(datasource, trueEnvironmentId))
-                    .map(datasource1 -> datasourceService.convertToDatasourceDTO(datasource));
+                    .flatMap(datasource1 -> datasourceService.convertToDatasourceDTO(datasource));
         });
 
     }

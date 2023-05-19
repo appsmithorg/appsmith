@@ -26,8 +26,6 @@ public interface DatasourceServiceCE {
      */
     Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
-
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
@@ -42,9 +40,23 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> save(Datasource datasource);
 
-    Flux<DatasourceDTO> getAll(MultiValueMap<String, String> params);
+    /**
+     * Retrieves all datasources based on input params, currently only workspaceId.
+     * The retrieved datasources will contain configuration from the default environment,
+     * for compatibility.
+     * @param params
+     * @return A flux of DatsourceDTO, which will change after API contracts gets updated
+     */
+    Flux<DatasourceDTO> getAllWithStorages(MultiValueMap<String, String> params);
 
-    Flux<Datasource> getAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
+    /**
+     * Retrieves all datasources based on workspaceId. The retrieved datasources will contain
+     * configurations from all environments.
+     * @param workspaceId
+     * @param permission In case permissions are absent, the DB query disregards GAC rules
+     * @return
+     */
+    Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission);
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
@@ -65,7 +77,7 @@ public interface DatasourceServiceCE {
     Map<String, Object> getAnalyticsProperties(Datasource datasource);
 
     // TODO: Remove the following snippet after client side API changes
-    DatasourceDTO convertToDatasourceDTO(Datasource datasource);
+    Mono<DatasourceDTO> convertToDatasourceDTO(Datasource datasource);
 
     // TODO: Remove the following snippet after client side API changes
     Datasource convertToDatasource(DatasourceDTO datasourceDTO, String environmentId);

@@ -146,7 +146,7 @@ public class ForkExamplesWorkspaceServiceTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .getAllByWorkspaceId(workspace.getId(), Optional.of(READ_DATASOURCES))
+                                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.of(READ_DATASOURCES))
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add),

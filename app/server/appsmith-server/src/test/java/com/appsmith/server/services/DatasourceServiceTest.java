@@ -625,7 +625,7 @@ public class DatasourceServiceTest {
                     return datasource;
                 })
                 .flatMap(datasourceService::create)
-                .map(datasourceService::convertToDatasourceDTO);
+                .flatMap(datasource2 -> datasourceService.convertToDatasourceDTO(datasource2));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -686,7 +686,7 @@ public class DatasourceServiceTest {
                     return datasource;
                 })
                 .flatMap(datasourceService::create)
-                .map(datasourceService::convertToDatasourceDTO);
+                .flatMap(datasource2 -> datasourceService.convertToDatasourceDTO(datasource2));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1302,7 +1302,7 @@ public class DatasourceServiceTest {
                     return datasource;
                 })
                 .flatMap(datasourceService::create)
-                .map(datasourceService::convertToDatasourceDTO);
+                .flatMap(datasource2 -> datasourceService.convertToDatasourceDTO(datasource2));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1615,7 +1615,7 @@ public class DatasourceServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
-        Mono<List<DatasourceDTO>> listMono = datasourceService.getAll(params).collectList();
+        Mono<List<DatasourceDTO>> listMono = datasourceService.getAllWithStorages(params).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(datasources -> {

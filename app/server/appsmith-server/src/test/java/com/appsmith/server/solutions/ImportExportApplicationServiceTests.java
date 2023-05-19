@@ -840,7 +840,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
+                                    datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(),
@@ -1063,7 +1063,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.getAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
+                                datasourceService.getAllByWorkspaceIdWithStorages(applicationImportDTO.getApplication().getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
@@ -1158,7 +1158,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.getAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
+                                datasourceService.getAllByWorkspaceIdWithStorages(applicationImportDTO.getApplication().getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService
@@ -1312,7 +1312,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
+                                    datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
@@ -2479,7 +2479,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
+                                datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -2537,7 +2537,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
+                                datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {

@@ -116,7 +116,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<DatasourceDTO> create(DatasourceDTO datasourceDTO, String environmentId) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
         return this.create(datasource)
-                .map(this::convertToDatasourceDTO);
+                .flatMap(datasource1 -> convertToDatasourceDTO(datasource1));
     }
 
     @Override
@@ -232,7 +232,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
         return this.updateByEnvironmentId(id, datasource, environmentId, isUserRefreshedUpdate)
-                .map(this::convertToDatasourceDTO);
+                .flatMap(datasource1 -> convertToDatasourceDTO(datasource1));
     }
 
     @Override
@@ -424,13 +424,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .testDatasource(datasourceStorage.getDatasourceConfiguration()));
     }
 
-    // TODO: Check usage
-    @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
-    }
-
-    // TODO: Check usage
     @Override
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
         return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
@@ -484,19 +477,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<DatasourceDTO> getAll(MultiValueMap<String, String> params) {
+    public Flux<DatasourceDTO> getAllWithStorages(MultiValueMap<String, String> params) {
         String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
         if (workspaceId != null) {
-            return this.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
+            return this.getAllByWorkspaceIdWithStorages(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
                     // TODO: Remove the following snippet after client side API changes
-                    .map(this::convertToDatasourceDTO);
+                    .flatMap(datasource -> convertToDatasourceDTO(datasource));
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override
-    public Flux<Datasource> getAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
+    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
 
         return repository.findAllByWorkspaceId(workspaceId, permission)
                 .flatMap(datasource -> datasourceStorageService
@@ -609,7 +602,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     // TODO: Remove the following snippet after client side API changes
     @Override
-    public DatasourceDTO convertToDatasourceDTO(Datasource datasource) {
+    public Mono<DatasourceDTO> convertToDatasourceDTO(Datasource datasource) {
         DatasourceDTO datasourceDTO = new DatasourceDTO();
         datasourceDTO.setId(datasource.getId());
         datasourceDTO.setUserPermissions(datasource.getUserPermissions());
@@ -625,14 +618,15 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasourceDTO.setIsMock(datasource.getIsMock());
         datasourceDTO.setPolicies(datasource.getPolicies());
 
-        DatasourceStorageDTO datasourceStorageDTO = getFallbackDatasourceStorageDTO(datasource);
-        if (datasourceStorageDTO != null) {
-            datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO.getDatasourceConfiguration());
-            datasourceDTO.setInvalids(datasourceStorageDTO.getInvalids());
-            datasourceDTO.setMessages(datasourceStorageDTO.getMessages());
-        }
-
-        return datasourceDTO;
+        return workspaceService.getDefaultEnvironmentId(datasource.getWorkspaceId())
+                .map(environmentId -> datasource.getDatasourceStorages().get(environmentId))
+                .map(datasourceStorageDTO1 -> {
+                    datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO1.getDatasourceConfiguration());
+                    datasourceDTO.setInvalids(datasourceStorageDTO1.getInvalids());
+                    datasourceDTO.setMessages(datasourceStorageDTO1.getMessages());
+                    return datasourceDTO;
+                })
+                .thenReturn(datasourceDTO);
     }
 
     // TODO: Remove the following snippet after client side API changes
@@ -660,11 +654,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasource.setHasDatasourceStorage(true);
 
         return datasource;
-    }
-
-    // TODO: Remove the following snippet after client side API changes
-    protected DatasourceStorageDTO getFallbackDatasourceStorageDTO(Datasource datasource) {
-        return datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
     // TODO: Remove the following snippet after client side API changes

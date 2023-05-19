@@ -536,7 +536,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                            Boolean forkWithConfiguration,
                                            String environmentId) {
         final Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono = datasourceService
-                .getAllByWorkspaceId(toWorkspaceId, Optional.empty())
+                .getAllByWorkspaceIdWithStorages(toWorkspaceId, Optional.empty())
                 .collectList();
 
         Mono<Datasource> datasourceToForkMono = datasourceService.findByIdAndEnvironmentId(datasourceId, environmentId);

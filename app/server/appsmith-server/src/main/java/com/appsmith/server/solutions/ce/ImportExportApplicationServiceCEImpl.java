@@ -355,7 +355,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         : datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getEditPermission()));
 
                                 Flux<Datasource> datasourceFlux =
-                                        datasourceService.getAllByWorkspaceId(workspaceId, optionalPermission3);
+                                        datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, optionalPermission3);
                                 return datasourceFlux.collectList().zipWith(defaultEnvironmentIdMono);
                             })
                             .flatMapMany(tuple2 -> {
@@ -818,7 +818,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceService
-                .getAllByWorkspaceId(workspaceId, isGitSync ? Optional.empty() : Optional.of(datasourcePermission.getEditPermission()))
+                .getAllByWorkspaceIdWithStorages(workspaceId, isGitSync ? Optional.empty() : Optional.of(datasourcePermission.getEditPermission()))
                 .cache();
 
         assert importedApplication != null : "Received invalid application object!";
@@ -2162,7 +2162,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
-                .getAllByWorkspaceId(workspaceId, Optional.empty())
+                .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
                 .collectList();
         return newActionService.findAllByApplicationIdAndViewMode(
                         applicationId,

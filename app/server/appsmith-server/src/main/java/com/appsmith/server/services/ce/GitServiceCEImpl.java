@@ -2009,7 +2009,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
 
 
-                    Mono<List<Datasource>> datasourceMono = datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getEditPermission())).collectList();
+                    Mono<List<Datasource>> datasourceMono = datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, Optional.of(datasourcePermission.getEditPermission())).collectList();
                     Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                     Mono<ApplicationJson> applicationJsonMono = fileUtils
                             .reconstructApplicationJsonFromGitRepo(workspaceId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
