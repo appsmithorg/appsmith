@@ -132,7 +132,7 @@ const TabbedViewWrapper = styled.div`
 
   & {
     .react-tabs__tab-panel {
-      height: calc(100% - ${TAB_MIN_HEIGHT});
+      height: calc(100% - ${TAB_MIN_HEIGHT} - 20px);
     }
   }
 `;
