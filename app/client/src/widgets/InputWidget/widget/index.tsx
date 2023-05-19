@@ -766,15 +766,19 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       __setters: {
         setVisibility: {
           path: "isVisible",
+          type: Boolean,
         },
         setDisabled: {
           path: "isDisabled",
+          type: Boolean,
         },
         setRequired: {
           path: "isRequired",
+          type: Boolean,
         },
         setValue: {
           path: "defaultText",
+          type: String,
         },
       },
     };
