@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datasource.connectionproperties.SnowflakeConnectionProperties;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -12,6 +13,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.SqlUtils;
@@ -63,7 +65,7 @@ public class SnowflakePlugin extends BasePlugin {
     }
 
     @Extension
-    public static class SnowflakePluginExecutor implements PluginExecutor<HikariDataSource> {
+    public static class SnowflakePluginExecutor implements PluginExecutorConnectionParam<HikariDataSource, SnowflakeConnectionProperties> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -138,18 +140,25 @@ public class SnowflakePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+
         @Override
-        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            SnowflakeConnectionProperties properties = new SnowflakeConnectionProperties();
+            return datasourceCreate(datasourceConfiguration, properties);
+        }
+
+        @Override
+        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, SnowflakeConnectionProperties snowflakeConnectionProperties) {
             return Mono.fromCallable(() -> {
                 HikariConfig config = new HikariConfig();
 
-                config.setDriverClassName(properties.getProperty("driver_name"));
+                config.setDriverClassName(snowflakeConnectionProperties.getProperties().getProperty("driver_name"));
 
-                config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
-                config.setMaximumPoolSize(Integer.parseInt(properties.get("maximunPoolSize").toString()));
+                config.setMinimumIdle(Integer.parseInt(snowflakeConnectionProperties.getProperties().get("minimumIdle").toString()));
+                config.setMaximumPoolSize(Integer.parseInt(snowflakeConnectionProperties.getProperties().get("maximunPoolSize").toString()));
 
-                config.setInitializationFailTimeout(Long.parseLong(properties.get("initializationFailTimeout").toString()));
-                config.setConnectionTimeout(Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
+                config.setInitializationFailTimeout(Long.parseLong(snowflakeConnectionProperties.getProperties().get("initializationFailTimeout").toString()));
+                config.setConnectionTimeout(Long.parseLong(snowflakeConnectionProperties.getProperties().get("connectionTimeoutMillis").toString()));
 
                 // Set authentication properties
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -165,7 +174,7 @@ public class SnowflakePlugin extends BasePlugin {
                         datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
                 config.setJdbcUrl(urlBuilder.toString());
 
-                config.setDataSourceProperties(properties);
+                config.setDataSourceProperties(snowflakeConnectionProperties.getProperties());
 
                 // Now create the connection pool from the configuration
                 HikariDataSource datasource = null;
@@ -183,33 +192,33 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            properties.setProperty("driver_name", JDBC_DRIVER);
-            properties.setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
-            properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
-            properties.setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
+        public SnowflakeConnectionProperties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, SnowflakeConnectionProperties snowflakeConnectionProperties) {
+            snowflakeConnectionProperties.getProperties().setProperty("driver_name", JDBC_DRIVER);
+            snowflakeConnectionProperties.getProperties().setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
+            snowflakeConnectionProperties.getProperties().setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
+            snowflakeConnectionProperties.getProperties().setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
             /**
              * Setting the value for setInitializationFailTimeout to -1 to
              * bypass any connection attempt and validation during startup
              * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
              */
-            properties.setProperty("initializationFailTimeout", String.valueOf(-1));
-            properties.setProperty("connectionTimeoutMillis", String.valueOf(CONNECTION_TIMEOUT_MILLISECONDS));
-            return properties;
+            snowflakeConnectionProperties.getProperties().setProperty("initializationFailTimeout", String.valueOf(-1));
+            snowflakeConnectionProperties.getProperties().setProperty("connectionTimeoutMillis", String.valueOf(CONNECTION_TIMEOUT_MILLISECONDS));
+            return snowflakeConnectionProperties;
         }
 
         @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        public SnowflakeConnectionProperties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, SnowflakeConnectionProperties snowflakeConnectionProperties) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            properties.setProperty("user", authentication.getUsername());
-            properties.setProperty("password", authentication.getPassword());
-            properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
-            properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
-            properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
-            properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+            snowflakeConnectionProperties.getProperties().setProperty("user", authentication.getUsername());
+            snowflakeConnectionProperties.getProperties().setProperty("password", authentication.getPassword());
+            snowflakeConnectionProperties.getProperties().setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
+            snowflakeConnectionProperties.getProperties().setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
+            snowflakeConnectionProperties.getProperties().setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
+            snowflakeConnectionProperties.getProperties().setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
             /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
-            properties.setProperty("jdbc_query_result_format", "json");
-            return properties;
+            snowflakeConnectionProperties.getProperties().setProperty("jdbc_query_result_format", "json");
+            return snowflakeConnectionProperties;
         }
 
         @Override

@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datasource.connectionproperties.ArangoDBConnectionProperties;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -15,6 +16,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB.Builder;
 import com.arangodb.ArangoDBException;
@@ -66,7 +68,7 @@ public class ArangoDBPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class ArangoDBPluginExecutor implements PluginExecutor<ArangoDatabase> {
+    public static class ArangoDBPluginExecutor implements PluginExecutorConnectionParam<ArangoDatabase, ArangoDBConnectionProperties> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -161,52 +163,66 @@ public class ArangoDBPlugin extends BasePlugin {
             return true;
         }
 
-
         @Override
         public Mono<ArangoDatabase> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            ArangoDBConnectionProperties properties = new ArangoDBConnectionProperties();
+            return datasourceCreate(datasourceConfiguration, properties);
+        }
 
+        @Override
+        public Mono<ArangoDatabase> createConnectionClient(DatasourceConfiguration datasourceConfiguration, ArangoDBConnectionProperties arangoDBConnectionProperties) {
             return (Mono<ArangoDatabase>) Mono.fromCallable(() -> {
+                Builder dbBuilder = getBasicBuilder(arangoDBConnectionProperties.getAuth());
+                arangoDBConnectionProperties.getNonEmptyEndpoints().stream()
+                        .forEach(endpoint -> {
+                            String host = endpoint.getHost();
+                            int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+                            dbBuilder.host(host, port);
+                        });
 
-                        List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
-                                .filter(endpoint -> isNonEmptyEndpoint(endpoint))
-                                .collect(Collectors.toList());
+                /**
+                 * - datasource.connection, datasource.connection.ssl, datasource.connection.ssl.authType objects
+                 * are never expected to be null because form.json always assigns a default value to authType object.
+                 */
 
-                        DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-                        Builder dbBuilder = getBasicBuilder(auth);
-                        nonEmptyEndpoints.stream()
-                                .forEach(endpoint -> {
-                                    String host = endpoint.getHost();
-                                    int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
-                                    dbBuilder.host(host, port);
-                                });
+                try {
+                    setSSLParam(dbBuilder, arangoDBConnectionProperties.getSslAuthType());
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
 
-                        /**
-                         * - datasource.connection, datasource.connection.ssl, datasource.connection.ssl.authType objects
-                         * are never expected to be null because form.json always assigns a default value to authType object.
-                         */
-                        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
-                        try {
-                            setSSLParam(dbBuilder, sslAuthType);
-                        } catch (AppsmithPluginException e) {
-                            return Mono.error(e);
-                        }
+                try {
+                    setSSLContext(dbBuilder, datasourceConfiguration);
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
 
-                        try {
-                            setSSLContext(dbBuilder, datasourceConfiguration);
-                        } catch (AppsmithPluginException e) {
-                            return Mono.error(e);
-                        }
-
-                        String dbName = auth.getDatabaseName();
-
-                        /**
-                         * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
-                         * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
-                         */
-                        return Mono.just(dbBuilder.build().db(dbName));
-                    })
+                /**
+                 * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
+                 * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
+                 */
+                return Mono.just(dbBuilder.build().db(arangoDBConnectionProperties.getDbName()));
+            })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public ArangoDBConnectionProperties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, ArangoDBConnectionProperties arangoDBConnectionProperties) {
+            List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
+                    .filter(endpoint -> isNonEmptyEndpoint(endpoint))
+                    .collect(Collectors.toList());
+            arangoDBConnectionProperties.setNonEmptyEndpoints(nonEmptyEndpoints);
+            arangoDBConnectionProperties.setSslAuthType(datasourceConfiguration.getConnection().getSsl().getAuthType());
+            return arangoDBConnectionProperties;
+        }
+
+        @Override
+        public ArangoDBConnectionProperties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, ArangoDBConnectionProperties arangoDBConnectionProperties) {
+            DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+            arangoDBConnectionProperties.setAuth(auth);
+            arangoDBConnectionProperties.setDbName(auth.getDatabaseName());
+            return arangoDBConnectionProperties;
         }
 
         /**
