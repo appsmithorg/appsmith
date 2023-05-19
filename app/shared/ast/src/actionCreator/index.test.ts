@@ -11,7 +11,6 @@ import {
   setTextArgumentAtPosition,
   getEnumArgumentAtPosition,
   canTranslateToUI,
-  compareCodeBlockASTs,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
