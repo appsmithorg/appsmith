@@ -580,6 +580,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         <MenuTrigger>
           <Button
             className="m-0.5"
+            data-testid="t--application-card-context-menu"
             isIconButton
             kind="tertiary"
             size="sm"
