@@ -1,37 +1,32 @@
 import React from "react";
-import type { WrappedFieldMetaProps } from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import type { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system-old";
-import {
-  EditorModes,
-  EditorSize,
-  EditorTheme,
-  TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
-import type { EditorProps } from "components/editorComponents/CodeEditor";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { Input } from "design-system";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 
 const renderComponent = (
-  componentProps: FormTextAreaFieldProps &
-    EditorProps & {
-      meta: Partial<WrappedFieldMetaProps>;
-    },
+  componentProps: FormTextAreaFieldProps & {
+    meta: Partial<WrappedFieldMetaProps>;
+    input: Partial<WrappedFieldInputProps>;
+  },
 ) => {
   const showError = componentProps.meta.touched && !componentProps.meta.active;
-  const theme = EditorTheme.LIGHT;
+  // TODO: Does there need to be a LazyCodeEditor here? Why?
   return (
     <>
-      <LazyCodeEditor
-        height={"156px"}
-        hideEvaluatedValue
-        showLightningMenu={false}
+      <Input
         {...componentProps}
-        hinting={[]}
-        mode={EditorModes.TEXT}
-        size={EditorSize.EXTENDED}
-        tabBehaviour={TabBehaviour.INDENT}
-        theme={theme}
+        {...componentProps.input}
+        errorMessage={
+          !componentProps.hideErrorMessage &&
+          showError &&
+          componentProps.meta.error &&
+          componentProps.meta.error
+        }
+        renderAs="textarea"
+        size="md"
       />
       {!componentProps.hideErrorMessage && componentProps.meta.error && (
         <FieldError error={showError && componentProps.meta.error} />
@@ -41,17 +36,35 @@ const renderComponent = (
 };
 
 export type FormTextAreaFieldProps = {
-  name: string;
-  placeholder: string;
+  name?: string;
+  placeholder?: string;
   label?: string;
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;
   hideErrorMessage?: boolean;
+  setting: Setting;
 };
 
 function FormTextAreaField(props: FormTextAreaFieldProps) {
-  return <Field component={renderComponent} {...props} asyncControl />;
+  const { setting } = props;
+  return (
+    <div
+      className={`t--admin-settings-text-area-input t--admin-settings-${
+        setting.name || setting.id
+      }`}
+    >
+      <Field
+        component={renderComponent}
+        description={setting.subText || ""}
+        isRequired={setting.isRequired}
+        label={setting.label || ""}
+        name={setting.name || setting.id || ""}
+        {...props}
+        asyncControl
+      />
+    </div>
+  );
 }
 
 export default FormTextAreaField;

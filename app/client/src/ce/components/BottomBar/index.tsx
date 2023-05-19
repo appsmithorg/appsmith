@@ -3,13 +3,12 @@ import styled from "styled-components";
 import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
-import { Colors } from "constants/Colors";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
-import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { Button } from "design-system";
 
 const Container = styled.div`
   width: 100%;
@@ -19,7 +18,7 @@ const Container = styled.div`
   justify-content: space-between;
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
-  border-top: solid 1px ${Colors.MERCURY};
+  border-top: solid 1px var(--ads-v2-color-border);
   padding-left: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -36,11 +35,12 @@ export default function BottomBar(props: { className?: string }) {
       <QuickGitActions />
       <Wrapper>
         <ManualUpgrades showTooltip>
-          <Icon
+          <Button
             className="t--upgrade"
-            fillColor={Colors.SCORPION}
-            name="upgrade"
-            size={IconSize.XL}
+            isIconButton
+            kind="tertiary"
+            size="md"
+            startIcon="upgrade"
           />
         </ManualUpgrades>
         <DebuggerTrigger />

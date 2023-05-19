@@ -1,5 +1,3 @@
-import homePage from "../../../locators/HomePage";
-
 describe("Shared user icon  ", function () {
   it(" User Icon is disaplyed to user ", function () {
     // Navigate to home Page

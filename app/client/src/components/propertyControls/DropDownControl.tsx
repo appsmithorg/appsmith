@@ -1,13 +1,24 @@
 import React from "react";
+import styled from "styled-components";
+import { Option, Select, Text, Icon } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import type { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+
+const FlagWrapper = styled.span`
+  font-family: "Twemoji Country Flags";
+  font-size: 20px;
+  line-height: 19px;
+  margin-right: 10px;
+  height: 100%;
+  position: relative;
+  top: 1px;
+  overflow: initial !important;
+`;
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
@@ -39,13 +50,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   };
 
   render() {
-    let defaultSelected: DropdownOption | DropdownOption[] = {
-      label: "No selection.",
-      value: undefined,
-    };
+    let defaultSelected: string | string[] | undefined = undefined;
 
     if (this.props.isMultiSelect) {
-      defaultSelected = [defaultSelected];
+      defaultSelected = [];
     }
 
     const options =
@@ -56,21 +64,23 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     if (this.props.defaultValue) {
       if (this.props.isMultiSelect) {
         const defaultValueSet = new Set(this.props.defaultValue);
-        defaultSelected = options.filter((option) =>
-          defaultValueSet.has(option.value),
-        );
+        defaultSelected = options
+          .filter((option) => defaultValueSet.has(option.value))
+          .map((option) => option.value);
       } else {
         defaultSelected = options.find(
           (option) => option.value === this.props.defaultValue,
-        );
+        )?.value;
       }
     }
 
-    let selected: DropdownOption | DropdownOption[];
+    let selected: string | string[];
 
     if (this.props.isMultiSelect) {
       const propertyValueSet = new Set(this.props.propertyValue);
-      selected = options.filter((option) => propertyValueSet.has(option.value));
+      selected = options
+        .filter((option) => propertyValueSet.has(option.value))
+        .map((option) => option.value);
     } else {
       const computedValue =
         !isNil(this.props.propertyValue) &&
@@ -81,46 +91,68 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
-      selected = options.find((option) => option.value === computedValue);
-    }
-
-    if (selected) {
-      defaultSelected = selected;
+      selected = options.find(
+        (option) => option.value === computedValue,
+      )?.value;
     }
 
     return (
-      <StyledDropDownContainer ref={this.containerRef}>
-        <StyledDropDown
-          closeOnSpace={false}
-          dropdownHeight={this.props.dropdownHeight}
-          dropdownMaxHeight="200px"
-          enableSearch={this.props.enableSearch}
-          fillOptions
-          hideSubText={this.props.hideSubText}
+      <div className="w-full h-full" ref={this.containerRef}>
+        <Select
+          defaultValue={defaultSelected}
           isMultiSelect={this.props.isMultiSelect}
-          onSelect={this.onItemSelect}
-          optionWidth={
-            this.props.optionWidth ? this.props.optionWidth : "231px"
-          }
-          options={options}
+          onDeselect={this.onDeselect}
+          onSelect={this.onSelect}
+          optionFilterProp="label"
+          optionLabelProp={this.props.hideSubText ? "label" : "children"}
           placeholder={this.props.placeholderText}
-          removeSelectedOption={this.onItemRemove}
-          searchAutoFocus
-          searchPlaceholder={this.props.searchPlaceholderText}
-          selected={defaultSelected}
-          showEmptyOptions
-          showLabelOnly
-          width="100%"
-        />
-      </StyledDropDownContainer>
+          showSearch={this.props.enableSearch}
+          value={selected}
+          virtual={this.props.virtual || false}
+        >
+          {options.map((option, index) => (
+            <Option
+              className="t--dropdown-option"
+              key={index}
+              label={option.label}
+              value={option.value}
+            >
+              {/* Show Flag if present */}
+              {option.leftElement && (
+                <FlagWrapper>{option.leftElement}</FlagWrapper>
+              )}
+
+              {/* Show icon if present */}
+              {option.icon && (
+                <Icon className="mr-1" name={option.icon} size="md" />
+              )}
+
+              {option.subText ? (
+                this.props.hideSubText ? (
+                  // Show subText below the main text eg - DatePicker control
+                  <div className="w-full flex flex-col">
+                    <Text kind="action-m">{option.label}</Text>
+                    <Text kind="action-s">{option.subText}</Text>
+                  </div>
+                ) : (
+                  // Show subText to the right side eg - Label fontsize control
+                  <div className="w-full flex justify-between items-end">
+                    <Text kind="action-m">{option.label}</Text>
+                    <Text kind="action-s">{option.subText}</Text>
+                  </div>
+                )
+              ) : (
+                // Only show the label eg - Auto height control
+                <Text kind="action-m">{option.label}</Text>
+              )}
+            </Option>
+          ))}
+        </Select>
+      </div>
     );
   }
 
-  onItemSelect = (
-    value?: string,
-    _option?: DropdownOption,
-    isUpdatedViaKeyboard?: boolean,
-  ): void => {
+  onSelect = (value?: string): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
@@ -140,15 +172,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
-      this.updateProperty(
-        this.props.propertyName,
-        selectedValue,
-        isUpdatedViaKeyboard,
-      );
+      this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
 
-  onItemRemove = (value?: string) => {
+  onDeselect = (value?: string) => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
@@ -209,6 +237,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 export interface DropDownControlProps extends ControlProps {
   options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
+  virtual?: boolean;
   placeholderText: string;
   searchPlaceholderText: string;
   isMultiSelect?: boolean;
