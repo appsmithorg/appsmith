@@ -120,6 +120,11 @@ import {
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
+import { getFormValues } from "redux-form";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "ce/constants/forms";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -703,6 +708,15 @@ export function* setActionPropertySaga(
     return;
   }
 
+  // we use the formData to crosscheck, just in case value is not updated yet.
+  const formData: Action = yield select(
+    getFormValues(
+      actionObj?.pluginType === PluginType.API
+        ? API_EDITOR_FORM_NAME
+        : QUERY_EDITOR_FORM_NAME,
+    ),
+  );
+
   AppsmithConsole.info({
     logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
@@ -725,6 +739,7 @@ export function* setActionPropertySaga(
     actionObj,
     value,
     propertyName,
+    formData,
   );
   yield all(
     Object.keys(effects).map((field) =>
@@ -736,11 +751,6 @@ export function* setActionPropertySaga(
       ),
     ),
   );
-
-  // Currently we batch update actions, which can asynchronously update the action state.
-  // As a result, when a new set action property is called, it can cause a selection of the old action state values.
-  // In order to mitigate this, we wait for all the batch updates to be successful, before allowing a new action property to be set.
-  yield take(ReduxActionTypes.BATCH_UPDATES_SUCCESS);
 
   if (propertyName === "executeOnLoad") {
     yield put({

@@ -266,7 +266,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         datasourceUrl = matches[1];
         path = `${matches[2] || ""}${matches[3] || ""}`;
       }
-    } else if (isSlightlyIncorrectFullPath) {
+    } else if (isSlightlyIncorrectFullPath && !isCorrectFullPath) {
       const matches = value.match(DATASOURCE_PATH_PARTIAL_MATCH_REGEX);
       if (matches && matches.length) {
         datasourceUrl = matches[1];

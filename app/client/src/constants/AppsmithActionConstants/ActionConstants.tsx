@@ -147,11 +147,11 @@ export interface LayoutOnLoadActionErrors {
 export const DATASOURCE_PATH_EXACT_MATCH_REGEX =
   /^(https?:\/{2}\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
 
-// Group 1 = datasource (https:/www.domain.com) or (https/www.domain.com)
+// this regex is for matching patterns that does not conform with our standards.
+// Group 1 = datasource (https:/www.domain.com) or (https:/www.domain.com) or (htt/www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const DATASOURCE_PATH_PARTIAL_MATCH_REGEX =
-  /^(https?:\/\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
+export const DATASOURCE_PATH_PARTIAL_MATCH_REGEX = /^(.*?)\/(.*?)$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params|this\?.params/g;
