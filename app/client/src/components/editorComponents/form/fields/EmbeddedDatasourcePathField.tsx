@@ -58,6 +58,7 @@ import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -274,6 +275,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       }
     } else {
       datasourceUrl = value;
+    }
+
+    // if there is a dynamic value in datasource url, make it a path.
+    if (isDynamicValue(datasourceUrl)) {
+      path = datasourceUrl + path;
+      datasourceUrl = "";
     }
 
     return {
