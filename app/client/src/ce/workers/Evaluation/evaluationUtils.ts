@@ -817,16 +817,12 @@ export const overrideWidgetProperties = (params: {
       if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
-        [entity.widgetName, ...overriddenPropertyPathArray],
+        [entityName, ...overriddenPropertyPathArray],
         clonedValue,
       );
 
       if (shouldUpdateGlobalContext) {
-        _.set(
-          self,
-          [entity.widgetName, ...overriddenPropertyPathArray],
-          clonedValue,
-        );
+        _.set(self, [entityName, ...overriddenPropertyPathArray], clonedValue);
       }
       overriddenProperties?.push(overriddenPropertyPath);
       // evalMetaUpdates has all updates from property which overrides meta values.
@@ -857,16 +853,12 @@ export const overrideWidgetProperties = (params: {
         const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          [entity.widgetName, ...propertyPathArray],
+          [entityName, ...propertyPathArray],
           clonedDefaultValue,
         );
 
         if (shouldUpdateGlobalContext) {
-          _.set(
-            self,
-            [entity.widgetName, ...propertyPathArray],
-            clonedDefaultValue,
-          );
+          _.set(self, [entityName, ...propertyPathArray], clonedDefaultValue);
         }
 
         return {

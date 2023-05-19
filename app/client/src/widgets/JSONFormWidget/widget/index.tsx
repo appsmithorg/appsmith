@@ -254,12 +254,11 @@ class JSONFormWidget extends BaseWidget<
       __setters: {
         setVisibility: {
           path: "isVisible",
-        },
-        setDisabled: {
-          path: "isDisabled",
+          type: Boolean,
         },
         setData: {
-          path: "formData",
+          path: "sourceData",
+          type: Object,
         },
       },
     };

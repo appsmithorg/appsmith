@@ -80,6 +80,11 @@ export type SetterConfig = {
   __setters: {
     [key: string]: {
       path: string;
+      type:
+        | BooleanConstructor
+        | StringConstructor
+        | ObjectConstructor
+        | NumberConstructor;
     };
   };
 };

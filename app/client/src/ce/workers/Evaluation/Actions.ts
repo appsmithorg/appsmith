@@ -16,7 +16,6 @@ import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext"
 import { klona } from "klona/full";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import { isEmpty } from "lodash";
-import { isWidget } from "./evaluationUtils";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -38,8 +37,6 @@ export enum ExecutionType {
 
 function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
   const setterMethodMap: Record<string, any> = {};
-
-  if (!isWidget(entityConfig)) return setterMethodMap;
 
   if (entityConfig.__setters) {
     for (const setterMethodName of Object.keys(entityConfig.__setters)) {
