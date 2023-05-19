@@ -73,6 +73,8 @@ import org.eclipse.jgit.util.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.util.StopWatch;
+
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -85,10 +87,14 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -1530,6 +1536,41 @@ public class GitServiceCEImpl implements GitServiceCE {
         );
     }
 
+    static class MyStopWatch {
+        private Long startTime = System.currentTimeMillis();
+        private HashMap<String, Long> taskStartTime = new HashMap<>();
+        private HashMap<String, Long> taskEndTime = new HashMap<>();
+
+        public void start(String taskName) {
+            taskStartTime.put(taskName, System.currentTimeMillis() - startTime);
+        }
+
+        public void stop(String taskName) {
+            taskEndTime.put(taskName, System.currentTimeMillis() - startTime);
+        }
+
+        public String print() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("totalTime:").append(System.currentTimeMillis() - startTime).append("\n");
+            for (String taskName : taskStartTime.keySet()) {
+                sb.append(taskName)
+                        .append(";").append(taskStartTime.get(taskName))
+                        .append(";").append(taskEndTime.getOrDefault(taskName, 0L))
+                        .append(";").append(taskEndTime.getOrDefault(taskName, 0L) - taskStartTime.get(taskName))
+                        .append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
+    private static <T> Mono<T> measureTask(MyStopWatch stopWatch, String name, Mono<T> mono) {
+        //stopWatch.start(name);
+        return mono.map(t -> {
+            stopWatch.stop(name);
+            return t;
+        }).doOnSubscribe((s) -> stopWatch.start(name));
+    }
+
     /**
      * Get the status of the mentioned branch
      *
@@ -1551,19 +1592,21 @@ public class GitServiceCEImpl implements GitServiceCE {
             2. Fetch the current status from local repo
          */
 
-        Mono<GitStatusDTO> statusMono = getGitApplicationMetadata(defaultApplicationId)
+         MyStopWatch stopWatch = new MyStopWatch();
+
+        Mono<GitStatusDTO> statusMono = measureTask(stopWatch, "getGitApplicationMetadata", getGitApplicationMetadata(defaultApplicationId))
                 .flatMap(gitApplicationMetadata -> {
 
-                    Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                    Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = measureTask(stopWatch, "findByBranchNameAndDefaultApplicationId", applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, applicationPermission.getEditPermission()))
                             .onErrorResume(error -> {
                                 //if the branch does not exist in local, checkout remote branch
-                                return checkoutBranch(defaultApplicationId, finalBranchName);
+                                return measureTask(stopWatch, "checkoutBranch", checkoutBranch(defaultApplicationId, finalBranchName));
                             })
-                            .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                            .zipWhen(application -> measureTask(stopWatch, "getStatus->exportApplicationById", importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)));
 
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock for the status API call to avoid sending wrong info on the status
-                        return redisUtils.addFileLock(gitApplicationMetadata.getDefaultApplicationId())
+                        return measureTask(stopWatch, "addFileLock", redisUtils.addFileLock(gitApplicationMetadata.getDefaultApplicationId()))
                                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY).jitter(0.75)
                                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
@@ -1584,7 +1627,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     try {
                         return Mono.zip(
-                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName),
+                                measureTask(stopWatch, "getStatus->saveApplicationToLocalRepo", fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName)),
                                 Mono.just(gitData.getGitAuth()),
                                 Mono.just(repoSuffix)
                         );
@@ -1593,15 +1636,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                 })
                 .flatMap(tuple -> {
-                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache();
+                    Mono<GitStatusDTO> branchedStatusMono = measureTask(stopWatch, "getStatus->gitExecutor.getStatus", gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache());
                     try {
-                        return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true, branchName, false)
+                        return measureTask(stopWatch, "getStatus->gitExecutor.fetchRemote", gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true, branchName, false))
                                 .then(branchedStatusMono)
                                 // Remove any files which are copied by hard resetting the repo
-                                .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
+                                .then(measureTask(stopWatch, "getStatus->gitExecutor.resetToLastCommit", gitExecutor.resetToLastCommit(tuple.getT3(), branchName)))
                                 .flatMap(gitStatusDTO -> {
                                     if (Boolean.TRUE.equals(isFileLock)) {
-                                        return releaseFileLock(defaultApplicationId)
+                                        return measureTask(stopWatch, "getStatus->releaseFileLock", releaseFileLock(defaultApplicationId))
                                                 .then(branchedStatusMono);
                                     }
                                     return branchedStatusMono;
@@ -1613,7 +1656,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         return Mono.create(sink -> {
-            statusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+            statusMono.map(t -> {
+                log.debug("{}}", stopWatch.print());
+                return t;
+            }).subscribe(sink::success, sink::error, null, sink.currentContext());
         });
     }
 
