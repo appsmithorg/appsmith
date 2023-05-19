@@ -89,10 +89,13 @@ jobs:
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: actions/download-artifact@v3
+        uses: martijnhols/actions-cache/restore@v3
         with:
-          name: combined_failed_spec_ci
-          path: ~/combined_failed_spec_ci
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
             
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
