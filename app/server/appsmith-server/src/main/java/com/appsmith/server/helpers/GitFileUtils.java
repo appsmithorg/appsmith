@@ -5,7 +5,7 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
@@ -463,7 +463,7 @@ public class GitFileUtils {
         }
 
         // Extract datasources
-        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), DatasourceStorage.class));
 
         return applicationJson;
     }

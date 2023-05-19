@@ -892,8 +892,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasourceStorage.setDatasourceConfiguration(null);
                                     datasourceStorage.setPluginId(null);
                                     datasourceStorage.setEnvironmentId(environmentId);
+                                    Datasource newDatasource = new Datasource(datasourceStorage);
+                                    newDatasource.setPolicies(null);
 
-                                    copyNestedNonNullProperties(new Datasource(datasourceStorage), existingDatasource);
+                                    copyNestedNonNullProperties(newDatasource, existingDatasource);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService.save(existingDatasource);
