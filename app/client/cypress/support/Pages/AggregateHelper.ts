@@ -1189,8 +1189,14 @@ export class AggregateHelper {
   // with the same name.
   public EnableAllCodeEditors() {
     cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
-    cy.get(this.lazyCodeEditorRendered).each(($el) => {
-      cy.wrap($el).find(".CodeMirror").should("exist");
+    // Code editors might not always be present on the page, so we need to check for their existence first
+    // (https://docs.cypress.io/guides/core-concepts/conditional-testing#Element-existence)
+    cy.get("body").then(($body) => {
+      if ($body.find(this.lazyCodeEditorRendered).length === 0) return;
+
+      return cy.get(this.lazyCodeEditorRendered).each(($el) => {
+        cy.wrap($el).find(".CodeMirror").should("exist");
+      });
     });
   }
 
