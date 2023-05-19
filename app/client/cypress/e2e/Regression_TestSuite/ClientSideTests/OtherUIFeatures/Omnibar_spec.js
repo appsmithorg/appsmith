@@ -59,7 +59,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.wait(1000);
     // click on open documention from error tab
-    cy.get(commonlocators.debuggerDescription).next().click({ multiple: true });
+    cy.get(commonlocators.debuggerDescription).next().first().click();
     cy.xpath(commonlocators.openDocumentationfromErrorTab)
       .first()
       .click({ force: true });
@@ -78,7 +78,7 @@ describe("Omnibar functionality test cases", () => {
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
     );
-    cy.get(omnibar.categoryTitle).contains("Create New").click();
+    cy.get(omnibar.categoryTitle).contains("Create new").click();
 
     // create new api, js object and cURL import from omnibar
     cy.get(omnibar.createNew).contains("New JS object").click();
@@ -88,7 +88,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).contains("Create New").click();
+    cy.get(omnibar.categoryTitle).contains("Create new").click();
     cy.wait(1000);
     cy.get(omnibar.createNew).contains("New blank API").click();
     cy.wait(1000);
@@ -169,7 +169,7 @@ describe("Omnibar functionality test cases", () => {
       //cy.get(omnibar.category).click()
       cy.get(omnibar.globalSearch).click({ force: true });
       cy.get(omnibar.categoryTitle)
-        .contains("Search Documentation")
+        .contains("Search documentation")
         .click({ force: true });
       cy.get(omnibar.openDocumentationLink)
         .invoke("removeAttr", "target")

@@ -292,6 +292,7 @@ export class EntityExplorer {
     } else {
       cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
     }
+    this.agHelper.Sleep(200); //waiting a bit for widget properties to open
   }
 
   public ClonePage(pageName = "Page1") {

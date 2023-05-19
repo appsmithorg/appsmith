@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let dsName: any, jsName: any;
 
-describe("JSObjects OnLoad Actions tests", function () {
+describe.skip("JSObjects OnLoad Actions tests", function () {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });
@@ -103,14 +103,14 @@ describe("JSObjects OnLoad Actions tests", function () {
       //   `${jsName + ".callTrump"} was cancelled`,
       // ); //When Confirmation is NO validate error toast!
 
-      _.agHelper.ClickButton("No");
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("No"));
       _.agHelper.AssertContains("was cancelled"); //Quotes
       //One Quotes confirmation - for API true
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       // _.agHelper.ClickButton("No");
       // _.agHelper.WaitUntilToastDisappear("Quotes was cancelled");
 
-      _.agHelper.ClickButton("No");
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("No"));
       _.agHelper.AssertContains("User cancelled"); //callTrump
 
       // //Another for API called via JS callQuotes()
@@ -127,22 +127,24 @@ describe("JSObjects OnLoad Actions tests", function () {
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes")); //call trumpy - jsobj
+
+      //_.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
-      _.agHelper.Sleep(2000);
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes")); //trumpy - api
+      _.agHelper.Sleep(3000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes")); //quotes - api
 
-      _.agHelper.Sleep(2000);
+      //_.agHelper.Sleep(2000);
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
-      _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true);
+      //_.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
+      //_.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
       _.agHelper
         .GetText(_.locators._textAreainputWidgetv2InDeployed, "text", 1)

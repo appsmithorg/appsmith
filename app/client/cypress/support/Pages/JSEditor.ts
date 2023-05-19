@@ -96,6 +96,10 @@ export class JSEditor {
       selector ? `${selector} ` : ""
     }.CodeMirror-line:nth-child(${lineNumber})`;
   _logsTab = "[data-testid=t--tab-LOGS_TAB]";
+  _confirmationModalBtns = (text: string) =>
+    "//div[@data-testid='t--query-run-confirmation-modal']//span[text()='" +
+    text +
+    "']/ancestor::button[@type='button']";
   //#endregion
 
   //#region constants
@@ -214,6 +218,7 @@ export class JSEditor {
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
+    this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 

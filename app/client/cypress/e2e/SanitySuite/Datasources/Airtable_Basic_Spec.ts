@@ -17,7 +17,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     //List all records
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Please select an option.",
+      "Please select an option",
       "List Records",
     );
 

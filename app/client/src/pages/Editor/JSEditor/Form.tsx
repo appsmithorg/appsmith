@@ -83,7 +83,7 @@ type Props = JSFormProps;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 50px);
+  height: calc(100% - 64px);
   width: 100%;
 `;
 

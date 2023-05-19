@@ -848,7 +848,9 @@ export class AggregateHelper {
   }
 
   public ClearInputText(name: string, isInput = true) {
-    cy.xpath(this.locator._inputWidgetValueField(name, isInput)).clear();
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput)).clear({
+      force: true,
+    });
   }
 
   public UpdateCodeInput(selector: string, value: string) {

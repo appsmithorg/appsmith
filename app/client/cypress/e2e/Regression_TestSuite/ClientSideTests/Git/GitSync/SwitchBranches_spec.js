@@ -1,10 +1,6 @@
-import pages from "../../../../../locators/Pages.json";
 import commonLocators from "../../../../../locators/commonlocators.json";
 import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePage from "../../../../../locators/HomePage";
-import jsActions from "../../../../../locators/jsActionLocators.json";
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let parentBranchKey = "ParentBranch",
@@ -29,7 +25,7 @@ describe("Git sync:", function () {
   });
 
   it("1. create branch input", function () {
-    cy.get(commonLocators.canvas).click({ force: true });
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
@@ -65,7 +61,7 @@ describe("Git sync:", function () {
     });
 
     _.entityExplorer.AddNewPage();
-    _.entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1");
+    _.entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
     _.dataSources.NavigateToDSCreateNew();
     _.apiPage.CreateApi("ParentApi1");
     _.jsEditor.CreateJSObject();
@@ -78,7 +74,7 @@ describe("Git sync:", function () {
       childBranchKey = branName;
     });
     _.entityExplorer.AddNewPage();
-    _.entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1");
+    _.entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
     _.dataSources.NavigateToDSCreateNew();
     _.apiPage.CreateApi("ChildApi1");
     _.jsEditor.CreateJSObject();
@@ -112,9 +108,14 @@ describe("Git sync:", function () {
     _.entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
+      true,
     );
     _.entityExplorer.SelectEntityByName("ParentApi1", "Queries/JS");
-    _.entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
+    _.entityExplorer.RenameEntityFromExplorer(
+      "ParentApi1",
+      "ParentApiRenamed",
+      true,
+    );
 
     cy.switchGitBranch(parentBranchKey);
 

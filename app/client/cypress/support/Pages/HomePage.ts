@@ -142,8 +142,12 @@ export class HomePage {
   }
 
   public RenameWorkspace(oldName: string, newWorkspaceName: string) {
-    this.agHelper.AssertContains(oldName, "exist", this._workspaceNameText);
-    this.agHelper.GetNClick(this._optionsIconInWorkspace(oldName));
+    cy.xpath(this._workSpaceByName(oldName))
+      .last()
+      .closest(this._workspaceCompleteSection)
+      .scrollIntoView()
+      .find(this._optionsIcon)
+      .click({ force: true });
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
       .type(newWorkspaceName.concat("{enter}"), { delay: 0 });

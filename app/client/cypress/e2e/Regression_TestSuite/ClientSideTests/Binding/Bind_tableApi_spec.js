@@ -49,6 +49,13 @@ describe("Test Create Api and Bind to Table widget", function () {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
     cy.get(commonlocators.backToEditor).click();
+
+    cy.wait("@postExecute").then((interception) => {
+      apiData = JSON.stringify(interception.response.body.data.body[0].name);
+    });
+    cy.readTabledataPublish("0", "5").then((tabData) => {
+      expect(apiData).to.eq(`\"${tabData}\"`);
+    });
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
@@ -58,11 +65,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.togglebarDisable(
       ".t--property-control-enableclientsidesearch input[type='checkbox']",
     );
+
     cy.get(".t--widget-tablewidget .t--search-input").first().type("Currey");
+    cy.wait(1000);
+
+    // Captures the API call made on search
     cy.wait("@postExecute").then((interception) => {
       apiData = JSON.stringify(interception.response.body.data.body[0].name);
     });
-    cy.wait(5000);
     cy.readTabledataPublish("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
