@@ -534,6 +534,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 })
                 .flatMap(toDelete -> {
                     return datasourceStorageService.findStrictlyByDatasourceId(toDelete.getId())
+                            .map(datasourceStorage -> {
+                                datasourceStorage.prepareTransientFields(toDelete);
+                                return datasourceStorage;
+                            })
                             .flatMap(datasourceStorage -> {
                                 return datasourceContextService.deleteDatasourceContext(datasourceStorage)
                                         .then(datasourceStorageService.archive(datasourceStorage));
