@@ -46,16 +46,16 @@ jobs:
         uses: depot/setup-action@v1
 
       # Check out merge commit
-#       - name: Fork based /ok-to-test checkout
-#         if: inputs.pr != 0
-#         uses: actions/checkout@v3
-#         with:
-#           fetch-depth: 0
-#           ref: "refs/pull/${{ inputs.pr }}/merge"
+      - name: Fork based /ok-to-test checkout
+        if: inputs.pr != 0
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-#         if: inputs.pr == 0
+        if: inputs.pr == 0
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -107,16 +107,10 @@ jobs:
           echo "$specs_to_run" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-#       - name: Download Docker image artifact
-#         uses: actions/download-artifact@v3
-#         with:
-#           name: cicontainer
-
       - name: Download Docker image artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: cicontainer
-          run_id: 5024686902
 
       - name: Load Docker image from tar file
         run: |
