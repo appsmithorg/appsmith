@@ -18,7 +18,9 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
-import static com.external.plugins.MssqlTestDBContainerManager.*;
+import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
+import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
+import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
