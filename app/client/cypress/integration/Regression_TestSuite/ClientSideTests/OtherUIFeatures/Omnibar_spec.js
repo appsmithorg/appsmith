@@ -78,7 +78,7 @@ describe("Omnibar functionality test cases", () => {
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
     );
-    cy.get(omnibar.categoryTitle).eq(1).click();
+    cy.get(omnibar.categoryTitle).contains("Create New").click();
 
     // create new api, js object and cURL import from omnibar
     cy.get(omnibar.createNew).contains("New JS Object").click();
@@ -88,7 +88,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(1).click();
+    cy.get(omnibar.categoryTitle).contains("Create New").click();
     cy.wait(1000);
     cy.get(omnibar.createNew).contains("New Blank API").click();
     cy.wait(1000);
@@ -96,7 +96,8 @@ describe("Omnibar functionality test cases", () => {
     cy.renameWithInPane(apiName);
 
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(1).click();
+    cy.get(omnibar.categoryTitle).contains("Create New").click();
+    cy.wait(1000);
     cy.get(omnibar.createNew).contains("New cURL Import").click();
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
@@ -132,7 +133,7 @@ describe("Omnibar functionality test cases", () => {
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(0).click();
+    cy.get(omnibar.categoryTitle).contains("Navigate").click();
     // verify recently opened items with their subtext i.e page name
     cy.xpath(omnibar.recentlyopenItem)
       .eq(0)
@@ -167,7 +168,9 @@ describe("Omnibar functionality test cases", () => {
     function () {
       //cy.get(omnibar.category).click()
       cy.get(omnibar.globalSearch).click({ force: true });
-      cy.get(omnibar.categoryTitle).eq(3).click({ force: true });
+      cy.get(omnibar.categoryTitle)
+        .contains("Search Documentation")
+        .click({ force: true });
       cy.get(omnibar.openDocumentationLink)
         .invoke("removeAttr", "target")
         .click()
