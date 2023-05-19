@@ -201,6 +201,10 @@ public class Application extends BaseDomain {
     @Deprecated
     String defaultPermissionGroup;
 
+    @JsonView(Views.Public.class)
+    @Transient
+    String latestSnapshotTime;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
