@@ -16,29 +16,18 @@ export class PeekOverlay {
   };
   private readonly agHelper = ObjectsRegistry.AggregateHelper;
 
-  // Please skip for now - testing on CI because local setup doesn't work
   HoverCode(lineNumber: number, tokenNumber: number, verifyText: string) {
     this.agHelper
-      .GetElement(
-        `(//pre[contains(@class, "CodeMirror-line")])[${lineNumber}]/span/span[${tokenNumber}]`,
-      )
+      .GetElement(".CodeMirror-line")
+      .eq(lineNumber)
+      .children()
+      .children()
+      .eq(tokenNumber)
       .should("have.text", verifyText)
-      .realHover();
-    this.agHelper
-      .GetElement(
-        `(//pre[contains(@class, "CodeMirror-line")])[${lineNumber}]/span/span[${tokenNumber}]`,
-      )
-      .invoke("val")
-      .then((val) => val && cy.log("mouse over triggered " + val.toString()));
-    // this.agHelper
-    //   .GetElement(".CodeMirror-line > span")
-    //   .eq(lineNumber)
-    //   .children(".cm-m-javascript")
-    //   .eq(tokenNumber)
-    //   .should("have.text", verifyText)
-    //   .trigger("mouseover");
-    //   .then((el: any) => el.realHover());
-    this.agHelper.Sleep(1000);
+      .then(($el) => {
+        const pos = $el[0].getBoundingClientRect();
+        this.HoverByPosition({ x: pos.left, y: pos.top });
+      });
   }
 
   IsOverlayOpen(checkIsOpen = true) {
@@ -47,8 +36,15 @@ export class PeekOverlay {
       : this.agHelper.AssertElementAbsence(this.locators._overlayContainer);
   }
 
+  HoverByPosition(position: { x: number; y: number }) {
+    this.agHelper.GetElement("body").realHover({ position });
+    this.agHelper.Sleep();
+  }
+
   ResetHover() {
-    this.agHelper.GetElement("body").realHover({ position: "bottomLeft" });
+    this.agHelper
+      .GetElement(".CodeMirror-code")
+      .realHover({ position: "bottomLeft" });
     this.agHelper.Sleep();
   }
 
