@@ -130,14 +130,6 @@ function WidgetQueryGeneratorForm(props: Props) {
 
     setConfig(
       produce(config, (draftConfig) => {
-        if (typeof property === "string") {
-          set(draftConfig, property, value);
-        } else {
-          Object.entries(property).forEach(([name, value]) => {
-            set(draftConfig, name, value);
-          });
-        }
-
         if (
           property === "datasource" ||
           (typeof property === "object" &&
@@ -168,6 +160,14 @@ function WidgetQueryGeneratorForm(props: Props) {
         ) {
           set(draftConfig, "searchableColumn", "");
           set(draftConfig, "alias", {});
+        }
+
+        if (typeof property === "string") {
+          set(draftConfig, property, value);
+        } else {
+          Object.entries(property).forEach(([name, value]) => {
+            set(draftConfig, name, value);
+          });
         }
       }),
     );

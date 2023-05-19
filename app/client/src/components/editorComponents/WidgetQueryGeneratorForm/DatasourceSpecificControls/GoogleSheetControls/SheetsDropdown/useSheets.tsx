@@ -12,11 +12,17 @@ import {
 } from "selectors/datasourceSelectors";
 import { getDatasource } from "selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getWidget } from "sagas/selectors";
 
 export function useSheets() {
   const dispatch = useDispatch();
 
-  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const { config, propertyName, updateConfig, widgetId } = useContext(
+    WidgetQueryGeneratorFormContext,
+  );
+
+  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
   const selectedDatasource = useSelector((state: AppState) =>
     getDatasource(state, config.datasource),
@@ -52,6 +58,16 @@ export function useSheets() {
           }),
         );
       }
+
+      AnalyticsUtil.logEvent("GENERATE_QUERY_SELECT_SHEET_GSHEET", {
+        widgetName: widget.widgetName,
+        widgetType: widget.type,
+        propertyName: propertyName,
+        dataTableName: config.table,
+        sheetName: sheetObj.value,
+        pluginType: config.datasourcePluginType,
+        pluginName: config.datasourcePluginName,
+      });
     },
     [config, updateConfig, dispatch],
   );

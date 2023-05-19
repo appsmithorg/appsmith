@@ -356,7 +356,8 @@ export type ONE_CLICK_BINDING_EVENT_NAMES =
   | "GENERATE_QUERY_CONNECT_DATA_CLICK"
   | "QUERY_GENERATION_BINDING_SUCCESS"
   | "1_CLICK_BINDING_SUCCESS"
-  | "WIDGET_CONNECT_DATA_CLICK";
+  | "WIDGET_CONNECT_DATA_CLICK"
+  | "GENERATE_QUERY_SELECT_SHEET_GSHEET";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
