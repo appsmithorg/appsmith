@@ -292,15 +292,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       __setters: {
         setVisibility: {
           path: "isVisible",
-          type: String,
+          type: "string",
         },
         setSelectedRowIndex: {
           path: "defaultSelectedRowIndex",
-          type: Number,
+          type: "number",
         },
         setData: {
           path: "tableData",
-          type: Object,
+          type: "object",
         },
       },
     };

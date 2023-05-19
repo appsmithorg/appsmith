@@ -71,6 +71,7 @@ function getSetterConfig(
       for (const setterMethodName of Object.keys(setterConfig.__setters)) {
         modifiedSetterConfig.__setters[setterMethodName] = {
           path: `${widget.widgetName}.${setterConfig.__setters[setterMethodName].path}`,
+          type: setterConfig.__setters[setterMethodName].type,
         };
       }
     }
@@ -100,13 +101,20 @@ function getSetterConfig(
         const settersMap = subConfig.__setters;
         if (!settersMap) continue;
 
-        for (const [setterName, setterBody] of Object.entries(settersMap)) {
+        const entries = Object.entries(settersMap) as [
+          string,
+          Record<string, unknown>,
+        ][];
+        for (const [setterName, setterBody] of entries) {
           const path = (setterBody as any).path.replace(lastElement, accesskey);
           const setterPathArray = path.split(".");
           setterPathArray.pop();
           setterPathArray.push(setterName);
           const setterPath = setterPathArray.join(".");
-          modifiedSetterConfig.__setters[setterPath] = { path };
+          modifiedSetterConfig.__setters[setterPath] = {
+            path,
+            type: setterBody.type,
+          };
         }
       }
     }

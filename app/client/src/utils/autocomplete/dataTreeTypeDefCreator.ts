@@ -234,8 +234,10 @@ export function addSettersToDefinitions(
   if (entityConfig && entityConfig.__setters) {
     const setters = Object.keys(entityConfig.__setters);
 
-    setters.forEach((setter: string) => {
-      definitions[setter] = "fn()";
+    setters.forEach((setterName: string) => {
+      const setterType = entityConfig.__setters?.[setterName].type;
+
+      definitions[setterName] = `fn(value:${setterType})`;
     });
   }
 }
