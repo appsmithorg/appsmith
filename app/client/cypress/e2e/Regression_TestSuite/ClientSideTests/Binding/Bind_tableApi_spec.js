@@ -67,6 +67,7 @@ describe("Test Create Api and Bind to Table widget", function () {
         apiData = JSON.stringify(interception.response.body.data.body[0].name);
       });
     });
+
     cy.readTabledataPublish("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
