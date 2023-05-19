@@ -39,17 +39,12 @@ export const entityMarker: MarkHelper = (
       });
     }
   } else {
-    const startTime = performance.now();
     markers = editor.getAllMarks();
     clearMarkers(markers);
 
     editor.eachLine((line: CodeMirror.LineHandle) => {
       addMarksForLine(editor, line, entityNavigationData);
     });
-    const endTime = performance.now();
-    console.log("Marking time", endTime - startTime);
-    console.log("Marking count", editor.getAllMarks().length);
-    console.log("---------Marking");
   }
 };
 

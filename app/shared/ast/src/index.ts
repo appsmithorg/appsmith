@@ -2,7 +2,7 @@ import type { Node, SourceLocation, Options, Comment } from "acorn";
 import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
-import { has, isFinite, isString, memoize, toPath } from "lodash";
+import { has, isFinite, isString, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject/index";
 import { attachComments } from "astravel";

@@ -648,14 +648,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleMouseOver = (event: MouseEvent) => {
-    event.target instanceof Element &&
-      console.log(
-        "mouse over triggered",
-        event.clientX,
-        event.clientY,
-        event.target.innerHTML,
-      );
-    const startTime = performance.now();
     const tokenElement = event.target;
     if (
       tokenElement instanceof Element &&
@@ -671,18 +663,12 @@ class CodeEditor extends Component<Props, State> {
         this.peekOverlayExpressionIdentifier.updateScript(
           this.editor.getValue(),
         );
-        const endTime = performance.now();
-        console.log("ast time - parsing", endTime - startTime);
       }
 
       this.peekOverlayExpressionIdentifier
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
-          console.log("editor mode handle", this.editor.getMode());
           if (lineExpression) {
-            const endTime = performance.now();
-            console.log("ast time - expression extract", endTime - startTime);
-            console.log("---------------------ast time -");
             if (
               // global variables and functions
               // JsObject1, storeValue()
