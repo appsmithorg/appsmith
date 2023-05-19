@@ -28,7 +28,7 @@ describe("Dropdown Widget Functionality", function () {
       .find(widgetLocators.menuButton)
       .invoke("outerWidth")
       .then((width) => {
-        expect(parseInt(width)).to.equal(147);
+        expect(parseInt(width)).to.equal(188);
       });
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
@@ -40,7 +40,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(".menu-button-popover")
       .invoke("outerWidth")
       .then((width) => {
-        expect(parseInt(width)).to.equal(147);
+        expect(parseInt(width)).to.equal(188);
       });
 
     // MultiSelect

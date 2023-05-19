@@ -76,7 +76,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@data-testid='t--dropdown-actionConfiguration.formData.command.data']";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
@@ -90,7 +90,8 @@ export class DataSources {
   _newDatabases = "#new-datasources";
   _newDatasourceContainer = "#new-integrations-wrapper";
   _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";
-  _selectTableDropdown = "[data-testid=t--table-dropdown]";
+  _selectTableDropdown =
+    "[data-testid=t--table-dropdown] .rc-select-selection-item";
   _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
   _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
   _dropdownOption = ".rc-select-item-option-content";
@@ -221,7 +222,7 @@ export class DataSources {
       this.locator._dropdownText,
       datasourceName,
     );
-    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
@@ -235,7 +236,8 @@ export class DataSources {
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 0);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.Sleep(500);
+    this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("public.users")`,
     ).click();
@@ -377,7 +379,11 @@ export class DataSources {
 
   public NavigateToDSCreateNew() {
     this.ee.HoverOnEntityItem("Datasources");
-    this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+    Cypress._.times(2, () => {
+      this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+      this.agHelper.Sleep();
+    });
+
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
@@ -482,12 +488,12 @@ export class DataSources {
 
   public FillAirtableDSForm() {
     this.ValidateNSelectDropdown(
-      "Authentication type",
-      "Please select an option.",
-      "Bearer token",
+      "Authentication Type",
+      "Please select an option",
+      "Bearer Token",
     );
     this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Bearer token"),
+      this.locator._inputFieldByName("Bearer Token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
@@ -700,13 +706,8 @@ export class DataSources {
     );
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Delete"),
-      0,
-      false,
-      200,
-    );
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
+    this.agHelper.GetNClick(this._deleteDatasourceButton, 0, false, 200); //Delete
+    this.agHelper.GetNClick(this._deleteDatasourceButton, 0, false, 200); //Are you sure?
     this.ValidateDSDeletion(expectedRes);
   }
 
@@ -788,7 +789,8 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
+      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      //cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
       //to expand the dropdown
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }

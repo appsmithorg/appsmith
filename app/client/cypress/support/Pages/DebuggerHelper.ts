@@ -13,7 +13,7 @@ export class DebuggerHelper {
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   // ActionExecutionResizerHeight -> in repo
-  private readonly bottomPaneHeight = 330;
+  private readonly bottomPaneHeight = 360;
   // from design system
   private readonly TAB_MIN_HEIGHT = 36;
 

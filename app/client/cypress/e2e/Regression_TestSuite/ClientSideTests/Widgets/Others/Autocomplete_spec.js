@@ -129,10 +129,10 @@ describe("Autocomplete using slash command and mustache tests", function () {
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
-          .should("have.text", "New Binding");
+          .should("have.text", "New binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(2)
-          .should("have.text", "Insert Snippet");
+          .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");

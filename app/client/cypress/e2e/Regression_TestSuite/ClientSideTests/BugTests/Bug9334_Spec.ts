@@ -25,15 +25,15 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "astronauts");
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
     //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad();
 
     //CRUD page 3
@@ -43,15 +43,15 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "country");
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
     //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad();
   });
   it("2. Navigate & Assert toast", () => {

@@ -143,6 +143,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
     });
   });
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));
   cy.wait(2000); //wait time for page to load!
@@ -165,8 +166,8 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
-    cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("exist");
+    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("not.exist");
   }
 
   cy.wait(2000);

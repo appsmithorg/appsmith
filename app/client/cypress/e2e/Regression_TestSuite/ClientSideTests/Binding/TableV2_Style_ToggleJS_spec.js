@@ -72,12 +72,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("7. Table widget toggle test for background color", function () {
     cy.moveToStyleTab();
     agHelper.Sleep();
-    //propPane.EnterJSContext("Cell background", testdata.bindingTextColor);
-    cy.get(widgetsPage.toggleJsBcgColor).click({ force: true });
-    cy.updateCodeInput(
-      ".t--property-control-cellbackground",
-      testdata.bindingTextColor,
-    );
+    propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",

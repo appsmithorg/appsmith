@@ -54,15 +54,18 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
+    // Captures the API call made on loading the page so that we ignore it
+    cy.wait("@postExecute");
     cy.openPropertyPane("tablewidgetv2");
     cy.togglebarDisable(
       ".t--property-control-clientsidesearch input[type='checkbox']",
     );
     cy.get(".t--widget-tablewidgetv2 .t--search-input").first().type("Currey");
+    cy.wait(1000);
+    // Captures the API call made on search
     cy.wait("@postExecute").then((interception) => {
       apiData = JSON.stringify(interception.response.body.data.body[0].name);
     });
-    cy.wait(5000);
     cy.readTableV2dataPublish("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });

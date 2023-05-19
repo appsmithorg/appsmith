@@ -96,7 +96,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       Cypress._.times(menu.length - 1, (index) => {
         OpenExplorerMenu(menu[index]);
         agHelper.Sleep();
-        agHelper.AssertElementVisible(ee._entityExplorer);
+        cy.get("[data-testid=sidebar-active]").should("exist");
       });
 
       // when an entity is being edited

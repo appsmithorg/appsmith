@@ -39,6 +39,8 @@ describe("Execute Action Functionality", function () {
       "User count :10",
     );
 
+    cy.wait(2000);
+
     cy.get("@postExecute.all")
       .then((respBody) => {
         const totalRequests = [
@@ -54,6 +56,8 @@ describe("Execute Action Functionality", function () {
       locator._widgetInDeployed("textwidget"),
       "User count :5",
     );
+
+    cy.wait(2000);
 
     cy.get("@postExecute.all")
       .then((respBody) => {

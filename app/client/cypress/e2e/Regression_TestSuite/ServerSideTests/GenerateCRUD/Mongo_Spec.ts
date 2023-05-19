@@ -35,7 +35,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
       "http://www.serebii.net/pokemongo/pokemon/150.png",
@@ -65,7 +65,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
-    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
     deployMode.NavigateBacktoEditor();
@@ -92,9 +92,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table
