@@ -284,6 +284,14 @@ public class UserSignupCEImpl implements UserSignupCE {
                                 return pair.getT2();
                             });
 
+                    /*
+                     * Here, we have decided to move these 2 analytics events to a separate thread.
+                     * - create superuser event
+                     * - installation setup event
+                     * These 2 events have been put in a separate thread, because both of them don't have any impact
+                     * on the user flow, but one of them (installation setup event) is causing performance impact
+                     * when creating superuser (performance impact is because of an external network call in NetworkUtils.getExternalAddress()).
+                     */
                     Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
 
                     Mono<Boolean> installationSetupAnalyticsMono = sendInstallationSetupAnalyticsOnSeparateThreadMono(userFromRequest, user, userData);
