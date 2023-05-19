@@ -9,11 +9,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { builderURL } from "RouteBuilder";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import {
-  getCurrentPageDescription,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import HtmlTitle from "../../AppViewerHtmlTitle";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";
 import ApplicationName from "./ApplicationName";
 import ShareButton from "./ShareButton";
@@ -62,7 +58,6 @@ const TopHeader = (props: TopHeaderProps) => {
     "properties.colors.primaryColor",
     "inherit",
   );
-  const description = useSelector(getCurrentPageDescription);
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
 
@@ -73,10 +68,6 @@ const TopHeader = (props: TopHeaderProps) => {
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
-      <HtmlTitle
-        description={description}
-        name={currentApplicationDetails?.name}
-      />
       <HeaderRow
         className="relative h-12 px-3 md:px-6"
         navColorStyle={navColorStyle}

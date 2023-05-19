@@ -140,6 +140,7 @@ function DataControlComponent(props: RenderComponentProps) {
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <LazyCodeEditor
+          AIAssisted
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={expectedSeriesName}
@@ -188,6 +189,7 @@ function DataControlComponent(props: RenderComponentProps) {
         className={"t--property-control-chart-series-data-control"}
       >
         <LazyCodeEditor
+          AIAssisted
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={expectedSeriesData}

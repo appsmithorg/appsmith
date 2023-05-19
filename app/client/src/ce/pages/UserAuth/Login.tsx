@@ -38,7 +38,6 @@ import {
   ForgotPasswordLink,
 } from "pages/UserAuth/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -46,8 +45,10 @@ import PerformanceTracker, {
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
-const { disableLoginForm } = getAppsmithConfigs();
+import {
+  getThirdPartyAuths,
+  getIsFormLoginEnabled,
+} from "@appsmith/selectors/tenantSelectors";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
@@ -85,6 +86,7 @@ export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   const queryParams = new URLSearchParams(location.search);
   const invalidCredsForgotPasswordLinkText = createMessage(
@@ -114,7 +116,7 @@ export function Login(props: LoginFormProps) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
 
-  const footerSection = !disableLoginForm && (
+  const footerSection = isFormLoginEnabled && (
     <div className="px-2 py-4 text-base text-center border-b">
       {createMessage(NEW_TO_APPSMITH)}
       <Link
@@ -161,7 +163,7 @@ export function Login(props: LoginFormProps) {
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
       )}
-      {!disableLoginForm && (
+      {isFormLoginEnabled && (
         <>
           <SpacedSubmitForm action={loginURL} method="POST">
             <FormGroup
