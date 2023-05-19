@@ -31,5 +31,9 @@ const StyledProvider = styled.div<ThemeProviderProps>`
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, ...rest } = props;
 
-  return <StyledProvider {...rest}>{children}</StyledProvider>;
+  return (
+    <StyledProvider data-theme-provider="" {...rest}>
+      {children}
+    </StyledProvider>
+  );
 };

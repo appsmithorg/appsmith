@@ -212,7 +212,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgAssistive() {
-    return "#282828";
+    return this.fg.clone();
   }
 
   /*
@@ -281,7 +281,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get fgOnAssistive() {
-    return "#fff";
+    return this.bg.clone();
   }
 
   /*

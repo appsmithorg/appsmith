@@ -50,6 +50,7 @@ export function useTooltip({
   const data = useFloating({
     placement,
     open,
+    strategy: "fixed",
     onOpenChange: setOpen,
     whileElementsMounted: autoUpdate,
     middleware: [

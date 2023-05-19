@@ -117,7 +117,7 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAssistive() {
-    return "#fff";
+    return this.fg.clone();
   }
 
   /*
@@ -186,7 +186,7 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get fgOnAssistive() {
-    return "#000";
+    return this.bg.clone();
   }
 
   private get bdAccent() {

@@ -8,7 +8,7 @@ import {
 import { useTooltipContext } from "./TooltipContext";
 
 export type TooltipContentProps = React.HTMLAttributes<HTMLDivElement> & {
-  portalId?: string;
+  root?: HTMLElement;
 };
 export type TooltipContentRef = React.Ref<HTMLDivElement>;
 
@@ -17,14 +17,18 @@ export const TooltipContent = React.forwardRef(function TooltipContent(
   propRef: TooltipContentRef,
 ) {
   const context = useTooltipContext();
-  const { portalId, ...rest } = props;
+  const { root: rootProp, ...rest } = props;
   const ref = useMergeRefs([context.refs.setFloating, propRef]);
   const { children, ...floatingProps } = context.getFloatingProps(rest);
 
   if (!context.open) return null;
 
+  const root = context.refs.domReference.current?.closest(
+    "[data-theme-provider]",
+  ) as HTMLElement;
+
   return (
-    <FloatingPortal id={portalId}>
+    <FloatingPortal root={rootProp ?? root}>
       <div
         data-tooltip-content=""
         ref={ref}
