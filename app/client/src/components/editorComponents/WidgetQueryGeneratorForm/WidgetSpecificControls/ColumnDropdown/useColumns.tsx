@@ -1,5 +1,5 @@
 import React from "react";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import { Icon, IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
@@ -19,11 +19,15 @@ import {
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getWidget } from "sagas/selectors";
 
 export function useColumns(alias: string) {
-  const { config, updateConfig, widgetId } = useContext(
+  const { config, propertyName, updateConfig, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
+
+  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
   const isLoading = useSelector(getIsFetchingGsheetsColumns);
 
@@ -109,6 +113,16 @@ export function useColumns(alias: string) {
   const onSelect = useCallback(
     (column, columnObj) => {
       updateConfig(alias, columnObj.value);
+
+      AnalyticsUtil.logEvent(`GENERATE_QUERY_SET_COLUMN`, {
+        columnAlias: alias,
+        columnName: columnObj.value,
+        widgetName: widget.widgetName,
+        widgetType: widget.type,
+        propertyName: propertyName,
+        pluginType: config.datasourcePluginType,
+        pluginName: config.datasourcePluginName,
+      });
     },
     [updateConfig, alias],
   );

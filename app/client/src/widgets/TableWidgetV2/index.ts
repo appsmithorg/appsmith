@@ -18,7 +18,6 @@ export const CONFIG = {
   needsMeta: true,
   needsHeightForContent: true,
   defaults: {
-    pristine: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,

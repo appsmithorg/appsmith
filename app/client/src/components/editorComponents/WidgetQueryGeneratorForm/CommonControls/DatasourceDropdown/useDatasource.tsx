@@ -19,6 +19,7 @@ import {
   getMockDatasources,
   getPluginIdPackageNamesMap,
   getPluginImages,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
@@ -30,6 +31,9 @@ import { invert } from "lodash";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "./DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getWidget } from "sagas/selectors";
+import type { AppState } from "@appsmith/reducers";
 
 export function useDatasource() {
   const {
@@ -39,6 +43,7 @@ export function useDatasource() {
     errorMsg,
     isSourceOpen,
     onSourceClose,
+    propertyName,
     propertyValue,
     updateConfig,
     widgetId,
@@ -57,6 +62,10 @@ export function useDatasource() {
   const isDatasourceLoading = useSelector(getDatasourceLoading);
 
   const mockDatasources: MockDatasource[] = useSelector(getMockDatasources);
+
+  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+
+  const plugins = useSelector(getPlugins);
 
   const [actualDatasourceOptions, mockDatasourceOptions] = useMemo(() => {
     const availableDatasources = datasources.filter(({ pluginId }) =>
@@ -92,7 +101,14 @@ export function useDatasource() {
           ) {
             if (config.datasource !== valueOption?.id) {
               const pluginId: string = valueOption?.data.pluginId;
-              updateConfig("datasource", valueOption?.id);
+
+              const plugin = plugins.find((d) => d.id === datasource.pluginId);
+
+              updateConfig({
+                datasource: valueOption?.id,
+                datasourcePluginType: plugin?.type,
+                datasourcePluginName: plugin?.name,
+              });
 
               if (valueOption?.id) {
                 switch (pluginsPackageNamesMap[pluginId]) {
@@ -110,6 +126,15 @@ export function useDatasource() {
                   }
                 }
               }
+
+              AnalyticsUtil.logEvent("GENERATE_QUERY_FOR_WIDGET", {
+                widgetName: widget.widgetName,
+                widgetType: widget.type,
+                propertyName: propertyName,
+                pluginType: plugin?.type,
+                pluginName: plugin?.name,
+                isSampleDb: datasource.isMock,
+              });
             }
           },
         })),
@@ -154,12 +179,34 @@ export function useDatasource() {
               value?: string,
               valueOption?: DropdownOptionType,
             ) {
-              updateConfig("datasource", valueOption?.id);
+              const plugin = plugins.find(
+                (d) =>
+                  d.id ===
+                  invert(pluginsPackageNamesMap)[
+                    datasource.packageName as string
+                  ],
+              );
+
+              updateConfig({
+                datasource: valueOption?.id,
+                datasourcePluginType: plugin?.type,
+                datasourcePluginName: plugin?.name,
+              });
+
               setIsMockDatasource(true);
 
               if (valueOption?.id) {
                 dispatch(addAndFetchMockDatasourceStructure(datasource));
               }
+
+              AnalyticsUtil.logEvent("GENERATE_QUERY_FOR_WIDGET", {
+                widgetName: widget.widgetName,
+                widgetType: widget.type,
+                propertyName: propertyName,
+                pluginType: plugin?.type,
+                pluginName: plugin?.name,
+                fromMock: true,
+              });
             },
           })),
       );
@@ -192,6 +239,13 @@ export function useDatasource() {
               selectedTab: INTEGRATION_TABS.NEW,
             }),
           );
+
+          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
+            widgetName: widget.widgetName,
+            widgetType: widget.type,
+            propertyName: propertyName,
+            selectedAction: "Connect New Datasource",
+          });
         },
       },
       {
@@ -199,14 +253,32 @@ export function useDatasource() {
         label: "Insert Snippet",
         value: "Insert Snippet",
         icon: <Icon name="code" size="md" />,
-        onSelect: addSnippet,
+        onSelect: () => {
+          addSnippet();
+
+          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
+            widgetName: widget.widgetName,
+            widgetType: widget.type,
+            propertyName: propertyName,
+            selectedAction: "Snippet",
+          });
+        },
       },
       {
         id: "Insert Binding",
         label: "Insert Binding",
         value: "Insert Binding",
         icon: <Binding>{"{ }"}</Binding>,
-        onSelect: () => addBinding("{{}}", true),
+        onSelect: () => {
+          addBinding("{{}}", true);
+
+          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
+            widgetName: widget.widgetName,
+            widgetType: widget.type,
+            propertyName: propertyName,
+            selectedAction: "Binding",
+          });
+        },
       },
     ];
   }, [currentPageId, history, addBinding, addSnippet]);
@@ -229,7 +301,20 @@ export function useDatasource() {
       ),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
         addBinding(valueOption?.value, false);
-        updateConfig("datasource", "");
+
+        updateConfig({
+          datasource: "",
+          datasourcePluginType: "",
+          datasourcePluginName: "",
+        });
+
+        AnalyticsUtil.logEvent("BIND_EXISTING_QUERY_TO_WIDGET", {
+          widgetName: widget.widgetName,
+          widgetType: widget.type,
+          propertyName: propertyName,
+          queryName: query.config.name,
+          pluginType: query.config.pluginType,
+        });
       },
     }));
   }, [queries, pluginImages, addBinding]);
@@ -259,6 +344,15 @@ export function useDatasource() {
   const isConnecting = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
   );
+
+  useEffect(() => {
+    if (isSourceOpen) {
+      AnalyticsUtil.logEvent("WIDGET_CONNECT_DATA_CLICK", {
+        widgetName: widget.widgetName,
+        widgetType: widget.type,
+      });
+    }
+  }, [isSourceOpen]);
 
   return {
     datasourceOptions,

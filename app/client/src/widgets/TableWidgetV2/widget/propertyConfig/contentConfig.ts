@@ -16,7 +16,6 @@ import {
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
   updateInlineEditingSaveOptionHook,
-  updatePristineHook,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 
@@ -42,7 +41,6 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        updateHook: updatePristineHook,
         dependencies: ["isConnectDataEnabled"],
       },
       {

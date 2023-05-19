@@ -18,6 +18,7 @@ import {
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
   propertyValue: string;
+  propertyName: string;
   config: {
     datasource: string;
     table: string;
@@ -25,8 +26,13 @@ type WidgetQueryGeneratorFormContextType = {
     sheet: string;
     searchableColumn: string;
     tableHeaderIndex: number;
+    datasourcePluginType: string;
+    datasourcePluginName: string;
   };
-  updateConfig: (propertyName: string, value: unknown) => void;
+  updateConfig: (
+    property: string | Record<string, unknown>,
+    value?: unknown,
+  ) => void;
   addSnippet: () => void;
   addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
   isSourceOpen: boolean;
@@ -41,6 +47,8 @@ const DEFAULT_CONFIG_VALUE = {
   alias: {},
   searchableColumn: "",
   tableHeaderIndex: 1,
+  datasourcePluginType: "",
+  datasourcePluginName: "",
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -53,6 +61,7 @@ const DEFAULT_CONTEXT_VALUE = {
   isSourceOpen: false,
   onSourceClose: noop,
   errorMsg: "",
+  propertyName: "",
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -113,27 +122,50 @@ function WidgetQueryGeneratorForm(props: Props) {
     widgetId,
   });
 
-  const updateConfig = (propertyName: string, value: unknown) => {
+  const updateConfig = (
+    property: string | Record<string, unknown>,
+    value?: unknown,
+  ) => {
     setPristine(false);
 
     setConfig(
       produce(config, (draftConfig) => {
-        set(draftConfig, propertyName, value);
+        if (typeof property === "string") {
+          set(draftConfig, property, value);
+        } else {
+          Object.entries(property).forEach(([name, value]) => {
+            set(draftConfig, name, value);
+          });
+        }
 
-        if (propertyName === "datasource") {
+        if (
+          property === "datasource" ||
+          (typeof property === "object" &&
+            Object.keys(property).includes("datasource"))
+        ) {
           set(draftConfig, "table", "");
           set(draftConfig, "sheet", "");
           set(draftConfig, "searchableColumn", "");
           set(draftConfig, "alias", {});
+          set(draftConfig, "datasourcePluginType", "");
+          set(draftConfig, "datasourcePluginName", "");
         }
 
-        if (propertyName === "table") {
+        if (
+          property === "table" ||
+          (typeof property === "object" &&
+            Object.keys(property).includes("table"))
+        ) {
           set(draftConfig, "sheet", "");
           set(draftConfig, "searchableColumn", "");
           set(draftConfig, "alias", {});
         }
 
-        if (propertyName === "sheet") {
+        if (
+          property === "sheet" ||
+          (typeof property === "object" &&
+            Object.keys(property).includes("sheet"))
+        ) {
           set(draftConfig, "searchableColumn", "");
           set(draftConfig, "alias", {});
         }
@@ -178,6 +210,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       isSourceOpen,
       onSourceClose,
       errorMsg,
+      propertyName: propertyPath,
     };
   }, [
     config,
@@ -189,6 +222,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     isSourceOpen,
     onSourceClose,
     errorMsg,
+    propertyPath,
   ]);
 
   useEffect(() => {

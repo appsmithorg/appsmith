@@ -11,7 +11,7 @@ import {
   getisFetchingGsheetsSheets,
 } from "selectors/datasourceSelectors";
 import { getDatasource } from "selectors/entitiesSelector";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export function useSheets() {
   const dispatch = useDispatch();

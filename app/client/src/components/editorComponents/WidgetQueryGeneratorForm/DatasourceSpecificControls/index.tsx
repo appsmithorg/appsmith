@@ -1,4 +1,4 @@
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { PluginPackageName } from "entities/Action";
 import React, { useContext } from "react";
 import { useSelector } from "react-redux";

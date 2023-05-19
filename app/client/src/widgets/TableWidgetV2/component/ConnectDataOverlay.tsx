@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { Button } from "design-system-old";
+import { Button } from "design-system";
 import React from "react";
 import styled from "styled-components";
 

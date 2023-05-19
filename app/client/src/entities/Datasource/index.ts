@@ -117,6 +117,7 @@ export interface Datasource extends BaseDatasource {
   structure?: DatasourceStructure;
   messages?: string[];
   success?: boolean;
+  isMock?: boolean;
 }
 
 export interface TokenResponse {

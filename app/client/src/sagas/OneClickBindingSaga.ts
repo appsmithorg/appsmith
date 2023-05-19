@@ -4,7 +4,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
 import type { Action, QueryActionConfig } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
-import { merge, omit, partition } from "lodash";
+import { invert, merge, omit, partition } from "lodash";
 import { all, call, put, select, takeLatest, take } from "redux-saga/effects";
 import {
   getCurrentApplicationId,
@@ -274,10 +274,29 @@ function* BindWidgetToDatasource(
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
 
       newActions.push(...createdQueryNames);
+
+      for (const action of createdActions) {
+        AnalyticsUtil.logEvent("QUERY_GENERATION_BINDING_SUCCESS", {
+          widgetName: widget.widgetName,
+          widgetType: widget.type,
+          QueryName: action.name,
+          QueryType: invert(queryNameMap)[action.name],
+          pluginType: plugin.type,
+          pluginName: plugin.name,
+        });
+      }
     }
 
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS,
+    });
+
+    AnalyticsUtil.logEvent("1_CLICK_BINDING_SUCCESS", {
+      widgetName: widget.widgetName,
+      widgetType: widget.type,
+      pluginType: plugin.type,
+      pluginName: plugin.name,
+      isMock: datasource.isMock,
     });
   } catch (e: any) {
     Toaster.show({

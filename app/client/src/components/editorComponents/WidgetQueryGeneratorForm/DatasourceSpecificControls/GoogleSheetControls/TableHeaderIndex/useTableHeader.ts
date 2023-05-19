@@ -1,5 +1,5 @@
 import { fetchGheetColumns } from "actions/datasourceActions";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { isNumber } from "lodash";
 import { useCallback, useContext } from "react";

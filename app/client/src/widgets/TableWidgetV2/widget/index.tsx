@@ -173,7 +173,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (queryConfig.select) {
       updates = merge(updates, {
-        pristine: false,
         tableData: queryConfig.select.data,
         onPageChange: queryConfig.select.run,
         serverSidePaginationEnabled: true,
@@ -334,6 +333,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
       tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
+      pristine: `{{(()=>{${derivedProperties.getIsTablePristine}})()}}`,
     };
   }
 
@@ -943,6 +943,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleSearch,
       pristine,
     } = this.props;
+
     const tableColumns = this.getTableColumns() || emptyArr;
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const isVisibleHeaderOptions =

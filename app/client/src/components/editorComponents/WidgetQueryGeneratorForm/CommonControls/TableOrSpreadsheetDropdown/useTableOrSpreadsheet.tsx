@@ -19,18 +19,22 @@ import {
   getGsheetSpreadsheets,
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getWidget } from "sagas/selectors";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
 
-  const { config, updateConfig, widgetId } = useContext(
+  const { config, propertyName, updateConfig, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
+
+  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
   const datasourceStructure = useSelector(
     getDatasourceStructureById(config.datasource),
@@ -101,6 +105,15 @@ export function useTableOrSpreadsheet() {
           }),
         );
       }
+
+      AnalyticsUtil.logEvent("GENERATE_QUERY_SELECT_DATA_TABLE", {
+        widgetName: widget.widgetName,
+        widgetType: widget.type,
+        propertyName: propertyName,
+        dataTableName: TableObj.value,
+        pluginType: config.datasourcePluginType,
+        pluginName: config.datasourcePluginName,
+      });
     },
     [
       updateConfig,
