@@ -67,7 +67,7 @@ jobs:
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         id: cache-appsmith
-        uses: actions/cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -411,13 +411,13 @@ jobs:
           name: failed-spec-ci
           path: ~/failed_spec_ci
           
-      # Force store previous failed test list to cache
-      - name: Store the previous failed test result
+      # Force store previous run result to cache
+      - name: Store the previous run result
         if: failure()
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
-            ~/failed_spec_ci
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
