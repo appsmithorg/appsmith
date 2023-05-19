@@ -117,7 +117,7 @@ function DisconnectGitModal() {
         <ModalFooter>
           <Button
             className="t--git-revoke-back-button"
-            kind="tertiary"
+            kind="secondary"
             onClick={handleClickOnBack}
             size="md"
           >
@@ -126,7 +126,7 @@ function DisconnectGitModal() {
           <Button
             className="t--git-revoke-button"
             isDisabled={shouldDisableRevokeButton}
-            kind="error"
+            kind="primary"
             onClick={onDisconnectGit}
             size="md"
           >
