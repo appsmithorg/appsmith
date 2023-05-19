@@ -1,9 +1,9 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const { jsEditor, locators } = _;
+const { jsEditor } = _;
 
 describe("List no functions on empty collection", () => {
-  it("should not show functions when whole code is deleted", () => {
+  it("1. should not show functions when whole code is deleted", () => {
     jsEditor.CreateJSObject(
       `export default {
   myFun1: () => {
@@ -25,8 +25,8 @@ describe("List no functions on empty collection", () => {
       },
     );
 
-    jsEditor.AssertFunctionDropdownValue("myFun1");
+    jsEditor.AssertSelectedFunction("myFun1");
     jsEditor.ClearJSObj();
-    jsEditor.AssertFunctionDropdownValue("No function available");
+    jsEditor.AssertSelectedFunction("No function available");
   });
 });

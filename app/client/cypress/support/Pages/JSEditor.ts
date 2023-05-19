@@ -365,7 +365,7 @@ export class JSEditor {
     this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
   }
 
-  public AssertFunctionDropdownValue(funName: string) {
+  public AssertSelectedFunction(funName: string) {
     cy.get(`${this._funcDropdown} > span`).contains(funName).should("exist");
   }
 
