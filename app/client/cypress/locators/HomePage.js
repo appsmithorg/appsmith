@@ -9,7 +9,7 @@ export default {
   currentDeployedPreviewBtn: ".t--current-deployed-preview-btn",
   publishCrossButton: "span[icon='small-cross']",
   homePageID: "//div[@id='root']",
-  appMoreIcon: ".t--application-card .ads-v2-button__content",
+  appMoreIcon: "[data-testid=t--application-card-context-menu]",
   duplicateApp: "[data-testid=t--duplicate]",
   forkAppFromMenu: "[data-testid=t--fork-app]",
   exportAppFromMenu: "[data-testid=t--export-app]",
