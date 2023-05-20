@@ -105,14 +105,15 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 // TODO: This is a temporary call being made till storage transfer migrations are done
                 .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
                         .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource)))
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            && error.getMessage().contains("datasource_storage_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return findByDatasource(datasource);
-                    }
-                    throw error;
-                });
+                .onErrorResume(e -> e instanceof DuplicateKeyException || e instanceof MongoServerException,
+                        error -> {
+                            if (error.getMessage() != null
+                                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                                // The duplicate key error is because of the `name` field.
+                                return findByDatasource(datasource);
+                            }
+                            return Mono.error(error);
+                        });
     }
 
     protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
