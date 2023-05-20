@@ -229,7 +229,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate) {
+    public Mono<DatasourceDTO> update(String id,
+                                      DatasourceDTO datasourceDTO,
+                                      String environmentId,
+                                      Boolean isUserRefreshedUpdate) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
         return this.updateByEnvironmentId(id, datasource, environmentId, isUserRefreshedUpdate)
                 .flatMap(datasource1 -> convertToDatasourceDTO(datasource1));
@@ -655,7 +658,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (datasourceDTO.getDatasourceConfiguration() != null) {
             storages.put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceDTO, environmentId));
         }
-        datasource.setHasDatasourceStorage(true);
 
         return datasource;
     }

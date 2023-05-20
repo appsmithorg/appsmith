@@ -104,7 +104,6 @@ public class DatasourceContextServiceTest {
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
         datasourceStorage.setDatasourceId("id1");
-        datasourceStorage.setPluginId("mockPluginId");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
         datasourceStorage.setWorkspaceId("workspaceId");
 
@@ -118,6 +117,7 @@ public class DatasourceContextServiceTest {
         Datasource datasource = new Datasource();
         datasource.setId("id1");
         datasource.setWorkspaceId("workspaceId1");
+        datasource.setPluginId("mockPluginId");
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
