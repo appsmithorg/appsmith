@@ -22,10 +22,10 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
+    baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
-    baseUrl: "http://localhost/",
     specPattern: "cypress/e2e/**/*.{js,ts}"
   },
 });
