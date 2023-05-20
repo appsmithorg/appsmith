@@ -160,7 +160,7 @@ Cypress.Commands.add("deleteUserFromWorkspace", (workspaceName) => {
 
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .closest(homePage.workspaceCompleteSection)
-    .find(homePage.workspaceNamePopover)
+    .scrollIntoView()
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
@@ -191,7 +191,7 @@ Cypress.Commands.add(
 
     cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
       .closest(homePage.workspaceCompleteSection)
-      .find(homePage.workspaceNamePopover)
+      .scrollIntoView()
       .find(homePage.optionsIcon)
       .click({ force: true });
     cy.xpath(homePage.MemberSettings).click({ force: true });
