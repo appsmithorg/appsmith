@@ -95,7 +95,7 @@ Appsmith makes it easy to create powerful utility applications organized across 
 
 ❇️ **Native integrations** available with the following databases. You can also connect with most other tools through the RESTful API plugin or using our SaaS connectors.
 
-- PostgresSQL
+- PostgreSQL
 - MongoDB
 - MySQL
 - Elasticsearch
