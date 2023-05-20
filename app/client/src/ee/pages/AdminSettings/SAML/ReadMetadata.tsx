@@ -1,4 +1,3 @@
-import Menu from "pages/Editor/gitSync/Menu";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { connect, useDispatch } from "react-redux";
@@ -7,23 +6,12 @@ import { formValueSelector, reduxForm } from "redux-form";
 import _ from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import { BASE_URL } from "constants/routes";
-import {
-  REDIRECT_URL_FORM,
-  ENTITYID_URL_FORM,
-} from "@appsmith/constants/forms";
 import { getSettingsSavingState } from "selectors/settingsSelectors";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
-import { CalloutV2, Toaster, Variant } from "design-system-old";
+import CopyUrlForm from "pages/Settings/FormGroup/CopyUrlForm";
 import type { InputProps } from "./components";
-import {
-  BodyContainer,
-  Info,
-  MenuContainer,
-  HeaderSecondary,
-  RenderForm,
-} from "./components";
+import { BodyContainer, Info, RenderForm } from "./components";
 import { getSettingDetail, getSettingLabel } from ".";
 import { SSO_IDENTITY_PROVIDER_FORM } from "@appsmith/constants/forms";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
@@ -35,6 +23,24 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SAML_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
+import {
+  Callout,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsList,
+  Text,
+  toast,
+} from "design-system";
+import styled from "styled-components";
+
+const StyledTabs = styled(Tabs)`
+  margin: 8px 0 0;
+
+  label:first-child {
+    font-weight: 500;
+  }
+`;
 
 export type MenuItemsProps = {
   id: string;
@@ -88,7 +94,7 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
   {
     id: "APPSMITH_SSO_SAML_IDP_DATA",
     key: MENU_ITEM.IDP_DATA,
-    title: "IdP Data",
+    title: "IdP data",
     subText: "Provide your individual Identity Provider metadata fields.",
     callout: "Cannot locate the individual metadata fields?",
     inputs: [
@@ -102,14 +108,14 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
       {
         className: "t--sso-metadata-sso-url-input",
         hint: "The location where the SAML assertion is sent with a HTTP POST. This is often referred to as the SAML Assertion Consumer Service (ACS) URL for your application.",
-        label: "Single Sign On URL",
+        label: "Single sign on URL",
         name: "metadataSsoUrl",
         isRequired: true,
       },
       {
         className: "t--sso-metadata-pub-cert-input",
         hint: "The PEM or DER encoded public key certificate of the Identity Provider used to verify SAML message and assertion signatures.",
-        label: "X509 Public Certificate",
+        label: "X509 public certificate",
         name: "metadataPubCert",
         isRequired: true,
       },
@@ -233,9 +239,8 @@ function MetadataForm(
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
         error: createMessage(MANDATORY_FIELDS_ERROR),
       });
-      Toaster.show({
-        text: createMessage(MANDATORY_FIELDS_ERROR),
-        variant: Variant.danger,
+      toast.show(createMessage(MANDATORY_FIELDS_ERROR), {
+        kind: "error",
       });
     }
   };
@@ -243,14 +248,21 @@ function MetadataForm(
   return (
     <>
       {providerForm.callout && (
-        <CalloutV2
-          actionLabel="Read Documentation"
-          desc={providerForm.callout}
-          type="Notify"
-          url={SAML_SIGNUP_SETUP_DOC}
-        />
+        <Callout
+          kind="info"
+          links={[
+            {
+              children: "Read documentation",
+              to: SAML_SIGNUP_SETUP_DOC,
+            },
+          ]}
+        >
+          {providerForm.callout}
+        </Callout>
       )}
-      <Info>{providerForm.subText}</Info>
+      <Info color="var(--ads-v2-color-fg)" renderAs="h3">
+        {providerForm.subText}
+      </Info>
       <RenderForm inputs={providerForm.inputs} />
       {isSavable && (
         <SaveAdminSettings
@@ -313,38 +325,58 @@ const MetadataReduxForm = connect(
 
 function ReadMetadata() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>(MENU_ITEMS_MAP[0].key);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setActiveTabIndex(allSAMLSetupOptions.findIndex((t) => t.key === tab));
+  };
 
   return (
     <>
-      <CopyUrlReduxForm
-        fieldName={"redirect-url-form"}
-        form={REDIRECT_URL_FORM}
+      <CopyUrlForm
+        fieldName="redirect-url-form"
         helpText={"Paste this URL in your IdP service providers console."}
         title={"Redirect URL"}
         tooltip={createMessage(REDIRECT_URL_TOOLTIP)}
         value={`${BASE_URL}auth/realms/appsmith/broker/saml/endpoint`}
       />
       {activeTabIndex !== 2 && (
-        <CopyUrlReduxForm
-          fieldName={"entity-id--url-form"}
-          form={ENTITYID_URL_FORM}
+        <CopyUrlForm
+          fieldName="entity-id--url-form"
           helpText={"Paste this URL in your IdP service providers console."}
           title={"Entity ID"}
           tooltip={createMessage(ENTITY_ID_TOOLTIP)}
           value={`${BASE_URL}auth/realms/appsmith`}
         />
       )}
-      <HeaderSecondary>Register Identity Provider</HeaderSecondary>
-      <MenuContainer>
-        <Menu
-          activeTabIndex={activeTabIndex}
-          onSelect={setActiveTabIndex}
-          options={allSAMLSetupOptions}
-        />
-      </MenuContainer>
-      <BodyContainer>
-        <MetadataReduxForm activeTabIndex={activeTabIndex} />
-      </BodyContainer>
+      <Text kind="heading-m" renderAs="h3">
+        Register Identity Provider
+      </Text>
+      <StyledTabs defaultValue={activeTab} onValueChange={handleTabChange}>
+        <TabsList>
+          {MENU_ITEMS_MAP.map((tab) => {
+            return (
+              <Tab
+                data-testid={`t--tab-${tab.key}`}
+                key={tab.key}
+                value={tab.key}
+              >
+                {tab.title}
+              </Tab>
+            );
+          })}
+        </TabsList>
+        {MENU_ITEMS_MAP.map((tab, index) => {
+          return (
+            <TabPanel key={tab.key} value={tab.key}>
+              <BodyContainer>
+                <MetadataReduxForm activeTabIndex={index} />
+              </BodyContainer>
+            </TabPanel>
+          );
+        })}
+      </StyledTabs>
     </>
   );
 }

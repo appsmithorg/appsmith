@@ -16,10 +16,18 @@ import {
 const UpgradeBanner = () => {
   return (
     <SettingsFormWrapper>
-      <SettingsHeader>
+      <SettingsHeader
+        color="var(--ads-v2-color-fg-emphasis-plus)"
+        kind="heading-l"
+        renderAs="h1"
+      >
         {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
       </SettingsHeader>
-      <SettingsSubHeader>
+      <SettingsSubHeader
+        color="var(--ads-v2-color-fg-emphasis)"
+        kind="body-m"
+        renderAs="h2"
+      >
         {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
       </SettingsSubHeader>
     </SettingsFormWrapper>

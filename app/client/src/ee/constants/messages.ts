@@ -14,9 +14,9 @@ import {
 // GAC begin
 export const SHOW_LESS_GROUPS = () => `show less`;
 export const SHOW_MORE_GROUPS = (count: number) => `show ${count} more`;
-export const ADD_USERS = () => `Add Users`;
-export const ADD_GROUP = () => `Add Group`;
-export const ADD_ROLE = () => `Add Role`;
+export const ADD_USERS = () => `Add users`;
+export const ADD_GROUP = () => `Add group`;
+export const ADD_ROLE = () => `Add role`;
 export const SEARCH_PLACEHOLDER = () => `Search`;
 export const SEARCH_GROUPS_PLACEHOLDER = () => `Search groups`;
 export const SEARCH_ROLES_PLACEHOLDER = () => `Search roles`;
@@ -36,7 +36,7 @@ export const ACL_DELETE = () => `Delete`;
 export const ACL_CLONE = () => `Clone`;
 export const ACL_RENAME = () => `Rename`;
 export const ACL_EDIT = () => `Edit`;
-export const ACL_EDIT_DESC = () => `Edit Description`;
+export const ACL_EDIT_DESC = () => `Edit description`;
 export const NO_USERS_MESSAGE = () => `There are no users added to this group`;
 export const NO_ACTIVE_ENTITIES_MESSAGE = (
   entity: string,
@@ -47,13 +47,13 @@ export const EMPTY_ENTITIES_MESSAGE = (entity: string) =>
 export const NO_PERMISSION_TO_UNASSIGN = () =>
   `You do not have permission to unassign this role.`;
 export const DEFAULT_ROLES_PILL = () => `D`;
-export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default Roles`;
+export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default roles`;
 export const BOTTOM_BAR_SAVE_MESSAGE =
   () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
-export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
+export const BOTTOM_BAR_SAVE_BTN = () => `Save changes`;
 export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
-export const ACL_INVITE_MODAL_TITLE = () => `Add Users`;
+export const ACL_INVITE_MODAL_TITLE = () => `Add users`;
 export const ACL_INVITE_MODAL_MESSAGE = () =>
   `Add email id(s) and select group(s)`;
 export const INVITE_USERS_MESSAGE = (cloudHosting?: boolean) =>
@@ -83,18 +83,18 @@ export const INVITE_USER_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
     ? createMessage(CE_INVITE_USER_SUBMIT_SUCCESS)
     : `The user/group have been invited successfully`;
 export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
-  "Group Details page > Top bar";
+  "Group details page > Top bar";
 export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
-  "Group Details page > Users tab > Empty state";
+  "Group details page > Users tab > Empty state";
 export const EVENT_GROUP_INVITE_USER_TOP_BAR = () =>
-  "Group Details page > Top bar > Add user modal";
+  "Group details page > Top bar > Add user modal";
 export const EVENT_GROUP_INVITE_USER_EMPTY_STATE = () =>
-  "Group Details page > Users tab > Empty state > Add user modal";
+  "Group details page > Users tab > Empty state > Add user modal";
 export const EVENT_USER_INVITE = () => "Users page > Add user modal";
 export const EVENT_USERS_PAGE = () => "Users page";
-export const EVENT_USER_ROLES_TAB = () => "User Details page > Roles tab";
-export const EVENT_USER_GROUPS_TAB = () => "User Details page > Groups tab";
-export const EVENT_GROUP_ROLES_TAB = () => "Group Details page > Roles tab";
+export const EVENT_USER_ROLES_TAB = () => "User details page > Roles tab";
+export const EVENT_USER_GROUPS_TAB = () => "User details page > Groups tab";
+export const EVENT_GROUP_ROLES_TAB = () => "Group details page > Roles tab";
 // GAC end
 
 // Audit logs begin
@@ -106,14 +106,14 @@ export const EVENTS_LABEL = () => "Events";
 export const EVENTS_PLACEHOLDER = () => "Select events";
 export const USERS_LABEL = () => "Users";
 export const USERS_PLACEHOLDER = () => "Select users";
-export const DATE_RANGE_LABEL = () => "Date Range";
-export const CLEAR_ALL = () => "clear all";
+export const DATE_RANGE_LABEL = () => "Date range";
+export const CLEAR_ALL = () => "Clear all";
 export const ON_COPY_CONTENT = (input: string) =>
   `Audit log with id [${input}] copied to clipboard`;
 export const EVENT_DESCRIPTION_LABEL = () => "Event description";
 export const USER_LABEL = () => "User";
 export const DATE_LABEL = () => "Date";
-export const REFRESH = () => "REFRESH";
+export const REFRESH = () => "Refresh";
 // Audit logs end
 
 // Branding
@@ -122,7 +122,7 @@ export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Set your organization's logo and brand colors.";
 
 // Billing
-export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & Billing";
+export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & billing";
 export const ADMIN_BILLING_SETTINGS_SUBTITLE = () =>
   "View customer portal to view usage and billing related information, and to manage your subscription.";
 export const NO_ACTIVE_SUBSCRIPTION = () => "No active subscription";
@@ -138,44 +138,44 @@ export const CONTINUE_USING_FEATURES = () =>
   `to continue using Appsmith Business. `;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
   `Please contact your administrator to upgrade and continue using Appsmith Business. `;
-export const TOTAL_USERS_MESSAGE = () => `Total Users`;
+export const TOTAL_USERS_MESSAGE = () => `Total users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
-export const BILLING_AND_USAGE = () => `Billing & Usage`;
-export const OPEN_CUSTOMER_PORTAL = () => `Open Customer Portal`;
+export const BILLING_AND_USAGE = () => `Billing & usage`;
+export const OPEN_CUSTOMER_PORTAL = () => `Open customer portal`;
 export const BE_WELCOME_MESSAGE = () => "Welcome to Appsmith Business Edition";
 export const BE_TRIAL_BANNER_EXPIRY_MESSAGE = (
   gracePeriod: number,
   suffix: string,
 ) => `Trial ends in <span>${gracePeriod}</span> ${suffix}`;
-export const UPGRADE_NOW = () => `Upgrade Now`;
+export const UPGRADE_NOW = () => `Upgrade now`;
 export const CLOSE = () => `Close`;
 export const UPGRADE_TO_BUSINESS = () => `Upgrade to Business`;
-export const ADD_KEY = () => `Add Key`;
-export const ACTIVATE_INSTANCE = () => `Activate Instance`;
-export const GET_TRIAL_LICENSE = () => `Get Trial License`;
+export const ADD_KEY = () => `Add key`;
+export const ACTIVATE_INSTANCE = () => `Activate instance`;
+export const GET_TRIAL_LICENSE = () => `Get trial license`;
 export const REQUIRED_LICENSE_KEY = () => `License key is required`;
 export const INVALID_LICENSE_KEY = () => `License key is invalid`;
 export const YOUR_LICENSE_KEY = () => `Your license key`;
-export const UPDATE_LICENSE = () => `Update License`;
+export const UPDATE_LICENSE = () => `Update license`;
 export const PREV_LICENSE_INVALID = () =>
   `The previous license will be invalid`;
 export const ACTIVATE = () => `Activate`;
 export const PASTE_LICENSE_KEY = () => `Paste your license key here`;
 export const LICENSE_EXPIRY_DATE = (date: string) => `Valid until: ${date}`;
-export const UPDATE = () => "UPDATE";
+export const UPDATE = () => "Update";
 
-export const LICENSE_ERROR_TITLE = () => `No Active Subscription`;
+export const LICENSE_ERROR_TITLE = () => `No active subscription`;
 export const LICENSE_ERROR_DESCRIPTION = () =>
-  `You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.`;
-export const VISIT_CUSTOMER_PORTAL = () => `VISIT CUSTOMER PORTAL`;
+  `You currently do not have an active subscription. Please contact your instance administrator to activate the instance.`;
+export const VISIT_CUSTOMER_PORTAL = () => `Visit customer portal`;
 export const LICENSE_UPDATED_SUCCESSFULLY = () =>
   `Your license has been updated successfully`;
-export const NOT_AVAILABLE = () => `Not Available`;
+export const NOT_AVAILABLE = () => `Not available`;
 export const ACTIVE = () => `Active`;
 export const TRIAL = () => `Trial`;
 export const PORTAL = () => `Portal`;
-export const LICENSE_KEY = () => `License Key`;
+export const LICENSE_KEY = () => `License key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
 export const PAYMENT_FAILED = () => `Your last payment has failed.`;
 export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>

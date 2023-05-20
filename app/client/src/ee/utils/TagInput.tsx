@@ -11,7 +11,6 @@ import {
 import { HighlightText } from "design-system-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { Colors } from "constants/Colors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -27,36 +26,55 @@ const TagInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  z-index: 1;
 
   &&& {
     .${Classes.TAG_INPUT} {
-      background-color: var(--appsmith-color-black-0);
+      background-color: var(--ads-v2-color-bg);
+      border: 1px solid var(--ads-v2-color-border);
+      border-radius: var(--ads-v2-border-radius);
+      font-family: var(--ads-v2-font-family);
+      font-size: var(--ads-v2-font-size-4);
+      box-shadow: none;
       min-height: 36px;
-      border: 1.2px solid var(--appsmith-color-black-250);
-      border-radius: 0px;
+      &:hover {
+        border-color: var(--ads-v2-color-border-emphasis);
+      }
+      &:focus,
+      &:active {
+        border-color: var(--ads-v2-color-border-emphasis);
+        outline: var(--ads-v2-border-width-outline) solid
+          var(--ads-v2-color-outline);
+        outline-offset: var(--ads-v2-offset-outline);
+      }
     }
     .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-      border: 1px solid var(--ads-color-brand);
-      box-shadow: none;
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
     }
     .${Classes.INPUT_GHOST} {
-      color: #302d2d;
+      color: var(--ads-v2-color-fg);
       &::placeholder {
-        color: #d4d4d4;
+        color: var(--ads-v2-color-fg-subtle);
+        font-size: var(--ads-v2-font-size-4);
       }
     }
     .${Classes.TAG} {
-      padding: 3px 10px;
-      color: var(--appsmith-color-black-0);
-      background-color: var(--ads-color-brand);
-      border-radius: 0px;
-      font-size: 11px;
-      letter-spacing: 0.4px;
+      background-color: var(--ads-v2-color-bg-subtle);
+      color: var(--ads-v2-color-fg);
+      border-radius: var(--ads-v2-border-radius);
+      color: var(--ads-v2-color-gray-600);
+      font-size: var(--ads-v2-font-size-4);
+      font-weight: var(--ads-v2-font-weight-normal);
+      letter-spacing: var(--ads-v2-letter-spacing-3);
 
       &.suggestion_tag {
-        background-color: var(--appsmith-color-black-0);
-        color: var(--ads-color-brand);
-        border: 1px solid var(--ads-color-brand);
+        background-color: var(--ads-v2-color-bg);
+        color: var(--ads-v2-color-fg-brand);
+        border: 1px solid var(--ads-v2-color-bg-brand);
+        border-radius: var(--ads-v2-border-radius);
       }
 
       .${Classes.TAG_REMOVE} {
@@ -73,17 +91,19 @@ const SuggestionsWrapper = styled.div`
 
   svg {
     path {
-      fill: ${Colors.GREY_7};
+      fill: var(--ads-v2-color-fg);
     }
   }
 
   > div {
     position: absolute;
-    border: 1px solid var(--appsmith-color-black-250);
+    border: 1px solid var(--ads-v2-color-border);
+    border-radius: var(--ads-v2-border-radius);
     width: 100%;
-    background: var(--appsmith-color-black-0);
+    background: var(--ads-v2-color-bg);
     max-height: 160px;
     overflow: auto;
+    z-index: 1;
   }
 `;
 
@@ -92,7 +112,7 @@ const Suggestion = styled.div`
   cursor: pointer;
   display: flex;
   &:hover {
-    background: var(--appsmith-color-black-100);
+    background: var(--ads-v2-color-bg-subtle);
   }
 `;
 

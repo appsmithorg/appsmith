@@ -38,6 +38,7 @@ const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
 const onboarding = ObjectsRegistry.Onboarding;
+const apiPage = ObjectsRegistry.ApiPage;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -199,7 +200,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).clear().type(appName, { force: true });
   cy.get(homePage.applicationCard).trigger("mouseover");
-  cy.get(homePage.appMoreIcon)
+  cy.get("[data-testid=t--application-card-context-menu]")
     .should("have.length", 1)
     .first()
     .click({ force: true });
@@ -293,11 +294,11 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       .then(() => cy.location())
       .then((loc) => {
         expect(loc.href).to.equal(loc.origin + "/applications");
-        cy.wait("@getMe");
 
         if (CURRENT_REPO === REPO.EE) {
           cy.wait(2000);
         } else {
+          cy.wait("@getMe");
           cy.wait("@applications").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -315,7 +316,9 @@ Cypress.Commands.add("DeleteApp", (appName) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(homePage.applicationCard).first().trigger("mouseover");
-  cy.get(homePage.appMoreIcon).first().click({ force: true });
+  cy.get("[data-testid=t--application-card-context-menu]")
+    .first()
+    .click({ force: true });
   cy.get(homePage.deleteAppConfirm).should("be.visible").click({ force: true });
   cy.get(homePage.deleteApp).contains("Are you sure?").click({ force: true });
 });
@@ -388,9 +391,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1, dontAssertVisibility) => {
   // entity explorer search will be hidden
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
+  cy.get(commonlocators.searchEntityInExplorer).type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.CheckAndUnfoldWidgets();
   cy.wait(500);
@@ -456,9 +457,9 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
   cy.get(commonlocators.widgetSection)
-    .invoke("attr", "name")
-    .then((name) => {
-      if (name === "arrow-right") {
+    .invoke("attr", "id")
+    .then((id) => {
+      if (id === "arrow-right-s-line") {
         cy.get(commonlocators.widgetSection).click({ force: true });
       }
     });
@@ -521,7 +522,7 @@ Cypress.Commands.add("OpenBindings", (apiname1) => {
     .click({ force: true });
   cy.get(commonlocators.entityContextMenuContent)
     .children("li")
-    .contains("Show Bindings")
+    .contains("Show bindings")
     .click({ force: true });
 });
 
@@ -720,8 +721,8 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
-  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
-  cy.get(".t--file-operation").eq(0).click({ force: true });
+  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS object");
+  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -742,7 +743,9 @@ Cypress.Commands.add("NavigateToActiveTab", () => {
 });
 
 Cypress.Commands.add("selectAction", (option) => {
-  cy.get(".single-select").contains(option).click({ force: true });
+  cy.get(".ads-v2-menu__menu-item-children")
+    .contains(option)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteActionAndConfirm", () => {
@@ -852,7 +855,7 @@ Cypress.Commands.add(
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
-    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    cy.get(locators._dropDownValue("Show alert")).click().wait(500);
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       forSuccess,
@@ -861,7 +864,7 @@ Cypress.Commands.add(
 
     // add a failure callback
     cy.get(propPane._actionAddCallback("failure")).click().wait(500);
-    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    cy.get(locators._dropDownValue("Show alert")).click().wait(500);
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       forFailure,
@@ -1098,8 +1101,8 @@ Cypress.Commands.add("startErrorRoutes", () => {
 });
 
 Cypress.Commands.add("NavigateToPaginationTab", () => {
-  cy.get(ApiEditor.apiTab).contains("Pagination").click({ force: true });
-  cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
+  apiPage.SelectPaneTab("Pagination");
+  agHelper.GetNClick(ApiEditor.apiPaginationTab);
 });
 
 Cypress.Commands.add("ValidateTableData", (value) => {
@@ -1262,10 +1265,7 @@ Cypress.Commands.add("updateMapType", (mapType) => {
     .contains(mapType)
     .click({ force: true });
 
-  cy.get(viewWidgetsPage.mapType + " span.cs-text").should(
-    "have.text",
-    mapType,
-  );
+  cy.get(viewWidgetsPage.mapType).should("have.text", mapType);
 });
 
 Cypress.Commands.add("createJSObject", (JSCode) => {
@@ -1313,6 +1313,7 @@ Cypress.Commands.add("createSuperUser", () => {
     cy.get(welcomePage.dataCollection).should("not.exist");
     cy.get(welcomePage.createButton).should("not.exist");
   } else {
+    cy.get(welcomePage.superUserForm).should("be.visible");
     cy.get(welcomePage.newsLetter).should("be.visible");
     cy.get(welcomePage.dataCollection).should("be.visible");
     cy.get(welcomePage.createButton).should("be.visible");
@@ -1525,7 +1526,7 @@ Cypress.Commands.add("checkCodeInputValue", (selector) => {
 });
 
 Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
-  cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
+  cy.xpath("//span[text()='" + btnVisibleText + "']/ancestor::button")
     .first()
     .scrollIntoView()
     .click({ force: toForceClick });
@@ -1695,8 +1696,7 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.settings).click();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
-
-  cy.get(queryLocators.query).click();
+  cy.xpath(queryLocators.query).click();
 });
 
 //Usage: If in need to type {enter} {esc} etc then .text('sometext').type('{enter}')
@@ -1760,9 +1760,9 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
     .parents(commonlocators.entityItem)
     .first()
     .children(commonlocators.entityCollapseToggle)
-    .invoke("attr", "name")
+    .invoke("attr", "id")
     .then((name) => {
-      if (name === "arrow-right") {
+      if (name === "arrow-right-s-line") {
         cy.xpath(
           "//div[contains(@class, 't--entity-name')][text()='" + item + "']",
         )
@@ -1811,7 +1811,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
-    ".t--property-control-alignment .t--button-group-right";
+    ".t--property-control-alignment .ads-v2-segmented-control__segments-container-segment[data-value='right']";
   const labelWidth = options.labelWidth;
 
   // Drag a widget
@@ -1826,17 +1826,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   cy.get(labelSelector).first().contains(labelText);
 
   // Set the label position: Auto
-  cy.get(".t--button-group-Auto").click({ force: true });
+  cy.get(".ads-v2-segmented-control-value-Auto").click({ force: true });
   // Assert label position: Auto
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.get(".t--button-group-Top").click({ force: true });
+  cy.get(".ads-v2-segmented-control-value-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.get(".t--button-group-Left").click({ force: true });
+  cy.get(".ads-v2-segmented-control-value-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
@@ -1846,27 +1846,35 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   cy.get(labelSelector).first().should("have.css", "text-align", "right");
 
   // Set the label width to labelWidth cols
-  cy.get(`[class*='t--property-control-width'] .bp3-input`)
+  cy.get(
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-input`,
+  )
     .first()
     .focus()
     .clear()
     .type(`${labelWidth}`);
   cy.wait(300);
+  cy.log(labelWidth).log("labelwidth");
   // Assert the label width
   cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
   // Increase the label width
-  cy.get(`[class*='t--property-control-width'] .bp3-button-group > .bp3-button`)
+  cy.get(
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-end`,
+  )
     .first()
     .click();
+  cy.log(parentColumnSpace).log("labelWidthIncreased");
   // Assert the increased label width
   cy.wait(300);
   cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
   // Decrease the label width
-  cy.get(`[class*='t--property-control-width'] .bp3-button-group > .bp3-button`)
+  cy.get(
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-start`,
+  )
     .last()
     .click();
   cy.wait(300);
@@ -2011,18 +2019,18 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
-  cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-cy='add-page']").click();
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='New blank page']/parent::div").click();
 });
 
 Cypress.Commands.add("GenerateCRUD", () => {
-  cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-cy='generate-page']").click();
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='Generate page with data']/parent::div").click();
 });
 
 Cypress.Commands.add("AddPageFromTemplate", () => {
-  cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-cy='add-page-from-template']").click();
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='Add page from template']/parent::div").click();
 });
 
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {

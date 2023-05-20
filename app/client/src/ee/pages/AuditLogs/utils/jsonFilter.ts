@@ -1,7 +1,6 @@
-import type { AuditLogType } from "../types";
-import type { DropdownOption } from "design-system-old";
+import type { AuditLogType, DropdownOptionProps } from "../types";
 
-export const DATE_FILTER_OPTIONS: DropdownOption[] = [
+export const DATE_FILTER_OPTIONS: DropdownOptionProps[] = [
   { label: "Select", value: "0", id: "no-value" },
   { label: "Today", value: "1", id: "today" },
   {

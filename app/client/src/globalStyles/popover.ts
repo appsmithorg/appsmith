@@ -45,4 +45,14 @@ export const PopoverStyles = createGlobalStyle`
       }
     }
   }
+  .ai-window {
+    .bp3-popover2 {
+      & {
+        border: 1px solid !important;
+        border-radius: var(--ads-v2-border-radius);
+        border-color: var(--ads-v2-color-border) !important;
+        box-shadow: var(--ads-v2-shadow-popovers) !important;
+      }
+    }
+  }
 `;

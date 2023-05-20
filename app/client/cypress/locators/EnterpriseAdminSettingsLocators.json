@@ -5,10 +5,9 @@
   "samlButton": ".t--settings-sub-category-saml-auth",
   "loginWithOIDC": "[data-testid='login-with-OIDC']",
   "loginWithSAML": "[data-testid='login-with-SAML']",
-  "samlUrlTab": "[data-cy='t--tab-METADATA_URL']",
-  "samlXmlTab": "[data-cy='t--tab-XML']",
-  "samlIdpTab": "[data-cy='t--tab-IDP_DATA']",
+  "samlUrlTab": "[data-testid='t--tab-METADATA_URL']",
+  "samlXmlTab": "[data-testid='t--tab-XML']",
+  "samlIdpTab": "[data-testid='t--tab-IDP_DATA']",
   "disconnectBtn": "[data-testid='disconnect-service-button']",
   "hideAppsmithWatermarkSetting": ".admin-settings-group-APPSMITH_HIDE_WATERMARK"
 }
-

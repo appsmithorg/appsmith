@@ -1,16 +1,21 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import type { MenuItemProps } from "design-system-old";
-import { Icon, IconSize, MenuItem, Menu, Table } from "design-system-old";
-import { Position } from "@blueprintjs/core";
-import { HelpPopoverStyle, Loader } from "./components";
+import { Table } from "design-system-old";
+import { Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-import type { ListingProps } from "./types";
+import type { ListingProps, MenuItemProps } from "./types";
 import { ListingType } from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "design-system";
 
 const ListingWrapper = styled.div`
   height: calc(100vh - 148px);
@@ -20,12 +25,12 @@ const ListingWrapper = styled.div`
     table-layout: fixed;
     height: 100%;
     thead {
-      background: var(--appsmith-color-black-0);
+      background: var(--ads-v2-color-bg);
       z-index: 1;
       tr {
         background: none;
         th {
-          color: var(--appsmith-color-black-700);
+          color: var(--ads-v2-color-fg);
           font-style: normal;
           font-weight: 500;
           font-size: 16px;
@@ -39,7 +44,7 @@ const ListingWrapper = styled.div`
           }
 
           &:hover {
-            color: var(--appsmith-color-black-700);
+            color: var(--ads-v2-color-fg);
             cursor: initial;
           }
         }
@@ -48,34 +53,25 @@ const ListingWrapper = styled.div`
     tbody {
       tr {
         td {
-          color: var(--appsmith-color-black-800);
+          color: var(--ads-v2-color-fg);
           line-height: 16px;
-          vertical-align: baseline;
-          border-bottom: 1px solid var(--appsmith-color-black-200);
+          vertical-align: middle;
+          border-bottom: 1px solid var(--ads-v2-color-border);
           word-break: break-all;
-
-          span.bp3-popover-target > * {
-            justify-content: end;
-          }
+          height: 100%;
 
           a:hover {
             color: inherit;
             text-decoration: none;
           }
 
+          &:last-child {
+            text-align: right;
+            vertical-align: baseline;
+          }
+
           .actions-icon {
             visibility: hidden;
-            > svg {
-              path {
-                fill: var(--appsmith-color-black-400);
-              }
-
-              &:hover {
-                path {
-                  fill: var(--appsmith-color-black-700);
-                }
-              }
-            }
             &.active {
               visibility: visible;
             }
@@ -151,13 +147,17 @@ export function Listing(props: ListingProps) {
           menuItem: MenuItemProps,
         ) => {
           if (menuItem.label === "delete") {
-            if (showConfirmationText) {
-              menuItem?.onSelect?.(e, props?.cell?.row?.original[keyAccessor]);
-            } else {
+            setTimeout(() => {
               setShowOptions(true);
               setShowConfirmationText(true);
-            }
+              showConfirmationText &&
+                menuItem?.onSelect?.(
+                  e,
+                  props?.cell?.row?.original[keyAccessor],
+                );
+            }, 0);
           } else {
+            setShowOptions(false);
             setShowConfirmationText(false);
             menuItem?.onSelect?.(e, props?.cell?.row?.original[keyAccessor]);
           }
@@ -167,48 +167,44 @@ export function Listing(props: ListingProps) {
           filteredMenuItems &&
           filteredMenuItems.length > 0 && (
             <Menu
-              canEscapeKeyClose
-              canOutsideClickClose
-              className="t--menu-actions-icon"
-              data-testid="actions-cell-menu-options"
-              isOpen={showOptions}
-              menuItemWrapperWidth={"auto"}
-              onClose={() => setShowOptions(false)}
-              onClosing={() => {
-                setShowConfirmationText(false);
-                setShowOptions(false);
+              onOpenChange={(open: boolean) => {
+                if (showOptions) {
+                  setShowOptions(open);
+                  showConfirmationText && setShowConfirmationText(false);
+                }
               }}
-              onOpening={() => setShowOptions(true)}
-              position={Position.BOTTOM_RIGHT}
-              target={
-                <Icon
+              open={showOptions}
+            >
+              <MenuTrigger>
+                <Button
                   className={`actions-icon ${showOptions && "active"}`}
                   data-testid="actions-cell-menu-icon"
-                  name="more-2-fill"
+                  isIconButton
+                  kind="tertiary"
                   onClick={() => setShowOptions(!showOptions)}
-                  size={IconSize.XXL}
+                  size="sm"
+                  startIcon="more-2-fill"
                 />
-              }
-            >
-              <HelpPopoverStyle />
-              {filteredMenuItems.map((menuItem) => (
-                <MenuItem
-                  className={menuItem.className}
-                  icon={menuItem.icon}
-                  key={menuItem.text}
-                  onSelect={(e: React.MouseEvent) => {
-                    onOptionSelect(e, menuItem);
-                  }}
-                  text={
-                    showConfirmationText && menuItem.label === "delete"
+              </MenuTrigger>
+              <MenuContent align="end">
+                {filteredMenuItems.map((menuItem) => (
+                  <MenuItem
+                    className={`${menuItem.className} ${
+                      menuItem.label === "delete" ? "error-menuitem" : ""
+                    }`}
+                    data-testid={`t--${menuItem.className}`}
+                    key={menuItem.text}
+                    onClick={(e: React.MouseEvent) => {
+                      onOptionSelect(e, menuItem);
+                    }}
+                    startIcon={menuItem.icon}
+                  >
+                    {showConfirmationText && menuItem.label === "delete"
                       ? createMessage(ARE_YOU_SURE)
-                      : menuItem.text
-                  }
-                  {...(showConfirmationText && menuItem.label === "delete"
-                    ? { type: "warning" }
-                    : {})}
-                />
-              ))}
+                      : menuItem.text}
+                  </MenuItem>
+                ))}
+              </MenuContent>
             </Menu>
           )
         );

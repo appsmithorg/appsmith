@@ -1,3 +1,4 @@
+import { Text } from "design-system";
 import styled from "styled-components";
 
 export const StyledAuditLogsHeader = styled.div`
@@ -7,16 +8,7 @@ export const StyledAuditLogsHeader = styled.div`
   align-items: center;
 `;
 
-export const StyledAuditLogsHeading = styled.div`
-  width: 180px;
-  height: 32px;
+export const StyledAuditLogsHeading = styled(Text)`
   flex-grow: 0;
-  font-size: 24px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: left;
-  color: var(--appsmith-color-black-800);
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;

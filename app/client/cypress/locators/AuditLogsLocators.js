@@ -17,7 +17,6 @@ export default {
     "[data-testid='t--audit-logs-feature-container']",
   Heading: "[data-testid='t--audit-logs-header-heading']",
   RefreshButton: "[data-testid='t--audit-logs-header-refresh-button']",
-  RefreshButtonIcon: ".t--left-icon",
   FiltersContainer: "[data-testid='t--audit-logs-filters-container']",
   EventFilterContainer:
     "[data-testid='t--audit-logs-event-type-filter-container']",
@@ -27,17 +26,16 @@ export default {
   DateFilterContainer: "[data-testid='t--audit-logs-date-filter-container']",
   EventFilterDropdown:
     ".audit-logs-filter.audit-logs-filter-dropdown.audit-logs-event-filter-dropdown",
-  EmailFilterDropdown:
-    ".audit-logs-filter.audit-logs-filter-dropdown.audit-logs-email-filter-dropdown",
+  EmailFilterDropdown: "[data-testid='t--audit-logs-event-type-filter']",
   ResourceIdFilterText: ".audit-logs-filter.audit-logs-resource-id-filter",
-  OpenBlueprintPortal: ".bp3-overlay.bp3-overlay-open",
-  EventFilterDropdownBlueprintPortal:
-    ".bp3-popover.bp3-minimal.audit-logs-filter.audit-logs-filter-dropdown.audit-logs-event-filter-dropdown.none-shadow-popover",
   ClearButton: "[data-testid='t--audit-logs-filters-clear-all-button']",
   RowsContainer: "[data-testid='t--audit-logs-table-rows-container']",
-  Renderer: "[data-testid='t--audit-logs-filter-label-renderer']",
+  Renderer: ".rc-select-selection-overflow-item",
   EndMarker: "[data-testid='t--audit-logs-table-end-marker']",
   Loading: "[data-testid='t--audit-logs-loading']",
-  OptionsWrapper: "[data-testid='dropdown-options-wrapper']",
+  OptionsWrapper: ".ads-v2-select__dropdown",
+  OptionsInnerWrapper: ".rc-virtual-list-holder-inner",
+  OptionsEmpty: ".rc-select-item-empty",
+  SelectSearchBox: ".rc-select-selection-search-input",
   ...Table,
 };

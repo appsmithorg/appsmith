@@ -89,7 +89,9 @@ export default function LeftPane() {
     <Wrapper>
       {isSuperUser && (
         <HeaderContainer>
-          <StyledHeader>Admin Settings</StyledHeader>
+          <StyledHeader kind="heading-s" renderAs="p">
+            Admin settings
+          </StyledHeader>
           <Categories
             categories={filteredGeneralCategories}
             currentCategory={category}
@@ -98,7 +100,9 @@ export default function LeftPane() {
         </HeaderContainer>
       )}
       <HeaderContainer>
-        <StyledHeader>Access Control</StyledHeader>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Access control
+        </StyledHeader>
         <Categories
           categories={filteredAclCategories}
           currentCategory={category}
@@ -107,7 +111,9 @@ export default function LeftPane() {
       </HeaderContainer>
       {isAuditLogsEnabled && (
         <HeaderContainer>
-          <StyledHeader>Others</StyledHeader>
+          <StyledHeader kind="heading-s" renderAs="p">
+            Others
+          </StyledHeader>
           <Categories
             categories={filteredOthersCategories}
             currentCategory={category}

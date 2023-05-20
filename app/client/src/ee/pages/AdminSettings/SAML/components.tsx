@@ -1,45 +1,19 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { TooltipComponent as Tooltip, Text, TextType } from "design-system-old";
 import FormTextField from "components/utils/ReduxFormTextField";
 import FormTextAreaField from "pages/Settings/FormGroup/TextAreaField";
-import { HelpIcons } from "icons/HelpIcons";
 import { createMessage } from "@appsmith/constants/messages";
-import { Position } from "@blueprintjs/core";
+
 import { SettingsFormWrapper } from "pages/Settings/components";
+import { Icon, Text, Tooltip } from "design-system";
+import { SettingTypes } from "../config/types";
 
-const HelpIcon = HelpIcons.HELP_ICON;
-
-export const HeaderSecondary = styled.h3`
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: -0.24px;
-  text-align: left;
-`;
-
-export const Info = styled.h3`
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 19px;
-  letter-spacing: -0.24px;
-  text-align: left;
+export const Info = styled(Text)`
   margin: 16px 0;
 `;
 
 export const MenuContainer = styled.div`
   margin-top: 8px;
-
-  .react-tabs__tab-list {
-    position: static;
-  }
-
-  .react-tabs__tab-panel {
-    padding: 0;
-  }
 `;
 
 export const BodyContainer = styled.div`
@@ -58,13 +32,25 @@ export const InputContainer = styled.div`
       cursor: pointer;
       svg {
         border-radius: 50%;
-        border: 1px solid ${Colors.GREY_7};
+        border: 1px solid var(--ads-v2-color-fg);
         padding: 1px;
+        fill: var(--ads-v2-color-fg);
       }
     }
   }
   .CodeEditorTarget {
     z-index: 0;
+  }
+`;
+
+const HeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: var(--ads-v2-color-fg);
+  .help-icon {
+    margin-left: 8px;
+    cursor: pointer;
   }
 `;
 
@@ -77,17 +63,19 @@ export const RaisedCard = styled(SettingsFormWrapper)`
   h3,
   a {
     margin: 0;
+    color: var(--ads-v2-color-fg);
   }
   display: flex;
   align-items: center;
   justify-content: center;
   h3 {
     flex-grow: 1;
+    color: var(--ads-v2-color-fg);
   }
 `;
 
-export const StyledAsterisk = styled.span`
-  color: ${Colors.ERROR_RED};
+export const StyledAsterisk = styled(Text)`
+  color: var(--ads-v2-color-fg-error);
   margin-left: 2px;
 `;
 
@@ -108,9 +96,12 @@ export function Input(props: InputProps) {
   if (type === "Area") {
     InputField = (
       <FormTextAreaField
-        disabled={false}
-        name={name}
-        placeholder={createMessage(() => placeholder || "")}
+        setting={{
+          controlType: SettingTypes.TEXTINPUT,
+          id: "APPSMITH_OAUTH2_SAML_METADATA_XML",
+          name: name,
+          placeholder: createMessage(() => placeholder || ""),
+        }}
       />
     );
   } else {
@@ -124,30 +115,25 @@ export function Input(props: InputProps) {
   }
   return (
     <InputContainer>
-      <Text color={Colors.GREY_9} type={TextType.P1}>
-        {props.label}
-        {isRequired && <StyledAsterisk>*</StyledAsterisk>}
+      <HeaderWrapper>
+        <Text color="var(--ads-v2-color-fg)" kind="body-m" renderAs="label">
+          {props.label}
+          {isRequired && <StyledAsterisk>*</StyledAsterisk>}
+        </Text>
         {props.hint && (
-          <Tooltip
-            autoFocus={false}
-            content={props.hint}
-            hoverOpenDelay={0}
-            minWidth={"180px"}
-            openOnTargetFocus={false}
-            position={Position.RIGHT}
-          >
-            <HelpIcon
+          <Tooltip content={props.hint} placement="right">
+            <Icon
               className={"help-icon"}
-              color={Colors.GREY_7}
-              height={13}
-              width={13}
+              color="var(--ads-v2-color-fg)"
+              name="question-line"
+              size="md"
             />
           </Tooltip>
         )}
-      </Text>
+      </HeaderWrapper>
       {InputField}
       {props.subText && (
-        <Text color={Colors.GREY_7} type={TextType.P3}>
+        <Text color="var(--ads-v2-color-fg-muted" renderAs="p">
           {props.subText}
         </Text>
       )}

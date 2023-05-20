@@ -37,7 +37,7 @@ import {
 } from "constants/routes";
 import { matchPath } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import {
   createMessage,
   LICENSE_UPDATED_SUCCESSFULLY,
@@ -201,9 +201,8 @@ export function* validateLicenseSaga(
         payload: response.data,
       });
       if (!shouldRedirectOnUpdate) {
-        Toaster.show({
-          text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
-          variant: Variant.success,
+        toast.show(createMessage(LICENSE_UPDATED_SUCCESSFULLY), {
+          kind: "success",
         });
         yield put(showLicenseModal(false));
       }
@@ -262,9 +261,8 @@ export function* forceLicenseCheckSaga() {
         payload: response.data,
       });
       if (response.data?.tenantConfiguration?.license?.type === "PAID") {
-        Toaster.show({
-          text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
-          variant: Variant.success,
+        toast.show(createMessage(LICENSE_UPDATED_SUCCESSFULLY), {
+          kind: "success",
         });
       }
     } else {

@@ -26,7 +26,7 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import { saveAllowed } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -36,7 +36,6 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-  MaxWidthWrapper,
 } from "pages/Settings/components";
 import { BackButton } from "components/utils/helperComponents";
 import {
@@ -101,9 +100,8 @@ export function OidcSettingsForm(
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
         error: createMessage(MANDATORY_FIELDS_ERROR),
       });
-      Toaster.show({
-        text: createMessage(MANDATORY_FIELDS_ERROR),
-        variant: Variant.danger,
+      toast.show(createMessage(MANDATORY_FIELDS_ERROR), {
+        kind: "error",
       });
     }
   };
@@ -191,9 +189,8 @@ export function OidcSettingsForm(
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
       error: createMessage(DISCONNECT_AUTH_ERROR),
     });
-    Toaster.show({
-      text: createMessage(DISCONNECT_AUTH_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(DISCONNECT_AUTH_ERROR), {
+      kind: "error",
     });
   };
 
@@ -238,38 +235,48 @@ export function OidcSettingsForm(
     <Wrapper>
       {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <MaxWidthWrapper>
-          <HeaderWrapper>
-            <SettingsHeader>{pageTitle}</SettingsHeader>
-            {details?.subText && (
-              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
-            )}
-          </HeaderWrapper>
-          <Group
-            category={category}
-            settings={settingsDetails}
-            subCategory={subCategory}
+        <HeaderWrapper>
+          <SettingsHeader
+            color="var(--ads-v2-color-fg-emphasis-plus)"
+            kind="heading-l"
+            renderAs="h1"
+          >
+            {pageTitle}
+          </SettingsHeader>
+          {details?.subText && (
+            <SettingsSubHeader
+              color="var(--ads-v2-color-fg-emphasis)"
+              kind="body-m"
+              renderAs="h2"
+            >
+              {details.subText}
+            </SettingsSubHeader>
+          )}
+        </HeaderWrapper>
+        <Group
+          category={category}
+          settings={settingsDetails}
+          subCategory={subCategory}
+        />
+        {isSavable && (
+          <SaveAdminSettings
+            isSaving={props.isSaving}
+            onClear={onClear}
+            onSave={onSave}
+            settings={props.settings}
+            valid={props.valid}
           />
-          {isSavable && (
-            <SaveAdminSettings
-              isSaving={props.isSaving}
-              onClear={onClear}
-              onSave={onSave}
-              settings={props.settings}
-              valid={props.valid}
-            />
-          )}
-          {isConnected && (
-            <DisconnectService
-              disconnect={() => disconnect(settingsDetails)}
-              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-              warning={`${pageTitle} ${createMessage(
-                DISCONNECT_SERVICE_WARNING,
-              )}`}
-            />
-          )}
-          <BottomSpace />
-        </MaxWidthWrapper>
+        )}
+        {isConnected && (
+          <DisconnectService
+            disconnect={() => disconnect(settingsDetails)}
+            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+            warning={`${pageTitle} ${createMessage(
+              DISCONNECT_SERVICE_WARNING,
+            )}`}
+          />
+        )}
+        <BottomSpace />
       </SettingsFormWrapper>
       <RestartBanner />
     </Wrapper>

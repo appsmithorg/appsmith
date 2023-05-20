@@ -1,5 +1,4 @@
-import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system-old";
+import { Tag } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
@@ -23,18 +22,18 @@ export function getStatusColor(status: Status) {
   switch (status) {
     case Status.ACTIVE:
       return {
-        background: Colors.LIGHT_GREEN_CYAN,
-        text: Colors.GREEN,
+        background: "var(--ads-v2-color-bg-success)",
+        text: "var(--ads-v2-color-fg-success)",
       };
     case Status.TRIAL:
       return {
-        background: Colors.LIGHT_GREEN_CYAN,
-        text: Colors.GREEN,
+        background: "var(--ads-v2-color-bg-success)",
+        text: "var(--ads-v2-color-fg-success)",
       };
     default:
       return {
-        background: Colors.LIGHT_GREEN_CYAN,
-        text: Colors.GREEN,
+        background: "var(--ads-v2-color-bg-success)",
+        text: "var(--ads-v2-color-fg-success)",
       };
   }
 }
@@ -44,19 +43,23 @@ export type StatusColors = {
   text: string;
 };
 
-export const StatusBadgeContainer = styled.div<{
-  background: string;
-}>`
+export const StatusBadgeContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0px 4px;
   border-radius: 4px;
-  background-color: ${(props) => props.background};
 `;
 
-export const StatusText = styled(Text)`
-  font-size: 11px;
+export const StatusText = styled(Tag)<{ background: string; color: string }>`
+  /* 
+  TODO: handle the colors on the Tag with the new component which will get introduced
+  ${({ background, color }) => `
+background-color: ${background};
+  > span {
+      color: ${color};
+  } */
+`}
 `;
 
 export interface StatusBadgeProps {
@@ -70,18 +73,14 @@ export function StatusBadge(props: StatusBadgeProps) {
   const statusColors = getStatusColor(status);
   const statusText = getStatusText(status, statusTextMap);
   return (
-    <StatusBadgeContainer
-      background={statusColors.background}
-      className={className}
-      data-testid="t--status-badge"
-    >
+    <StatusBadgeContainer className={className} data-testid="t--status-badge">
       <StatusText
+        background={statusColors.background}
         color={statusColors.text}
         data-testid="t--status-text"
-        type={TextType.P3}
-        weight="600"
+        isClosable={false}
       >
-        {statusText.toLocaleUpperCase()}
+        {statusText}
       </StatusText>
     </StatusBadgeContainer>
   );

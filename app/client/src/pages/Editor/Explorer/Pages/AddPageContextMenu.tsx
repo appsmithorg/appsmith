@@ -1,15 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { Popover2 } from "@blueprintjs/popover2";
-import {
-  TooltipComponent as Tooltip,
-  Text,
-  TextType,
-  IconWrapper,
-  IconSize,
-} from "design-system-old";
-import { EntityClassNames } from "../Entity";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
+import React, { useMemo, useState } from "react";
+import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import EntityAddButton from "../Entity/AddButton";
 import styled from "styled-components";
 import history from "utils/history";
@@ -18,7 +8,6 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal } from "actions/templateActions";
-import { Colors } from "constants/Colors";
 import {
   ADD_PAGE_FROM_TEMPLATE,
   ADD_PAGE_TOOLTIP,
@@ -27,43 +16,25 @@ import {
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
-import HotKeys from "../Files/SubmenuHotkeys";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  Menu,
+  MenuContent,
+  MenuTrigger,
+  MenuItem,
+  Tooltip,
+  Text,
+} from "design-system";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { importRemixIcon } from "design-system-old";
-
-const FileAddIcon = importRemixIcon(
-  () => import("remixicon-react/FileAddLineIcon"),
-);
-const Database2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Database2LineIcon"),
-);
-const Layout2LineIcon = importRemixIcon(
-  () => import("remixicon-react/Layout2LineIcon"),
-);
-
-const MenuItem = styled.div<{ active: boolean }>`
-  display: flex;
-  gap: ${(props) => props.theme.spaces[3]}px;
-  height: 36px;
-  width: 250px;
-  align-items: center;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
-  cursor: pointer;
-  ${(props) => props.active && `background-color: ${Colors.GREY_2};`}
-
-  &:hover {
-    background-color: ${Colors.GREY_2};
-  }
-`;
+import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 
 const Wrapper = styled.div`
   .title {
     display: flex;
     padding: ${(props) =>
-      `${props.theme.spaces[4]}px ${props.theme.spaces[7]}px`};
+      `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
   }
 `;
 
@@ -83,34 +54,24 @@ function AddPageContextMenu({
   const [show, setShow] = useState(openMenu);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
-  const [activeItemIdx, setActiveItemIdx] = useState(0);
   const featureFlags = useSelector(selectFeatureFlags);
   const isAutoLayout = useSelector(getIsAutoLayout);
   const isAirgappedInstance = isAirgapped();
-
-  const menuRef = useCallback(
-    (node) => {
-      if (node && show) {
-        node.focus();
-      }
-    },
-    [show],
-  );
 
   const ContextMenuItems = useMemo(() => {
     const items = [
       {
         title: createMessage(CREATE_PAGE),
-        icon: FileAddIcon,
+        icon: "file-add-line",
         onClick: createPageCallback,
-        "data-cy": "add-page",
+        "data-testid": "add-page",
         key: "CREATE_PAGE",
       },
       {
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
-        icon: Database2LineIcon,
+        icon: "database-2-line",
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
-        "data-cy": "generate-page",
+        "data-testid": "generate-page",
         key: "GENERATE_PAGE",
       },
     ];
@@ -122,9 +83,9 @@ function AddPageContextMenu({
     ) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
-        icon: Layout2LineIcon,
+        icon: "layout-2-line",
         onClick: () => dispatch(showTemplatesModal(true)),
-        "data-cy": "add-page-from-template",
+        "data-testid": "add-page-from-template",
         key: "ADD_PAGE_FROM_TEMPLATE",
       });
     }
@@ -132,27 +93,19 @@ function AddPageContextMenu({
     return items;
   }, [featureFlags, pageId]);
 
-  const handleUpKey = useCallback(() => {
-    setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex <= 0) return ContextMenuItems.length - 1;
-      return Math.max(currentActiveIndex - 1, 0);
-    });
-  }, []);
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      // handle open
+    } else {
+      // handle close
+      onMenuClose();
+    }
 
-  const handleDownKey = useCallback(() => {
-    setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex >= ContextMenuItems.length - 1) return 0;
-      return Math.min(currentActiveIndex + 1, ContextMenuItems.length - 1);
-    });
-  }, []);
-
-  const handleSelect = () => {
-    const item = ContextMenuItems[activeItemIdx];
-    onMenuItemClick(item);
+    setShow(open);
   };
 
   const onMenuItemClick = (item: (typeof ContextMenuItems)[number]) => {
-    setShow(false);
+    handleOpenChange(false);
     item.onClick();
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_ADD_PAGE_CLICK", {
       item: item.key,
@@ -160,66 +113,44 @@ function AddPageContextMenu({
   };
 
   return (
-    <Popover2
-      className="file-ops"
-      content={
-        <HotKeys
-          handleDownKey={handleDownKey}
-          handleSubmitKey={handleSelect}
-          handleUpKey={handleUpKey}
+    <Menu open={show}>
+      <MenuTrigger asChild={false}>
+        <Tooltip
+          content={createMessage(ADD_PAGE_TOOLTIP)}
+          mouseEnterDelay={TOOLTIP_HOVER_ON_DELAY_IN_S}
+          placement="right"
         >
-          <Wrapper
-            className={EntityClassNames.CONTEXT_MENU_CONTENT}
-            ref={menuRef}
-            tabIndex={0}
-          >
-            <Text autofocus className="title" type={TextType.H5}>
-              {createMessage(CANVAS_NEW_PAGE_CARD)}
-            </Text>
-            {ContextMenuItems.map((item, idx) => {
-              const MenuIcon = item.icon;
-
-              return (
-                <MenuItem
-                  active={idx === activeItemIdx}
-                  data-cy={item["data-cy"]}
-                  key={item.title}
-                  onClick={() => onMenuItemClick(item)}
-                >
-                  <IconWrapper color={Colors.GRAY_700} size={IconSize.XXL}>
-                    <MenuIcon />
-                  </IconWrapper>
-                  <Text color={Colors.MIRAGE} type={TextType.P1}>
-                    {item.title}
-                  </Text>
-                </MenuItem>
-              );
-            })}
-          </Wrapper>
-        </HotKeys>
-      }
-      isOpen={show}
-      minimal
-      onClose={() => {
-        setShow(false);
-        onMenuClose();
-      }}
-      placement="right-start"
-    >
-      <Tooltip
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={createMessage(ADD_PAGE_TOOLTIP)}
-        disabled={show}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.RIGHT}
+          <AddButtonWrapper>
+            <EntityAddButton
+              className={`${className} ${show ? "selected" : ""}`}
+              onClick={() => handleOpenChange(true)}
+            />
+          </AddButtonWrapper>
+        </Tooltip>
+      </MenuTrigger>
+      <MenuContent
+        align="start"
+        onInteractOutside={() => handleOpenChange(false)}
+        side="right"
       >
-        <EntityAddButton
-          className={`${className} ${show ? "selected" : ""}`}
-          onClick={() => setShow(true)}
-        />
-      </Tooltip>
-    </Popover2>
+        <Wrapper className={EntityClassNames.CONTEXT_MENU_CONTENT} tabIndex={0}>
+          <Text className="title" kind="heading-xs">
+            {createMessage(CANVAS_NEW_PAGE_CARD)}
+          </Text>
+          {ContextMenuItems.map((item) => {
+            return (
+              <MenuItem
+                key={item.title}
+                onClick={() => onMenuItemClick(item)}
+                startIcon={item.icon}
+              >
+                {item.title}
+              </MenuItem>
+            );
+          })}
+        </Wrapper>
+      </MenuContent>
+    </Menu>
   );
 }
 

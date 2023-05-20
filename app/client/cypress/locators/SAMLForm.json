@@ -3,9 +3,9 @@
   "entityID": "[name='entity-id--url-form']",
   "metadataURL": "[name='metadataUrl']",
   "saveBtn": ".t--admin-settings-save-button",
-  "metadataXML": ".t--code-editor-wrapper",
+  "metadataXML": "[name='metadataXml']",
   "editEntityId": "[name='metadataEntityId']",
   "ssoURL": "[name='metadataSsoUrl']",
   "pubCert": "[name='metadataPubCert']",
   "email": "[name='metadataEmail']"
- }
+}

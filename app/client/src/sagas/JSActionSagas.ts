@@ -38,7 +38,6 @@ import type {
   JSCollectionCreateUpdateResponse,
 } from "api/JSActionAPI";
 import JSActionAPI from "api/JSActionAPI";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_JS_ACTION_COPY_FAIL,
@@ -62,6 +61,7 @@ import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { toast } from "design-system";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -156,14 +156,12 @@ function* copyJSCollectionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(
-          JS_ACTION_COPY_SUCCESS,
-          actionObject.name,
-          pageName,
-        ),
-        variant: Variant.success,
-      });
+      toast.show(
+        createMessage(JS_ACTION_COPY_SUCCESS, actionObject.name, pageName),
+        {
+          kind: "success",
+        },
+      );
       const payload = response.data;
 
       // @ts-expect-error: response.data is of type unknown
@@ -171,9 +169,8 @@ function* copyJSCollectionSaga(
     }
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    Toaster.show({
-      text: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName), {
+      kind: "error",
     });
     yield put(copyJSCollectionError(action.payload));
   }
@@ -215,22 +212,23 @@ function* moveJSCollectionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(
+      toast.show(
+        createMessage(
           JS_ACTION_MOVE_SUCCESS,
           // @ts-expect-error: response.data is of type unknown
           response.data.name,
           pageName,
         ),
-        variant: Variant.success,
-      });
+        {
+          kind: "success",
+        },
+      );
     }
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
-    Toaster.show({
-      text: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
+      kind: "error",
     });
     yield put(
       moveJSCollectionError({
@@ -271,10 +269,9 @@ export function* deleteJSCollectionSaga(
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      Toaster.show({
-        // @ts-expect-error: response.data is of type unknown
-        text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
-        variant: Variant.success,
+      // @ts-expect-error: response.data is of type unknown
+      toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
+        kind: "success",
       });
       history.push(builderURL({ pageId }));
       AppsmithConsole.info({
@@ -319,10 +316,12 @@ function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: collection.config.name,
       },
     });
-    Toaster.show({
-      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
-      variant: Variant.danger,
-    });
+    toast.show(
+      createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
+      {
+        kind: "error",
+      },
+    );
     log.error(e);
   }
 }

@@ -1,26 +1,22 @@
 import React, { useEffect, useRef } from "react";
-import { TextInput } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAuditLogsLogsInit,
   setResourceIdJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
 import { selectAuditLogsSearchFilters } from "@appsmith/selectors/auditLogsSelectors";
-import {
-  AUDIT_LOGS_FILTER_HEIGHT,
-  AUDIT_LOGS_FILTER_WIDTH,
-} from "../../config/audit-logs-config";
 import { useGoToTop } from "../../hooks/useGoToTop";
-import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system-old/build/constants/messages";
 import {
+  createMessage,
   RESOURCE_ID_LABEL,
   RESOURCE_ID_PLACEHOLDER,
 } from "@appsmith/constants/messages";
+import { Input } from "design-system";
+import { StyledFilterContainer as Container } from "../../styled-components/container";
 
 export default function ResourceIdFilter() {
-  const ref = useRef<HTMLFormElement>(null);
+  const ref = useRef<HTMLInputElement>(null);
   const searchFilters = useSelector(selectAuditLogsSearchFilters);
   const { resourceId } = searchFilters;
   const dispatch = useDispatch();
@@ -42,7 +38,7 @@ export default function ResourceIdFilter() {
 
   function keyDownHandler(e: any) {
     const enter = e.keyCode === 13 || e.key === "Enter" || e.code === "Enter";
-    if (ref.current && enter) {
+    if (ref.current && enter && ref.current.value) {
       handleChange(ref.current.value);
       searchFilters.resourceId = ref.current.value;
       handleBlur();
@@ -57,19 +53,19 @@ export default function ResourceIdFilter() {
   }, []);
 
   return (
-    <div data-testid="t--audit-logs-resource-id-filter-container">
-      <Label>{createMessage(RESOURCE_ID_LABEL)}</Label>
-      <TextInput
+    <Container data-testid="t--audit-logs-resource-id-filter-container">
+      <Input
         className="audit-logs-filter audit-logs-resource-id-filter"
         data-testid="t--audit-logs-resource-id-filter"
-        height={AUDIT_LOGS_FILTER_HEIGHT}
+        label={createMessage(RESOURCE_ID_LABEL)}
         onBlur={handleBlur}
         onChange={handleChange}
         placeholder={createMessage(RESOURCE_ID_PLACEHOLDER)}
         ref={ref}
+        renderAs="input"
+        size="md"
         value={resourceId}
-        width={AUDIT_LOGS_FILTER_WIDTH}
       />
-    </div>
+    </Container>
   );
 }

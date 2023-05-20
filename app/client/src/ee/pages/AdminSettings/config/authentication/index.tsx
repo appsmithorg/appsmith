@@ -44,7 +44,7 @@ const SsoAuth: AdminConfigType = {
 const OidcAuth: AdminConfigType = {
   type: SettingCategories.OIDC_AUTH,
   controlType: SettingTypes.PAGE,
-  title: "OpenID Connect",
+  title: "OpenID connect",
   component: Oidc,
   subText:
     "Enable your workspace to sign in with your preferred OIDC compliant provider.",
@@ -84,7 +84,7 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
     {
@@ -111,7 +111,7 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "User Info URL",
+      label: "User info URL",
       isRequired: true,
     },
     {
@@ -120,7 +120,7 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "JWK Set URL",
+      label: "JWK set URL",
       isRequired: true,
     },
     {
@@ -130,7 +130,7 @@ const OidcAuth: AdminConfigType = {
       controlType: SettingTypes.TAGINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Scope",
-      subText: "It accepts multiple values",
+      subText: "* It accepts multiple values",
       isRequired: true,
     },
     {
@@ -139,8 +139,8 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Username Attribute",
-      subText: "Name of the claim which represents the email of the user",
+      label: "Username attribute",
+      subText: "* Name of the claim which represents the email of the user",
       isRequired: true,
     },
     {
@@ -155,7 +155,7 @@ const OidcAuth: AdminConfigType = {
           category: SettingCategories.OIDC_AUTH,
           subCategory: SettingSubCategories.OIDC,
           controlType: SettingTypes.DROPDOWN,
-          label: "Token Signing Algorithm",
+          label: "Token signing algorithm",
           dropdownOptions: [
             { id: "RS256", value: "RS256" },
             { id: "RS384", value: "RS384" },
@@ -186,7 +186,6 @@ export const SamlAuthCallout: AuthMethodType = {
   label: "SAML 2.0",
   subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
-  type: "LINK",
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -195,7 +194,6 @@ export const OidcAuthCallout: AuthMethodType = {
   label: "OIDC",
   subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
   image: OIDC,
-  type: "LINK",
 };
 
 const isAirgappedInstance = isAirgapped();

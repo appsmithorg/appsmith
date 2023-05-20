@@ -42,7 +42,7 @@
         "sshProxyEnabled": false,
         "properties": [
           {
-            "key": "Use Mongo Connection String URI",
+            "key": "Use mongo connection string URI",
             "value": "No"
           }
         ]

@@ -1,38 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
-import type { MenuItemProps, TabProp } from "design-system-old";
-import {
-  Icon,
-  IconSize,
-  MenuItem,
-  Menu,
-  SearchVariant,
-  TabComponent,
-  Toaster,
-  Variant,
-} from "design-system-old";
-import ProfileImage from "pages/common/ProfileImage";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
-import {
-  TabsWrapper,
-  HelpPopoverStyle,
-  StyledSearchInput,
-  SaveButtonBar,
-} from "./components";
+import { StyledSearchInput, SaveButtonBar, StyledTabs } from "./components";
 import {
   ARE_YOU_SURE,
   createMessage,
   ACL_DELETE,
-  SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import type {
   BaseAclProps,
   GroupsForUser,
+  MenuItemProps,
   PermissionsForUser,
+  TabProps,
   UserEditProps,
 } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
@@ -44,25 +27,23 @@ import {
 } from "@appsmith/actions/aclActions";
 import { getAclIsEditing } from "@appsmith/selectors/aclSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tab,
+  TabPanel,
+  TabsList,
+  Text,
+} from "design-system";
+import { AvatarComponent } from "pages/common/AvatarComponent";
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  .actions-icon {
-    > svg {
-      path {
-        fill: var(--appsmith-color-black-400);
-      }
-
-      &:hover {
-        path {
-          fill: var(--appsmith-color-black-700);
-        }
-      }
-    }
-  }
 `;
 
 const Container = styled.div`
@@ -90,25 +71,13 @@ const Username = styled.div`
   margin-left: 16px;
 `;
 
-const Name = styled.div`
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -0.24px;
+const Name = styled(Text)`
   margin-bottom: 4px;
-`;
-
-const Email = styled.div`
-  letter-spacing: -0.24px;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 17px;
 `;
 
 export function UserEdit(props: UserEditProps) {
   const [showOptions, setShowOptions] = useState(false);
   const [showConfirmationText, setShowConfirmationText] = useState(false);
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const history = useHistory();
   const [userGroups, setUserGroups] = useState<GroupsForUser>({
     groups: [],
@@ -168,13 +137,13 @@ export function UserEdit(props: UserEditProps) {
   ]);
 
   const onAddGroup = (group: BaseAclProps) => {
-    if (selectedTabIndex === 0) {
+    if (selectedTab === tabs[0].key) {
       const updateUserGroups =
         getFilteredData(addedAllUserGroups, group, true).length > 0
           ? getFilteredData(addedAllUserGroups, group, false)
           : [...addedAllUserGroups, group];
       setAddedAllUserGroups(updateUserGroups);
-    } else if (selectedTabIndex === 1) {
+    } else if (selectedTab === tabs[1].key) {
       const updatePermissionGroups =
         getFilteredData(addedAllPermGroups, group, true).length > 0
           ? getFilteredData(addedAllPermGroups, group, false)
@@ -184,13 +153,13 @@ export function UserEdit(props: UserEditProps) {
   };
 
   const onRemoveGroup = (group: BaseAclProps) => {
-    if (selectedTabIndex === 0) {
+    if (selectedTab === tabs[0].key) {
       const updateUserGroups =
         getFilteredData(removedActiveUserGroups, group, true).length > 0
           ? getFilteredData(removedActiveUserGroups, group, false)
           : [...removedActiveUserGroups, group];
       setRemovedActiveUserGroups(updateUserGroups);
-    } else if (selectedTabIndex === 1) {
+    } else if (selectedTab === tabs[1].key) {
       const updatePermissionGroups =
         getFilteredData(removedActivePermissionGroups, group, true).length > 0
           ? getFilteredData(removedActivePermissionGroups, group, false)
@@ -269,10 +238,6 @@ export function UserEdit(props: UserEditProps) {
     setRemovedActivePermissionGroups([]);
     setAddedAllUserGroups([]);
     setAddedAllPermGroups([]);
-    Toaster.show({
-      text: createMessage(SUCCESSFULLY_SAVED),
-      variant: Variant.success,
-    });
   };
 
   const onClearChanges = () => {
@@ -287,8 +252,10 @@ export function UserEdit(props: UserEditProps) {
       props.onDelete(selectedUser.id);
       history.push(`/settings/users`);
     } else {
-      setShowOptions(true);
-      setShowConfirmationText(true);
+      setTimeout(() => {
+        setShowOptions(true);
+        setShowConfirmationText(true);
+      }, 0);
     }
   };
 
@@ -344,7 +311,7 @@ export function UserEdit(props: UserEditProps) {
     }
   }, 300);
 
-  const tabs: TabProp[] = [
+  const tabs: TabProps[] = [
     {
       key: "groups",
       title: "Groups",
@@ -385,8 +352,9 @@ export function UserEdit(props: UserEditProps) {
 
   const menuItems: MenuItemProps[] = [
     {
+      label: "delete",
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: () => {
         onDeleteHandler();
       },
@@ -394,14 +362,21 @@ export function UserEdit(props: UserEditProps) {
     },
   ];
 
+  const [selectedTab, setSelectedTab] = useState<string>(tabs[0].key);
+
+  const onTabChange = (value: string) => {
+    setSelectedTab(value);
+  };
+
   return (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <Header>
         <User data-testid="t--user-edit-userInfo">
-          <ProfileImage
+          <AvatarComponent
             className="user-icons"
-            size={64}
+            label="user-avatar"
+            size="md"
             source={
               selectedUser.photoId
                 ? `/api/${USER_PHOTO_ASSET_URL}/${selectedUser.photoId}`
@@ -410,73 +385,100 @@ export function UserEdit(props: UserEditProps) {
             userName={selectedUser.username}
           />
           <Username>
-            {selectedUser?.name && <Name>{selectedUser.name}</Name>}
-            <Email>{selectedUser?.username}</Email>
+            {selectedUser?.name && (
+              <Name
+                color="var(--ads-v2-color-fg-emphasis)"
+                kind="heading-m"
+                renderAs="p"
+              >
+                {selectedUser.name}
+              </Name>
+            )}
+            <Text color="var(--ads-v2-color-fg)" renderAs="p">
+              {selectedUser?.username}
+            </Text>
           </Username>
         </User>
         <Container>
           <StyledSearchInput
             className="acl-search-input"
             data-testid={"t--acl-search-input"}
-            defaultValue={searchValue.toLowerCase()}
             onChange={onSearch}
             placeholder={searchPlaceholder}
-            variant={SearchVariant.BACKGROUND}
-            width={"376px"}
+            size="md"
+            value={searchValue.toLowerCase()}
           />
           {menuItems && menuItems.length > 0 && (
             <Menu
-              canEscapeKeyClose
-              canOutsideClickClose
-              className="t--menu-actions-icon"
-              isOpen={showOptions}
-              menuItemWrapperWidth={"auto"}
-              onClose={() => setShowOptions(false)}
-              onClosing={() => {
-                setShowConfirmationText(false);
-                setShowOptions(false);
+              onOpenChange={(open: boolean) => {
+                if (showOptions) {
+                  setShowOptions(open);
+                  showConfirmationText && setShowConfirmationText(false);
+                }
               }}
-              onOpening={() => setShowOptions(true)}
-              position={Position.BOTTOM_RIGHT}
-              target={
-                <Icon
+              open={showOptions}
+            >
+              <MenuTrigger>
+                <Button
                   className="actions-icon"
                   data-testid="actions-cell-menu-icon"
-                  name="more-2-fill"
+                  isIconButton
+                  kind="tertiary"
                   onClick={() => setShowOptions(!showOptions)}
-                  size={IconSize.XXL}
+                  size="sm"
+                  startIcon="more-2-fill"
                 />
-              }
-            >
-              <HelpPopoverStyle />
-              {menuItems.map((menuItem) => (
-                <MenuItem
-                  className={menuItem.className}
-                  icon={menuItem.icon}
-                  key={menuItem.text}
-                  onSelect={menuItem.onSelect}
-                  text={
-                    showConfirmationText
+              </MenuTrigger>
+              <MenuContent align="end">
+                {menuItems.map((menuItem) => (
+                  <MenuItem
+                    className={`${menuItem.className} ${
+                      menuItem.label === "delete" ? "error-menuitem" : ""
+                    }`}
+                    data-testid={`t--${menuItem.className}`}
+                    key={menuItem.text}
+                    onClick={menuItem.onSelect}
+                    startIcon={menuItem.icon}
+                  >
+                    {showConfirmationText
                       ? createMessage(ARE_YOU_SURE)
-                      : menuItem.text
-                  }
-                  {...(showConfirmationText ? { type: "warning" } : {})}
-                />
-              ))}
+                      : menuItem.text}
+                  </MenuItem>
+                ))}
+              </MenuContent>
             </Menu>
           )}
         </Container>
       </Header>
-      <TabsWrapper
+
+      <StyledTabs
         data-testid="t--user-edit-tabs-wrapper"
+        defaultValue={selectedTab}
         isEditing={isEditing}
+        onValueChange={onTabChange}
       >
-        <TabComponent
-          onSelect={setSelectedTabIndex}
-          selectedIndex={selectedTabIndex}
-          tabs={tabs}
-        />
-      </TabsWrapper>
+        <TabsList>
+          {tabs.map((tab) => {
+            return (
+              <Tab
+                data-testid={`t--tab-${tab.key}`}
+                key={tab.key}
+                notificationCount={tab.count}
+                value={tab.key}
+              >
+                {tab.title}
+              </Tab>
+            );
+          })}
+        </TabsList>
+        {tabs.map((tab) => {
+          return (
+            <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
+              {tab.panelComponent}
+            </TabPanel>
+          );
+        })}
+      </StyledTabs>
       {isEditing && (
         <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
       )}

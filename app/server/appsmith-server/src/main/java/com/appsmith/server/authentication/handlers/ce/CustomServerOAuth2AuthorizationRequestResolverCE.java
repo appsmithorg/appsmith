@@ -181,7 +181,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 //            builder = OAuth2AuthorizationRequest.implicit();
         } else {
             throw new IllegalArgumentException(
-                    "Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
+                    "Invalid Authorization Grant type (" + clientRegistration.getAuthorizationGrantType().getValue()
                             + ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
         }
 

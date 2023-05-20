@@ -343,7 +343,7 @@ describe("Entity Explorer tests", () => {
       );
 
       const collapsible: any = component.container.querySelector(
-        `a.t--entity-collapse-toggle[name="arrow-right"]`,
+        `.t--entity-collapse-toggle[id="arrow-right-s-line"]`,
       );
 
       fireEvent.click(collapsible);

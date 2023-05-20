@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { validateLicense } from "@appsmith/actions/tenantActions";
-import { Text, TextType, Size } from "design-system-old";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,7 +13,8 @@ import {
   isLicenseValidating,
 } from "@appsmith/selectors/tenantSelectors";
 import { isEmptyString } from "utils/formhelpers";
-import { StyledForm, StyledInput, InputWrapper, StyledButton } from "./styles";
+import { StyledForm, StyledInput, InputWrapper } from "./styles";
+import { Button, Text } from "design-system";
 
 export type LicenseFormProps = {
   label?: string;
@@ -84,31 +84,35 @@ export const LicenseForm = (props: LicenseFormProps) => {
       onSubmit={handleSubmit(checkLicenseStatus)}
       showError={formError}
     >
-      {label && <label className="license-input-label">{label}</label>}
       <InputWrapper>
         <StyledInput
-          className={`license-input `}
+          className={`license-input`}
           data-testid="t--license-input"
+          label={label}
           placeholder={placeholder ?? createMessage(ADD_KEY)}
           {...register("licenseKey")}
           onChange={handleInputChange}
+          size="md"
         />
         {errors.licenseKey && (
-          <Text className="input-error-msg" type={TextType.P3}>
+          <Text
+            className="input-error-msg"
+            color="var(--ads-v2-color-fg-error)"
+            renderAs="p"
+          >
             {errors.licenseKey.message}
           </Text>
         )}
       </InputWrapper>
-      <StyledButton
+      <Button
         data-testid="t--activate-instance-btn"
-        disabled={isFieldEmpty}
-        fill
+        isDisabled={isFieldEmpty}
         isLoading={licenseValidating}
-        size={Size.large}
-        tag="button"
-        text={actionBtnText ?? createMessage(ACTIVATE_INSTANCE)}
+        size="md"
         type="submit"
-      />
+      >
+        {actionBtnText ?? createMessage(ACTIVATE_INSTANCE)}
+      </Button>
     </StyledForm>
   );
 };

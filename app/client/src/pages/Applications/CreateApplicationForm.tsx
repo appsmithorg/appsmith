@@ -63,7 +63,7 @@ function CreateApplicationForm(props: Props) {
       </FormGroup>
       <FormFooter
         canSubmit={!invalid}
-        data-cy="t--create-app-submit"
+        data-testid="t--create-app-submit"
         divider
         onCancel={props.onCancel}
         onSubmit={handleSubmit(createApplicationFormSubmitHandler)}

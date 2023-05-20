@@ -1,8 +1,9 @@
 import styled from "styled-components";
+import { AUDIT_LOGS_FILTER_WIDTH } from "../config/audit-logs-config";
 
 export const StyledAuditLogsRightPaneContainer = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-top: 40px;
+  padding: var(--ads-v2-spaces-7);
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow-y: scroll;
 `;
@@ -45,8 +46,9 @@ export const StyledFiltersContainer = styled.div`
   background-color: white;
   padding: 8px 0;
   margin: auto;
+  align-items: baseline;
   /* This makes collapsible code fly below it; refer: AuditLogTable Head */
-  z-index: 100;
+  z-index: 101;
 `;
 
 export const StyledCollapsibleLogContainer = styled.div`
@@ -78,15 +80,18 @@ export const StyledAuditLogsTableRowContainer = styled.div<{ isOpen: boolean }>`
 `;
 
 export const StyledFilterContainer = styled.div`
-  & .audit-logs-filter-dropdown:hover {
-    background-color: var(--appsmith-color-black-50);
-  }
-
-  & .cs-text {
-    width: 100%;
-  }
+  display: flex;
+  flex-direction: column;
 
   & .custom-render-option {
     overflow: hidden;
+  }
+
+  & .react-datepicker-wrapper {
+    display: flex;
+  }
+
+  & .audit-logs-filter {
+    width: ${AUDIT_LOGS_FILTER_WIDTH};
   }
 `;
