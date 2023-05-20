@@ -494,8 +494,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .commands-button {
-      display: flex;
+    button {
+      visibility: visible;
     }
   }
   border-radius: var(--ads-v2-border-radius);
@@ -504,27 +504,5 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   }
   .lightning-menu {
     z-index: 1 !important;
-  }
-  .commands-button {
-    z-index: 2;
-    width: 20px;
-    position: absolute;
-    right: 0;
-    transform: translate(-50%, 50%);
-    height: 20px;
-    background: transparent;
-    display: none;
-    color: #f86a2b;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    padding: 0 0 3px;
-    margin: 0 !important;
-    top: -2px;
-    &:hover {
-      background: #f86a2b;
-      color: white;
-    }
   }
 `;
