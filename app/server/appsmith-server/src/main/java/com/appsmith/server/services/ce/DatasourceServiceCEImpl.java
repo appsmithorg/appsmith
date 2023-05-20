@@ -628,7 +628,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasourceDTO.setPolicies(datasource.getPolicies());
 
         return workspaceService.getDefaultEnvironmentId(datasource.getWorkspaceId())
-                .map(environmentId -> datasource.getDatasourceStorages().get(environmentId))
+                .flatMap(environmentId -> {
+                    Map<String, DatasourceStorageDTO> storages = datasource.getDatasourceStorages();
+                    if (storages == null) {
+                        return Mono.empty();
+                    }
+                    return Mono.justOrEmpty(storages.get(environmentId));
+                })
                 .map(datasourceStorageDTO1 -> {
                     datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO1.getDatasourceConfiguration());
                     datasourceDTO.setInvalids(datasourceStorageDTO1.getInvalids());
