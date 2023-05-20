@@ -67,7 +67,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
       ".t--property-control-clientsidesearch input[type='checkbox']",
     );
     cy.get(".t--widget-tablewidgetv2 .t--search-input").first().type("Currey");
-    cy.wait(1000);
+    cy.wait(2000);
 
     // Captures the API call made on search
     cy.wait("@postExecute").then((interception) => {
