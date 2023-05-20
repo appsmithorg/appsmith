@@ -1,9 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -22,6 +19,7 @@ import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
