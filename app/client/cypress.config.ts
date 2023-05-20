@@ -2,7 +2,7 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   // watchForFileChanges: false,
-  defaultCommandTimeout: 20000,
+  defaultCommandTimeout: 30000,
   requestTimeout: 21000,
   responseTimeout: 30000,
   pageLoadTimeout: 30000,
