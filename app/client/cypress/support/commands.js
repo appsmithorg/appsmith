@@ -200,7 +200,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).clear().type(appName, { force: true });
   cy.get(homePage.applicationCard).trigger("mouseover");
-  cy.get(homePage.appMoreIcon)
+  cy.get("[data-testid=t--application-card-context-menu]")
     .should("have.length", 1)
     .first()
     .click({ force: true });
