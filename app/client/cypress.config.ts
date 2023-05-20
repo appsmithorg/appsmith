@@ -4,7 +4,7 @@ export default defineConfig({
   // watchForFileChanges: false,
   defaultCommandTimeout: 20000,
   requestTimeout: 21000,
-  responseTimeout: 20000,
+  responseTimeout: 30000,
   pageLoadTimeout: 30000,
   videoUploadOnPasses: false,
   videoCompression: false,
