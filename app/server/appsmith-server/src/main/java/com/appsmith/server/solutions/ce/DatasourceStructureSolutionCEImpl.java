@@ -1,12 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -27,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
+
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -137,9 +134,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .flatMap(structure -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
                                 datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
                         .then(datasourceStorage.getId() == null
-                        ? Mono.empty()
-                        : datasourceStructureService.saveStructure(datasourceStorage.getId(), structure).thenReturn(structure)
-                );
+                                ? Mono.empty()
+                                : datasourceStructureService.saveStructure(datasourceStorage.getId(), structure).thenReturn(structure)
+                        ));
 
 
         // This mono, when computed, will load the structure of the datasourceStorage by calling the plugin method.
