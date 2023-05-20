@@ -8,7 +8,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
     cy.addDsl(dsl);
   });
 
-  it("Validate show/hide tooltip feature on normal button", function () {
+  it("1. Validate show/hide tooltip feature on normal button", function () {
     cy.openPropertyPane("buttonwidget");
     // Add tooltip
     cy.testJsontext(
@@ -32,7 +32,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
       .should("not.exist");
   });
 
-  it("Validate show/hide tooltip feature for a disabled button on deploy", function () {
+  it("2. Validate show/hide tooltip feature for a disabled button on deploy", function () {
     // Disable the button
     cy.get(".t--property-control-disabled .ads-v2-switch").click({
       force: true,
