@@ -134,7 +134,7 @@ public class CreateDBTablePageSolutionTests {
     @Autowired
     DatasourceService datasourceService;
     @Autowired
-    DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+    DatasourceStructureService datasourceStructureService;
     @Autowired
     ApplicationPageService applicationPageService;
     @Autowired
@@ -206,7 +206,7 @@ public class CreateDBTablePageSolutionTests {
             testDatasourceStructure.setDatasourceId(datasource.getId());
             testDatasourceStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
             testDatasourceStructure.setStructure(structure);
-            datasourceConfigurationStructureService.save(testDatasourceStructure).block();
+            datasourceStructureService.save(testDatasourceStructure).block();
         }
         resource.setTableName(structure.getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
@@ -535,7 +535,7 @@ public class CreateDBTablePageSolutionTests {
                     datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
                     datasourceStorageStructure.setStructure(structure);
 
-                    return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                    return datasourceStructureService.save(datasourceStorageStructure)
                             .thenReturn(datasource);
                 });
 
@@ -622,7 +622,7 @@ public class CreateDBTablePageSolutionTests {
                                 datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
                                 datasourceStorageStructure.setStructure(structure);
 
-                                return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                                return datasourceStructureService.save(datasourceStorageStructure)
                                         .thenReturn(datasource1);
                             });
                 });
@@ -703,7 +703,7 @@ public class CreateDBTablePageSolutionTests {
                                 datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
                                 datasourceStorageStructure.setStructure(structure);
 
-                                return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                                return datasourceStructureService.save(datasourceStorageStructure)
                                         .thenReturn(datasource1);
                             });
                 });
@@ -833,7 +833,7 @@ public class CreateDBTablePageSolutionTests {
                                 datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
                                 datasourceStorageStructure.setStructure(structure);
 
-                                return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                                return datasourceStructureService.save(datasourceStorageStructure)
                                         .thenReturn(datasource1);
                             });
 
@@ -905,7 +905,7 @@ public class CreateDBTablePageSolutionTests {
                                 datasourceStorageStructure.setDatasourceId(datasource1.getId());
                                 datasourceStorageStructure.setStructure(structure);
 
-                                return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                                return datasourceStructureService.save(datasourceStorageStructure)
                                         .thenReturn(datasource1);
                             });
                 });
@@ -989,7 +989,7 @@ public class CreateDBTablePageSolutionTests {
                                 datasourceStorageStructure.setDatasourceId(datasource1.getId());
                                 datasourceStorageStructure.setStructure(structure);
 
-                                return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                                return datasourceStructureService.save(datasourceStorageStructure)
                                         .thenReturn(datasource1);
                             });
                 });
@@ -1066,7 +1066,7 @@ public class CreateDBTablePageSolutionTests {
                                 datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
                                 datasourceStorageStructure.setStructure(structure);
 
-                                return datasourceConfigurationStructureService.save(datasourceStorageStructure)
+                                return datasourceStructureService.save(datasourceStorageStructure)
                                         .thenReturn(datasource1);
                             });
                 });

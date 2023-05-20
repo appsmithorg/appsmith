@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
@@ -18,7 +19,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -34,6 +34,7 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -58,6 +59,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -399,15 +401,15 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                     return datasourceTestResultMono
                             .flatMap(datasourceTestResult -> {
-                                if(!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())){
-                                   return analyticsService.sendObjectEvent(AnalyticsEvents.DS_TEST_EVENT_FAILED,
-                                           datasource1,getAnalyticsPropertiesForTestEventStatus(datasource1,
-                                                   datasourceTestResult)).thenReturn(datasourceTestResult);
+                                if (!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())) {
+                                    return analyticsService.sendObjectEvent(AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                                            datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage,
+                                                    datasourceTestResult)).thenReturn(datasourceTestResult);
 
                                 } else {
                                     return analyticsService.sendObjectEvent(AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
-                                                    datasource1, getAnalyticsPropertiesForTestEventStatus(datasource1,
-                                                            datasourceTestResult)).thenReturn(datasourceTestResult);
+                                            datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage,
+                                                    datasourceTestResult)).thenReturn(datasourceTestResult);
                                 }
                             })
                             .map(datasourceTestResult -> {

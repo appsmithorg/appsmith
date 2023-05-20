@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
 @Service
-public class DatasourceConfigurationStructureServiceCEImpl implements DatasourceConfigurationStructureServiceCE {
+public class DatasourceStructureServiceCEImpl implements DatasourceStructureServiceCE {
 
     protected final DatasourceStructureRepository repository;
 

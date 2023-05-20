@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -8,8 +7,8 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
@@ -17,11 +16,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.DatasourceConfigurationStructureService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.DatasourceStorageService;
+import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -30,9 +30,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
-
-import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
-import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -45,7 +42,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginService pluginService;
     private final DatasourceContextService datasourceContextService;
-    private final DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+    private final DatasourcePermission datasourcePermission;
+    private final DatasourceStructureService datasourceStructureService;
     private final AnalyticsService analyticsService;
 
     @Override
@@ -86,7 +84,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
             return Mono.empty();
         }
 
-        Mono<DatasourceStorageStructure> configurationStructureMono = datasourceConfigurationStructureService
+        Mono<DatasourceStorageStructure> configurationStructureMono = datasourceStructureService
                 .getByDatasourceIdAndEnvironmentId(datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
 
         Mono<DatasourceStructure> fetchAndStoreNewStructureMono = pluginExecutorHelper
@@ -140,7 +138,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                 datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
                         .then(datasourceStorage.getId() == null
                         ? Mono.empty()
-                        : datasourceConfigurationStructureService.saveStructure(datasourceStorage.getId(), structure).thenReturn(structure)
+                        : datasourceStructureService.saveStructure(datasourceStorage.getId(), structure).thenReturn(structure)
                 );
 
 

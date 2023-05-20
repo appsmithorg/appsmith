@@ -19,9 +19,11 @@ public class DatasourceStructureSolutionImpl extends DatasourceStructureSolution
                                            PluginExecutorHelper pluginExecutorHelper,
                                            PluginService pluginService,
                                            DatasourceContextService datasourceContextService,
-                                           DatasourceConfigurationStructureService datasourceConfigurationStructureService,
+                                           DatasourcePermission datasourcePermission,
+                                           DatasourceStructureService datasourceStructureService,
                                            AnalyticsService analyticsService) {
-        super(datasourceService, pluginExecutorHelper, pluginService, datasourceContextService,
-                datasourceConfigurationStructureService, analyticsService);
+        super(datasourceService, datasourceStorageService, pluginExecutorHelper, pluginService,
+                datasourceContextService, datasourcePermission,
+                datasourceStructureService, analyticsService);
     }
 }

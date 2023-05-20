@@ -346,13 +346,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 });
 
                                 applicationJson.setPageList(newPageList);
-                                applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
+                                applicationJson.setUpdatedResources(new HashMap<>() {{
                                     put(FieldName.PAGE_LIST, updatedPageSet);
                                 }});
 
-                                Flux<Datasource> datasourceFlux = TRUE.equals(exportWithConfiguration.get())
-                                        ? datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
-                                        : datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getEditPermission()));
+                                Optional<AclPermission> optionalPermission3 = isGitSync ? Optional.empty()
+                                        : TRUE.equals(exportWithConfiguration.get())
+                                        ? Optional.of(datasourcePermission.getReadPermission())
+                                        : Optional.of(datasourcePermission.getEditPermission());
 
                                 Flux<Datasource> datasourceFlux =
                                         datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, optionalPermission3);
