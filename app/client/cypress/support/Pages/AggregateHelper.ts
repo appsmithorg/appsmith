@@ -312,12 +312,8 @@ export class AggregateHelper {
     );
   }
 
-  public ValidateNetworkStatus(
-    aliasName: string,
-    expectedStatus = 200,
-    timeout = 20000,
-  ) {
-    cy.wait(aliasName, { timeout: timeout }).should(
+  public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
+    cy.wait(aliasName).should(
       "have.nested.property",
       "response.body.responseMeta.status",
       expectedStatus,
