@@ -225,7 +225,13 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     }
                     return result;
                 })
-                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()))
+                .onErrorResume(AppsmithException.class, error -> {
+                    ActionExecutionResult result = new ActionExecutionResult();
+                    result.setIsExecutionSuccess(false);
+                    result.setErrorInfo(error);
+                    return Mono.just(result);
+                });
     }
 
     /**
@@ -711,12 +717,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 return sendExecuteAnalyticsEvent(actionDTO, datasourceStorage, executeActionDTO, result, timeElapsed)
                                         .thenReturn(result);
                             });
-                })
-                .onErrorResume(AppsmithException.class, error -> {
-                    ActionExecutionResult result = new ActionExecutionResult();
-                    result.setIsExecutionSuccess(false);
-                    result.setErrorInfo(error);
-                    return Mono.just(result);
                 });
     }
 
