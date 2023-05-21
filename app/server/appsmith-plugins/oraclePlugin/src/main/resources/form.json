@@ -8,7 +8,7 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host address",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
@@ -64,7 +64,7 @@
       "sectionName": "SSL",
       "children": [
         {
-          "label": "SSL Mode",
+          "label": "SSL mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "NO_VERIFY",

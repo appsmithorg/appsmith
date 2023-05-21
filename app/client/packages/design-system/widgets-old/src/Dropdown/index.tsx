@@ -1016,18 +1016,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
 
 export default function Dropdown(props: DropdownProps) {
   const {
-    onSelect,
-    showDropIcon = true,
-    isLoading = false,
-    SelectedValueNode = DefaultDropDownValueNode,
-    renderOption,
-    errorMsg = "",
-    placeholder,
-    helperText,
-    removeSelectedOption,
-    hasError,
-    wrapperBgColor,
     closeOnSpace = true,
+    errorMsg = "",
+    hasError,
+    helperText,
+    isLoading = false,
+    onSelect,
+    placeholder,
+    removeSelectedOption,
+    renderOption,
+    SelectedValueNode = DefaultDropDownValueNode,
+    showDropIcon = true,
+    wrapperBgColor,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption | DropdownOption[]>(

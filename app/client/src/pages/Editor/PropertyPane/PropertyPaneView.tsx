@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
-import type { IPanelProps, Position } from "@blueprintjs/core";
+import type { IPanelProps } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
@@ -17,21 +17,12 @@ import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { Colors } from "constants/Colors";
-import { BannerMessage, IconSize } from "design-system-old";
+import { Button, Callout } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
-import { importRemixIcon } from "design-system-old";
-
-const CopyIcon = importRemixIcon(
-  () => import("remixicon-react/FileCopyLineIcon"),
-);
-const DeleteIcon = importRemixIcon(
-  () => import("remixicon-react/DeleteBinLineIcon"),
-);
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -138,34 +129,31 @@ function PropertyPaneView(
    */
   const actions = useMemo((): Array<{
     tooltipContent: any;
-    tooltipPosition: Position;
     icon: ReactElement;
   }> => {
     return [
       {
-        tooltipContent: "Copy Widget",
-        tooltipPosition: "bottom-right",
+        tooltipContent: "Copy widget",
         icon: (
-          <button
-            className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--copy-widget"
+          <Button
+            data-testid="t--copy-widget"
+            isIconButton
+            kind="tertiary"
             onClick={onCopy}
-            onKeyDown={handleTabKeyDownForButton("widgetCopy")}
-          >
-            <CopyIcon className="w-4 h-4 text-gray-500" />
-          </button>
+            startIcon="duplicate"
+          />
         ),
       },
       {
-        tooltipContent: "Delete Widget",
-        tooltipPosition: "bottom-right",
+        tooltipContent: "Delete widget",
         icon: (
-          <button
-            className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--delete-widget"
+          <Button
+            data-testid="t--delete-widget"
+            isIconButton
+            kind="tertiary"
             onClick={onDelete}
-            onKeyDown={handleTabKeyDownForButton("widgetDelete")}
-          >
-            <DeleteIcon className="w-4 h-4 text-gray-500" />
-          </button>
+            startIcon="delete-bin-line"
+          />
         ),
       },
     ];
@@ -220,15 +208,9 @@ function PropertyPaneView(
           />
         )}
         {isDeprecated && (
-          <BannerMessage
-            backgroundColor={Colors.WARNING_ORANGE}
-            className="t--deprecation-warning"
-            icon="warning-line"
-            iconColor={Colors.WARNING_SOLID}
-            iconSize={IconSize.XXXXL}
-            message={deprecationMessage}
-            textColor={Colors.BROWN}
-          />
+          <Callout data-testid="t--deprecation-warning" kind="warning">
+            {deprecationMessage}
+          </Callout>
         )}
       </div>
 

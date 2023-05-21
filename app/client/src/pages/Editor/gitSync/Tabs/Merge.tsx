@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Caption, Space, Title } from "../components/StyledComponents";
-import { Dropdown } from "design-system-old";
+import { Container, Space } from "../components/StyledComponents";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -43,13 +42,17 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Button, Case, Size, Text, TextType } from "design-system-old";
-import { Colors } from "constants/Colors";
+import {
+  Button,
+  Option,
+  Select,
+  Text,
+  Icon,
+  ModalFooter,
+  ModalBody,
+} from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
-import { importSvg } from "design-system-old";
-
-const LeftArrow = importSvg(() => import("assets/icons/ads/arrow-left-1.svg"));
 
 const Row = styled.div`
   display: flex;
@@ -57,7 +60,6 @@ const Row = styled.div`
 `;
 
 const DEFAULT_OPTION = "--Select--";
-const DROPDOWNMENU_MAXHEIGHT = "350px";
 
 function MergeSuccessIndicator() {
   const theme = useTheme() as Theme;
@@ -66,11 +68,9 @@ function MergeSuccessIndicator() {
     <div style={{ display: "flex", alignItems: "center" }}>
       <SuccessTick height="36px" style={{ marginBottom: 0 }} width="30px" />
       <Text
-        case={Case.UPPERCASE}
-        color={Colors.GREY_9}
+        color={"var(--ads-v2-color-fg)"}
+        kind="heading-s"
         style={{ marginLeft: theme.spaces[2] }}
-        type={TextType.P1}
-        weight="600"
       >
         {createMessage(MERGED_SUCCESSFULLY)}
       </Text>
@@ -139,10 +139,11 @@ export default function Merge() {
 
       index++;
     }
-    branchOptions.unshift({
-      label: "Local branches",
-      isSectionHeader: true,
-    });
+    // TODO add bellow header if dropdown supports section header
+    // branchOptions.unshift({
+    //   label: "Local branches",
+    //   isSectionHeader: true,
+    // });
     return branchOptions;
   }, [gitBranches]);
 
@@ -225,83 +226,89 @@ export default function Merge() {
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
-
   return (
     <>
-      <Title>{createMessage(MERGE_CHANGES)}</Title>
-      <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
-      <Space size={4} />
-      <Row>
-        <Dropdown
-          className={Classes.MERGE_DROPDOWN}
-          containerClassName={"t--merge-branch-dropdown-destination"}
-          disabled={isFetchingBranches || isFetchingMergeStatus || isMerging}
-          dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
-          enableSearch
-          fillOptions
-          hasError={status === MERGE_STATUS_STATE.NOT_MERGEABLE}
-          isLoading={isFetchingBranches}
-          onSelect={(value?: string) => {
-            if (value) setSelectedBranchOption({ label: value, value: value });
-          }}
-          options={branchList}
-          selected={selectedBranchOption}
-          showLabelOnly
-          truncateOption
-          width={"220px"}
-        />
+      <ModalBody>
+        <Container>
+          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
+            {createMessage(SELECT_BRANCH_TO_MERGE)}
+          </Text>
+          <Space size={2} />
+          <Row>
+            <Select
+              className="t--merge-branch-dropdown-destination"
+              dropdownClassName={Classes.MERGE_DROPDOWN}
+              isDisabled={
+                isFetchingBranches || isFetchingMergeStatus || isMerging
+              }
+              isValid={status !== MERGE_STATUS_STATE.NOT_MERGEABLE}
+              onSelect={(value?: string) => {
+                if (value)
+                  setSelectedBranchOption({ label: value, value: value });
+              }}
+              showSearch
+              size="md"
+              value={selectedBranchOption}
+            >
+              {branchList.map((branch) => (
+                <Option key={branch.value}>{branch.value}</Option>
+              ))}
+            </Select>
 
-        <Space horizontal size={3} />
-        <LeftArrow />
-        <Space horizontal size={3} />
-        <Dropdown
-          className="textInput"
-          disabled
-          dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
-          onSelect={() => null}
-          options={[currentBranchDropdownOption]}
-          selected={currentBranchDropdownOption}
-          truncateOption
-          width={"220px"}
-        />
-      </Row>
-      <MergeStatus message={mergeStatusMessage} status={status} />
-      <Space size={10} />
-      {isConflicting && (
-        <ConflictInfo
-          browserSupportedRemoteUrl={
-            gitMetaData?.browserSupportedRemoteUrl || ""
-          }
-          learnMoreLink={gitConflictDocumentUrl}
-        />
-      )}
+            <Space horizontal size={3} />
+            <Icon
+              color={"var(--ads-v2-color-fg-subtle)"}
+              name="arrow-left-s-line"
+              size="lg"
+            />
+            <Space horizontal size={3} />
+            <Select
+              className="textInput"
+              isDisabled
+              options={[currentBranchDropdownOption]}
+              size="md"
+              value={currentBranchDropdownOption}
+            >
+              <Option>{currentBranchDropdownOption.label}</Option>
+            </Select>
+          </Row>
+          <MergeStatus message={mergeStatusMessage} status={status} />
+          <Space size={10} />
+          {isConflicting ? (
+            <ConflictInfo
+              browserSupportedRemoteUrl={
+                gitMetaData?.browserSupportedRemoteUrl || ""
+              }
+              learnMoreLink={gitConflictDocumentUrl}
+            />
+          ) : null}
 
-      {showMergeSuccessIndicator ? (
-        <MergeSuccessIndicator />
-      ) : (
-        showMergeButton && (
+          {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
+          {isMerging ? (
+            <StatusbarWrapper>
+              <Statusbar
+                completed={!isMerging}
+                message={createMessage(IS_MERGING)}
+                period={6}
+              />
+            </StatusbarWrapper>
+          ) : null}
+        </Container>
+      </ModalBody>
+      <ModalFooter>
+        {!showMergeSuccessIndicator && showMergeButton ? (
           <Button
             className="t--git-merge-button"
             data-testid="t--git-merge-button"
-            disabled={mergeBtnDisabled}
+            isDisabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}
-            size={Size.large}
-            tag="button"
-            text={createMessage(MERGE_CHANGES)}
-            width="max-content"
-          />
-        )
-      )}
-      {isMerging && (
-        <StatusbarWrapper>
-          <Statusbar
-            completed={!isMerging}
-            message={createMessage(IS_MERGING)}
-            period={6}
-          />
-        </StatusbarWrapper>
-      )}
+            size="md"
+          >
+            {createMessage(MERGE_CHANGES)}
+          </Button>
+        ) : null}
+      </ModalFooter>
     </>
   );
 }
