@@ -59,8 +59,6 @@ export function applySetterMethod(path: string, value: unknown) {
   set(evalTree, path, value);
   set(self, path, value);
 
-  // dataTreeEvaluator?.setEvalTree(evalTree);
-
   return new Promise((resolve) => {
     updatedProperties.push([entityName, propertyPath]);
 
