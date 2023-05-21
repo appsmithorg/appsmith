@@ -4,7 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 const { entityExplorer, propPane } = _;
 
 describe("Bug 7113 - Moustache brackets in bold", () => {
-  it("should show {{ }} in bold", () => {
+  it("1. should show {{ }} in bold", () => {
     entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
 
     entityExplorer.SelectEntityByName("Button1", "Widgets");

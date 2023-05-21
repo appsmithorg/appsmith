@@ -1,7 +1,7 @@
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 
 describe("AUTOCOMPLETE_MATCH_REGEX match", () => {
-  it("should match all valid {{ }} bindings", () => {
+  it("1. should match all valid {{ }} bindings", () => {
     const tests = [
       {
         value: `Hello {{appsmith.mode}}A{{Button1.text}} {{{ a: 2 }}}A`,
