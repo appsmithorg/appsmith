@@ -21,7 +21,7 @@ import {
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
   USERS_HAVE_ACCESS_TO_ALL_APPS,
   NO_USERS_INVITED,
-  // BUSINESS_EDITION_TEXT,
+  BUSINESS_EDITION_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -31,6 +31,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
+import { Link } from "design-system";
 import {
   Avatar,
   Button,
@@ -392,16 +393,6 @@ function WorkspaceInviteUsersForm(props: any) {
           );
         })}
       >
-        <div className="flex gap-2 mb-2">
-          <Text
-            color="var(--ads-v2-color-fg)"
-            data-testid="helper-message"
-            kind="action-m"
-          >
-            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-          </Text>
-        </div>
-
         <StyledInviteFieldGroup>
           <div style={{ width: "60%" }}>
             <TagListField
@@ -463,19 +454,25 @@ function WorkspaceInviteUsersForm(props: any) {
             </Button>
           </div>
         </StyledInviteFieldGroup>
-        {/* <LabelText data-testid="helper-message" type={TextType.P0}>
-          <Icon name="user-3-line" size={IconSize.MEDIUM} />
+        <div className="flex gap-2 mt-2 items-start">
+          <Icon className="mt-1" name="user-3-line" size="md" />
           <WorkspaceText>
-            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}{" "}
-            <Link
-              kind="primary"
-              target="_blank"
-              to="https://appsmith.com/pricing"
+            <Text
+              color="var(--ads-v2-color-fg)"
+              data-testid="helper-message"
+              kind="action-m"
             >
-              {createMessage(BUSINESS_EDITION_TEXT)}
-            </Link>
+              {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+              <Link
+                kind="primary"
+                target="_blank"
+                to="https://appsmith.com/pricing"
+              >
+                {createMessage(BUSINESS_EDITION_TEXT)}
+              </Link>
+            </Text>
           </WorkspaceText>
-        </LabelText> */}
+        </div>
         {isLoading ? (
           <div className="pt-4 overflow-hidden">
             <Spinner size="lg" />
