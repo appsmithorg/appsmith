@@ -1,15 +1,8 @@
 import React from "react";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import {
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  Case,
-  FontWeight,
-  TextType,
-} from "design-system-old";
+import { Classes, Text, Case, FontWeight, TextType } from "design-system-old";
+import { Icon } from "design-system";
 
 const LinkText = styled.div<{ color?: string }>`
   cursor: pointer;
@@ -58,14 +51,7 @@ export default function Link({
       >
         {text}
       </Text>
-      {hasIcon && (
-        <Icon
-          fillColor={color || Colors.CHARCOAL}
-          hoverFillColor={color || Colors.CHARCOAL}
-          name="right-arrow"
-          size={IconSize.SMALL}
-        />
-      )}
+      {hasIcon && <Icon name="right-arrow" size="sm" />}
     </LinkText>
   );
 }

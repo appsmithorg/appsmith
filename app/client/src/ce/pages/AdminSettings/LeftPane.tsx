@@ -5,40 +5,34 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import type { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
-import { Icon, IconSize } from "design-system-old";
-import { createMessage } from "design-system-old/build/constants/messages";
-import { UPGRADE } from "@appsmith/constants/messages";
+import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import camelCase from "lodash/camelCase";
+import { Icon, Text } from "design-system";
 
 export const Wrapper = styled.div`
-  flex-basis: ${(props) =>
-    props.theme.homePage.leftPane.width +
-    props.theme.homePage.leftPane.leftPadding}px;
-  padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
+  flex-basis: ${(props) => props.theme.sidebarWidth};
   overflow-y: auto;
-  border-right: 1px solid var(--appsmith-color-black-200);
+  border-right: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
 
   &::-webkit-scrollbar {
     display: none;
   }
+
+  > div:not(:first-child) {
+    border-top: 1px solid var(--ads-v2-color-border);
+  }
 `;
 
 export const HeaderContainer = styled.div`
-  border-top: 1px solid var(--appsmith-color-black-200);
   padding: 20px 0;
-  margin: 0 12px;
+  margin: 0 16px;
 `;
 
-export const StyledHeader = styled.div`
-  font-size: 16px;
+export const StyledHeader = styled(Text)`
   height: 20px;
-  line-height: 1.5;
-  letter-spacing: -0.24px;
   margin: 8px 16px 8px;
-  color: var(--appsmith-color-black-900);
-  font-weight: 500;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 export const CategoryList = styled.ul`
@@ -47,34 +41,37 @@ export const CategoryList = styled.ul`
 `;
 
 export const CategoryItem = styled.li`
-  width: 90%;
+  /* width: 90%; */
 `;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
   padding: 8px 16px;
+  border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
-    props.$active ? props.theme.colors.menuItem.hoverBg : ""};
-  font-weight: ${(props) => (props.$active ? 500 : 400)};
-  text-transform: capitalize;
+    props.$active ? `var(--ads-v2-color-bg-muted)` : ""};
   display: flex;
   gap: 12px;
 
   && {
-    color: ${(props) =>
-      props.$active
-        ? props.theme.colors.menuItem.hoverText
-        : props.theme.colors.menuItem.normalText};
-  }
-  &:hover {
-    text-decoration: none;
-    background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
-    color: ${(props) => props.theme.colors.menuItem.hoverText};
+    color: var(--ads-v2-color-fg);
   }
 
-  & div {
-    align-self: center;
+  &:hover {
+    text-decoration: none;
   }
+
+  &:hover:not(.active) {
+    background-color: var(--ads-v2-color-bg-subtle);
+  }
+`;
+
+export const SettingName = styled(Text)<{ active?: boolean }>`
+  color: ${(props) =>
+    props.active
+      ? "var(--ads-v2-color-fg-emphasis-plus)"
+      : "var(--ads-v2-color-fg)"};
+  font-weight: 400;
 `;
 
 export function getSettingsCategory() {
@@ -96,39 +93,41 @@ export function Categories({
 }) {
   return (
     <CategoryList className="t--settings-category-list">
-      {categories?.map((config) => (
-        <CategoryItem key={config.slug}>
-          <StyledLink
-            $active={
-              !!currentSubCategory && showSubCategory
-                ? currentSubCategory == config.slug
-                : currentCategory == config.slug
-            }
-            className={`t--settings-category-${config.slug}`}
-            to={
-              !parentCategory
-                ? adminSettingsCategoryUrl({ category: config.slug })
-                : adminSettingsCategoryUrl({
-                    category: parentCategory.slug,
-                    selected: config.slug,
-                  })
-            }
-          >
-            <div>
-              {config?.icon && <Icon name={config?.icon} size={IconSize.XL} />}
-            </div>
-            <div>{config.title}</div>
-          </StyledLink>
-          {showSubCategory && (
-            <Categories
-              categories={config.children}
-              currentCategory={currentCategory}
-              currentSubCategory={currentSubCategory}
-              parentCategory={config}
-            />
-          )}
-        </CategoryItem>
-      ))}
+      {categories?.map((config) => {
+        const active =
+          !!currentSubCategory && showSubCategory
+            ? currentSubCategory == config.slug
+            : currentCategory == config.slug;
+        return (
+          <CategoryItem key={config.slug}>
+            <StyledLink
+              $active={active}
+              className={`t--settings-category-${config.slug} ${
+                active ? "active" : ""
+              }`}
+              to={
+                !parentCategory
+                  ? adminSettingsCategoryUrl({ category: config.slug })
+                  : adminSettingsCategoryUrl({
+                      category: parentCategory.slug,
+                      selected: config.slug,
+                    })
+              }
+            >
+              {config?.icon && <Icon name={config?.icon} size="md" />}
+              <SettingName active={active}>{config.title}</SettingName>
+            </StyledLink>
+            {showSubCategory && (
+              <Categories
+                categories={config.children}
+                currentCategory={currentCategory}
+                currentSubCategory={currentSubCategory}
+                parentCategory={config}
+              />
+            )}
+          </CategoryItem>
+        );
+      })}
     </CategoryList>
   );
 }
@@ -146,7 +145,9 @@ export default function LeftPane() {
   return (
     <Wrapper>
       <HeaderContainer>
-        <StyledHeader>Admin Settings</StyledHeader>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Admin settings
+        </StyledHeader>
         <Categories
           categories={categories}
           currentCategory={category}
@@ -154,44 +155,49 @@ export default function LeftPane() {
         />
       </HeaderContainer>
       <HeaderContainer>
-        <StyledHeader>Business</StyledHeader>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Business
+        </StyledHeader>
         <CategoryList data-testid="t--enterprise-settings-category-list">
           <CategoryItem>
             <StyledLink
               $active={category === "access-control"}
+              className={`${category === "access-control" ? "active" : ""}`}
               data-testid="t--enterprise-settings-category-item-access-control"
               to="/settings/access-control"
             >
-              <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
-              </div>
-              <div>Access Control</div>
+              <Icon name="lock-2-line" size="md" />
+              <SettingName active={category === "access-control"}>
+                Access control
+              </SettingName>
             </StyledLink>
           </CategoryItem>
           <CategoryItem>
             <StyledLink
               $active={category === "audit-logs"}
+              className={`${category === "audit-logs" ? "active" : ""}`}
               data-testid="t--enterprise-settings-category-item-audit-logs"
               onClick={() => triggerAnalytics("AuditLogs")}
               to="/settings/audit-logs"
             >
-              <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
-              </div>
-              <div>Audit logs</div>
+              <Icon name="lock-2-line" size="md" />
+              <SettingName active={category === "audit-logs"}>
+                Audit logs
+              </SettingName>
             </StyledLink>
           </CategoryItem>
           <CategoryItem>
             <StyledLink
               $active={category === "business-edition"}
+              className={`${category === "business-edition" ? "active" : ""}`}
               data-testid="t--enterprise-settings-category-item-be"
               onClick={() => triggerAnalytics("BusinessEdition")}
               to="/settings/business-edition"
             >
-              <div>
-                <Icon name="arrow-up-line" size={IconSize.XL} />
-              </div>
-              <div>{camelCase(createMessage(UPGRADE))}</div>
+              <Icon name="arrow-up-line" size="md" />
+              <SettingName active={category === "business-edition"}>
+                {createMessage(UPGRADE)}
+              </SettingName>
             </StyledLink>
           </CategoryItem>
         </CategoryList>

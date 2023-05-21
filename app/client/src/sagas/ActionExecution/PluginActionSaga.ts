@@ -60,7 +60,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
@@ -131,6 +130,7 @@ import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
+import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
@@ -734,9 +734,8 @@ function* runActionSaga(
           show: false,
         },
       });
-      Toaster.show({
-        text: createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name),
-        variant: Variant.danger,
+      toast.show(createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name), {
+        kind: "error",
       });
       return;
     }
@@ -915,13 +914,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          Toaster.show({
-            text: createMessage(
+          toast.show(
+            createMessage(
               ACTION_EXECUTION_CANCELLED,
               `${collection.name}.${jsAction.name}`,
             ),
-            variant: Variant.danger,
-          });
+            {
+              kind: "error",
+            },
+          );
           // Don't proceed to executing the js function
           return;
         }
@@ -1081,9 +1082,8 @@ function* executePageLoadActionsSaga() {
   } catch (e) {
     log.error(e);
 
-    Toaster.show({
-      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
+      kind: "error",
     });
   }
 }

@@ -25,7 +25,6 @@ import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -46,6 +45,7 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import { toast } from "design-system";
 import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
@@ -240,9 +240,8 @@ export function* evalErrorHandler(
         if (error.context) {
           // Add more info about node for the toast
           const { dependencyMap, diffs, entityType, node } = error.context;
-          Toaster.show({
-            text: `${error.message} Node was: ${node}`,
-            variant: Variant.danger,
+          toast.show(`${error.message} Node was: ${node}`, {
+            kind: "error",
           });
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
@@ -272,9 +271,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
-        Toaster.show({
-          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
-          variant: Variant.danger,
+        toast.show(createMessage(ERROR_EVAL_ERROR_GENERIC), {
+          kind: "error",
         });
         break;
       }
@@ -302,9 +300,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        Toaster.show({
-          text: `${error.message} at: ${error.context?.entity.name}`,
-          variant: Variant.danger,
+        toast.show(`${error.message} at: ${error.context?.entity.name}`, {
+          kind: "error",
         });
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,

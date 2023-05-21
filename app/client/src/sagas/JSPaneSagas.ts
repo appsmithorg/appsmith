@@ -52,7 +52,6 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { Toaster, Variant } from "design-system-old";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
@@ -84,6 +83,7 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
@@ -326,9 +326,8 @@ function* handleJSObjectNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    Toaster.show({
-      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
+      kind: "error",
     });
 
     return;
@@ -409,9 +408,8 @@ export function* handleExecuteJSFunctionSaga(data: {
     showSuccessToast &&
       isExecuteJSFunc &&
       !window.location.pathname.includes(collectionId) &&
-      Toaster.show({
-        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
-        variant: Variant.success,
+      toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
+        kind: "success",
       });
   } catch (error) {
     // open response tab in debugger on runnning js action.

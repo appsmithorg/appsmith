@@ -3,9 +3,7 @@ import { connectCurrentRefinements } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { getSnippetFilterLabel } from "./utils";
 import { useStore } from "react-redux";
-import { importSvg } from "design-system-old";
-
-const CloseIcon = importSvg(() => import("assets/icons/help/close_blue.svg"));
+import { Icon } from "design-system";
 
 const RefinementListContainer = styled.div`
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
@@ -13,31 +11,23 @@ const RefinementListContainer = styled.div`
   padding: 5px 5px 0;
   justify-content: flex-start;
   align-items: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
+  margin-top: 45px;
   .pill-container {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 4px;
     .refinement-pill {
+      color: var(--ads-v2-color-fg);
+      border-radius: var(--ads-v2-border-radius);
+      background: var(--ads-v2-color-bg-subtle);
+      height: 27px;
+      padding: var(--ads-v2-spaces-3);
       display: flex;
       align-items: center;
-      margin: 2px 5px 0;
-      padding: 5px;
-      color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
-      border: 1px solid
-        ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
       svg {
         cursor: pointer;
-        transition: 0.2s all ease;
-        margin-left: ${(props) => props.theme.spaces[4]}px;
-        path {
-          fill: #4b4848;
-        }
-        &:hover {
-          transform: scale(1.2);
-        }
       }
     }
   }
@@ -47,11 +37,13 @@ function RefinementPill({ item, refine, state }: any) {
   return (
     <div className="refinement-pill">
       <span>{getSnippetFilterLabel(state, item.label)}</span>
-      <CloseIcon
+      <Icon
+        name="close"
         onClick={(event) => {
           event.preventDefault();
           refine(item.value);
         }}
+        size="md"
       />
     </div>
   );

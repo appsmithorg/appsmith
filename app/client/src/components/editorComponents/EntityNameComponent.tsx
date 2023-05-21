@@ -118,7 +118,7 @@ class EntityNameComponent extends React.Component<
     this.props.onBlur();
   };
 
-  onPressEnter = (event: any) => {
+  onClickEnter = (event: any) => {
     event.preventDefault();
     event.target.blur();
   };
@@ -137,7 +137,7 @@ class EntityNameComponent extends React.Component<
             onFocus={this.onFocus}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                this.onPressEnter(e);
+                this.onClickEnter(e);
               }
             }}
             placeholder={placeholder}

@@ -10,18 +10,24 @@ export class GitSync {
 
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
   private _gitSyncModal = ".git-sync-modal";
-  private _closeGitSyncModal = ".t--close-git-sync-modal";
-  private _gitRepoInput = ".t--git-repo-input";
-  private _useDefaultConfig =
-    "//span[text()='Use default configuration']/parent::div";
-  private _gitConfigNameInput = ".t--git-config-name-input";
-  private _gitConfigEmailInput = ".t--git-config-email-input";
-  _branchButton = "[data-testid=t--branch-button-container]";
-  private _branchSearchInput = ".t--branch-search-input";
-  private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
-  _bottomBarPull = ".t--bottom-bar-pull span[name='down-arrow-2']";
+  private _closeGitSyncModal =
+    "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
+  //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
+  private _gitRepoInput =
+    "//label[text()='Remote URL']/following-sibling::div//input";
+  private _useDefaultConfig = "//label[text()='Use default configuration']";
+  private _gitConfigNameInput =
+    "//label[text()='Author name']/following-sibling::div//input";
+  private _gitConfigEmailInput =
+    "//label[text()='Author email']/following-sibling::div//input";
+  _branchButton = ".t--branch-button";
+  private _branchSearchInput = ".t--branch-search-input input";
+  private _bottomBarCommit = ".t--bottom-bar-commit button";
+  _bottomBarPull = ".t--bottom-bar-pull button";
   private _branchName = (branch: string) =>
-    "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+    "//button[contains(@class, 't--branch-button')]//*[text()='" +
+    branch +
+    "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
 
   OpenGitSyncModal() {
@@ -110,7 +116,7 @@ export class GitSync {
         //`{selectall}${testUsername}`,
       );
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-      this.agHelper.ClickButton("CONNECT");
+      this.agHelper.ClickButton("Connect");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);

@@ -1,12 +1,11 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
-import { ControlIcons } from "icons/ControlIcons";
 import type { CSSProperties } from "react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { Icon } from "design-system";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,
@@ -31,6 +30,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  outline: none;
   & {
     pre {
       margin: 0 5px 0 0;
@@ -61,13 +61,6 @@ const WidgetName = styled.span`
 `;
 
 const StyledErrorIcon = styled(Icon)`
-  &:hover {
-    svg {
-      path {
-        fill: ${Colors.WHITE};
-      }
-    }
-  }
   margin-right: ${(props) => props.theme.spaces[1]}px;
 `;
 
@@ -80,8 +73,6 @@ type SettingsControlProps = {
   widgetWidth: number;
 };
 
-const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
-
 const getStyles = (
   activity: Activities,
   errorCount: number,
@@ -89,13 +80,13 @@ const getStyles = (
 ): CSSProperties | undefined => {
   if (isSnipingMode) {
     return {
-      background: Colors.DANUBE,
-      color: Colors.WHITE,
+      background: "var(--ads-v2-color-fg-information)",
+      color: "var(--ads-v2-color-white)",
     };
   } else if (errorCount > 0) {
     return {
-      background: "red",
-      color: Colors.WHITE,
+      background: "var(--ads-v2-color-fg-error)",
+      color: "var(--ads-v2-color-bg-error)",
     };
   }
 
@@ -120,13 +111,7 @@ const getStyles = (
 
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
-  const errorIcon = (
-    <StyledErrorIcon
-      fillColor={Colors.WHITE}
-      name="warning"
-      size={IconSize.SMALL}
-    />
-  );
+  const errorIcon = <StyledErrorIcon name="warning" size="sm" />;
 
   return (
     <StyledTooltip
@@ -153,7 +138,11 @@ export function SettingsControl(props: SettingsControlProps) {
           </>
         )}
         {isSnipingMode && (
-          <BindDataIcon color={Colors.WHITE} height={16} width={12} />
+          <Icon
+            color="var(--ads-v2-color-white)"
+            name="arrow-right-line"
+            size="md"
+          />
         )}
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}

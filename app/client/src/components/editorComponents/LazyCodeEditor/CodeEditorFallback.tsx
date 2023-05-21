@@ -1,5 +1,4 @@
 import React from "react";
-import { Spinner } from "design-system-old";
 import {
   ContentWrapper,
   HighlighedCodeContainer,
@@ -9,6 +8,7 @@ import {
 } from "./styles";
 import { ContentKind } from "./types";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
+import { Spinner } from "design-system";
 import { JS_OBJECT_START_STATEMENT } from "workers/Linting/constants";
 
 export default function CodeEditorFallback({
@@ -62,7 +62,7 @@ export default function CodeEditorFallback({
       {showLoadingProgress && (
         <ProgressContainer>
           <SpinnerContainer>
-            <Spinner />
+            <Spinner size="md" />
           </SpinnerContainer>
           <ProgressBar />
         </ProgressContainer>

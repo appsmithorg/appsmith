@@ -66,7 +66,6 @@ import {
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
@@ -101,6 +100,7 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
@@ -601,12 +601,14 @@ export function* evaluateSnippetSaga(action: any) {
           : JSON.stringify(result),
       ),
     );
-    Toaster.show({
-      text: createMessage(
+    toast.show(
+      createMessage(
         errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
       ),
-      variant: errors?.length ? Variant.danger : Variant.success,
-    });
+      {
+        kind: errors?.length ? "error" : "success",
+      },
+    );
     yield put(
       setGlobalSearchFilterContext({
         executionInProgress: false,
@@ -618,9 +620,8 @@ export function* evaluateSnippetSaga(action: any) {
         executionInProgress: false,
       }),
     );
-    Toaster.show({
-      text: createMessage(SNIPPET_EXECUTION_FAILED),
-      variant: Variant.danger,
+    toast.show(createMessage(SNIPPET_EXECUTION_FAILED), {
+      kind: "error",
     });
     log.error(e);
     Sentry.captureException(e);

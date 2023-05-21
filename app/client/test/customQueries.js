@@ -4,12 +4,12 @@ import { queryHelpers, buildQueries } from "@testing-library/react";
 // You can also use document.querySelector or a combination of existing
 // testing library utilities to find matching nodes for your query
 const queryAllByDataCy = (...args) =>
-  queryHelpers.queryAllByAttribute("data-cy", ...args);
+  queryHelpers.queryAllByAttribute("data-testid", ...args);
 
 const getMultipleError = (c, dataCyValue) =>
-  `Found multiple elements with the data-cy attribute of: ${dataCyValue}`;
+  `Found multiple elements with the data-testid attribute of: ${dataCyValue}`;
 const getMissingError = (c, dataCyValue) =>
-  `Unable to find an element with the data-cy attribute of: ${dataCyValue}`;
+  `Unable to find an element with the data-testid attribute of: ${dataCyValue}`;
 
 const [
   queryByDataCy,
