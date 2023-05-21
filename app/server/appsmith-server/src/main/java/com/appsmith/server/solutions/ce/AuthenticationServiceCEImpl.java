@@ -140,7 +140,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
         }
 
-        return datasourceStorageService.validateDatasourceStorage(datasourceStorage, false)
+        return datasourceStorageService.validateDatasourceStorage(datasourceStorage, true)
                 .flatMap(datasourceStorage1 -> {
                     if (!datasourceStorage1.getIsValid()) {
                         return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, datasourceStorage1.getInvalids().iterator().next()));

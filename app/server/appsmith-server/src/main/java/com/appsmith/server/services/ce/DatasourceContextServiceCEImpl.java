@@ -220,12 +220,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     @Override
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage) {
         final String datasourceId = datasourceStorage.getDatasourceId();
-        DatasourceContextIdentifier datasourceContextIdentifier = null;
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                this.initializeDatasourceContextIdentifier(datasourceStorage);
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasourceStorage. The datasourceStorage context would not exist in this " +
                     "scenario");
         } else {
-            datasourceContextIdentifier = this.initializeDatasourceContextIdentifier(datasourceStorage);
             if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
                 log.debug("Resource context exists. Returning the same.");
                 return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
