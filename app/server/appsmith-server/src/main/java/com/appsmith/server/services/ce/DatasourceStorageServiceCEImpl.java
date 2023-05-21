@@ -130,13 +130,17 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate) {
+    public Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource,
+                                                                      String environmentId,
+                                                                      Boolean isUserRefreshedUpdate) {
         return this.findByDatasourceAndEnvironmentId(datasource, environmentId)
                 .map(dbStorage -> {
                     DatasourceStorageDTO datasourceStorageDTO = getDatasourceStorageDTOFromDatasource(datasource, environmentId);
                     DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                    datasourceStorage.prepareTransientFields(datasource);
                     copyNestedNonNullProperties(datasourceStorage, dbStorage);
-                    if (datasourceStorage.getDatasourceConfiguration() != null && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
+                    if (datasourceStorage.getDatasourceConfiguration() != null
+                            && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
                         if (dbStorage.getDatasourceConfiguration() != null) {
                             dbStorage.getDatasourceConfiguration().setAuthentication(null);
                         }
@@ -203,16 +207,15 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(this::checkEnvironment)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
-                .flatMap(unsavedDatasource -> {
-                    return repository.save(unsavedDatasource)
+                .flatMap(unsavedDatasourceStorage -> {
+                    return repository.save(unsavedDatasourceStorage)
                             .map(savedDatasource -> {
                                 // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
                                 // object from db will have pluginName=null so set it manually from the unsaved datasourceStorage obj
-                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                                savedDatasource.setPluginName(unsavedDatasourceStorage.getPluginName());
                                 return savedDatasource;
                             });
-                })
-                .flatMap(repository::setUserPermissionsInObject);
+                });
     }
 
     @Override

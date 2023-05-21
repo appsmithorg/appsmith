@@ -135,7 +135,9 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                 datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
                         .then(datasourceStorage.getId() == null
                                 ? Mono.empty()
-                                : datasourceStructureService.saveStructure(datasourceStorage.getId(), structure).thenReturn(structure)
+                                : datasourceStructureService
+                                .saveStructure(datasourceStorage.getDatasourceId(), structure)
+                                .thenReturn(structure)
                         ));
 
 
