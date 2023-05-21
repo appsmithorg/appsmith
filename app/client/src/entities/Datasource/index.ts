@@ -73,6 +73,7 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
+  type?: string;
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;

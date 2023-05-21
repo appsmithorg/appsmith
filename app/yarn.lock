@@ -1738,7 +1738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.16.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.4.2, @babel/runtime@npm:^7.4.4, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.7.7, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.16.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.4.4, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.7.7, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.21.5
   resolution: "@babel/runtime@npm:7.21.5"
   dependencies:
@@ -4366,8 +4366,8 @@ __metadata:
   linkType: hard
 
 "@rc-component/trigger@npm:^1.5.0":
-  version: 1.13.0
-  resolution: "@rc-component/trigger@npm:1.13.0"
+  version: 1.12.1
+  resolution: "@rc-component/trigger@npm:1.12.1"
   dependencies:
     "@babel/runtime": ^7.18.3
     "@rc-component/portal": ^1.1.0
@@ -4379,7 +4379,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: c7362a75c080ac0948a3a9f79d47b0e6b0e2dd01b91dfc8e45e599485852003dabd3bf03b569988c1274dd3bce81b576c7a082571c30596ec8561da9da7bd83d
+  checksum: 891d2408695ed040b7f52db9e2760c29ff3e948d24060ac2bb941771204cd18ea1b22dbb2a06057ab9f8e4c833d218c12e003dfabdcbabfe5d564d0cf306aef0
   languageName: node
   linkType: hard
 
@@ -9464,7 +9464,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.25.0
     chalk: ^4.1.1
     cy-verify-downloads: ^0.0.5
-    cypress: 9.7.0
+    cypress: 10.4.0
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -9478,7 +9478,7 @@ __metadata:
     dotenv: ^8.1.0
     eslint-plugin-cypress: ^2.11.2
     tinycolor2: ^1.4.2
-    typescript: 4.5.5
+    typescript: 4.9.5
   languageName: unknown
   linkType: soft
 
@@ -9616,7 +9616,7 @@ __metadata:
     craco-alias: ^2.1.1
     craco-babel-loader: ^1.0.4
     cy-verify-downloads: ^0.0.5
-    cypress: 9.7.0
+    cypress: 10.4.0
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -9629,8 +9629,8 @@ __metadata:
     cypress-xpath: ^1.4.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.5-alpha.36"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.6"
+    design-system: "npm:@appsmithorg/design-system@2.1.9"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.7"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -9643,6 +9643,7 @@ __metadata:
     eslint-plugin-react: ^7.30.0
     eslint-plugin-react-hooks: ^2.3.0
     eslint-plugin-sort-destructure-keys: ^1.3.5
+    eslint-plugin-storybook: ^0.6.11
     exceljs: ^4.3.0
     factory.ts: ^0.5.1
     fast-deep-equal: ^3.1.3
@@ -9746,7 +9747,6 @@ __metadata:
     react-tabs: ^3.0.0
     react-test-renderer: ^16.11.0
     react-timer-hook: ^3.0.4
-    react-toastify: ^5.5.0
     react-use-gesture: ^7.0.4
     react-virtuoso: ^1.9.0
     react-webcam: ^7.0.1
@@ -13382,9 +13382,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:9.7.0":
-  version: 9.7.0
-  resolution: "cypress@npm:9.7.0"
+"cypress@npm:10.4.0":
+  version: 10.4.0
+  resolution: "cypress@npm:10.4.0"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -13430,7 +13430,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 45df7c85bc7ec2e187153ff2b98bf5106d2313d70e2367a5742b5269a9e82d3fdd730d5bbc32ac8da72aeb120a52f9384c2ba4e2fc86b532f68440f22d700fc9
+  checksum: 3f7385e076ac936683d1d1d104a7183f2e61ad0f4c901aff07146ae2e10197e8314019dcdfb6c188312fbf1be05484291f1cf8d49c4c37cf6485103c4ac5303e
   languageName: node
   linkType: hard
 
@@ -13784,9 +13784,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.6":
-  version: 1.1.6
-  resolution: "@appsmithorg/design-system-old@npm:1.1.6"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.7":
+  version: 1.1.7
+  resolution: "@appsmithorg/design-system-old@npm:1.1.7"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -13806,7 +13806,38 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 92bef56fd85e5af1a7a1b1451866ac98af34d11db2c6705a89ca6bd62c86a8a2f4bd0448fdbb210b4d65511a7b7af88e57bba6f5a83b2efc19c6da3ee3079618
+  checksum: ea573987195099e6834a4d32384bd9527d72aa8fbff73286dc498511af2aacf0e24a9356f2925a873d977cae19deb2df63510c3e83e8a4c7146f0f6f5686c15c
+  languageName: node
+  linkType: hard
+
+"design-system@npm:@appsmithorg/design-system@2.1.9":
+  version: 2.1.9
+  resolution: "@appsmithorg/design-system@npm:2.1.9"
+  dependencies:
+    "@radix-ui/react-dialog": ^1.0.2
+    "@radix-ui/react-dropdown-menu": ^2.0.4
+    "@radix-ui/react-tabs": ^1.0.2
+    "@react-aria/button": ^3.7.0
+    "@react-aria/checkbox": ^3.7.1
+    "@react-aria/focus": ^3.10.1
+    "@react-aria/link": ^3.3.6
+    "@react-aria/radio": ^3.4.2
+    "@react-aria/switch": ^3.3.1
+    "@react-aria/textfield": ^3.8.1
+    "@react-stately/radio": ^3.6.2
+    "@react-stately/toggle": ^3.4.4
+    date-fns: ^2.29.3
+    loglevel: ^1.8.1
+    rc-select: ^14.4.3
+    rc-tooltip: ^5.3.1
+    react-datepicker: ^4.10.0
+    react-toastify: 9.0.3
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    react-router-dom: ^5.0.0
+    styled-components: ^5.3.6
+  checksum: 8d7b92d70ea3c36ccb0beea90e5dbed8cbd9e5d66d501a3e81899d060853cfb8864ea9208c8dfd1d764528b2d0ab20b6e4101ccd051458c4c0edab236cbef1c9
   languageName: node
   linkType: hard
 
@@ -15051,7 +15082,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-storybook@npm:^0.6.10, eslint-plugin-storybook@npm:^0.6.8":
+"eslint-plugin-storybook@npm:^0.6.10, eslint-plugin-storybook@npm:^0.6.11, eslint-plugin-storybook@npm:^0.6.8":
   version: 0.6.12
   resolution: "eslint-plugin-storybook@npm:0.6.12"
   dependencies:
@@ -25180,7 +25211,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-select@npm:^14.1.9, rc-select@npm:^14.3.0":
+"rc-select@npm:^14.1.9, rc-select@npm:^14.4.3":
   version: 14.4.3
   resolution: "rc-select@npm:14.4.3"
   dependencies:
@@ -25292,8 +25323,8 @@ __metadata:
   linkType: hard
 
 "rc-virtual-list@npm:^3.2.0, rc-virtual-list@npm:^3.4.13, rc-virtual-list@npm:^3.4.8":
-  version: 3.5.2
-  resolution: "rc-virtual-list@npm:3.5.2"
+  version: 3.4.13
+  resolution: "rc-virtual-list@npm:3.4.13"
   dependencies:
     "@babel/runtime": ^7.20.0
     classnames: ^2.2.6
@@ -25302,7 +25333,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: d0ea5bc20bd54751220422442c6ff9c670fbe412b200a7739ac635212d3f0fd74863c85ed0532a9d65cf0e0e09a752c3ee65ed7233327529ac502aca118375a2
+  checksum: 590baca20aa209bdc7038c4cdbedef78100e8f8762966b8ae556d0c7154ce8a4f26737a5bd59580ee1ed446c79a8eb627e3fb003e1ee0de38f1bb9a7b3cd7e78
   languageName: node
   linkType: hard
 
@@ -26290,21 +26321,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toastify@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "react-toastify@npm:5.5.0"
-  dependencies:
-    "@babel/runtime": ^7.4.2
-    classnames: ^2.2.6
-    prop-types: ^15.7.2
-    react-transition-group: ^4
-  peerDependencies:
-    react: ">=15.0.0"
-    react-dom: ">=15.0.0"
-  checksum: 9759c59371ad1ccf36ba5779bd6132061afd10bb30f2ea0038ddf2ab077a1957e7aa361c959f0f7656481734cb1b01f10d254c3f76cb6a2bd0f8c183414d78e2
-  languageName: node
-  linkType: hard
-
 "react-transition-group@npm:^2.9.0":
   version: 2.9.0
   resolution: "react-transition-group@npm:2.9.0"
@@ -26320,7 +26336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-transition-group@npm:^4, react-transition-group@npm:^4.3.0":
+"react-transition-group@npm:^4.3.0":
   version: 4.4.5
   resolution: "react-transition-group@npm:4.4.5"
   dependencies:
