@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import type { MockDatasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
-import { Colors } from "constants/Colors";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getQueryParams } from "utils/URLUtils";
@@ -17,13 +16,12 @@ const MockDataSourceWrapper = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   min-width: 150px;
-  border-radius: 4px;
   align-items: center;
   margin-top: 8px;
 `;
 
 const Description = styled.div`
-  color: ${Colors.GREY_8};
+  color: var(--ads-v2-color-fg-muted);
   font-size: 13px;
   font-weight: 400;
   line-height: 17px;
@@ -54,15 +52,15 @@ const CardWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 64px;
+  border-radius: var(--ads-v2-border-radius);
   &:hover {
-    background-color: ${Colors.GREY_1};
+    background-color: var(--ads-v2-color-bg-subtle);
     cursor: pointer;
-  }
   }
 `;
 
 const DatasourceImage = styled.img`
-  height: 28px;
+  height: 34px;
   width: auto;
   margin: 0 auto;
   max-width: 100%;
@@ -73,7 +71,7 @@ const DatasourceName = styled.span`
   font-weight: 400;
   line-height: 24px;
   letter-spacing: -0.24px;
-  color: ${Colors.BLACK};
+  color: var(--ads-v2-color-fg);
 `;
 
 const DatasourceCardHeader = styled.div`
@@ -81,15 +79,6 @@ const DatasourceCardHeader = styled.div`
   align-items: center;
   gap: 13px;
   padding-left: 13.5px;
-`;
-
-const DatasourceIconWrapper = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: ${Colors.GREY_2};
-  display: flex;
-  align-items: center;
 `;
 
 const DatasourceNameWrapper = styled.div`
@@ -143,13 +132,11 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   return (
     <CardWrapper className="t--mock-datasource" onClick={addMockDataSource}>
       <DatasourceCardHeader className="t--datasource-name">
-        <DatasourceIconWrapper data-testid="mock-datasource-icon-wrapper">
-          <DatasourceImage
-            alt="Datasource"
-            data-testid="mock-datasource-image"
-            src={getAssetUrl(pluginImages[currentPlugin.id])}
-          />
-        </DatasourceIconWrapper>
+        <DatasourceImage
+          alt="Datasource"
+          data-testid="mock-datasource-image"
+          src={getAssetUrl(pluginImages[currentPlugin.id])}
+        />
         <DatasourceNameWrapper data-testid="mock-datasource-name-wrapper">
           <DatasourceName data-testid="mockdatasource-name">
             {datasource.name}

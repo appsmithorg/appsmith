@@ -14,7 +14,7 @@ import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import Button from "pages/AppViewer/AppViewerButton";
 import { ButtonVariantTypes } from "components/constants";
 

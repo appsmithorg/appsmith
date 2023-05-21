@@ -8,9 +8,9 @@ import WidgetFactory from "utils/WidgetFactory";
 
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
+import { toast } from "design-system";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
@@ -178,10 +178,8 @@ export function* executeWidgetBlueprintChildOperations(
 
   // If something odd happens show the message related to the odd scenario
   if (message) {
-    Toaster.show({
-      text: message,
-      hideProgressBar: false,
-      variant: Variant.info,
+    toast.show(message, {
+      kind: "info",
     });
   }
 

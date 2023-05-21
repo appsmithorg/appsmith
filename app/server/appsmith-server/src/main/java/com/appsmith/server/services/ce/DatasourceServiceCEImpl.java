@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
@@ -9,7 +10,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
-import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -22,6 +22,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -39,7 +40,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -65,6 +65,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -172,7 +173,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return userMono
                 .flatMap(user -> {
                     Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), permission)
-                    .log()
+                            .log()
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -371,6 +372,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentName) {
         Mono<Datasource> datasourceMono = Mono.just(datasource);
+        //Adding analytics for test datasource event
         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
         // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
@@ -383,8 +385,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     })
                     .switchIfEmpty(Mono.just(datasource));
         }
-
-        return verifyDatasourceAndTest(datasourceMono);
+        return analyticsService.sendObjectEvent(AnalyticsEvents.DS_TEST_EVENT,datasource,
+                getAnalyticsProperties(datasource)).then(verifyDatasourceAndTest(datasourceMono));
     }
 
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(Mono<Datasource> datasourceMono) {
@@ -400,10 +402,23 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     }
 
                     return datasourceTestResultMono
+                            .flatMap(datasourceTestResult -> {
+                                if(!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())){
+                                   return analyticsService.sendObjectEvent(AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                                           datasource1,getAnalyticsPropertiesForTestEventStatus(datasource1,
+                                                   datasourceTestResult)).thenReturn(datasourceTestResult);
+
+                                } else {
+                                    return analyticsService.sendObjectEvent(AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
+                                                    datasource1, getAnalyticsPropertiesForTestEventStatus(datasource1,
+                                                            datasourceTestResult)).thenReturn(datasourceTestResult);
+                                }
+                            })
                             .map(datasourceTestResult -> {
                                 datasourceTestResult.setMessages(datasource1.getMessages());
                                 return datasourceTestResult;
                             });
+
                 });
     }
 
@@ -521,18 +536,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Map<String, Object> getAnalyticsProperties(Datasource datasource) {
-        Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.put("orgId", datasource.getWorkspaceId());
-        analyticsProperties.put("pluginName", datasource.getPluginName());
-        analyticsProperties.put("dsName", datasource.getName());
-        analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
-        analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
-        DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
-        if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
-            analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
-        }
-        return analyticsProperties;
+        return DatasourceAnalyticsUtils.getAnalyticsProperties(datasource);
     }
+
 
     /**
      * Sets isRecentlyCreated flag to the datasources that were created recently.

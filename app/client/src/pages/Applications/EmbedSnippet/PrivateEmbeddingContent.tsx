@@ -1,140 +1,129 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import styled from "styled-components";
-import { Button, Text, TextType } from "design-system-old";
+import { Text, Link, Button } from "design-system";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import styled from "styled-components";
 
-const Container = styled.div<{ isAppSettings: boolean }>`
-  text-align: left;
-  ${({ isAppSettings }) =>
-    isAppSettings
-      ? `
-      padding: 0 16px;
-      `
-      : `
-      > span {
-        margin: 0px 0px 8px;
-      }
-
-      > span:nth-child(2) {
-        margin-bottom: 16px;
-      }
-  `}
-`;
-
-const SubContainer = styled.div<{ isAppSettings?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  &.button-wrapper {
-    display: inline-block;
-    margin-top: 8px;
-  }
-`;
-
-const StyledText = styled(Text)`
-  display: block;
-  font-size: 14px;
-
-  &.upgrade-heading {
-    font-weight: 600;
-    font-size: 16px;
-  }
-
-  &.upgrade-heading-in-app {
-    font-weight: 500;
-    text-color: var(--appsmith-color-black-800);
-  }
-
-  &.secondary-heading {
-    font-weight: 500;
-    text-color: var(--appsmith-color-black-800);
-  }
-`;
-
-const StyledAnchor = styled.a`
-  text-decoration: underline;
+const StyledLink = styled(Link)`
+  text-decoration: underline !important;
+  display: inline;
 `;
 
 function PrivateEmbeddingContent(props: {
-  canMakeAppPublic: boolean;
+  userAppPermissions: any[];
   changeTab?: () => void;
   isAppSettings?: boolean;
 }) {
-  const { canMakeAppPublic = false, changeTab, isAppSettings = false } = props;
-  const appsmithConfigs = getAppsmithConfigs();
-  const instanceId = useSelector(getInstanceId);
+  const { changeTab, isAppSettings = false } = props;
+
+  const canMakeAppPublic = isPermitted(
+    props.userAppPermissions,
+    PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
+  );
+
+  if (isAppSettings)
+    return <AppSettingsContent canMakeAppPublic={canMakeAppPublic} />;
 
   return (
-    <Container data-testid="t--upgrade-content" isAppSettings={isAppSettings}>
-      {isAppSettings ? (
-        <div>
-          <div className="pt-3 pb-3 font-medium text-[color:var(--appsmith-color-black-800)]">
-            {createMessage(IN_APP_EMBED_SETTING.embed)}
-          </div>
-        </div>
-      ) : (
-        <StyledText
-          className={
-            !isAppSettings ? "upgrade-heading" : "upgrade-heading-in-app"
-          }
-          type={TextType.P1}
-        >
-          {canMakeAppPublic
-            ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
-            : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
-        </StyledText>
-      )}
-      <SubContainer className="flex flex-col">
-        {isAppSettings && (
-          <StyledText className="secondary-heading" type={TextType.P2}>
-            {canMakeAppPublic
-              ? createMessage(
-                  IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings,
-                )
-              : createMessage(IN_APP_EMBED_SETTING.secondaryHeading)}
-          </StyledText>
-        )}
-        <StyledText type={TextType.P2}>
-          {createMessage(IN_APP_EMBED_SETTING.upgradeContent)}&nbsp;
-          <StyledAnchor
-            onClick={() => {
-              window.open(
-                PRICING_PAGE_URL(
-                  appsmithConfigs.pricingUrl,
-                  appsmithConfigs.cloudHosting ? "Cloud" : "CE",
-                  instanceId,
-                ),
-                "_blank",
-              );
-            }}
-            rel="noreferrer"
-          >
-            {createMessage(IN_APP_EMBED_SETTING.appsmithBusinessEdition)}
-          </StyledAnchor>
-          .
-        </StyledText>
-      </SubContainer>
-      <SubContainer className="button-wrapper">
-        {canMakeAppPublic && !isAppSettings && (
-          <Button
-            data-testid="t--share-settings-btn"
-            height="36"
-            onClick={changeTab}
-            text="SHARE SETTINGS"
-            type="button"
-          />
-        )}
-      </SubContainer>
-    </Container>
+    <SnippetTabContent
+      canMakeAppPublic={canMakeAppPublic}
+      changeTab={changeTab}
+    />
   );
 }
 
 export default PrivateEmbeddingContent;
+
+function EmbeddedLink() {
+  const appsmithConfigs = getAppsmithConfigs();
+  const instanceId = useSelector(getInstanceId);
+
+  return (
+    <Text kind="action-m">
+      {createMessage(IN_APP_EMBED_SETTING.upgradeContent)}&nbsp;
+      <StyledLink
+        onClick={() => {
+          window.open(
+            PRICING_PAGE_URL(
+              appsmithConfigs.pricingUrl,
+              appsmithConfigs.cloudHosting ? "Cloud" : "CE",
+              instanceId,
+            ),
+            "_blank",
+          );
+        }}
+        rel="noreferrer"
+        to="#"
+      >
+        {createMessage(IN_APP_EMBED_SETTING.appsmithBusinessEdition)}
+      </StyledLink>
+    </Text>
+  );
+}
+
+function AppSettingsContent({
+  canMakeAppPublic,
+}: {
+  canMakeAppPublic: boolean;
+}) {
+  return (
+    <div className="px-4" data-testid="t--upgrade-content">
+      <Text className="pt-3 pb-3" kind="heading-xs" renderAs="p">
+        {createMessage(IN_APP_EMBED_SETTING.embed)}
+      </Text>
+      <div className="flex flex-col gap-1">
+        <Text kind="action-m" renderAs="p">
+          {canMakeAppPublic
+            ? createMessage(IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings)
+            : createMessage(IN_APP_EMBED_SETTING.secondaryHeading)}
+        </Text>
+
+        <EmbeddedLink />
+      </div>
+    </div>
+  );
+}
+
+function SnippetTabContent({
+  canMakeAppPublic,
+  changeTab,
+}: {
+  canMakeAppPublic: boolean;
+  changeTab?: () => void;
+}) {
+  return (
+    <div
+      className="flex flex-col gap-1 items-start"
+      data-testid="t--upgrade-content"
+    >
+      <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-s">
+        {canMakeAppPublic
+          ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
+          : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
+      </Text>
+
+      <EmbeddedLink />
+
+      {canMakeAppPublic && (
+        <Button
+          className="mt-2"
+          data-testid="t--share-settings-btn"
+          onClick={changeTab}
+          size="md"
+        >
+          Share settings
+        </Button>
+      )}
+    </div>
+  );
+}

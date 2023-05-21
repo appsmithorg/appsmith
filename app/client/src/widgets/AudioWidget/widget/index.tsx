@@ -68,7 +68,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "autoPlay",
-            label: "Auto Play",
+            label: "Auto play",
             helpText: "Audio will be automatically played",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -88,7 +88,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
