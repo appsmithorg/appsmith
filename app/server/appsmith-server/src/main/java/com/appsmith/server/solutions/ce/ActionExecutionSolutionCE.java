@@ -15,6 +15,8 @@ public interface ActionExecutionSolutionCE {
 
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentId);
 
+    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO);
+
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
 }

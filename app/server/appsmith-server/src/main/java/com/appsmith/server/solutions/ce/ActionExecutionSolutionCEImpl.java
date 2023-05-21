@@ -719,6 +719,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 });
     }
 
+    @Override
     public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO) {
         return newActionService.findActionDTObyIdAndViewMode(
                         executeActionDTO.getActionId(),
