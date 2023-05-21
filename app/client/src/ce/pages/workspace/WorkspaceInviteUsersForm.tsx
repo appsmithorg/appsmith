@@ -21,6 +21,7 @@ import {
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
   USERS_HAVE_ACCESS_TO_ALL_APPS,
   NO_USERS_INVITED,
+  // BUSINESS_EDITION_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -51,6 +52,7 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+// import { Link } from "design-system";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -161,6 +163,16 @@ export const ErrorTextContainer = styled.div`
     path {
       fill: var(--ads-v2-color-fg-error);
     }
+  }
+  .cs-icon {
+    margin-right: 4px;
+    margin-top: 2px;
+    align-items: flex-start;
+  }
+`;
+export const WorkspaceText = styled.div`
+  a {
+    display: inline;
   }
 `;
 
@@ -451,7 +463,19 @@ function WorkspaceInviteUsersForm(props: any) {
             </Button>
           </div>
         </StyledInviteFieldGroup>
-
+        {/* <LabelText data-testid="helper-message" type={TextType.P0}>
+          <Icon name="user-3-line" size={IconSize.MEDIUM} />
+          <WorkspaceText>
+            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}{" "}
+            <Link
+              kind="primary"
+              target="_blank"
+              to="https://appsmith.com/pricing"
+            >
+              {createMessage(BUSINESS_EDITION_TEXT)}
+            </Link>
+          </WorkspaceText>
+        </LabelText> */}
         {isLoading ? (
           <div className="pt-4 overflow-hidden">
             <Spinner size="lg" />
