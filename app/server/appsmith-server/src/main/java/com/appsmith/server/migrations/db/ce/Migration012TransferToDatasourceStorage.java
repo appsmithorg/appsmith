@@ -21,9 +21,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
- * In this migration, we are simply moving the configurations to the new collection.
- * We will follow this up with another migration that deletes the existing configurations
- * for datasources, simply to allow for a rollback mechanism for this migration.
+ * In this migration, we are moving configurations from each valid datasource
+ * to a new collection. The datasource will cease to have configurations after this point
  */
 @Slf4j
 //@ChangeUnit(order = "012", id = "migrate-configurations-to-data-storage", author = " ")
