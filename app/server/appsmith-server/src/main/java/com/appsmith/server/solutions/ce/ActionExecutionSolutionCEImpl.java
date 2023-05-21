@@ -504,8 +504,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         // This is an action with a global datasource,
                         // we need to find the entry from db and populate storage
                         datasourceStorageMono = datasourceService.findById(datasource.getId(), datasourcePermission.getExecutePermission())
-                                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
-                                        datasource1, environmentId));
+                                .flatMap(datasource1 -> datasourceStorageService
+                                        .findByDatasourceAndEnvironmentIdForExecution(datasource1, environmentId));
                     } else if (datasource == null) {
                         datasourceStorageMono = Mono.empty();
                     } else {

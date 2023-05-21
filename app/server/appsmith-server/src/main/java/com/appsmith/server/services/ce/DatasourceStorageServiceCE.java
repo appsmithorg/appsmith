@@ -19,6 +19,9 @@ public interface DatasourceStorageServiceCE {
     Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource,
                                                              String environmentId);
 
+    Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(Datasource datasource,
+                                                                         String environmentId);
+
     Flux<DatasourceStorage> findByDatasource(Datasource datasource);
 
     Flux<DatasourceStorage> findStrictlyByDatasourceId(String datasourceId);

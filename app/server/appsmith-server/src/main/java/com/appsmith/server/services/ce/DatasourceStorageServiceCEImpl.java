@@ -100,6 +100,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
+    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(Datasource datasource,
+                                                                                String environmentId) {
+        return this.findByDatasourceAndEnvironmentId(datasource, environmentId);
+    }
+
+    @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
         return this.findByDatasourceId(datasource.getId())
                 // TODO: This is a temporary call being made till storage transfer migrations are done
