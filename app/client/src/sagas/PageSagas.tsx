@@ -141,6 +141,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -567,6 +568,10 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         failed: true,
       },
     );
+
+    if (error instanceof UserCancelledActionExecutionError) {
+      return;
+    }
 
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,

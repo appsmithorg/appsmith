@@ -220,6 +220,7 @@ describe("Git sync:", function () {
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
+      _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.get(`.t--entity.page`)
         .contains("Page1")
         .closest(".t--entity")
