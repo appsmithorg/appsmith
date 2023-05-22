@@ -55,7 +55,7 @@ import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 import { showProductRamps } from "ce/utils/ProductRamps";
-import { RAMP_NAME } from "ce/utils/ProductRamps/RampsControlList";
+import { RAMP_NAME } from "@appsmith/utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
