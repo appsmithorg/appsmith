@@ -16,17 +16,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.server.constants.ce.EmailConstantsCE.EMAIL_ROLE_ADMINISTRATOR_TEXT;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.EMAIL_ROLE_DEVELOPER_TEXT;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.EMAIL_ROLE_VIEWER_TEXT;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.FORGOT_PASSWORD_TEMPLATE_CE;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.ForgotPasswordEmailSubject;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_USER_CLIENT_URL_FORMAT;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_WORKSPACE_TEMPLATE_CE;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.WORKSPACE_URL;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.WorkspaceEmailSubjectForExistingUser;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.WorkspaceEmailSubjectForNewUser;
+import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_ADMINISTRATOR_TEXT;
+import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_DEVELOPER_TEXT;
+import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_VIEWER_TEXT;
+import static com.appsmith.server.constants.EmailConstants.FORGOT_PASSWORD_EMAIL_SUBJECT;
+import static com.appsmith.server.constants.EmailConstants.FORGOT_PASSWORD_TEMPLATE_CE;
+import static com.appsmith.server.constants.EmailConstants.INVITER_FIRST_NAME;
+import static com.appsmith.server.constants.EmailConstants.INVITER_WORKSPACE_NAME;
+import static com.appsmith.server.constants.EmailConstants.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE;
+import static com.appsmith.server.constants.EmailConstants.INVITE_USER_CLIENT_URL_FORMAT;
+import static com.appsmith.server.constants.EmailConstants.INVITE_WORKSPACE_TEMPLATE_CE;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_URL;
+import static com.appsmith.server.constants.EmailConstants.RESET_URL;
+import static com.appsmith.server.constants.EmailConstants.WORKSPACE_EMAIL_SUBJECT_FOR_EXISTING_USER;
+import static com.appsmith.server.constants.EmailConstants.WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER;
+import static com.appsmith.server.constants.EmailConstants.WORKSPACE_URL;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 @Slf4j
@@ -37,15 +41,12 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     private final CommonConfig commonConfig;
 
 
-
-
-
     protected EmailDto getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
         if(isNewUser){
-            String subject = String.format(WorkspaceEmailSubjectForNewUser, inviterWorkspace.getName());
+            String subject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, inviterWorkspace.getName());
             return new EmailDto(subject, INVITE_WORKSPACE_TEMPLATE_CE);
         }else {
-            return new EmailDto(WorkspaceEmailSubjectForExistingUser, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE);
+            return new EmailDto(WORKSPACE_EMAIL_SUBJECT_FOR_EXISTING_USER, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE);
         }
     }
 
@@ -53,7 +54,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = new HashMap<>();
 
         if (inviter != null) {
-            params.put(FieldName.INVITER_FIRST_NAME, defaultIfEmpty(inviter.getName(), inviter.getEmail()));
+            params.put(INVITER_FIRST_NAME, defaultIfEmpty(inviter.getName(), inviter.getEmail()));
         }
         if(roleType != null){
             if(roleType.startsWith(FieldName.ADMINISTRATOR)){
@@ -65,13 +66,13 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             }
         }
         if (workspace != null) {
-            params.put(FieldName.INVITER_WORKSPACE_NAME, workspace.getName());
+            params.put(INVITER_WORKSPACE_NAME, workspace.getName());
         }
         if (isNewUser) {
-            params.put(FieldName.PRIMARY_LINK_URL, inviteUrl);
+            params.put(PRIMARY_LINK_URL, inviteUrl);
         } else {
             if (workspace != null) {
-                params.put(FieldName.PRIMARY_LINK_URL, String.format(WORKSPACE_URL, inviteUrl, workspace.getId()));
+                params.put(PRIMARY_LINK_URL, String.format(WORKSPACE_URL, inviteUrl, workspace.getId()));
             }
         }
         return params;
@@ -83,14 +84,14 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     protected EmailDto getSubjectAndForgotPasswordEmailTemplate(String instanceName) {
-        return new EmailDto(ForgotPasswordEmailSubject, FORGOT_PASSWORD_TEMPLATE_CE);
+        return new EmailDto(FORGOT_PASSWORD_EMAIL_SUBJECT, FORGOT_PASSWORD_TEMPLATE_CE);
     }
 
     @Override
     public Mono<Map<String, String>> sendForgetPasswordEmail(String email, String resetUrl, String originHeader) {
         String instanceName = defaultIfEmpty(commonConfig.getInstanceName(), Appsmith.APPSMITH);
         Map<String, String> params = new HashMap<>();
-        params.put(FieldName.RESET_URL, resetUrl);
+        params.put(RESET_URL, resetUrl);
         EmailDto subjectAndEmailTemplate = this.getSubjectAndForgotPasswordEmailTemplate(instanceName);
         return this.updateTenantLogoInParams(params, originHeader)
                 .flatMap(updatedParams ->

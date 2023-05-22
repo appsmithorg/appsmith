@@ -171,8 +171,4 @@ public class FieldNameCE {
     public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unassigned_users";
     public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
     public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
-    public static final String INVITER_FIRST_NAME = "inviterFirstName";
-    public static final String INVITER_WORKSPACE_NAME = "inviterWorkspaceName";
-    public static final String PRIMARY_LINK_URL = "primaryLinkUrl";
-    public static final String RESET_URL = "resetUrl";
 }
