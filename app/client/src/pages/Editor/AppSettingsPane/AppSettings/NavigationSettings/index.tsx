@@ -390,7 +390,8 @@ function NavigationSettings() {
             updateSetting={updateSetting}
           />
 
-          {featureFlags.APP_NAVIGATION_LOGO_UPLOAD && (
+          {(navigationSetting?.logoAssetId ||
+            featureFlags.APP_NAVIGATION_LOGO_UPLOAD) && (
             <>
               <SwitchSettingForLogoConfiguration
                 keyName="logo"
