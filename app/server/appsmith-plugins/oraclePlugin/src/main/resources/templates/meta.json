@@ -1,10 +1,10 @@
 {
   "templates": [
     {
-      "file": "CREATE.sql"
+      "file": "SELECT.sql"
     },
     {
-      "file": "SELECT.sql"
+      "file": "INSERT.sql"
     },
     {
       "file": "UPDATE.sql"

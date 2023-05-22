@@ -1,6 +1,6 @@
 export default {
-  selectGet: "//span[text()='GET']",
-  selectPost: "//span[text()='POST']",
+  selectGet: ".rc-select-item-option-content:contains('GET')",
+  selectPost: ".rc-select-item-option-content:contains('POST')",
   selectDelete: "//span[text()='DELETE']",
   pagebutton: "//div[text()='Page1']",
   submitButton: "span:contains('Submit New Proposal')",

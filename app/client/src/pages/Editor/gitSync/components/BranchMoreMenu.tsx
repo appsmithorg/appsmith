@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import { Colors } from "constants/Colors";
+import React from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, IconSize, Menu, Toaster, Variant } from "design-system-old";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -10,13 +8,22 @@ import {
   DELETE_BRANCH_WARNING_CHECKED_OUT,
   DELETE_BRANCH_WARNING_DEFAULT,
 } from "@appsmith/constants/messages";
-import DangerMenuItem from "./DangerMenuItem";
 import type { Dispatch } from "redux";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  toast,
+} from "design-system";
 
 interface Props {
   branchName: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 function DeleteButton(
@@ -29,74 +36,73 @@ function DeleteButton(
 
   function saneDelete() {
     if (defaultBranchName === branchToDelete) {
-      Toaster.show({
-        text: createMessage(DELETE_BRANCH_WARNING_DEFAULT, branchToDelete),
-        variant: Variant.danger,
+      toast.show(createMessage(DELETE_BRANCH_WARNING_DEFAULT, branchToDelete), {
+        kind: "error",
       });
     } else if (currentBranch === branchToDelete) {
-      Toaster.show({
-        text: createMessage(DELETE_BRANCH_WARNING_CHECKED_OUT, branchToDelete),
-        variant: Variant.danger,
-      });
+      toast.show(
+        createMessage(DELETE_BRANCH_WARNING_CHECKED_OUT, branchToDelete),
+        {
+          kind: "error",
+        },
+      );
     } else {
       dispatch(deleteBranchInit({ branchToDelete: branchToDelete }));
     }
   }
 
   return (
-    <DangerMenuItem
-      className="git-branch-more-menu-item danger t--branch-more-menu-delete"
-      data-cy="t--branch-more-menu-delete"
+    <MenuItem
+      className="git-branch-more-menu-item danger t--branch-more-menu-delete error-menuitem"
       data-testid="t--branch-more-menu-delete"
-      icon="delete"
       key={"delete-branch-button"}
-      onSelect={() => saneDelete()}
-      selected
-      text={createMessage(DELETE)}
-    />
-  );
-}
-
-function MenuButton(
-  setOpen: (value: ((prevState: boolean) => boolean) | boolean) => void,
-  open: boolean,
-) {
-  return (
-    <Icon
-      fillColor={Colors.DARK_GRAY}
-      hoverFillColor={Colors.GRAY_900}
-      name="more-2-fill"
-      onClick={() => {
-        AnalyticsUtil.logEvent("GS_BRANCH_MORE_MENU_OPEN", {
-          source: "GS_OPEN_BRANCH_LIST_POPUP",
-        });
-        setOpen(!open);
+      onClick={(e) => {
+        e.stopPropagation();
+        saneDelete();
       }}
-      size={IconSize.XXXXL}
-    />
+      startIcon="delete"
+    >
+      {createMessage(DELETE)}
+    </MenuItem>
   );
 }
 
-export default function BranchMoreMenu({ branchName }: Props) {
-  const [open, setOpen] = useState(false);
+export default function BranchMoreMenu({ branchName, open, setOpen }: Props) {
   const dispatch = useDispatch();
 
   const buttons = [
     DeleteButton(branchName, useSelector(getCurrentAppGitMetaData), dispatch),
   ];
-  const menuButton = MenuButton(setOpen, open);
+
+  const handleMenuClose = () => {
+    setOpen(false);
+  };
 
   return (
-    <Menu
-      className="git-branch-more-menu"
-      data-testid="t--git-branch-more-menu"
-      dontUsePortal
-      isOpen={open}
-      menuItemWrapperWidth={"fit-content"}
-      position="bottom"
-      target={menuButton}
-    >
-      {buttons}
+    <Menu data-testid="t--git-branch-more-menu" modal open={open}>
+      <MenuTrigger>
+        <Button
+          className="git-branch-more-menu"
+          isIconButton
+          kind="tertiary"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(true);
+            AnalyticsUtil.logEvent("GS_BRANCH_MORE_MENU_OPEN", {
+              source: "GS_OPEN_BRANCH_LIST_POPUP",
+            });
+          }}
+          size="sm"
+          startIcon="comment-context-menu"
+        />
+      </MenuTrigger>
+      <MenuContent
+        align="end"
+        onEscapeKeyDown={handleMenuClose}
+        onInteractOutside={handleMenuClose}
+      >
+        {buttons}
+      </MenuContent>
     </Menu>
   );
 }

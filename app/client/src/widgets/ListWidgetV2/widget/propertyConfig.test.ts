@@ -127,7 +127,7 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" returns empty with error when JS mode enabled and input is empty", () => {
+  it("returns empty with error when JS mode enabled and input is empty", () => {
     const props = {
       listData: [
         {
@@ -157,7 +157,7 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" primary key that doesn't exist", () => {
+  it("primary key that doesn't exist", () => {
     const props = {
       listData: [
         {
@@ -187,7 +187,7 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" primary key contain null value in array", () => {
+  it("primary key contain null value in array", () => {
     const props = {
       listData: [
         {
@@ -250,6 +250,24 @@ describe(".primaryColumnValidation", () => {
             "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
         },
       ],
+    };
+
+    const output = primaryColumnValidation(inputValue, props, _);
+
+    expect(output).toEqual(expectedOutput);
+  });
+
+  it("no error when there's no list data or list data is empty", () => {
+    const props = {
+      listData: [],
+    } as unknown as ListWidgetProps;
+
+    const inputValue = [1, 2];
+
+    const expectedOutput = {
+      isValid: true,
+      parsed: inputValue,
+      messages: [{ name: "", message: "" }],
     };
 
     const output = primaryColumnValidation(inputValue, props, _);

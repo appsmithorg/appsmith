@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
+import { Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -31,16 +31,9 @@ const DummyChange = styled.div`
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.spaces[9]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: var(--ads-v2-spaces-3);
   display: flex;
-
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-
-  .${Classes.TEXT} {
-    padding-top: ${(props) => props.theme.spaces[1] - 2}px;
-  }
+  gap: 6px;
 `;
 
 const Changes = styled.div`
@@ -137,12 +130,16 @@ function aheadCommitMessage(status: GitStatusData) {
 }
 
 export function Change(props: Partial<GitStatusProps>) {
-  const { iconName, message } = props;
+  const { iconName = "git-commit", message } = props;
 
   return (
     <Wrapper>
-      <Icon name={iconName} size={IconSize.XXL} />
-      <Text type={TextType.P3}>{message}</Text>
+      {iconName && (
+        <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+      )}
+      <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+        {message}
+      </Text>
     </Wrapper>
   );
 }
@@ -204,7 +201,7 @@ export default function GitChangesList() {
   }
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
-  ) : (
+  ) : changes.length ? (
     <Changes data-testid={"t--git-change-statuses"}>{changes}</Changes>
-  );
+  ) : null;
 }

@@ -12,12 +12,9 @@ import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 
 // Signposting selectors
-export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
-  return state.ui.onBoarding.enableFirstTimeUserOnboarding;
-};
 
-export const getFirstTimeUserOnboardingApplicationId = (state: AppState) => {
-  return state.ui.onBoarding.firstTimeUserOnboardingApplicationId;
+export const getFirstTimeUserOnboardingApplicationIds = (state: AppState) => {
+  return state.ui.onBoarding.firstTimeUserOnboardingApplicationIds;
 };
 
 export const getFirstTimeUserOnboardingComplete = (state: AppState) => {
@@ -29,10 +26,9 @@ export const getFirstTimeUserOnboardingModal = (state: AppState) =>
 
 export const getIsFirstTimeUserOnboardingEnabled = createSelector(
   (state: AppState) => state.entities.pageList.applicationId,
-  getEnableFirstTimeUserOnboarding,
-  getFirstTimeUserOnboardingApplicationId,
-  (currentApplicationId, enabled, applicationId) => {
-    return enabled && currentApplicationId === applicationId;
+  getFirstTimeUserOnboardingApplicationIds,
+  (currentApplicationId, applicationIds) => {
+    return applicationIds.includes(currentApplicationId);
   },
 );
 

@@ -3,23 +3,18 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
-import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import { Callout, Category, Variant } from "design-system-old";
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import {
-  EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
@@ -34,13 +29,15 @@ import Debugger, {
   ResizerMainContainer,
 } from "./Debugger";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Button, Callout } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import DatasourceInformation from "./DatasourceSection";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   datasourceId: string;
   applicationId: string;
   pageId: string;
@@ -58,26 +55,12 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
   datasourceDeleteTrigger: () => void;
+  // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+  isInsideReconnectModal?: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
-
-const StyledOpenDocsIcon = styled(Icon)`
-  svg {
-    width: 12px;
-    height: 18px;
-  }
-`;
-
-const CalloutWrapper = styled.div`
-  padding: 0 20px;
-`;
-
-const CollapsibleWrapper = styled.div`
-  width: max-content;
-  padding: 0 20px;
-`;
 
 export const Form = styled.form`
   display: flex;
@@ -85,6 +68,13 @@ export const Form = styled.form`
   height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
   overflow: hidden;
   flex: 1;
+`;
+
+const ViewModeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0;
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -101,10 +91,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     });
   };
 
-  openOmnibarReadMore = () => {
-    const { openOmnibarReadMore } = this.props;
-    openOmnibarReadMore("connect to databases");
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
+  openDocumentation = () => {
+    openDoc(DocsLink.WHITELIST_IP);
   };
 
   render() {
@@ -120,7 +108,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
-
   renderDataSourceConfigForm = (sections: any) => {
     const {
       canManageDatasource,
@@ -128,6 +115,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceButtonConfiguration,
       datasourceDeleteTrigger,
       datasourceId,
+      formConfig,
       formData,
       messages,
       pluginType,
@@ -137,11 +125,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <>
         {!this.props.hiddenHeader && (
           <Header>
             <FormTitleContainer>
@@ -155,45 +139,48 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               />
             </FormTitleContainer>
             {viewMode && (
-              <EditDatasourceButton
-                category={Category.secondary}
+              <Button
                 className="t--edit-datasource"
+                kind="secondary"
                 onClick={() => {
                   this.props.setDatasourceViewMode(false);
                 }}
-                text="EDIT"
-              />
+                size="md"
+              >
+                Edit
+              </Button>
             )}
           </Header>
         )}
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             {messages &&
-              messages.map((msg, i) => (
-                <CalloutWrapper key={i}>
-                  <Callout
-                    addMarginTop
-                    fill
-                    text={msg}
-                    variant={Variant.warning}
-                  />
-                </CalloutWrapper>
-              ))}
+              messages.map((msg, i) => {
+                return (
+                  <Callout className="mt-4" key={i} kind="warning">
+                    {msg}
+                  </Callout>
+                );
+              })}
             {!this.props.hiddenHeader &&
               cloudHosting &&
               pluginType === PluginType.DB &&
               !viewMode && (
-                <CollapsibleWrapper>
-                  <CollapsibleHelp>
-                    <span>{`Whitelist the IP ${convertArrayToSentence(
-                      APPSMITH_IP_ADDRESSES,
-                    )}  on your database instance to connect to it. `}</span>
-                    <a onClick={this.openOmnibarReadMore}>
-                      {"Learn more "}
-                      <StyledOpenDocsIcon icon="document-open" />
-                    </a>
-                  </CollapsibleHelp>
-                </CollapsibleWrapper>
+                <Callout
+                  className="mt-4"
+                  kind="warning"
+                  links={[
+                    {
+                      children: "Learn more",
+                      onClick: this.openDocumentation,
+                      endIcon: "share-box-line",
+                    },
+                  ]}
+                >
+                  {`Whitelist the IP ${convertArrayToSentence(
+                    APPSMITH_IP_ADDRESSES,
+                  )}  on your database instance to connect to it. `}
+                </Callout>
               )}
             {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
               <>
@@ -203,7 +190,20 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 {""}
               </>
             )}
-            {viewMode && <Connected />}
+            {viewMode && (
+              <ViewModeWrapper>
+                <Connected />
+                <div style={{ marginTop: "30px" }}>
+                  {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                    <DatasourceInformation
+                      config={formConfig[0]}
+                      datasource={datasource}
+                      viewMode={viewMode}
+                    />
+                  ) : undefined}
+                </div>
+              </ViewModeWrapper>
+            )}
             {/* Render datasource form call-to-actions */}
             {datasource && (
               <DatasourceAuth
@@ -213,6 +213,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 formData={formData}
                 getSanitizedFormData={_.memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
+                isInsideReconnectModal={this.props.isInsideReconnectModal}
                 isInvalid={this.validate()}
                 shouldRender={!viewMode}
                 triggerSave={this.props.isDatasourceBeingSavedFromPopup}
@@ -221,7 +222,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
         </ResizerMainContainer>
-      </Form>
+      </>
     );
   };
 }

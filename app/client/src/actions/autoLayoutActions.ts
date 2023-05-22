@@ -89,3 +89,13 @@ export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
     payload: isAutoCanvasResizing,
   };
 };
+
+export const updatePositionsOnTabChange = (
+  widgetId: string,
+  selectedTabWidgetId: string,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
+    payload: { selectedTabWidgetId, widgetId },
+  };
+};

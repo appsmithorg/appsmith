@@ -91,6 +91,15 @@ const usersReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_USER_INTERCOM_CONSENT]: (state: UsersReduxState) => {
+    return {
+      ...state,
+      currentUser: {
+        ...state.currentUser,
+        isIntercomConsentGiven: true,
+      },
+    };
+  },
   [ReduxActionTypes.FETCH_USER_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,

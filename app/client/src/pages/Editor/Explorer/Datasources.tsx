@@ -23,14 +23,12 @@ import {
   EMPTY_DATASOURCE_MAIN_TEXT,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
-import { Colors } from "constants/Colors";
 import {
   useDatasourceIdFromURL,
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { Icon } from "design-system-old";
+import { Icon, Button } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -41,18 +39,8 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 
-const ShowAll = styled.div`
-  padding: 0.25rem 1.5rem;
-  font-weight: 500;
-  font-size: 12px;
-  color: ${Colors.DOVE_GRAY2};
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  &:hover {
-    transform: scale(1.01);
-  }
+const ShowAllButton = styled(Button)`
+  margin: 0.25rem 1.5rem;
 `;
 
 const Datasources = React.memo(() => {
@@ -125,7 +113,7 @@ const Datasources = React.memo(() => {
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
-      className={"datasources"}
+      className={"group datasources"}
       entityId="datasources_section"
       icon={null}
       isDefaultExpanded={
@@ -162,10 +150,14 @@ const Datasources = React.memo(() => {
         />
       )}
       {otherDS.length ? (
-        <ShowAll onClick={listDatasource}>
+        <ShowAllButton
+          endIcon="arrow-right-line"
+          kind="tertiary"
+          onClick={listDatasource}
+          size="sm"
+        >
           Show all datasources
-          <ArrowRightLineIcon color={Colors.DOVE_GRAY2} size={"14px"} />
-        </ShowAll>
+        </ShowAllButton>
       ) : null}
     </Entity>
   );

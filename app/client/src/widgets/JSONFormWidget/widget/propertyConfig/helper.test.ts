@@ -55,9 +55,9 @@ describe(".fieldTypeUpdateHook", () => {
           isSpellCheck: false,
           position: -1,
           accentColor:
-            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => ((appsmith.theme.colors.primaryColor)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           borderRadius:
-            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            "{{((sourceData, formData, fieldState) => ((appsmith.theme.borderRadius.appBorderRadius)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
           labelTextSize: "0.875rem",
         },
@@ -376,7 +376,7 @@ describe(".getStylesheetValue", () => {
       ["schema.__root_schema__.children.education.isDisabled", ""],
       [
         "schema.__root_schema__.children.name.borderRadius",
-        "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(Form1.sourceData, Form1.formData, Form1.fieldState)}}",
+        "{{((sourceData, formData, fieldState) => ((appsmith.theme.borderRadius.appBorderRadius)))(Form1.sourceData, Form1.formData, Form1.fieldState)}}",
       ],
       ["schema", ""],
     ];

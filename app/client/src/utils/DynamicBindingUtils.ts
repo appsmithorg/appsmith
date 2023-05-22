@@ -23,6 +23,12 @@ export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
+function hasNonStringSemicolons(stringifiedJS: string) {
+  // This regex pattern matches semicolons that are not inside single or double quotes
+  const regex = /;(?=(?:[^']*'[^']*')*[^']*$)(?=(?:[^"]*"[^"]*")*[^"]*$)/g;
+  return regex.test(stringifiedJS);
+}
+
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -106,13 +112,29 @@ export const combineDynamicBindings = (
   return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
-        return jsSnippets[index];
+        return addOperatorPrecedenceIfNeeded(jsSnippets[index]);
       } else {
-        return `'${segment}'`;
+        return JSON.stringify(segment);
       }
     })
     .join(" + ");
 };
+
+/**
+ * Operator precedence example: JSCode =  Color is  {{ currentItem.color || "Blue"}}  PS: currentItem.color is undefined
+ *  Previously this code would be transformed to  (() =>  "Color is" + currentItem.color || "Blue")() which evaluates to "Color is undefined" rather than "Color is Blue"
+ * with precedence we'd have (() =>  "Color is" + (currentItem.color || "Blue"))() which evaluates to Color is Blue,  because the parentheses change the order of evaluation, giving  higher precedence in this case to (currentItem.color || "Blue").
+ */
+function addOperatorPrecedenceIfNeeded(stringifiedJS: string) {
+  /**
+   *  parenthesis doesn't work with ; i.e Color is  {{ currentItem.color || "Blue" ;}} cant be (() =>  "Color is" + (currentItem.color || "Blue";))()
+   */
+  if (!hasNonStringSemicolons(stringifiedJS)) {
+    return `(${stringifiedJS})`;
+  }
+
+  return stringifiedJS;
+}
 
 export enum EvalErrorTypes {
   CYCLICAL_DEPENDENCY_ERROR = "CYCLICAL_DEPENDENCY_ERROR",
@@ -488,7 +510,7 @@ export function getDynamicBindingsChangesSaga(
       dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
     }
     if (isDynamic && !fieldExists) {
-      dynamicBindings.push({ key: bindingField });
+      dynamicBindings = [...dynamicBindings, { key: bindingField }];
     }
   }
 

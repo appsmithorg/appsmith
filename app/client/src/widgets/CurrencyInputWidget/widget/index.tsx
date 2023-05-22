@@ -15,7 +15,7 @@ import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
 } from "../component/CurrencyCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
@@ -173,7 +173,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Value",
+              label: "Default value",
               controlType: "INPUT_TEXT",
               placeholderText: "100",
               isBindProperty: true,
@@ -200,6 +200,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               controlType: "DROP_DOWN",
               searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
+              virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
@@ -209,7 +210,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               propertyName: "allowCurrencyChange",
-              label: "Allow Currency Change",
+              label: "Allow currency change",
               helpText: "Search by currency or country",
               controlType: "SWITCH",
               isJSConvertible: true,
@@ -220,7 +221,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             {
               helpText: "No. of decimals in currency input",
               propertyName: "decimals",
-              label: "Decimals Allowed",
+              label: "Decimals allowed",
               controlType: "DROP_DOWN",
               options: [
                 {

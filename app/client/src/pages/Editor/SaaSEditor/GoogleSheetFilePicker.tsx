@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
+import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
 
 interface Props {
   datasourceId: string;
@@ -27,6 +28,19 @@ function GoogleSheetFilePicker({
   // objects gapi and google are set, when google apis script is loaded
   const gapi: any = (window as any).gapi;
   const google: any = (window as any).google;
+
+  useEffect(() => {
+    // When google apis javascript does not load, we need to update auth status to failure
+    if (!scriptLoadedFlag) {
+      dispatch(
+        filePickerCallbackAction({
+          action: FilePickerActionStatus.CANCEL,
+          fileIds: [],
+          datasourceId: datasourceId,
+        }),
+      );
+    }
+  }, [scriptLoadedFlag]);
 
   useEffect(() => {
     // Since we need to display file picker on blank page, as soon as file picker is visible
@@ -58,7 +72,7 @@ function GoogleSheetFilePicker({
   useEffect(() => {
     if (
       !!gsheetToken &&
-      scriptLoadedFlag &&
+      !!scriptLoadedFlag &&
       pickerInitiated &&
       !!google &&
       !!gsheetProjectID
@@ -66,6 +80,17 @@ function GoogleSheetFilePicker({
       createPicker(gsheetToken, gsheetProjectID);
     }
   }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
+
+  // This is added in useEffect instead of file picker callback,
+  // because in case when browser has blocked third party cookies
+  // The file picker needs to be displayed with allow cookies option
+  // hence as soon as file picker is visible we should remove the overlay
+  // Ref: https://github.com/appsmithorg/appsmith/issues/22753
+  useEffect(() => {
+    if (!!pickerVisible) {
+      removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+    }
+  }, [pickerVisible]);
 
   // This triggers google's picker object from google apis script to create file picker and display it
   // It takes google sheet token and project id as inputs
@@ -85,12 +110,7 @@ function GoogleSheetFilePicker({
   };
 
   const pickerCallback = async (data: any) => {
-    if (data.action === FilePickerActionStatus.LOADED) {
-      // Remove document body overlay as soon as file picker is loaded
-      // As we are adding overlay for file picker background div
-      const className = "overlay";
-      removeClassFromDocumentBody(className);
-    } else if (
+    if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
     ) {

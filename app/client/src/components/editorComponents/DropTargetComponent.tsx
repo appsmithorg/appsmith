@@ -21,8 +21,8 @@ import DragLayerComponent from "./DragLayerComponent";
 import { useDispatch } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
+  getCurrentAppPositioningType,
   getOccupiedSpacesSelectorForContainer,
-  isAutoLayoutEnabled,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -38,6 +38,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -195,7 +196,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
+  const appPositioningType: AppPositioningTypes = useSelector(
+    getCurrentAppPositioningType,
+  );
+  const isAutoLayoutActive = appPositioningType === AppPositioningTypes.AUTO;
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,
     props.widgetId,

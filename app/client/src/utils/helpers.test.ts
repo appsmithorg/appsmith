@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "./autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,
   getLocale,
@@ -275,7 +275,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -335,7 +335,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             // defaultValue: true,
@@ -444,7 +444,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -504,7 +504,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             // defaultValue: true,

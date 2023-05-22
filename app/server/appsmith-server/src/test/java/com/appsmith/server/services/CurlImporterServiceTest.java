@@ -89,51 +89,51 @@ public class CurlImporterServiceTest {
 
     @Test
     public void lexerTests() {
-        assertThat(curlImporterService.lex("curl http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "http://httpbin.org/get"));
-        assertThat(curlImporterService.lex("curl -H 'X-Something: something else' http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: something else", "http://httpbin.org/get"));
-        assertThat(curlImporterService.lex("curl -H \"X-Something: something else\" http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: something else", "http://httpbin.org/get"));
-        assertThat(curlImporterService.lex("curl -H X-Something:\\ something\\ else http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: something else", "http://httpbin.org/get"));
+        assertThat(curlImporterService.lex("curl http://example.org/get"))
+                .isEqualTo(List.of("curl", "http://example.org/get"));
+        assertThat(curlImporterService.lex("curl -H 'X-Something: something else' http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: something else", "http://example.org/get"));
+        assertThat(curlImporterService.lex("curl -H \"X-Something: something else\" http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: something else", "http://example.org/get"));
+        assertThat(curlImporterService.lex("curl -H X-Something:\\ something\\ else http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: something else", "http://example.org/get"));
 
-        assertThat(curlImporterService.lex("curl -H \"X-Something: something \\\"quoted\\\" else\" http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: something \"quoted\" else", "http://httpbin.org/get"));
-        assertThat(curlImporterService.lex("curl -H \"X-Something: something \\\\\\\"quoted\\\" else\" http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: something \\\"quoted\" else", "http://httpbin.org/get"));
+        assertThat(curlImporterService.lex("curl -H \"X-Something: something \\\"quoted\\\" else\" http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: something \"quoted\" else", "http://example.org/get"));
+        assertThat(curlImporterService.lex("curl -H \"X-Something: something \\\\\\\"quoted\\\" else\" http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: something \\\"quoted\" else", "http://example.org/get"));
         // The following tests are meant for cases when any of the components have nested quotes within them
         // In this example, the header argument is surrounded by single quotes, the value for it is surrounded by double quotes,
         // and the contents of the value has two single quotes
-        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''quoted with nesting'\\'' else\"' http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'quoted with nesting' else\"", "http://httpbin.org/get"));
+        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''quoted with nesting'\\'' else\"' http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'quoted with nesting' else\"", "http://example.org/get"));
         // In this example, the header argument is surrounded by single quotes, the value for it is surrounded by double quotes,
         // and the contents of the value has one single quote
-        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''ed with nesting else\"' http://httpbin.org/get"))
-                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'ed with nesting else\"", "http://httpbin.org/get"));
+        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''ed with nesting else\"' http://example.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'ed with nesting else\"", "http://example.org/get"));
 
         // In the following test, we're simulating a subshell. This subshell call is outside of quotes
         try {
-            curlImporterService.lex("curl -H 'X-Something: \"something '$(echo test)' quoted with nesting else\"' http://httpbin.org/get");
+            curlImporterService.lex("curl -H 'X-Something: \"something '$(echo test)' quoted with nesting else\"' http://example.org/get");
         } catch (Exception e) {
             assertThat(e).isInstanceOf(AppsmithException.class);
             assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
         }
         try {
-            curlImporterService.lex("curl -H 'X-Something: \"something '`echo test`' quoted with nesting else\"' http://httpbin.org/get");
+            curlImporterService.lex("curl -H 'X-Something: \"something '`echo test`' quoted with nesting else\"' http://example.org/get");
         } catch (Exception e) {
             assertThat(e).isInstanceOf(AppsmithException.class);
             assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
         }
         // In the following test, we're simulating a subshell. Subshells can be inside double-quoted strings as well
         try {
-            curlImporterService.lex("curl -H \"X-Something: 'something $(echo test) quoted with nesting else'\" http://httpbin.org/get");
+            curlImporterService.lex("curl -H \"X-Something: 'something $(echo test) quoted with nesting else'\" http://example.org/get");
         } catch (Exception e) {
             assertThat(e).isInstanceOf(AppsmithException.class);
             assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
         }
         try {
-            curlImporterService.lex("curl -H \"X-Something: 'something `echo test` quoted with nesting else'\" http://httpbin.org/get");
+            curlImporterService.lex("curl -H \"X-Something: 'something `echo test` quoted with nesting else'\" http://example.org/get");
         } catch (Exception e) {
             assertThat(e).isInstanceOf(AppsmithException.class);
             assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
@@ -160,7 +160,7 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testImportAction_EmptyLex() {
+    public void testImportActionOnInvalidInput() {
         setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
@@ -177,6 +177,50 @@ public class CurlImporterServiceTest {
                 .create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testImportActionOnNullInput() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction(null, page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testImportActionOnEmptyInput() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction("", page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
     }
 
@@ -760,9 +804,9 @@ public class CurlImporterServiceTest {
 
     @Test
     public void parseWithSpacedHeader() throws AppsmithException {
-        ActionDTO action = curlImporterService.curlToAction("curl -H \"Accept:application/json\" http://httpbin.org/get");
+        ActionDTO action = curlImporterService.curlToAction("curl -H \"Accept:application/json\" http://example.org/get");
         assertMethod(action, HttpMethod.GET);
-        assertUrl(action, "http://httpbin.org");
+        assertUrl(action, "http://example.org");
         assertPath(action, "/get");
         assertHeaders(action, new Property("Accept", "application/json"));
         assertEmptyBody(action);
@@ -797,9 +841,9 @@ public class CurlImporterServiceTest {
     public void parseMultiFormData() throws AppsmithException {
         // In the curl command, we test for a combination of --form and -F
         // Also some values are double-quoted while some aren't. This tests a permutation of all such fields
-        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' -F 'somekey=value' --form 'anotherKey=\"anotherValue\"'");
+        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://example.org/post' -F 'somekey=value' --form 'anotherKey=\"anotherValue\"'");
         assertMethod(action, HttpMethod.POST);
-        assertUrl(action, "http://httpbin.org");
+        assertUrl(action, "http://example.org");
         assertPath(action, "/post");
         assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
         assertEmptyBody(action);
@@ -812,9 +856,9 @@ public class CurlImporterServiceTest {
 
     @Test
     public void dontEatBackslashesInSingleQuotes() throws AppsmithException {
-        ActionDTO action = curlImporterService.curlToAction("curl http://httpbin.org/post -d 'a\\n'");
+        ActionDTO action = curlImporterService.curlToAction("curl http://example.org/post -d 'a\\n'");
         assertMethod(action, HttpMethod.POST);
-        assertUrl(action, "http://httpbin.org");
+        assertUrl(action, "http://example.org");
         assertPath(action, "/post");
         assertBody(action, "a\\n");
         assertEmptyBodyFormData(action);
@@ -822,14 +866,14 @@ public class CurlImporterServiceTest {
 
     @Test
     public void importInvalidMethod() {
-        assertThatThrownBy(() -> curlImporterService.curlToAction("curl -X incorrect-charactèrs http://httpbin.org/get"))
+        assertThatThrownBy(() -> curlImporterService.curlToAction("curl -X incorrect-charactèrs http://example.org/get"))
                 .isInstanceOf(AppsmithException.class)
                 .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_METHOD);
     }
 
     @Test
     public void importInvalidHeader() {
-        assertThatThrownBy(() -> curlImporterService.curlToAction("curl -H x-custom http://httpbin.org/headers"))
+        assertThatThrownBy(() -> curlImporterService.curlToAction("curl -H x-custom http://example.org/headers"))
                 .isInstanceOf(AppsmithException.class)
                 .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_HEADER);
     }

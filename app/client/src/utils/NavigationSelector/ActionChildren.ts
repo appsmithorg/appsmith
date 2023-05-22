@@ -1,4 +1,4 @@
-import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";

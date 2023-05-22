@@ -38,6 +38,7 @@ export interface DatasourceDataState {
     isFetchingSheets: boolean;
     isFetchingColumns: boolean;
   };
+  recentDatasources: string[];
 }
 
 const initialState: DatasourceDataState = {
@@ -65,6 +66,7 @@ const initialState: DatasourceDataState = {
     isFetchingSheets: false,
     isFetchingColumns: false,
   },
+  recentDatasources: [],
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -271,6 +273,7 @@ const datasourceReducer = createReducer(initialState, {
       list: state.list.concat(action.payload),
       isDatasourceBeingSaved: false,
       isDatasourceBeingSavedFromPopup: false,
+      recentDatasources: [action.payload.id, ...state.recentDatasources],
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
@@ -290,6 +293,10 @@ const datasourceReducer = createReducer(initialState, {
 
         return datasource;
       }),
+      recentDatasources: [
+        action.payload.id,
+        ...state.recentDatasources.filter((ds) => ds !== action.payload.id),
+      ],
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS]: (

@@ -5,5 +5,6 @@ public interface AnalyticsConstants {
     String SUBSCRIBE_MARKETING = "subscribe-marketing";
     String GOAL = "goal";
     String IP = "ip";
+    String IP_ADDRESS = "ipAddress";
     String EMAIL_DOMAIN_HASH = "emailDomainHash";
 }

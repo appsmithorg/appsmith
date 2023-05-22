@@ -1,8 +1,9 @@
 import * as Sentry from "@sentry/react";
-
-import React from "react";
-
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
+import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import { ConversionForm } from "./ConversionForm";
 import {
   createMessage,
@@ -10,61 +11,116 @@ import {
   DISCARD_SNAPSHOT_HEADER,
   USE_SNAPSHOT_CTA,
   USE_SNAPSHOT_HEADER,
+  SNAPSHOT_BANNER_MESSAGE,
+  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system-old";
-import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import {
   setConversionStart,
   setConversionStop,
 } from "actions/autoLayoutActions";
-import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { useDispatch } from "react-redux";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Callout,
+  Text,
+} from "design-system";
+import { getReadableSnapShotDetails } from "../../../utils/autoLayout/AutoLayoutUtils";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 
 export function SnapShotBannerCTA() {
+  const [showModal, setShowModal] = useState(false);
+
+  const conversionState = useSelector(
+    (state: AppState) => state.ui.layoutConversion.conversionState,
+  );
+
+  const hideCloseButton =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS ||
+    conversionState === CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER;
+
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+
+  const formProps = useSnapShotForm();
+
   const dispatch = useDispatch();
 
-  const handleOnOpenOrClose = (
-    isOpen: boolean,
-    conversionState: CONVERSION_STATES,
-  ) => {
-    if (isOpen) {
-      dispatch(setConversionStart(conversionState));
-    } else {
+  const modalHeader =
+    conversionState === CONVERSION_STATES.DISCARD_SNAPSHOT
+      ? createMessage(DISCARD_SNAPSHOT_HEADER)
+      : createMessage(USE_SNAPSHOT_HEADER);
+
+  const closeModal = () => {
+    setShowModal(false);
+    setTimeout(() => {
       dispatch(setConversionStop());
+    }, 0);
+  };
+
+  const onOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      closeModal();
     }
+  };
+
+  const openModal = (conversionState: CONVERSION_STATES) => {
+    dispatch(setConversionStart(conversionState));
+    setShowModal(true);
   };
 
   return (
     <>
-      <FormDialogComponent
-        Form={ConversionForm(useSnapShotForm)}
-        canEscapeKeyClose={false}
-        canOutsideClickClose={false}
-        isCloseButtonShown={false}
-        onOpenOrClose={(isOpen: boolean) =>
-          handleOnOpenOrClose(isOpen, CONVERSION_STATES.SNAPSHOT_START)
-        }
-        title={createMessage(USE_SNAPSHOT_HEADER)}
-        trigger={
-          <Text className="cursor-pointer pr-2" type={TextType.H5} weight={600}>
-            {createMessage(USE_SNAPSHOT_CTA)}
+      <Callout
+        kind="warning"
+        links={[
+          {
+            children: createMessage(USE_SNAPSHOT_CTA),
+            onClick: (e) => {
+              e.preventDefault();
+              openModal(CONVERSION_STATES.SNAPSHOT_START);
+            },
+          },
+          {
+            children: createMessage(DISCARD_SNAPSHOT_CTA),
+            onClick: (e) => {
+              e.preventDefault();
+              openModal(CONVERSION_STATES.DISCARD_SNAPSHOT);
+            },
+          },
+        ]}
+      >
+        <div className="flex flex-col">
+          <Text kind="heading-s" renderAs="h4">
+            {readableSnapShotDetails
+              ? createMessage(
+                  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+                  readableSnapShotDetails.timeTillExpiration,
+                )
+              : ""}
           </Text>
-        }
-      />
-      <FormDialogComponent
-        Form={ConversionForm(useSnapShotForm)}
-        canOutsideClickClose
-        isCloseButtonShown={false}
-        onOpenOrClose={(isOpen: boolean) =>
-          handleOnOpenOrClose(isOpen, CONVERSION_STATES.DISCARD_SNAPSHOT)
-        }
-        title={createMessage(DISCARD_SNAPSHOT_HEADER)}
-        trigger={
-          <Text className="cursor-pointer pl-2" type={TextType.H5} weight={600}>
-            {createMessage(DISCARD_SNAPSHOT_CTA)}
+          <Text kind="body-m" renderAs="p">
+            {createMessage(SNAPSHOT_BANNER_MESSAGE)}
           </Text>
-        }
-      />
+        </div>
+      </Callout>
+      <Modal onOpenChange={onOpenChange} open={showModal}>
+        <ModalContent
+          // Don't close Modal on escape key press
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          // Don't close Modal when pressed outside
+          onInteractOutside={(e) => e.preventDefault()}
+          style={{ width: "640px" }}
+        >
+          <ModalHeader isCloseButtonVisible={!hideCloseButton}>
+            {modalHeader}
+          </ModalHeader>
+          <ModalBody>
+            <ConversionForm closeModal={closeModal} {...formProps} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   all,
   call,
@@ -39,6 +40,7 @@ import {
   getDatasourceActionRouteInfo,
   getPlugin,
   getEditorConfig,
+  getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -77,7 +79,6 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster, Variant } from "design-system-old";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -87,6 +88,7 @@ import {
   DATASOURCE_DELETE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
+  FILES_NOT_SELECTED_EVENT,
   GSHEET_AUTHORISED_FILE_IDS_KEY,
   OAUTH_APPSMITH_TOKEN_NOT_FOUND,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
@@ -99,7 +101,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -120,9 +122,12 @@ import {
 } from "RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
+  GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
+  GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
@@ -287,9 +292,8 @@ export function* deleteDatasourceSaga(
         );
       }
 
-      Toaster.show({
-        text: createMessage(DATASOURCE_DELETE, response.data.name),
-        variant: Variant.success,
+      toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
+        kind: "success",
       });
 
       yield put({
@@ -320,9 +324,8 @@ export function* deleteDatasourceSaga(
       yield select(getDatasource, actionPayload.payload.id),
       `Datasource not found for id - ${actionPayload.payload.id}`,
     );
-    Toaster.show({
-      text: (error as Error).message,
-      variant: Variant.danger,
+    toast.show((error as Error).message, {
+      kind: "error",
     });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
@@ -343,12 +346,32 @@ export function* deleteDatasourceSaga(
 }
 
 function* updateDatasourceSaga(
-  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+  actionPayload: ReduxActionWithCallbacks<
+    Datasource & { isInsideReconnectModal: boolean },
+    unknown,
+    unknown
+  >,
 ) {
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = omit(actionPayload.payload, "name");
+    const pluginPackageName: PluginPackageName = yield select(
+      getPluginPackageFromDatasourceId,
+      datasourcePayload?.id,
+    );
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+
+    // When importing app with google sheets with specific sheets scope
+    // We do not want to set isConfigured to true immediately on save
+    // instead we want to wait for authorisation as well as file selection to be complete
+    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+      const scopeString: string = (
+        datasourcePayload?.datasourceConfiguration?.authentication as any
+      )?.scopeString;
+      if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
+        datasourcePayload.isConfigured = false;
+      }
+    }
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasource(
@@ -363,9 +386,8 @@ function* updateDatasourceSaga(
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
       });
-      Toaster.show({
-        text: createMessage(DATASOURCE_UPDATE, response.data.name),
-        variant: Variant.success,
+      toast.show(createMessage(DATASOURCE_UPDATE, response.data.name), {
+        kind: "success",
       });
 
       const state: AppState = yield select();
@@ -391,7 +413,6 @@ function* updateDatasourceSaga(
       if (expandDatasourceId === response.data.id) {
         yield put(fetchDatasourceStructure(response.data.id, true));
       }
-      yield put(setDatasourceViewMode(true));
 
       AppsmithConsole.info({
         text: "Datasource configuration saved",
@@ -405,9 +426,14 @@ function* updateDatasourceSaga(
         },
       });
 
-      // updating form initial values to latest data, so that next time when form is opened
-      // isDirty will use updated initial values data to compare actual values with
-      yield put(initialize(DATASOURCE_DB_FORM, response.data));
+      // If the datasource is being updated from the reconnect modal, we don't want to change the view mode
+      // or update initial values as the next form open will be from the reconnect modal itself
+      if (!datasourcePayload.isInsideReconnectModal) {
+        yield put(setDatasourceViewMode(true));
+        // updating form initial values to latest data, so that next time when form is opened
+        // isDirty will use updated initial values data to compare actual values with
+        yield put(initialize(DATASOURCE_DB_FORM, response.data));
+      }
     }
   } catch (error) {
     yield put({
@@ -451,9 +477,8 @@ function* redirectAuthorizationCodeSaga(
         );
       }
     } catch (e) {
-      Toaster.show({
-        text: OAUTH_AUTHORIZATION_FAILED,
-        variant: Variant.danger,
+      toast.show(OAUTH_AUTHORIZATION_FAILED, {
+        kind: "error",
       });
       log.error(e);
     }
@@ -469,9 +494,8 @@ function* getOAuthAccessTokenSaga(
   if (!appsmithToken) {
     // Error out because auth token should been here
     log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
-    Toaster.show({
-      text: OAUTH_AUTHORIZATION_APPSMITH_ERROR,
-      variant: Variant.danger,
+    toast.show(OAUTH_AUTHORIZATION_APPSMITH_ERROR, {
+      kind: "error",
     });
     return;
   }
@@ -497,18 +521,16 @@ function* getOAuthAccessTokenSaga(
           },
         });
       } else {
-        Toaster.show({
-          text: OAUTH_AUTHORIZATION_SUCCESSFUL,
-          variant: Variant.success,
+        toast.show(OAUTH_AUTHORIZATION_SUCCESSFUL, {
+          kind: "success",
         });
       }
       // Remove the token because it is supposed to be short lived
       localStorage.removeItem(APPSMITH_TOKEN_STORAGE_KEY);
     }
   } catch (e) {
-    Toaster.show({
-      text: OAUTH_AUTHORIZATION_FAILED,
-      variant: Variant.danger,
+    toast.show(OAUTH_AUTHORIZATION_FAILED, {
+      kind: "error",
     });
     log.error(e);
   }
@@ -595,18 +617,16 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       ) {
         if (responseData.invalids && responseData.invalids.length) {
           responseData.invalids.forEach((message: string) => {
-            Toaster.show({
-              text: message,
-              variant: Variant.danger,
+            toast.show(message, {
+              kind: "error",
             });
           });
         }
         if (responseData.messages && responseData.messages.length) {
           messages = responseData.messages;
           if (responseData.success) {
-            Toaster.show({
-              text: createMessage(DATASOURCE_VALID, payload.name),
-              variant: Variant.success,
+            toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+              kind: "success",
             });
           }
         }
@@ -632,9 +652,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasource: payload.name,
         });
-        Toaster.show({
-          text: createMessage(DATASOURCE_VALID, payload.name),
-          variant: Variant.success,
+        toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+          kind: "success",
         });
         yield put({
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
@@ -682,10 +701,20 @@ function* createTempDatasourceFromFormSaga(
   const dsList: Datasource[] = yield select(getDatasources);
   const sequence = getUntitledDatasourceSequence(dsList);
 
+  let datasourceType = actionPayload?.payload?.type;
+
+  if (!actionPayload?.payload.type) {
+    const plugin: Plugin = yield select(
+      getPlugin,
+      actionPayload?.payload.pluginId,
+    );
+    datasourceType = plugin?.type;
+  }
+
   const initialPayload = {
     id: TEMP_DATASOURCE_ID,
     name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
-    type: (actionPayload.payload as any).type,
+    type: datasourceType,
     pluginId: actionPayload.payload.pluginId,
     new: false,
     datasourceConfiguration: {
@@ -759,9 +788,8 @@ function* createDatasourceFromFormSaga(
       // fetch the datasource structure.
       yield put(fetchDatasourceStructure(response?.data?.id, true));
 
-      Toaster.show({
-        text: createMessage(DATASOURCE_CREATE, response.data.name),
-        variant: Variant.success,
+      toast.show(createMessage(DATASOURCE_CREATE, response.data.name), {
+        kind: "success",
       });
 
       if (actionPayload.onSuccess) {
@@ -816,7 +844,14 @@ function* changeDatasourceSaga(
   } else {
     data = draft;
   }
-  yield put(initialize(DATASOURCE_DB_FORM, omit(data, ["name"])));
+  yield put(
+    initialize(
+      data?.type === PluginType.API
+        ? DATASOURCE_REST_API_FORM
+        : DATASOURCE_DB_FORM,
+      omit(data, ["name"]),
+    ),
+  );
   // on reconnect modal, it shouldn't be redirected to datasource edit page
   if (shouldNotRedirect) return;
   // this redirects to the same route, so checking first.
@@ -866,7 +901,7 @@ function* formValueChangeSaga(
       );
     }
   }
-  if (form !== DATASOURCE_DB_FORM) return;
+  if (form !== DATASOURCE_DB_FORM && form !== DATASOURCE_REST_API_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
 }
@@ -876,7 +911,7 @@ function* updateDraftsSaga() {
     getFormValues(DATASOURCE_DB_FORM),
   );
 
-  if (!values.id) return;
+  if (!values?.id) return;
   const datasource: Datasource | undefined = yield select(
     getDatasource,
     // @ts-expect-error: values is of type unknown
@@ -973,8 +1008,8 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo.pageId,
-        apiId: actionRouteInfo.apiId,
+        pageId: actionRouteInfo.pageId!,
+        apiId: actionRouteInfo.apiId!,
       }),
     );
   }
@@ -1210,10 +1245,31 @@ function* filePickerActionCallbackSaga(
       authStatus,
     );
 
+    // Once files are selected in case of import, set this flag
+    set(datasource, "isConfigured", true);
+
+    // event in case files are not selected
+    if (action === FilePickerActionStatus.CANCEL) {
+      const oauthReason = createMessage(FILES_NOT_SELECTED_EVENT);
+      const dsName = datasource?.name;
+      const orgId = datasource?.workspaceId;
+      const pluginName: string = yield select(
+        getPluginNameFromId,
+        datasource?.pluginId,
+      );
+      AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
+        dsName,
+        oauthReason,
+        orgId,
+        pluginName,
+      });
+    }
+
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
-    set(datasource, "datasourceConfiguration.properties[0]", {
+    // using the second index specifically for file ids.
+    set(datasource, "datasourceConfiguration.properties[1]", {
       key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
       value: fileIds,
     });
@@ -1424,18 +1480,19 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
-  const className = "overlay";
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  const gapiScriptLoaded = (window as any).googleAPIsLoaded;
   const authStatus = search.get(RESPONSE_STATUS);
   if (
     !!isShowFilePicker &&
     !!authStatus &&
     authStatus === AuthorizationStatus.SUCCESS &&
-    !!appsmithToken
+    !!appsmithToken &&
+    !!gapiScriptLoaded
   ) {
-    addClassToDocumentBody(className);
+    addClassToDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
   }
 }
 
@@ -1455,26 +1512,23 @@ function* updateDatasourceAuthStateSaga(
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-
-      Toaster.show({
-        text:
-          authStatus === AuthenticationStatus.SUCCESS
-            ? OAUTH_AUTHORIZATION_SUCCESSFUL
-            : OAUTH_AUTHORIZATION_FAILED,
-        variant:
-          authStatus === AuthenticationStatus.SUCCESS
-            ? Variant.success
-            : Variant.danger,
-      });
+      toast.show(
+        authStatus === AuthenticationStatus.SUCCESS
+          ? OAUTH_AUTHORIZATION_SUCCESSFUL
+          : OAUTH_AUTHORIZATION_FAILED,
+        {
+          kind:
+            authStatus === AuthenticationStatus.SUCCESS ? "success" : "error",
+        },
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
       payload: { error },
     });
-    Toaster.show({
-      text: OAUTH_AUTHORIZATION_FAILED,
-      variant: Variant.danger,
+    toast.show(OAUTH_AUTHORIZATION_FAILED, {
+      kind: "error",
     });
   }
 }

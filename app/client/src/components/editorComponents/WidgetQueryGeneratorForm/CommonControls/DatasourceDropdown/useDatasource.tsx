@@ -3,7 +3,7 @@ import {
   fetchDatasourceStructure,
   fetchGheetSpreadsheets,
 } from "actions/datasourceActions";
-import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import { PluginPackageName } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
@@ -20,7 +20,7 @@ import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DatasourceImage, ImageWrapper } from "../../styles";
-import { Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 import type { DropdownOptions } from "pages/Editor/GeneratePage/components/constants";
 import type { DropdownOptionType } from "../../types";
 
@@ -89,10 +89,10 @@ export function useDatasource() {
   const otherOptions = useMemo(() => {
     return [
       {
-        id: "Connect New Datasource",
-        label: "Connect New Datasource",
-        value: "Connect New Datasource",
-        icon: <Icon name="plus" size={IconSize.XXXL} />,
+        id: "Connect new datasource",
+        label: "Connect new datasource",
+        value: "Connect new datasource",
+        icon: <Icon name="plus" size="md" />,
         onSelect: () => {
           history.push(
             integrationEditorURL({
@@ -103,17 +103,17 @@ export function useDatasource() {
         },
       },
       {
-        id: "Insert Snippet",
-        label: "Insert Snippet",
-        value: "Insert Snippet",
-        icon: <Icon name="code" size={IconSize.XXXL} />,
+        id: "Insert snippet",
+        label: "Insert snippet",
+        value: "Insert snippet",
+        icon: <Icon name="code" size="md" />,
         onSelect: addSnippet,
       },
       {
-        id: "Insert Binding",
-        label: "Insert Binding",
-        value: "Insert Binding",
-        icon: <Icon name="code" size={IconSize.XXXL} />,
+        id: "Insert binding",
+        label: "Insert binding",
+        value: "Insert binding",
+        icon: <Icon name="code" size="md" />,
         onSelect: addBinding,
       },
     ];

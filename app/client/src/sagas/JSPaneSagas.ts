@@ -52,18 +52,16 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { Toaster, Variant } from "design-system-old";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
   JS_EXECUTION_SUCCESS,
   JS_EXECUTION_FAILURE,
-  JS_EXECUTION_FAILURE_TOASTER,
-  JS_EXECUTION_SUCCESS_TOASTER,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
   JS_FUNCTION_UPDATE_SUCCESS,
+  JS_EXECUTION_SUCCESS_TOASTER,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -84,8 +82,8 @@ import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
@@ -328,9 +326,8 @@ function* handleJSObjectNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    Toaster.show({
-      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
+      kind: "error",
     });
 
     return;
@@ -351,12 +348,14 @@ function* handleJSObjectNameChangeSuccessSaga(
   }
 }
 
+//isExecuteJSFunc is used to check if the function is called on the JS Function execution.
 export function* handleExecuteJSFunctionSaga(data: {
   collectionName: string;
   action: JSAction;
   collectionId: string;
+  isExecuteJSFunc: boolean;
 }): any {
-  const { action, collectionId, collectionName } = data;
+  const { action, collectionId, collectionName, isExecuteJSFunc } = data;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
   yield put(
@@ -382,8 +381,9 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionName,
       action,
       collectionId,
+      isExecuteJSFunc,
     );
-    // open response tab in debugger on runnning js action.
+    // open response tab in debugger on runnning or page load js action.
     if (window.location.pathname.includes(collectionId)) {
       yield put(showDebugger(true));
       yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
@@ -405,12 +405,12 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
-      Toaster.show({
-        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
-        variant: Variant.success,
+      isExecuteJSFunc &&
+      !window.location.pathname.includes(collectionId) &&
+      toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
+        kind: "success",
       });
   } catch (error) {
     // open response tab in debugger on runnning js action.
@@ -441,18 +441,6 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
       },
     ]);
-    Toaster.show({
-      text:
-        (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
-      variant: Variant.danger,
-      showDebugButton: {
-        component: DebugButton,
-        componentProps: {
-          className: "t--toast-debug-button",
-          source: "TOAST",
-        },
-      },
-    });
   }
 }
 
@@ -492,6 +480,7 @@ export function* handleStartExecuteJSFunctionSaga(
     collectionName: collectionName,
     action: action,
     collectionId: collectionId,
+    isExecuteJSFunc: false,
   });
 }
 

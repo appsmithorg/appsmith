@@ -19,7 +19,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 const EntityLinkWrapper = styled.div`
   display: flex;
   align-items: center;
-  line-height: "14px";
+  line-height: 14px;
 `;
 
 const IconWrapper = styled.span`
@@ -51,7 +51,7 @@ export default function LogEntityLink(props: LogItemProps) {
       }
       // If the source is a JS action.
       else if (props.source.type === ENTITY_TYPE.JSACTION) {
-        return JsFileIconV2(16, 16);
+        return JsFileIconV2(16, 16, true, true);
       } else if (props.source.type === ENTITY_TYPE.ACTION) {
         // If the source is an API action.
         if (
@@ -63,7 +63,7 @@ export default function LogEntityLink(props: LogItemProps) {
         // If the source is a Datasource action.
         else if (props.iconId && pluginGroups[props.iconId]) {
           return (
-            <EntityIcon height={"16px"} width={"16px"}>
+            <EntityIcon height={"16px"} noBackground noBorder width={"16px"}>
               <img
                 alt="entityIcon"
                 src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
@@ -77,7 +77,7 @@ export default function LogEntityLink(props: LogItemProps) {
     // this case is highly unlikely to happen.
     return <img alt="icon" src={undefined} />;
   };
-
+  const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
   return (
     <div>
       {props.source && (
@@ -95,6 +95,8 @@ export default function LogEntityLink(props: LogItemProps) {
             errorType={props.logType}
             id={props.source.id}
             name={props.source.name}
+            plugin={plugin}
+            pluginType={props.source.pluginType}
             type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />

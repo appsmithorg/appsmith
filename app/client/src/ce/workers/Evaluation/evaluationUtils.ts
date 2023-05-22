@@ -847,7 +847,7 @@ export const overrideWidgetProperties = (params: {
     const propertyOverridingKeyMap =
       configEntity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
-      const defaultValue = configEntity[propertyOverridingKeyMap.DEFAULT];
+      const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = klona(defaultValue);
       if (defaultValue !== undefined) {
         const propertyPathArray = propertyPath.split(".");

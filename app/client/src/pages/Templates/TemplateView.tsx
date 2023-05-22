@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
@@ -25,12 +24,14 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "RouteBuilder";
+import { Text, Link } from "design-system";
 
 const breakpointColumnsObject = {
   default: 4,
-  1600: 3,
-  1100: 2,
-  700: 1,
+  3000: 3,
+  1500: 3,
+  1024: 2,
+  800: 1,
 };
 
 const Wrapper = styled.div`
@@ -41,9 +42,9 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: 132px;
   padding-left: 132px;
-  padding-top: ${(props) => props.theme.spaces[12]}px;
+  padding-top: var(--ads-v2-spaces-7);
   padding-bottom: 80px;
-  background-color: ${Colors.WHITE};
+  background-color: var(--ads-v2-color-bg);
 `;
 
 const HeaderWrapper = styled.div`
@@ -58,6 +59,7 @@ const HeaderWrapper = styled.div`
 
 const Title = styled(Text)`
   display: inline-block;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 export const IframeWrapper = styled.div`
@@ -75,7 +77,7 @@ export const IframeWrapper = styled.div`
 
 export const IframeTopBar = styled.div`
   width: 100%;
-  background-color: ${Colors.GEYSER_LIGHT};
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 8px 8px 0px 0px;
   display: flex;
   gap: ${(props) => props.theme.spaces[3]}px;
@@ -86,7 +88,7 @@ export const IframeTopBar = styled.div`
   .round {
     height: 12px;
     width: 12px;
-    border-radius: 6px;
+    border-radius: var(--ads-v2-border-radius-circle);
   }
 
   .red {
@@ -106,13 +108,13 @@ const PageWrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 `;
 
-const BackButtonWrapper = styled.div<{ width?: number }>`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spaces[2]}px;
-  ${(props) => props.width && `width: ${props.width};`}
-`;
+// const BackButtonWrapper = styled.div<{ width?: number }>`
+//   cursor: pointer;
+//   display: flex;
+//   align-items: center;
+//   gap: ${(props) => props.theme.spaces[2]}px;
+//   ${(props) => props.width && `width: ${props.width};`}
+// `;
 
 const LoadingWrapper = styled.div`
   width: calc(100vw);
@@ -196,12 +198,11 @@ function TemplateView() {
           <TemplateViewWrapper>
             <HeaderWrapper>
               <div className="left">
-                <BackButtonWrapper onClick={goBack}>
-                  <Icon name="view-less" size={IconSize.XL} />
-                  <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
-                </BackButtonWrapper>
+                <Link onClick={goBack} startIcon="arrow-left-line">
+                  {createMessage(GO_BACK)}
+                </Link>
               </div>
-              <Title type={TextType.DANGER_HEADING}>
+              <Title kind="heading-l" renderAs="h1">
                 {currentTemplate.title}
               </Title>
               <div className="right" />
