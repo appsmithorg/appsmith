@@ -1,10 +1,7 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import DataCollectionForm from "./DataCollectionForm";
 import DetailsForm from "./DetailsForm";
-import NewsletterForm from "./NewsletterForm";
-import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_FORM_EMAIL_FIELD_NAME,
@@ -22,41 +19,21 @@ import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { noop } from "utils/AppsmithUtils";
+import { isAirgapped } from "ce/utils/airgapHelpers";
 
 const PageWrapper = styled.div`
   width: 100%;
   display: flex;
-  justify-content: center;
-  height: 100vh;
+  justify-content: start;
   overflow: auto;
   position: relative;
   z-index: 100;
 `;
 
-const SetupFormContainer = styled.div`
-  padding: 120px 42px 0px 0px;
-`;
+const SetupFormContainer = styled.div``;
 
 const SetupStep = styled.div<{ active: boolean }>`
   display: ${(props) => (props.active ? "block" : "none")};
-`;
-
-const LogoContainer = styled.div`
-  padding-left: ${(props) => props.theme.spaces[17] * 2}px;
-  padding-top: ${(props) => props.theme.spaces[12] * 2}px;
-  transform: translate(-11px, 0);
-  background-color: ${(props) => props.theme.colors.homepageBackground};
-  position: fixed;
-  width: 566px;
-  height: 112px;
-  z-index: 1;
-  top: 0;
-`;
-
-const AppsmithLogoImg = styled.img`
-  max-width: 170px;
 `;
 
 const SpaceFiller = styled.div`
@@ -64,7 +41,8 @@ const SpaceFiller = styled.div`
 `;
 
 export type DetailsFormValues = {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   password?: string;
   verifyPassword?: string;
@@ -76,20 +54,20 @@ export type DetailsFormValues = {
 
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
-  if (!values.name) {
-    errors.name = "Please enter a valid Full Name";
+  if (!values.firstName) {
+    errors.firstName = "This field is required.";
   }
 
   if (!values.email || !isEmail(values.email)) {
-    errors.email = "Please enter a valid Email address";
+    errors.email = "Enter a valid email address.";
   }
 
   if (!values.password || !isStrongPassword(values.password)) {
-    errors.password = "Please enter a strong password";
+    errors.password = "Please enter a strong password.";
   }
 
   if (!values.verifyPassword || values.password != values.verifyPassword) {
-    errors.verifyPassword = "Please reenter the password";
+    errors.verifyPassword = "Passwords don't match.";
   }
 
   if (!values.role) {
@@ -120,15 +98,35 @@ export type SetupFormProps = DetailsFormValues & {
   >;
 
 function SetupForm(props: SetupFormProps) {
-  const isAirgappedInstance = isAirgapped();
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
+  const isAirgappedFlag = isAirgapped();
+
   const onSubmit = () => {
     const form: HTMLFormElement = formRef.current as HTMLFormElement;
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
     ) as HTMLInputElement;
+    verifyPassword.removeAttribute("name");
+
+    const firstName: HTMLInputElement = document.querySelector(
+      `[name="firstName"]`,
+    ) as HTMLInputElement;
+
+    const lastName: HTMLInputElement = document.querySelector(
+      `[name="lastName"]`,
+    ) as HTMLInputElement;
+
+    if (firstName && lastName) {
+      const fullName = document.createElement("input");
+      fullName.type = "text";
+      fullName.name = "name";
+      fullName.style.display = "none";
+      fullName.value = `${firstName.value} ${lastName.value}`;
+      form.appendChild(fullName);
+    }
+
     const roleInput = document.createElement("input");
     verifyPassword.removeAttribute("name");
     roleInput.type = "text";
@@ -158,6 +156,18 @@ function SetupForm(props: SetupFormProps) {
       if (customUseCaseInput) customUseCaseInput.remove();
     }
     form.appendChild(useCaseInput);
+    const anonymousDataInput = document.createElement("input");
+    anonymousDataInput.type = "checkbox";
+    anonymousDataInput.value = isAirgappedFlag ? "false" : "true";
+    anonymousDataInput.name = "allowCollectingAnonymousData";
+    anonymousDataInput.style.display = "none";
+    anonymousDataInput.checked = true;
+    form.appendChild(anonymousDataInput);
+    const signupForNewsletter: HTMLInputElement = document.querySelector(
+      `[name="signupForNewsletter"]`,
+    ) as HTMLInputElement;
+    if (signupForNewsletter)
+      signupForNewsletter.value = signupForNewsletter.checked.toString();
     return true;
   };
 
@@ -191,9 +201,6 @@ function SetupForm(props: SetupFormProps) {
   return (
     <PageWrapper>
       <SetupFormContainer>
-        <LogoContainer>
-          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
-        </LogoContainer>
         <form
           action={signupURL}
           data-testid="super-user-form"
@@ -204,17 +211,8 @@ function SetupForm(props: SetupFormProps) {
           ref={formRef}
         >
           <SetupStep active={showDetailsForm}>
-            <DetailsForm
-              {...props}
-              onNext={!isAirgappedInstance ? onNext : () => noop}
-            />
+            <DetailsForm {...props} onNext={onNext} />
           </SetupStep>
-          {!isAirgappedInstance && (
-            <SetupStep active={!showDetailsForm}>
-              <DataCollectionForm />
-              <NewsletterForm />
-            </SetupStep>
-          )}
         </form>
         <SpaceFiller />
       </SetupFormContainer>
