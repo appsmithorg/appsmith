@@ -373,7 +373,7 @@ describe("JS Function Execution", function () {
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //_.agHelper.AssertElementPresence(_.jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-       _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true); 
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep();
     }
     // Switch to settings tab and assert order
@@ -423,7 +423,7 @@ describe("JS Function Execution", function () {
     }
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.SelectEntityByName(jsObj, "Queries/JS");
-    _.agHelper.GetNClick(_.jsEditor._settingsTab); 
+    _.agHelper.GetNClick(_.jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
     // rename functions and assert order
