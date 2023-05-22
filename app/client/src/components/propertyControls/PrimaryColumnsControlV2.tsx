@@ -6,10 +6,8 @@ import * as Sentry from "@sentry/react";
 import _, { toString } from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -29,30 +27,20 @@ import {
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox, CheckboxType } from "design-system-old";
+import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { Colors } from "constants/Colors";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const AddColumnButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
-`;
+import { Button } from "design-system";
 
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
+  align-items: center;
+  .ads-v2-checkbox {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 interface ReduxStateProps {
@@ -226,16 +214,13 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             >
               <span className="mr-2">Editable</span>
               <Checkbox
-                backgroundColor={Colors.GREY_600}
-                isDefaultChecked={this.isAllColumnsEditable()}
-                label=""
-                onCheckChange={this.toggleAllColumnsEditability}
-                type={CheckboxType.SECONDARY}
+                isSelected={this.isAllColumnsEditable()}
+                onChange={this.toggleAllColumnsEditability}
               />
             </EdtiableCheckboxWrapper>
           )}
         </div>
-        <TabsWrapper>
+        <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
             <DraggableListControl
               className={LIST_CLASSNAME}
@@ -261,18 +246,16 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               updateOption={this.updateOption}
             />
           </EvaluatedValuePopupWrapper>
-
-          <AddColumnButton
-            category={Category.secondary}
-            className="t--add-column-btn"
-            icon="plus"
+          <Button
+            className="self-end t--add-column-btn"
+            kind="tertiary"
             onClick={this.addNewColumn}
-            size={Size.medium}
-            tag="button"
-            text="Add a new column"
-            type="button"
-          />
-        </TabsWrapper>
+            size="sm"
+            startIcon="plus"
+          >
+            Add new column
+          </Button>
+        </div>
       </>
     );
   }

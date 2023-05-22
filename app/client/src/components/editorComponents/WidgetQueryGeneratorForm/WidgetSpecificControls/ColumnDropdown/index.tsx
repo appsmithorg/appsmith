@@ -20,7 +20,7 @@ function ColumnDropdown(props: Props) {
       <SelectWrapper className="space-y-2">
         <Label>{props.label}</Label>
         <Dropdown
-          cypressSelector="t--table-dropdown"
+          data-testid="t--table-dropdown"
           dropdownMaxHeight={"300px"}
           errorMsg={error}
           fillOptions

@@ -925,7 +925,7 @@ public class AmazonS3Plugin extends BasePlugin {
              * - Ideally, properties must never be null because the fields contained in the properties list have a
              *   default value defined.
              * - Ideally, properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) must never be null/empty, because the
-             *   `S3 Service Provider` dropdown has a default value.
+             *   `S3 service provider` dropdown has a default value.
              */
             if (properties == null
                     || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
