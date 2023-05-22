@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import type { TreeDropdownOption } from "design-system-old";
-import { TreeDropdown, TextInput } from "design-system-old";
+import { TreeDropdown } from "design-system-old";
+import { Input } from "design-system";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { FieldType } from "../../constants";
@@ -130,10 +131,11 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       selectedValue={fieldConfig.getter(valueWithoutMoustache)}
       toggle={
         isOpen ? (
-          <TextInput
+          <Input
             autoFocus
             className="w-full"
             onChange={(val: string) => setSearchText(val)}
+            size="md"
             value={searchText}
           />
         ) : null
