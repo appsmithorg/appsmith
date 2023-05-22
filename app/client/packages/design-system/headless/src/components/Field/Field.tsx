@@ -1,5 +1,4 @@
 import React, { forwardRef } from "react";
-import { filterDOMProps } from "@react-aria/utils";
 import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
@@ -27,7 +26,6 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
     children,
     wrapperClassName,
     wrapperProps = {},
-    ...otherProps
   } = props;
   const hasErrorText = errorMessage && validationState === "invalid";
 
@@ -79,7 +77,6 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
 
   return (
     <div
-      {...filterDOMProps(otherProps)}
       {...wrapperProps}
       className={wrapperClassName}
       data-align={labelAlign}
