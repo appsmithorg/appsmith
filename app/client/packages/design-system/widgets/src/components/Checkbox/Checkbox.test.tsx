@@ -12,11 +12,6 @@ describe("@design-system/widgets/Checkbox", () => {
 
   it("should render the checkbox", () => {
     render(<Checkbox>Click me</Checkbox>);
-    expect(screen.getByRole("checkbox")).toBeInTheDocument();
-  });
-
-  it("should render the checkbox with label", () => {
-    render(<Checkbox>Click me</Checkbox>);
     expect(screen.getByText("Click me")).toBeInTheDocument();
   });
 
@@ -44,10 +39,11 @@ describe("@design-system/widgets/Checkbox", () => {
 
   it("should render disabled checkbox", () => {
     render(<Checkbox isDisabled>Checkbox</Checkbox>);
+
     expect(screen.getByRole("checkbox")).toBeDisabled();
   });
 
-  it("should render invalid checkbox", () => {
+  it("should render invalid attributes when input is invalid", () => {
     render(<Checkbox validationState="invalid">Checkbox</Checkbox>);
     const checkbox = screen.getByRole("checkbox");
 
@@ -63,7 +59,7 @@ describe("@design-system/widgets/Checkbox", () => {
     expect(label).toHaveAttribute("data-state", "indeterminate");
   });
 
-  it("can render custom icon", () => {
+  it("should be able to render custom icon", () => {
     const { container } = render(
       <Checkbox
         icon={
