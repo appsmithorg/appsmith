@@ -371,9 +371,9 @@ describe("Tern server sorting", () => {
     expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
     expect(sortedCompletions).toEqual(
       expect.arrayContaining([
-        createCompletionHeader("Best Match"),
+        createCompletionHeader("Best match"),
         sameTypeDiffEntityTypeCompletion,
-        createCompletionHeader("Search Results"),
+        createCompletionHeader("Search results"),
         dataTreeCompletion,
       ]),
     );

@@ -1,13 +1,11 @@
 import React from "react";
-import { Checkbox } from "design-system-old";
+import type { CheckboxProps } from "design-system";
+import { Checkbox } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import styled from "styled-components";
-
-const StyledCheckbox = styled(Checkbox)``;
 
 class CheckboxControl extends BaseControl<CheckboxControlProps> {
   getControlType(): ControlType {
@@ -25,7 +23,7 @@ class CheckboxControl extends BaseControl<CheckboxControlProps> {
   }
 }
 
-type renderComponentProps = CheckboxControlProps & {
+type renderComponentProps = CheckboxProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
 };
@@ -36,14 +34,12 @@ function renderComponent(props: renderComponentProps) {
   };
 
   return (
-    <StyledCheckbox
-      cypressSelector={props?.input?.name}
-      isDefaultChecked={props?.input?.checked as boolean}
+    <Checkbox
+      data-testid={props?.input?.name}
+      isDefaultSelected={props?.input?.checked as boolean}
       {...props}
-      info={undefined}
-      label={""}
       name={props?.input?.name}
-      onCheckChange={onChangeHandler}
+      onChange={onChangeHandler}
     />
   );
 }

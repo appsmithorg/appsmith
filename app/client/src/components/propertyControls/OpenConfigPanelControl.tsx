@@ -1,27 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "styled-components";
-import { Category, Size } from "design-system-old";
-
-const StyledPropertyPaneButtonWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 10px;
-`;
-
-const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const OpenNextPannelButton = styled(StyledPropertyPaneButton)`
-  justify-content: center;
-  flex-grow: 1;
-`;
+import { Button } from "design-system";
 
 class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
   constructor(props: OpenConfigPanelControlProps) {
@@ -42,21 +22,15 @@ class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
     const { widgetName } = widgetProperties;
 
     return (
-      <Wrapper>
-        <StyledPropertyPaneButtonWrapper>
-          <OpenNextPannelButton
-            category={Category.secondary}
-            className={`t--${widgetName}-open-next-panel-button`}
-            icon={icon}
-            iconPosition="right"
-            onClick={this.openConfigPanel}
-            size={Size.medium}
-            tag="button"
-            text={label}
-            type="button"
-          />
-        </StyledPropertyPaneButtonWrapper>
-      </Wrapper>
+      <Button
+        className={` t--${widgetName}-open-next-panel-button`}
+        kind="secondary"
+        onClick={this.openConfigPanel}
+        size="sm"
+        startIcon={icon}
+      >
+        {label}
+      </Button>
     );
   }
 

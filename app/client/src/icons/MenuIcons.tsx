@@ -4,6 +4,7 @@ import { IconWrapper } from "constants/IconConstants";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { Icon as DSIcon } from "design-system";
 import { importRemixIcon, importSvg } from "design-system-old";
 
 const ApisIcon = importSvg(() => import("assets/icons/menu/api.svg"));
@@ -51,17 +52,6 @@ const DataSourcesIconV2 = importSvg(
 const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
 const JSIconV2 = importSvg(() => import("assets/icons/menu/js-icon.svg"));
 const QueryMain = importSvg(() => import("assets/icons/menu/query-main.svg"));
-const PageIcon = importRemixIcon(() => import("remixicon-react/PagesLineIcon"));
-const WidgetsIcon = importRemixIcon(
-  () => import("remixicon-react/FunctionLineIcon"),
-);
-const DefaultHomeIcon = importRemixIcon(
-  () => import("remixicon-react/Home3LineIcon"),
-);
-const CurrentPageIcon = importRemixIcon(
-  () => import("remixicon-react/CheckLineIcon"),
-);
-const EyeOff = importRemixIcon(() => import("remixicon-react/EyeOffLineIcon"));
 const SortIcon = importRemixIcon(
   () => import("remixicon-react/ArrowUpDownLineIcon"),
 );
@@ -93,7 +83,7 @@ export const MenuIcons: {
 } = {
   WIDGETS_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <WidgetsIcon />
+      <DSIcon name="widget" size="md" />
     </IconWrapper>
   ),
   JS_ICON: (props: IconProps) => (
@@ -123,12 +113,12 @@ export const MenuIcons: {
   ),
   PAGES_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <PageIcon />
+      <DSIcon name="page-line" size="md" />
     </IconWrapper>
   ),
   PAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <PageIcon />
+      <DSIcon name="page-line" size="md" />
     </IconWrapper>
   ),
   DATASOURCES_ICON: (props: IconProps) => (
@@ -208,12 +198,12 @@ export const MenuIcons: {
   ),
   DEFAULT_HOMEPAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <DefaultHomeIcon />
+      <DSIcon name="home-3-line" />
     </IconWrapper>
   ),
   EYES_OFF_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <EyeOff />
+      <DSIcon name="eye-off" size="md" />
     </IconWrapper>
   ),
   QUERY_MAIN: (props: IconProps) => (
@@ -223,7 +213,7 @@ export const MenuIcons: {
   ),
   CURRENT_PAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <CurrentPageIcon />
+      <DSIcon name="check-line" size="md" />
     </IconWrapper>
   ),
   SORT_ICON: (props: IconProps) => (

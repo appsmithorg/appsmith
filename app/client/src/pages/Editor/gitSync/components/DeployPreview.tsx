@@ -11,47 +11,23 @@ import {
   LATEST_DP_SUBTITLE,
   LATEST_DP_TITLE,
 } from "@appsmith/constants/messages";
-import { Text, Case, TextType } from "design-system-old";
-import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { viewerURL } from "RouteBuilder";
+import { Link, Text } from "design-system";
 import { importSvg } from "design-system-old";
 
 const CloudyIcon = importSvg(() => import("assets/icons/ads/cloudy-line.svg"));
-const RightArrow = importSvg(
-  () => import("assets/icons/ads/arrow-right-line.svg"),
-);
 
 const Container = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
   gap: ${(props) => props.theme.spaces[6]}px;
-`;
 
-const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding-top: 2px;
-  cursor: pointer;
-
-  :hover {
-    text-decoration: underline;
-  }
-`;
-
-const IconWrapper = styled.div`
-  margin-left: 2px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-
-  svg {
-    path {
-      fill: ${Colors.GREY_9};
-    }
+  .cloud-icon {
+    stroke: var(--ads-v2-color-fg);
   }
 `;
 
@@ -59,7 +35,8 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
   const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
-  const showDeployPreview = () => {
+  const showDeployPreview = (e: React.MouseEvent) => {
+    e.preventDefault();
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
@@ -83,24 +60,14 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />
         ) : (
-          <CloudyIcon />
+          <CloudyIcon className="cloud-icon" />
         )}
       </div>
       <div>
-        <ButtonWrapper onClick={showDeployPreview}>
-          <Text
-            case={Case.UPPERCASE}
-            color={Colors.GREY_9}
-            type={TextType.P1}
-            weight="600"
-          >
-            {createMessage(LATEST_DP_TITLE)}
-          </Text>
-          <IconWrapper>
-            <RightArrow width={20} />
-          </IconWrapper>
-        </ButtonWrapper>
-        <Text color={Colors.GREY_6} type={TextType.P3}>
+        <Link endIcon="right-arrow" onClick={showDeployPreview}>
+          {createMessage(LATEST_DP_TITLE)}
+        </Link>
+        <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
           {lastDeployedAtMsg}
         </Text>
       </div>
