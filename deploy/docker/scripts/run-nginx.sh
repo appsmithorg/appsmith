@@ -70,19 +70,24 @@ fi
 
 bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
 
-index_html_served=/opt/appsmith/editor/index.html
-index_html_original=/opt/appsmith/index.html.original
-if [[ ! -f $index_html_original ]]; then
-  cp -v "$index_html_served" "$index_html_original"
-fi
+apply-env-vars() {
+  original="$1"
+  served="$2"
+  if [[ ! -f $original ]]; then
+    cp -v "$served" "$original"
+  fi
+  node -e '
+  const fs = require("fs")
+  const content = fs.readFileSync("'"$original"'", "utf8").replace(
+    /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+    (placeholder, name) => (process.env[name] || "")
+  )
+  fs.writeFileSync("'"$served"'", content)
+  '
+}
 
-node -e '
-const fs = require("fs")
-const content = fs.readFileSync("'"$index_html_original"'", "utf8").replace(
-  /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
-  (placeholder, name) => (process.env[name] || "")
-)
-fs.writeFileSync("'"$index_html_served"'", content)
-'
+apply-env-vars /opt/appsmith/index.html.original /opt/appsmith/editor/index.html
+apply-env-vars /opt/appsmith/edit.html.original /opt/appsmith/editor/edit.html
+apply-env-vars /opt/appsmith/view.html.original /opt/appsmith/editor/view.html
 
 exec nginx -g "daemon off;error_log stderr info;"

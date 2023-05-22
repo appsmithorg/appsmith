@@ -1,12 +1,13 @@
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { Button, Size } from "design-system-old";
+import { Button } from "design-system";
 import React, { memo, useRef, useState, useEffect } from "react";
 
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
+import { ContentBox } from "../components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ImageInputProps = {
@@ -55,7 +56,7 @@ export const ImageInput = (props: ImageInputProps) => {
   }, [defaultValue]);
 
   return (
-    <div
+    <ContentBox
       className={`relative flex items-center justify-center w-full border h-28 group ${
         className ? className : ""
       }`}
@@ -65,14 +66,8 @@ export const ImageInput = (props: ImageInputProps) => {
         className="h-8"
         src={getAssetUrl((preview as any) || value)}
       />
-      <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
-        <Button
-          icon="upload-line"
-          iconPosition="left"
-          onClick={onFileInputClick}
-          size={Size.medium}
-          text="Upload file"
-        >
+      <div className="absolute inset-0 items-center justify-center hidden gap-2 group-hover:flex bg-opacity-20 hover-state">
+        <Button onClick={onFileInputClick} size="md" startIcon="upload-line">
           Upload file
         </Button>
       </div>
@@ -84,7 +79,7 @@ export const ImageInput = (props: ImageInputProps) => {
         ref={fileInputRef}
         type="file"
       />
-    </div>
+    </ContentBox>
   );
 };
 

@@ -17,7 +17,7 @@
           "subtitle": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "Smart JSON Substitution",
+          "label": "Smart JSON substitution",
           "subtitle": "Turning on this property fixes the JSON substitution of bindings in the Content field by adding/removing quotes intelligently and reduces developer errors",
           "configProperty": "actionConfiguration.formData.smartSubstitution.data",
           "controlType": "SWITCH",

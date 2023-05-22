@@ -13,7 +13,6 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import type { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
@@ -42,6 +41,7 @@ import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { toast } from "design-system";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -411,7 +411,7 @@ function* moveWidgetsSaga(
 }
 
 function moveWidget(widgetMoveParams: WidgetMoveParams) {
-  Toaster.clear();
+  toast.dismiss();
   const {
     allWidgets,
     bottomRow,
