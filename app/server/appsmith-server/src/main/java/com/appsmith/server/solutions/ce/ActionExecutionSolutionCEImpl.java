@@ -932,7 +932,21 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size()
                     ));
 
-                    data.put("pluginErrorDetails", ObjectUtils.defaultIfNull(actionExecutionResult.getPluginErrorDetails(), ""));
+                    ActionExecutionResult.PluginErrorDetails pluginErrorDetails = actionExecutionResult.getPluginErrorDetails();
+
+                    data.putAll(
+                            Map.of(
+                                    "pluginErrorDetails", ObjectUtils.defaultIfNull(pluginErrorDetails, "")
+                            )
+                    );
+
+                    if (pluginErrorDetails != null) {
+                        data.putAll(Map.of(
+                                "appsmithErrorCode", pluginErrorDetails.getAppsmithErrorCode(),
+                                "appsmithErrorMessage", pluginErrorDetails.getAppsmithErrorMessage(),
+                                "errorType", pluginErrorDetails.getErrorType()
+                        ));
+                    }
 
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),

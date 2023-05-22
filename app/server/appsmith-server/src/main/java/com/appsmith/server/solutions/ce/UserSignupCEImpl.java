@@ -37,6 +37,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -264,55 +265,40 @@ public class UserSignupCEImpl implements UserSignupCE {
                     userData.setRole(userFromRequest.getRole());
                     userData.setUseCase(userFromRequest.getUseCase());
 
-                    Mono<Long> allSecondaryFunctions = Mono.when(
-                                    userDataService.updateForUser(user, userData),
-                                    Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress().defaultIfEmpty("unknown"))
-                                            .flatMap(tuple -> {
-                                                final String instanceId = tuple.getT1();
-                                                final String ip = tuple.getT2();
-                                                log.debug("Installation setup complete.");
-                                                String newsletterSignedUpUserEmail = userFromRequest.isSignupForNewsletter() ? user.getEmail() : "";
-                                                String newsletterSignedUpUserName = userFromRequest.isSignupForNewsletter() ? user.getName() : "";
-                                                Map<String, Object> analyticsProps = new HashMap<>();
-                                                analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
-                                                analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
-                                                analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
-                                                analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
-                                                analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
-                                                // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
-                                                // Segment. Instead of showing the ip as is Mixpanel provides derived property.
-                                                // As we want derived props alongwith the ip address we are sharing the ip
-                                                // address in separate keys
-                                                // Ref: https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
-                                                analyticsProps.put(IP, ip);
-                                                analyticsProps.put(IP_ADDRESS, ip);
-                                                analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));
+                    Mono<UserData> userDataMono = userDataService.updateForUser(user, userData)
+                            .elapsed()
+                            .map(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken to update user data for user: {} ms", pair.getT1());
+                                return pair.getT2();
+                            });
 
-                                                analyticsService.identifyInstance(
-                                                        instanceId,
-                                                        userData.getRole(),
-                                                        userData.getUseCase(),
-                                                        newsletterSignedUpUserEmail,
-                                                        newsletterSignedUpUserName,
-                                                        ip);
+                    Mono<EnvChangesResponseDTO> applyEnvManagerChangesMono = envManager.applyChanges(Map.of(
+                                    APPSMITH_DISABLE_TELEMETRY.name(),
+                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                    APPSMITH_INSTANCE_NAME.name(),
+                                    commonConfig.getInstanceName(),
+                                    APPSMITH_ADMIN_EMAILS.name(),
+                                    user.getEmail()
+                            ))
+                            .elapsed()
+                            .map(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
+                                return pair.getT2();
+                            });
 
-                                                return analyticsService.sendEvent(
-                                                        AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
-                                                        instanceId,
-                                                        analyticsProps,
-                                                        false
-                                                );
-                                            }),
-                                    envManager.applyChanges(Map.of(
-                                            APPSMITH_DISABLE_TELEMETRY.name(),
-                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                            APPSMITH_INSTANCE_NAME.name(),
-                                            commonConfig.getInstanceName(),
-                                            APPSMITH_ADMIN_EMAILS.name(),
-                                            user.getEmail()
-                                    )),
-                                    analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
-                            )
+                    /*
+                     * Here, we have decided to move these 2 analytics events to a separate thread.
+                     * - create superuser event
+                     * - installation setup event
+                     * These 2 events have been put in a separate thread, because both of them don't have any impact
+                     * on the user flow, but one of them (installation setup event) is causing performance impact
+                     * when creating superuser (performance impact is because of an external network call in NetworkUtils.getExternalAddress()).
+                     */
+                    Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
+
+                    Mono<Boolean> installationSetupAnalyticsMono = sendInstallationSetupAnalyticsOnSeparateThreadMono(userFromRequest, user, userData);
+
+                    Mono<Long> allSecondaryFunctions = Mono.when(userDataMono, installationSetupAnalyticsMono, applyEnvManagerChangesMono, sendCreateSuperUserEvent)
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {
@@ -374,4 +360,86 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
+    private Mono<Boolean> sendInstallationSetupAnalyticsOnSeparateThreadMono(UserSignupRequestDTO userFromRequest,
+                                                                             User user,
+                                                                             UserData userData) {
+
+        Mono<String> getInstanceIdMono = configService.getInstanceId()
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken to get instance ID: {} ms", pair.getT1());
+                    return pair.getT2();
+                });;
+
+        Mono<String> getExternalAddressMono = NetworkUtils.getExternalAddress().defaultIfEmpty("unknown")
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken to get external address: {} ms", pair.getT1());
+                    return pair.getT2();
+                });
+
+        Mono.zip(getInstanceIdMono, getExternalAddressMono)
+                .flatMap(tuple -> {
+                    final String instanceId = tuple.getT1();
+                    final String ip = tuple.getT2();
+                    log.debug("Installation setup complete.");
+                    String newsletterSignedUpUserEmail = userFromRequest.isSignupForNewsletter() ? user.getEmail() : "";
+                    String newsletterSignedUpUserName = userFromRequest.isSignupForNewsletter() ? user.getName() : "";
+                    Map<String, Object> analyticsProps = new HashMap<>();
+                    analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
+                    analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
+                    analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
+                    analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
+                    analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
+                    // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
+                    // Segment. Instead of showing the ip as is Mixpanel provides derived property.
+                    // As we want derived props alongwith the ip address we are sharing the ip
+                    // address in separate keys
+                    // Ref: https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
+                    analyticsProps.put(IP, ip);
+                    analyticsProps.put(IP_ADDRESS, ip);
+                    analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));
+
+                    analyticsService.identifyInstance(
+                            instanceId,
+                            userData.getRole(),
+                            userData.getUseCase(),
+                            newsletterSignedUpUserEmail,
+                            newsletterSignedUpUserName,
+                            ip);
+
+                    return analyticsService.sendEvent(
+                                    AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
+                                    instanceId,
+                                    analyticsProps,
+                                    false
+                            ).thenReturn(1L)
+                            .elapsed()
+                            .map(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken to send installation setup complete analytics event: {} ms", pair.getT1());
+                                return pair.getT2();
+                            });
+                })
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken to send installation setup analytics event: {} ms", pair.getT1());
+                    return pair.getT2();
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+        return Mono.just(Boolean.TRUE);
+    }
+
+    private Mono<User> sendCreateSuperUserEventOnSeparateThreadMono(User user) {
+        analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken to send create super user event: {} ms", pair.getT1());
+                    return pair.getT2();
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+
+        return Mono.just(user);
+    }
 }
