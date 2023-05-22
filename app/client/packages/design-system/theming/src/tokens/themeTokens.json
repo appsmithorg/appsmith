@@ -1,7 +1,7 @@
 {
   "color": {
     "bg": {
-      "value": "#f9faff",
+      "value": "#f9fafe",
       "type": "color"
     },
     "bg-accent": {
@@ -9,23 +9,19 @@
       "type": "color"
     },
     "bg-accent-hover": {
-      "value": "#6150fb",
+      "value": "#5c48f4",
       "type": "color"
     },
     "bg-accent-active": {
-      "value": "#5035e2",
+      "value": "#5033e1",
       "type": "color"
     },
     "bg-accent-subtle-hover": {
-      "value": "#ecedff",
+      "value": "#e7ddff",
       "type": "color"
     },
     "bg-accent-subtle-active": {
-      "value": "#e1e3ff",
-      "type": "color"
-    },
-    "bg-assistive": {
-      "value": "#040411",
+      "value": "#bbaee2",
       "type": "color"
     },
     "fg": {
@@ -44,20 +40,16 @@
       "value": "#d91921",
       "type": "color"
     },
-    "fg-on-assistive": {
-      "value": "#f9faff",
-      "type": "color"
-    },
     "bd-accent": {
       "value": "#553de9",
       "type": "color"
     },
     "bd-neutral": {
-      "value": "#616379",
+      "value": "#63646e",
       "type": "color"
     },
     "bd-neutral-hover": {
-      "value": "#7d8097",
+      "value": "#6c6d77",
       "type": "color"
     },
     "bd-focus": {
@@ -120,10 +112,6 @@
   "borderWidth": {
     "1": {
       "value": "1px",
-      "type": "borderWidth"
-    },
-    "2": {
-      "value": "2px",
       "type": "borderWidth"
     }
   },

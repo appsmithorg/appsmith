@@ -15,12 +15,12 @@ on:
   pull_request:
     branches: [release, master]
     paths:
-      - "app/client/packages/ast/**"
+      - "app/shared/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
-    working-directory: app/client/packages/ast
+    working-directory: app/shared
 
 jobs:
   test:
@@ -102,7 +102,7 @@ jobs:
       # Runs the test cases
       - name: Run the jest tests
         if: steps.run_result.outputs.run_result != 'success'
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn workspaces foreach --include '@shared/*' run test:unit
 
       # Set status = success
       - name: Save the status of the run

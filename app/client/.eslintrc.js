@@ -1,7 +1,7 @@
 // The `@type` comment improves auto-completion for VS Code users: https://github.com/appsmithorg/appsmith/pull/21602#discussion_r1144528505
 /** @type {import('eslint').Linter.Config} */
 const eslintConfig = {
-  extends: ["./.eslintrc.base.json"],
+  extends: ["../.eslintrc.base.json"],
   rules: {
     // `no-restricted-imports` is disabled, as recommended in https://typescript-eslint.io/rules/no-restricted-imports/.
     // Please use @typescript-eslint/no-restricted-imports below instead.

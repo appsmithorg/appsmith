@@ -8,7 +8,7 @@ on:
     paths:
       - "app/client/**"
       - "app/server/**"
-      - "app/client/packages/rts/**"
+      - "app/rts/**"
 
   # pull_request event is required only for autolabeler
   # pull_request:

@@ -78,7 +78,7 @@ popd
 pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pretty_print "Client build successful. Starting RTS build ..."
 
 popd
-pushd app/client/packages/rts/ > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
+pushd app/rts > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
 docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."

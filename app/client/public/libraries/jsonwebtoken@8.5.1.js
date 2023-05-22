@@ -2656,11 +2656,11 @@
                   });
             };
           }).call(this, {
-            isBuffer: e("../../node_modules/is-buffer/index.js"),
+            isBuffer: e("../../../node_modules/is-buffer/index.js"),
           });
         },
         {
-          "../../node_modules/is-buffer/index.js": 128,
+          "../../../node_modules/is-buffer/index.js": 128,
           "./lib/psSupported": 6,
           "./lib/timespan": 7,
           jws: 12,

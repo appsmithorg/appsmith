@@ -46,13 +46,13 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
-      bgAssistive: this.bgAssistive.toString({ format: "hex" }),
+      bgAssistive: this.bgAssistive,
       // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
-      fgOnAssistive: this.fgOnAssistive.toString({ format: "hex" }),
+      fgOnAssistive: this.fgOnAssistive,
       // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
