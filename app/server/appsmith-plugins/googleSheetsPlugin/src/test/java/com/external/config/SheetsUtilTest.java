@@ -1,54 +1,54 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.external.utils.SheetsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 
 public class SheetsUtilTest {
 
-    @Test
-    public void testGetUserAuthorizedSheetIds_allsheets_returnsNull() throws JsonProcessingException {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        List<Property> propList = new ArrayList<Property>();
-        Property prop = new Property();
-        prop.setKey("emailAddress");
-        prop.setValue("test_email");
-        propList.add(prop);
-        dsConfig.setProperties(propList);
-        Set<String> result = SheetsUtil.getUserAuthorizedSheetIds(dsConfig);
-        assertEquals(result, null);
-    }
+@Test
+public void testGetUserAuthorizedSheetIds_allsheets_returnsNull() throws JsonProcessingException {
+	DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+	List<Property> propList = new ArrayList<Property>();
+	Property prop = new Property();
+	prop.setKey("emailAddress");
+	prop.setValue("test_email");
+	propList.add(prop);
+	dsConfig.setProperties(propList);
+	Set<String> result = SheetsUtil.getUserAuthorizedSheetIds(dsConfig);
+	assertEquals(result, null);
+}
 
-    @Test
-    public void testGetUserAuthorizedSheetIds_specificSheets_returnsSetOfFileIds() throws JsonProcessingException {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        List<Property> propList = new ArrayList<Property>();
-        OAuth2 oAuth2 = new OAuth2();
+@Test
+public void testGetUserAuthorizedSheetIds_specificSheets_returnsSetOfFileIds()
+	throws JsonProcessingException {
+	DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+	List<Property> propList = new ArrayList<Property>();
+	OAuth2 oAuth2 = new OAuth2();
 
-        oAuth2.setScopeString("https://www.googleapis.com/auth/drive.file");
-        dsConfig.setAuthentication(oAuth2);
+	oAuth2.setScopeString("https://www.googleapis.com/auth/drive.file");
+	dsConfig.setAuthentication(oAuth2);
 
-        Property prop1 = new Property("emailAddress", "test_email");
-        propList.add(prop1);
+	Property prop1 = new Property("emailAddress", "test_email");
+	propList.add(prop1);
 
-        List<String> ids = new ArrayList<String>();
-        ids.add("id1");
+	List<String> ids = new ArrayList<String>();
+	ids.add("id1");
 
-        Property prop2 = new Property("userAuthorizedSheetIds", ids);
-        propList.add(prop2);
+	Property prop2 = new Property("userAuthorizedSheetIds", ids);
+	propList.add(prop2);
 
-        dsConfig.setProperties(propList);
-        Set<String> result = SheetsUtil.getUserAuthorizedSheetIds(dsConfig);
-        assertEquals(result.size(), 1);
-    }
+	dsConfig.setProperties(propList);
+	Set<String> result = SheetsUtil.getUserAuthorizedSheetIds(dsConfig);
+	assertEquals(result.size(), 1);
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -12,14 +13,21 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DatasourceStructureSolutionImpl extends DatasourceStructureSolutionCEImpl implements DatasourceStructureSolution {
-    public DatasourceStructureSolutionImpl(DatasourceService datasourceService,
-                                           PluginExecutorHelper pluginExecutorHelper,
-                                           PluginService pluginService,
-                                           DatasourceContextService datasourceContextService,
-                                           DatasourceConfigurationStructureService datasourceConfigurationStructureService,
-                                           AnalyticsService analyticsService) {
-        super(datasourceService, pluginExecutorHelper, pluginService, datasourceContextService,
-                datasourceConfigurationStructureService, analyticsService);
-    }
+public class DatasourceStructureSolutionImpl extends DatasourceStructureSolutionCEImpl
+	implements DatasourceStructureSolution {
+public DatasourceStructureSolutionImpl(
+	DatasourceService datasourceService,
+	PluginExecutorHelper pluginExecutorHelper,
+	PluginService pluginService,
+	DatasourceContextService datasourceContextService,
+	DatasourceConfigurationStructureService datasourceConfigurationStructureService,
+	AnalyticsService analyticsService) {
+	super(
+		datasourceService,
+		pluginExecutorHelper,
+		pluginService,
+		datasourceContextService,
+		datasourceConfigurationStructureService,
+		analyticsService);
+}
 }

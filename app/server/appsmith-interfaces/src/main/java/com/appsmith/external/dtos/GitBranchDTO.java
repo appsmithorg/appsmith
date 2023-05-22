@@ -1,12 +1,13 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import lombok.Data;
 
 @Data
 public class GitBranchDTO {
-    String branchName;
+String branchName;
 
-    boolean isDefault;
+boolean isDefault;
 
-    boolean createdFromLocal;
+boolean createdFromLocal;
 }

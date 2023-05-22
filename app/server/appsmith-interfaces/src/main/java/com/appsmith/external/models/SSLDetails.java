@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -17,48 +18,57 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class SSLDetails implements AppsmithDomain {
 
-    public enum AuthType {
-        // Default driver configurations
-        DEFAULT, NO_SSL,
+public enum AuthType {
+	// Default driver configurations
+	DEFAULT,
+	NO_SSL,
 
-        //For those drivers that don't have any specific options
-        ENABLED,
+	// For those drivers that don't have any specific options
+	ENABLED,
 
-        // Following for Mysql/Postgres Connections.
-        ALLOW, PREFER, REQUIRE, DISABLE, VERIFY_CA, VERIFY_FULL,
+	// Following for Mysql/Postgres Connections.
+	ALLOW,
+	PREFER,
+	REQUIRE,
+	DISABLE,
+	VERIFY_CA,
+	VERIFY_FULL,
 
-        // For MySql Connections
-        PREFERRED, REQUIRED, DISABLED,
+	// For MySql Connections
+	PREFERRED,
+	REQUIRED,
+	DISABLED,
 
-        // Following for MongoDB Connections.
-        CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE,
+	// Following for MongoDB Connections.
+	CA_CERTIFICATE,
+	SELF_SIGNED_CERTIFICATE,
 
-        // For MsSQL, Oracle DB Connections
-        NO_VERIFY
-    }
+	// For MsSQL, Oracle DB Connections
+	NO_VERIFY
+}
 
-    public enum CACertificateType {
-        // In case user does not want to provide any certificate
-        NONE,
+public enum CACertificateType {
+	// In case user does not want to provide any certificate
+	NONE,
 
-        // Provide CA Certificate file
-        FILE,
+	// Provide CA Certificate file
+	FILE,
 
-        // Some services provide CA certificate as a base64 encoded string instead of a file.
-        BASE64_STRING
-    }
+	// Some services provide CA certificate as a base64 encoded string instead of a file.
+	BASE64_STRING
+}
 
-    AuthType authType;
+AuthType authType;
 
-    CACertificateType caCertificateType;
+CACertificateType caCertificateType;
 
-    UploadedFile keyFile;
+UploadedFile keyFile;
 
-    UploadedFile certificateFile;
+UploadedFile certificateFile;
 
-    UploadedFile caCertificateFile;
+UploadedFile caCertificateFile;
 
-    Boolean usePemCertificate;
+Boolean usePemCertificate;
 
-    PEMCertificate pemCertificate;
+PEMCertificate pemCertificate;
 }

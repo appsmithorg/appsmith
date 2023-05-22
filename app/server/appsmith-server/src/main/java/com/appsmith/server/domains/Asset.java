@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -11,12 +12,11 @@ import org.springframework.http.MediaType;
 @AllArgsConstructor
 public class Asset extends BaseDomain {
 
-    public Asset(MediaType mediaType, byte[] data) {
-        this(mediaType == null ? null : mediaType.toString(), data);
-    }
+public Asset(MediaType mediaType, byte[] data) {
+	this(mediaType == null ? null : mediaType.toString(), data);
+}
 
-    String contentType;
+String contentType;
 
-    byte[] data;
-
+byte[] data;
 }

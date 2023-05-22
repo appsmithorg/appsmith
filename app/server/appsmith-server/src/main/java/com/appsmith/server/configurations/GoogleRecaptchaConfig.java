@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import lombok.Getter;
@@ -10,10 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GoogleRecaptchaConfig {
 
-    @Value("${google.recaptcha.key.site}")
-    private String siteKey;
+@Value("${google.recaptcha.key.site}")
+private String siteKey;
 
-    @Value("${google.recaptcha.key.secret}")
-    private String secretKey;
-
+@Value("${google.recaptcha.key.secret}")
+private String secretKey;
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import lombok.Getter;
@@ -8,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class EncryptionConfig {
 
-    @Value("${encrypt.salt}")
-    private String salt;
+@Value("${encrypt.salt}")
+private String salt;
 
-    @Value("${encrypt.password}")
-    private String password;
+@Value("${encrypt.password}")
+private String password;
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.constants.Appsmith;
@@ -17,43 +18,47 @@ import reactor.core.publisher.Mono;
 @Component
 public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent> {
 
-    private final ConfigService configService;
+private final ConfigService configService;
 
-    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    private final InstanceConfigHelper instanceConfigHelper;
+private final InstanceConfigHelper instanceConfigHelper;
 
+@Override
+public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
 
-    @Override
-    public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+	Mono<Void> registrationAndRtsCheckMono =
+		configService
+			.getByName(Appsmith.APPSMITH_REGISTERED)
+			.filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
+			.switchIfEmpty(instanceConfigHelper.registerInstance())
+			.onErrorResume(
+				errorSignal -> {
+				log.debug(
+					"Instance registration failed with error: \n{}", errorSignal.getMessage());
+				return Mono.empty();
+				})
+			.then(instanceConfigHelper.performRtsHealthCheck())
+			.doFinally(ignored -> instanceConfigHelper.printReady());
 
-        Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
-                .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
-                .switchIfEmpty(instanceConfigHelper.registerInstance())
-                .onErrorResume(errorSignal -> {
-                    log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
-                    return Mono.empty();
-                })
-                .then(instanceConfigHelper.performRtsHealthCheck())
-                .doFinally(ignored -> instanceConfigHelper.printReady());
+	Mono<?> startupProcess =
+		instanceConfigHelper
+			.checkInstanceSchemaVersion()
+			.flatMap(signal -> registrationAndRtsCheckMono)
+			// Prefill the server cache with anonymous user permission group ids.
+			.then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
+			// Add cold publisher as we have dependency on the instance registration
+			.then(Mono.defer(instanceConfigHelper::isLicenseValid));
 
-        Mono<?> startupProcess = instanceConfigHelper.checkInstanceSchemaVersion()
-                .flatMap(signal -> registrationAndRtsCheckMono)
-                // Prefill the server cache with anonymous user permission group ids.
-                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
-                // Add cold publisher as we have dependency on the instance registration
-                .then(Mono.defer(instanceConfigHelper::isLicenseValid));
+	try {
+	startupProcess.block();
+	} catch (Exception e) {
+	log.debug("Application start up encountered an error: {}", e.getMessage());
+	Sentry.captureException(e);
+	}
+}
 
-        try {
-            startupProcess.block();
-        } catch(Exception e) {
-            log.debug("Application start up encountered an error: {}", e.getMessage());
-            Sentry.captureException(e);
-        }
-    }
-
-    public boolean getIsRtsAccessible() {
-        return instanceConfigHelper.getIsRtsAccessible();
-    }
-
+public boolean getIsRtsAccessible() {
+	return instanceConfigHelper.getIsRtsAccessible();
+}
 }

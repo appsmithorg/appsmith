@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -9,11 +10,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class MockDataServiceImpl extends MockDataServiceCEImpl implements MockDataService {
 
-    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig,
-                               DatasourceService datasourceService,
-                               AnalyticsService analyticsService,
-                               SessionUserService sessionUserService) {
+public MockDataServiceImpl(
+	CloudServicesConfig cloudServicesConfig,
+	DatasourceService datasourceService,
+	AnalyticsService analyticsService,
+	SessionUserService sessionUserService) {
 
-        super(cloudServicesConfig, datasourceService, analyticsService, sessionUserService);
-    }
+	super(cloudServicesConfig, datasourceService, analyticsService, sessionUserService);
+}
 }

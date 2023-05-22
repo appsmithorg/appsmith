@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomUsagePulseRepositoryCEImpl;
@@ -8,10 +9,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CustomUsagePulseRepositoryImpl extends CustomUsagePulseRepositoryCEImpl implements CustomUsagePulseRepository {
+public class CustomUsagePulseRepositoryImpl extends CustomUsagePulseRepositoryCEImpl
+	implements CustomUsagePulseRepository {
 
-    public CustomUsagePulseRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
-
+public CustomUsagePulseRepositoryImpl(
+	ReactiveMongoOperations mongoOperations,
+	MongoConverter mongoConverter,
+	CacheableRepositoryHelper cacheableRepositoryHelper) {
+	super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+}
 }

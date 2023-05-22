@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceConfigurationStructure;
@@ -7,9 +8,10 @@ import reactor.core.publisher.Mono;
 
 public interface DatasourceConfigurationStructureServiceCE {
 
-    Mono<DatasourceConfigurationStructure> getByDatasourceId(String datasourceId);
+Mono<DatasourceConfigurationStructure> getByDatasourceId(String datasourceId);
 
-    Mono<DatasourceConfigurationStructure> save(DatasourceConfigurationStructure datasourceConfigurationStructure);
+Mono<DatasourceConfigurationStructure> save(
+	DatasourceConfigurationStructure datasourceConfigurationStructure);
 
-    Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure);
+Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure);
 }

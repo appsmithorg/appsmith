@@ -1,14 +1,14 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 public class CommandQueryParams {
-    List<OldParam> queryOldParams;
+List<OldParam> queryOldParams;
 
-    List<OldParam> headerOldParams;
+List<OldParam> headerOldParams;
 }

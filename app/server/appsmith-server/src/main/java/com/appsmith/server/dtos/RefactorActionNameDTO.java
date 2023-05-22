@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.AllArgsConstructor;
@@ -10,10 +11,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RefactorActionNameDTO {
-    String actionId;
-    String pageId;
-    String layoutId;
-    String oldName;
-    String newName;
-    String collectionName;
+String actionId;
+String pageId;
+String layoutId;
+String oldName;
+String newName;
+String collectionName;
 }

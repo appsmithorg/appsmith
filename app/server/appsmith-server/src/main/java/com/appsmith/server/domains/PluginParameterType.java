@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import lombok.Getter;
@@ -10,6 +11,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class PluginParameterType {
-    String key;
-    String dataType;
+String key;
+String dataType;
 }

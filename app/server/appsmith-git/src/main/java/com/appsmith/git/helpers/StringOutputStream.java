@@ -1,17 +1,18 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.git.helpers;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class StringOutputStream extends OutputStream {
-    private StringBuilder string = new StringBuilder();
+private StringBuilder string = new StringBuilder();
 
-    @Override
-    public void write(int b) throws IOException {
-        this.string.append((char) b );
-    }
+@Override
+public void write(int b) throws IOException {
+	this.string.append((char) b);
+}
 
-    public String toString() {
-        return this.string.toString();
-    }
+public String toString() {
+	return this.string.toString();
+}
 }

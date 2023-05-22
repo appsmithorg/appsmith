@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -10,5 +11,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TriggerResultDTO {
-    Object trigger;
+Object trigger;
 }

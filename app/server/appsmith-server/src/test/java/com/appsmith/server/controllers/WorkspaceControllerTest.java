@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -25,41 +26,42 @@ import org.springframework.web.reactive.function.BodyInserters;
 @WebFluxTest(WorkspaceController.class)
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class WorkspaceControllerTest {
-    @Autowired
-    private WebTestClient webTestClient;
+@Autowired private WebTestClient webTestClient;
 
-    @MockBean
-    private WorkspaceService workspaceService;
+@MockBean private WorkspaceService workspaceService;
 
-    @MockBean
-    private UserWorkspaceService userWorkspaceService;
+@MockBean private UserWorkspaceService userWorkspaceService;
 
-    @MockBean
-    private UserService userService;
+@MockBean private UserService userService;
 
-    @MockBean
-    private CommonConfig commonConfig;
+@MockBean private CommonConfig commonConfig;
 
-    @MockBean
-    UserDataService userDataService;
+@MockBean UserDataService userDataService;
 
-    @Test
-    @WithMockUser
-    public void getWorkspaceNoName() {
-        webTestClient.post().uri("/api/v1/workspaces").
-                contentType(MediaType.APPLICATION_JSON).
-                body(BodyInserters.fromValue("{}")).
-                exchange().
-                expectStatus().isEqualTo(400).
-                expectBody().json("{\n" +
-                        "    \"responseMeta\": {\n" +
-                        "        \"status\": 400,\n" +
-                        "        \"success\": false,\n" +
-                        "        \"error\": {\n" +
-                        "            \"code\": "+ AppsmithErrorCode.VALIDATION_FAILURE.getCode() +",\n" +
-                        "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
-    }
+@Test
+@WithMockUser
+public void getWorkspaceNoName() {
+	webTestClient
+		.post()
+		.uri("/api/v1/workspaces")
+		.contentType(MediaType.APPLICATION_JSON)
+		.body(BodyInserters.fromValue("{}"))
+		.exchange()
+		.expectStatus()
+		.isEqualTo(400)
+		.expectBody()
+		.json(
+			"{\n"
+				+ "    \"responseMeta\": {\n"
+				+ "        \"status\": 400,\n"
+				+ "        \"success\": false,\n"
+				+ "        \"error\": {\n"
+				+ "            \"code\": "
+				+ AppsmithErrorCode.VALIDATION_FAILURE.getCode()
+				+ ",\n"
+				+ "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "}");
+}
 }

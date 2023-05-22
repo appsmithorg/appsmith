@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.springframework.context.annotation.Bean;
@@ -22,37 +23,43 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 public class RedisTestContainerConfig {
 
-    @Container
-    public static GenericContainer redisContainer = new GenericContainer(DockerImageName.parse("redis:6.2.6-alpine"))
-            .withExposedPorts(6379);
+@Container
+public static GenericContainer redisContainer =
+	new GenericContainer(DockerImageName.parse("redis:6.2.6-alpine")).withExposedPorts(6379);
 
-    @Bean
-    @Primary
-    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
-        redisContainer.start();
-        RedisStandaloneConfiguration redisConf = new RedisStandaloneConfiguration(redisContainer.getHost(),
-                redisContainer.getMappedPort(6379));
-        return new LettuceConnectionFactory(redisConf);
-    }
+@Bean
+@Primary
+public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
+	redisContainer.start();
+	RedisStandaloneConfiguration redisConf =
+		new RedisStandaloneConfiguration(
+			redisContainer.getHost(), redisContainer.getMappedPort(6379));
+	return new LettuceConnectionFactory(redisConf);
+}
 
-    @Primary
-    @Bean
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializer<Object> defaultSerializer = new GenericJackson2JsonRedisSerializer();
-        RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-                .<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
-                .build();
-        return new ReactiveRedisTemplate<>(factory, serializationContext);
-    }
+@Primary
+@Bean
+ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(
+	ReactiveRedisConnectionFactory factory) {
+	RedisSerializer<String> keySerializer = new StringRedisSerializer();
+	RedisSerializer<Object> defaultSerializer = new GenericJackson2JsonRedisSerializer();
+	RedisSerializationContext<String, Object> serializationContext =
+		RedisSerializationContext.<String, Object>newSerializationContext(defaultSerializer)
+			.key(keySerializer)
+			.hashKey(keySerializer)
+			.build();
+	return new ReactiveRedisTemplate<>(factory, serializationContext);
+}
 
-    @Primary
-    @Bean
-    ReactiveRedisOperations<String, String> reactiveRedisOperations(ReactiveRedisConnectionFactory factory) {
-        Jackson2JsonRedisSerializer<String> serializer = new Jackson2JsonRedisSerializer<>(String.class);
-        RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder =
-                RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
-        RedisSerializationContext<String, String> context = builder.value(serializer).build();
-        return new ReactiveRedisTemplate<>(factory, context);
-    }
+@Primary
+@Bean
+ReactiveRedisOperations<String, String> reactiveRedisOperations(
+	ReactiveRedisConnectionFactory factory) {
+	Jackson2JsonRedisSerializer<String> serializer =
+		new Jackson2JsonRedisSerializer<>(String.class);
+	RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder =
+		RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
+	RedisSerializationContext<String, String> context = builder.value(serializer).build();
+	return new ReactiveRedisTemplate<>(factory, context);
+}
 }

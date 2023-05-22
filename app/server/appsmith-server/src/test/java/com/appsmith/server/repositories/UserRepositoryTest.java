@@ -1,8 +1,12 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.User;
-import lombok.extern.slf4j.Slf4j;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.appsmith.server.domains.User;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,97 +16,102 @@ import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @SpringBootTest
 @Slf4j
 @DirtiesContext
 public class UserRepositoryTest {
 
-    @Autowired
-    private UserRepository userRepository;
+@Autowired private UserRepository userRepository;
 
-    private List<User> savedUsers = new ArrayList<>();
+private List<User> savedUsers = new ArrayList<>();
 
-    @BeforeEach
-    public void setUp() {
-        this.savedUsers.clear();
-    }
+@BeforeEach
+public void setUp() {
+	this.savedUsers.clear();
+}
 
-    @AfterEach
-    public void cleanUp() {
-        for(User savedUser : savedUsers) {
-            userRepository.deleteById(savedUser.getId()).block();
-        }
-    }
+@AfterEach
+public void cleanUp() {
+	for (User savedUser : savedUsers) {
+	userRepository.deleteById(savedUser.getId()).block();
+	}
+}
 
-    @Test
-    public void findByCaseInsensitiveEmail_WhenCaseIsSame_ReturnsResult() {
-        User user = new User();
-        user.setEmail("rafiqnayan@gmail.com");
-        User savedUser = userRepository.save(user).block();
-        savedUsers.add(savedUser);
+@Test
+public void findByCaseInsensitiveEmail_WhenCaseIsSame_ReturnsResult() {
+	User user = new User();
+	user.setEmail("rafiqnayan@gmail.com");
+	User savedUser = userRepository.save(user).block();
+	savedUsers.add(savedUser);
 
-        Mono<User> findUserMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
+	Mono<User> findUserMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
-        StepVerifier.create(findUserMono).assertNext(u -> {
-            assertEquals(savedUser.getEmail(), u.getEmail());
-        }).verifyComplete();
-    }
+	StepVerifier.create(findUserMono)
+		.assertNext(
+			u -> {
+			assertEquals(savedUser.getEmail(), u.getEmail());
+			})
+		.verifyComplete();
+}
 
-    @Test
-    public void findByCaseInsensitiveEmail_WhenCaseIsDifferent_ReturnsResult() {
-        User user = new User();
-        user.setEmail("rafiqNAYAN@gmail.com");
-        User savedUser = userRepository.save(user).block();
-        savedUsers.add(savedUser);
+@Test
+public void findByCaseInsensitiveEmail_WhenCaseIsDifferent_ReturnsResult() {
+	User user = new User();
+	user.setEmail("rafiqNAYAN@gmail.com");
+	User savedUser = userRepository.save(user).block();
+	savedUsers.add(savedUser);
 
-        Mono<User> findUserByEmailMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
+	Mono<User> findUserByEmailMono =
+		userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
-        StepVerifier.create(findUserByEmailMono).assertNext(u -> {
-            assertEquals(savedUser.getEmail(), u.getEmail());
-        }).verifyComplete();
-    }
+	StepVerifier.create(findUserByEmailMono)
+		.assertNext(
+			u -> {
+			assertEquals(savedUser.getEmail(), u.getEmail());
+			})
+		.verifyComplete();
+}
 
-    @Test
-    public void findByCaseInsensitiveEmail_WhenMultipleMatches_ReturnsResult() {
-        User user1 = new User();
-        user1.setEmail("rafiqNAYAN@gmail.com");
-        User savedUser1 = userRepository.save(user1).block();
-        savedUsers.add(savedUser1);
+@Test
+public void findByCaseInsensitiveEmail_WhenMultipleMatches_ReturnsResult() {
+	User user1 = new User();
+	user1.setEmail("rafiqNAYAN@gmail.com");
+	User savedUser1 = userRepository.save(user1).block();
+	savedUsers.add(savedUser1);
 
-        User user2 = new User();
-        user2.setEmail("RAFIQNAYAN@gmail.com");
-        User savedUser2 = userRepository.save(user2).block();
-        savedUsers.add(savedUser2);
+	User user2 = new User();
+	user2.setEmail("RAFIQNAYAN@gmail.com");
+	User savedUser2 = userRepository.save(user2).block();
+	savedUsers.add(savedUser2);
 
-        Mono<User> findUserByEmailMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
+	Mono<User> findUserByEmailMono =
+		userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
-        StepVerifier.create(findUserByEmailMono).assertNext(u -> {
-            assertEquals(savedUser2.getEmail(), u.getEmail());
-        }).verifyComplete();
-    }
+	StepVerifier.create(findUserByEmailMono)
+		.assertNext(
+			u -> {
+			assertEquals(savedUser2.getEmail(), u.getEmail());
+			})
+		.verifyComplete();
+}
 
-    @Test
-    public void findByCaseInsensitiveEmail_WhenNoMatch_ReturnsNone() {
-        User user = new User();
-        user.setEmail("rafiqnayan@gmail.com");
-        User savedUser = userRepository.save(user).block();
-        savedUsers.add(savedUser);
+@Test
+public void findByCaseInsensitiveEmail_WhenNoMatch_ReturnsNone() {
+	User user = new User();
+	user.setEmail("rafiqnayan@gmail.com");
+	User savedUser = userRepository.save(user).block();
+	savedUsers.add(savedUser);
 
-        Mono<User> getByEmailMono = userRepository.findByCaseInsensitiveEmail("nayan@gmail.com");
-        StepVerifier.create(getByEmailMono).verifyComplete();
+	Mono<User> getByEmailMono = userRepository.findByCaseInsensitiveEmail("nayan@gmail.com");
+	StepVerifier.create(getByEmailMono).verifyComplete();
 
-        Mono<User> getByEmailMono2 = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.co");
-        StepVerifier.create(getByEmailMono2).verifyComplete();
+	Mono<User> getByEmailMono2 = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.co");
+	StepVerifier.create(getByEmailMono2).verifyComplete();
 
-        Mono<User> getByEmailMono3 = userRepository.findByCaseInsensitiveEmail("rafiq.nayan@gmail.com");
-        StepVerifier.create(getByEmailMono3).verifyComplete();
+	Mono<User> getByEmailMono3 = userRepository.findByCaseInsensitiveEmail("rafiq.nayan@gmail.com");
+	StepVerifier.create(getByEmailMono3).verifyComplete();
 
-        Mono<User> getByEmailMono4 = userRepository.findByCaseInsensitiveEmail("rafiq.ayan@gmail.com");
-        StepVerifier.create(getByEmailMono4).verifyComplete();
-    }
+	Mono<User> getByEmailMono4 = userRepository.findByCaseInsensitiveEmail("rafiq.ayan@gmail.com");
+	StepVerifier.create(getByEmailMono4).verifyComplete();
+}
 }

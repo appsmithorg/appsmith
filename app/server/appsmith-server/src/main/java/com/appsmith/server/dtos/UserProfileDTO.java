@@ -1,65 +1,64 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.Data;
 
 @Data
 public class UserProfileDTO {
 
-    String email;
+String email;
 
-    Set<String> workspaceIds;
+Set<String> workspaceIds;
 
-    String username;
+String username;
 
-    String name;
+String name;
 
-    String gender;
+String gender;
 
-    @JsonProperty(value = "isAnonymous")
-    boolean isAnonymous;
+@JsonProperty(value = "isAnonymous")
+boolean isAnonymous;
 
-    @JsonProperty(value = "isEnabled")
-    boolean isEnabled;
+@JsonProperty(value = "isEnabled")
+boolean isEnabled;
 
-    boolean isEmptyInstance = false;
+boolean isEmptyInstance = false;
 
-    @JsonProperty("isSuperUser")
-    boolean isSuperUser = false;
+@JsonProperty("isSuperUser")
+boolean isSuperUser = false;
 
-    @JsonProperty("isConfigurable")
-    boolean isConfigurable = false;
+@JsonProperty("isConfigurable")
+boolean isConfigurable = false;
 
-    @JsonProperty("adminSettingsVisible")
-    boolean adminSettingsVisible = false;
+@JsonProperty("adminSettingsVisible")
+boolean adminSettingsVisible = false;
 
-    @JsonProperty("isIntercomConsentGiven")
-    boolean isIntercomConsentGiven = false;
+@JsonProperty("isIntercomConsentGiven")
+boolean isIntercomConsentGiven = false;
 
-    String photoId;
+String photoId;
 
-    String role;
+String role;
 
-    String useCase;
+String useCase;
 
-    boolean enableTelemetry = false;
+boolean enableTelemetry = false;
 
-    Map<String, Object> idToken = new HashMap<>();
+Map<String, Object> idToken = new HashMap<>();
 
-    public boolean isAccountNonExpired() {
-        return this.isEnabled;
-    }
+public boolean isAccountNonExpired() {
+	return this.isEnabled;
+}
 
-    public boolean isAccountNonLocked() {
-        return this.isEnabled;
-    }
+public boolean isAccountNonLocked() {
+	return this.isEnabled;
+}
 
-    public boolean isCredentialsNonExpired() {
-        return this.isEnabled;
-    }
-
+public boolean isCredentialsNonExpired() {
+	return this.isEnabled;
+}
 }

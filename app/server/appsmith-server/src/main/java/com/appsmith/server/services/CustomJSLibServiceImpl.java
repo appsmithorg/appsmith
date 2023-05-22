@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.CustomJSLibRepository;
@@ -13,10 +14,21 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements CustomJSLibService {
 
-    public CustomJSLibServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter,
-                                  ReactiveMongoTemplate reactiveMongoTemplate, CustomJSLibRepository repository,
-                                  ApplicationService applicationService, AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, applicationService,
-                analyticsService);
-    }
+public CustomJSLibServiceImpl(
+	Scheduler scheduler,
+	Validator validator,
+	MongoConverter mongoConverter,
+	ReactiveMongoTemplate reactiveMongoTemplate,
+	CustomJSLibRepository repository,
+	ApplicationService applicationService,
+	AnalyticsService analyticsService) {
+	super(
+		scheduler,
+		validator,
+		mongoConverter,
+		reactiveMongoTemplate,
+		repository,
+		applicationService,
+		analyticsService);
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.services;
 
 import com.appsmith.external.services.ce.FilterDataServiceCE;
@@ -8,20 +9,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class FilterDataService extends FilterDataServiceCE implements IFilterDataService {
 
-    private static FilterDataService instance = null;
+private static FilterDataService instance = null;
 
-    private FilterDataService() {
-        super();
-    }
-
-    public static FilterDataService getInstance() {
-
-        if (instance == null) {
-            instance = new FilterDataService();
-        }
-
-        return instance;
-    }
-
+private FilterDataService() {
+	super();
 }
 
+public static FilterDataService getInstance() {
+
+	if (instance == null) {
+	instance = new FilterDataService();
+	}
+
+	return instance;
+}
+}

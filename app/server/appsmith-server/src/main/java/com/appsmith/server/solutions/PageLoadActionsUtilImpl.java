@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.services.AstService;
@@ -9,12 +10,14 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class PageLoadActionsUtilImpl extends PageLoadActionsUtilCEImpl implements PageLoadActionsUtil {
+public class PageLoadActionsUtilImpl extends PageLoadActionsUtilCEImpl
+	implements PageLoadActionsUtil {
 
-    public PageLoadActionsUtilImpl(NewActionService newActionService,
-                                   AstService astService,
-                                   ActionPermission actionPermission,
-                                   ObjectMapper objectMapper) {
-        super(newActionService, astService, actionPermission, objectMapper);
-    }
+public PageLoadActionsUtilImpl(
+	NewActionService newActionService,
+	AstService astService,
+	ActionPermission actionPermission,
+	ObjectMapper objectMapper) {
+	super(newActionService, astService, actionPermission, objectMapper);
+}
 }

@@ -1,17 +1,18 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.TemplateCollection;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.RestApiImporterType;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApiImporter;
 import com.appsmith.server.services.CurlImporterService;
 import com.appsmith.server.services.PostmanImporterService;
 import com.fasterxml.jackson.annotation.JsonView;
-
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,69 +26,66 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
-
 @RequestMapping(Url.IMPORT_URL)
 @Slf4j
 public class RestApiImportControllerCE {
 
-    private final CurlImporterService curlImporterService;
-    private final PostmanImporterService postmanImporterService;
+private final CurlImporterService curlImporterService;
+private final PostmanImporterService postmanImporterService;
 
-    public RestApiImportControllerCE(CurlImporterService curlImporterService,
-                                     PostmanImporterService postmanImporterService) {
-        this.curlImporterService = curlImporterService;
-        this.postmanImporterService = postmanImporterService;
-    }
+public RestApiImportControllerCE(
+	CurlImporterService curlImporterService, PostmanImporterService postmanImporterService) {
+	this.curlImporterService = curlImporterService;
+	this.postmanImporterService = postmanImporterService;
+}
 
-    @JsonView(Views.Public.class)
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ActionDTO>> create(@RequestBody(required = false) Object input,
-                                               @RequestParam RestApiImporterType type,
-                                               @RequestParam String pageId,
-                                               @RequestParam String name,
-                                               @RequestParam String workspaceId,
-                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                               @RequestHeader(name = "Origin", required = false) String originHeader
-    ) {
-        log.debug("Going to import API");
-        ApiImporter service;
+@JsonView(Views.Public.class)
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Mono<ResponseDTO<ActionDTO>> create(
+	@RequestBody(required = false) Object input,
+	@RequestParam RestApiImporterType type,
+	@RequestParam String pageId,
+	@RequestParam String name,
+	@RequestParam String workspaceId,
+	@RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+	@RequestHeader(name = "Origin", required = false) String originHeader) {
+	log.debug("Going to import API");
+	ApiImporter service;
 
-        switch (type) {
-            case CURL:
-                service = (ApiImporter) curlImporterService;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + type);
-        }
+	switch (type) {
+	case CURL:
+		service = (ApiImporter) curlImporterService;
+		break;
+	default:
+		throw new IllegalStateException("Unexpected value: " + type);
+	}
 
-        return service.importAction(input, pageId, name, workspaceId, branchName)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-    }
+	return service
+		.importAction(input, pageId, name, workspaceId, branchName)
+		.map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+}
 
-    @JsonView(Views.Public.class)
-    @PostMapping("/postman")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input,
-                                                                         @RequestParam String type) {
-        return Mono.just(postmanImporterService.importPostmanCollection(input))
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-    }
+@JsonView(Views.Public.class)
+@PostMapping("/postman")
+@ResponseStatus(HttpStatus.CREATED)
+public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(
+	@RequestBody Object input, @RequestParam String type) {
+	return Mono.just(postmanImporterService.importPostmanCollection(input))
+		.map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+}
 
-    @JsonView(Views.Public.class)
-    @GetMapping("/templateCollections")
-    public Mono<ResponseDTO<List<TemplateCollection>>> fetchImportedCollections() {
-        return Mono.just(postmanImporterService.fetchPostmanCollections())
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
-    }
+@JsonView(Views.Public.class)
+@GetMapping("/templateCollections")
+public Mono<ResponseDTO<List<TemplateCollection>>> fetchImportedCollections() {
+	return Mono.just(postmanImporterService.fetchPostmanCollections())
+		.map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+}
 
-    @JsonView(Views.Public.class)
-    @DeleteMapping("/templateCollections/{id}")
-    public Mono<ResponseDTO<TemplateCollection>> deletePostmanCollection(@PathVariable String id) {
-        return Mono.just(postmanImporterService.deletePostmanCollection(id))
-                .map(deleted -> new ResponseDTO<>(HttpStatus.OK.value(), deleted, null));
-    }
-
+@JsonView(Views.Public.class)
+@DeleteMapping("/templateCollections/{id}")
+public Mono<ResponseDTO<TemplateCollection>> deletePostmanCollection(@PathVariable String id) {
+	return Mono.just(postmanImporterService.deletePostmanCollection(id))
+		.map(deleted -> new ResponseDTO<>(HttpStatus.OK.value(), deleted, null));
+}
 }

@@ -1,126 +1,195 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.appsmith</groupId>
-    <artifactId>integrated</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>Integrated Appsmith</name>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.0.6</version>
+    <relativePath/>
+    <!-- lookup parent from repository -->
+  </parent>
+  <groupId>com.appsmith</groupId>
+  <artifactId>integrated</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Integrated Appsmith</name>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <javadoc.disabled>true</javadoc.disabled>
-        <deploy.disabled>true</deploy.disabled>
-        <source.disabled>true</source.disabled>
-        <project.groupId>com.appsmith</project.groupId>
-        <project.version>1.0-SNAPSHOT</project.version>
-        <!-- By default skip the dockerization step. Only activate if necessary -->
-        <skipDockerBuild>true</skipDockerBuild>
-        <spring-boot.version>3.0.6</spring-boot.version>
-        <h2.version>2.1.210</h2.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
-        <mockito.version>4.4.0</mockito.version>
-        <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
-        <okhttp3.version>4.10.0</okhttp3.version>
-        <reactor-test.version>3.5.1</reactor-test.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-    </properties>
+  <modules>
+    <module>reactive-caching</module>
+    <module>appsmith-interfaces</module>
+    <module>appsmith-plugins</module>
+    <module>appsmith-server</module>
+    <module>appsmith-git</module>
+  </modules>
 
-    <build>
-        <resources>
-            <resource>
-                <filtering>false</filtering>
-                <directory>src/main/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
+  <properties>
+    <deploy.disabled>true</deploy.disabled>
+    <h2.version>2.1.210</h2.version>
+    <java.version>17</java.version>
+    <javadoc.disabled>true</javadoc.disabled>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <mockito.version>4.4.0</mockito.version>
+    <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
+    <okhttp3.version>4.10.0</okhttp3.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.groupId>com.appsmith</project.groupId>
+    <project.version>1.0-SNAPSHOT</project.version>
+    <reactor-test.version>3.5.1</reactor-test.version>
+    <!-- By default skip the dockerization step. Only activate if necessary -->
+    <skipDockerBuild>true</skipDockerBuild>
+    <source.disabled>true</source.disabled>
+    <spotless.version>2.36.0</spotless.version>
+    <spring-boot.version>3.0.6</spring-boot.version>
+    <testcontainers.version>1.17.3</testcontainers.version>
+  </properties>
 
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>2.0.0</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.4.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-commons</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <!-- Allow JUnit to access the test classes -->
-                    <argLine>
-                        --add-opens java.base/java.lang=ALL-UNNAMED
+  <build>
+    <resources>
+      <resource>
+        <filtering>false</filtering>
+        <directory>src/main/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.0.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.4.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <!-- Allow JUnit to access the test classes -->
+          <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                    </argLine>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <bannedDependencies>
-                                    <excludes>
-                                        <exclude>junit:junit</exclude>
-                                    </excludes>
-                                </bannedDependencies>
-                            </rules>
-                            <fail>true</fail>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+                        --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.6.2</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>default-cli</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>junit:junit</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <formats>
+            <!-- you can define as many formats as you want, each is independent -->
+            <format>
+              <!-- define the files to apply to -->
+              <includes>
+                <include>*.md</include>
+                <include>.gitignore</include>
+              </includes>
+              <!-- define the steps to apply to those files -->
+              <trimTrailingWhitespace/>
+              <endWithNewline/>
+              <indent>
+                <spaces>true</spaces>
+                <spacesPerTab>4</spacesPerTab>
+              </indent>
+            </format>
+          </formats>
+          <!-- define a language-specific format -->
+          <java>
+            <!-- Cleanthat will refactor your code, but it may break your style: apply it before your formatter -->
+            <cleanthat/>
+            <!-- apply a specific flavor of google-java-format and reflow long strings -->
+            <googleJavaFormat>
+              <version>1.17.0</version>
+              <style>GOOGLE</style>
+              <reflowLongStrings>true</reflowLongStrings>
+            </googleJavaFormat>
+            <indent>
+              <tabs>true</tabs>
+              <spacesPerTab>4</spacesPerTab>
+            </indent>
+            <removeUnusedImports/>
+            <formatAnnotations/>
+            <!-- make sure every file has the following copyright header.
+                                                  optionally, Spotless can set copyright years by digging
+                                                  through git history (see "license" section below) -->
+            <licenseHeader>
+              <content>/* Copyright 2019-$YEAR Appsmith */</content>
+              <!-- or <file>${project.basedir}/license-header</file> -->
+            </licenseHeader>
+          </java>
+          <pom>
+            <includes>
+              <include>pom.xml</include>
+            </includes>
+            <sortPom>
+              <encoding>UTF-8</encoding>
+              <keepBlankLines>true</keepBlankLines>
+              <nrOfIndentSpace>2</nrOfIndentSpace>
+              <indentBlankLines>false</indentBlankLines>
+              <indentSchemaLocation>true</indentSchemaLocation>
+              <expandEmptyElements>false</expandEmptyElements>
+              <sortProperties>true</sortProperties>
+            </sortPom>
+          </pom>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
 
-    </build>
-
-    <modules>
-        <module>reactive-caching</module>
-        <module>appsmith-interfaces</module>
-        <module>appsmith-plugins</module>
-        <module>appsmith-server</module>
-        <module>appsmith-git</module>
-    </modules>
+  </build>
 
 </project>
-

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.THEME_URL)
 public class ThemeController extends ThemeControllerCE {
 
-    public ThemeController(ThemeService themeService) {
-        super(themeService);
-    }
+public ThemeController(ThemeService themeService) {
+	super(themeService);
+}
 }

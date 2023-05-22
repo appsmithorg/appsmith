@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +9,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class EnvChangesResponseDTO {
 
-    @JsonProperty(value = "isRestartRequired")
-    boolean isRestartRequired;
-
+@JsonProperty(value = "isRestartRequired")
+boolean isRestartRequired;
 }

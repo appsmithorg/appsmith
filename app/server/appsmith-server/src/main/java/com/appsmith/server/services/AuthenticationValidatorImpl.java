@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.services.ce.AuthenticationValidatorCEImpl;
@@ -7,9 +8,10 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class AuthenticationValidatorImpl extends AuthenticationValidatorCEImpl implements AuthenticationValidator {
+public class AuthenticationValidatorImpl extends AuthenticationValidatorCEImpl
+	implements AuthenticationValidator {
 
-    public AuthenticationValidatorImpl(AuthenticationService authenticationService) {
-        super(authenticationService);
-    }
+public AuthenticationValidatorImpl(AuthenticationService authenticationService) {
+	super(authenticationService);
+}
 }

@@ -1,23 +1,23 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.User;
-import reactor.core.publisher.Mono;
-
 import java.util.Set;
+import reactor.core.publisher.Mono;
 
 public interface CacheableRepositoryHelperCE {
 
-    Mono<Set<String>> getPermissionGroupsOfUser(User user);
+Mono<Set<String>> getPermissionGroupsOfUser(User user);
 
-    Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache();
+Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache();
 
-    Mono<Set<String>> getPermissionGroupsOfAnonymousUser();
+Mono<Set<String>> getPermissionGroupsOfAnonymousUser();
 
-    Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
+Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
 
-    Mono<User> getAnonymousUser(String tenantId);
+Mono<User> getAnonymousUser(String tenantId);
 
-    Mono<User> getAnonymousUser();
+Mono<User> getAnonymousUser();
 
-    Mono<String> getDefaultTenantId();
+Mono<String> getDefaultTenantId();
 }

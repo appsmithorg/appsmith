@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.helpers.SSLHelper;
@@ -9,14 +10,14 @@ import reactor.netty.http.client.HttpClient;
 // Parent type for all API connections that need to be created during datasource create method.
 public abstract class APIConnection implements ExchangeFilterFunction {
 
-    HttpClient getSecuredHttpClient(DatasourceConfiguration datasourceConfiguration) {
-        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
-        HttpClient httpClient = HttpClient.create();
+HttpClient getSecuredHttpClient(DatasourceConfiguration datasourceConfiguration) {
+	final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+	HttpClient httpClient = HttpClient.create();
 
-        if (oAuth2.isUseSelfSignedCert()) {
-            httpClient = httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
-        }
+	if (oAuth2.isUseSelfSignedCert()) {
+	httpClient = httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
+	}
 
-        return httpClient;
-    }
+	return httpClient;
+}
 }

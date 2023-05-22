@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.documenttype.DocumentType;
@@ -18,17 +19,19 @@ import lombok.ToString;
 @DocumentType(Authentication.DB_AUTH)
 public class DBAuth extends AuthenticationDTO {
 
-    public enum Type {
-        SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
-    }
+public enum Type {
+	SCRAM_SHA_1,
+	SCRAM_SHA_256,
+	MONGODB_CR,
+	USERNAME_PASSWORD
+}
 
-    Type authType;
+Type authType;
 
-    String username;
+String username;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
+@Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+String password;
 
-    String databaseName;
+String databaseName;
 }

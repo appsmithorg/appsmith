@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.EqualsAndHashCode;
@@ -13,34 +14,33 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Property {
 
-    /*
-     * A convenience constructor to create a Property object with just a key and a value.
-     */
-    public Property(String key, Object value) {
-        this.key = key;
-        this.value = value;
-    }
+/*
+* A convenience constructor to create a Property object with just a key and a value.
+*/
+public Property(String key, Object value) {
+	this.key = key;
+	this.value = value;
+}
 
-    String key;
+String key;
 
-    Object value;
+Object value;
 
-    Boolean editable;
+Boolean editable;
 
-    Boolean internal;
+Boolean internal;
 
-    String description;
+String description;
 
-    Boolean mandatory;
+Boolean mandatory;
 
-    String type;
+String type;
 
-    String defaultValue;
+String defaultValue;
 
-    String minRange;
+String minRange;
 
-    String maxRange;
+String maxRange;
 
-    String[] valueOptions; // This stores the values that are permitted by the api for the given key
-
+String[] valueOptions; // This stores the values that are permitted by the api for the given key
 }

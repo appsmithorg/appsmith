@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.ApiTemplate;
@@ -7,9 +8,12 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 public class CustomApiTemplateRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ApiTemplate>
-        implements CustomApiTemplateRepositoryCE {
+	implements CustomApiTemplateRepositoryCE {
 
-    public CustomApiTemplateRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
+public CustomApiTemplateRepositoryCEImpl(
+	ReactiveMongoOperations mongoOperations,
+	MongoConverter mongoConverter,
+	CacheableRepositoryHelper cacheableRepositoryHelper) {
+	super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+}
 }

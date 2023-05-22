@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -6,9 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * This class hold sensitive information related to an action,
- * and fields that have a `@JsonIgnore` on them, so that such information
- * can be serialized when an application is exported.
+ * This class hold sensitive information related to an action, and fields that have a `@JsonIgnore`
+ * on them, so that such information can be serialized when an application is exported.
  */
 @ToString
 @Getter
@@ -16,7 +16,6 @@ import lombok.ToString;
 @NoArgsConstructor
 public class InvisibleActionFields {
 
-    Boolean unpublishedUserSetOnLoad;
-    Boolean publishedUserSetOnLoad;
-
+Boolean unpublishedUserSetOnLoad;
+Boolean publishedUserSetOnLoad;
 }

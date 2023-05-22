@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.services.ce.SequenceServiceCEImpl;
@@ -8,9 +9,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SequenceServiceImpl extends SequenceServiceCEImpl implements SequenceService {
 
-    @Autowired
-    public SequenceServiceImpl(ReactiveMongoTemplate mongoTemplate) {
-        super(mongoTemplate);
-    }
-
+@Autowired
+public SequenceServiceImpl(ReactiveMongoTemplate mongoTemplate) {
+	super(mongoTemplate);
+}
 }

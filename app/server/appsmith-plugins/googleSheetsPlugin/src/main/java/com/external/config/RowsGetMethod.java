@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -11,12 +12,6 @@ import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +19,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
@@ -31,194 +31,219 @@ import java.util.regex.Pattern;
 @Slf4j
 public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
 
-    ObjectMapper objectMapper;
-    FilterDataService filterDataService;
+ObjectMapper objectMapper;
+FilterDataService filterDataService;
 
-    public RowsGetMethod(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-        this.filterDataService = FilterDataService.getInstance();
-    }
+public RowsGetMethod(ObjectMapper objectMapper) {
+	this.objectMapper = objectMapper;
+	this.filterDataService = FilterDataService.getInstance();
+}
 
-    public RowsGetMethod() {
-    }
+public RowsGetMethod() {}
 
-    // Used to capture the range of columns in this request. The handling for this regex makes sure that
-    // all possible combinations of A1 notation for a range map to a common format
-    Pattern findAllRowsPattern = Pattern.compile("([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
+// Used to capture the range of columns in this request. The handling for this regex makes sure
+// that
+// all possible combinations of A1 notation for a range map to a common format
+Pattern findAllRowsPattern = Pattern.compile("([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
-    // The starting row for a range is captured using this pattern to find its relative index from table heading
-    Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
+// The starting row for a range is captured using this pattern to find its relative index from
+// table heading
+Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
 
-    // Since the value for this pattern is coming from an API response, it also contains the sheet name
-    // We use this pattern to retrieve only range information
-    Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
+// Since the value for this pattern is coming from an API response, it also contains the sheet
+// name
+// We use this pattern to retrieve only range information
+Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
-    @Override
-    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
-        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
-        }
-        if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
-        }
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
-            try {
-                if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            ErrorMessages.INVALID_TABLE_HEADER_INDEX);
-                }
-            } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        ErrorMessages.INVALID_TABLE_HEADER_INDEX,
-                        e.getMessage());
-            }
-        } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    ErrorMessages.INVALID_TABLE_HEADER_INDEX);
-        }
-        if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_CELL_RANGE_ERROR_MSG);
-            }
-        }
+@Override
+public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
+	if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
+	throw new AppsmithPluginException(
+		AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+		ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
+	}
+	if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
+	throw new AppsmithPluginException(
+		AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+		ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
+	}
+	if (methodConfig.getTableHeaderIndex() != null
+		&& !methodConfig.getTableHeaderIndex().isBlank()) {
+	try {
+		if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
+		throw new AppsmithPluginException(
+			AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+			ErrorMessages.INVALID_TABLE_HEADER_INDEX);
+		}
+	} catch (NumberFormatException e) {
+		throw new AppsmithPluginException(
+			AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+			ErrorMessages.INVALID_TABLE_HEADER_INDEX,
+			e.getMessage());
+	}
+	} else {
+	throw new AppsmithPluginException(
+		AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+		ErrorMessages.INVALID_TABLE_HEADER_INDEX);
+	}
+	if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
+	if (methodConfig.getSpreadsheetRange() == null
+		|| methodConfig.getSpreadsheetRange().isBlank()) {
+		throw new AppsmithPluginException(
+			AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+			ErrorMessages.MISSING_CELL_RANGE_ERROR_MSG);
+	}
+	}
 
-        return true;
-    }
+	return true;
+}
 
-    @Override
-    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
+@Override
+public WebClient.RequestHeadersSpec<?> getExecutionClient(
+	WebClient webClient, MethodConfig methodConfig) {
 
-        final List<String> ranges = validateInputs(methodConfig);
+	final List<String> ranges = validateInputs(methodConfig);
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                        + "/values:batchGet"
-        );
-        uriBuilder.queryParam("majorDimension", "ROWS");
-        uriBuilder.queryParam("ranges", ranges);
+	UriComponentsBuilder uriBuilder =
+		getBaseUriBuilder(
+			this.BASE_SHEETS_API_URL,
+			methodConfig.getSpreadsheetId() /* spreadsheet Id */ + "/values:batchGet");
+	uriBuilder.queryParam("majorDimension", "ROWS");
+	uriBuilder.queryParam("ranges", ranges);
 
-        return webClient.method(HttpMethod.GET)
-                .uri(uriBuilder.build(false).toUri())
-                .body(BodyInserters.empty());
-    }
+	return webClient
+		.method(HttpMethod.GET)
+		.uri(uriBuilder.build(false).toUri())
+		.body(BodyInserters.empty());
+}
 
-    private List<String> validateInputs(MethodConfig methodConfig) {
-        int tableHeaderIndex = 1;
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
-            try {
-                tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
-                if (tableHeaderIndex <= 0) {
-                    tableHeaderIndex = 1;
-                }
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
-        }
-        if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            return List.of(
-                    "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
-                    "'" + methodConfig.getSheetName() + "'!A" + (tableHeaderIndex + 1) + ":ZZZ");
-        } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
-            matcher.find();
-            return List.of(
-                    "'" + methodConfig.getSheetName() + "'!" + matcher.group(1) + tableHeaderIndex + ":" + matcher.group(2) + tableHeaderIndex,
-                    "'" + methodConfig.getSheetName() + "'!" + methodConfig.getSpreadsheetRange());
-        }
-        return List.of();
-    }
+private List<String> validateInputs(MethodConfig methodConfig) {
+	int tableHeaderIndex = 1;
+	if (methodConfig.getTableHeaderIndex() != null
+		&& !methodConfig.getTableHeaderIndex().isBlank()) {
+	try {
+		tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
+		if (tableHeaderIndex <= 0) {
+		tableHeaderIndex = 1;
+		}
+	} catch (NumberFormatException e) {
+		// Should have already been caught
+	}
+	}
+	if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
+	return List.of(
+		"'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
+		"'" + methodConfig.getSheetName() + "'!A" + (tableHeaderIndex + 1) + ":ZZZ");
+	} else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
+	Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
+	matcher.find();
+	return List.of(
+		"'"
+			+ methodConfig.getSheetName()
+			+ "'!"
+			+ matcher.group(1)
+			+ tableHeaderIndex
+			+ ":"
+			+ matcher.group(2)
+			+ tableHeaderIndex,
+		"'" + methodConfig.getSheetName() + "'!" + methodConfig.getSpreadsheetRange());
+	}
+	return List.of();
+}
 
-    @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
-        if (response == null) {
-            throw new AppsmithPluginException(
-                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
-        }
+@Override
+public JsonNode transformExecutionResponse(
+	JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+	if (response == null) {
+	throw new AppsmithPluginException(
+		GSheetsPluginError.QUERY_EXECUTION_FAILED,
+		ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
+	}
 
-        ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
-        ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
-        ArrayNode values = (ArrayNode) valueRanges.get(1).get("values");
+	ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
+	ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
+	ArrayNode values = (ArrayNode) valueRanges.get(1).get("values");
 
-        if (headers == null || values == null || headers.isEmpty()) {
-            return this.objectMapper.createArrayNode();
-        }
+	if (headers == null || values == null || headers.isEmpty()) {
+	return this.objectMapper.createArrayNode();
+	}
 
-        int valueSize = 0;
-        for (int i = 0; i < values.size(); i++) {
-            valueSize = Math.max(valueSize, values.get(i).size());
-        }
+	int valueSize = 0;
+	for (int i = 0; i < values.size(); i++) {
+	valueSize = Math.max(valueSize, values.get(i).size());
+	}
 
-        final String valueRange = valueRanges.get(1).get("range").asText();
-        headers = (ArrayNode) headers.get(0);
+	final String valueRange = valueRanges.get(1).get("range").asText();
+	headers = (ArrayNode) headers.get(0);
 
-        Set<String> columnsSet = sanitizeHeaders(headers, valueSize);
+	Set<String> columnsSet = sanitizeHeaders(headers, valueSize);
 
-        final List<Map<String, String>> collectedCells = new LinkedList<>();
-        final String[] headerArray = columnsSet.toArray(new String[0]);
+	final List<Map<String, String>> collectedCells = new LinkedList<>();
+	final String[] headerArray = columnsSet.toArray(new String[0]);
 
-        final Matcher matcher = findOffsetRowPattern.matcher(valueRange);
-        matcher.find();
-        final int rowOffset = Integer.parseInt(matcher.group(1));
-        final int tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
-        for (int i = 0; i < values.size(); i++) {
-            ArrayNode row = (ArrayNode) values.get(i);
-            RowObject rowObject = new RowObject(
-                    headerArray,
-                    objectMapper.convertValue(row, String[].class),
-                    rowOffset - tableHeaderIndex + i - 1);
-            collectedCells.add(rowObject.getValueMap());
-        }
+	final Matcher matcher = findOffsetRowPattern.matcher(valueRange);
+	matcher.find();
+	final int rowOffset = Integer.parseInt(matcher.group(1));
+	final int tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
+	for (int i = 0; i < values.size(); i++) {
+	ArrayNode row = (ArrayNode) values.get(i);
+	RowObject rowObject =
+		new RowObject(
+			headerArray,
+			objectMapper.convertValue(row, String[].class),
+			rowOffset - tableHeaderIndex + i - 1);
+	collectedCells.add(rowObject.getValueMap());
+	}
 
-        ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
+	ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
-        if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterDataNew(preFilteringResponse,
-                    new UQIDataFilterParams(
-                            methodConfig.getWhereConditions(),
-                            methodConfig.getProjection(),
-                            methodConfig.getSortBy(),
-                            methodConfig.getPaginateBy()),
-                    getDataTypeConversionMap());
-        }
+	if (isWhereConditionConfigured(methodConfig)) {
+	return filterDataService.filterDataNew(
+		preFilteringResponse,
+		new UQIDataFilterParams(
+			methodConfig.getWhereConditions(),
+			methodConfig.getProjection(),
+			methodConfig.getSortBy(),
+			methodConfig.getPaginateBy()),
+		getDataTypeConversionMap());
+	}
 
-        return preFilteringResponse;
-    }
+	return preFilteringResponse;
+}
 
-    private Set<String> sanitizeHeaders(ArrayNode headers, int valueSize) {
-        final Set<String> headerSet = new LinkedHashSet<>();
-        int headerSize = headers.size();
-        final int size = Math.max(headerSize, valueSize);
+private Set<String> sanitizeHeaders(ArrayNode headers, int valueSize) {
+	final Set<String> headerSet = new LinkedHashSet<>();
+	int headerSize = headers.size();
+	final int size = Math.max(headerSize, valueSize);
 
-        // Manipulation to find valid headers for all columns
-        for (int j = 0; j < size; j++) {
-            String headerValue = "";
+	// Manipulation to find valid headers for all columns
+	for (int j = 0; j < size; j++) {
+	String headerValue = "";
 
-            if (j < headerSize) {
-                headerValue = headers.get(j).asText();
-            }
-            if (headerValue.isBlank()) {
-                headerValue = "Column-" + (j + 1);
-            }
+	if (j < headerSize) {
+		headerValue = headers.get(j).asText();
+	}
+	if (headerValue.isBlank()) {
+		headerValue = "Column-" + (j + 1);
+	}
 
-            int count = 1;
-            String tempHeaderValue = headerValue;
-            while (headerSet.contains(tempHeaderValue)) {
-                tempHeaderValue += "_" + count++;
-            }
-            headerValue = tempHeaderValue;
+	int count = 1;
+	String tempHeaderValue = headerValue;
+	while (headerSet.contains(tempHeaderValue)) {
+		tempHeaderValue += "_" + count++;
+	}
+	headerValue = tempHeaderValue;
 
-            headerSet.add(headerValue);
-        }
+	headerSet.add(headerValue);
+	}
 
-        return headerSet;
-    }
+	return headerSet;
+}
 
-    private Boolean isWhereConditionConfigured(MethodConfig methodConfig) {
-        Condition whereConditions = methodConfig.getWhereConditions();
+private Boolean isWhereConditionConfigured(MethodConfig methodConfig) {
+	Condition whereConditions = methodConfig.getWhereConditions();
 
-        // At least 1 condition exists
-        return whereConditions != null;
-
-    }
+	// At least 1 condition exists
+	return whereConditions != null;
+}
 }

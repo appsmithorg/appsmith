@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -10,8 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JSValue {
-    String name;
-    String dataType;
-    Object value;
-    Boolean isValid;
+String name;
+String dataType;
+Object value;
+Boolean isValid;
 }

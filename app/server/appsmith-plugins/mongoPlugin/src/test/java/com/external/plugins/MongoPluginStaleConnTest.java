@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.plugins;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
@@ -8,17 +9,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -33,134 +23,136 @@ import com.mongodb.MongoSocketWriteException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-/**
- * Unit tests for MongoPlugin
- */
-
+/** Unit tests for MongoPlugin */
 @Testcontainers
 public class MongoPluginStaleConnTest {
-    MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
+MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
 
-    private static String address;
-    private static Integer port;
-    private JsonNode value;
-    private static MongoClient mongoClient;
+private static String address;
+private static Integer port;
+private JsonNode value;
+private static MongoClient mongoClient;
 
-    @SuppressWarnings("rawtypes")
-    @Container
-    public static GenericContainer mongoContainer = new MongoTestContainer();
+@SuppressWarnings("rawtypes")
+@Container
+public static GenericContainer mongoContainer = new MongoTestContainer();
 
-    @BeforeAll
-    public static void setUp() {
-        address = mongoContainer.getContainerIpAddress();
-        port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + port;
-        mongoClient = MongoClients.create(uri);
+@BeforeAll
+public static void setUp() {
+	address = mongoContainer.getContainerIpAddress();
+	port = mongoContainer.getFirstMappedPort();
+	String uri = "mongodb://" + address + ":" + port;
+	mongoClient = MongoClients.create(uri);
+}
 
-    }
+private DatasourceConfiguration createDatasourceConfiguration() {
+	Endpoint endpoint = new Endpoint();
+	endpoint.setHost(address);
+	endpoint.setPort(port.longValue());
 
-    private DatasourceConfiguration createDatasourceConfiguration() {
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address);
-        endpoint.setPort(port.longValue());
+	Connection connection = new Connection();
+	connection.setMode(Connection.Mode.READ_WRITE);
+	connection.setType(Connection.Type.DIRECT);
+	connection.setDefaultDatabaseName("test");
+	connection.setSsl(new SSLDetails());
+	connection.getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
-        Connection connection = new Connection();
-        connection.setMode(Connection.Mode.READ_WRITE);
-        connection.setType(Connection.Type.DIRECT);
-        connection.setDefaultDatabaseName("test");
-        connection.setSsl(new SSLDetails());
-        connection.getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+	DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+	dsConfig.setConnection(connection);
+	dsConfig.setEndpoints(List.of(endpoint));
 
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setConnection(connection);
-        dsConfig.setEndpoints(List.of(endpoint));
+	return dsConfig;
+}
 
-        return dsConfig;
-    }
+@Test
+public void testStaleConnectionOnIllegalStateExceptionOnQueryExecution() {
+	DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+	ActionConfiguration actionConfiguration = new ActionConfiguration();
+	Map<String, Object> configMap = new HashMap<>();
+	setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+	setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+	setDataValueSafelyInFormData(
+		configMap, BODY, "{\n" + "      find: \"address\",\n" + "      limit: 10,\n" + "    }");
+	actionConfiguration.setFormData(configMap);
 
+	MongoClient spyMongoClient = spy(MongoClient.class);
+	MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+	doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+	doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).runCommand(any());
 
+	Mono<ActionExecutionResult> resultMono =
+		pluginExecutor.executeCommon(
+			spyMongoClient, dsConfig, actionConfiguration, new ArrayList<>());
+	StepVerifier.create(resultMono)
+		.expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+		.verify();
+}
 
-    @Test
-    public void testStaleConnectionOnIllegalStateExceptionOnQueryExecution() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"address\",\n" +
-                "      limit: 10,\n" +
-                "    }");
-        actionConfiguration.setFormData(configMap);
+@Test
+public void testStaleConnectionOnMongoSocketWriteExceptionOnQueryExecution() {
+	DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+	ActionConfiguration actionConfiguration = new ActionConfiguration();
+	Map<String, Object> configMap = new HashMap<>();
+	setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+	setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+	setDataValueSafelyInFormData(
+		configMap, BODY, "{\n" + "      find: \"address\",\n" + "      limit: 10,\n" + "    }");
+	actionConfiguration.setFormData(configMap);
 
-        MongoClient spyMongoClient = spy(MongoClient.class);
-        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
-        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
-        doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).runCommand(any());
+	MongoClient spyMongoClient = spy(MongoClient.class);
+	MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+	doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+	doReturn(Mono.error(new MongoSocketWriteException("", null, null)))
+		.when(spyMongoDatabase)
+		.runCommand(any());
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(spyMongoClient, dsConfig,
-                actionConfiguration, new ArrayList<>());
-        StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
-                .verify();
-    }
+	Mono<ActionExecutionResult> resultMono =
+		pluginExecutor.executeCommon(
+			spyMongoClient, dsConfig, actionConfiguration, new ArrayList<>());
+	StepVerifier.create(resultMono)
+		.expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+		.verify();
+}
 
-    @Test
-    public void testStaleConnectionOnMongoSocketWriteExceptionOnQueryExecution() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"address\",\n" +
-                "      limit: 10,\n" +
-                "    }");
-        actionConfiguration.setFormData(configMap);
+@Test
+public void testStaleConnectionOnIllegalStateExceptionOnGetStructure() {
+	MongoClient spyMongoClient = spy(MongoClient.class);
+	MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+	doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+	doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).listCollectionNames();
 
-        MongoClient spyMongoClient = spy(MongoClient.class);
-        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
-        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
-        doReturn(Mono.error(new MongoSocketWriteException("", null, null))).when(spyMongoDatabase).runCommand(any());
+	DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+	Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+	StepVerifier.create(structureMono)
+		.expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+		.verify();
+}
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(spyMongoClient, dsConfig,
-                actionConfiguration, new ArrayList<>());
-        StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
-                .verify();
-    }
+@Test
+public void testStaleConnectionOnMongoSocketWriteExceptionOnGetStructure() {
+	MongoClient spyMongoClient = spy(MongoClient.class);
+	MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+	doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+	doReturn(Mono.error(new MongoSocketWriteException("", null, null)))
+		.when(spyMongoDatabase)
+		.listCollectionNames();
 
-    @Test
-    public void testStaleConnectionOnIllegalStateExceptionOnGetStructure() {
-        MongoClient spyMongoClient = spy(MongoClient.class);
-        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
-        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
-        doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).listCollectionNames();
-
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
-        StepVerifier.create(structureMono)
-                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
-                .verify();
-    }
-
-    @Test
-    public void testStaleConnectionOnMongoSocketWriteExceptionOnGetStructure() {
-        MongoClient spyMongoClient = spy(MongoClient.class);
-        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
-        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
-        doReturn(Mono.error(new MongoSocketWriteException("", null, null))).when(spyMongoDatabase).listCollectionNames();
-
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
-        StepVerifier.create(structureMono)
-                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
-                .verify();
-    }
-
-  
+	DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+	Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+	StepVerifier.create(structureMono)
+		.expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+		.verify();
+}
 }

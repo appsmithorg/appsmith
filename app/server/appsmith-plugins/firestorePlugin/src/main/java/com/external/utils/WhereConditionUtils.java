@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.external.utils;
 
 import com.appsmith.external.constants.ConditionalOperator;
@@ -9,129 +10,126 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.Query;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class WhereConditionUtils {
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static Query applyWhereConditional(Query query, String strPath, String operatorString, String strValue) throws AppsmithPluginException {
+public static Query applyWhereConditional(
+	Query query, String strPath, String operatorString, String strValue)
+	throws AppsmithPluginException {
 
-        String path = strPath.trim();
+	String path = strPath.trim();
 
-        if (query == null) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    FirestoreErrorMessages.WHERE_CONDITIONAL_NULL_QUERY_ERROR_MSG
-            );
-        }
+	if (query == null) {
+	throw new AppsmithPluginException(
+		AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+		FirestoreErrorMessages.WHERE_CONDITIONAL_NULL_QUERY_ERROR_MSG);
+	}
 
-        ConditionalOperator operator;
-        try {
-            operator = StringUtils.isEmpty(operatorString) ? null : ConditionalOperator.valueOf(operatorString);
-        } catch (IllegalArgumentException e) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    FirestoreErrorMessages.WHERE_CONDITION_INVALID_OPERATOR_ERROR_MSG,
-                    e.getMessage()
-            );
-        }
+	ConditionalOperator operator;
+	try {
+	operator =
+		StringUtils.isEmpty(operatorString) ? null : ConditionalOperator.valueOf(operatorString);
+	} catch (IllegalArgumentException e) {
+	throw new AppsmithPluginException(
+		AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+		FirestoreErrorMessages.WHERE_CONDITION_INVALID_OPERATOR_ERROR_MSG,
+		e.getMessage());
+	}
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(strValue);
-        Object value = strValue.trim();
+	DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(strValue);
+	Object value = strValue.trim();
 
-        switch (dataType) {
-            case INTEGER:
-            case LONG:
-                value = Long.parseLong(strValue);
-                break;
-            case FLOAT:
-            case DOUBLE:
-                value = Double.parseDouble(strValue);
-                break;
+	switch (dataType) {
+	case INTEGER:
+	case LONG:
+		value = Long.parseLong(strValue);
+		break;
+	case FLOAT:
+	case DOUBLE:
+		value = Double.parseDouble(strValue);
+		break;
 
-            case BOOLEAN:
-                value = Boolean.parseBoolean(strValue);
-                break;
+	case BOOLEAN:
+		value = Boolean.parseBoolean(strValue);
+		break;
 
-            case DATE:
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                java.util.Date date = null;
-                try {
-                    date = sdf.parse(strValue);
-                } catch (ParseException e) {
-                    //Input may not be of above pattern
-                }
-                value = date;
-                break;
+	case DATE:
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date = null;
+		try {
+		date = sdf.parse(strValue);
+		} catch (ParseException e) {
+		// Input may not be of above pattern
+		}
+		value = date;
+		break;
 
-            case TIMESTAMP:
-                SimpleDateFormat sdfTs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                java.util.Date timeStamp = null;
-                try {
-                    timeStamp = sdfTs.parse(strValue);
-                } catch (ParseException e) {
-                    //Input may not be of above pattern
-                }
-                value = timeStamp;
-                break;
-        }
+	case TIMESTAMP:
+		SimpleDateFormat sdfTs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		java.util.Date timeStamp = null;
+		try {
+		timeStamp = sdfTs.parse(strValue);
+		} catch (ParseException e) {
+		// Input may not be of above pattern
+		}
+		value = timeStamp;
+		break;
+	}
 
-        FieldPath fieldPath = FieldPath.of(path.split("\\."));
-        switch (operator) {
-            case LT:
-                return query.whereLessThan(fieldPath, value);
-            case LTE:
-                return query.whereLessThanOrEqualTo(fieldPath, value);
-            case EQ:
-                return query.whereEqualTo(fieldPath, value);
-            // TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
-            // case NOT_EQ:
-            //     return Mono.just(query.whereNotEqualTo(path, value));
-            case GT:
-                return query.whereGreaterThan(fieldPath, value);
-            case GTE:
-                return query.whereGreaterThanOrEqualTo(fieldPath, value);
-            case ARRAY_CONTAINS:
-                return query.whereArrayContains(fieldPath, value);
-            case ARRAY_CONTAINS_ANY:
-                try {
-                    return query.whereArrayContainsAny(fieldPath, parseList((String) value));
-                } catch (IOException e) {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            FirestoreErrorMessages.WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG,
-                            e.getMessage()
-                    );
-                }
-            case IN:
-                try {
-                    return query.whereIn(fieldPath, parseList((String) value));
-                } catch (IOException e) {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            FirestoreErrorMessages.WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG,
-                            e.getMessage()
-                    );
-                }
-                // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
-                // case NOT_IN:
-                //     return Mono.just(query.whereNotIn(fieldPath, value));
-            default:
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        FirestoreErrorMessages.WHERE_CONDITION_INVALID_OPERATOR_ERROR_MSG
-                );
-        }
-    }
+	FieldPath fieldPath = FieldPath.of(path.split("\\."));
+	switch (operator) {
+	case LT:
+		return query.whereLessThan(fieldPath, value);
+	case LTE:
+		return query.whereLessThanOrEqualTo(fieldPath, value);
+	case EQ:
+		return query.whereEqualTo(fieldPath, value);
+		// TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
+		// case NOT_EQ:
+		//     return Mono.just(query.whereNotEqualTo(path, value));
+	case GT:
+		return query.whereGreaterThan(fieldPath, value);
+	case GTE:
+		return query.whereGreaterThanOrEqualTo(fieldPath, value);
+	case ARRAY_CONTAINS:
+		return query.whereArrayContains(fieldPath, value);
+	case ARRAY_CONTAINS_ANY:
+		try {
+		return query.whereArrayContainsAny(fieldPath, parseList((String) value));
+		} catch (IOException e) {
+		throw new AppsmithPluginException(
+			AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+			FirestoreErrorMessages.WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG,
+			e.getMessage());
+		}
+	case IN:
+		try {
+		return query.whereIn(fieldPath, parseList((String) value));
+		} catch (IOException e) {
+		throw new AppsmithPluginException(
+			AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+			FirestoreErrorMessages.WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG,
+			e.getMessage());
+		}
+		// TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
+		// case NOT_IN:
+		//     return Mono.just(query.whereNotIn(fieldPath, value));
+	default:
+		throw new AppsmithPluginException(
+			AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+			FirestoreErrorMessages.WHERE_CONDITION_INVALID_OPERATOR_ERROR_MSG);
+	}
+}
 
-    private static <T> List<T> parseList(String arrayJson) throws IOException {
-        return (List<T>) objectMapper.readValue(arrayJson, ArrayList.class);
-    }
+private static <T> List<T> parseList(String arrayJson) throws IOException {
+	return (List<T>) objectMapper.readValue(arrayJson, ArrayList.class);
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -12,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.SAAS_URL)
 public class SaasController extends SaasControllerCE {
 
-    public SaasController(AuthenticationService authenticationService) {
-        super(authenticationService);
-    }
-
+public SaasController(AuthenticationService authenticationService) {
+	super(authenticationService);
+}
 }

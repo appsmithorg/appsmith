@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
@@ -12,14 +13,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CustomApplicationRepositoryImpl extends CustomApplicationRepositoryCEImpl
-        implements CustomApplicationRepository {
+	implements CustomApplicationRepository {
 
-    @Autowired
-    public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter,
-                                           CacheableRepositoryHelper cacheableRepositoryHelper,
-                                           ApplicationPermission applicationPermission) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
-    }
-
+@Autowired
+public CustomApplicationRepositoryImpl(
+	@NonNull ReactiveMongoOperations mongoOperations,
+	@NonNull MongoConverter mongoConverter,
+	CacheableRepositoryHelper cacheableRepositoryHelper,
+	ApplicationPermission applicationPermission) {
+	super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
+}
 }

@@ -1,4 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
+
+import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -23,6 +29,8 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,216 +44,260 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.List;
-import java.util.Set;
-
-import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
 public class ShareWorkspacePermissionTests {
-    @Autowired
-    UserService userService;
+@Autowired UserService userService;
 
-    @Autowired
-    WorkspaceService workspaceService;
+@Autowired WorkspaceService workspaceService;
 
-    @Autowired
-    ApplicationService applicationService;
+@Autowired ApplicationService applicationService;
 
-    @Autowired
-    ApplicationPageService applicationPageService;
+@Autowired ApplicationPageService applicationPageService;
 
-    @Autowired
-    UserSignup userSignup;
+@Autowired UserSignup userSignup;
 
-    @Autowired
-    PluginService pluginService;
+@Autowired PluginService pluginService;
 
-    @Autowired
-    DatasourceService datasourceService;
+@Autowired DatasourceService datasourceService;
 
-    @Autowired
-    NewActionService newActionService;
+@Autowired NewActionService newActionService;
 
-    @Autowired
-    ApplicationRepository applicationRepository;
+@Autowired ApplicationRepository applicationRepository;
 
-    @Autowired
-    NewPageService newPageService;
+@Autowired NewPageService newPageService;
 
-    @Autowired
-    LayoutActionService layoutActionService;
+@Autowired LayoutActionService layoutActionService;
 
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
+@MockBean PluginExecutorHelper pluginExecutorHelper;
 
-    @Autowired
-    PermissionGroupService permissionGroupService;
+@Autowired PermissionGroupService permissionGroupService;
 
-    @Autowired
-    UserWorkspaceService userWorkspaceService;
+@Autowired UserWorkspaceService userWorkspaceService;
 
-    @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+@Autowired PermissionGroupRepository permissionGroupRepository;
 
-    @Autowired
-    UserAndAccessManagementService userAndAccessManagementService;
+@Autowired UserAndAccessManagementService userAndAccessManagementService;
 
-    @Autowired
-    SessionUserService sessionUserService;
+@Autowired SessionUserService sessionUserService;
 
-    Application savedApplication;
+Application savedApplication;
 
-    Workspace savedWorkspace;
+Workspace savedWorkspace;
 
-    String workspaceId;
+String workspaceId;
 
-    @BeforeEach
-    public void setup() {
-        User apiUser = userService.findByEmail("api_user").block();
+@BeforeEach
+public void setup() {
+	User apiUser = userService.findByEmail("api_user").block();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Share Test Workspace");
-        savedWorkspace = workspaceService.create(workspace).block();
-        workspaceId = savedWorkspace.getId();
+	Workspace workspace = new Workspace();
+	workspace.setName("Share Test Workspace");
+	savedWorkspace = workspaceService.create(workspace).block();
+	workspaceId = savedWorkspace.getId();
 
-        Application application = new Application();
-        application.setName("Share Test Application");
-        application.setWorkspaceId(workspaceId);
-        savedApplication = applicationPageService.createApplication(application, workspaceId).block();
+	Application application = new Application();
+	application.setName("Share Test Application");
+	application.setWorkspaceId(workspaceId);
+	savedApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+	PermissionGroup adminPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem ->
+					permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
+			.findFirst()
+			.get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+	PermissionGroup developerPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem ->
+					permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
+			.findFirst()
+			.get();
 
+	User userAdmin = userService.findByEmail("admin@solutiontest.com").block();
+	User userDeveloper = userService.findByEmail("developer@solutiontest.com").block();
 
-        User userAdmin = userService.findByEmail("admin@solutiontest.com").block();
-        User userDeveloper = userService.findByEmail("developer@solutiontest.com").block();
+	// Manually set the admin and developer access for the workspace (instead of going via the
+	// service functions)
+	adminPermissionGroup.setAssignedToUserIds(Set.of(apiUser.getId(), userAdmin.getId()));
+	permissionGroupRepository.save(adminPermissionGroup).block();
+	developerPermissionGroup.setAssignedToUserIds(Set.of(userDeveloper.getId()));
+	permissionGroupRepository.save(developerPermissionGroup).block();
 
-        // Manually set the admin and developer access for the workspace (instead of going via the service functions)
-        adminPermissionGroup.setAssignedToUserIds(Set.of(apiUser.getId(), userAdmin.getId()));
-        permissionGroupRepository.save(adminPermissionGroup).block();
-        developerPermissionGroup.setAssignedToUserIds(Set.of(userDeveloper.getId()));
-        permissionGroupRepository.save(developerPermissionGroup).block();
+	permissionGroupService
+		.cleanPermissionGroupCacheForUsers(List.of(userAdmin.getEmail(), userDeveloper.getEmail()))
+		.block();
+}
 
-        permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(userAdmin.getEmail(), userDeveloper.getEmail())).block();
-    }
+@Test
+@WithUserDetails(value = "admin@solutiontest.com")
+public void testAdminPermissionsForInviteAndMakePublic() {
+	PermissionGroup adminPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem ->
+					permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
+			.findFirst()
+			.get();
 
-    @Test
-    @WithUserDetails(value = "admin@solutiontest.com")
-    public void testAdminPermissionsForInviteAndMakePublic() {
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+	PermissionGroup developerPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem ->
+					permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
+			.findFirst()
+			.get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+	PermissionGroup viewerPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
+			.findFirst()
+			.get();
 
-        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
-                .findFirst().get();
+	Policy inviteUserPolicy =
+		Policy.builder()
+			.permission(WORKSPACE_INVITE_USERS.getValue())
+			.permissionGroups(
+				Set.of(
+					adminPermissionGroup.getId(),
+					developerPermissionGroup.getId(),
+					viewerPermissionGroup.getId()))
+			.build();
 
-        Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
-                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
-                .build();
+	Policy makePublicApp =
+		Policy.builder()
+			.permission(MAKE_PUBLIC_APPLICATIONS.getValue())
+			.permissionGroups(Set.of(adminPermissionGroup.getId()))
+			.build();
 
-        Policy makePublicApp = Policy.builder().permission(MAKE_PUBLIC_APPLICATIONS.getValue())
-                .permissionGroups(Set.of(adminPermissionGroup.getId()))
-                .build();
+	Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
+	Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
+	StepVerifier.create(Mono.zip(applicationMono, workspaceMono))
+		.assertNext(
+			tuple -> {
+			Application application = tuple.getT1();
+			Workspace workspace = tuple.getT2();
 
-        StepVerifier.create(Mono.zip(applicationMono, workspaceMono))
-                .assertNext(tuple -> {
-                    Application application = tuple.getT1();
-                    Workspace workspace = tuple.getT2();
+			assertThat(application.getPolicies()).contains(makePublicApp);
+			assertThat(workspace.getPolicies()).contains(inviteUserPolicy);
+			})
+		.verifyComplete();
+}
 
-                    assertThat(application.getPolicies()).contains(makePublicApp);
-                    assertThat(workspace.getPolicies()).contains(inviteUserPolicy);
-                })
-                .verifyComplete();
+@Test
+@WithUserDetails(value = "admin@solutiontest.com")
+public void testAdminInviteRoles() {
 
-    }
+	Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace =
+		workspaceService.getPermissionGroupsForWorkspace(workspaceId);
 
-    @Test
-    @WithUserDetails(value = "admin@solutiontest.com")
-    public void testAdminInviteRoles() {
+	StepVerifier.create(userRolesForWorkspace)
+		.assertNext(
+			userGroupInfos -> {
+			assertThat(userGroupInfos).isNotEmpty();
+			assertThat(userGroupInfos)
+				.anyMatch(
+					userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
+			assertThat(userGroupInfos)
+				.anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
+			assertThat(userGroupInfos)
+				.anyMatch(
+					userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
+			})
+		.verifyComplete();
+}
 
-        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.getPermissionGroupsForWorkspace(workspaceId);
+@Test
+@WithUserDetails(value = "developer@solutiontest.com")
+public void testDevPermissionsForInvite() {
+	PermissionGroup adminPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem ->
+					permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
+			.findFirst()
+			.get();
 
-        StepVerifier.create(userRolesForWorkspace)
-                .assertNext(userGroupInfos -> {
-                    assertThat(userGroupInfos).isNotEmpty();
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
-                })
-                .verifyComplete();
-    }
+	PermissionGroup developerPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem ->
+					permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
+			.findFirst()
+			.get();
 
-    @Test
-    @WithUserDetails(value = "developer@solutiontest.com")
-    public void testDevPermissionsForInvite() {
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+	PermissionGroup viewerPermissionGroup =
+		permissionGroupService
+			.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+			.collectList()
+			.block()
+			.stream()
+			.filter(
+				permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
+			.findFirst()
+			.get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+	Policy inviteUserPolicy =
+		Policy.builder()
+			.permission(WORKSPACE_INVITE_USERS.getValue())
+			.permissionGroups(
+				Set.of(
+					adminPermissionGroup.getId(),
+					developerPermissionGroup.getId(),
+					viewerPermissionGroup.getId()))
+			.build();
 
-        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
-                .findFirst().get();
+	Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
-                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
-                .build();
+	StepVerifier.create(workspaceMono)
+		.assertNext(
+			workspace -> {
+			assertThat(workspace.getPolicies()).contains(inviteUserPolicy);
+			})
+		.verifyComplete();
+}
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
+@Test
+@WithUserDetails(value = "developer@solutiontest.com")
+public void testDeveloperInviteRoles() {
 
-        StepVerifier.create(workspaceMono)
-                .assertNext(workspace -> {
-                    assertThat(workspace.getPolicies()).contains(inviteUserPolicy);
-                })
-                .verifyComplete();
-
-    }
-
-    @Test
-    @WithUserDetails(value = "developer@solutiontest.com")
-    public void testDeveloperInviteRoles() {
-
-        /*
-        Adding this test in cypress instead.
-         */
-    }
+	/*
+	Adding this test in cypress instead.
+	 */
+}
 }

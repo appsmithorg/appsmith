@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -8,11 +9,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl implements InstanceConfigHelper {
-    public InstanceConfigHelperImpl(ConfigService configService,
-                                    CloudServicesConfig cloudServicesConfig,
-                                    CommonConfig commonConfig,
-                                    ApplicationContext applicationContext) {
-        super(configService, cloudServicesConfig, commonConfig, applicationContext);
-    }
+public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl
+	implements InstanceConfigHelper {
+public InstanceConfigHelperImpl(
+	ConfigService configService,
+	CloudServicesConfig cloudServicesConfig,
+	CommonConfig commonConfig,
+	ApplicationContext applicationContext) {
+	super(configService, cloudServicesConfig, commonConfig, applicationContext);
+}
 }

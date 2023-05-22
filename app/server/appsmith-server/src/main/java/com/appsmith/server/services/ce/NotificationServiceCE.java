@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Notification;
@@ -8,9 +9,9 @@ import reactor.core.publisher.Mono;
 
 public interface NotificationServiceCE extends CrudService<Notification, String> {
 
-    Mono<UpdateIsReadNotificationByIdDTO> updateIsRead(UpdateIsReadNotificationByIdDTO dto);
+Mono<UpdateIsReadNotificationByIdDTO> updateIsRead(UpdateIsReadNotificationByIdDTO dto);
 
-    Mono<UpdateIsReadNotificationDTO> updateIsRead(UpdateIsReadNotificationDTO dto);
+Mono<UpdateIsReadNotificationDTO> updateIsRead(UpdateIsReadNotificationDTO dto);
 
-    Mono<Long> getUnreadCount();
+Mono<Long> getUnreadCount();
 }

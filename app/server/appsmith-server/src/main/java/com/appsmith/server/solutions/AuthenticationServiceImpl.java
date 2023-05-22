@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
@@ -14,20 +15,31 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl implements AuthenticationService {
+public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl
+	implements AuthenticationService {
 
-    public AuthenticationServiceImpl(DatasourceService datasourceService,
-                                     PluginService pluginService,
-                                     RedirectHelper redirectHelper,
-                                     NewPageService newPageService,
-                                     CloudServicesConfig cloudServicesConfig,
-                                     ConfigService configService,
-                                     DatasourcePermission datasourcePermission,
-                                     PagePermission pagePermission,
-                                     PluginExecutorHelper pluginExecutorHelper,
-                                     FeatureFlagService featureFlagService) {
+public AuthenticationServiceImpl(
+	DatasourceService datasourceService,
+	PluginService pluginService,
+	RedirectHelper redirectHelper,
+	NewPageService newPageService,
+	CloudServicesConfig cloudServicesConfig,
+	ConfigService configService,
+	DatasourcePermission datasourcePermission,
+	PagePermission pagePermission,
+	PluginExecutorHelper pluginExecutorHelper,
+	FeatureFlagService featureFlagService) {
 
-        super(datasourceService, pluginService, redirectHelper, newPageService, cloudServicesConfig, configService,
-                datasourcePermission, pagePermission, pluginExecutorHelper, featureFlagService);
-    }
+	super(
+		datasourceService,
+		pluginService,
+		redirectHelper,
+		newPageService,
+		cloudServicesConfig,
+		configService,
+		datasourcePermission,
+		pagePermission,
+		pluginExecutorHelper,
+		featureFlagService);
+}
 }

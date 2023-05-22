@@ -1,46 +1,46 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.AuthenticationResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 public class IntegrationDTO {
-    String installationKey;
+String installationKey;
 
-    String datasourceId;
+String datasourceId;
 
-    String applicationId;
+String applicationId;
 
-    String pageId;
+String pageId;
 
-    String pluginName;
+String pluginName;
 
-    String pluginVersion;
+String pluginVersion;
 
-    // TODO start using this in the future
-    Type authenticationType;
+// TODO start using this in the future
+Type authenticationType;
 
-    Set<String> scope;
+Set<String> scope;
 
-    AuthenticationResponse authenticationResponse;
+AuthenticationResponse authenticationResponse;
 
-    String redirectionDomain;
+String redirectionDomain;
 
-    String branch;
+String branch;
 
-    String importForGit;
+String importForGit;
 
-    public enum Type {
-        @JsonProperty("oAuth2")
-        OAUTH2
-    }
+public enum Type {
+	@JsonProperty("oAuth2")
+	OAUTH2
+}
 }

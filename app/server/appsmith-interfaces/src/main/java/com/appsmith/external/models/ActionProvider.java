@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -8,13 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ActionProvider {
-    String name;
+String name;
 
-    String imageUrl;
+String imageUrl;
 
-    String url;
+String url;
 
-    String description;
+String description;
 
-    String credentialSteps;
+String credentialSteps;
 }

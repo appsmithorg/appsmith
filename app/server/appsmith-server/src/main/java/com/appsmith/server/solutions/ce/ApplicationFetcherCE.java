@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.dtos.ReleaseItemsDTO;
@@ -6,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface ApplicationFetcherCE {
 
-    Mono<UserHomepageDTO> getAllApplications();
+Mono<UserHomepageDTO> getAllApplications();
 
-    Mono<ReleaseItemsDTO> getReleaseItems();
+Mono<ReleaseItemsDTO> getReleaseItems();
 }

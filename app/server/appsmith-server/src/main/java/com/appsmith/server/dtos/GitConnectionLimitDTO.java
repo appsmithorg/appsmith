@@ -1,16 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
-import reactor.core.publisher.Mono;
-
-import java.time.Instant;
 
 @Getter
 @Setter
 public class GitConnectionLimitDTO {
 
-    int repoLimit;
+int repoLimit;
 
-    Instant expiryTime;
+Instant expiryTime;
 }

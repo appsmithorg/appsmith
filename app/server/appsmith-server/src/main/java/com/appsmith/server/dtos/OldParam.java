@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Getter;
@@ -7,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class OldParam {
 
-    String key;
+String key;
 
-    String value;
+String value;
 }

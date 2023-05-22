@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import lombok.Getter;
@@ -7,11 +8,11 @@ import lombok.Setter;
 @Setter
 public class OldProperty {
 
-    String key;
+String key;
 
-    String value;
+String value;
 
-    Boolean editable;
+Boolean editable;
 
-    Boolean internal;
+Boolean internal;
 }

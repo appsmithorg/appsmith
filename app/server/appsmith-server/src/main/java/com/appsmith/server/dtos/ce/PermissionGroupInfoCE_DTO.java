@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos.ce;
 
 import lombok.EqualsAndHashCode;
@@ -10,30 +11,36 @@ import lombok.Setter;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class PermissionGroupInfoCE_DTO {
-    private String id;
+private String id;
 
-    private String name;
+private String name;
 
-    private String description;
+private String description;
 
-    private String entityId;
+private String entityId;
 
-    private String entityType;
+private String entityType;
 
-    private String entityName;
+private String entityName;
 
-    public PermissionGroupInfoCE_DTO(String id, String name, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-    }
+public PermissionGroupInfoCE_DTO(String id, String name, String description) {
+	this.id = id;
+	this.name = name;
+	this.description = description;
+}
 
-    public PermissionGroupInfoCE_DTO(String id, String name, String description, String entityId, String entityType, String entityName) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.entityId = entityId;
-        this.entityType = entityType;
-        this.entityName = entityName;
-    }
+public PermissionGroupInfoCE_DTO(
+	String id,
+	String name,
+	String description,
+	String entityId,
+	String entityType,
+	String entityName) {
+	this.id = id;
+	this.name = name;
+	this.description = description;
+	this.entityId = entityId;
+	this.entityType = entityType;
+	this.entityName = entityName;
+}
 }

@@ -1,15 +1,15 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
 
 @Builder(toBuilder = true)
 @Getter
@@ -21,26 +21,25 @@ import java.util.List;
 @Document
 public class DatasourceConfiguration implements AppsmithDomain {
 
-    Connection connection;
+Connection connection;
 
-    List<Endpoint> endpoints;
+List<Endpoint> endpoints;
 
-    AuthenticationDTO authentication;
+AuthenticationDTO authentication;
 
-    SSHConnection sshProxy;
+SSHConnection sshProxy;
 
-    Boolean sshProxyEnabled;
+Boolean sshProxyEnabled;
 
-    List<Property> properties;
+List<Property> properties;
 
-    // For REST API.
-    String url;
+// For REST API.
+String url;
 
-    List<Property> headers;
-    List<Property> queryParameters;
+List<Property> headers;
+List<Property> queryParameters;
 
-    public boolean isSshProxyEnabled() {
-        return sshProxyEnabled == null ? false : sshProxyEnabled;
-    }
-
+public boolean isSshProxyEnabled() {
+	return sshProxyEnabled == null ? false : sshProxyEnabled;
+}
 }

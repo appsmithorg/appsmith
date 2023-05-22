@@ -1,21 +1,22 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
 public class FallbackType implements AppsmithType {
 
-    @Override
-    public boolean test(String s) {
-        return true;
-    }
+@Override
+public boolean test(String s) {
+	return true;
+}
 
-    @Override
-    public String performSmartSubstitution(String s) {
-        return s;
-    }
+@Override
+public String performSmartSubstitution(String s) {
+	return s;
+}
 
-    @Override
-    public DataType type() {
-        return DataType.STRING;
-    }
+@Override
+public DataType type() {
+	return DataType.STRING;
+}
 }

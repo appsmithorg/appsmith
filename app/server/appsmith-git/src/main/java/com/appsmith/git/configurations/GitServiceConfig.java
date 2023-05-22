@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.git.configurations;
 
 import lombok.Data;
@@ -8,10 +9,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GitServiceConfig {
 
-    @Value("${appsmith.git.root:/data/git-storage}")
-    private String gitRootPath;
+@Value("${appsmith.git.root:/data/git-storage}")
+private String gitRootPath;
 
-    @Value("gitInitializeRepo/GitConnect-Initialize-Repo-Template")
-    private String readmeTemplatePath;
-
+@Value("gitInitializeRepo/GitConnect-Initialize-Repo-Template")
+private String readmeTemplatePath;
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ProviderController extends ProviderControllerCE {
 
-    public ProviderController(ProviderService service) {
-        super(service);
-    }
+public ProviderController(ProviderService service) {
+	super(service);
+}
 }

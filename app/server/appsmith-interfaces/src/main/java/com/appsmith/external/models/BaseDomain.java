@@ -1,8 +1,13 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,94 +20,90 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-
-
 /**
- * TODO :
- * Move BaseDomain back to appsmith-server.domain. This is done temporarily to create templates and providers in the same database as the server
+ * TODO : Move BaseDomain back to appsmith-server.domain. This is done temporarily to create
+ * templates and providers in the same database as the server
  */
 @Getter
 @Setter
 @ToString
 public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable {
 
-    private static final long serialVersionUID = 7459916000501322517L;
+private static final long serialVersionUID = 7459916000501322517L;
 
-    @Id
-    @JsonView(Views.Public.class)
-    private String id;
+@Id
+@JsonView(Views.Public.class)
+private String id;
 
-    @JsonView(Views.Internal.class)
-    @Indexed
-    @CreatedDate
-    protected Instant createdAt;
+@JsonView(Views.Internal.class)
+@Indexed
+@CreatedDate
+protected Instant createdAt;
 
-    @JsonView(Views.Internal.class)
-    @LastModifiedDate
-    protected Instant updatedAt;
+@JsonView(Views.Internal.class)
+@LastModifiedDate
+protected Instant updatedAt;
 
-    @CreatedBy
-    @JsonView(Views.Public.class)
-    protected String createdBy;
+@CreatedBy
+@JsonView(Views.Public.class)
+protected String createdBy;
 
-    @LastModifiedBy
-    @JsonView(Views.Public.class)
-    protected String modifiedBy;
+@LastModifiedBy
+@JsonView(Views.Public.class)
+protected String modifiedBy;
 
-    // Deprecating this so we can move on to using `deletedAt` for all domain models.
-    @Deprecated(forRemoval = true)
-    @JsonView(Views.Public.class)
-    protected Boolean deleted = false;
+// Deprecating this so we can move on to using `deletedAt` for all domain models.
+@Deprecated(forRemoval = true)
+@JsonView(Views.Public.class)
+protected Boolean deleted = false;
 
-    @JsonView(Views.Public.class)
-    protected Instant deletedAt = null;
+@JsonView(Views.Public.class)
+protected Instant deletedAt = null;
 
-    @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+@JsonView(Views.Internal.class)
+protected Set<Policy> policies = new HashSet<>();
 
-    @Override
-    @JsonView(Views.Public.class)
-    public boolean isNew() {
-        return this.getId() == null;
-    }
+@Override
+@JsonView(Views.Public.class)
+public boolean isNew() {
+	return this.getId() == null;
+}
 
-    @JsonView(Views.Internal.class)
-    public boolean isDeleted() {
-        return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
-    }
+@JsonView(Views.Internal.class)
+public boolean isDeleted() {
+	return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
+}
 
-    @Transient
-    @JsonView(Views.Public.class)
-    public Set<String> userPermissions = new HashSet<>();
+@Transient
+@JsonView(Views.Public.class)
+public Set<String> userPermissions = new HashSet<>();
 
-    // This field will only be used for git related functionality to sync the action object across different instances.
-    // This field will be deprecated once we move to the new git sync implementation.
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
-    @Deprecated
-    String gitSyncId;
+// This field will only be used for git related functionality to sync the action object across
+// different instances.
+// This field will be deprecated once we move to the new git sync implementation.
+@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+@JsonView(Views.Internal.class)
+@Deprecated
+String gitSyncId;
 
-    @Deprecated
-    public void sanitiseToExportDBObject() {
-        this.setCreatedAt(null);
-        this.setUpdatedAt(null);
-        this.setUserPermissions(null);
-        this.setPolicies(null);
-        this.setCreatedBy(null);
-        this.setModifiedBy(null);
-    }
+@Deprecated
+public void sanitiseToExportDBObject() {
+	this.setCreatedAt(null);
+	this.setUpdatedAt(null);
+	this.setUserPermissions(null);
+	this.setPolicies(null);
+	this.setCreatedBy(null);
+	this.setModifiedBy(null);
+}
 
-    public void makePristine() {
-        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
-        // updating an existing document). If it contains any policies, they are also reset.
-        this.setId(null);
-        this.setUpdatedAt(null);
-        if (this.getPolicies() != null) {
-            this.getPolicies().clear();
-        }
-    }
+public void makePristine() {
+	// Set the ID to null for this domain object so that it is saved a new document in the database
+	// (as opposed to
+	// updating an existing document). If it contains any policies, they are also reset.
+	this.setId(null);
+	this.setUpdatedAt(null);
+	if (this.getPolicies() != null) {
+	this.getPolicies().clear();
+	}
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.plugins;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,10 +7,9 @@ import org.pf4j.PluginWrapper;
 
 public abstract class BasePlugin extends Plugin {
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public BasePlugin(PluginWrapper wrapper) {
-        super(wrapper);
-    }
-
+public BasePlugin(PluginWrapper wrapper) {
+	super(wrapper);
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.AuthenticationDTO;
@@ -12,26 +13,29 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthenticationValidatorCEImpl implements AuthenticationValidatorCE {
 
-    private final AuthenticationService authenticationService;
+private final AuthenticationService authenticationService;
 
-    public Mono<Datasource> validateAuthentication(Datasource datasource) {
-        if (datasource.getDatasourceConfiguration() == null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
-            return Mono.just(datasource);
-        }
-        AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-        return authentication.hasExpired()
-                .filter(expired -> expired)
-                .flatMap(expired -> {
-                    if (authentication instanceof OAuth2) {
-                        return authenticationService.refreshAuthentication(datasource);
-                    }
-                    return Mono.just(datasource);
-                })
-                .switchIfEmpty(Mono.just(datasource));
-    }
+public Mono<Datasource> validateAuthentication(Datasource datasource) {
+	if (datasource.getDatasourceConfiguration() == null
+		|| datasource.getDatasourceConfiguration().getAuthentication() == null) {
+	return Mono.just(datasource);
+	}
+	AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+	return authentication
+		.hasExpired()
+		.filter(expired -> expired)
+		.flatMap(
+			expired -> {
+			if (authentication instanceof OAuth2) {
+				return authenticationService.refreshAuthentication(datasource);
+			}
+			return Mono.just(datasource);
+			})
+		.switchIfEmpty(Mono.just(datasource));
+}
 
-    @Override
-    public Mono<Datasource> validateAuthentication(Datasource datasource, String environmentId){
-        return validateAuthentication(datasource);
-    }
+@Override
+public Mono<Datasource> validateAuthentication(Datasource datasource, String environmentId) {
+	return validateAuthentication(datasource);
+}
 }

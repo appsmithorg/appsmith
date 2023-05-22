@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
@@ -18,18 +19,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
 
-    public AuthenticationSuccessHandler(ExamplesWorkspaceCloner examplesWorkspaceCloner,
-                                        RedirectHelper redirectHelper,
-                                        SessionUserService sessionUserService,
-                                        AnalyticsService analyticsService,
-                                        UserDataService userDataService,
-                                        UserRepository userRepository,
-                                        WorkspaceService workspaceService,
-                                        WorkspaceRepository workspaceRepository,
-                                        ApplicationPageService applicationPageService,
-                                        WorkspacePermission workspacePermission) {
+public AuthenticationSuccessHandler(
+	ExamplesWorkspaceCloner examplesWorkspaceCloner,
+	RedirectHelper redirectHelper,
+	SessionUserService sessionUserService,
+	AnalyticsService analyticsService,
+	UserDataService userDataService,
+	UserRepository userRepository,
+	WorkspaceService workspaceService,
+	WorkspaceRepository workspaceRepository,
+	ApplicationPageService applicationPageService,
+	WorkspacePermission workspacePermission) {
 
-        super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission);
-    }
+	super(
+		examplesWorkspaceCloner,
+		redirectHelper,
+		sessionUserService,
+		analyticsService,
+		userDataService,
+		userRepository,
+		workspaceRepository,
+		workspaceService,
+		applicationPageService,
+		workspacePermission);
+}
 }

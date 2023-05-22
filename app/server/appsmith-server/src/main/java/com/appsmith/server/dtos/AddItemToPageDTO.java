@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Getter;
@@ -8,8 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class AddItemToPageDTO {
-    String name;
-    String pageId;
-    String workspaceId;
-    ItemDTO marketplaceElement;
+String name;
+String pageId;
+String workspaceId;
+ItemDTO marketplaceElement;
 }

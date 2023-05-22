@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -7,12 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
-public class GoogleRecaptchaServiceImpl extends GoogleRecaptchaServiceCEImpl implements CaptchaService {
+public class GoogleRecaptchaServiceImpl extends GoogleRecaptchaServiceCEImpl
+	implements CaptchaService {
 
-    public GoogleRecaptchaServiceImpl(WebClient.Builder webClientBuilder,
-                                      GoogleRecaptchaConfig googleRecaptchaConfig,
-                                      ObjectMapper objectMapper) {
+public GoogleRecaptchaServiceImpl(
+	WebClient.Builder webClientBuilder,
+	GoogleRecaptchaConfig googleRecaptchaConfig,
+	ObjectMapper objectMapper) {
 
-        super(webClientBuilder, googleRecaptchaConfig, objectMapper);
-    }
+	super(webClientBuilder, googleRecaptchaConfig, objectMapper);
+}
 }

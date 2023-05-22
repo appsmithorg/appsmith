@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.User;
@@ -7,12 +8,11 @@ import reactor.core.publisher.Mono;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
 
-    Mono<User> findByEmail(String email);
+Mono<User> findByEmail(String email);
 
-    Mono<User> findByCaseInsensitiveEmail(String email);
+Mono<User> findByCaseInsensitiveEmail(String email);
 
-    Mono<Long> countByDeletedAtNull();
+Mono<Long> countByDeletedAtNull();
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
-
+Mono<User> findByEmailAndTenantId(String email, String tenantId);
 }

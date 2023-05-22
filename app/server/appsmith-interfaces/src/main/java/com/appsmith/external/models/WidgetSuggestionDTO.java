@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.ToString;
 @ToString
 public class WidgetSuggestionDTO {
 
-    WidgetType type;
+WidgetType type;
 
-    String bindingQuery;
+String bindingQuery;
 }

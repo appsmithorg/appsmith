@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -17,8 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class WorkspacePlugin extends BaseDomain {
 
-    String pluginId;
+String pluginId;
 
-    WorkspacePluginStatus status;
-
+WorkspacePluginStatus status;
 }

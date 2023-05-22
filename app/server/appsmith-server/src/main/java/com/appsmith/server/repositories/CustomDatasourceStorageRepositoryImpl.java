@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomDatasourceStorageRepositoryCEImpl;
@@ -9,11 +10,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class CustomDatasourceStorageRepositoryImpl extends CustomDatasourceStorageRepositoryCEImpl
-        implements CustomDatasourceStorageRepository {
+	implements CustomDatasourceStorageRepository {
 
-    public CustomDatasourceStorageRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                                              MongoConverter mongoConverter,
-                                                              CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
+public CustomDatasourceStorageRepositoryImpl(
+	ReactiveMongoOperations mongoOperations,
+	MongoConverter mongoConverter,
+	CacheableRepositoryHelper cacheableRepositoryHelper) {
+	super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+}
 }

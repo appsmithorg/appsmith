@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -16,39 +17,37 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 /**
- * This class represents a scheduled task that pings a data point indicating that this server installation is live.
- * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
- * permissions to collect anonymized data
+ * This class represents a scheduled task that pings a data point indicating that this server
+ * installation is live. This ping is only invoked if the Appsmith server is NOT running in Appsmith
+ * Clouud & the user has given Appsmith permissions to collect anonymized data
  */
 @ConditionalOnExpression("!${is.cloud-hosting:false}")
 @Slf4j
 @Component
 public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements PingScheduledTask {
 
-    public PingScheduledTaskImpl(
-            ConfigService configService,
-            SegmentConfig segmentConfig,
-            CommonConfig commonConfig,
-            WorkspaceRepository workspaceRepository,
-            ApplicationRepository applicationRepository,
-            NewPageRepository newPageRepository,
-            NewActionRepository newActionRepository,
-            DatasourceRepository datasourceRepository,
-            UserRepository userRepository,
-            ProjectProperties projectProperties
-    ) {
+public PingScheduledTaskImpl(
+	ConfigService configService,
+	SegmentConfig segmentConfig,
+	CommonConfig commonConfig,
+	WorkspaceRepository workspaceRepository,
+	ApplicationRepository applicationRepository,
+	NewPageRepository newPageRepository,
+	NewActionRepository newActionRepository,
+	DatasourceRepository datasourceRepository,
+	UserRepository userRepository,
+	ProjectProperties projectProperties) {
 
-        super(
-                configService,
-                segmentConfig,
-                commonConfig,
-                workspaceRepository,
-                applicationRepository,
-                newPageRepository,
-                newActionRepository,
-                datasourceRepository,
-                userRepository,
-                projectProperties
-        );
-    }
+	super(
+		configService,
+		segmentConfig,
+		commonConfig,
+		workspaceRepository,
+		applicationRepository,
+		newPageRepository,
+		newActionRepository,
+		datasourceRepository,
+		userRepository,
+		projectProperties);
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -14,12 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.DATASOURCE_URL)
 public class DatasourceController extends DatasourceControllerCE {
 
-    public DatasourceController(DatasourceService service,
-                                DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService,
-                                MockDataService datasourceService,
-                                DatasourceTriggerSolution datasourceTriggerSolution) {
+public DatasourceController(
+	DatasourceService service,
+	DatasourceStructureSolution datasourceStructureSolution,
+	AuthenticationService authenticationService,
+	MockDataService datasourceService,
+	DatasourceTriggerSolution datasourceTriggerSolution) {
 
-        super(service, datasourceStructureSolution, authenticationService, datasourceService, datasourceTriggerSolution);
-    }
+	super(
+		service,
+		datasourceStructureSolution,
+		authenticationService,
+		datasourceService,
+		datasourceTriggerSolution);
+}
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
@@ -22,34 +23,52 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewActionService {
 
-    public NewActionServiceImpl(Scheduler scheduler,
-                                Validator validator,
-                                MongoConverter mongoConverter,
-                                ReactiveMongoTemplate reactiveMongoTemplate,
-                                NewActionRepository repository,
-                                AnalyticsService analyticsService,
-                                DatasourceService datasourceService,
-                                PluginService pluginService,
-                                PluginExecutorHelper pluginExecutorHelper,
-                                MarketplaceService marketplaceService,
-                                PolicyGenerator policyGenerator,
-                                NewPageService newPageService,
-                                ApplicationService applicationService,
-                                PolicyUtils policyUtils,
-                                ConfigService configService,
-                                ResponseUtils responseUtils,
-                                PermissionGroupService permissionGroupService,
-                                DatasourcePermission datasourcePermission,
-                                ApplicationPermission applicationPermission,
-                                PagePermission pagePermission,
-                                ActionPermission actionPermission,
-                                ObservationRegistry observationRegistry) {
+public NewActionServiceImpl(
+	Scheduler scheduler,
+	Validator validator,
+	MongoConverter mongoConverter,
+	ReactiveMongoTemplate reactiveMongoTemplate,
+	NewActionRepository repository,
+	AnalyticsService analyticsService,
+	DatasourceService datasourceService,
+	PluginService pluginService,
+	PluginExecutorHelper pluginExecutorHelper,
+	MarketplaceService marketplaceService,
+	PolicyGenerator policyGenerator,
+	NewPageService newPageService,
+	ApplicationService applicationService,
+	PolicyUtils policyUtils,
+	ConfigService configService,
+	ResponseUtils responseUtils,
+	PermissionGroupService permissionGroupService,
+	DatasourcePermission datasourcePermission,
+	ApplicationPermission applicationPermission,
+	PagePermission pagePermission,
+	ActionPermission actionPermission,
+	ObservationRegistry observationRegistry) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                datasourceService, pluginService, pluginExecutorHelper, marketplaceService,
-                policyGenerator, newPageService, applicationService, policyUtils,
-                configService, responseUtils, permissionGroupService, datasourcePermission,
-                applicationPermission, pagePermission, actionPermission, observationRegistry);
-
-    }
+	super(
+		scheduler,
+		validator,
+		mongoConverter,
+		reactiveMongoTemplate,
+		repository,
+		analyticsService,
+		datasourceService,
+		pluginService,
+		pluginExecutorHelper,
+		marketplaceService,
+		policyGenerator,
+		newPageService,
+		applicationService,
+		policyUtils,
+		configService,
+		responseUtils,
+		permissionGroupService,
+		datasourcePermission,
+		applicationPermission,
+		pagePermission,
+		actionPermission,
+		observationRegistry);
+}
 }

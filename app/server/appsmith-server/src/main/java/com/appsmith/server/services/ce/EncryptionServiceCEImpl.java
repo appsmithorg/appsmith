@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.services.ce.EncryptionServiceCE;
@@ -7,27 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
-
 public class EncryptionServiceCEImpl implements EncryptionServiceCE {
 
-    private final EncryptionConfig encryptionConfig;
+private final EncryptionConfig encryptionConfig;
 
-    private TextEncryptor textEncryptor;
+private TextEncryptor textEncryptor;
 
-    @Autowired
-    public EncryptionServiceCEImpl(EncryptionConfig encryptionConfig) {
-        this.encryptionConfig = encryptionConfig;
-        String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
-        this.textEncryptor = Encryptors.delux(encryptionConfig.getPassword(), saltInHex);
-    }
+@Autowired
+public EncryptionServiceCEImpl(EncryptionConfig encryptionConfig) {
+	this.encryptionConfig = encryptionConfig;
+	String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
+	this.textEncryptor = Encryptors.delux(encryptionConfig.getPassword(), saltInHex);
+}
 
-    @Override
-    public String encryptString(String plaintext) {
-        return textEncryptor.encrypt(plaintext);
-    }
+@Override
+public String encryptString(String plaintext) {
+	return textEncryptor.encrypt(plaintext);
+}
 
-    @Override
-    public String decryptString(String encryptedText) {
-        return textEncryptor.decrypt(encryptedText);
-    }
+@Override
+public String decryptString(String encryptedText) {
+	return textEncryptor.decrypt(encryptedText);
+}
 }

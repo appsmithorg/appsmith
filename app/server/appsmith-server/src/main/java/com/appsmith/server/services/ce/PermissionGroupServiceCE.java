@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.BaseDomain;
@@ -6,59 +7,62 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.CrudService;
+import java.util.List;
+import java.util.Set;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Set;
-
 public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, String> {
 
-    Flux<PermissionGroup> findAllByIds(Set<String> ids);
+Flux<PermissionGroup> findAllByIds(Set<String> ids);
 
-    Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users);
+Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users);
 
-    Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds);
+Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(
+	Set<String> userIds, Set<String> permissionGroupIds);
 
-    Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission);
+Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission);
 
-    Mono<PermissionGroup> save(PermissionGroup permissionGroup);
+Mono<PermissionGroup> save(PermissionGroup permissionGroup);
 
-    Mono<PermissionGroup> getById(String id, AclPermission permission);
+Mono<PermissionGroup> getById(String id, AclPermission permission);
 
-    Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user);
+Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user);
 
-    Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users);
+Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users);
 
-    Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users);
+Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users);
 
-    Mono<PermissionGroup> unassignFromUser(PermissionGroup permissionGroup, User user);
+Mono<PermissionGroup> unassignFromUser(PermissionGroup permissionGroup, User user);
 
-    Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(User user, Workspace defaultWorkspace, AclPermission aclPermission);
-    
-    Mono<Void> delete(String id);
+Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(
+	User user, Workspace defaultWorkspace, AclPermission aclPermission);
 
-    Mono<Void> deleteWithoutPermission(String id);
+Mono<Void> delete(String id);
 
-    Mono<PermissionGroup> findById(String permissionGroupId);
+Mono<Void> deleteWithoutPermission(String id);
 
-    Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users);
+Mono<PermissionGroup> findById(String permissionGroupId);
 
-    Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission);
+Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users);
 
-    Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds);
+Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission);
 
-    Mono<PermissionGroup> getPublicPermissionGroup();
+Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds);
 
-    Mono<String> getPublicPermissionGroupId();
+Mono<PermissionGroup> getPublicPermissionGroup();
 
-    boolean isEntityAccessible(BaseDomain object, String permission, String publicPermissionGroupId);
+Mono<String> getPublicPermissionGroupId();
 
-    Mono<PermissionGroup> assignToUserAndSendEvent(PermissionGroup permissionGroup, User user);
+boolean isEntityAccessible(BaseDomain object, String permission, String publicPermissionGroupId);
 
-    Mono<PermissionGroup> bulkAssignToUserAndSendEvent(PermissionGroup permissionGroup, List<User> users);
+Mono<PermissionGroup> assignToUserAndSendEvent(PermissionGroup permissionGroup, User user);
 
-    Mono<PermissionGroup> unAssignFromUserAndSendEvent(PermissionGroup permissionGroup, User user);
+Mono<PermissionGroup> bulkAssignToUserAndSendEvent(
+	PermissionGroup permissionGroup, List<User> users);
 
-    Mono<PermissionGroup> bulkUnAssignFromUserAndSendEvent(PermissionGroup permissionGroup, List<User> users);
+Mono<PermissionGroup> unAssignFromUserAndSendEvent(PermissionGroup permissionGroup, User user);
+
+Mono<PermissionGroup> bulkUnAssignFromUserAndSendEvent(
+	PermissionGroup permissionGroup, List<User> users);
 }

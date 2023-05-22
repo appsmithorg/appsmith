@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server;
 
 import org.springframework.boot.Banner;
@@ -9,10 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class ServerApplication {
 
-    public static void main(String[] args) {
-        new SpringApplicationBuilder(ServerApplication.class)
-                .bannerMode(Banner.Mode.OFF)
-                .run(args);
-    }
-
+public static void main(String[] args) {
+	new SpringApplicationBuilder(ServerApplication.class).bannerMode(Banner.Mode.OFF).run(args);
+}
 }

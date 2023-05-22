@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.domains.UserData;
@@ -13,20 +14,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class CommonConfigTest {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+@Autowired private ObjectMapper objectMapper;
 
-    /**
-     * This method tests that objectMapper bean is created and it has Views.Public set as the default for the JsonView.
-     */
-    @Test
-    public void objectMapper_BeanCreated_WithPublicJsonViewAsDefault() throws JsonProcessingException {
-        UserData userData = new UserData();
-        userData.setRole("abcd"); // this is public field
-        userData.setUserId("userId"); // this is internal field
-        userData.setUserPermissions(null);
+/**
+* This method tests that objectMapper bean is created and it has Views.Public set as the default
+* for the JsonView.
+*/
+@Test
+public void objectMapper_BeanCreated_WithPublicJsonViewAsDefault()
+	throws JsonProcessingException {
+	UserData userData = new UserData();
+	userData.setRole("abcd"); // this is public field
+	userData.setUserId("userId"); // this is internal field
+	userData.setUserPermissions(null);
 
-        String value = objectMapper.writeValueAsString(userData);
-        JSONAssert.assertEquals("{\"role\":\"abcd\",\"new\":true}", value, true);
-    }
+	String value = objectMapper.writeValueAsString(userData);
+	JSONAssert.assertEquals("{\"role\":\"abcd\",\"new\":true}", value, true);
+}
 }

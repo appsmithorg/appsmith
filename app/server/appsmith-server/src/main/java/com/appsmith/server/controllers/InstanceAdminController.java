@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -12,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class InstanceAdminController extends InstanceAdminControllerCE {
 
-    public InstanceAdminController(EnvManager envManager) {
-        super(envManager);
-    }
-
+public InstanceAdminController(EnvManager envManager) {
+	super(envManager);
+}
 }

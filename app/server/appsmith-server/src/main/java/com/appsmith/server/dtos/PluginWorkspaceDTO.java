@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.AllArgsConstructor;
@@ -13,9 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PluginWorkspaceDTO {
 
-    String pluginId;
+String pluginId;
 
-    String workspaceId;
+String workspaceId;
 
-    WorkspacePluginStatus status;
+WorkspacePluginStatus status;
 }

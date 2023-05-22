@@ -1,9 +1,8 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -12,12 +11,11 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class ApplicationDetail {
-    Application.AppPositioning appPositioning;
-    Application.NavigationSetting navigationSetting;
+Application.AppPositioning appPositioning;
+Application.NavigationSetting navigationSetting;
 
-    public ApplicationDetail() {
-        this.appPositioning = null;
-        this.navigationSetting = null;
-    }
-
+public ApplicationDetail() {
+	this.appPositioning = null;
+	this.navigationSetting = null;
+}
 }

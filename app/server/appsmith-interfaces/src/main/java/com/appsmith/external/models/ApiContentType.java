@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import java.util.Map;
@@ -6,29 +7,28 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum ApiContentType {
-    NONE("none"),
-    JSON("application/json"),
-    FORM_URLENCODED("application/x-www-form-urlencoded"),
-    MULTIPART_FORM_DATA("multipart/form-data"),
-    RAW("text/plain"),
-    GRAPHQL("application/graphql")
-    ;
+NONE("none"),
+JSON("application/json"),
+FORM_URLENCODED("application/x-www-form-urlencoded"),
+MULTIPART_FORM_DATA("multipart/form-data"),
+RAW("text/plain"),
+GRAPHQL("application/graphql");
 
-    private String value;
+private String value;
 
-    private static final Map<String, ApiContentType> map = Stream.of(ApiContentType.values()).collect(
-            Collectors.toMap(ApiContentType::getValue, Function.identity()));
+private static final Map<String, ApiContentType> map =
+	Stream.of(ApiContentType.values())
+		.collect(Collectors.toMap(ApiContentType::getValue, Function.identity()));
 
-    ApiContentType(String value) {
-        this.value = value;
-    }
+ApiContentType(String value) {
+	this.value = value;
+}
 
-    public String getValue() {
-        return value;
-    }
+public String getValue() {
+	return value;
+}
 
-    public static ApiContentType getValueFromString(String value) {
-        return (value == null) ? null : map.get(value);
-    }
-
+public static ApiContentType getValueFromString(String value) {
+	return (value == null) ? null : map.get(value);
+}
 }

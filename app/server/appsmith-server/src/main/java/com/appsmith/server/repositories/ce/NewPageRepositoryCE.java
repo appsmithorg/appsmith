@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.NewPage;
@@ -6,10 +7,10 @@ import com.appsmith.server.repositories.CustomNewPageRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface NewPageRepositoryCE extends BaseRepository<NewPage, String>, CustomNewPageRepository {
+public interface NewPageRepositoryCE
+	extends BaseRepository<NewPage, String>, CustomNewPageRepository {
 
-    Flux<NewPage> findByApplicationId(String applicationId);
+Flux<NewPage> findByApplicationId(String applicationId);
 
-    Mono<Long> countByDeletedAtNull();
-
+Mono<Long> countByDeletedAtNull();
 }

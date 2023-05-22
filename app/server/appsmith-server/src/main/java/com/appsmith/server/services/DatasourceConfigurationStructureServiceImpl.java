@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.DatasourceConfigurationStructureRepository;
@@ -7,8 +8,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class DatasourceConfigurationStructureServiceImpl extends DatasourceConfigurationStructureServiceCEImpl implements DatasourceConfigurationStructureService {
-    public DatasourceConfigurationStructureServiceImpl(DatasourceConfigurationStructureRepository repository) {
-        super(repository);
-    }
+public class DatasourceConfigurationStructureServiceImpl
+	extends DatasourceConfigurationStructureServiceCEImpl
+	implements DatasourceConfigurationStructureService {
+public DatasourceConfigurationStructureServiceImpl(
+	DatasourceConfigurationStructureRepository repository) {
+	super(repository);
+}
 }

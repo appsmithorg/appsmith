@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -14,10 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PageController extends PageControllerCE {
 
-    public PageController(ApplicationPageService applicationPageService,
-                          NewPageService newPageService,
-                          CreateDBTablePageSolution createDBTablePageSolution) {
+public PageController(
+	ApplicationPageService applicationPageService,
+	NewPageService newPageService,
+	CreateDBTablePageSolution createDBTablePageSolution) {
 
-        super(applicationPageService, newPageService, createDBTablePageSolution);
-    }
+	super(applicationPageService, newPageService, createDBTablePageSolution);
+}
 }

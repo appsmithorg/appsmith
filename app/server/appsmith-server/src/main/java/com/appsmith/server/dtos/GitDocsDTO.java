@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
@@ -7,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GitDocsDTO {
-    ErrorReferenceDocUrl docKey;
+ErrorReferenceDocUrl docKey;
 
-    String docUrl;
+String docUrl;
 }

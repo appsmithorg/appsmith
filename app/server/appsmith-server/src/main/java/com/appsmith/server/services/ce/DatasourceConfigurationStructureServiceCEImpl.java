@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceConfigurationStructure;
@@ -10,22 +11,24 @@ import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
 @Service
-public class DatasourceConfigurationStructureServiceCEImpl implements DatasourceConfigurationStructureServiceCE {
+public class DatasourceConfigurationStructureServiceCEImpl
+	implements DatasourceConfigurationStructureServiceCE {
 
-    protected final DatasourceConfigurationStructureRepository repository;
+protected final DatasourceConfigurationStructureRepository repository;
 
-    @Override
-    public Mono<DatasourceConfigurationStructure> getByDatasourceId(String datasourceId) {
-        return repository.findByDatasourceId(datasourceId);
-    }
+@Override
+public Mono<DatasourceConfigurationStructure> getByDatasourceId(String datasourceId) {
+	return repository.findByDatasourceId(datasourceId);
+}
 
-    @Override
-    public Mono<DatasourceConfigurationStructure> save(DatasourceConfigurationStructure datasourceConfigurationStructure) {
-        return repository.save(datasourceConfigurationStructure);
-    }
+@Override
+public Mono<DatasourceConfigurationStructure> save(
+	DatasourceConfigurationStructure datasourceConfigurationStructure) {
+	return repository.save(datasourceConfigurationStructure);
+}
 
-    @Override
-    public Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure) {
-        return repository.updateStructure(datasourceId, structure);
-    }
+@Override
+public Mono<UpdateResult> saveStructure(String datasourceId, DatasourceStructure structure) {
+	return repository.updateStructure(datasourceId, structure);
+}
 }
