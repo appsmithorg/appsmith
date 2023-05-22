@@ -25,7 +25,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.GOOGLE_MAPS,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Google Maps API Key",
+      label: "Google Maps API key",
     },
   ],
 };
