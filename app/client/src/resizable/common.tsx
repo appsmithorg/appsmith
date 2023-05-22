@@ -239,8 +239,8 @@ export type ResizableProps = {
     canResizeHorizontally: boolean;
     canResizeVertically: boolean;
   };
-  fixedHeight: boolean;
-  maxDynamicHeight?: number;
+  maxHeightInPx: number; // Maximum height in pixels, the child can have.
+  autoHeight: boolean; // true if we don't want a pixel height specified for the child
   originalPositions: OccupiedSpace;
   onStart: (affectsWidth?: boolean) => void;
   onStop: (
