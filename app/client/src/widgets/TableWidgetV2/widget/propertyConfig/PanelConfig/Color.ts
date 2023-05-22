@@ -8,7 +8,7 @@ export default {
   children: [
     {
       propertyName: "buttonColor",
-      label: "Button Color",
+      label: "Button color",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       helpText: "Changes the color of the button",
       isJSConvertible: true,
@@ -35,7 +35,7 @@ export default {
     {
       propertyName: "menuColor",
       helpText: "Sets the custom color preset based on the menu button variant",
-      label: "Button Color",
+      label: "Button color",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
@@ -78,7 +78,7 @@ export default {
     },
     {
       propertyName: "textColor",
-      label: "Text Color",
+      label: "Text color",
       helpText: "Controls the color of text in the column",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,

@@ -21,7 +21,7 @@ const ListWrapper = styled.div`
   overflow: auto;
   ${thinScrollbar};
   height: 100%;
-  padding-bottom: 25px;
+  padding-bottom: 37px;
 `;
 
 // This component is used to render the error logs in the debugger.
