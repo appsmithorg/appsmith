@@ -347,14 +347,21 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
                     return Mono.just(new Workspace());
                 }));
-        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId());
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId()).cache();
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.PLUGIN, datasource.getPluginId())));
 
         return checkPluginInstallationAndThenReturnWorkspaceMono
                 .then(pluginExecutorMono)
-                .map(pluginExecutor -> datasource);
+                .flatMap(pluginExecutor -> {
+                    return pluginMono.map(plugin -> {
+                        // setting the plugin name to datasource.
+                        // this is required in analytics events for datasource e.g. create ds, update ds
+                        datasource.setPluginName(plugin.getName());
+                        return datasource;
+                    });
+                });
     }
 
     /**
