@@ -395,7 +395,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
-                invalids.add("Missing Connection Mode.");
+                invalids.add("Missing connection mode.");
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {

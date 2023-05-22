@@ -1,57 +1,73 @@
 import { setPageOrder } from "actions/pageActions";
+import styled from "styled-components";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import classNames from "classnames";
-import { Colors } from "constants/Colors";
-import { ControlIcons, DraggableList } from "design-system-old";
+// import classNames from "classnames";
+import { DraggableList } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Icon } from "design-system";
 
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 const PageIcon = MenuIcons.PAGE_ICON;
+
+const Wrapper = styled.div<{ isSelected: boolean }>`
+  height: 37px;
+  background-color: ${({ isSelected }) =>
+    isSelected ? "var(--ads-v2-color-bg-muted)" : "transparent"};
+
+  &:hover {
+    background-color: ${({ isSelected }) =>
+      isSelected
+        ? "var(--ads-v2-color-bg-muted)"
+        : "var(--ads-v2-color-bg-subtle)"};
+  }
+`;
+
+const PageName = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
+  padding-left: 0.25rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`;
 
 function PageListHeader(props: {
   page: Page;
   selectedPage?: string;
   onPageSelect: (pageId: string) => void;
 }) {
-  const DragIcon = ControlIcons.DRAG_CONTROL;
   const dragContainerRef = useRef(null);
 
   return (
-    <div
-      className={classNames({
-        "flex items-center cursor-pointer hover:bg-[color:var(--appsmith-color-black-200)]":
-          true,
-        "bg-[color:var(--appsmith-color-black-200)]":
-          props.selectedPage === props.page.pageId,
-      })}
+    <Wrapper
+      className="flex items-center cursor-pointer"
       id={`t--page-settings-${props.page.pageName}`}
+      isSelected={props.selectedPage === props.page.pageId}
       onClick={() => {
         props.onPageSelect(props.page.pageId);
       }}
-      style={{ height: "37px" }}
     >
       <div
-        className="h-5 pr-1"
+        className="px-1"
         onClick={(e) => e.stopPropagation()}
         ref={dragContainerRef}
       >
-        <DragIcon
-          color={Colors.GRAY_400}
-          cursor="move"
-          height={20}
-          width={20}
-        />
+        <Icon name="drag-control" size="md" />
       </div>
       {props.page.isDefault ? (
-        <DefaultPageIcon color={Colors.GRAY_800} height={17} width={18} />
+        <DefaultPageIcon
+          color="var(--ads-v2-color-fg)"
+          height={16}
+          width={16}
+        />
       ) : (
-        <PageIcon color={Colors.GRAY_800} height={17} width={18} />
+        <PageIcon color="var(--ads-v2-color-fg)" height={16} width={16} />
       )}
-      <div
-        className="font-medium pl-1 text-ellipsis whitespace-nowrap overflow-hidden"
+      <PageName
         id={
           props.page.isDefault
             ? "t--page-settings-default-page"
@@ -59,8 +75,8 @@ function PageListHeader(props: {
         }
       >
         {props.page.pageName}
-      </div>
-    </div>
+      </PageName>
+    </Wrapper>
   );
 }
 

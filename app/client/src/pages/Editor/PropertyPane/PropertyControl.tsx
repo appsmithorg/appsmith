@@ -3,11 +3,8 @@ import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
-import {
-  ControlPropertyLabelContainer,
-  ControlWrapper,
-} from "components/propertyControls/StyledControls";
-import { Icon, JSToggleButton } from "design-system-old";
+import { ControlWrapper } from "components/propertyControls/StyledControls";
+import { ToggleButton, Tooltip, Button } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,7 +42,6 @@ import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { TooltipComponent } from "design-system-old";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
@@ -56,10 +52,15 @@ import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
+import styled from "styled-components";
 import { importSvg } from "design-system-old";
+import classNames from "classnames";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
+const StyledDeviated = styled.div`
+  background-color: var(--ads-v2-color-bg-brand);
+`;
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
@@ -68,7 +69,7 @@ type Props = PropertyPaneControlConfig & {
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
-const tooltipModifier = { preventOverflow: { enabled: true } };
+// const tooltipModifier = { preventOverflow: { enabled: true } };
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -753,67 +754,58 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <ControlPropertyLabelContainer className="gap-1">
+          <div className="gap-1 flex items-center">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
               tooltip={helpText}
             />
             {isConvertible && (
-              <TooltipComponent
+              <Tooltip
                 content={JS_TOGGLE_DISABLED_MESSAGE}
-                disabled={!isToggleDisabled}
-                hoverOpenDelay={200}
-                modifiers={tooltipModifier}
-                openOnTargetFocus={false}
-                position="auto"
+                isDisabled={!isToggleDisabled}
               >
-                <JSToggleButton
-                  handleClick={() =>
-                    toggleDynamicProperty(propertyName, isDynamic)
-                  }
-                  isActive={isDynamic}
-                  isToggleDisabled={isToggleDisabled}
+                <ToggleButton
+                  className={classNames("t--js-toggle", {
+                    "is-active": isDynamic,
+                  })}
+                  icon="js-toggle-v2"
+                  isDisabled={isToggleDisabled}
+                  isSelected={isDynamic}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  size="sm"
                 />
-              </TooltipComponent>
+              </Tooltip>
             )}
             {isPropertyDeviatedFromTheme && (
               <>
-                <TooltipComponent
-                  content="Value deviated from theme"
-                  openOnTargetFocus={false}
-                >
-                  <div className="w-2 h-2 rounded-full bg-primary-500" />
-                </TooltipComponent>
+                <Tooltip content="Value deviated from theme">
+                  <StyledDeviated className="w-2 h-2 rounded-full" />
+                </Tooltip>
                 <button
                   className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
                   onClick={resetPropertyValueToTheme}
                 >
-                  <TooltipComponent
-                    boundary="viewport"
-                    content="Reset value"
-                    openOnTargetFocus={false}
-                    position="top-right"
-                  >
+                  <Tooltip content="Reset value" placement="topRight">
                     <ResetIcon className="w-5 h-5" />
-                  </TooltipComponent>
+                  </Tooltip>
                 </button>
               </>
             )}
             {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
-              <button
+              <Button
                 className={clsx(
                   `${config.label}`,
                   "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
                   `t--add-action-${config.label}`,
                 )}
-                disabled={false}
+                isIconButton
+                kind="tertiary"
                 onClick={() => setShowEmptyBlock(true)}
-              >
-                <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
-              </button>
+                startIcon="plus"
+              />
             )}
-          </ControlPropertyLabelContainer>
+          </div>
           {PropertyControlFactory.createControl(
             config,
             {

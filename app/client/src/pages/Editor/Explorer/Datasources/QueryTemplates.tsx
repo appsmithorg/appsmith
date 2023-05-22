@@ -1,6 +1,4 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "@appsmith/reducers";
@@ -10,34 +8,18 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { QueryAction } from "entities/Action";
-import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
-
-const Container = styled.div`
-  background-color: ${(props) => props.theme.colors.queryTemplate.bg};
-  color: ${(props) => props.theme.colors.textOnDarkBG};
-  min-width: 160px;
-  padding: 5px;
-`;
-
-const TemplateType = styled.div`
-  color: ${(props) => props.theme.colors.queryTemplate.color};
-  padding: 8px;
-  &:hover {
-    cursor: pointer;
-    background: ${Colors.Gallery};
-  }
-`;
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
   datasourceId: string;
+  onSelect: () => void;
 };
 
 export function QueryTemplates(props: QueryTemplatesProps) {
@@ -99,19 +81,21 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   );
 
   return (
-    <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
+    <>
       {props.templates.map((template) => {
         return (
-          <TemplateType
-            className={Classes.POPOVER_DISMISS}
+          <MenuItem
             key={template.title}
-            onClick={() => createQueryAction(template)}
+            onSelect={() => {
+              createQueryAction(template);
+              props.onSelect();
+            }}
           >
             {template.title}
-          </TemplateType>
+          </MenuItem>
         );
       })}
-    </Container>
+    </>
   );
 }
 
