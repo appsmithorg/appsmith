@@ -234,6 +234,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      datasourceId: datasourceId,
+      pluginName: pluginName,
     });
     dispatch(testDatasource(getSanitizedFormData()));
   };

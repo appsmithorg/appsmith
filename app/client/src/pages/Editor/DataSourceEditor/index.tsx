@@ -19,6 +19,7 @@ import {
   createTempDatasourceFromForm,
   resetDefaultKeyValPairFlag,
   initializeDatasourceFormDefaults,
+  datasourceDiscardAction,
 } from "actions/datasourceActions";
 import {
   DATASOURCE_DB_FORM,
@@ -167,6 +168,7 @@ export interface DatasourcePaneFunctions {
   createTempDatasource: (data: any) => void;
   resetDefaultKeyValPairFlag: () => void;
   initializeFormWithDefaults: (pluginType: string) => void;
+  datasourceDiscardAction: (pluginId: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -392,6 +394,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.props.discardTempDatasource();
     this.props.deleteTempDSFromDraft();
     this.state.navigation();
+    this.props.datasourceDiscardAction(this.props?.pluginId);
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -768,6 +771,8 @@ const mapDispatchToProps = (
   resetDefaultKeyValPairFlag: () => dispatch(resetDefaultKeyValPairFlag()),
   initializeFormWithDefaults: (pluginType: string) =>
     dispatch(initializeDatasourceFormDefaults(pluginType)),
+  datasourceDiscardAction: (pluginId) =>
+    dispatch(datasourceDiscardAction(pluginId)),
 });
 
 export default connect(

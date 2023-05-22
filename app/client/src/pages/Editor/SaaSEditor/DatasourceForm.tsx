@@ -47,6 +47,7 @@ import {
   setDatasourceViewMode,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
+  datasourceDiscardAction,
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import {
@@ -105,6 +106,7 @@ interface DatasourceFormFunctions {
   createTempDatasource: (data: any) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
   loadFilePickerAction: () => void;
+  datasourceDiscardAction: (pluginId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -297,6 +299,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   onDiscard() {
     this.closeDialogAndUnblockRoutes();
     this.state.navigation();
+    this.props.datasourceDiscardAction(this.props?.pluginId);
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -611,6 +614,8 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
+  datasourceDiscardAction: (pluginId) =>
+    dispatch(datasourceDiscardAction(pluginId)),
 });
 
 const SaaSEditor = connect(
