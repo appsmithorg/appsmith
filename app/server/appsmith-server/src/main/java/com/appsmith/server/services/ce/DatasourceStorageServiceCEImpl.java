@@ -65,20 +65,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                         analyticsService.sendCreateEvent(
                                 savedDatasourceStorage,
                                 getAnalyticsProperties(savedDatasourceStorage))
-                )
-                .onErrorResume(e -> e instanceof DuplicateKeyException
-                                || e instanceof MongoServerException
-                                || e instanceof UncategorizedMongoDbException,
-                        error -> {
-                            if (error.getMessage() != null
-                                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
-                                // The duplicate key error is because of the `name` field.
-                                return findByDatasourceIdAndEnvironmentId(
-                                        datasourceStorage.getDatasourceId(),
-                                        datasourceStorage.getEnvironmentId());
-                            }
-                            return Mono.error(error);
-                        });
+                );
     }
 
     @Override
