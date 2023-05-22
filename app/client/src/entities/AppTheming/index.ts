@@ -80,6 +80,7 @@ export type SetterConfig = {
   __setters: {
     [key: string]: {
       path: string;
+      type: string;
     };
   };
 };

@@ -29,8 +29,11 @@ import type {
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { addSettersToDefinitions } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -224,16 +227,26 @@ class JSONFormWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: JSONFormWidgetProps) => ({
-      "!doc":
-        "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
-      // TODO: Update the url
-      "!url": "https://docs.appsmith.com/widget-reference",
-      formData: generateTypeDef(widget.formData),
-      sourceData: generateTypeDef(widget.sourceData),
-      fieldState: generateTypeDef(widget.fieldState),
-      isValid: "bool",
-    });
+    return (
+      widget: JSONFormWidgetProps,
+      extraDefsToDefine?: ExtraDef,
+      entityConfig?: WidgetEntityConfig,
+    ) => {
+      const definitions: AutocompletionDefinitions = {
+        "!doc":
+          "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+        // TODO: Update the url
+        "!url": "https://docs.appsmith.com/widget-reference",
+        formData: generateTypeDef(widget.formData),
+        sourceData: generateTypeDef(widget.sourceData),
+        fieldState: generateTypeDef(widget.fieldState),
+        isValid: "bool",
+      };
+
+      addSettersToDefinitions(definitions, entityConfig);
+
+      return definitions;
+    };
   }
 
   static getSetterConfig(): SetterConfig {
@@ -241,9 +254,11 @@ class JSONFormWidget extends BaseWidget<
       __setters: {
         setVisibility: {
           path: "isVisible",
+          type: "boolean",
         },
         setData: {
           path: "sourceData",
+          type: "object",
         },
       },
     };

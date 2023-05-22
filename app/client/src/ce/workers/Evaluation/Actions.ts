@@ -45,7 +45,7 @@ function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
     for (const setterMethodName of Object.keys(entityConfig.__setters)) {
       const path = entityConfig.__setters[setterMethodName].path;
 
-      setterMethodMap[setterMethodName] = function (value: any) {
+      setterMethodMap[setterMethodName] = function (value: unknown) {
         if (!dataTreeEvaluator) return;
 
         return applySetterMethod(path, value);

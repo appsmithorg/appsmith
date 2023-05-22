@@ -15,6 +15,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -102,6 +103,7 @@ interface LayoutProps {
 export type AutocompleteDefinitionFunction = (
   widgetProps: WidgetProps,
   extraDefsToDefine?: ExtraDef,
+  configTree?: WidgetEntityConfig,
 ) => Record<string, any>;
 
 export type AutocompletionDefinitions =

@@ -33,6 +33,9 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { addSettersToDefinitions } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export function defaultValueValidation(
   value: any,
@@ -127,26 +130,36 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      "!doc":
-        "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
-      "!url": "https://docs.appsmith.com/widget-reference/input",
-      text: {
-        "!type": "string",
-        "!doc": "The text value of the input",
+    return (
+      widget: InputWidgetProps,
+      extraDefsToDefine?: ExtraDef,
+      entityConfig?: WidgetEntityConfig,
+    ) => {
+      const definitions = {
+        "!doc":
+          "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
         "!url": "https://docs.appsmith.com/widget-reference/input",
-      },
-      isValid: "bool",
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      isDisabled: "bool",
-      countryCode: {
-        "!type": "string",
-        "!doc": "Selected country code for Phone Number type input",
-      },
-      currencyCountryCode: {
-        "!type": "string",
-        "!doc": "Selected country code for Currency type input",
-      },
+        text: {
+          "!type": "string",
+          "!doc": "The text value of the input",
+          "!url": "https://docs.appsmith.com/widget-reference/input",
+        },
+        isValid: "bool",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        isDisabled: "bool",
+        countryCode: {
+          "!type": "string",
+          "!doc": "Selected country code for Phone Number type input",
+        },
+        currencyCountryCode: {
+          "!type": "string",
+          "!doc": "Selected country code for Currency type input",
+        },
+      };
+
+      addSettersToDefinitions(definitions, entityConfig);
+
+      return definitions;
     };
   }
 
@@ -766,15 +779,19 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       __setters: {
         setVisibility: {
           path: "isVisible",
+          type: "boolean",
         },
         setDisabled: {
           path: "isDisabled",
+          type: "boolean",
         },
         setRequired: {
           path: "isRequired",
+          type: "boolean",
         },
         setValue: {
           path: "defaultText",
+          type: "string",
         },
       },
     };

@@ -1,4 +1,8 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
@@ -46,8 +50,14 @@ export const dataTreeTypeDefCreator = (
         WidgetFactory.getAutocompleteDefinitions(widgetType);
 
       if (autocompleteDefinitions) {
+        const entityConfig = configTree[entityName] as WidgetEntityConfig;
+
         if (isFunction(autocompleteDefinitions)) {
-          def[entityName] = autocompleteDefinitions(entity, extraDefsToDefine);
+          def[entityName] = autocompleteDefinitions(
+            entity,
+            extraDefsToDefine,
+            entityConfig,
+          );
         } else {
           def[entityName] = autocompleteDefinitions;
         }
@@ -215,4 +225,19 @@ export function generateJSFunctionTypeDef(
     "!type": getFunctionsArgsType([]),
     data: generateTypeDef(jsData[fullFunctionName], extraDefs),
   };
+}
+
+export function addSettersToDefinitions(
+  definitions: Record<string, any>,
+  entityConfig?: WidgetEntityConfig,
+) {
+  if (entityConfig && entityConfig.__setters) {
+    const setters = Object.keys(entityConfig.__setters);
+
+    setters.forEach((setterName: string) => {
+      const setterType = entityConfig.__setters?.[setterName].type;
+
+      definitions[setterName] = `fn(value:${setterType})`;
+    });
+  }
 }
