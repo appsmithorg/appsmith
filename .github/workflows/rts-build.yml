@@ -14,12 +14,12 @@ on:
   pull_request:
     branches: [release, master]
     paths:
-      - "app/rts/**"
+      - "app/client/packages/rts/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
-    working-directory: app/rts
+    working-directory: app/client/packages/rts
 
 jobs:
   build:
@@ -140,13 +140,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            app/rts/dist/
+            app/client/packages/rts/dist/
           key: ${{ github.run_id }}-${{ github.job }}-rts
 
       # Tar the bundles to speed up the upload & download process
       - name: Tar the rts bundles
         run: |
-          ls -al dist/node_modules/@shared/ast
           tar -cvf rts-dist.tar dist
 
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
@@ -154,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: rts-dist
-          path: app/rts/rts-dist.tar
+          path: app/client/packages/rts/rts-dist.tar
 
       # Set status = success
       - name: Save the status of the run
