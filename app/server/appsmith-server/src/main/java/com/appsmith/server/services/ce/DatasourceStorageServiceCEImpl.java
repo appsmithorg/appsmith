@@ -20,6 +20,7 @@ import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.mongodb.MongoServerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -64,7 +65,20 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                         analyticsService.sendCreateEvent(
                                 savedDatasourceStorage,
                                 getAnalyticsProperties(savedDatasourceStorage))
-                );
+                )
+                .onErrorResume(e -> e instanceof DuplicateKeyException
+                                || e instanceof MongoServerException
+                                || e instanceof UncategorizedMongoDbException,
+                        error -> {
+                            if (error.getMessage() != null
+                                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                                // The duplicate key error is because of the `name` field.
+                                return findByDatasourceIdAndEnvironmentId(
+                                        datasourceStorage.getDatasourceId(),
+                                        datasourceStorage.getEnvironmentId());
+                            }
+                            return Mono.error(error);
+                        });
     }
 
     @Override
@@ -88,7 +102,9 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 // TODO: This is a temporary call being made till storage transfer migrations are done
                 .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
                         .transferAndGetDatasourceStorage(datasource, environmentId)))
-                .onErrorResume(e -> e instanceof DuplicateKeyException || e instanceof MongoServerException,
+                .onErrorResume(e -> e instanceof DuplicateKeyException
+                                || e instanceof MongoServerException
+                                || e instanceof UncategorizedMongoDbException,
                         error -> {
                             if (error.getMessage() != null
                                     && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
@@ -111,7 +127,9 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 // TODO: This is a temporary call being made till storage transfer migrations are done
                 .switchIfEmpty(Mono.defer(() -> datasourceStorageTransferSolution
                         .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource)))
-                .onErrorResume(e -> e instanceof DuplicateKeyException || e instanceof MongoServerException,
+                .onErrorResume(e -> e instanceof DuplicateKeyException
+                                || e instanceof MongoServerException
+                                || e instanceof UncategorizedMongoDbException,
                         error -> {
                             if (error.getMessage() != null
                                     && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
@@ -133,6 +151,11 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Flux<DatasourceStorage> findStrictlyByDatasourceId(String datasourceId) {
         return repository.findByDatasourceId(datasourceId);
+    }
+
+    @Override
+    public Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+        return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 
     @Override
@@ -199,6 +222,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     }
 
                     return datasourceStorage;
+                })
+                .onErrorResume(e -> {
+                    invalids.add("Unable to validate datasource.");
+                    return Mono.just(datasourceStorage);
                 });
     }
 

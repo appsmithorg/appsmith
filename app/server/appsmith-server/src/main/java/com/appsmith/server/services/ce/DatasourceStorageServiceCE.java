@@ -26,6 +26,8 @@ public interface DatasourceStorageServiceCE {
 
     Flux<DatasourceStorage> findStrictlyByDatasourceId(String datasourceId);
 
+    Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
+
     Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate);
 
     Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration);

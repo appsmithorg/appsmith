@@ -8,6 +8,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.SessionUserService;
@@ -25,6 +26,7 @@ public class ForkExamplesWorkspaceServiceImpl extends ForkExamplesWorkspaceServi
     public ForkExamplesWorkspaceServiceImpl(WorkspaceService workspaceService,
                                             WorkspaceRepository workspaceRepository,
                                             DatasourceService datasourceService,
+                                            DatasourceStorageService datasourceStorageService,
                                             DatasourceRepository datasourceRepository,
                                             ConfigService configService,
                                             SessionUserService sessionUserService,
@@ -38,9 +40,9 @@ public class ForkExamplesWorkspaceServiceImpl extends ForkExamplesWorkspaceServi
                                             ThemeService themeService,
                                             ApplicationPermission applicationPermission,
                                             PagePermission pagePermission) {
-        super(workspaceService, workspaceRepository, datasourceService, datasourceRepository,
-                configService, sessionUserService, userService, applicationService,
-                applicationPageService, newPageRepository, newActionService, layoutActionService,
-                actionCollectionService, themeService, applicationPermission, pagePermission);
+        super(workspaceService, workspaceRepository, datasourceService, datasourceStorageService, datasourceRepository,
+                configService, sessionUserService, userService, applicationService, applicationPageService,
+                newPageRepository, newActionService, layoutActionService, actionCollectionService, themeService,
+                applicationPermission, pagePermission);
     }
 }

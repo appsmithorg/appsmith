@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
@@ -29,6 +30,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.SessionUserService;
@@ -62,6 +64,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
     private final WorkspaceService workspaceService;
     private final WorkspaceRepository workspaceRepository;
     private final DatasourceService datasourceService;
+    private final DatasourceStorageService datasourceStorageService;
     private final DatasourceRepository datasourceRepository;
     private final ConfigService configService;
     private final SessionUserService sessionUserService;
@@ -539,7 +542,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
         final Mono<String> destinationEnvironmentIdMono = workspaceService.getDefaultEnvironmentId(toWorkspaceId);
 
         final Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono = datasourceService
-                .getAllByWorkspaceIdWithStorages(toWorkspaceId, Optional.empty())
+                .getAllByWorkspaceIdWithoutStorages(toWorkspaceId, Optional.empty())
                 .collectList();
 
         // this datasource is in workspace from which it's getting forked
@@ -548,7 +551,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
         return Mono.zip(datasourceToForkMono, existingDatasourcesInNewWorkspaceMono)
                 .flatMap(tuple -> {
                     final Datasource datasourceToFork = tuple.getT1();
-                    final List<Datasource> existingDatasourcesInNewWorkspace = tuple.getT2();
+                    final List<Datasource> existingDatasourcesWithoutStorages = tuple.getT2();
 
                     if (datasourceToFork.getWorkspaceId().equals(toWorkspaceId)) {
                         return Mono.just(datasourceToFork);
@@ -562,33 +565,39 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                         authentication.setIsAuthorized(null);
                     }
 
-                     return destinationEnvironmentIdMono
-                             .flatMap(destinationEnvironmentId ->
-                                 Flux.fromIterable(existingDatasourcesInNewWorkspace)
-                                         .filter(datasourceToFork::softEquals)
-                                         .filter(existingDatasource -> {
-                                             // Check if there is a storage with the same configs in the target environment
-                                             DatasourceStorageDTO existingStorageDTO = existingDatasource
-                                                     .getDatasourceStorages().get(destinationEnvironmentId);
-                                             final AuthenticationDTO auth = existingStorageDTO.getDatasourceConfiguration() == null
-                                                     ? null : existingStorageDTO.getDatasourceConfiguration().getAuthentication();
-                                             if (auth != null) {
-                                                 auth.setIsAuthorized(null);
-                                             }
-                                             return storageDTOToFork.softEquals(existingStorageDTO);
-                                         })
-                                         .next()  // Get the first matching datasource, we don't need more than one here.
-                                         .switchIfEmpty(Mono.defer(() -> {
-                                             // No matching existing datasource found, so create a new one.
-                                             Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
-                                             DatasourceStorageDTO storageDTO = datasourceToFork.getDatasourceStorages()
-                                                     .get(sourceEnvironmentId)
-                                                     .fork(forkWithConfiguration, toWorkspaceId);
-                                             storageDTO.setEnvironmentId(destinationEnvironmentId);
-                                             newDs.getDatasourceStorages().put(destinationEnvironmentId, storageDTO);
-                                             return createSuffixedDatasource(newDs);
-                                         }))
-                             );
+                    return destinationEnvironmentIdMono
+                            .flatMap(destinationEnvironmentId ->
+                                    Flux.fromIterable(existingDatasourcesWithoutStorages)
+                                            .filter(datasourceToFork::softEquals)
+                                            .filterWhen(existingDatasource -> {
+                                                Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
+                                                        .findStrictlyByDatasourceIdAndEnvironmentId(
+                                                                existingDatasource.getId(),
+                                                                destinationEnvironmentId);
+
+                                                return datasourceStorageMono
+                                                        .map(existingStorage -> {
+                                                            final AuthenticationDTO auth = existingStorage.getDatasourceConfiguration() == null
+                                                                    ? null : existingStorage.getDatasourceConfiguration().getAuthentication();
+                                                            if (auth != null) {
+                                                                auth.setIsAuthorized(null);
+                                                            }
+                                                            return storageDTOToFork.softEquals(new DatasourceStorageDTO(existingStorage));
+                                                        })
+                                                        .switchIfEmpty(Mono.just(false));
+                                            })
+                                            .next()  // Get the first matching datasource, we don't need more than one here.
+                                            .switchIfEmpty(Mono.defer(() -> {
+                                                // No matching existing datasource found, so create a new one.
+                                                Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
+                                                DatasourceStorageDTO storageDTO = datasourceToFork.getDatasourceStorages()
+                                                        .get(sourceEnvironmentId)
+                                                        .fork(forkWithConfiguration, toWorkspaceId);
+                                                storageDTO.setEnvironmentId(destinationEnvironmentId);
+                                                newDs.getDatasourceStorages().put(destinationEnvironmentId, storageDTO);
+                                                return createSuffixedDatasource(newDs);
+                                            }))
+                            );
                 });
     }
 
