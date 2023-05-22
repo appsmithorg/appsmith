@@ -33,6 +33,7 @@ public enum FeatureFlagEnum {
     DATASOURCE_ENVIRONMENTS,
     AUTO_LAYOUT,
     ONE_CLICK_BINDING,
+    APP_NAVIGATION_LOGO_UPLOAD,
 
     // Add EE flags below this line, to avoid conflicts.
     RBAC,

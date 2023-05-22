@@ -23,6 +23,7 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
@@ -46,6 +47,7 @@ export type LogoConfigurationSwitches = {
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
+  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
@@ -388,21 +390,26 @@ function NavigationSettings() {
             updateSetting={updateSetting}
           />
 
-          <SwitchSettingForLogoConfiguration
-            keyName="logo"
-            label={createMessage(APP_NAVIGATION_SETTING.showLogoLabel)}
-            logoConfigurationSwitches={logoConfigurationSwitches}
-            setLogoConfigurationSwitches={setLogoConfigurationSwitches}
-          />
+          {featureFlags.APP_NAVIGATION_LOGO_UPLOAD && (
+            <>
+              <SwitchSettingForLogoConfiguration
+                keyName="logo"
+                label={createMessage(APP_NAVIGATION_SETTING.showLogoLabel)}
+                logoConfigurationSwitches={logoConfigurationSwitches}
+                setLogoConfigurationSwitches={setLogoConfigurationSwitches}
+              />
 
-          {(navigationSetting?.logoConfiguration ===
-            NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
-            navigationSetting?.logoConfiguration ===
-              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) && (
-            <LogoInput
-              navigationSetting={navigationSetting}
-              updateSetting={updateSetting}
-            />
+              {(navigationSetting?.logoConfiguration ===
+                NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                  .LOGO_AND_APPLICATION_TITLE ||
+                navigationSetting?.logoConfiguration ===
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) && (
+                <LogoInput
+                  navigationSetting={navigationSetting}
+                  updateSetting={updateSetting}
+                />
+              )}
+            </>
           )}
 
           <SwitchSettingForLogoConfiguration
