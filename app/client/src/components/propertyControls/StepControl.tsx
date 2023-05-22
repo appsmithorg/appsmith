@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StepComponent } from "design-system-old";
+import { NumberInput } from "design-system";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -48,26 +48,20 @@ class StepControl extends BaseControl<StepControlProps> {
         min: MIN,
         max: MAX,
         steps: 5,
-        displayFormat: (value: number): string => {
-          return `${value}%`;
-        },
+        suffix: "%",
       };
     }
     return {
       min: MIN,
       max: MAX,
       steps: 1,
-      displayFormat: (value: number): string => {
-        return `${value}`;
-      },
     };
   };
 
   render() {
-    const { displayFormat, max, min, steps } = this.getStepTypeControls();
+    const { max, min, steps, suffix } = this.getStepTypeControls();
     return (
-      <StepComponent
-        displayFormat={displayFormat}
+      <NumberInput
         max={max}
         min={min}
         onChange={(value: number, isUpdatedViaKeyboard: boolean) => {
@@ -79,6 +73,7 @@ class StepControl extends BaseControl<StepControlProps> {
         }}
         ref={this.componentRef}
         steps={steps}
+        suffix={suffix}
         value={this.props.propertyValue}
       />
     );

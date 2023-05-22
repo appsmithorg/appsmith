@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
@@ -28,7 +27,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Category, Toaster, Variant } from "design-system-old";
+import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
@@ -44,6 +43,7 @@ interface Props {
   isInvalid: boolean;
   pageId?: string;
   viewMode?: boolean;
+  shouldRender?: boolean;
   isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   shouldDisplayAuthMessage?: boolean;
@@ -76,13 +76,6 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
-  &&&& {
-    height: 32px;
-    width: ${(props) => (props.fluidWidth ? "" : "87px")};
-  }
-`;
-
 const SaveButtonContainer = styled.div<{
   isInsideReconnectModal?: boolean;
 }>`
@@ -97,9 +90,8 @@ const SaveButtonContainer = styled.div<{
 `;
 
 const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
-  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
@@ -169,7 +161,6 @@ function DatasourceAuth({
           !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const variant = Variant.danger;
         const oauthReason = status;
         AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
           dsName,
@@ -182,7 +173,7 @@ function DatasourceAuth({
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
-          Toaster.show({ text: display_message || message, variant });
+          toast.show(display_message || message, { kind: "error" });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
@@ -292,65 +283,57 @@ function DatasourceAuth({
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.TEST]: (
-        <ActionButton
-          category={Category.secondary}
+        <Button
           className="t--test-datasource"
-          floatLeft={!isInsideReconnectModal}
+          // floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
+          kind="secondary"
           onClick={handleDatasourceTest}
-          size="medium"
-          tag="button"
-          text="Test Configuration"
-          variant={Variant.info}
-        />
+          size="md"
+        >
+          Test Configuration
+        </Button>
       ),
       [DatasourceButtonType.CANCEL]: (
-        <ActionButton
-          category={Category.tertiary}
+        <Button
           className="t--cancel-edit-datasource"
           key={buttonType}
+          kind="tertiary"
           onClick={() => {
             if (createMode) deleteTempDSFromDraft();
             else dispatch(setDatasourceViewMode(true));
           }}
-          size="medium"
-          tag="button"
-          text={"Cancel"}
-        />
+          size="md"
+        >
+          Cancel
+        </Button>
       ),
       [DatasourceButtonType.SAVE]: (
-        <ActionButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={
+          isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
-          filled
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save"
-          variant={Variant.info}
-        />
+          size="md"
+        >
+          Save
+        </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
-        <StyledButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={isInvalid || (!createMode && !canManageDatasource)}
-          filled
-          fluidWidth
+          isDisabled={isInvalid || (!createMode && !canManageDatasource)}
           isLoading={isSaving}
           key={buttonType}
           onClick={handleOauthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save and Authorize"
-          variant={Variant.info}
-        />
+          size="md"
+        >
+          Save and Authorize
+        </Button>
       ),
     }[buttonType];
   };

@@ -3,7 +3,6 @@ import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { debounce, isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { Colors } from "constants/Colors";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
@@ -12,10 +11,15 @@ import {
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import { Button, Category, Icon, IconSize, MenuItem } from "design-system-old";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -45,22 +49,18 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import {
-  MenuWrapper,
-  MenuComponent,
-  RedMenuItem,
-} from "components/utils/formComponents";
+import { MenuWrapper } from "components/utils/formComponents";
 
 const Wrapper = styled.div`
   padding: 15px;
-  /* margin-top: 18px; */
   cursor: pointer;
+  border-radius: var(--ads-v2-border-radius);
 
   &:hover {
-    background-color: ${Colors.GREY_1};
+    background-color: var(--ads-v2-color-bg-subtle);
 
     .bp3-collapse-body {
-      background-color: ${Colors.GREY_1};
+      background-color: var(--ads-v2-color-bg-subtle);
     }
   }
 `;
@@ -72,8 +72,12 @@ const DatasourceCardMainBody = styled.div`
   width: 100%;
 `;
 
+const StyledMenu = styled(Menu)`
+  flex: 0;
+`;
+
 const DatasourceImage = styled.img`
-  height: 18px;
+  height: 34px;
   width: auto;
   margin: 0 auto;
   max-width: 100%;
@@ -82,26 +86,12 @@ const DatasourceImage = styled.img`
 const DatasourceIconWrapper = styled.div`
   width: 34px;
   height: 34px;
-  border-radius: 50%;
-  background: ${Colors.GREY_2};
   display: flex;
   align-items: center;
 `;
 
-const GenerateTemplateOrReconnect = styled(Button)`
-  padding: 10px 10px;
-  font-size: 12px;
-
-  &&&& {
-    height: 36px;
-    max-width: 200px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
-`;
-
 const DatasourceName = styled.span`
-  color: ${Colors.BLACK};
+  color: var(--ads-v2-color-fg);
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
@@ -123,11 +113,11 @@ const DatasourceNameWrapper = styled.div`
 `;
 
 const DatasourceInfo = styled.div`
-  padding: 0 10px;
+  padding: 0 10px 0 0;
 `;
 
 const Queries = styled.div`
-  color: ${Colors.DOVE_GRAY};
+  color: var(--ads-v2-color-fg-muted);
   font-size: 14px;
   display: flex;
   margin: 4px 0;
@@ -137,14 +127,6 @@ const ButtonsWrapper = styled.div`
   display: flex;
   gap: 10px;
   align-items: center;
-`;
-
-const MoreOptionsContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 const CollapseComponentWrapper = styled.div`
@@ -242,8 +224,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
   }, [datasource.id, plugin]);
 
-  const routeToGeneratePage = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const routeToGeneratePage = () => {
     if (!supportTemplateGeneration) {
       // disable button when it doesn't support page generation
       return;
@@ -260,7 +241,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     );
   };
 
-  const deleteAction = () => {
+  const deleteAction = (e: Event) => {
+    e.stopPropagation();
     if (isDeletingDatasource) return;
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
@@ -299,24 +281,26 @@ function DatasourceCard(props: DatasourceCardProps) {
           <ButtonsWrapper className="action-wrapper">
             {(!datasource.isConfigured || supportTemplateGeneration) &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
-                <GenerateTemplateOrReconnect
-                  category={Category.secondary}
+                <Button
                   className={
                     datasource.isConfigured
                       ? "t--generate-template"
                       : "t--reconnect-btn"
                   }
-                  onClick={
+                  kind="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
                     datasource.isConfigured
-                      ? routeToGeneratePage
-                      : editDatasource
-                  }
-                  text={
-                    datasource.isConfigured
-                      ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
-                      : createMessage(RECONNECT_BUTTON_TEXT)
-                  }
-                />
+                      ? routeToGeneratePage()
+                      : editDatasource();
+                  }}
+                  size="md"
+                >
+                  {datasource.isConfigured
+                    ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
+                    : createMessage(RECONNECT_BUTTON_TEXT)}
+                </Button>
               )}
             {datasource.isConfigured && (
               <NewActionButton
@@ -336,52 +320,51 @@ function DatasourceCard(props: DatasourceCardProps) {
                   e.stopPropagation();
                 }}
               >
-                <MenuComponent
-                  menuItemWrapperWidth="160px"
-                  onClose={onCloseMenu}
-                  position={Position.BOTTOM_RIGHT}
-                  target={
-                    <MoreOptionsContainer>
-                      <Icon
-                        fillColor={
-                          datasource.isConfigured ? Colors.GREY_8 : Colors.GRAY2
-                        }
-                        name="comment-context-menu"
-                        size={IconSize.XXXL}
-                      />
-                    </MoreOptionsContainer>
-                  }
-                >
-                  {canEditDatasource && (
-                    <MenuItem
-                      className="t--datasource-option-edit"
-                      icon="edit"
-                      onSelect={editDatasource}
-                      text="Edit"
+                <StyledMenu onOpenChange={onCloseMenu}>
+                  <MenuTrigger>
+                    <Button
+                      isIconButton
+                      kind="tertiary"
+                      size="md"
+                      startIcon="context-menu"
                     />
-                  )}
-                  {canDeleteDatasource && (
-                    <RedMenuItem
-                      className="t--datasource-option-delete"
-                      icon="delete"
-                      isLoading={isDeletingDatasource}
-                      onSelect={() => {
-                        if (!isDeletingDatasource) {
-                          confirmDelete
-                            ? deleteAction()
-                            : setConfirmDelete(true);
-                        }
-                      }}
-                      text={
-                        isDeletingDatasource
+                  </MenuTrigger>
+                  <MenuContent align="end" style={{ minWidth: "142px" }}>
+                    {canEditDatasource && (
+                      <MenuItem
+                        className="t--datasource-option-edit"
+                        onSelect={editDatasource}
+                        startIcon="pencil-line"
+                      >
+                        Edit
+                      </MenuItem>
+                    )}
+                    {canDeleteDatasource && (
+                      <MenuItem
+                        className="t--datasource-option-delete error-menuitem"
+                        disabled={isDeletingDatasource}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        onSelect={(e: Event) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!isDeletingDatasource) {
+                            confirmDelete
+                              ? deleteAction(e)
+                              : setConfirmDelete(true);
+                          }
+                        }}
+                        startIcon="delete-bin-line"
+                      >
+                        {isDeletingDatasource
                           ? createMessage(CONFIRM_CONTEXT_DELETING)
                           : confirmDelete
                           ? createMessage(CONFIRM_CONTEXT_DELETE)
-                          : createMessage(CONTEXT_DELETE)
-                      }
-                    />
-                  )}
-                </MenuComponent>
+                          : createMessage(CONTEXT_DELETE)}
+                      </MenuItem>
+                    )}
+                  </MenuContent>
+                </StyledMenu>
               </MenuWrapper>
             )}
           </ButtonsWrapper>
@@ -394,8 +377,8 @@ function DatasourceCard(props: DatasourceCardProps) {
           }}
         >
           <CollapseComponent
-            openTitle="Show Less"
-            title="Show More"
+            openTitle="Show less"
+            title="Show more"
             titleStyle={{ maxWidth: 120 }}
           >
             <DatasourceInfo>

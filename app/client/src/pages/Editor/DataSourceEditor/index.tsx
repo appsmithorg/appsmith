@@ -45,7 +45,6 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -56,6 +55,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 
+import { toast } from "design-system";
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
@@ -206,8 +206,14 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.switchDatasource(this.props.datasourceId);
     }
 
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -237,20 +243,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
 
@@ -283,17 +288,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       if (responseStatus) {
         // Set default error message
         let message = REST_API_AUTHORIZATION_FAILED;
-        let variant = Variant.danger;
         if (responseStatus === "success") {
           message = REST_API_AUTHORIZATION_SUCCESSFUL;
-          variant = Variant.success;
         } else if (responseStatus === "appsmith_error") {
           message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
         }
-        Toaster.show({
-          text: responseMessage || createMessage(message),
-          variant,
-        });
+        toast.show(responseMessage || createMessage(message));
       }
     }
   }

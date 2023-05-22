@@ -3,9 +3,6 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
-import { Icon } from "@blueprintjs/core";
-import { Callout, Variant } from "design-system-old";
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
@@ -19,6 +16,7 @@ import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { Callout } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -37,22 +35,6 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
-const StyledOpenDocsIcon = styled(Icon)`
-  svg {
-    width: 12px;
-    height: 18px;
-  }
-`;
-
-const CalloutWrapper = styled.div`
-  padding: 0 20px;
-`;
-
-const CollapsibleWrapper = styled.div`
-  width: max-content;
-  padding: 0 20px;
-`;
-
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -65,8 +47,8 @@ export const Form = styled.form`
 const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
-  padding: 20px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0;
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -86,7 +68,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
     return this.renderDataSourceConfigForm(formConfig);
   }
-
   renderDataSourceConfigForm = (sections: any) => {
     const {
       datasource,
@@ -104,26 +85,33 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         }}
       >
         {messages &&
-          messages.map((msg, i) => (
-            <CalloutWrapper key={i}>
-              <Callout addMarginTop fill text={msg} variant={Variant.warning} />
-            </CalloutWrapper>
-          ))}
+          messages.map((msg, i) => {
+            return (
+              <Callout className="mt-4" key={i} kind="warning">
+                {msg}
+              </Callout>
+            );
+          })}
         {!this.props.hiddenHeader &&
           cloudHosting &&
           pluginType === PluginType.DB &&
           !viewMode && (
-            <CollapsibleWrapper>
-              <CollapsibleHelp>
-                <span>{`Whitelist the IP ${convertArrayToSentence(
-                  APPSMITH_IP_ADDRESSES,
-                )}  on your database instance to connect to it. `}</span>
-                <a onClick={this.openDocumentation}>
-                  {"Learn more "}
-                  <StyledOpenDocsIcon icon="document-open" />
-                </a>
-              </CollapsibleHelp>
-            </CollapsibleWrapper>
+            <Callout
+              className="mt-4"
+              kind="warning"
+              links={[
+                {
+                  children: "Learn more",
+                  onClick: this.openDocumentation,
+                  endIcon: "share-box-line",
+                  to: "about:blank",
+                },
+              ]}
+            >
+              {`Whitelist the IP ${convertArrayToSentence(
+                APPSMITH_IP_ADDRESSES,
+              )}  on your database instance to connect to it. `}
+            </Callout>
           )}
         {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
           <>

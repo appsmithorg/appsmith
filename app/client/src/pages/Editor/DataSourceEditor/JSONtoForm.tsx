@@ -9,26 +9,29 @@ import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { Colors } from "constants/Colors";
-import { Button } from "design-system-old";
+import { Button } from "design-system";
 import type FeatureFlags from "entities/FeatureFlags";
 
 export const PluginImageWrapper = styled.div`
   height: 34px;
   width: 34px;
-  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.GREY_200};
-  border-radius: 100%;
   margin-right: 8px;
   flex-shrink: 0;
   img {
-    height: 100%;
+    height: 34px;
     width: auto;
   }
 `;
-
+// const MainContainer = styled.div`
+//   display: flex;
+//   position: relative;
+//   height: 100%;
+//   flex-direction: column;
+//   padding: var(--ads-v2-spaces-7);
+// `;
 export const PluginImage = (props: any) => {
   return (
     <PluginImageWrapper>
@@ -39,10 +42,11 @@ export const PluginImage = (props: any) => {
 
 export const FormContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  position: relative;
   height: 100%;
   overflow: hidden;
   flex: 1;
+  flex-direction: column;
   width: 100%;
 `;
 
@@ -53,13 +57,6 @@ export const FormContainerBody = styled.div`
   height: 100%;
   flex-grow: 1;
   overflow: hidden;
-  padding: 20px 0;
-  .t--section-general {
-    padding: 0 20px;
-  }
-  .api-datasource-content-container {
-    flex-direction: column;
-  }
   form {
     height: 100%;
   }
@@ -76,13 +73,14 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.ALTO};
-  padding: 0 20px 24px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+  margin: 0 var(--ads-v2-spaces-7);
 `;
 
 export const ActionWrapper = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 8px;
 `;
 
 export const ActionButton = styled(Button)<{
@@ -128,12 +126,14 @@ export class JSONtoForm<
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   renderForm = (formContent: any) => {
     return (
+      // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
         <CloseEditor />
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>
       </FormContainer>
+      // </MainContainer>
     );
   };
 

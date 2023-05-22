@@ -1,23 +1,21 @@
 import React, { useLayoutEffect } from "react";
 import type { AppState } from "@appsmith/reducers";
 import type { RouteComponentProps } from "react-router-dom";
-import { Link, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, Field } from "redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
-import { Icon } from "@blueprintjs/core";
 import FormTextField from "components/utils/ReduxFormTextField";
-import type { FormMessageProps, MessageAction } from "design-system-old";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
+import { Button, Callout, Link } from "design-system";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import type { ResetPasswordFormValues } from "./helpers";
 import { resetPasswordSubmitHandler } from "./helpers";
-import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
+import { FormActions, StyledFormGroup } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
 import {
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
@@ -35,8 +33,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import Container from "./Container";
-import { useTheme } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
+import type { CalloutProps } from "design-system/build/Callout/Callout.types";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -75,8 +72,6 @@ export function ResetPassword(props: ResetPasswordProps) {
     verifyToken,
   } = props;
 
-  const theme = useTheme() as Theme;
-
   useLayoutEffect(() => {
     if (initialValues.token) verifyToken(initialValues.token);
   }, [initialValues.token, verifyToken]);
@@ -87,16 +82,16 @@ export function ResetPassword(props: ResetPasswordProps) {
   const showFailureMessage = submitFailed && !!error;
 
   let message = "";
-  let messageActions: MessageAction[] | undefined = undefined;
+  let messageActions = undefined;
   if (showExpiredMessage || showInvalidMessage) {
     const messageActionText = createMessage(
       RESET_PASSWORD_FORGOT_PASSWORD_LINK,
     );
     messageActions = [
       {
-        linkElement: <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>,
-        text: messageActionText,
-        intent: "primary",
+        to: FORGOT_PASSWORD_URL,
+        children: messageActionText,
+        target: "_self",
       },
     ];
   }
@@ -114,9 +109,9 @@ export function ResetPassword(props: ResetPasswordProps) {
     message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
-        linkElement: <Link to={AUTH_LOGIN_URL}>{messageActionText}</Link>,
-        text: messageActionText,
-        intent: "success",
+        to: AUTH_LOGIN_URL,
+        children: messageActionText,
+        target: "_self",
       },
     ];
   }
@@ -134,27 +129,25 @@ export function ResetPassword(props: ResetPasswordProps) {
       );
       messageActions = [
         {
-          linkElement: (
-            <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>
-          ),
-          text: messageActionText,
-          intent: "primary",
+          to: FORGOT_PASSWORD_URL,
+          children: messageActionText,
+          target: "_self",
         },
       ];
     }
   }
 
-  const messageTagProps: FormMessageProps = {
-    intent:
+  const messageTagProps: CalloutProps = {
+    kind:
       showInvalidMessage || showExpiredMessage || showFailureMessage
-        ? "danger"
-        : "lightSuccess",
-    message,
-    actions: messageActions,
+        ? "error"
+        : "success",
+    links: messageActions,
+    children: message,
   };
 
   if (showInvalidMessage || showExpiredMessage) {
-    return <FormMessage {...messageTagProps} />;
+    return <Callout {...messageTagProps} />;
   }
 
   if (!isTokenValid && validatingToken) {
@@ -163,18 +156,23 @@ export function ResetPassword(props: ResetPasswordProps) {
   return (
     <Container
       subtitle={
-        <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
-          <Icon icon="arrow-left" style={{ marginRight: theme.spaces[3] }} />
+        <Link
+          className="text-sm justify-center"
+          startIcon="arrow-left-line"
+          target="_self"
+          to={AUTH_LOGIN_URL}
+        >
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
-        </BlackAuthCardNavLink>
+        </Link>
       }
       title={createMessage(RESET_PASSWORD_PAGE_TITLE)}
     >
       {(showSuccessMessage || showFailureMessage) && (
-        <FormMessage {...messageTagProps} />
+        <Callout {...messageTagProps} />
       )}
       <StyledForm onSubmit={handleSubmit(resetPasswordSubmitHandler)}>
-        <FormGroup
+        <StyledFormGroup
+          className="text-[color:var(--ads-v2\-color-fg)]"
           intent={error ? "danger" : "none"}
           label={createMessage(RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL)}
         >
@@ -186,19 +184,18 @@ export function ResetPassword(props: ResetPasswordProps) {
             )}
             type="password"
           />
-        </FormGroup>
+        </StyledFormGroup>
         <Field component="input" name="email" type="hidden" />
         <Field component="input" name="token" type="hidden" />
         <FormActions>
           <Button
-            disabled={pristine || submitSucceeded}
-            fill
+            isDisabled={pristine || submitSucceeded}
             isLoading={submitting}
-            size={Size.large}
-            tag="button"
-            text={createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
+            size="md"
             type="submit"
-          />
+          >
+            {createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
+          </Button>
         </FormActions>
       </StyledForm>
     </Container>

@@ -56,7 +56,6 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import { getDatasourceErrorMessage } from "./errorUtils";
-import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
@@ -94,11 +93,10 @@ interface StateProps extends JSONtoFormProps {
   isFormDirty: boolean;
   gsheetToken?: string;
   gsheetProjectID?: string;
-  documentationLink: string | undefined;
+  showDebugger: boolean;
   scopeValue?: string;
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
-  showDebugger: boolean;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -113,7 +111,7 @@ interface DatasourceFormFunctions {
 type DatasourceSaaSEditorProps = StateProps &
   DatasourceFormFunctions &
   SaasEditorWrappperProps &
-  RouteComponentProps<RouteProps>;
+  RouteComponentProps<RouteProps> & { dispatch: any };
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
@@ -135,8 +133,8 @@ type State = {
 const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
   padding: 20px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 
 type SaasEditorWrappperProps = RouteProps & {
@@ -222,8 +220,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -246,19 +251,20 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
     this.props.loadFilePickerAction();
@@ -340,8 +346,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      deleteTempDSFromDraft,
-      documentationLink,
       formConfig,
       formData,
       gsheetProjectID,
@@ -454,7 +458,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 <ViewModeWrapper>
                   {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
                     <AuthMessage
-                      actionType="authorize"
                       datasource={datasource}
                       description={authErrorMessage}
                       pageId={pageId}
@@ -492,8 +495,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
         </ResizerMainContainer>
-        {/* Documentation link opens up documentation in omnibar, for google sheets */}
-        {documentationLink && <DocumentationLink />}
         <SaveOrDiscardDatasourceModal
           datasourceId={datasourceId}
           datasourcePermissions={datasource?.userPermissions || []}
@@ -568,7 +569,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);
   const documentationLinks = getPluginDocumentationLinks(state);
-
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
 

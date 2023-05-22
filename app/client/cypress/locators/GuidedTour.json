@@ -1,5 +1,5 @@
 {
-    "banner": "[data-cy='guided-tour-banner']",
+    "banner": "[data-testid='guided-tour-banner']",
     "welcomeTour": ".t--welcome-tour",
     "startBuilding": ".t--start-building",
     "successButton": ".t--success-button",

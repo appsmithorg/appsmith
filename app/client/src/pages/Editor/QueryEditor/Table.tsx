@@ -3,7 +3,6 @@ import styled, { useTheme } from "styled-components";
 import { FixedSizeList } from "react-window";
 import { useTable, useBlockLayout } from "react-table";
 
-import { Colors } from "constants/Colors";
 import { scrollbarWidth } from "utils/helpers";
 import { getType, Types } from "utils/TypeHelpers";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
@@ -32,16 +31,17 @@ const NoDataMessage = styled.span`
   margin-left: 24px;
 `;
 
+// TODO: replace with ads table
 export const TableWrapper = styled.div`
   width: 100%;
   height: 100%;
-  background: white;
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  background: var(--ads-v2-color-bg);
+  border: 1px solid var(--ads-v2-color-border);
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  overflow: hidden;
+  overflow: scroll;
   .tableWrap {
     height: 100%;
     display: block;
@@ -50,9 +50,9 @@ export const TableWrapper = styled.div`
   }
   .table {
     border-spacing: 0;
-    color: ${Colors.THUNDER};
+    color: var(--ads-v2-color-fg);
     position: relative;
-    background: ${Colors.ATHENS_GRAY_DARKER};
+    background: var(--ads-v2-color-gray-50);
     display: table;
     width: 100%;
     height: 100%;
@@ -68,29 +68,29 @@ export const TableWrapper = styled.div`
     }
     .tr {
       overflow: hidden;
-      border-right: 1px solid ${Colors.GEYSER_LIGHT};
+      border-right: 1px solid var(--ads-v2-color-border);
       :nth-child(even) {
-        background: ${Colors.ATHENS_GRAY_DARKER};
+        background: var(--ads-v2-color-gray-50);
       }
       :nth-child(odd) {
-        background: ${Colors.WHITE};
+        background: var(--ads-v2-color-bg);
       }
       &.selected-row {
-        background: ${Colors.POLAR};
+        background: var(--ads-v2-color-bg-subtle);
         &:hover {
-          background: ${Colors.POLAR};
+          background: var(--ads-v2-color-bg-subtle);
         }
       }
       &:hover {
-        background: ${Colors.ATHENS_GRAY};
+        background: var(--ads-v2-color-gray-50);
       }
     }
     .th,
     .td {
       margin: 0;
       padding: 9px 10px;
-      border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-      border-right: 1px solid ${Colors.GEYSER_LIGHT};
+      border-bottom: 1px solid var(--ads-v2-color-border);
+      border-right: 1px solid var(--ads-v2-color-border);
       position: relative;
       font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
       line-height: ${TABLE_SIZES.ROW_FONT_SIZE}px;
@@ -109,7 +109,7 @@ export const TableWrapper = styled.div`
         ${"" /* prevents from scrolling while dragging on touch devices */}
         touch-action:none;
         &.isResizing {
-          cursor: isResizing;
+          cursor: n-resize;
         }
       }
     }
@@ -117,7 +117,7 @@ export const TableWrapper = styled.div`
       padding: 0 10px 0 0;
       height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
       line-height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
-      background: ${Colors.ATHENS_GRAY_DARKER};
+      background: var(--ads-v2-color-gray-50);
     }
     .td {
       height: ${TABLE_SIZES.ROW_HEIGHT}px;
@@ -131,7 +131,7 @@ export const TableWrapper = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    color: ${Colors.OXFORD_BLUE};
+    color: var(--ads-v2-color-fg);
     font-weight: 500;
     padding-left: 10px;
     &.sorted {
@@ -149,7 +149,6 @@ export const TableWrapper = styled.div`
     opacity: 0.6;
   }
   .column-menu {
-    cursor: pointer;
     height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
     line-height: ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
   }
@@ -157,10 +156,10 @@ export const TableWrapper = styled.div`
     display: flex;
     justify-content: space-between;
     &.highlight-left {
-      border-left: 2px solid ${Colors.GREEN};
+      border-left: 2px solid var(--ads-v2-color-border-success);
     }
     &.highlight-right {
-      border-right: 2px solid ${Colors.GREEN};
+      border-right: 2px solid var(--ads-v2-color-border-success);
     }
   }
 `;
