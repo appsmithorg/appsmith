@@ -41,6 +41,7 @@ import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import AnonymousDataPopup from "./AnonymousDataPopup";
 import {
   getFirstTimeUserOnboardingComplete,
+  getFirstTimeUserOnboardingModal,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -50,6 +51,7 @@ import {
 } from "utils/storage";
 import { ANONYMOUS_DATA_POPOP_TIMEOUT } from "./constants";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import IntroductionModal from "./IntroductionModal";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -117,6 +119,7 @@ export default function OnboardingTasks() {
   const user = useSelector(getCurrentUser);
   const isAdmin = user?.isSuperUser || false;
   const isOnboardingCompleted = useSelector(getFirstTimeUserOnboardingComplete);
+  const showModal = useSelector(getFirstTimeUserOnboardingModal);
 
   const hideAnonymousDataPopup = () => {
     setisAnonymousDataPopupOpen(false);
@@ -325,6 +328,16 @@ export default function OnboardingTasks() {
       {content}
       {isAnonymousDataPopupOpen && (
         <AnonymousDataPopup onCloseCallout={hideAnonymousDataPopup} />
+      )}
+      {!isAdmin && showModal && (
+        <IntroductionModal
+          close={() => {
+            dispatch({
+              type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+              payload: false,
+            });
+          }}
+        />
       )}
     </Wrapper>
   );
