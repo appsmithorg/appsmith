@@ -167,12 +167,8 @@ export const ErrorTextContainer = styled.div`
       fill: var(--ads-v2-color-fg-error);
     }
   }
-  .cs-icon {
-    margin-right: 4px;
-    margin-top: 2px;
-    align-items: flex-start;
-  }
 `;
+
 export const WorkspaceText = styled.div`
   a {
     display: inline;
