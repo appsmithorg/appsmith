@@ -1000,6 +1000,9 @@ export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
   "Not sure where to start? Take the welcome tour";
 
+export const ONBOARDING_TELEMETRY_POPUP = () =>
+  "We only collect usage data to make Appsmith better for everyone. Visit admin settings to toggle this off.";
+
 //Introduction modal
 export const HOW_APPSMITH_WORKS = () =>
   "Here’s a quick overview of how Appsmith works. ";

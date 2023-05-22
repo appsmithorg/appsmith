@@ -1,5 +1,9 @@
 import React from "react";
 import { Callout } from "design-system";
+import {
+  ONBOARDING_TELEMETRY_POPUP,
+  createMessage,
+} from "ce/constants/messages";
 
 export default function AnonymousDataPopup(props: {
   onCloseCallout: () => void;
@@ -23,8 +27,7 @@ export default function AnonymousDataPopup(props: {
           props.onCloseCallout();
         }}
       >
-        We only collect usage data to make Appsmith better for everyone. Visit
-        admin settings to toggle this off.
+        {createMessage(ONBOARDING_TELEMETRY_POPUP)}
       </Callout>
     </div>
   );

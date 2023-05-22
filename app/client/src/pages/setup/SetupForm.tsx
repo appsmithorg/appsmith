@@ -136,10 +136,6 @@ function SetupForm(props: SetupFormProps) {
       roleInput.value = props.role as string;
     } else {
       roleInput.value = props.role_name as string;
-      const roleNameInput: HTMLInputElement = document.querySelector(
-        `[name="role_name"]`,
-      ) as HTMLInputElement;
-      if (roleNameInput) roleNameInput.remove();
     }
     form.appendChild(roleInput);
     const useCaseInput = document.createElement("input");
@@ -150,10 +146,6 @@ function SetupForm(props: SetupFormProps) {
       useCaseInput.value = props.useCase as string;
     } else {
       useCaseInput.value = props.custom_useCase as string;
-      const customUseCaseInput: HTMLInputElement = document.querySelector(
-        `[name="custom_useCase"]`,
-      ) as HTMLInputElement;
-      if (customUseCaseInput) customUseCaseInput.remove();
     }
     form.appendChild(useCaseInput);
     const anonymousDataInput = document.createElement("input");
