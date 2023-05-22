@@ -8,37 +8,7 @@ import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { Colors } from "constants/Colors";
-import { Button } from "design-system";
 import type FeatureFlags from "entities/FeatureFlags";
-
-export const PluginImageWrapper = styled.div`
-  height: 34px;
-  width: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 8px;
-  flex-shrink: 0;
-  img {
-    height: 34px;
-    width: auto;
-  }
-`;
-// const MainContainer = styled.div`
-//   display: flex;
-//   position: relative;
-//   height: 100%;
-//   flex-direction: column;
-//   padding: var(--ads-v2-spaces-7);
-// `;
-export const PluginImage = (props: any) => {
-  return (
-    <PluginImageWrapper>
-      <img {...props} />
-    </PluginImageWrapper>
-  );
-};
 
 export const FormContainer = styled.div`
   display: flex;
@@ -59,54 +29,6 @@ export const FormContainerBody = styled.div`
   overflow: hidden;
   form {
     height: 100%;
-  }
-`;
-
-export const FormTitleContainer = styled.div`
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-`;
-
-export const Header = styled.div`
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
-  margin: 0 var(--ads-v2-spaces-7);
-`;
-
-export const ActionWrapper = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-export const ActionButton = styled(Button)<{
-  floatLeft: boolean;
-}>`
-  &&& {
-    width: auto;
-    min-width: 74px;
-    min-height: 32px;
-    // Pulling button to the left if floatLeft is set as true
-    margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
-
-    & > span {
-      max-width: 100%;
-    }
-  }
-`;
-
-export const EditDatasourceButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    max-width: 160px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
   }
 `;
 

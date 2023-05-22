@@ -311,7 +311,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         className="t--section-general"
         data-replay-id="section-General"
         data-testid="section-General"
-        style={{ padding: "0px 20px" }}
       >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({

@@ -2,13 +2,6 @@ import React, { useState } from "react";
 import { Icon, IconSize } from "design-system-old";
 import FormTitle from "./FormTitle";
 import NewActionButton from "./NewActionButton";
-import {
-  ActionWrapper,
-  EditDatasourceButton,
-  FormTitleContainer,
-  Header,
-  PluginImage,
-} from "./JSONtoForm";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Position } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
@@ -25,6 +18,61 @@ import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { MenuComponent, RedMenuItem } from "components/utils/formComponents";
+import styled from "styled-components";
+import { Button } from "design-system";
+
+export const ActionWrapper = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+
+export const FormTitleContainer = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+`;
+
+export const Header = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+  margin: 0 var(--ads-v2-spaces-7);
+`;
+
+export const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
+  &&&& {
+    height: 36px;
+    max-width: 160px;
+    border: 1px solid ${Colors.HIT_GRAY};
+    width: auto;
+  }
+`;
+
+export const PluginImageWrapper = styled.div`
+  height: 34px;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+  img {
+    height: 34px;
+    width: auto;
+  }
+`;
+
+export const PluginImage = (props: any) => {
+  return (
+    <PluginImageWrapper>
+      <img {...props} />
+    </PluginImageWrapper>
+  );
+};
 
 type DSFormHeaderProps = {
   canCreateDatasourceActions: boolean;

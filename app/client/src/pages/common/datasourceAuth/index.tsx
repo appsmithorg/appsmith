@@ -76,6 +76,23 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
+export const ActionButton = styled(Button)<{
+  floatLeft: boolean;
+}>`
+  &&& {
+    width: auto;
+    min-width: 74px;
+    min-height: 32px;
+    // Pulling button to the left if floatLeft is set as true
+    margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
+    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
+
+    & > span {
+      max-width: 100%;
+    }
+  }
+`;
+
 const SaveButtonContainer = styled.div<{
   isInsideReconnectModal?: boolean;
 }>`
@@ -283,9 +300,9 @@ function DatasourceAuth({
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.TEST]: (
-        <Button
+        <ActionButton
           className="t--test-datasource"
-          // floatLeft={!isInsideReconnectModal}
+          floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
           kind="secondary"
@@ -293,7 +310,7 @@ function DatasourceAuth({
           size="md"
         >
           Test Configuration
-        </Button>
+        </ActionButton>
       ),
       [DatasourceButtonType.CANCEL]: (
         <Button
