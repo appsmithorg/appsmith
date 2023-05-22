@@ -107,7 +107,7 @@ export type PropertyOverrideDependency = Record<
   Partial<overrideDependency>
 >;
 
-export type WidgetConfig = {
+export interface WidgetConfig extends EntityConfig {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
@@ -117,8 +117,12 @@ export type WidgetConfig = {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
-};
+}
 
 export interface EntityConfig {
   __setters?: Record<string, unknown>;
+  bindingPaths?: Record<string, EvaluationSubstitutionType>;
+  reactivePaths?: Record<string, EvaluationSubstitutionType>;
+  validationPaths?: Record<string, ValidationConfig>;
+  dynamicBindingPathList?: DynamicPath[];
 }
