@@ -22,6 +22,7 @@ import {
   USERS_HAVE_ACCESS_TO_ALL_APPS,
   NO_USERS_INVITED,
   BUSINESS_EDITION_TEXT,
+  INVITE_USER_RAMP_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -53,7 +54,8 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-// import { Link } from "design-system";
+import { showProductRamps } from "ce/utils/ProductRamps";
+import { RAMP_NAME } from "ce/utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -232,6 +234,31 @@ const validate = (values: any) => {
   }
   return errors;
 };
+
+function InviteUserText() {
+  return (
+    <Text
+      color="var(--ads-v2-color-fg)"
+      data-testid="helper-message"
+      kind="action-m"
+    >
+      {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) ? (
+        <>
+          {createMessage(INVITE_USER_RAMP_TEXT)}
+          <Link
+            kind="primary"
+            target="_blank"
+            to="https://appsmith.com/pricing"
+          >
+            {createMessage(BUSINESS_EDITION_TEXT)}
+          </Link>
+        </>
+      ) : (
+        createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)
+      )}
+    </Text>
+  );
+}
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
@@ -457,20 +484,7 @@ function WorkspaceInviteUsersForm(props: any) {
         <div className="flex gap-2 mt-2 items-start">
           <Icon className="mt-1" name="user-3-line" size="md" />
           <WorkspaceText>
-            <Text
-              color="var(--ads-v2-color-fg)"
-              data-testid="helper-message"
-              kind="action-m"
-            >
-              {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-              <Link
-                kind="primary"
-                target="_blank"
-                to="https://appsmith.com/pricing"
-              >
-                {createMessage(BUSINESS_EDITION_TEXT)}
-              </Link>
-            </Text>
+            <InviteUserText />
           </WorkspaceText>
         </div>
         {isLoading ? (
