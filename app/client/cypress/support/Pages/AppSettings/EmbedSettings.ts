@@ -5,8 +5,8 @@ export class EmbedSettings {
 
   public locators = {
     _getDimensionInput: (prefix: string) => `.t--${prefix}-dimension input`,
-    _snippet: "[data-cy='t--embed-snippet']",
-    _frameAncestorsSetting: "[data-cy='frame-ancestors-setting']",
+    _snippet: "[data-testid='t--embed-snippet']",
+    _frameAncestorsSetting: "[data-testid='frame-ancestors-setting']",
     _allowAllText: "Embedding enabled",
     _restrictedText: "Embedding restricted",
     _disabledText: "Embedding disabled",
@@ -43,10 +43,7 @@ export class EmbedSettings {
     const input = this.agHelper.GetElement(this.locators._showNavigationBar);
     input.invoke("attr", "checked").then((value) => {
       if (value !== check) {
-        this.agHelper.GetSiblingNClick(
-          this.locators._showNavigationBar,
-          this.locators._controlIndicator,
-        );
+        this.agHelper.GetNClick(this.locators._showNavigationBar);
         this.agHelper.ValidateNetworkStatus("@updateApplication");
       }
     });

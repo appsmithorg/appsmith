@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { APPLICATION_TITLE_MAX_WIDTH } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import { StyledApplicationName } from "./ApplicationName.styled";
 import { isEllipsisActive } from "utils/helpers";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 type ApplicationNameProps = {
@@ -35,18 +34,10 @@ const ApplicationName = (props: ApplicationNameProps) => {
   }, [applicationNameRef, appName]);
 
   return (
-    <TooltipComponent
-      boundary="viewport"
-      content={appName}
-      disabled={!ellipsisActive}
-      maxWidth={`${APPLICATION_TITLE_MAX_WIDTH}px`}
-      modifiers={{
-        preventOverflow: {
-          enabled: true,
-          boundariesElement: "viewport",
-        },
-      }}
-      position="bottom"
+    <Tooltip
+      content={appName || ""}
+      isDisabled={!ellipsisActive}
+      placement="bottom"
     >
       <StyledApplicationName
         className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap t--app-viewer-application-name"
@@ -60,7 +51,7 @@ const ApplicationName = (props: ApplicationNameProps) => {
       >
         {appName}
       </StyledApplicationName>
-    </TooltipComponent>
+    </Tooltip>
   );
 };
 

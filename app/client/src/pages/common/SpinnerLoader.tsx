@@ -1,30 +1,11 @@
-import styled from "styled-components";
 import React from "react";
-import { importSvg } from "design-system-old";
+import type { SpinnerProps } from "design-system";
+import { Spinner } from "design-system";
 
-const SpinnerSvg = importSvg(() => import("assets/svg/loader-2-fill.svg"));
+type Props = SpinnerProps;
 
-const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
-  #loading-spinner {
-    animation: loading-spinner 2s linear infinite;
-  }
-
-  @keyframes loading-spinner {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-function SpinnerLoader(props: { height: string; width: string }) {
-  return (
-    <CheckmarkWrapper $height={props.height} $width={props.width}>
-      <SpinnerSvg id="loading-spinner" />
-    </CheckmarkWrapper>
-  );
+function SpinnerLoader(props: Props) {
+  return <Spinner size={props.size} />;
 }
 
 export default SpinnerLoader;

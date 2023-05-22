@@ -1,14 +1,22 @@
 import React from "react";
-
-import { Colors } from "constants/Colors";
-import { Icon, Text, TextType } from "design-system-old";
-import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 import styled from "styled-components";
 
+import { Callout, Icon, Text } from "design-system";
+import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
+
 const AlertIcons = {
-  [AlertType.SUCCESS]: "success-line",
-  [AlertType.WARNING]: "warning-line",
-  [AlertType.ERROR]: "error-line",
+  [AlertType.SUCCESS]: {
+    name: "success",
+    color: "var(--ads-v2-color-fg-success)",
+  },
+  [AlertType.WARNING]: {
+    name: "warning-line",
+    color: "var(--ads-v2-color-fg-warning)",
+  },
+  [AlertType.ERROR]: {
+    name: "error",
+    color: "var(--ads-v2-color-bg)",
+  },
 };
 
 export type ConversionCompleteLayoutProps = {
@@ -28,18 +36,37 @@ const StyledHugeIcon = styled(Icon)`
 export const ConversionCompleteLayout = (
   props: ConversionCompleteLayoutProps,
 ) => {
+  const icon = AlertIcons[props.alertType];
+
+  if (props.alertType === AlertType.ERROR) {
+    return (
+      <Callout className="mb-3" kind="error">
+        <div className="flex flex-col">
+          <Text kind="heading-s" renderAs="h4">
+            {props.headerText}
+          </Text>
+          {props.errorText && (
+            <Text kind="action-m" renderAs="p">
+              {props.errorText}. {props.infoText}
+            </Text>
+          )}
+        </div>
+      </Callout>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-39">
-      <StyledHugeIcon clickable={false} name={AlertIcons[props.alertType]} />
-      <Text className="pt-4 pb-1" type={TextType.H4}>
+      <StyledHugeIcon color={icon.color} name={icon.name} />
+      <Text className="pt-4 pb-1" kind="heading-m" renderAs="h4">
         {props.headerText}
       </Text>
       {props.errorText && (
-        <Text color={Colors.ERROR_600} type={TextType.P1}>
+        <Text kind="action-l" renderAs="p">
           {props.errorText}
         </Text>
       )}
-      <Text color={Colors.GRAY_500} type={TextType.P1}>
+      <Text kind="action-l" renderAs="p">
         {props.infoText}
       </Text>
     </div>
