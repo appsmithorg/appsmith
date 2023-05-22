@@ -42,6 +42,7 @@ describe("Add functions", () => {
   };
   const evalContext = createEvaluationContext({
     dataTree,
+    configTree: {},
     isTriggerBased: true,
     context: {},
   });
@@ -538,12 +539,15 @@ const dataTree = {
   },
 };
 
+const configTree = {};
+
 describe("Test addDataTreeToContext method", () => {
   const evalContext: EvalContext = {};
   beforeAll(() => {
     addDataTreeToContext({
       EVAL_CONTEXT: evalContext,
       dataTree: dataTree as unknown as DataTree,
+      configTree,
       isTriggerBased: true,
     });
     addPlatformFunctionsToEvalContext(evalContext);

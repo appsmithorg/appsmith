@@ -2,6 +2,7 @@
 
 import set from "lodash/set";
 import type {
+  ConfigTree,
   DataTree,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
@@ -14,8 +15,9 @@ import {
 } from "@appsmith/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
-import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import { isEmpty } from "lodash";
+import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
+import { applySetterMethod } from "workers/Evaluation/setters";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -37,6 +39,7 @@ export enum ExecutionType {
 
 function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
   const setterMethodMap: Record<string, any> = {};
+  if (!entityConfig) return setterMethodMap;
 
   if (entityConfig.__setters) {
     for (const setterMethodName of Object.keys(entityConfig.__setters)) {
@@ -45,7 +48,7 @@ function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
       setterMethodMap[setterMethodName] = function (value: unknown) {
         if (!dataTreeEvaluator) return;
 
-        return dataTreeEvaluator?.applySetterMethod(path, value);
+        return applySetterMethod(path, value);
       };
     }
   }
@@ -61,8 +64,10 @@ export const addDataTreeToContext = (args: {
   dataTree: Readonly<DataTree>;
   removeEntityFunctions?: boolean;
   isTriggerBased: boolean;
+  configTree: ConfigTree;
 }) => {
   const {
+    configTree,
     dataTree,
     EVAL_CONTEXT,
     isTriggerBased,
@@ -82,12 +87,9 @@ export const addDataTreeToContext = (args: {
       set(entityFunctionCollection, fullPath, func);
     }
 
-    const entityConfig = dataTreeEvaluator?.oldConfigTree?.[entityName];
-    if (!entityConfig) continue;
+    const entityConfig = configTree[entityName];
     const entityMethodMap = getEntityMethodFromConfig(entityConfig);
-
     if (isEmpty(entityMethodMap)) continue;
-
     EVAL_CONTEXT[entityName] = Object.assign(
       {},
       dataTree[entityName],

@@ -155,6 +155,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
+        configTree,
         isDataField: false,
         isTriggerBased: true,
       });
@@ -214,6 +215,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
+        configTree,
         isDataField: false,
         isTriggerBased: true,
       });
@@ -227,7 +229,6 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
-    dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
     dependencies = dataTreeEvaluator.inverseDependencyMap;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();

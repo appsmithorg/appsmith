@@ -504,19 +504,22 @@ export function lintJSObjectBody(
 
 export function getEvaluationContext(
   unevalTree: DataTree,
+  configTree: ConfigTree,
   cloudHosting: boolean,
   options: { withFunctions: boolean },
 ) {
   if (!options.withFunctions)
     return createEvaluationContext({
       dataTree: unevalTree,
+      configTree,
       isTriggerBased: false,
       removeEntityFunctions: true,
     });
 
   const evalContext = createEvaluationContext({
     dataTree: unevalTree,
-    isTriggerBased: false,
+    configTree,
+    isTriggerBased: true,
     removeEntityFunctions: false,
   });
 

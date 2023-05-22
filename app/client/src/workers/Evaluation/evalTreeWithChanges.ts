@@ -17,7 +17,6 @@ import { setEvalContext } from "./evaluate";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
-  shouldResetEvalContext: boolean,
   callback?: (value: unknown) => void,
 ) {
   let evalOrder: string[] = [];
@@ -49,6 +48,14 @@ export function evalTreeWithChanges(
       dataTreeEvaluator.oldConfigTree,
       unEvalUpdates,
     );
+
+    setEvalContext({
+      dataTree: dataTreeEvaluator.getEvalTree(),
+      configTree: dataTreeEvaluator.getConfigTree(),
+      isDataField: false,
+      isTriggerBased: true,
+    });
+
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
@@ -89,14 +96,6 @@ export function evalTreeWithChanges(
   });
 
   if (callback) {
-    if (shouldResetEvalContext) {
-      setEvalContext({
-        dataTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
-    }
-
     callback(dataTree);
   }
 }

@@ -35,6 +35,7 @@ export default async function (request: EvalWorkerASyncRequest) {
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     evalTree,
+    unEvalTree.configTree,
     callbackData,
     {
       globalContext,
