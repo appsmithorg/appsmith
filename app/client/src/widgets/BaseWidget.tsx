@@ -72,6 +72,8 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { useSelector } from "react-redux";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 /***
  * BaseWidget
@@ -87,6 +89,17 @@ import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUti
  */
 
 const REFERENCE_KEY = "$$refs$$";
+
+const EventsRestrictedWidget = (props: any) => {
+  const isPreviewMode = useSelector(previewModeSelector);
+  return isPreviewMode ? (
+    props.children
+  ) : (
+    <div style={{ height: "100%", width: "100%", pointerEvents: "none" }}>
+      {props.children}
+    </div>
+  );
+};
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -619,6 +632,13 @@ abstract class BaseWidget<
       renderMode === RenderModes.CANVAS
         ? this.getCanvasView()
         : this.getPageView();
+    if (
+      renderMode === RenderModes.CANVAS &&
+      !this.props.detachFromLayout &&
+      !this.props.isCanvas
+    ) {
+      content = <EventsRestrictedWidget>{content}</EventsRestrictedWidget>;
+    }
 
     // This `if` code is responsible for the unmount of the widgets
     // while toggling the dynamicHeight property
