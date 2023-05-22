@@ -61,7 +61,7 @@ public interface DatasourceServiceCE {
      * THis method is used to update only the datasourceStorages which has been changed.
      *
      * @param datasourceStorageDTO
-     * @param environmentId
+     * @param activeEnvironmentId: the environment from which the changes have been made
      * @param IsUserRefreshedUpdate
      * @return
      */
