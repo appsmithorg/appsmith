@@ -248,6 +248,7 @@ export default class DataTreeEvaluator {
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
+
     // Create dependency map
     const {
       dependencyMap,
@@ -409,6 +410,7 @@ export default class DataTreeEvaluator {
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
+
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
@@ -426,6 +428,7 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+
     //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = parseJSActions(
       this,

@@ -17,9 +17,9 @@ import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
 
 /**
- * 
+ *
  * Example of setterConfig
- * 
+ *
  * {
       WIDGET: {
         TABLE_WIDGET_V2: {
@@ -56,7 +56,7 @@ import { error } from "loglevel";
             }
           },
         }
-      }  
+      }
  */
 
 function getSetterConfig(
@@ -316,6 +316,7 @@ export const generateDataTreeWidget = (
 
   // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
   // initial value is set to metaProps value or defaultMetaProps value.
+
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =

@@ -13,8 +13,12 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
+import { setEvalContext } from "./evaluate";
 
-export function evalTreeWithChanges(updatedValuePaths: string[][]) {
+export function evalTreeWithChanges(
+  updatedValuePaths: string[][],
+  callback?: (value: unknown) => void,
+) {
   let evalOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
@@ -44,9 +48,18 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       dataTreeEvaluator.oldConfigTree,
       unEvalUpdates,
     );
+
+    setEvalContext({
+      dataTree: dataTreeEvaluator.getEvalTree(),
+      configTree: dataTreeEvaluator.getConfigTree(),
+      isDataField: false,
+      isTriggerBased: true,
+    });
+
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
+
     evalMetaUpdates = JSON.parse(
       JSON.stringify(updateResponse.evalMetaUpdates),
     );
@@ -81,4 +94,8 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       method: MAIN_THREAD_ACTION.UPDATE_DATATREE,
     },
   });
+
+  if (callback) {
+    callback(dataTree);
+  }
 }

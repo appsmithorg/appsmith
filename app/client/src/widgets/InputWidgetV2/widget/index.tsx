@@ -27,7 +27,7 @@ import {
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -587,6 +587,25 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+        },
+        setDisabled: {
+          path: "isDisabled",
+        },
+        setRequired: {
+          path: "isRequired",
+        },
+        setValue: {
+          path: "defaultText",
+        },
+      },
+    };
+  }
 
   resetWidgetText = () => {
     this.props.updateWidgetMetaProperty("inputText", "");

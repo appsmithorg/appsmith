@@ -383,6 +383,7 @@ class WidgetFactory {
 
   static getWidgetSetterConfig(type: WidgetType): Record<string, any> {
     const map = this.setterConfig.get(type);
+
     if (!map) {
       return {};
     }
