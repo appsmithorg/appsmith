@@ -80,6 +80,7 @@ const BodyContainer = styled.div`
   max-height: 82vh;
 `;
 
+// TODO: Removed usage of "t--" classes since they clash with the test classes.
 const ContentWrapper = styled.div`
   height: calc(100% - 16px);
   display: flex;
