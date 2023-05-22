@@ -1,14 +1,8 @@
-import { Colors } from "constants/Colors";
-import type { NotificationBannerProps } from "design-system-old";
-import {
-  NotificationBanner,
-  NotificationVariant,
-  Text,
-  TextType,
-} from "design-system-old";
 import React from "react";
 import type { GitErrorType } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
+import { Callout } from "design-system";
+import type { CalloutProps } from "design-system/build/Callout/Callout.types";
 
 const Container = styled.div`
   margin: 8px 0 16px;
@@ -21,23 +15,15 @@ export default function DiscardFailedWarning({
   closeHandler: () => void;
   error: GitErrorType["error"];
 }) {
-  const notificationBannerOptions: NotificationBannerProps = {
-    canClose: true,
-    icon: "warning-line",
-    className: "error",
+  const calloutOptions: CalloutProps = {
+    isClosable: true,
+    kind: "error",
     onClose: () => closeHandler(),
-    variant: NotificationVariant.error,
-    style: {
-      alignItems: "start",
-    },
+    children: error.message,
   };
   return (
     <Container data-cy={"discard-error"}>
-      <NotificationBanner {...notificationBannerOptions}>
-        <Text color={Colors.ERROR_600} type={TextType.P3}>
-          {error.message}
-        </Text>
-      </NotificationBanner>
+      <Callout {...calloutOptions} />
     </Container>
   );
 }

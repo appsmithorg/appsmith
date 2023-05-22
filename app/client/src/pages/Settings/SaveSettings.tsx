@@ -1,27 +1,7 @@
 import React from "react";
 import { createMessage } from "@appsmith/constants/messages";
-import { Button, Category } from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
-
-const StyledButton = styled(Button)`
-  height: 24px;
-  display: inline-block;
-  margin-right: 16px;
-`;
-
-const StyledSaveButton = styled(StyledButton)`
-  width: 128px;
-  height: 38px;
-
-  & .cs-spinner {
-    top: 11px;
-  }
-`;
-
-const StyledClearButton = styled(StyledButton)`
-  width: 68px;
-  height: 38px;
-`;
 
 const SettingsButtonWrapper = styled.div`
   position: fixed;
@@ -29,14 +9,19 @@ const SettingsButtonWrapper = styled.div`
   left: 0;
   width: 100%;
   height: ${(props) => props.theme.settings.footerHeight}px;
-  padding: ${(props) => props.theme.spaces[11]}px 0px 0px
+  padding: ${(props) => props.theme.spaces[11]}px 20px 24px
     ${(props) =>
       props.theme.homePage.leftPane.leftPadding +
       props.theme.homePage.leftPane.width +
       props.theme.spaces[8]}px;
-  box-shadow: ${(props) => props.theme.settings.footerShadow};
+  /* box-shadow: ${(props) => props.theme.settings.footerShadow}; */
+  border-top: 1px solid var(--ads-v2-color-border);
   z-index: 2;
-  background-color: ${(props) => props.theme.colors.homepageBackground};
+  background-color: var(--ads-v2-color-bg);
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 16px;
+  align-items: center;
 `;
 
 type SaveAdminSettingsProps = {
@@ -52,23 +37,24 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
 
   return (
     <SettingsButtonWrapper>
-      <StyledSaveButton
-        category={Category.primary}
+      <Button
         className="t--admin-settings-save-button"
-        disabled={Object.keys(settings).length == 0 || !valid}
+        isDisabled={Object.keys(settings).length == 0 || !valid}
         isLoading={isSaving}
         onClick={onSave}
-        tag="button"
-        text={createMessage(() => "Save & Restart")}
-      />
-      <StyledClearButton
-        category={Category.secondary}
+        size="md"
+      >
+        {createMessage(() => "Save & Restart")}
+      </Button>
+      <Button
         className="t--admin-settings-reset-button"
-        disabled={Object.keys(settings).length == 0}
+        isDisabled={Object.keys(settings).length == 0}
+        kind="secondary"
         onClick={onClear}
-        tag="button"
-        text={createMessage(() => "Reset")}
-      />
+        size="md"
+      >
+        {createMessage(() => "Reset")}
+      </Button>
     </SettingsButtonWrapper>
   );
 };

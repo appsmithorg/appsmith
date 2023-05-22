@@ -715,4 +715,77 @@ public class MssqlPluginTest {
                 .collect(Collectors.toList()).size() == 0);
 
     }
+
+    @Test
+    public void testSSLNoVerifyConnectionIsEncrypted() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String queryToFetchEncryptionStatusOfSelfConnection =
+                "SELECT   \n" +
+                "    c.encrypt_option \n" +
+                "FROM sys.dm_exec_connections AS c  \n" +
+                "JOIN sys.dm_exec_sessions AS s  \n" +
+                "    ON c.session_id = s.session_id  \n" +
+                "WHERE c.session_id = @@SPID;";
+        actionConfiguration.setBody(queryToFetchEncryptionStatusOfSelfConnection);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        executeActionDTO.setParams(params);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.NO_VERIFY);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    String expectedResultString = "[{\"encrypt_option\":\"TRUE\"}]";
+                    assertEquals(expectedResultString, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSSLDisabledConnectionIsNotEncrypted() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String queryToFetchEncryptionStatusOfSelfConnection =
+                "SELECT   \n" +
+                        "    c.encrypt_option \n" +
+                        "FROM sys.dm_exec_connections AS c  \n" +
+                        "JOIN sys.dm_exec_sessions AS s  \n" +
+                        "    ON c.session_id = s.session_id  \n" +
+                        "WHERE c.session_id = @@SPID;";
+        actionConfiguration.setBody(queryToFetchEncryptionStatusOfSelfConnection);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        executeActionDTO.setParams(params);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLE);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    String expectedResultString = "[{\"encrypt_option\":\"FALSE\"}]";
+                    assertEquals(expectedResultString, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
 }

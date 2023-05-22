@@ -18,7 +18,7 @@ const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
     stroke-dashoffset: 166;
     stroke-width: 2;
     stroke-miterlimit: 10;
-    stroke: green;
+    stroke: var(--ads-v2-color-fg-success);
     fill: none;
     animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
   }
@@ -29,7 +29,7 @@ const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
     border-radius: 50%;
     display: block;
     stroke-width: 2;
-    stroke: green;
+    stroke: var(--ads-v2-color-fg-success);
     stroke-miterlimit: 10;
     margin: 10% auto;
     box-shadow: inset 0px 0px 0px #7ac142;

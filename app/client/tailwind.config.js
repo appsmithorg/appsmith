@@ -153,13 +153,13 @@ module.exports = {
       },
       borderColor: (theme) => ({
         ...theme("colors"),
-        DEFAULT: theme("colors.gray.200", "currentColor"),
+        DEFAULT: "#CDD5DF",
       }),
       borderOpacity: (theme) => theme("opacity"),
       borderRadius: {
         none: "0px",
         sm: "0.125rem",
-        DEFAULT: "0.25rem",
+        DEFAULT: "4px",
         md: "0.375rem",
         lg: "0.5rem",
         xl: "0.75rem",
