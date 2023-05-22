@@ -37,7 +37,7 @@ function renderComponent() {
           dataType: "TEXT",
           configProperty: "authentication.accessTokenUrl",
           encrypted: false,
-          label: "Access Token URL",
+          label: "Access token URL",
           conditionals: {},
           placeholderText: "https://example.com/login/oauth/access_token",
           formName: "DatasourceRestAPIForm",

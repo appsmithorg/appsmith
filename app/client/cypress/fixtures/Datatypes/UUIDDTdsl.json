@@ -71,7 +71,7 @@
                 "widgetName": "IconButton1Copy",
                 "onClick": "{{closeModal('UpdateModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -157,10 +157,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 7,
                 "bottomRow": 11,
                 "parentRowSpace": 10,
@@ -208,10 +205,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 7,
                 "bottomRow": 11,
                 "parentRowSpace": 10,
@@ -259,10 +253,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 13,
                 "bottomRow": 17,
                 "parentRowSpace": 10,
@@ -310,10 +301,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 13,
                 "bottomRow": 17,
                 "parentRowSpace": 10,
@@ -366,10 +354,7 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 19,
                 "bottomRow": 23,
                 "parentRowSpace": 10,
@@ -571,14 +556,7 @@
         },
         "widgetName": "Table1",
         "defaultPageSize": 0,
-        "columnOrder": [
-          "serialid",
-          "v1",
-          "v4",
-          "guid",
-          "nil",
-          "customColumn1"
-        ],
+        "columnOrder": ["serialid", "v1", "v4", "guid", "nil", "customColumn1"],
         "dynamicPropertyPathList": [],
         "compactMode": "TALL",
         "displayName": "Table",
@@ -896,7 +874,7 @@
                 "widgetName": "IconButton1",
                 "onClick": "{{closeModal('InsertModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 0,
                 "bottomRow": 4,
@@ -978,10 +956,7 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 12,
                 "bottomRow": 16,
                 "parentRowSpace": 10,
@@ -1030,10 +1005,7 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 6,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
@@ -1115,7 +1087,7 @@
             "key": "onClick"
           }
         ],
-        "displayName": "Icon Button",
+        "displayName": "Icon button",
         "iconSVG": "/static/media/icon.1a0c634a.svg",
         "topRow": 2,
         "bottomRow": 6,

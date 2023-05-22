@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 ]
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -243,6 +243,7 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
+          CYPRESS_VERIFY_TIMEOUT: 100000
         run: |
           cd app/client
           chmod a+x ./cypress/setup-test-ci.sh
@@ -300,15 +301,16 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          CYPRESS_VERIFY_TIMEOUT: 100000
         with:
           browser: ${{ env.BROWSER_PATH }}
           headless: true
           record: true
           install: false
           parallel: true
-          config-file: cypress_ci.json
+          config-file: cypress_ci.config.ts
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/integration/**/**/*"
+          spec: "cypress/e2e/**/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -367,7 +369,7 @@ jobs:
           record: true
           install: false
           parallel: true
-          config-file: cypress_ci.json
+          config-file: cypress_ci.config.ts
           group: "Electrons on Github Action Fat Container"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
@@ -407,7 +409,7 @@ jobs:
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/e2e/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # reset the failed_spec_ci file in case of success
       - name: In case of test success reset the failed_spec_ci file
