@@ -22,7 +22,8 @@ import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
-__webpack_public_path__ = window.resourceBaseUrl;
+// __webpack_public_path__ = window.CDN_URL;
+__webpack_public_path__ = "https://perf-test-assets.appsmith.com/";
 
 setAutoFreeze(shouldAutoFreeze);
 

@@ -6,4 +6,4 @@ declare module "*.txt" {
   export default filePath;
 }
 
-declare var resourceBaseUrl: string;
+declare var CDN_URL: string;
