@@ -44,7 +44,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     @Override
     public Mono<Application> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId,
                                                                        String targetWorkspaceId,
-                                                                       String environmentId) {
+                                                                       String sourceEnvironmentId) {
         final Mono<Application> sourceApplicationMono = applicationService
                 .findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
@@ -84,7 +84,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return examplesWorkspaceCloner.forkApplications(
                             targetWorkspace.getId(),
                             Flux.fromIterable(Collections.singletonList(application)),
-                            environmentId);
+                            sourceEnvironmentId);
                 })
                 .flatMap(applicationIds -> {
                     final String newApplicationId = applicationIds.get(0);
@@ -114,10 +114,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                                  String branchName) {
 
         // First we try to find the correct database entry of application to fork, based on git
-        Mono<String> applicationIdMono;
+        Mono<Application> applicationMono;
 
         if (StringUtils.isEmpty(branchName)) {
-            applicationIdMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
+            applicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
                             FieldName.APPLICATION, srcApplicationId)))
                     .flatMap(application -> {
@@ -126,25 +126,25 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         if (!(application.getGitApplicationMetadata() == null)
                                 && !application.getGitApplicationMetadata().getBranchName()
                                 .equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
-                            return applicationService.findBranchedApplicationId(
+                            return applicationService.findByBranchNameAndDefaultApplicationId(
                                     application.getGitApplicationMetadata().getDefaultBranchName(),
                                     srcApplicationId,
                                     applicationPermission.getReadPermission());
                         }
-                        return Mono.just(application.getId());
+                        return Mono.just(application);
                     });
         } else {
-            applicationIdMono = applicationService
-                    .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission());
+            applicationMono = applicationService
+                    .findByBranchNameAndDefaultApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission());
         }
 
-        return applicationIdMono
+        return applicationMono
                 // We will be forking to the default environment in the new workspace
-                .zipWith(workspaceService.getDefaultEnvironmentId(targetWorkspaceId))
+                .zipWhen(application ->  workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()))
                 .flatMap(tuple -> {
-                    String fromApplicationId = tuple.getT1();
-                    String toEnvironmentId = tuple.getT2();
-                    return forkApplicationToWorkspaceWithEnvironment(fromApplicationId, targetWorkspaceId, toEnvironmentId)
+                    String fromApplicationId = tuple.getT1().getId();
+                    String sourceEnvironmentId = tuple.getT2();
+                    return forkApplicationToWorkspaceWithEnvironment(fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
                             .map(responseUtils::updateApplicationWithDefaultResources)
                             .flatMap(application -> importExportApplicationService
                                     .getApplicationImportDTO(

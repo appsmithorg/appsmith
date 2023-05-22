@@ -170,8 +170,8 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
 
     public Mono<List<String>> forkApplications(String toWorkspaceId,
                                                Flux<Application> applicationFlux,
-                                               String environmentId) {
-        return forkApplications(toWorkspaceId, applicationFlux, Flux.empty(), environmentId);
+                                               String sourceEnvironmentId) {
+        return forkApplications(toWorkspaceId, applicationFlux, Flux.empty(), sourceEnvironmentId);
     }
 
     /**
@@ -179,14 +179,14 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
      * another. Also clones all datasources (not just the ones used by any applications) provided in the parameter list.
      * This allows us to have more fine-grained control over the clone operation.
      *
-     * @param toWorkspaceId ID of the workspace that is the target to copy objects to.
-     * @param environmentId
+     * @param toWorkspaceId       ID of the workspace that is the target to copy objects to.
+     * @param sourceEnvironmentId
      * @return Empty Mono.
      */
     public Mono<List<String>> forkApplications(String toWorkspaceId,
                                                Flux<Application> applicationFlux,
                                                Flux<Datasource> datasourceFlux,
-                                               String environmentId) {
+                                               String sourceEnvironmentId) {
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
 
@@ -204,7 +204,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
 
                     // The use case for this is: In the example workspace, we need a welcome tour which is based on
                     // one of the datasource, to get the credentials of that datasource, we have set this value as True
-                    final Mono<Datasource> clonerMono = forkDatasource(datasourceId, toWorkspaceId, Boolean.TRUE, environmentId);
+                    final Mono<Datasource> clonerMono = forkDatasource(datasourceId, toWorkspaceId, Boolean.TRUE, sourceEnvironmentId);
                     clonedDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
                 })
@@ -291,7 +291,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!clonedDatasourceMonos.containsKey(datasourceId)) {
                                                         Mono<Datasource> datasourceMono =
-                                                                forkDatasource(datasourceId, toWorkspaceId, forkWithConfig, environmentId)
+                                                                forkDatasource(datasourceId, toWorkspaceId, forkWithConfig, sourceEnvironmentId)
                                                                         .cache();
                                                         clonedDatasourceMonos.put(datasourceId, datasourceMono);
                                                     }
@@ -534,19 +534,27 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
     public Mono<Datasource> forkDatasource(String datasourceId,
                                            String toWorkspaceId,
                                            Boolean forkWithConfiguration,
-                                           String environmentId) {
+                                           String sourceEnvironmentId) {
+
+        final Mono<String> destinationEnvironmentIdMono = workspaceService.getDefaultEnvironmentId(toWorkspaceId);
+
         final Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono = datasourceService
                 .getAllByWorkspaceIdWithStorages(toWorkspaceId, Optional.empty())
                 .collectList();
 
-        Mono<Datasource> datasourceToForkMono = datasourceService.findByIdAndEnvironmentId(datasourceId, environmentId);
+        // this datasource is in workspace from which it's getting forked
+        Mono<Datasource> datasourceToForkMono = datasourceService.findByIdAndEnvironmentId(datasourceId, sourceEnvironmentId);
 
         return Mono.zip(datasourceToForkMono, existingDatasourcesInNewWorkspaceMono)
                 .flatMap(tuple -> {
                     final Datasource datasourceToFork = tuple.getT1();
                     final List<Datasource> existingDatasourcesInNewWorkspace = tuple.getT2();
 
-                    DatasourceStorageDTO storageDTOToFork = datasourceToFork.getDatasourceStorages().get(environmentId);
+                    if (datasourceToFork.getWorkspaceId().equals(toWorkspaceId)) {
+                        return Mono.just(datasourceToFork);
+                    }
+
+                    DatasourceStorageDTO storageDTOToFork = datasourceToFork.getDatasourceStorages().get(sourceEnvironmentId);
 
                     final AuthenticationDTO authentication = storageDTOToFork.getDatasourceConfiguration() == null
                             ? null : storageDTOToFork.getDatasourceConfiguration().getAuthentication();
@@ -554,30 +562,33 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                         authentication.setIsAuthorized(null);
                     }
 
-                    return Flux.fromIterable(existingDatasourcesInNewWorkspace)
-                            .filter(datasourceToFork::softEquals)
-                            .filter(existingDatasource -> {
-                                // Check if there is a storage with the same configs in the target environment
-                                DatasourceStorageDTO existingStorageDTO = existingDatasource
-                                        .getDatasourceStorages().get(environmentId);
-                                final AuthenticationDTO auth = existingStorageDTO.getDatasourceConfiguration() == null
-                                        ? null : existingStorageDTO.getDatasourceConfiguration().getAuthentication();
-                                if (auth != null) {
-                                    auth.setIsAuthorized(null);
-                                }
-                                return storageDTOToFork.softEquals(existingStorageDTO);
-                            })
-                            .next()  // Get the first matching datasource, we don't need more than one here.
-                            .switchIfEmpty(Mono.defer(() -> {
-                                // No matching existing datasource found, so create a new one.
-                                Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
-                                DatasourceStorageDTO storageDTO = datasourceToFork.getDatasourceStorages()
-                                        .get(environmentId)
-                                        .fork(forkWithConfiguration, toWorkspaceId);
-                                storageDTO.setEnvironmentId(environmentId);
-                                newDs.getDatasourceStorages().put(environmentId, storageDTO);
-                                return createSuffixedDatasource(newDs);
-                            }));
+                     return destinationEnvironmentIdMono
+                             .flatMap(destinationEnvironmentId ->
+                                 Flux.fromIterable(existingDatasourcesInNewWorkspace)
+                                         .filter(datasourceToFork::softEquals)
+                                         .filter(existingDatasource -> {
+                                             // Check if there is a storage with the same configs in the target environment
+                                             DatasourceStorageDTO existingStorageDTO = existingDatasource
+                                                     .getDatasourceStorages().get(destinationEnvironmentId);
+                                             final AuthenticationDTO auth = existingStorageDTO.getDatasourceConfiguration() == null
+                                                     ? null : existingStorageDTO.getDatasourceConfiguration().getAuthentication();
+                                             if (auth != null) {
+                                                 auth.setIsAuthorized(null);
+                                             }
+                                             return storageDTOToFork.softEquals(existingStorageDTO);
+                                         })
+                                         .next()  // Get the first matching datasource, we don't need more than one here.
+                                         .switchIfEmpty(Mono.defer(() -> {
+                                             // No matching existing datasource found, so create a new one.
+                                             Datasource newDs = datasourceToFork.fork(forkWithConfiguration, toWorkspaceId);
+                                             DatasourceStorageDTO storageDTO = datasourceToFork.getDatasourceStorages()
+                                                     .get(sourceEnvironmentId)
+                                                     .fork(forkWithConfiguration, toWorkspaceId);
+                                             storageDTO.setEnvironmentId(destinationEnvironmentId);
+                                             newDs.getDatasourceStorages().put(destinationEnvironmentId, storageDTO);
+                                             return createSuffixedDatasource(newDs);
+                                         }))
+                             );
                 });
     }
 

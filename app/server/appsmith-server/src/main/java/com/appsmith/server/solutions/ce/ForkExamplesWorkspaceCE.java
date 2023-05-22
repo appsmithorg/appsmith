@@ -21,11 +21,11 @@ public interface ForkExamplesWorkspaceCE {
             Flux<Datasource> datasourceFlux
     );
 
-    Mono<List<String>> forkApplications(String toWorkspaceId, Flux<Application> applicationFlux, String environmentId);
+    Mono<List<String>> forkApplications(String toWorkspaceId, Flux<Application> applicationFlux, String sourceEnvironmentId);
 
     Mono<List<String>> forkApplications(
             String toWorkspaceId,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux,
-            String environmentId);
+            String sourceEnvironmentId);
 }
