@@ -425,7 +425,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   {datasource && isGoogleSheetPlugin && createFlow ? (
                     <AuthMessage
                       actionType={ActionType.DOCUMENTATION}
-                      calloutType="Notify"
+                      calloutType="info"
                       datasource={datasource}
                       description={googleSheetsInfoMessage}
                       pageId={pageId}

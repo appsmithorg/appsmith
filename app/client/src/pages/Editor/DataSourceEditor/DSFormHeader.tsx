@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Category, Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "design-system-old";
 import FormTitle from "./FormTitle";
 import NewActionButton from "./NewActionButton";
 import {
@@ -12,7 +12,6 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Position } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { MoreOptionsContainer } from "../gitSync/components/ssh-key/StyledComponents";
 import type { Datasource } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
@@ -110,26 +109,25 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
               onClose={onCloseMenu}
               position={Position.LEFT}
               target={
-                <MoreOptionsContainer>
-                  <Icon
-                    fillColor={Colors.GRAY2}
-                    name="context-menu"
-                    size={IconSize.XXXL}
-                  />
-                </MoreOptionsContainer>
+                <Icon
+                  fillColor={Colors.GRAY2}
+                  name="context-menu"
+                  size={IconSize.XXXL}
+                />
               }
             >
               {renderMenuOptions()}
             </MenuComponent>
           )}
           <EditDatasourceButton
-            category={Category.secondary}
             className="t--edit-datasource"
+            kind="secondary"
             onClick={() => {
               setDatasourceViewMode(false);
             }}
-            text="EDIT"
-          />
+          >
+            EDIT
+          </EditDatasourceButton>
           <NewActionButton
             datasource={datasource as Datasource}
             disabled={!canCreateDatasourceActions || !isPluginAuthorized}

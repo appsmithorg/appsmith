@@ -507,13 +507,7 @@ function ReconnectDatasourceModal() {
   return (
     <Modal onOpenChange={handleClose} open={isModalOpen}>
       <ModalContentWrapper data-testid="reconnect-datasource-modal">
-        <ModalHeader
-          onClose={() => {
-            return;
-          }}
-        >
-          Reconnect datasources
-        </ModalHeader>
+        <ModalHeader>Reconnect datasources</ModalHeader>
         <ModalBodyWrapper>
           <BodyContainer>
             <Title>
