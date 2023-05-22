@@ -7,7 +7,7 @@ import type {
   FetchApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
 import type { NavigationSetting } from "constants/AppConstants";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
 import type { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
@@ -76,7 +76,7 @@ export const updateApplication = (
   };
 };
 
-export const updateCurrentApplicationIcon = (icon: AppIconName) => {
+export const updateCurrentApplicationIcon = (icon: IconNames) => {
   return {
     type: ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE,
     payload: icon,

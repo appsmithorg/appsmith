@@ -31,6 +31,7 @@ export class DarkModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
+      // bg
       bg: this.bg.toString({ format: "hex" }),
       bgAccent: this.bgAccent.toString({ format: "hex" }),
       bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
@@ -39,10 +40,14 @@ export class DarkModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
+      bgAssistive: this.bgAssistive,
+      // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
+      fgOnAssistive: this.fgOnAssistive,
+      // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdFocus: this.bdFocus.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
@@ -111,6 +116,10 @@ export class DarkModeTheme implements ColorModeTheme {
     return this.bgAccentSubtleHover.clone().darken(0.1);
   }
 
+  private get bgAssistive() {
+    return this.fg.clone();
+  }
+
   /*
    * Foreground colors
    */
@@ -174,6 +183,10 @@ export class DarkModeTheme implements ColorModeTheme {
 
   private get fgNegative() {
     return "#d91921";
+  }
+
+  private get fgOnAssistive() {
+    return this.bg.clone();
   }
 
   private get bdAccent() {

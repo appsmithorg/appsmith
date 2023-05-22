@@ -145,19 +145,6 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
-     * This function executes the DB query to fetch details about the datasource when we don't want to create new action
-     * just to get the information about the datasource
-     * e.g. Get Spreadsheets from Google Drive, Get first row in datasource etc.
-     *
-     * @param pluginSpecifiedTemplates
-     * @param datasourceConfiguration
-     * @return
-     */
-    default Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates, DatasourceConfiguration datasourceConfiguration) {
-        return Mono.empty();
-    }
-
-    /**
      * Appsmith Server calls this function for execution of the action.
      * Default implementation which takes the variables that need to be substituted and then calls the plugin execute function
      * <p>

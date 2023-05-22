@@ -21,14 +21,14 @@ const VariableWrapper = styled.div`
     border: 0px;
   }
   &&& .CodeMirror-gutters {
-    background: ${Colors.GRAY_50};
+    background: var(--ads-v2-color-bg-subtle);
   }
 `;
 
 const VariableHeader = styled.div`
   display: flex;
   width: 100%;
-  background: ${Colors.SEA_SHELL};
+  background: var(--ads-v2-color-bg-subtle);
   padding: 8px 16px;
 `;
 
@@ -56,13 +56,13 @@ function VariableEditor(props: VariableProps) {
     <VariableWrapper className="t--graphql-variable-editor">
       <VariableHeader>
         <Text color={Colors.GRAY_700} type={TextType.H6}>
-          Query Variables
+          Query variables
         </Text>
       </VariableHeader>
       <DynamicTextField
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
-        evaluatedPopUpLabel={"Query Variables"}
+        evaluatedPopUpLabel={"Query variables"}
         expected={EXPECTED_VARIABLE}
         height="100%"
         mode={EditorModes.JSON_WITH_BINDING}

@@ -16,15 +16,15 @@
               "value": "GET_COLLECTION"
             },
             {
-              "label": "Create Document",
+              "label": "Create document",
               "value": "CREATE_DOCUMENT"
             },
             {
-              "label": "Update Document",
+              "label": "Update document",
               "value": "UPDATE_DOCUMENT"
             },
             {
-              "label": "Delete Document",
+              "label": "Delete document",
               "value": "DELETE_DOCUMENT"
             },
             {
@@ -36,7 +36,7 @@
               "value": "SET_DOCUMENT"
             },
             {
-              "label": "Add Document to Collection",
+              "label": "Add document to collection",
               "value": "ADD_TO_COLLECTION"
             }
           ]

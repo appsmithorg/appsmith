@@ -49,6 +49,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -184,6 +185,11 @@ class QueryEditor extends React.Component<Props> {
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
+    // Event for datasource creation click
+    const entryPoint = DatasourceCreateEntryPoints.QUERY_EDITOR;
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+      entryPoint,
+    });
   };
 
   render() {
