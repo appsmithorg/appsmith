@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.MARKETPLACE_ITEM_URL)
 public class ItemController extends ItemControllerCE {
 
-    public ItemController(ItemService service) {
-        super(service);
-    }
+  public ItemController(ItemService service) {
+    super(service);
+  }
 }

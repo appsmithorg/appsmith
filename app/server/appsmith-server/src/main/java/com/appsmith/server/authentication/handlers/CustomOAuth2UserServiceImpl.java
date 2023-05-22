@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomOAuth2UserServiceCEImpl;
@@ -13,15 +14,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CustomOAuth2UserServiceImpl extends CustomOAuth2UserServiceCEImpl
-        implements ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> {
+    implements ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private UserRepository repository;
-    private UserService userService;
+  private UserRepository repository;
+  private UserService userService;
 
-    @Autowired
-    public CustomOAuth2UserServiceImpl(UserRepository repository, UserService userService) {
-        super(repository, userService);
-        this.repository = repository;
-        this.userService = userService;
-    }
+  @Autowired
+  public CustomOAuth2UserServiceImpl(UserRepository repository, UserService userService) {
+    super(repository, userService);
+    this.repository = repository;
+    this.userService = userService;
+  }
 }

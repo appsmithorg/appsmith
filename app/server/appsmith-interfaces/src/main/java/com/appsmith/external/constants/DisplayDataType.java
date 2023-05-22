@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.constants;
 
 /*
@@ -5,7 +6,7 @@ package com.appsmith.external.constants;
  * priority order.
  */
 public enum DisplayDataType {
-    TABLE,
-    JSON,
-    RAW,
+  TABLE,
+  JSON,
+  RAW,
 }

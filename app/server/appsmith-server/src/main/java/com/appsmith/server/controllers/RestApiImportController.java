@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -13,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class RestApiImportController extends RestApiImportControllerCE {
 
-    public RestApiImportController(CurlImporterService curlImporterService,
-                                   PostmanImporterService postmanImporterService) {
+  public RestApiImportController(
+      CurlImporterService curlImporterService, PostmanImporterService postmanImporterService) {
 
-        super(curlImporterService, postmanImporterService);
-    }
+    super(curlImporterService, postmanImporterService);
+  }
 }

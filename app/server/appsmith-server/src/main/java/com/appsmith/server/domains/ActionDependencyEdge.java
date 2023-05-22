@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.EntityDependencyNode;
@@ -12,44 +13,49 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @AllArgsConstructor
 public class ActionDependencyEdge {
 
-    EntityDependencyNode sourceNode;
-    EntityDependencyNode targetNode;
+  EntityDependencyNode sourceNode;
+  EntityDependencyNode targetNode;
 
-    @Override
-    public int hashCode() {
-        if (sourceNode == null || targetNode == null) {
-            return 0;
-        }
-
-        return new HashCodeBuilder()
-                .append(sourceNode.getReferenceString())
-                .append(targetNode.getReferenceString())
-                .toHashCode();
+  @Override
+  public int hashCode() {
+    if (sourceNode == null || targetNode == null) {
+      return 0;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ActionDependencyEdge) {
-            final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
+    return new HashCodeBuilder()
+        .append(sourceNode.getReferenceString())
+        .append(targetNode.getReferenceString())
+        .toHashCode();
+  }
 
-            if (sourceNode == null || targetNode == null || actionDependencyEdge.sourceNode == null || actionDependencyEdge.targetNode == null) {
-                return false;
-            }
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof ActionDependencyEdge) {
+      final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
 
-            return new EqualsBuilder()
-                    .append(sourceNode.getReferenceString(), actionDependencyEdge.sourceNode.getReferenceString())
-                    .append(targetNode.getReferenceString(), actionDependencyEdge.targetNode.getReferenceString())
-                    .isEquals();
-        } else {
-            return false;
-        }
+      if (sourceNode == null
+          || targetNode == null
+          || actionDependencyEdge.sourceNode == null
+          || actionDependencyEdge.targetNode == null) {
+        return false;
+      }
+
+      return new EqualsBuilder()
+          .append(
+              sourceNode.getReferenceString(), actionDependencyEdge.sourceNode.getReferenceString())
+          .append(
+              targetNode.getReferenceString(), actionDependencyEdge.targetNode.getReferenceString())
+          .isEquals();
+    } else {
+      return false;
     }
+  }
 
-    @Override
-    public String toString() {
-        if (sourceNode == null || targetNode == null) {
-            return "";
-        }
-        return sourceNode.getReferenceString() + " : " + targetNode.getReferenceString();
+  @Override
+  public String toString() {
+    if (sourceNode == null || targetNode == null) {
+      return "";
     }
+    return sourceNode.getReferenceString() + " : " + targetNode.getReferenceString();
+  }
 }

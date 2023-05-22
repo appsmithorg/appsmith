@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
@@ -10,9 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LayoutServiceImpl extends LayoutServiceCEImpl implements LayoutService {
 
-    public LayoutServiceImpl(NewPageService newPageService, ResponseUtils responseUtils,
-                             PagePermission pagePermission) {
-        super(newPageService, responseUtils, pagePermission);
-    }
+  public LayoutServiceImpl(
+      NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
+    super(newPageService, responseUtils, pagePermission);
+  }
 }
-

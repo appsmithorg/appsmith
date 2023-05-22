@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.UserData;
@@ -10,6 +13,8 @@ import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
@@ -26,174 +31,171 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.IOException;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
- * This test is written based on the inspiration from the tutorial: https://www.baeldung.com/spring-mocking-webclient
+ * This test is written based on the inspiration from the tutorial:
+ * https://www.baeldung.com/spring-mocking-webclient
  */
 @ExtendWith(SpringExtension.class)
 public class ApplicationTemplateServiceTest {
-    ApplicationTemplateService applicationTemplateService;
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
-    @MockBean
-    private UserDataService userDataService;
+  private static ObjectMapper objectMapper = new ObjectMapper();
+  private static MockWebServer mockCloudServices;
+  ApplicationTemplateService applicationTemplateService;
+  @MockBean ApplicationPermission applicationPermission;
+  @MockBean private UserDataService userDataService;
+  @MockBean private CloudServicesConfig cloudServicesConfig;
+  @MockBean private ReleaseNotesService releaseNotesService;
+  @MockBean private ImportExportApplicationService importExportApplicationService;
+  @MockBean private AnalyticsService analyticsService;
+  @MockBean private ApplicationService applicationService;
+  @MockBean private ResponseUtils responseUtils;
 
-    @MockBean
-    private CloudServicesConfig cloudServicesConfig;
+  @BeforeAll
+  public static void setUp() throws IOException {
+    mockCloudServices = new MockWebServer();
+    mockCloudServices.start();
+  }
 
-    @MockBean
-    private ReleaseNotesService releaseNotesService;
+  @AfterAll
+  public static void tearDown() throws IOException {
+    mockCloudServices.shutdown();
+  }
 
-    @MockBean
-    private ImportExportApplicationService importExportApplicationService;
+  @BeforeEach
+  public void initialize() {
+    String baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
 
-    @MockBean
-    private AnalyticsService analyticsService;
+    // mock the cloud services config so that it returns mock server url as cloud service base
+    // url
+    Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
 
-    @MockBean
-    private ApplicationService applicationService;
+    applicationTemplateService =
+        new ApplicationTemplateServiceImpl(
+            cloudServicesConfig,
+            releaseNotesService,
+            importExportApplicationService,
+            analyticsService,
+            userDataService,
+            applicationService,
+            responseUtils,
+            applicationPermission);
+  }
 
-    @MockBean
-    private ResponseUtils responseUtils;
-    @MockBean
-    ApplicationPermission applicationPermission;
+  private ApplicationTemplate create(String id, String title) {
+    ApplicationTemplate applicationTemplate = new ApplicationTemplate();
+    applicationTemplate.setId(id);
+    applicationTemplate.setTitle(title);
+    return applicationTemplate;
+  }
 
-    private static MockWebServer mockCloudServices;
+  @Test
+  public void getActiveTemplates_WhenRecentlyUsedExists_RecentOnesComesFirst()
+      throws JsonProcessingException {
+    ApplicationTemplate templateOne = create("id-one", "First template");
+    ApplicationTemplate templateTwo = create("id-two", "Seonds template");
+    ApplicationTemplate templateThree = create("id-three", "Third template");
 
-    @BeforeAll
-    public static void setUp() throws IOException {
-        mockCloudServices = new MockWebServer();
-        mockCloudServices.start();
-    }
+    // mock the server to return the above three templates
+    mockCloudServices.enqueue(
+        new MockResponse()
+            .setBody(
+                objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
+            .addHeader("Content-Type", "application/json"));
 
-    @AfterAll
-    public static void tearDown() throws IOException {
-        mockCloudServices.shutdown();
-    }
+    // mock the user data to set second template as recently used
+    UserData mockUserData = new UserData();
+    mockUserData.setRecentlyUsedTemplateIds(List.of("id-two"));
+    Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
 
-    @BeforeEach
-    public void initialize() {
-        String baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
+    Mono<List<ApplicationTemplate>> templateListMono =
+        applicationTemplateService.getActiveTemplates(null);
 
-        // mock the cloud services config so that it returns mock server url as cloud service base url
-        Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
+    StepVerifier.create(templateListMono)
+        .assertNext(
+            applicationTemplates -> {
+              assertThat(applicationTemplates.size()).isEqualTo(3);
+              assertThat(applicationTemplates.get(0).getId())
+                  .isEqualTo("id-two"); // second one should come first
+            })
+        .verifyComplete();
+  }
 
-        applicationTemplateService = new ApplicationTemplateServiceImpl(
-                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService,
-                userDataService, applicationService, responseUtils, applicationPermission
-        );
-    }
+  @Test
+  public void getRecentlyUsedTemplates_WhenNoRecentTemplate_ReturnsEmpty() {
+    // mock the user data to that has no recent template
+    Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(new UserData()));
 
-    private ApplicationTemplate create(String id, String title) {
-        ApplicationTemplate applicationTemplate = new ApplicationTemplate();
-        applicationTemplate.setId(id);
-        applicationTemplate.setTitle(title);
-        return applicationTemplate;
-    }
+    StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates()).verifyComplete();
+  }
 
-    @Test
-    public void getActiveTemplates_WhenRecentlyUsedExists_RecentOnesComesFirst() throws JsonProcessingException {
-        ApplicationTemplate templateOne = create("id-one", "First template");
-        ApplicationTemplate templateTwo = create("id-two", "Seonds template");
-        ApplicationTemplate templateThree = create("id-three", "Third template");
+  @Test
+  public void getRecentlyUsedTemplates_WhenRecentTemplatesExist_ReturnsTemplates()
+      throws InterruptedException, JsonProcessingException {
+    // mock the user data to set recently used template ids
+    UserData mockUserData = new UserData();
+    mockUserData.setRecentlyUsedTemplateIds(List.of("id-one", "id-two"));
+    Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
 
-        // mock the server to return the above three templates
-        mockCloudServices
-                .enqueue(new MockResponse()
-                        .setBody(objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
-                        .addHeader("Content-Type", "application/json"));
+    // mock the server to return a template when it's called
+    mockCloudServices.enqueue(
+        new MockResponse()
+            .setBody(objectMapper.writeValueAsString(List.of(create("id-one", "First template"))))
+            .addHeader("Content-Type", "application/json"));
 
-        // mock the user data to set second template as recently used
-        UserData mockUserData = new UserData();
-        mockUserData.setRecentlyUsedTemplateIds(List.of("id-two"));
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
+    // make sure we've received the response returned by the mockCloudServices
+    StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
+        .assertNext(applicationTemplates -> assertThat(applicationTemplates).hasSize(1))
+        .verifyComplete();
 
-        Mono<List<ApplicationTemplate>> templateListMono = applicationTemplateService.getActiveTemplates(null);
+    // verify that mockCloudServices was called with the query param id i.e. id=id-one&id=id-two
+    RecordedRequest recordedRequest = mockCloudServices.takeRequest();
+    assert recordedRequest.getRequestUrl() != null;
+    List<String> queryParameterValues = recordedRequest.getRequestUrl().queryParameterValues("id");
+    assertThat(queryParameterValues).containsExactly("id-one", "id-two");
+  }
 
-        StepVerifier.create(templateListMono).assertNext(applicationTemplates -> {
-            assertThat(applicationTemplates.size()).isEqualTo(3);
-            assertThat(applicationTemplates.get(0).getId()).isEqualTo("id-two");  // second one should come first
-        }).verifyComplete();
-    }
+  @Test
+  public void get_WhenPageMetaDataExists_PageMetaDataParsedProperly()
+      throws JsonProcessingException {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("id", "1234567890");
+    jsonObject.put("name", "My Page");
+    jsonObject.put("icon", "flight");
+    jsonObject.put("isDefault", true);
+    JSONArray pages = new JSONArray();
+    pages.put(jsonObject);
 
-    @Test
-    public void getRecentlyUsedTemplates_WhenNoRecentTemplate_ReturnsEmpty() {
-        // mock the user data to that has no recent template
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(new UserData()));
+    JSONObject templateObj = new JSONObject();
+    templateObj.put("title", "My Template");
+    templateObj.put("pages", pages);
 
-        StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
-                .verifyComplete();
-    }
+    JSONArray templates = new JSONArray();
+    templates.put(templateObj);
 
-    @Test
-    public void getRecentlyUsedTemplates_WhenRecentTemplatesExist_ReturnsTemplates() throws InterruptedException, JsonProcessingException {
-        // mock the user data to set recently used template ids
-        UserData mockUserData = new UserData();
-        mockUserData.setRecentlyUsedTemplateIds(List.of("id-one", "id-two"));
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
+    // mock the server to return a template when it's called
+    mockCloudServices.enqueue(
+        new MockResponse()
+            .setBody(templates.toString())
+            .addHeader("Content-Type", "application/json"));
 
-        // mock the server to return a template when it's called
-        mockCloudServices
-                .enqueue(new MockResponse()
-                        .setBody(objectMapper.writeValueAsString(List.of(create("id-one", "First template"))))
-                        .addHeader("Content-Type", "application/json"));
+    // mock the user data to set recently used template ids
+    UserData mockUserData = new UserData();
+    mockUserData.setRecentlyUsedTemplateIds(List.of());
+    Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
 
-        // make sure we've received the response returned by the mockCloudServices
-        StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
-                .assertNext(applicationTemplates -> assertThat(applicationTemplates).hasSize(1))
-                .verifyComplete();
-
-        // verify that mockCloudServices was called with the query param id i.e. id=id-one&id=id-two
-        RecordedRequest recordedRequest = mockCloudServices.takeRequest();
-        assert recordedRequest.getRequestUrl() != null;
-        List<String> queryParameterValues = recordedRequest.getRequestUrl().queryParameterValues("id");
-        assertThat(queryParameterValues).containsExactly("id-one", "id-two");
-    }
-
-    @Test
-    public void get_WhenPageMetaDataExists_PageMetaDataParsedProperly() throws JsonProcessingException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", "1234567890");
-        jsonObject.put("name", "My Page");
-        jsonObject.put("icon", "flight");
-        jsonObject.put("isDefault", true);
-        JSONArray pages = new JSONArray();
-        pages.put(jsonObject);
-
-        JSONObject templateObj = new JSONObject();
-        templateObj.put("title", "My Template");
-        templateObj.put("pages", pages);
-
-        JSONArray templates = new JSONArray();
-        templates.put(templateObj);
-
-        // mock the server to return a template when it's called
-        mockCloudServices
-                .enqueue(new MockResponse()
-                        .setBody(templates.toString())
-                        .addHeader("Content-Type", "application/json"));
-
-        // mock the user data to set recently used template ids
-        UserData mockUserData = new UserData();
-        mockUserData.setRecentlyUsedTemplateIds(List.of());
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
-
-        // make sure we've received the response returned by the mockCloudServices
-        StepVerifier.create(applicationTemplateService.getActiveTemplates(null))
-                .assertNext(applicationTemplates -> {
-                    assertThat(applicationTemplates.size()).isEqualTo(1);
-                    ApplicationTemplate applicationTemplate = applicationTemplates.get(0);
-                    assertThat(applicationTemplate.getPages()).hasSize(1);
-                    PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
-                    assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
-                    assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
-                    assertThat(pageNameIdDTO.getIcon()).isEqualTo("flight");
-                    assertThat(pageNameIdDTO.getIsDefault()).isTrue();
-                })
-                .verifyComplete();
-    }
+    // make sure we've received the response returned by the mockCloudServices
+    StepVerifier.create(applicationTemplateService.getActiveTemplates(null))
+        .assertNext(
+            applicationTemplates -> {
+              assertThat(applicationTemplates.size()).isEqualTo(1);
+              ApplicationTemplate applicationTemplate = applicationTemplates.get(0);
+              assertThat(applicationTemplate.getPages()).hasSize(1);
+              PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
+              assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
+              assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
+              assertThat(pageNameIdDTO.getIcon()).isEqualTo("flight");
+              assertThat(pageNameIdDTO.getIsDefault()).isTrue();
+            })
+        .verifyComplete();
+  }
 }

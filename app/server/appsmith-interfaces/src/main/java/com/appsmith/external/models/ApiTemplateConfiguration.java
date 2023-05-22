@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -10,7 +11,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class ApiTemplateConfiguration implements AppsmithDomain {
-    String documentation; //Documentation for this particular API comes here
-    String documentationUrl; //URL for this particular api's documentation comes here
-    ActionExecutionResult sampleResponse;
+
+  String documentation; // Documentation for this particular API comes here
+  String documentationUrl; // URL for this particular api's documentation comes here
+  ActionExecutionResult sampleResponse;
 }

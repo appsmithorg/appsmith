@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.CONFIG_URL)
 public class ConfigController extends ConfigControllerCE {
 
-    public ConfigController(ConfigService service) {
-        super(service);
-    }
+  public ConfigController(ConfigService service) {
+    super(service);
+  }
 }

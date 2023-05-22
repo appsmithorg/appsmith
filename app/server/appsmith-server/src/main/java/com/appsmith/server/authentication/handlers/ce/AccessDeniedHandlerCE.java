@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers.ce;
 
 import org.springframework.http.HttpStatus;
@@ -8,11 +9,13 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public class AccessDeniedHandlerCE implements ServerAccessDeniedHandler {
-    @Override
-    public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
-        return Mono.fromRunnable(() -> {
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+
+  @Override
+  public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
+    return Mono.fromRunnable(
+        () -> {
+          ServerHttpResponse response = exchange.getResponse();
+          response.setStatusCode(HttpStatus.UNAUTHORIZED);
         });
-    }
+  }
 }

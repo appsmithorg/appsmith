@@ -1,18 +1,19 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 public class MockDataDTO {
-    String id;
 
-    List<MockDataSet> mockdbs;
+  String id;
 
-    List<MockDataCredentials> credentials;
+  List<MockDataSet> mockdbs;
 
-    String name;
+  List<MockDataCredentials> credentials;
+
+  String name;
 }

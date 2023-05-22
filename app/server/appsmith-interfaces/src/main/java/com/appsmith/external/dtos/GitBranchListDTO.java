@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import lombok.Getter;
@@ -7,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class GitBranchListDTO {
 
-    String branchName;
+  String branchName;
 
-    boolean isDefault;
+  boolean isDefault;
 }

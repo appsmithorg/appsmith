@@ -1,4 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
+
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.configurations.CommonConfig;
@@ -21,94 +27,91 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
-import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @ExtendWith(SpringExtension.class)
 public class UserSignupTest {
-    @MockBean
-    private UserService userService;
 
-    @MockBean
-    private UserDataService userDataService;
+  @MockBean private UserService userService;
 
-    @MockBean
-    private CaptchaService captchaService;
+  @MockBean private UserDataService userDataService;
 
-    @MockBean
-    private AuthenticationSuccessHandler authenticationSuccessHandler;
+  @MockBean private CaptchaService captchaService;
 
-    @MockBean
-    private ConfigService configService;
+  @MockBean private AuthenticationSuccessHandler authenticationSuccessHandler;
 
-    @MockBean
-    private PolicyUtils policyUtils;
+  @MockBean private ConfigService configService;
 
-    @MockBean
-    private AnalyticsService analyticsService;
+  @MockBean private PolicyUtils policyUtils;
 
-    @MockBean
-    private ApplicationPageService applicationPageService;
+  @MockBean private AnalyticsService analyticsService;
 
-    @MockBean
-    private EnvManager envManager;
+  @MockBean private ApplicationPageService applicationPageService;
 
-    @MockBean
-    private CommonConfig commonConfig;
+  @MockBean private EnvManager envManager;
 
-    @MockBean
-    private UserUtils userUtils;
+  @MockBean private CommonConfig commonConfig;
 
-    private UserSignup userSignup;
+  @MockBean private UserUtils userUtils;
 
-    @BeforeEach
-    public void setup() {
-        userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
-                configService, analyticsService, envManager, commonConfig, userUtils);
-    }
+  private UserSignup userSignup;
 
-    private String createRandomString(int length) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Z".repeat(Math.max(0, length)));
-        return builder.toString();
-    }
+  @BeforeEach
+  public void setup() {
+    userSignup =
+        new UserSignupImpl(
+            userService,
+            userDataService,
+            captchaService,
+            authenticationSuccessHandler,
+            configService,
+            analyticsService,
+            envManager,
+            commonConfig,
+            userUtils);
+  }
 
-    @Test
-    public void signupAndLogin_WhenPasswordTooShort_RaisesException() {
-        User user = new User();
-        user.setEmail("testemail@test123.com");
-        user.setPassword(createRandomString(LOGIN_PASSWORD_MIN_LENGTH - 1));
+  private String createRandomString(int length) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Z".repeat(Math.max(0, length)));
+    return builder.toString();
+  }
 
-        Mono<User> userMono = userSignup.signupAndLogin(user, null);
-        StepVerifier.create(userMono)
-                .expectErrorSatisfies(error -> {
-                    assertTrue(error instanceof AppsmithException);
+  @Test
+  public void signupAndLogin_WhenPasswordTooShort_RaisesException() {
+    User user = new User();
+    user.setEmail("testemail@test123.com");
+    user.setPassword(createRandomString(LOGIN_PASSWORD_MIN_LENGTH - 1));
 
-                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH
-                            .getMessage(LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
-                    assertEquals(expectedErrorMessage, error.getMessage());
-                })
-                .verify();
+    Mono<User> userMono = userSignup.signupAndLogin(user, null);
+    StepVerifier.create(userMono)
+        .expectErrorSatisfies(
+            error -> {
+              assertTrue(error instanceof AppsmithException);
 
-    }
+              String expectedErrorMessage =
+                  AppsmithError.INVALID_PASSWORD_LENGTH.getMessage(
+                      LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
+              assertEquals(expectedErrorMessage, error.getMessage());
+            })
+        .verify();
+  }
 
-    @Test
-    public void signupAndLogin_WhenPasswordTooLong_RaisesException() {
-        User user = new User();
-        user.setEmail("testemail@test123.com");
-        user.setPassword(createRandomString(LOGIN_PASSWORD_MAX_LENGTH + 1));
+  @Test
+  public void signupAndLogin_WhenPasswordTooLong_RaisesException() {
+    User user = new User();
+    user.setEmail("testemail@test123.com");
+    user.setPassword(createRandomString(LOGIN_PASSWORD_MAX_LENGTH + 1));
 
-        Mono<User> userMono = userSignup.signupAndLogin(user, null);
-        StepVerifier.create(userMono)
-                .expectErrorSatisfies(error -> {
-                    assertTrue(error instanceof AppsmithException);
+    Mono<User> userMono = userSignup.signupAndLogin(user, null);
+    StepVerifier.create(userMono)
+        .expectErrorSatisfies(
+            error -> {
+              assertTrue(error instanceof AppsmithException);
 
-                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH
-                            .getMessage(LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
-                    assertEquals(expectedErrorMessage, error.getMessage());
-                })
-                .verify();
-    }
+              String expectedErrorMessage =
+                  AppsmithError.INVALID_PASSWORD_LENGTH.getMessage(
+                      LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
+              assertEquals(expectedErrorMessage, error.getMessage());
+            })
+        .verify();
+  }
 }

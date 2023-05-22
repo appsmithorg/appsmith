@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.external.services.EncryptionService;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EncryptionServiceImpl extends EncryptionServiceCEImpl implements EncryptionService {
 
-    public EncryptionServiceImpl(EncryptionConfig encryptionConfig) {
-        super(encryptionConfig);
-    }
+  public EncryptionServiceImpl(EncryptionConfig encryptionConfig) {
+    super(encryptionConfig);
+  }
 }

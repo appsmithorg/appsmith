@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -17,48 +18,51 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class SSLDetails implements AppsmithDomain {
 
-    public enum AuthType {
-        // Default driver configurations
-        DEFAULT, NO_SSL,
+  AuthType authType;
+  CACertificateType caCertificateType;
+  UploadedFile keyFile;
+  UploadedFile certificateFile;
+  UploadedFile caCertificateFile;
+  Boolean usePemCertificate;
+  PEMCertificate pemCertificate;
 
-        //For those drivers that don't have any specific options
-        ENABLED,
+  public enum AuthType {
+    // Default driver configurations
+    DEFAULT,
+    NO_SSL,
 
-        // Following for Mysql/Postgres Connections.
-        ALLOW, PREFER, REQUIRE, DISABLE, VERIFY_CA, VERIFY_FULL,
+    // For those drivers that don't have any specific options
+    ENABLED,
 
-        // For MySql Connections
-        PREFERRED, REQUIRED, DISABLED,
+    // Following for Mysql/Postgres Connections.
+    ALLOW,
+    PREFER,
+    REQUIRE,
+    DISABLE,
+    VERIFY_CA,
+    VERIFY_FULL,
 
-        // Following for MongoDB Connections.
-        CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE,
+    // For MySql Connections
+    PREFERRED,
+    REQUIRED,
+    DISABLED,
 
-        // For MsSQL, Oracle DB Connections
-        NO_VERIFY
-    }
+    // Following for MongoDB Connections.
+    CA_CERTIFICATE,
+    SELF_SIGNED_CERTIFICATE,
 
-    public enum CACertificateType {
-        // In case user does not want to provide any certificate
-        NONE,
+    // For MsSQL, Oracle DB Connections
+    NO_VERIFY
+  }
 
-        // Provide CA Certificate file
-        FILE,
+  public enum CACertificateType {
+    // In case user does not want to provide any certificate
+    NONE,
 
-        // Some services provide CA certificate as a base64 encoded string instead of a file.
-        BASE64_STRING
-    }
+    // Provide CA Certificate file
+    FILE,
 
-    AuthType authType;
-
-    CACertificateType caCertificateType;
-
-    UploadedFile keyFile;
-
-    UploadedFile certificateFile;
-
-    UploadedFile caCertificateFile;
-
-    Boolean usePemCertificate;
-
-    PEMCertificate pemCertificate;
+    // Some services provide CA certificate as a base64 encoded string instead of a file.
+    BASE64_STRING
+  }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.ASSET_URL)
 public class AssetController extends AssetControllerCE {
 
-    public AssetController(AssetService service) {
-        super(service);
-    }
+  public AssetController(AssetService service) {
+    super(service);
+  }
 }

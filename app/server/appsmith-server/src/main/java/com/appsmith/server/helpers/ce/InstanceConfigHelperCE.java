@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.domains.Config;
@@ -5,15 +6,15 @@ import reactor.core.publisher.Mono;
 
 public interface InstanceConfigHelperCE {
 
-    Mono<? extends Config> registerInstance();
+  Mono<? extends Config> registerInstance();
 
-    Mono<Config> checkInstanceSchemaVersion();
+  Mono<Config> checkInstanceSchemaVersion();
 
-    void printReady();
+  void printReady();
 
-    Mono<Void> performRtsHealthCheck();
+  Mono<Void> performRtsHealthCheck();
 
-    boolean getIsRtsAccessible();
+  boolean getIsRtsAccessible();
 
-    Mono<Boolean> isLicenseValid();
+  Mono<Boolean> isLicenseValid();
 }

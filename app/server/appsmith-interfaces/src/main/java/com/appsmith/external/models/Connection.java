@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -17,19 +18,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Connection implements AppsmithDomain {
 
-    public enum Mode {
-        READ_ONLY, READ_WRITE
-    }
+  Mode mode;
+  Type type;
+  SSLDetails ssl;
+  String defaultDatabaseName;
 
-    public enum Type {
-        DIRECT, REPLICA_SET
-    }
+  public enum Mode {
+    READ_ONLY,
+    READ_WRITE
+  }
 
-    Mode mode;
-
-    Type type;
-
-    SSLDetails ssl;
-
-    String defaultDatabaseName;
+  public enum Type {
+    DIRECT,
+    REPLICA_SET
+  }
 }

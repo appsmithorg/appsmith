@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +13,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OldAuthenticationDTO {
-    String authType;
-    String username;
-    String password;
+
+  String authType;
+  String username;
+  String password;
 }

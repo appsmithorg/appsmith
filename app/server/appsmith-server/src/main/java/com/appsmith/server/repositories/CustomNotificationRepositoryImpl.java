@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomNotificationRepositoryCEImpl;
@@ -7,10 +8,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomNotificationRepositoryImpl extends CustomNotificationRepositoryCEImpl
-        implements CustomNotificationRepository {
+    implements CustomNotificationRepository {
 
-    public CustomNotificationRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
-
+  public CustomNotificationRepositoryImpl(
+      ReactiveMongoOperations mongoOperations,
+      MongoConverter mongoConverter,
+      CacheableRepositoryHelper cacheableRepositoryHelper) {
+    super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+  }
 }

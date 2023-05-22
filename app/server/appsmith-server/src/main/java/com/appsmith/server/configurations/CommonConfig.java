@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.util.SerializationUtils;
@@ -7,6 +8,12 @@ import com.google.gson.GsonBuilder;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,119 +25,114 @@ import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 @Getter
 @Setter
 @Configuration
 public class CommonConfig {
 
-    private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
-    public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
+  public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
+  private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
 
-    @Value("${appsmith.instance.name:}")
-    private String instanceName;
+  @Value("${appsmith.admin.envfile:}")
+  public String envFilePath;
 
-    @Setter(AccessLevel.NONE)
-    private boolean isSignupDisabled = false;
+  @Value("${appsmith.instance.name:}")
+  private String instanceName;
 
-    @Setter(AccessLevel.NONE)
-    private Set<String> adminEmails = Collections.emptySet();
+  @Setter(AccessLevel.NONE)
+  private boolean isSignupDisabled = false;
 
-    @Value("${oauth2.allowed-domains}")
-    private String allowedDomainsForOauthString;
+  @Setter(AccessLevel.NONE)
+  private Set<String> adminEmails = Collections.emptySet();
 
-    private List<String> allowedDomainsForOauth;
+  @Value("${oauth2.allowed-domains}")
+  private String allowedDomainsForOauthString;
 
-    @Value("${signup.allowed-domains}")
-    private String allowedDomainsString;
+  private List<String> allowedDomainsForOauth;
 
-    // Is this instance hosted on Appsmith cloud?
-    // isCloudHosting should be true only for our cloud instance
-    @Value("${is.cloud-hosting:false}")
-    private boolean isCloudHosting;
+  @Value("${signup.allowed-domains}")
+  private String allowedDomainsString;
 
-    @Value("${github_repo}")
-    private String repo;
+  // Is this instance hosted on Appsmith cloud?
+  // isCloudHosting should be true only for our cloud instance
+  @Value("${is.cloud-hosting:false}")
+  private boolean isCloudHosting;
 
-    @Value("${appsmith.admin.envfile:}")
-    public String envFilePath;
+  @Value("${github_repo}")
+  private String repo;
 
-    @Value("${disable.telemetry:true}")
-    private boolean isTelemetryDisabled;
+  @Value("${disable.telemetry:true}")
+  private boolean isTelemetryDisabled;
 
-    @Value("${appsmith.rts.port:8091}")
-    private String rtsPort;
+  @Value("${appsmith.rts.port:8091}")
+  private String rtsPort;
 
-    private List<String> allowedDomains;
+  private List<String> allowedDomains;
 
-    @Bean
-    public Scheduler scheduler() {
-        return Schedulers.newBoundedElastic(
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
-                ELASTIC_THREAD_POOL_NAME);
+  @Bean
+  public Scheduler scheduler() {
+    return Schedulers.newBoundedElastic(
+        Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
+        Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
+        ELASTIC_THREAD_POOL_NAME);
+  }
+
+  @Bean
+  public Validator validator() {
+    try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+      return validatorFactory.getValidator();
+    }
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    return SerializationUtils.getDefaultObjectMapper();
+  }
+
+  @Bean
+  public Gson gsonInstance() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    SerializationUtils.typeAdapterRegistration().customize(gsonBuilder);
+    return gsonBuilder.create();
+  }
+
+  public List<String> getOauthAllowedDomains() {
+    if (allowedDomainsForOauth == null) {
+      final Set<String> domains = new HashSet<>();
+      if (StringUtils.hasText(allowedDomainsForOauthString)) {
+        domains.addAll(Arrays.asList(allowedDomainsForOauthString.trim().split("\\s*,[,\\s]*")));
+      }
+      domains.addAll(getAllowedDomains());
+      allowedDomainsForOauth = new ArrayList<>(domains);
     }
 
-    @Bean
-    public Validator validator() {
-        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-            return validatorFactory.getValidator();
-        }
+    return allowedDomainsForOauth;
+  }
+
+  public List<String> getAllowedDomains() {
+    if (allowedDomains == null) {
+      allowedDomains =
+          StringUtils.hasText(allowedDomainsString)
+              ? Arrays.asList(allowedDomainsString.trim().split("\\s*,[,\\s]*"))
+              : Collections.emptyList();
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return SerializationUtils.getDefaultObjectMapper();
-    }
+    return allowedDomains;
+  }
 
-    @Bean
-    public Gson gsonInstance() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        SerializationUtils.typeAdapterRegistration().customize(gsonBuilder);
-        return gsonBuilder.create();
-    }
+  @Autowired
+  public void setAdminEmails(@Value("${admin.emails}") String value) {
+    adminEmails = Set.of(value.trim().split("\\s*,\\s*"));
+  }
 
-    public List<String> getOauthAllowedDomains() {
-        if (allowedDomainsForOauth == null) {
-            final Set<String> domains = new HashSet<>();
-            if (StringUtils.hasText(allowedDomainsForOauthString)) {
-                domains.addAll(Arrays.asList(allowedDomainsForOauthString.trim().split("\\s*,[,\\s]*")));
-            }
-            domains.addAll(getAllowedDomains());
-            allowedDomainsForOauth = new ArrayList<>(domains);
-        }
+  @Autowired
+  public void setSignupDisabled(@Value("${signup.disabled}") String value) {
+    // If `true`, then disable signup. If anything else, including empty string, then signups
+    // will be enabled.
+    isSignupDisabled = "true".equalsIgnoreCase(value);
+  }
 
-        return allowedDomainsForOauth;
-    }
-
-    public List<String> getAllowedDomains() {
-        if (allowedDomains == null) {
-            allowedDomains = StringUtils.hasText(allowedDomainsString)
-                    ? Arrays.asList(allowedDomainsString.trim().split("\\s*,[,\\s]*"))
-                    : Collections.emptyList();
-        }
-
-        return allowedDomains;
-    }
-
-    @Autowired
-    public void setAdminEmails(@Value("${admin.emails}") String value) {
-        adminEmails = Set.of(value.trim().split("\\s*,\\s*"));
-    }
-
-    @Autowired
-    public void setSignupDisabled(@Value("${signup.disabled}") String value) {
-        // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
-        isSignupDisabled = "true".equalsIgnoreCase(value);
-    }
-    
-    public String getRtsBaseUrl() {
-        return "http://127.0.0.1:" + rtsPort;
-    }
+  public String getRtsBaseUrl() {
+    return "http://127.0.0.1:" + rtsPort;
+  }
 }

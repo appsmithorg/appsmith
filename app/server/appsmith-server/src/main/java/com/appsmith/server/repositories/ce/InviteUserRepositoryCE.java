@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.InviteUser;
@@ -6,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface InviteUserRepositoryCE extends BaseRepository<InviteUser, String> {
 
-    Mono<InviteUser> findByEmail(String email);
+  Mono<InviteUser> findByEmail(String email);
 }

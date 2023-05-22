@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.PluginType;
@@ -7,8 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PluginDTO {
-    String name;
-    PluginType type;
-    String executorClass;
-    String jarLocation;
+
+  String name;
+  PluginType type;
+  String executorClass;
+  String jarLocation;
 }

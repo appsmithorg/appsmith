@@ -1,4 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.migrations.db.ce;
+
+import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.QApplicationSnapshot;
@@ -8,29 +13,27 @@ import io.mongock.api.annotations.RollbackExecution;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 
-import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
-import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
-
-@ChangeUnit(order = "004", id="create-index-for-application-snapshot-collection")
+@ChangeUnit(order = "004", id = "create-index-for-application-snapshot-collection")
 public class Migration004CreateIndexForApplicationSnapshotMigration {
-    private final MongoTemplate mongoTemplate;
 
-    public Migration004CreateIndexForApplicationSnapshotMigration(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
+  private final MongoTemplate mongoTemplate;
 
-    @RollbackExecution
-    public void demoRollbackExecution() {
-    }
+  public Migration004CreateIndexForApplicationSnapshotMigration(MongoTemplate mongoTemplate) {
+    this.mongoTemplate = mongoTemplate;
+  }
 
-    @Execution
-    public void addIndexOnApplicationIdAndChunkOrder() {
-        Index applicationIdChunkOrderUniqueIndex = makeIndex(
+  @RollbackExecution
+  public void demoRollbackExecution() {}
+
+  @Execution
+  public void addIndexOnApplicationIdAndChunkOrder() {
+    Index applicationIdChunkOrderUniqueIndex =
+        makeIndex(
                 fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
-                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder)
-        ).named("applicationId_chunkOrder_unique_index").unique();
+                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder))
+            .named("applicationId_chunkOrder_unique_index")
+            .unique();
 
-        ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdChunkOrderUniqueIndex);
-    }
+    ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdChunkOrderUniqueIndex);
+  }
 }

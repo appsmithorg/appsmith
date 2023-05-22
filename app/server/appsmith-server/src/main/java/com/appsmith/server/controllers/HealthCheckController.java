@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.HEALTH_CHECK)
 public class HealthCheckController extends HealthCheckControllerCE {
 
-    public HealthCheckController(HealthCheckService healthCheckService) {
-        super(healthCheckService);
-    }
+  public HealthCheckController(HealthCheckService healthCheckService) {
+    super(healthCheckService);
+  }
 }

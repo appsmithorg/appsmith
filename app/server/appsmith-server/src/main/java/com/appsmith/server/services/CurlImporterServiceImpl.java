@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
@@ -9,16 +10,22 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class CurlImporterServiceImpl extends CurlImporterServiceCEImpl implements CurlImporterService {
+public class CurlImporterServiceImpl extends CurlImporterServiceCEImpl
+    implements CurlImporterService {
 
-    public CurlImporterServiceImpl(
-            PluginService pluginService,
-            LayoutActionService layoutActionService,
-            NewPageService newPageService,
-            ResponseUtils responseUtils,
-            ObjectMapper objectMapper,
-            PagePermission pagePermission
-    ) {
-        super(pluginService, layoutActionService, newPageService, responseUtils, objectMapper, pagePermission);
-    }
+  public CurlImporterServiceImpl(
+      PluginService pluginService,
+      LayoutActionService layoutActionService,
+      NewPageService newPageService,
+      ResponseUtils responseUtils,
+      ObjectMapper objectMapper,
+      PagePermission pagePermission) {
+    super(
+        pluginService,
+        layoutActionService,
+        newPageService,
+        responseUtils,
+        objectMapper,
+        pagePermission);
+  }
 }

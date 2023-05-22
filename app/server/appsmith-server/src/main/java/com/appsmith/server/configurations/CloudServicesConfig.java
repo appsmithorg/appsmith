@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import lombok.Getter;
@@ -7,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 public class CloudServicesConfig {
-    @Value("${appsmith.cloud_services.base_url}")
-    String baseUrl;
 
-    @Value("${appsmith.cloud_services.username}")
-    private String username;
+  @Value("${appsmith.cloud_services.base_url}")
+  String baseUrl;
 
-    @Value("${appsmith.cloud_services.password}")
-    private String password;
+  @Value("${appsmith.cloud_services.username}")
+  private String username;
+
+  @Value("${appsmith.cloud_services.password}")
+  private String password;
 }

@@ -1,5 +1,9 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.helpers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,120 +11,89 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @Slf4j
 public class AppsmithBeanUtilsTest {
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    static class Person {
-        private String name;
-        private Integer age;
-        private Boolean isApproved;
-        private LocalDate joinDate;
-        private Gender gender;
-        private Person mentor = null;
-    }
+  @Test
+  public void copyProperties() {
+    Person source = new Person();
+    source.setAge(30);
 
-    enum Gender {
-        Male, Female
-    }
+    Person target = new Person("Luke", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null);
 
-    @Test
-    public void copyProperties() {
-        Person source = new Person();
-        source.setAge(30);
+    AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
+    assertThat(target.getName()).isEqualTo("Luke");
+    assertThat(target.getAge()).isEqualTo(30);
+    assertThat(target.getIsApproved()).isEqualTo(true);
+    assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
+    assertThat(target.getGender()).isEqualTo(Gender.Male);
+  }
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                null
-        );
+  @Test
+  public void copyNestedProperty() {
+    Person source = new Person(), mentor = new Person();
+    mentor.setName("The new mentor name");
+    source.setMentor(mentor);
 
-        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
-        assertThat(target.getName()).isEqualTo("Luke");
-        assertThat(target.getAge()).isEqualTo(30);
-        assertThat(target.getIsApproved()).isEqualTo(true);
-        assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
-        assertThat(target.getGender()).isEqualTo(Gender.Male);
-    }
+    Person target =
+        new Person(
+            "Luke",
+            25,
+            true,
+            LocalDate.of(2000, 1, 1),
+            Gender.Male,
+            new Person("Leia", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null));
 
-    @Test
-    public void copyNestedProperty() {
-        Person source = new Person(), mentor = new Person();
-        mentor.setName("The new mentor name");
-        source.setMentor(mentor);
+    AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
+    assertThat(target.getName()).isEqualTo("Luke");
+    assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
+    assertThat(target.getMentor().getAge()).isEqualTo(25);
+  }
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                new Person(
-                        "Leia",
-                        25,
-                        true,
-                        LocalDate.of(2000, 1, 1),
-                        Gender.Male,
-                        null
-                )
-        );
+  @Test
+  public void copyNestedPropertyWithTargetNull() {
+    Person source = new Person(), mentor = new Person();
+    mentor.setName("The new mentor name");
+    source.setMentor(mentor);
 
-        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
-        assertThat(target.getName()).isEqualTo("Luke");
-        assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
-        assertThat(target.getMentor().getAge()).isEqualTo(25);
-    }
+    Person target = new Person("Luke", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null);
 
-    @Test
-    public void copyNestedPropertyWithTargetNull() {
-        Person source = new Person(), mentor = new Person();
-        mentor.setName("The new mentor name");
-        source.setMentor(mentor);
+    AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
+    assertThat(target.getName()).isEqualTo("Luke");
+    assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
+  }
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                null
-        );
+  @Test
+  public void copyEnumValue() {
+    Person source = new Person();
+    source.setGender(Gender.Female);
 
-        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
-        assertThat(target.getName()).isEqualTo("Luke");
-        assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
-    }
+    Person target = new Person("Luke", 25, true, LocalDate.of(2000, 1, 1), Gender.Male, null);
 
-    @Test
-    public void copyEnumValue() {
-        Person source = new Person();
-        source.setGender(Gender.Female);
+    AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
+    assertThat(target.getName()).isEqualTo("Luke");
+    assertThat(target.getAge()).isEqualTo(25);
+    assertThat(target.getIsApproved()).isEqualTo(true);
+    assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
+    assertThat(target.getGender()).isEqualTo(Gender.Female);
+  }
 
-        Person target = new Person(
-                "Luke",
-                25,
-                true,
-                LocalDate.of(2000, 1, 1),
-                Gender.Male,
-                null
-        );
+  enum Gender {
+    Male,
+    Female
+  }
 
-        AppsmithBeanUtils.copyNestedNonNullProperties(source, target);
-        assertThat(target.getName()).isEqualTo("Luke");
-        assertThat(target.getAge()).isEqualTo(25);
-        assertThat(target.getIsApproved()).isEqualTo(true);
-        assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
-        assertThat(target.getGender()).isEqualTo(Gender.Female);
-    }
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  static class Person {
 
+    private String name;
+    private Integer age;
+    private Boolean isApproved;
+    private LocalDate joinDate;
+    private Gender gender;
+    private Person mentor = null;
+  }
 }

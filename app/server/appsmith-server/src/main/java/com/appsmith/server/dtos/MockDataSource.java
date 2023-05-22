@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Getter;
@@ -7,12 +8,11 @@ import lombok.Setter;
 @Setter
 public class MockDataSource {
 
-    String name;
+  String name;
 
-    String workspaceId;
+  String workspaceId;
 
-    String pluginId;
+  String pluginId;
 
-    String packageName;
-
+  String packageName;
 }

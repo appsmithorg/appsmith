@@ -1,10 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.services.AssetService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +17,15 @@ import reactor.core.publisher.Mono;
 @RequestMapping(Url.ASSET_URL)
 public class AssetControllerCE {
 
-    private final AssetService service;
+  private final AssetService service;
 
-    @JsonView(Views.Public.class)
-    @GetMapping("/{id}")
-    public Mono<Void> getById(@PathVariable String id, ServerWebExchange exchange) {
-        exchange.getResponse().getHeaders().set(HttpHeaders.CACHE_CONTROL, "public, max-age=7776000, immutable");
-        return service.makeImageResponse(exchange, id);
-    }
-
+  @JsonView(Views.Public.class)
+  @GetMapping("/{id}")
+  public Mono<Void> getById(@PathVariable String id, ServerWebExchange exchange) {
+    exchange
+        .getResponse()
+        .getHeaders()
+        .set(HttpHeaders.CACHE_CONTROL, "public, max-age=7776000, immutable");
+    return service.makeImageResponse(exchange, id);
+  }
 }

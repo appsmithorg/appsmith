@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -17,8 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Endpoint {
 
-    String host;
+  String host;
 
-    Long port;
-
+  Long port;
 }

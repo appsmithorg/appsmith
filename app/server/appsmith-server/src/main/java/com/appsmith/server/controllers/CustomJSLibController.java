@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.CUSTOM_JS_LIB_URL)
 @Slf4j
 public class CustomJSLibController extends CustomJSLibControllerCE {
-    public CustomJSLibController(CustomJSLibServiceImpl customJSLibService) {
-        super(customJSLibService);
-    }
+
+  public CustomJSLibController(CustomJSLibServiceImpl customJSLibService) {
+    super(customJSLibService);
+  }
 }

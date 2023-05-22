@@ -1,4 +1,7 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
@@ -9,13 +12,6 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -23,146 +19,184 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 @Slf4j
-public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String> implements CustomJSLibServiceCE {
-    ApplicationService applicationService;
+public class CustomJSLibServiceCEImpl
+    extends BaseService<CustomJSLibRepository, CustomJSLib, String>
+    implements CustomJSLibServiceCE {
 
-    public CustomJSLibServiceCEImpl(Scheduler scheduler,
-                                    Validator validator,
-                                    MongoConverter mongoConverter,
-                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                    CustomJSLibRepository repository,
-                                    ApplicationService applicationService,
-                                    AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+  ApplicationService applicationService;
 
-        this.applicationService = applicationService;
-    }
+  public CustomJSLibServiceCEImpl(
+      Scheduler scheduler,
+      Validator validator,
+      MongoConverter mongoConverter,
+      ReactiveMongoTemplate reactiveMongoTemplate,
+      CustomJSLibRepository repository,
+      ApplicationService applicationService,
+      AnalyticsService analyticsService) {
+    super(
+        scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
-    @Override
-    public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
-                                               String branchName, Boolean isForceInstall) {
-        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
-                .map(tuple -> {
-                    /**
-                     * TODO: try to convert it into a single update op where reading of list is not required
-                     * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
-                     */
-                    Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
-                    CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
-                    if (!jsLibDTOsInApplication.contains(currentJSLibDTO)) {
-                        jsLibDTOsInApplication.add(currentJSLibDTO);
-                    }
+    this.applicationService = applicationService;
+  }
 
-                    return jsLibDTOsInApplication;
-                })
-                .flatMap(updatedJSLibDTOList -> {
-                    Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
-                    return applicationService.update(applicationId, fieldNameValueMap, branchName);
-                })
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
-    }
+  @Override
+  public Mono<Boolean> addJSLibToApplication(
+      @NotNull String applicationId,
+      @NotNull CustomJSLib jsLib,
+      String branchName,
+      Boolean isForceInstall) {
+    return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
+        .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
+        .map(
+            tuple -> {
+              /**
+               * TODO: try to convert it into a single update op where reading of list is not
+               * required Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+               */
+              Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
+              CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
+              if (!jsLibDTOsInApplication.contains(currentJSLibDTO)) {
+                jsLibDTOsInApplication.add(currentJSLibDTO);
+              }
 
-    @Override
-    public Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(CustomJSLib jsLib,
-                                                                                             Boolean isForceInstall) {
-        return repository.findByUidString(jsLib.getUidString())
-                .flatMap(foundJSLib -> {
-                    /*
-                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
-                        The second check provides us with a backdoor to overwrite any faulty data that would have come in any time earlier.
-                        Currently, once a custom JS lib data gets persisted there is no way to update it - the isForceInstall flag will allow a way to update this data.
-                     */
-                    if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
-                        jsLib.setId(foundJSLib.getId());
-                        return repository.save(jsLib)
-                                .then(Mono.just(getDTOFromCustomJSLib(jsLib)));
-                    }
+              return jsLibDTOsInApplication;
+            })
+        .flatMap(
+            updatedJSLibDTOList -> {
+              Map<String, Object> fieldNameValueMap =
+                  Map.of(
+                      FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
+                      updatedJSLibDTOList);
+              return applicationService.update(applicationId, fieldNameValueMap, branchName);
+            })
+        .map(updateResult -> updateResult.getModifiedCount() > 0);
+  }
 
-                    return Mono.just(getDTOFromCustomJSLib(foundJSLib));
-                })
-                //Read more why Mono.defer is used here. https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
-    }
+  @Override
+  public Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
+      CustomJSLib jsLib, Boolean isForceInstall) {
+    return repository
+        .findByUidString(jsLib.getUidString())
+        .flatMap(
+            foundJSLib -> {
+              /*
+                 The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
+                 The second check provides us with a backdoor to overwrite any faulty data that would have come in any time earlier.
+                 Currently, once a custom JS lib data gets persisted there is no way to update it - the isForceInstall flag will allow a way to update this data.
+              */
+              if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
+                jsLib.setId(foundJSLib.getId());
+                return repository.save(jsLib).then(Mono.just(getDTOFromCustomJSLib(jsLib)));
+              }
 
-    @Override
-    public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId,
-                                                    @NotNull CustomJSLib jsLib, String branchName,
-                                                    Boolean isForceRemove) {
+              return Mono.just(getDTOFromCustomJSLib(foundJSLib));
+            })
+        // Read more why Mono.defer is used here.
+        // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
+        .switchIfEmpty(
+            Mono.defer(
+                () -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
+  }
 
-        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                .map(jsLibDTOSet -> {
-                    /**
-                     * TODO: try to convert it into a single update op where reading of list is not required
-                     * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
-                     */
-                    CustomJSLibApplicationDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
-                    jsLibDTOSet.remove(currentJSLibDTO);
+  @Override
+  public Mono<Boolean> removeJSLibFromApplication(
+      @NotNull String applicationId,
+      @NotNull CustomJSLib jsLib,
+      String branchName,
+      Boolean isForceRemove) {
 
-                    return jsLibDTOSet;
-                })
-                .flatMap(updatedJSLibDTOList -> {
-                    Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
-                    return applicationService.update(applicationId, fieldNameValueMap, branchName);
-                })
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
-    }
+    return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
+        .map(
+            jsLibDTOSet -> {
+              /**
+               * TODO: try to convert it into a single update op where reading of list is not
+               * required Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+               */
+              CustomJSLibApplicationDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
+              jsLibDTOSet.remove(currentJSLibDTO);
 
-    @Override
-    public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
-                                                             Boolean isViewMode) {
-        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
-    }
+              return jsLibDTOSet;
+            })
+        .flatMap(
+            updatedJSLibDTOList -> {
+              Map<String, Object> fieldNameValueMap =
+                  Map.of(
+                      FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
+                      updatedJSLibDTOList);
+              return applicationService.update(applicationId, fieldNameValueMap, branchName);
+            })
+        .map(updateResult -> updateResult.getModifiedCount() > 0);
+  }
 
-    @Override
-    public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(String applicationId, String branchName, Boolean isViewMode) {
-        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
-                .map(jsLibList -> {
-                    jsLibList
-                            .forEach(jsLib -> {
-                                jsLib.setId(null);
-                                jsLib.setCreatedAt(null);
-                                jsLib.setUpdatedAt(null);
-                            });
+  @Override
+  public Mono<List<CustomJSLib>> getAllJSLibsInApplication(
+      @NotNull String applicationId, String branchName, Boolean isViewMode) {
+    return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
+  }
 
-                    return jsLibList;
-                });
-    }
+  @Override
+  public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(
+      String applicationId, String branchName, Boolean isViewMode) {
+    return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
+        .map(
+            jsLibList -> {
+              jsLibList.forEach(
+                  jsLib -> {
+                    jsLib.setId(null);
+                    jsLib.setCreatedAt(null);
+                    jsLib.setUpdatedAt(null);
+                  });
 
-    private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(String applicationId, String branchName, boolean isViewMode) {
-        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
-                .map(jsLibDTOSet -> jsLibDTOSet.stream()
-                        .map(dto -> dto.getUidString())
-                        .collect(Collectors.toList())
-                )
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(uidString -> repository.findByUidString(uidString))
-                .collectList()
-                .map(jsLibList -> {
-                    Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getUidString));
-                    return jsLibList;
-                });
-    }
+              return jsLibList;
+            });
+  }
 
-    @Override
-    public Mono<Set<CustomJSLibApplicationDTO>> getAllJSLibApplicationDTOFromApplication(@NotNull String applicationId,
-                                                                                         String branchName,
-                                                                                         Boolean isViewMode) {
-        return applicationService.findByIdAndBranchName(applicationId,
-                        List.of(isViewMode ? FieldName.PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS :
-                                FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS), branchName)
-                .map(application -> {
-                    if (isViewMode) {
-                        return application.getPublishedCustomJSLibs() == null ? new HashSet<>() :
-                                application.getPublishedCustomJSLibs();
-                    }
+  private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(
+      String applicationId, String branchName, boolean isViewMode) {
+    return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
+        .map(
+            jsLibDTOSet ->
+                jsLibDTOSet.stream().map(dto -> dto.getUidString()).collect(Collectors.toList()))
+        .flatMapMany(Flux::fromIterable)
+        .flatMap(uidString -> repository.findByUidString(uidString))
+        .collectList()
+        .map(
+            jsLibList -> {
+              Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getUidString));
+              return jsLibList;
+            });
+  }
 
-                    return application.getUnpublishedCustomJSLibs() == null ? new HashSet<>() :
-                            application.getUnpublishedCustomJSLibs();
-                });
-    }
+  @Override
+  public Mono<Set<CustomJSLibApplicationDTO>> getAllJSLibApplicationDTOFromApplication(
+      @NotNull String applicationId, String branchName, Boolean isViewMode) {
+    return applicationService
+        .findByIdAndBranchName(
+            applicationId,
+            List.of(
+                isViewMode
+                    ? FieldName.PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS
+                    : FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS),
+            branchName)
+        .map(
+            application -> {
+              if (isViewMode) {
+                return application.getPublishedCustomJSLibs() == null
+                    ? new HashSet<>()
+                    : application.getPublishedCustomJSLibs();
+              }
+
+              return application.getUnpublishedCustomJSLibs() == null
+                  ? new HashSet<>()
+                  : application.getUnpublishedCustomJSLibs();
+            });
+  }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DatasourceDTO {
-    String id;
-    DatasourceConfiguration datasourceConfiguration;
+
+  String id;
+  DatasourceConfiguration datasourceConfiguration;
 }

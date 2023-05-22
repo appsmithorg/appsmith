@@ -1,11 +1,11 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ParamProperty {
 
-    Object datatype;
+  Object datatype;
 
-    List<String> blobIdentifiers;
+  List<String> blobIdentifiers;
 }

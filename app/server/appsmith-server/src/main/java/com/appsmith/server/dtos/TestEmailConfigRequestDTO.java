@@ -1,26 +1,21 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
-
-import lombok.Data;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 @Data
 public class TestEmailConfigRequestDTO {
-    @NotNull
-    @NotEmpty
-    private String smtpHost;
 
-    @NotNull
-    private Integer smtpPort;
+  @NotNull @NotEmpty private String smtpHost;
 
-    private String username;
+  @NotNull private Integer smtpPort;
 
-    private String password;
+  private String username;
 
-    @NotNull
-    @NotEmpty
-    @Email
-    private String fromEmail;
+  private String password;
+
+  @NotNull @NotEmpty @Email private String fromEmail;
 }

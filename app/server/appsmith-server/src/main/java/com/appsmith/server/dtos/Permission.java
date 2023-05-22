@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.acl.AclPermission;
@@ -16,8 +17,7 @@ import lombok.Setter;
 @Builder
 public class Permission {
 
-    String documentId;
+  String documentId;
 
-    AclPermission aclPermission;
-
+  AclPermission aclPermission;
 }

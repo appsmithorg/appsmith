@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
@@ -15,8 +16,9 @@ import lombok.ToString;
 @ToString
 public class MustacheBindingToken {
 
-    String value;
-    int startIndex;
-    // A token can be with or without handlebars in the value. This boolean value represents the state of the current token.
-    boolean includesHandleBars = false;
+  String value;
+  int startIndex;
+  // A token can be with or without handlebars in the value. This boolean value represents the
+  // state of the current token.
+  boolean includesHandleBars = false;
 }

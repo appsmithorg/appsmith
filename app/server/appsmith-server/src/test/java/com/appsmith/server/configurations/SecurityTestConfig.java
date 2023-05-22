@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import org.springframework.context.annotation.Bean;
@@ -10,8 +11,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableReactiveMethodSecurity
 public class SecurityTestConfig {
 
-    @Bean
-    public SecurityWebFilterChain testSecurityWebFilterChain(ServerHttpSecurity http){
-        return http.csrf().disable().build();
-    }
+  @Bean
+  public SecurityWebFilterChain testSecurityWebFilterChain(ServerHttpSecurity http) {
+    return http.csrf().disable().build();
+  }
 }

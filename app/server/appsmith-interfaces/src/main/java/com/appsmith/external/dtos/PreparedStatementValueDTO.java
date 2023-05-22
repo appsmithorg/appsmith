@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.constants.DataType;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PreparedStatementValueDTO {
 
-    String value;
+  String value;
 
-    DataType dataType;
+  DataType dataType;
 }

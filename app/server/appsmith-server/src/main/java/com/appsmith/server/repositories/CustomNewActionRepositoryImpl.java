@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
@@ -9,11 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEImpl
-        implements CustomNewActionRepository {
+    implements CustomNewActionRepository {
 
-    public CustomNewActionRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                         MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
-
+  public CustomNewActionRepositoryImpl(
+      ReactiveMongoOperations mongoOperations,
+      MongoConverter mongoConverter,
+      CacheableRepositoryHelper cacheableRepositoryHelper) {
+    super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+  }
 }

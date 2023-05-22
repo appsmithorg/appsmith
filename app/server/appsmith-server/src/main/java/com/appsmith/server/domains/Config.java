@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
@@ -16,7 +17,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Document
 public class Config extends BaseDomain {
-    JSONObject config;
 
-    String name;
+  JSONObject config;
+
+  String name;
 }

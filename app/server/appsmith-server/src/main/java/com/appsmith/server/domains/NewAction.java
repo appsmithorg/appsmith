@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.ActionDTO;
@@ -19,56 +20,59 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class NewAction extends BranchAwareDomain {
 
-    // Fields in action that are not allowed to change between published and unpublished versions
-    @JsonView(Views.Public.class)
-    String applicationId;
+  // Fields in action that are not allowed to change between published and unpublished versions
+  @JsonView(Views.Public.class)
+  String applicationId;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
+  // Organizations migrated to workspaces, kept the field as deprecated to support the old
+  // migration
+  @Deprecated
+  @JsonView(Views.Public.class)
+  String organizationId;
 
-    @JsonView(Views.Public.class)
-    String workspaceId;
+  @JsonView(Views.Public.class)
+  String workspaceId;
 
-    @JsonView(Views.Public.class)
-    PluginType pluginType;
+  @JsonView(Views.Public.class)
+  PluginType pluginType;
 
-    @JsonView(Views.Public.class)
-    String pluginId;
+  @JsonView(Views.Public.class)
+  String pluginId;
 
-    @JsonView(Views.Public.class)
-    String templateId; //If action is created via a template, store the id here.
+  @JsonView(Views.Public.class)
+  String templateId; // If action is created via a template, store the id here.
 
-    @JsonView(Views.Public.class)
-    String providerId; //If action is created via a template, store the template's provider id here.
+  @JsonView(Views.Public.class)
+  String providerId; // If action is created via a template, store the template's provider id
 
-    @JsonView(Views.Public.class)
-    Documentation documentation; // Documentation for the template using which this action was created
+  // here.
 
-    // Action specific fields that are allowed to change between published and unpublished versions
-    @JsonView(Views.Public.class)
-    ActionDTO unpublishedAction;
+  @JsonView(Views.Public.class)
+  Documentation documentation; // Documentation for the template using which this action was created
 
-    @JsonView(Views.Public.class)
-    ActionDTO publishedAction;
+  // Action specific fields that are allowed to change between published and unpublished versions
+  @JsonView(Views.Public.class)
+  ActionDTO unpublishedAction;
 
-    @Override
-    public void sanitiseToExportDBObject() {
-        this.setTemplateId(null);
-        this.setApplicationId(null);
-        this.setOrganizationId(null);
-        this.setWorkspaceId(null);
-        this.setProviderId(null);
-        this.setDocumentation(null);
-        ActionDTO unpublishedAction = this.getUnpublishedAction();
-        if (unpublishedAction != null) {
-            unpublishedAction.sanitiseToExportDBObject();
-        }
-        ActionDTO publishedAction = this.getPublishedAction();
-        if (publishedAction != null) {
-            publishedAction.sanitiseToExportDBObject();
-        }
-        super.sanitiseToExportDBObject();
+  @JsonView(Views.Public.class)
+  ActionDTO publishedAction;
+
+  @Override
+  public void sanitiseToExportDBObject() {
+    this.setTemplateId(null);
+    this.setApplicationId(null);
+    this.setOrganizationId(null);
+    this.setWorkspaceId(null);
+    this.setProviderId(null);
+    this.setDocumentation(null);
+    ActionDTO unpublishedAction = this.getUnpublishedAction();
+    if (unpublishedAction != null) {
+      unpublishedAction.sanitiseToExportDBObject();
     }
+    ActionDTO publishedAction = this.getPublishedAction();
+    if (publishedAction != null) {
+      publishedAction.sanitiseToExportDBObject();
+    }
+    super.sanitiseToExportDBObject();
+  }
 }

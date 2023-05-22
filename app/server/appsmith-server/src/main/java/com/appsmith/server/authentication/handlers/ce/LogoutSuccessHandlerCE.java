@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
@@ -21,38 +22,38 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
 
-    private final ObjectMapper objectMapper;
-    private final AnalyticsService analyticsService;
+  private final ObjectMapper objectMapper;
+  private final AnalyticsService analyticsService;
 
-    public LogoutSuccessHandlerCE(ObjectMapper objectMapper, AnalyticsService analyticsService) {
-        this.objectMapper = objectMapper;
-        this.analyticsService = analyticsService;
+  public LogoutSuccessHandlerCE(ObjectMapper objectMapper, AnalyticsService analyticsService) {
+    this.objectMapper = objectMapper;
+    this.analyticsService = analyticsService;
+  }
+
+  @Override
+  public Mono<Void> onLogoutSuccess(
+      WebFilterExchange webFilterExchange, Authentication authentication) {
+    log.debug("In the logout success handler");
+
+    ServerWebExchange exchange = webFilterExchange.getExchange();
+    ServerHttpResponse response = exchange.getResponse();
+    response.setStatusCode(HttpStatus.OK);
+    response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    try {
+      ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
+      String responseStr = objectMapper.writeValueAsString(responseBody);
+      DataBuffer buffer =
+          exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
+      return analyticsService
+          .sendObjectEvent(AnalyticsEvents.LOGOUT, (User) authentication.getPrincipal())
+          .then(response.writeWith(Mono.just(buffer)));
+    } catch (JsonProcessingException e) {
+      log.error("Unable to write to response json. Cause: ", e);
+      // Returning a hard-coded failure json
+      String responseStr = "{\"responseMeta\":{\"status\":500,\"success\":false},\"data\":false}";
+      DataBuffer buffer =
+          exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
+      return response.writeWith(Mono.just(buffer));
     }
-
-    @Override
-    public Mono<Void> onLogoutSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
-        log.debug("In the logout success handler");
-
-        ServerWebExchange exchange = webFilterExchange.getExchange();
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.OK);
-        response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        try {
-            ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
-            String responseStr = objectMapper.writeValueAsString(responseBody);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
-            return analyticsService.sendObjectEvent(
-                        AnalyticsEvents.LOGOUT,
-                        (User) authentication.getPrincipal()
-                    )
-                    .then(response.writeWith(Mono.just(buffer)));
-        } catch (JsonProcessingException e) {
-            log.error("Unable to write to response json. Cause: ", e);
-            // Returning a hard-coded failure json
-            String responseStr = "{\"responseMeta\":{\"status\":500,\"success\":false},\"data\":false}";
-            DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
-            return response.writeWith(Mono.just(buffer));
-        }
-    }
-
+  }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -14,7 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Category extends BaseDomain {
 
-    @Indexed(unique = true)
-    String name; //Category name here
-
+  @Indexed(unique = true)
+  String name; // Category name here
 }

@@ -1,4 +1,10 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services.ce;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
@@ -45,6 +51,12 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,822 +70,1029 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
-public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
+public class ApplicationServiceCEImpl
+    extends BaseService<ApplicationRepository, Application, String>
+    implements ApplicationServiceCE {
 
-    private final PolicyUtils policyUtils;
-    private final ConfigService configService;
-    private final SessionUserService sessionUserService;
-    private final ResponseUtils responseUtils;
+  private static final Integer MAX_RETRIES = 5;
+  private final PolicyUtils policyUtils;
+  private final ConfigService configService;
+  private final SessionUserService sessionUserService;
+  private final ResponseUtils responseUtils;
+  private final PermissionGroupService permissionGroupService;
+  private final TenantService tenantService;
+  private final AssetService assetService;
+  private final UserRepository userRepository;
+  private final DatasourcePermission datasourcePermission;
+  private final ApplicationPermission applicationPermission;
 
-    private final PermissionGroupService permissionGroupService;
+  @Autowired
+  public ApplicationServiceCEImpl(
+      Scheduler scheduler,
+      Validator validator,
+      MongoConverter mongoConverter,
+      ReactiveMongoTemplate reactiveMongoTemplate,
+      ApplicationRepository repository,
+      AnalyticsService analyticsService,
+      PolicyUtils policyUtils,
+      ConfigService configService,
+      SessionUserService sessionUserService,
+      ResponseUtils responseUtils,
+      PermissionGroupService permissionGroupService,
+      TenantService tenantService,
+      AssetService assetService,
+      UserRepository userRepository,
+      DatasourcePermission datasourcePermission,
+      ApplicationPermission applicationPermission) {
 
-    private final TenantService tenantService;
+    super(
+        scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+    this.policyUtils = policyUtils;
+    this.configService = configService;
+    this.sessionUserService = sessionUserService;
+    this.responseUtils = responseUtils;
+    this.permissionGroupService = permissionGroupService;
+    this.tenantService = tenantService;
+    this.assetService = assetService;
+    this.userRepository = userRepository;
+    this.datasourcePermission = datasourcePermission;
+    this.applicationPermission = applicationPermission;
+  }
 
-    private final AssetService assetService;
+  @Override
+  public Flux<Application> get(MultiValueMap<String, String> params) {
+    if (!StringUtils.isEmpty(
+        params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {
+      params.add(
+          "gitApplicationMetadata.branchName",
+          params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
+      params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
+    }
+    return setTransientFields(
+            super.getWithPermission(params, applicationPermission.getReadPermission()))
+        .map(responseUtils::updateApplicationWithDefaultResources);
+  }
 
-    private final UserRepository userRepository;
-    private final DatasourcePermission datasourcePermission;
-    private final ApplicationPermission applicationPermission;
-    private final static Integer MAX_RETRIES = 5;
-
-    @Autowired
-    public ApplicationServiceCEImpl(Scheduler scheduler,
-                                    Validator validator,
-                                    MongoConverter mongoConverter,
-                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                    ApplicationRepository repository,
-                                    AnalyticsService analyticsService,
-                                    PolicyUtils policyUtils,
-                                    ConfigService configService,
-                                    SessionUserService sessionUserService,
-                                    ResponseUtils responseUtils,
-                                    PermissionGroupService permissionGroupService,
-                                    TenantService tenantService,
-                                    AssetService assetService,
-                                    UserRepository userRepository,
-                                    DatasourcePermission datasourcePermission,
-                                    ApplicationPermission applicationPermission) {
-
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.policyUtils = policyUtils;
-        this.configService = configService;
-        this.sessionUserService = sessionUserService;
-        this.responseUtils = responseUtils;
-        this.permissionGroupService = permissionGroupService;
-        this.tenantService = tenantService;
-        this.assetService = assetService;
-        this.userRepository = userRepository;
-        this.datasourcePermission = datasourcePermission;
-        this.applicationPermission = applicationPermission;
+  @Override
+  public Mono<Application> getById(String id) {
+    if (id == null) {
+      return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
     }
 
-    @Override
-    public Flux<Application> get(MultiValueMap<String, String> params) {
-        if (!StringUtils.isEmpty(params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {
-            params.add("gitApplicationMetadata.branchName", params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
-            params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        }
-        return setTransientFields(super.getWithPermission(params, applicationPermission.getReadPermission()))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+    return repository
+        .findById(id, applicationPermission.getReadPermission())
+        .flatMap(this::setTransientFields)
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
+  }
+
+  @Override
+  public Mono<Application> findByIdAndBranchName(String id, String branchName) {
+    return findByIdAndBranchName(id, null, branchName);
+  }
+
+  @Override
+  public Mono<Application> findByIdAndBranchName(
+      String id, List<String> projectionFieldNames, String branchName) {
+    return this.findByBranchNameAndDefaultApplicationId(
+            branchName, id, projectionFieldNames, applicationPermission.getReadPermission())
+        .map(responseUtils::updateApplicationWithDefaultResources);
+  }
+
+  @Override
+  public Mono<Application> findById(String id) {
+    return repository.findById(id).flatMap(this::setTransientFields);
+  }
+
+  @Override
+  @Deprecated
+  public Mono<Application> findById(String id, AclPermission aclPermission) {
+    return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
+  }
+
+  @Override
+  public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
+    return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
+  }
+
+  @Override
+  public Mono<Application> findByIdAndWorkspaceId(
+      String id, String workspaceId, AclPermission permission) {
+    return repository
+        .findByIdAndWorkspaceId(id, workspaceId, permission)
+        .flatMap(this::setTransientFields);
+  }
+
+  @Override
+  public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
+    return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
+  }
+
+  @Override
+  public Flux<Application> findByClonedFromApplicationId(
+      String applicationId, AclPermission permission) {
+    return repository.findByClonedFromApplicationId(applicationId, permission);
+  }
+
+  @Override
+  public Mono<Application> findByName(String name, AclPermission permission) {
+    return repository.findByName(name, permission).flatMap(this::setTransientFields);
+  }
+
+  @Override
+  public Mono<Application> save(Application application) {
+    if (!StringUtils.isEmpty(application.getName())) {
+      application.setSlug(TextUtils.makeSlug(application.getName()));
     }
 
-    @Override
-    public Mono<Application> getById(String id) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
+    if (application.getApplicationVersion() != null) {
+      int appVersion = application.getApplicationVersion();
+      if (appVersion < ApplicationVersion.EARLIEST_VERSION
+          || appVersion > ApplicationVersion.LATEST_VERSION) {
+        return Mono.error(
+            new AppsmithException(
+                AppsmithError.INVALID_PARAMETER,
+                QApplication.application.applicationVersion.getMetadata().getName()));
+      }
+    }
+    return repository.save(application).flatMap(this::setTransientFields);
+  }
 
-        return repository.findById(id, applicationPermission.getReadPermission())
+  @Override
+  public Mono<Application> create(Application object) {
+    throw new UnsupportedOperationException(
+        "Please use `ApplicationPageService.createApplication` to create an application.");
+  }
+
+  /**
+   * Tries to create the given application with the name, over and over again with an incremented
+   * suffix, but **only** if the error is because of a name clash.
+   *
+   * @param application Application to create.
+   * @param name Name of the application, to which numbered suffixes will be appended.
+   * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+   * @return A Mono that yields the created application.
+   */
+  private Mono<Application> createSuffixedApplication(
+      Application application, String name, int suffix) {
+    final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+    application.setName(actualName);
+    application.setSlug(TextUtils.makeSlug(application.getName()));
+    application.setLastEditedAt(Instant.now());
+    if (!StringUtils.hasLength(application.getColor())) {
+      application.setColor(getRandomAppCardColor());
+    }
+    return super.create(application)
+        .onErrorResume(
+            DuplicateKeyException.class,
+            error -> {
+              if (error.getMessage() != null
+                  // Catch only if error message contains
+                  // workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
+                  && error
+                      .getMessage()
+                      .contains(
+                          "workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                if (suffix > MAX_RETRIES) {
+                  return Mono.error(
+                      new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
+                } else {
+                  // The duplicate key error is because of the `name` field.
+                  return createSuffixedApplication(application, name, suffix + 1);
+                }
+              }
+              throw error;
+            });
+  }
+
+  /**
+   * A public method which creates a default application by calling createSuffixedApplication which
+   * will retry with incremental suffix if there is name clash.
+   *
+   * @param application Application to create.
+   * @return A Mono that yields the created application.
+   */
+  @Override
+  public Mono<Application> createDefaultApplication(Application application) {
+    return createSuffixedApplication(application, application.getName(), 0);
+  }
+
+  @Override
+  public Mono<Application> update(String id, Application application) {
+    application.setIsPublic(null);
+    application.setLastEditedAt(Instant.now());
+    if (!StringUtils.isEmpty(application.getName())) {
+      application.setSlug(TextUtils.makeSlug(application.getName()));
+    }
+
+    if (application.getApplicationVersion() != null) {
+      int appVersion = application.getApplicationVersion();
+      if (appVersion < ApplicationVersion.EARLIEST_VERSION
+          || appVersion > ApplicationVersion.LATEST_VERSION) {
+        return Mono.error(
+            new AppsmithException(
+                AppsmithError.INVALID_PARAMETER,
+                QApplication.application.applicationVersion.getMetadata().getName()));
+      }
+    }
+
+    Mono<String> applicationIdMono;
+    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+    if (gitData != null
+        && !StringUtils.isEmpty(gitData.getBranchName())
+        && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+      applicationIdMono =
+          this.findByBranchNameAndDefaultApplicationId(
+                  gitData.getBranchName(),
+                  gitData.getDefaultApplicationId(),
+                  applicationPermission.getEditPermission())
+              .map(Application::getId);
+    } else {
+      applicationIdMono = Mono.just(id);
+    }
+    return applicationIdMono.flatMap(
+        appId ->
+            repository
+                .updateById(appId, application, applicationPermission.getEditPermission())
+                .onErrorResume(
+                    error -> {
+                      if (error instanceof DuplicateKeyException) {
+                        // Error message : E11000 duplicate key error
+                        // collection: appsmith.application index:
+                        // workspace_application_deleted_gitApplicationMetadata_compound_index dup
+                        // key:
+                        // { organizationId: "******", name: "AppName",
+                        // deletedAt: null }
+                        if (error
+                            .getCause()
+                            .getMessage()
+                            .contains(
+                                "workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                          return Mono.error(
+                              new AppsmithException(
+                                  AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                  FieldName.APPLICATION,
+                                  FieldName.NAME));
+                        }
+                        return Mono.error(
+                            new AppsmithException(
+                                AppsmithError.DUPLICATE_KEY,
+                                DuplicateKeyExceptionUtils.extractConflictingObjectName(
+                                    ((DuplicateKeyException) error).getCause().getMessage())));
+                      }
+                      return Mono.error(error);
+                    })
+                .flatMap(application1 -> this.setTransientFields(application1))
+                .flatMap(
+                    application1 -> {
+                      final Map<String, Object> eventData =
+                          Map.of(
+                              FieldName.APP_MODE,
+                              ApplicationMode.EDIT.toString(),
+                              FieldName.APPLICATION,
+                              application1);
+                      final Map<String, Object> data =
+                          Map.of(
+                              FieldName.APPLICATION_ID, application1.getId(),
+                              FieldName.WORKSPACE_ID, application1.getWorkspaceId(),
+                              FieldName.EVENT_DATA, eventData);
+                      return analyticsService.sendUpdateEvent(application1, data);
+                    }));
+  }
+
+  public Mono<UpdateResult> update(
+      String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
+    String defaultIdPath = "id";
+    if (!isBlank(branchName)) {
+      defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
+    }
+    return repository.updateFieldByDefaultIdAndBranchName(
+        defaultApplicationId,
+        defaultIdPath,
+        fieldNameValueMap,
+        branchName,
+        "gitApplicationMetadata.branchName",
+        MANAGE_APPLICATIONS);
+  }
+
+  public Mono<Application> update(
+      String defaultApplicationId, Application application, String branchName) {
+    return this.findByBranchNameAndDefaultApplicationId(
+            branchName, defaultApplicationId, applicationPermission.getEditPermission())
+        .flatMap(
+            branchedApplication -> {
+              application.setPages(null);
+              application.setGitApplicationMetadata(null);
+              /** Retaining the logoAssetId field value while updating NavigationSetting */
+              if (application.getUnpublishedApplicationDetail() != null) {
+                ApplicationDetail presetApplicationDetail =
+                    ObjectUtils.defaultIfNull(
+                        branchedApplication.getApplicationDetail(), new ApplicationDetail());
+                if (branchedApplication.getUnpublishedApplicationDetail() == null) {
+                  branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+                }
+                Application.NavigationSetting requestNavSetting =
+                    application.getUnpublishedApplicationDetail().getNavigationSetting();
+                if (requestNavSetting != null) {
+                  Application.NavigationSetting presetNavSetting =
+                      ObjectUtils.defaultIfNull(
+                          branchedApplication
+                              .getUnpublishedApplicationDetail()
+                              .getNavigationSetting(),
+                          new Application.NavigationSetting());
+                  String presetLogoAssetId =
+                      ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
+                  String requestLogoAssetId =
+                      ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
+                  requestNavSetting.setLogoAssetId(
+                      ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
+                  presetApplicationDetail.setNavigationSetting(requestNavSetting);
+                }
+
+                Application.AppPositioning requestAppPositioning =
+                    application.getUnpublishedApplicationDetail().getAppPositioning();
+                if (requestAppPositioning != null) {
+                  presetApplicationDetail.setAppPositioning(requestAppPositioning);
+                }
+
+                application.setUnpublishedApplicationDetail(presetApplicationDetail);
+              }
+              return this.update(branchedApplication.getId(), application);
+            });
+  }
+
+  @Override
+  public Mono<Application> archive(Application application) {
+    return repository.archive(application);
+  }
+
+  @Override
+  public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
+    Mono<String> publicPermissionGroupIdMono =
+        permissionGroupService.getPublicPermissionGroupId().cache();
+
+    Mono<Application> updateApplicationMono =
+        repository
+            .findById(id, applicationPermission.getMakePublicPermission())
+            .switchIfEmpty(
+                Mono.error(
+                    new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+            .zipWith(publicPermissionGroupIdMono)
+            .flatMap(
+                tuple -> {
+                  Application application = tuple.getT1();
+                  String publicPermissionGroupId = tuple.getT2();
+
+                  boolean isApplicationPublic =
+                      permissionGroupService.isEntityAccessible(
+                          application,
+                          applicationPermission.getReadPermission().getValue(),
+                          publicPermissionGroupId);
+
+                  if (applicationAccessDTO.getPublicAccess().equals(isApplicationPublic)) {
+                    // No change. Return the application as is.
+                    return Mono.just(application);
+                  }
+
+                  // Now update the policies to change the access to the
+                  // application
+                  return generateAndSetPoliciesForPublicView(
+                      application, publicPermissionGroupId, applicationAccessDTO.getPublicAccess());
+                })
+            .flatMap(this::setTransientFields);
+
+    //  Use a synchronous sink which does not take subscription cancellations into account. This
+    // that even if the
+    //  subscriber has cancelled its subscription, the create method will still generate its
+    // event.
+    return Mono.create(
+        sink ->
+            updateApplicationMono.subscribe(
+                sink::success, sink::error, null, sink.currentContext()));
+  }
+
+  @Override
+  public Mono<Application> changeViewAccess(
+      String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO) {
+    // For git connected application update the policy for all the branch's
+    return findAllApplicationsByDefaultApplicationId(
+            defaultApplicationId, applicationPermission.getMakePublicPermission())
+        .switchIfEmpty(
+            this.findByBranchNameAndDefaultApplicationId(
+                branchName, defaultApplicationId, applicationPermission.getMakePublicPermission()))
+        .flatMap(
+            branchedApplication ->
+                changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
+        .then(
+            repository
+                .findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
-    }
+                .map(responseUtils::updateApplicationWithDefaultResources));
+  }
 
-    @Override
-    public Mono<Application> findByIdAndBranchName(String id, String branchName) {
-        return findByIdAndBranchName(id, null, branchName);
-    }
+  @Override
+  public Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId) {
+    return repository.findByWorkspaceId(workspaceId);
+  }
 
-    @Override
-    public Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, id, projectionFieldNames,
-                        applicationPermission.getReadPermission())
-                .map(responseUtils::updateApplicationWithDefaultResources);
-    }
+  @Override
+  public Mono<Application> getApplicationInViewMode(
+      String defaultApplicationId, String branchName) {
 
-    @Override
-    public Mono<Application> findById(String id) {
-        return repository.findById(id)
-                .flatMap(this::setTransientFields);
-    }
+    return this.findBranchedApplicationId(
+            branchName, defaultApplicationId, applicationPermission.getReadPermission())
+        .flatMap(this::getApplicationInViewMode)
+        .map(responseUtils::updateApplicationWithDefaultResources);
+  }
 
-    @Override
-    @Deprecated
-    public Mono<Application> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission)
-                .flatMap(this::setTransientFields);
-    }
+  @Override
+  public Mono<Application> getApplicationInViewMode(String applicationId) {
+    return repository
+        .findById(applicationId, applicationPermission.getReadPermission())
+        .map(
+            application -> {
+              application.setViewMode(true);
+              return application;
+            });
+  }
 
-    @Override
-    public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
-        return repository.findById(id, aclPermission)
-                .flatMap(this::setTransientFields);
-    }
+  private Mono<? extends Application> generateAndSetPoliciesForPublicView(
+      Application application, String permissionGroupId, Boolean addViewAccess) {
 
-    @Override
-    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
-        return repository.findByIdAndWorkspaceId(id, workspaceId, permission)
-                .flatMap(this::setTransientFields);
-    }
+    Map<String, Policy> applicationPolicyMap =
+        policyUtils.generatePolicyFromPermissionWithPermissionGroup(
+            READ_APPLICATIONS, permissionGroupId);
+    Map<String, Policy> pagePolicyMap =
+        policyUtils.generateInheritedPoliciesFromSourcePolicies(
+            applicationPolicyMap, Application.class, Page.class);
+    Map<String, Policy> actionPolicyMap =
+        policyUtils.generateInheritedPoliciesFromSourcePolicies(
+            pagePolicyMap, Page.class, Action.class);
+    Map<String, Policy> datasourcePolicyMap =
+        policyUtils.generatePolicyFromPermissionWithPermissionGroup(
+            datasourcePermission.getExecutePermission(), permissionGroupId);
+    Map<String, Policy> themePolicyMap =
+        policyUtils.generateInheritedPoliciesFromSourcePolicies(
+            applicationPolicyMap, Application.class, Theme.class);
 
-    @Override
-    public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
-        return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
-    }
+    final Flux<NewPage> updatedPagesFlux =
+        policyUtils.updateWithApplicationPermissionsToAllItsPages(
+            application.getId(), pagePolicyMap, addViewAccess);
+    // Use the same policy map as actions for action collections since action collections have
+    // the same kind of permissions
+    final Flux<ActionCollection> updatedActionCollectionsFlux =
+        policyUtils.updateWithPagePermissionsToAllItsActionCollections(
+            application.getId(), actionPolicyMap, addViewAccess);
+    Flux<Theme> updatedThemesFlux =
+        policyUtils.updateThemePolicies(application, themePolicyMap, addViewAccess);
+    final Flux<NewAction> updatedActionsFlux =
+        updatedPagesFlux
+            .collectList()
+            .thenMany(updatedActionCollectionsFlux)
+            .collectList()
+            .then(Mono.justOrEmpty(application.getId()))
+            .thenMany(updatedThemesFlux)
+            .collectList()
+            .flatMapMany(
+                applicationId ->
+                    policyUtils.updateWithPagePermissionsToAllItsActions(
+                        application.getId(), actionPolicyMap, addViewAccess));
 
-    @Override
-    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        return repository.findByClonedFromApplicationId(applicationId, permission);
-    }
+    return updatedActionsFlux
+        .collectList()
+        .flatMap(
+            actions -> {
+              Set<String> datasourceIds = new HashSet<>();
+              for (NewAction action : actions) {
+                ActionDTO unpublishedAction = action.getUnpublishedAction();
+                ActionDTO publishedAction = action.getPublishedAction();
 
-    @Override
-    public Mono<Application> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission)
-                .flatMap(this::setTransientFields);
-    }
+                if (unpublishedAction.getDatasource() != null
+                    && unpublishedAction.getDatasource().getId() != null) {
+                  datasourceIds.add(unpublishedAction.getDatasource().getId());
+                }
 
-    @Override
-    public Mono<Application> save(Application application) {
-        if (!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.makeSlug(application.getName()));
-        }
+                if (publishedAction != null
+                    && publishedAction.getDatasource() != null
+                    && publishedAction.getDatasource().getId() != null) {
+                  datasourceIds.add(publishedAction.getDatasource().getId());
+                }
+              }
 
-        if (application.getApplicationVersion() != null) {
-            int appVersion = application.getApplicationVersion();
-            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_PARAMETER,
-                        QApplication.application.applicationVersion.getMetadata().getName()
-                ));
-            }
-        }
-        return repository.save(application)
-                .flatMap(this::setTransientFields);
-    }
+              // Update the datasource policies without permission since the
+              // applications and datasources are at
+              // the same level in the hierarchy. A user may have permission to change
+              // view on application, but may
+              // not have explicit permissions on the datasource.
+              Mono<List<Datasource>> updatedDatasourcesMono =
+                  policyUtils
+                      .updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
+                          datasourceIds, datasourcePolicyMap, addViewAccess)
+                      .collectList();
 
-    @Override
-    public Mono<Application> create(Application object) {
-        throw new UnsupportedOperationException("Please use `ApplicationPageService.createApplication` to create an application.");
-    }
+              return updatedDatasourcesMono;
+            })
+        .thenReturn(application)
+        .flatMap(
+            app -> {
+              Application updatedApplication;
+              if (addViewAccess) {
+                updatedApplication =
+                    policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+              } else {
+                updatedApplication =
+                    policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
+              }
+              return repository.save(updatedApplication);
+            });
+  }
 
-    /**
-     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
-     * if the error is because of a name clash.
-     * @param application Application to create.
-     * @param name Name of the application, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
-     * @return A Mono that yields the created application.
-     */
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        application.setSlug(TextUtils.makeSlug(application.getName()));
-        application.setLastEditedAt(Instant.now());
-        if (!StringUtils.hasLength(application.getColor())) {
-            application.setColor(getRandomAppCardColor());
-        }
-        return super.create(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
-                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                        if (suffix > MAX_RETRIES){
-                            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
-                        }else {
-                            // The duplicate key error is because of the `name` field.
-                            return createSuffixedApplication(application, name, suffix + 1);
-                        }
-                    }
-                    throw error;
-                });
-    }
+  public Mono<Application> setTransientFields(Application application) {
+    return setTransientFields(Flux.just(application)).last();
+  }
 
-    /**
-     * A public method which creates a default application by calling createSuffixedApplication which will retry with
-     * incremental suffix if there is name clash.
-     * @param application Application to create.
-     * @return A Mono that yields the created application.
-     */
-    @Override
-    public Mono<Application> createDefaultApplication(Application application) {
-        return createSuffixedApplication(application, application.getName(), 0);
-    }
+  private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
+    Flux<String> publicPermissionGroupIdFlux =
+        permissionGroupService.getPublicPermissionGroupId().cache().repeat();
 
-    @Override
-    public Mono<Application> update(String id, Application application) {
-        application.setIsPublic(null);
-        application.setLastEditedAt(Instant.now());
-        if (!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.makeSlug(application.getName()));
-        }
+    // Set isPublic field if the application is public
+    Flux<Application> updatedApplicationWithIsPublicFlux =
+        permissionGroupService
+            .getPublicPermissionGroupId()
+            .cache()
+            .repeat()
+            .zipWith(applicationsFlux)
+            .map(
+                tuple -> {
+                  Application application = tuple.getT2();
+                  String publicPermissionGroupId = tuple.getT1();
 
-        if (application.getApplicationVersion() != null) {
-            int appVersion = application.getApplicationVersion();
-            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_PARAMETER,
-                        QApplication.application.applicationVersion.getMetadata().getName()
-                ));
-            }
-        }
+                  application.setIsPublic(
+                      permissionGroupService.isEntityAccessible(
+                          application,
+                          applicationPermission.getReadPermission().getValue(),
+                          publicPermissionGroupId));
 
-        Mono<String> applicationIdMono;
-        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-        if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
-            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
-                    .map(Application::getId);
-        } else {
-            applicationIdMono = Mono.just(id);
-        }
-        return applicationIdMono
-                .flatMap(appId -> repository.updateById(appId, application, applicationPermission.getEditPermission())
-                        .onErrorResume(error -> {
-                            if (error instanceof DuplicateKeyException) {
-                                // Error message : E11000 duplicate key error collection: appsmith.application index:
-                                // workspace_application_deleted_gitApplicationMetadata_compound_index dup key:
-                                // { organizationId: "******", name: "AppName", deletedAt: null }
-                                if (error.getCause().getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
-                                    );
-                                }
-                                return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, DuplicateKeyExceptionUtils.extractConflictingObjectName(((DuplicateKeyException) error).getCause().getMessage())));
-                            }
-                            return Mono.error(error);
-                        })
-                        .flatMap(application1 -> this.setTransientFields(application1))
-                        .flatMap(application1 -> {
-                            final Map<String, Object> eventData = Map.of(
-                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
-                                    FieldName.APPLICATION, application1
-                            );
-                            final Map<String, Object> data = Map.of(
-                                    FieldName.APPLICATION_ID, application1.getId(),
-                                    FieldName.WORKSPACE_ID, application1.getWorkspaceId(),
-                                    FieldName.EVENT_DATA, eventData
-                            );
-                            return analyticsService.sendUpdateEvent(application1, data);
-                        }));
-    }
-
-    public Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
-        String defaultIdPath = "id";
-        if (!isBlank(branchName)) {
-            defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
-        }
-        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, defaultIdPath, fieldNameValueMap,
-                branchName, "gitApplicationMetadata.branchName", MANAGE_APPLICATIONS);
-    }
-
-    public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplication -> {
-                    application.setPages(null);
-                    application.setGitApplicationMetadata(null);
-                    /**
-                     * Retaining the logoAssetId field value while updating NavigationSetting
-                     */
-                    if (application.getUnpublishedApplicationDetail() != null) {
-                        ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
-                        if (branchedApplication.getUnpublishedApplicationDetail() == null){
-                            branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
-                        }
-                        Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
-                        if (requestNavSetting != null) {
-                            Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
-                            String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
-                            String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
-                            requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                            presetApplicationDetail.setNavigationSetting(requestNavSetting);
-                        }
-
-                        Application.AppPositioning requestAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null){
-                            presetApplicationDetail.setAppPositioning(requestAppPositioning);
-                        }
-
-                        application.setUnpublishedApplicationDetail(presetApplicationDetail);
-                    }
-                    return this.update(branchedApplication.getId(), application);
-                });
-    }
-
-    @Override
-    public Mono<Application> archive(Application application) {
-        return repository.archive(application);
-    }
-
-    @Override
-    public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId().cache();
-
-        Mono<Application> updateApplicationMono = repository.findById(id, applicationPermission.getMakePublicPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .zipWith(publicPermissionGroupIdMono)
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    String publicPermissionGroupId = tuple.getT2();
-
-                    boolean isApplicationPublic = permissionGroupService.isEntityAccessible(application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId);
-
-                    if (applicationAccessDTO.getPublicAccess().equals(isApplicationPublic)) {
-                        // No change. Return the application as is.
-                        return Mono.just(application);
-                    }
-
-                    // Now update the policies to change the access to the application
-                    return generateAndSetPoliciesForPublicView(
-                            application,
-                            publicPermissionGroupId,
-                            applicationAccessDTO.getPublicAccess()
-                    );
-                })
-                .flatMap(this::setTransientFields);
-
-        //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
-        //  subscriber has cancelled its subscription, the create method will still generate its event.
-        return Mono.create(sink -> updateApplicationMono
-                .subscribe(sink::success, sink::error, null, sink.currentContext())
-        );
-    }
-
-    @Override
-    public Mono<Application> changeViewAccess(String defaultApplicationId,
-                                              String branchName,
-                                              ApplicationAccessDTO applicationAccessDTO) {
-        // For git connected application update the policy for all the branch's
-        return findAllApplicationsByDefaultApplicationId(defaultApplicationId, applicationPermission.getMakePublicPermission())
-                .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getMakePublicPermission()))
-                .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .then(repository.findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
-                        .flatMap(this::setTransientFields)
-                        .map(responseUtils::updateApplicationWithDefaultResources));
-    }
-
-    @Override
-    public Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId) {
-        return repository.findByWorkspaceId(workspaceId);
-    }
-
-    @Override
-    public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
-
-        return this.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
-                .flatMap(this::getApplicationInViewMode)
-                .map(responseUtils::updateApplicationWithDefaultResources);
-    }
-
-    @Override
-    public Mono<Application> getApplicationInViewMode(String applicationId) {
-        return repository.findById(applicationId, applicationPermission.getReadPermission())
-                .map(application -> {
-                    application.setViewMode(true);
-                    return application;
-                });
-    }
-
-    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, String permissionGroupId,
-                                                                            Boolean addViewAccess) {
-
-        Map<String, Policy> applicationPolicyMap = policyUtils
-                .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> pagePolicyMap = policyUtils
-                .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
-        Map<String, Policy> actionPolicyMap = policyUtils
-                .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils
-                .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
-        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
-                applicationPolicyMap, Application.class, Theme.class
-        );
-
-        final Flux<NewPage> updatedPagesFlux = policyUtils
-                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess);
-        // Use the same policy map as actions for action collections since action collections have the same kind of permissions
-        final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
-                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess);
-        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, addViewAccess);
-        final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
-                .collectList()
-                .thenMany(updatedActionCollectionsFlux)
-                .collectList()
-                .then(Mono.justOrEmpty(application.getId()))
-                .thenMany(updatedThemesFlux)
-                .collectList()
-                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
-
-        return updatedActionsFlux
-                .collectList()
-                .flatMap(actions -> {
-                    Set<String> datasourceIds = new HashSet<>();
-                    for (NewAction action : actions) {
-                        ActionDTO unpublishedAction = action.getUnpublishedAction();
-                        ActionDTO publishedAction = action.getPublishedAction();
-
-                        if (unpublishedAction.getDatasource() != null &&
-                                unpublishedAction.getDatasource().getId() != null) {
-                            datasourceIds.add(unpublishedAction.getDatasource().getId());
-                        }
-
-                        if (publishedAction != null &&
-                                publishedAction.getDatasource() != null &&
-                                publishedAction.getDatasource().getId() != null) {
-                            datasourceIds.add(publishedAction.getDatasource().getId());
-                        }
-                    }
-
-                    // Update the datasource policies without permission since the applications and datasources are at
-                    // the same level in the hierarchy. A user may have permission to change view on application, but may
-                    // not have explicit permissions on the datasource.
-                    Mono<List<Datasource>> updatedDatasourcesMono =
-                            policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(datasourceIds,
-                                            datasourcePolicyMap, addViewAccess)
-                                    .collectList();
-
-                    return updatedDatasourcesMono;
-                })
-                .thenReturn(application)
-                .flatMap(app -> {
-                    Application updatedApplication;
-                    if (addViewAccess) {
-                        updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
-                    } else {
-                        updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
-                    }
-                    return repository.save(updatedApplication);
+                  return application;
                 });
 
-    }
+    return configService
+        .getTemplateApplications()
+        .map(application -> application.getId())
+        .defaultIfEmpty("")
+        .collectList()
+        .cache()
+        .repeat()
+        .zipWith(updatedApplicationWithIsPublicFlux)
+        .map(
+            tuple -> {
+              List<String> templateApplicationIds = tuple.getT1();
+              Application application = tuple.getT2();
 
-    public Mono<Application> setTransientFields(Application application) {
-        return setTransientFields(Flux.just(application)).last();
-    }
+              application.setAppIsExample(templateApplicationIds.contains(application.getId()));
+              return application;
+            });
+  }
 
-    private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
-        Flux<String> publicPermissionGroupIdFlux = permissionGroupService.getPublicPermissionGroupId().cache().repeat();
+  /**
+   * Generate SSH private and public keys required to communicate with remote. Keys will be stored
+   * only in the default/root application only and not the child branched application. This decision
+   * is taken because the combined size of keys is close to 4kB
+   *
+   * @param applicationId application for which the SSH key needs to be generated
+   * @return public key which will be used by user to copy to relevant platform
+   */
+  @Override
+  public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
+    GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
+    return repository
+        .findById(applicationId, applicationPermission.getEditPermission())
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)))
+        .flatMap(
+            application -> {
+              GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+              // Check if the current application is the root application
 
-        // Set isPublic field if the application is public
-        Flux<Application> updatedApplicationWithIsPublicFlux = permissionGroupService.getPublicPermissionGroupId().cache().repeat()
-                .zipWith(applicationsFlux)
-                .map(tuple -> {
-                    Application application = tuple.getT2();
-                    String publicPermissionGroupId = tuple.getT1();
+              if (gitData != null
+                  && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
+                  && applicationId.equals(gitData.getDefaultApplicationId())) {
+                // This is the root application with update SSH key request
+                gitAuth.setRegeneratedKey(true);
+                gitData.setGitAuth(gitAuth);
+                return save(application);
+              } else {
+                if (gitData == null) {
+                  // This is a root application with generate SSH key request
+                  GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                  gitApplicationMetadata.setDefaultApplicationId(applicationId);
+                  gitApplicationMetadata.setGitAuth(gitAuth);
+                  application.setGitApplicationMetadata(gitApplicationMetadata);
+                  return save(application);
+                }
+              }
+              // Children application with update SSH key request for root application
+              // Fetch root application and then make updates. We are storing the git
+              // metadata only in root application
+              if (StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                throw new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION,
+                    "Unable to find root application, please connect your"
+                        + " application to remote repo to resolve this issue.");
+              }
+              gitAuth.setRegeneratedKey(true);
 
-                    application.setIsPublic(permissionGroupService.isEntityAccessible(application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId));
-
-                    return application;
-                });
-
-        return configService.getTemplateApplications()
-                .map(application -> application.getId())
-                .defaultIfEmpty("")
-                .collectList()
-                .cache()
-                .repeat()
-                .zipWith(updatedApplicationWithIsPublicFlux)
-                .map(tuple -> {
-                    List<String> templateApplicationIds = tuple.getT1();
-                    Application application = tuple.getT2();
-
-                    application.setAppIsExample(templateApplicationIds.contains(application.getId()));
-                    return application;
-                });
-    }
-
-    /**
-     * Generate SSH private and public keys required to communicate with remote. Keys will be stored only in the
-     * default/root application only and not the child branched application. This decision is taken because the combined
-     * size of keys is close to 4kB
-     *
-     * @param applicationId application for which the SSH key needs to be generated
-     * @return public key which will be used by user to copy to relevant platform
-     */
-    @Override
-    public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-        return repository.findById(applicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
-                ))
-                .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    // Check if the current application is the root application
-
-                    if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            && applicationId.equals(gitData.getDefaultApplicationId())) {
-                        // This is the root application with update SSH key request
-                        gitAuth.setRegeneratedKey(true);
-                        gitData.setGitAuth(gitAuth);
-                        return save(application);
-                    } else if (gitData == null) {
-                        // This is a root application with generate SSH key request
-                        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                        gitApplicationMetadata.setDefaultApplicationId(applicationId);
+              return repository
+                  .findById(
+                      gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                  .flatMap(
+                      defaultApplication -> {
+                        GitApplicationMetadata gitApplicationMetadata =
+                            defaultApplication.getGitApplicationMetadata();
+                        gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
                         gitApplicationMetadata.setGitAuth(gitAuth);
-                        application.setGitApplicationMetadata(gitApplicationMetadata);
-                        return save(application);
-                    }
-                    // Children application with update SSH key request for root application
-                    // Fetch root application and then make updates. We are storing the git metadata only in root application
-                    if (StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
-                        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Unable to find root application, please connect your application to remote repo to resolve this issue.");
-                    }
-                    gitAuth.setRegeneratedKey(true);
+                        defaultApplication.setGitApplicationMetadata(gitApplicationMetadata);
+                        return save(defaultApplication);
+                      });
+            })
+        .flatMap(
+            application -> {
+              // Send generate SSH key analytics event
+              assert application.getId() != null;
+              final Map<String, Object> eventData =
+                  Map.of(
+                      FieldName.APP_MODE,
+                      ApplicationMode.EDIT.toString(),
+                      FieldName.APPLICATION,
+                      application);
+              final Map<String, Object> data =
+                  Map.of(
+                      FieldName.APPLICATION_ID,
+                      application.getId(),
+                      "organizationId",
+                      application.getWorkspaceId(),
+                      "isRegeneratedKey",
+                      gitAuth.isRegeneratedKey(),
+                      FieldName.EVENT_DATA,
+                      eventData);
+              return analyticsService
+                  .sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
+                  .onErrorResume(
+                      e -> {
+                        log.warn("Error sending ssh key generation data" + " point", e);
+                        return Mono.just(application);
+                      });
+            })
+        .thenReturn(gitAuth);
+  }
 
-                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
-                            .flatMap(defaultApplication -> {
-                                GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
-                                gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
-                                gitApplicationMetadata.setGitAuth(gitAuth);
-                                defaultApplication.setGitApplicationMetadata(gitApplicationMetadata);
-                                return save(defaultApplication);
-                            });
-                })
-                .flatMap(application -> {
-                    // Send generate SSH key analytics event
-                    assert application.getId() != null;
-                    final Map<String, Object> eventData = Map.of(
-                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
-                            FieldName.APPLICATION, application
-                    );
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID, application.getId(),
-                            "organizationId", application.getWorkspaceId(),
-                            "isRegeneratedKey", gitAuth.isRegeneratedKey(),
-                            FieldName.EVENT_DATA, eventData
-                    );
-                    return analyticsService.sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
-                            .onErrorResume(e -> {
-                                log.warn("Error sending ssh key generation data point", e);
-                                return Mono.just(application);
-                            });
-                })
-                .thenReturn(gitAuth);
-    }
+  /**
+   * Method to get the SSH public key
+   *
+   * @param applicationId application for which the SSH key is requested
+   * @return public SSH key
+   */
+  @Override
+  public Mono<GitAuthDTO> getSshKey(String applicationId) {
+    return repository
+        .findById(applicationId, applicationPermission.getEditPermission())
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(
+                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+        .flatMap(
+            application -> {
+              GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+              List<GitDeployKeyDTO> gitDeployKeyDTOList =
+                  GitDeployKeyGenerator.getSupportedProtocols();
+              if (gitData == null) {
+                return Mono.error(
+                    new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Can't find valid SSH key. Please configure the"
+                            + " application with git"));
+              }
+              // Check if the application is root application
+              if (applicationId.equals(gitData.getDefaultApplicationId())) {
+                gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+                GitAuthDTO gitAuthDTO = new GitAuthDTO();
+                gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
+                gitAuthDTO.setPrivateKey(gitData.getGitAuth().getPrivateKey());
+                gitAuthDTO.setDocUrl(gitData.getGitAuth().getDocUrl());
+                gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
+                return Mono.just(gitAuthDTO);
+              }
+              if (gitData.getDefaultApplicationId() == null) {
+                throw new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION,
+                    "Can't find root application. Please configure the" + " application with git");
+              }
 
-    /**
-     * Method to get the SSH public key
-     *
-     * @param applicationId application for which the SSH key is requested
-     * @return public SSH key
-     */
-    @Override
-    public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return repository.findById(applicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
-                )
-                .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    List<GitDeployKeyDTO> gitDeployKeyDTOList = GitDeployKeyGenerator.getSupportedProtocols();
-                    if (gitData == null) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Can't find valid SSH key. Please configure the application with git"
-                        ));
-                    }
-                    // Check if the application is root application
-                    if (applicationId.equals(gitData.getDefaultApplicationId())) {
-                        gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+              return repository
+                  .findById(
+                      gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                  .map(
+                      rootApplication -> {
                         GitAuthDTO gitAuthDTO = new GitAuthDTO();
-                        gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
-                        gitAuthDTO.setPrivateKey(gitData.getGitAuth().getPrivateKey());
-                        gitAuthDTO.setDocUrl(gitData.getGitAuth().getDocUrl());
+                        GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
+                        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+                        gitAuthDTO.setPublicKey(gitAuth.getPublicKey());
+                        gitAuthDTO.setPrivateKey(gitAuth.getPrivateKey());
+                        gitAuthDTO.setDocUrl(gitAuth.getDocUrl());
                         gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
-                        return Mono.just(gitAuthDTO);
-                    }
-                    if (gitData.getDefaultApplicationId() == null) {
-                        throw new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Can't find root application. Please configure the application with git"
-                        );
-                    }
+                        return gitAuthDTO;
+                      });
+            });
+  }
 
+  public Mono<Application> findByBranchNameAndDefaultApplicationId(
+      String branchName, String defaultApplicationId, AclPermission aclPermission) {
+    return findByBranchNameAndDefaultApplicationId(
+        branchName, defaultApplicationId, null, aclPermission);
+  }
 
-                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
-                            .map(rootApplication -> {
-                                GitAuthDTO gitAuthDTO = new GitAuthDTO();
-                                GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
-                                gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
-                                gitAuthDTO.setPublicKey(gitAuth.getPublicKey());
-                                gitAuthDTO.setPrivateKey(gitAuth.getPrivateKey());
-                                gitAuthDTO.setDocUrl(gitAuth.getDocUrl());
-                                gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
-                                return gitAuthDTO;
-                            });
-                });
+  @Override
+  public Mono<Application> findByBranchNameAndDefaultApplicationId(
+      String branchName,
+      String defaultApplicationId,
+      List<String> projectionFieldNames,
+      AclPermission aclPermission) {
+    if (StringUtils.isEmpty(branchName)) {
+      return repository
+          .findById(defaultApplicationId, projectionFieldNames, aclPermission)
+          .switchIfEmpty(
+              Mono.error(
+                  new AppsmithException(
+                      AppsmithError.NO_RESOURCE_FOUND,
+                      FieldName.APPLICATION,
+                      defaultApplicationId)));
+    }
+    return repository
+        .getApplicationByGitBranchAndDefaultApplicationId(
+            defaultApplicationId, projectionFieldNames, branchName, aclPermission)
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND,
+                    FieldName.APPLICATION,
+                    defaultApplicationId + "," + branchName)));
+  }
+
+  @Override
+  public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
+      String branchName,
+      String defaultApplicationId,
+      String fieldName,
+      AclPermission aclPermission) {
+    if (StringUtils.isEmpty(branchName)) {
+      return repository
+          .findById(defaultApplicationId, aclPermission)
+          .switchIfEmpty(
+              Mono.error(
+                  new AppsmithException(
+                      AppsmithError.NO_RESOURCE_FOUND,
+                      FieldName.APPLICATION,
+                      defaultApplicationId)));
     }
 
-    public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
-                                                                     String defaultApplicationId,
-                                                                     AclPermission aclPermission) {
-        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, null, aclPermission);
+    return repository
+        .getApplicationByGitBranchAndDefaultApplicationId(
+            defaultApplicationId, branchName, aclPermission)
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND,
+                    FieldName.APPLICATION,
+                    defaultApplicationId + "," + branchName)));
+  }
+
+  /**
+   * Sets the updatedAt and modifiedBy fields of the Application
+   *
+   * @param applicationId Application ID
+   * @return Application Mono of updated Application
+   */
+  @Override
+  public Mono<Application> saveLastEditInformation(String applicationId) {
+    Application application = new Application();
+    // need to set isPublic=null because it has a `false` as it's default value in domain class
+    application.setIsPublic(null);
+    application.setLastEditedAt(Instant.now());
+    application.setIsManualUpdate(true);
+    /*
+     We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
+     by the updateById method of the BaseAppsmithRepositoryImpl
+    */
+    return repository
+        .updateById(
+            applicationId,
+            application,
+            applicationPermission.getEditPermission()) // it'll do a set operation
+        .flatMap(this::setTransientFields);
+  }
+
+  public Mono<String> findBranchedApplicationId(
+      String branchName, String defaultApplicationId, AclPermission permission) {
+    if (!StringUtils.hasLength(branchName)) {
+      if (!StringUtils.hasLength(defaultApplicationId)) {
+        return Mono.error(
+            new AppsmithException(
+                AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
+      }
+      return Mono.just(defaultApplicationId);
     }
+    return repository
+        .getApplicationByGitBranchAndDefaultApplicationId(
+            defaultApplicationId, branchName, permission)
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND,
+                    FieldName.APPLICATION,
+                    defaultApplicationId + ", " + branchName)))
+        .map(Application::getId);
+  }
 
-    @Override
-    public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
-                                                                     String defaultApplicationId,
-                                                                     List<String> projectionFieldNames,
-                                                                     AclPermission aclPermission) {
-        if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
-                    );
-        }
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, projectionFieldNames
-                        , branchName, aclPermission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
-                );
+  public Mono<String> findBranchedApplicationId(
+      Optional<String> branchName,
+      String defaultApplicationId,
+      Optional<AclPermission> permission) {
+    if (branchName.isEmpty()) {
+      if (!StringUtils.hasLength(defaultApplicationId)) {
+        return Mono.error(
+            new AppsmithException(
+                AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
+      }
+      return Mono.just(defaultApplicationId);
     }
+    return repository
+        .getApplicationByGitBranchAndDefaultApplicationId(
+            defaultApplicationId, branchName.get(), permission)
+        .switchIfEmpty(
+            Mono.error(
+                new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND,
+                    FieldName.APPLICATION,
+                    defaultApplicationId + ", " + branchName)))
+        .map(Application::getId);
+  }
 
-    @Override
-    public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(String branchName,
-                                                                                 String defaultApplicationId,
-                                                                                 String fieldName,
-                                                                                 AclPermission aclPermission) {
-        if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultApplicationId, aclPermission)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
-                    );
-        }
+  /**
+   * As part of git sync feature a new application will be created for each branch with reference to
+   * main application feat/new-branch ----> new application in Appsmith Get all the applications
+   * which refer to the current application and archive those first one by one
+   * GitApplicationMetadata has a field called defaultApplicationId which refers to the main
+   * application
+   *
+   * @param defaultApplicationId Main Application from which the branch was created
+   * @return Application flux which match the condition
+   */
+  @Override
+  public Flux<Application> findAllApplicationsByDefaultApplicationId(
+      String defaultApplicationId, AclPermission permission) {
+    return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
+  }
 
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
-                );
+  @Override
+  public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(
+      String workspaceId) {
+    return repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
+  }
+
+  @Override
+  public Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId) {
+    return repository.getGitConnectedApplicationByWorkspaceId(workspaceId);
+  }
+
+  public String getRandomAppCardColor() {
+    int randomColorIndex =
+        (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
+    return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
+  }
+
+  @Override
+  public Mono<UpdateResult> setAppTheme(
+      String applicationId,
+      String editModeThemeId,
+      String publishedModeThemeId,
+      AclPermission aclPermission) {
+    return repository.setAppTheme(
+        applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+  }
+
+  @Override
+  public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(
+      String defaultApplicationId) {
+    return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
+  }
+
+  @Override
+  public Mono<Application> findByIdAndExportWithConfiguration(
+      String applicationId, Boolean exportWithConfiguration) {
+    return repository.findByIdAndExportWithConfiguration(applicationId, exportWithConfiguration);
+  }
+
+  @Override
+  public Mono<Application> saveAppNavigationLogo(
+      String branchName, String applicationId, Part filePart) {
+    return this.findByBranchNameAndDefaultApplicationId(
+            branchName, applicationId, applicationPermission.getEditPermission())
+        .flatMap(
+            branchedApplication -> {
+              branchedApplication.setUnpublishedApplicationDetail(
+                  ObjectUtils.defaultIfNull(
+                      branchedApplication.getUnpublishedApplicationDetail(),
+                      new ApplicationDetail()));
+              Application.NavigationSetting rootAppUnpublishedNavigationSetting =
+                  ObjectUtils.defaultIfNull(
+                      branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
+                      new Application.NavigationSetting());
+
+              String rootAppLogoAssetId =
+                  ObjectUtils.defaultIfNull(
+                      rootAppUnpublishedNavigationSetting.getLogoAssetId(), "");
+
+              final Mono<String> prevAssetIdMono = Mono.just(rootAppLogoAssetId);
+
+              final Mono<Asset> uploaderMono =
+                  assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, false);
+
+              return Mono.zip(prevAssetIdMono, uploaderMono)
+                  .flatMap(
+                      tuple -> {
+                        final String oldAssetId = tuple.getT1();
+                        final Asset uploadedAsset = tuple.getT2();
+                        Application.NavigationSetting navSetting =
+                            ObjectUtils.defaultIfNull(
+                                branchedApplication
+                                    .getUnpublishedApplicationDetail()
+                                    .getNavigationSetting(),
+                                new Application.NavigationSetting());
+                        navSetting.setLogoAssetId(uploadedAsset.getId());
+                        branchedApplication
+                            .getUnpublishedApplicationDetail()
+                            .setNavigationSetting(navSetting);
+
+                        final Mono<Application> updateMono =
+                            this.update(applicationId, branchedApplication, branchName);
+
+                        if (!StringUtils.hasLength(oldAssetId)) {
+                          return updateMono;
+                        } else {
+                          return assetService.remove(oldAssetId).then(updateMono);
+                        }
+                      });
+            });
+  }
+
+  @Override
+  public Mono<Application> findByNameAndWorkspaceId(
+      String applicationName, String workspaceId, AclPermission permission) {
+    return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
+  }
+
+  @Override
+  public Mono<Boolean> isApplicationConnectedToGit(String applicationId) {
+    if (!StringUtils.hasLength(applicationId)) {
+      return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
     }
+    return this.getById(applicationId)
+        .map(
+            application ->
+                application.getGitApplicationMetadata() != null
+                    && StringUtils.hasLength(
+                        application.getGitApplicationMetadata().getRemoteUrl()));
+  }
 
-    /**
-     * Sets the updatedAt and modifiedBy fields of the Application
-     *
-     * @param applicationId Application ID
-     * @return Application Mono of updated Application
-     */
-    @Override
-    public Mono<Application> saveLastEditInformation(String applicationId) {
-        Application application = new Application();
-        // need to set isPublic=null because it has a `false` as it's default value in domain class
-        application.setIsPublic(null);
-        application.setLastEditedAt(Instant.now());
-        application.setIsManualUpdate(true);
-        /*
-          We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
-          by the updateById method of the BaseAppsmithRepositoryImpl
-         */
-        return repository.updateById(applicationId, application, applicationPermission.getEditPermission()) // it'll do a set operation
-                .flatMap(this::setTransientFields);
-    }
+  @Override
+  public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId) {
+    return this.findByBranchNameAndDefaultApplicationId(
+            branchName, applicationId, applicationPermission.getEditPermission())
+        .flatMap(
+            branchedApplication -> {
+              branchedApplication.setUnpublishedApplicationDetail(
+                  ObjectUtils.defaultIfNull(
+                      branchedApplication.getUnpublishedApplicationDetail(),
+                      new ApplicationDetail()));
+              Application.NavigationSetting unpublishedNavSetting =
+                  ObjectUtils.defaultIfNull(
+                      branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
+                      new Application.NavigationSetting());
 
-    public Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
-        if (!StringUtils.hasLength(branchName)) {
-            if (!StringUtils.hasLength(defaultApplicationId)) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
-            }
-            return Mono.just(defaultApplicationId);
-        }
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
-                )
-                .map(Application::getId);
-    }
+              String navLogoAssetId =
+                  ObjectUtils.defaultIfNull(unpublishedNavSetting.getLogoAssetId(), "");
 
-    public Mono<String> findBranchedApplicationId(Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission) {
-        if (branchName.isEmpty()) {
-            if (!StringUtils.hasLength(defaultApplicationId)) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
-            }
-            return Mono.just(defaultApplicationId);
-        }
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName.get(), permission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
-                )
-                .map(Application::getId);
-    }
-
-    /**
-     * As part of git sync feature a new application will be created for each branch with reference to main application
-     * feat/new-branch ----> new application in Appsmith
-     * Get all the applications which refer to the current application and archive those first one by one
-     * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
-     *
-     * @param defaultApplicationId Main Application from which the branch was created
-     * @return Application flux which match the condition
-     */
-    @Override
-    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
-        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
-    }
-
-    @Override
-    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId) {
-        return repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
-    }
-
-    @Override
-    public Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId) {
-        return repository.getGitConnectedApplicationByWorkspaceId(workspaceId);
-    }
-
-    public String getRandomAppCardColor() {
-        int randomColorIndex = (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
-        return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
-    }
-
-    @Override
-    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
-    }
-
-    @Override
-    public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
-        return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
-    }
-
-    @Override
-    public Mono<Application> findByIdAndExportWithConfiguration(String applicationId, Boolean exportWithConfiguration) {
-        return repository.findByIdAndExportWithConfiguration(applicationId, exportWithConfiguration);
-    }
-
-    @Override
-    public Mono<Application> saveAppNavigationLogo(String branchName, String applicationId, Part filePart) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplication -> {
-
-                    branchedApplication.setUnpublishedApplicationDetail(ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail(), new ApplicationDetail()));
-                    Application.NavigationSetting rootAppUnpublishedNavigationSetting = ObjectUtils.defaultIfNull(
-                            branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
-                            new Application.NavigationSetting()
-                    );
-
-                    String rootAppLogoAssetId = ObjectUtils.defaultIfNull(
-                            rootAppUnpublishedNavigationSetting.getLogoAssetId(),
-                            ""
-                    );
-
-                    final Mono<String> prevAssetIdMono = Mono.just(rootAppLogoAssetId);
-
-                    final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, false);
-
-                    return Mono.zip(prevAssetIdMono, uploaderMono)
-                            .flatMap(tuple -> {
-                                final String oldAssetId = tuple.getT1();
-                                final Asset uploadedAsset = tuple.getT2();
-                                Application.NavigationSetting navSetting = ObjectUtils.defaultIfNull(
-                                        branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
-                                        new Application.NavigationSetting());
-                                navSetting.setLogoAssetId(uploadedAsset.getId());
-                                branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(navSetting);
-
-                                final Mono<Application> updateMono = this.update(applicationId, branchedApplication, branchName);
-
-                                if (!StringUtils.hasLength(oldAssetId)) {
-                                    return updateMono;
-                                } else {
-                                    return assetService.remove(oldAssetId).then(updateMono);
-                                }
-
-                            });
-
-                });
-    }
-
-
-    @Override
-    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
-    }
-
-    @Override
-    public Mono<Boolean> isApplicationConnectedToGit(String applicationId) {
-        if (!StringUtils.hasLength(applicationId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-        return this.getById(applicationId)
-                .map(application -> application.getGitApplicationMetadata() != null
-                        && StringUtils.hasLength(application.getGitApplicationMetadata().getRemoteUrl()));
-    }
-
-    @Override
-    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId){
-        return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplication -> {
-                    branchedApplication.setUnpublishedApplicationDetail(ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail(), new ApplicationDetail()));
-                    Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
-
-                    String navLogoAssetId = ObjectUtils.defaultIfNull(unpublishedNavSetting.getLogoAssetId(), "");
-
-                    unpublishedNavSetting.setLogoAssetId(null);
-                    branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(unpublishedNavSetting);
-                    return repository.save(branchedApplication).thenReturn(navLogoAssetId);
-                })
-                .flatMap(assetService::remove);
-    }
+              unpublishedNavSetting.setLogoAssetId(null);
+              branchedApplication
+                  .getUnpublishedApplicationDetail()
+                  .setNavigationSetting(unpublishedNavSetting);
+              return repository.save(branchedApplication).thenReturn(navLogoAssetId);
+            })
+        .flatMap(assetService::remove);
+  }
 }

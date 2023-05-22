@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos.ce;
 
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePermissionGroupCE_DTO {
-    private String username;
-    private String newPermissionGroupId;
+
+  private String username;
+  private String newPermissionGroupId;
 }

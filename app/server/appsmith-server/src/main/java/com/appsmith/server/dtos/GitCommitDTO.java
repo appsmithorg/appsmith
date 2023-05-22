@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Data;
@@ -5,9 +6,9 @@ import lombok.Data;
 @Data
 public class GitCommitDTO {
 
-    String commitMessage;
+  String commitMessage;
 
-    String commitHeader;
+  String commitHeader;
 
-    Boolean doPush;
+  Boolean doPush;
 }

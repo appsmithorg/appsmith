@@ -1,23 +1,24 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.AppsmithRepository;
+import java.util.Set;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-
 public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspace> {
 
-    Mono<Workspace> findByName(String name, AclPermission aclPermission);
+  Mono<Workspace> findByName(String name, AclPermission aclPermission);
 
-    Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
+  Flux<Workspace> findByIdsIn(
+      Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
 
-    Mono<Void> updateUserRoleNames(String userId, String userName);
+  Mono<Void> updateUserRoleNames(String userId, String userName);
 
-    Flux<Workspace> findAllWorkspaces();
+  Flux<Workspace> findAllWorkspaces();
 
-    Flux<Workspace> findAll(AclPermission permission);
+  Flux<Workspace> findAll(AclPermission permission);
 }

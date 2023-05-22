@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
@@ -16,34 +17,32 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
 
-    private final ApplicationEventPublisher applicationEventPublisher;
-    private final NotificationRepository notificationRepository;
-    private final WorkspaceRepository workspaceRepository;
+  private final ApplicationEventPublisher applicationEventPublisher;
+  private final NotificationRepository notificationRepository;
+  private final WorkspaceRepository workspaceRepository;
 
-    public User publish(User user) {
-        applicationEventPublisher.publishEvent(new UserChangedEvent(user));
-        return user;
+  public User publish(User user) {
+    applicationEventPublisher.publishEvent(new UserChangedEvent(user));
+    return user;
+  }
+
+  @Async
+  @EventListener
+  public void handle(UserChangedEvent event) {
+    // The `user` object is expected to contain the NEW name.
+    final User user = event.getUser();
+    log.debug("Handling user document changes {}", user);
+
+    updateNameInUserRoles(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
+  }
+
+  private Mono<Void> updateNameInUserRoles(User user) {
+    if (user.getId() == null) {
+      log.warn("Attempt to update name in userRoles of workspace for user with null ID.");
+      return Mono.empty();
     }
 
-    @Async
-    @EventListener
-    public void handle(UserChangedEvent event) {
-        // The `user` object is expected to contain the NEW name.
-        final User user = event.getUser();
-        log.debug("Handling user document changes {}", user);
-
-        updateNameInUserRoles(user)
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-    }
-
-    private Mono<Void> updateNameInUserRoles(User user) {
-        if (user.getId() == null) {
-            log.warn("Attempt to update name in userRoles of workspace for user with null ID.");
-            return Mono.empty();
-        }
-
-        log.debug("Updating name in userRoles of workspace for user {}", user.getId());
-        return workspaceRepository.updateUserRoleNames(user.getId(), user.getName());
-    }
+    log.debug("Updating name in userRoles of workspace for user {}", user.getId());
+    return workspaceRepository.updateUserRoleNames(user.getId(), user.getName());
+  }
 }

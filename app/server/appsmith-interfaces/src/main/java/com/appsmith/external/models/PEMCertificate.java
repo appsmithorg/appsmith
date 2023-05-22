@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
@@ -19,10 +20,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PEMCertificate implements AppsmithDomain {
 
-    UploadedFile file;
+  UploadedFile file;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
-
+  @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  String password;
 }

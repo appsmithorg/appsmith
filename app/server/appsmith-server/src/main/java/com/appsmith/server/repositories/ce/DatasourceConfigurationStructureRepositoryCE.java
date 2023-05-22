@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceConfigurationStructure;
@@ -6,8 +7,8 @@ import com.appsmith.server.repositories.CustomDatasourceConfigurationStructureRe
 import reactor.core.publisher.Mono;
 
 public interface DatasourceConfigurationStructureRepositoryCE
-        extends BaseRepository<DatasourceConfigurationStructure, String>, CustomDatasourceConfigurationStructureRepository {
+    extends BaseRepository<DatasourceConfigurationStructure, String>,
+        CustomDatasourceConfigurationStructureRepository {
 
-    Mono<DatasourceConfigurationStructure> findByDatasourceId(String datasourceId);
-
+  Mono<DatasourceConfigurationStructure> findByDatasourceId(String datasourceId);
 }

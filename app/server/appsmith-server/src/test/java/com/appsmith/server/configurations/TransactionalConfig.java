@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
@@ -8,10 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TransactionalConfig {
 
-    @Bean
-    MongodArguments mongodArguments() {
-        return MongodArguments.builder()
-                .replication(Storage.of("appsmith-replica-set", 10))
-                .build();
-    }
+  @Bean
+  MongodArguments mongodArguments() {
+    return MongodArguments.builder().replication(Storage.of("appsmith-replica-set", 10)).build();
+  }
 }

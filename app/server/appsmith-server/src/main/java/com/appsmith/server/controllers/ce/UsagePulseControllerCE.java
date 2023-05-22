@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
@@ -6,7 +7,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.services.UsagePulseService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,14 +20,14 @@ import reactor.core.publisher.Mono;
 @RequestMapping(Url.USAGE_PULSE_URL)
 public class UsagePulseControllerCE {
 
-    private final UsagePulseService service;
+  private final UsagePulseService service;
 
-    @JsonView(Views.Public.class)
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Boolean>> create(@RequestBody @Valid UsagePulseDTO usagePulseDTO) {
-        return service.createPulse(usagePulseDTO)
-                .thenReturn(new ResponseDTO<>(HttpStatus.CREATED.value(), true, null));
-    }
-
+  @JsonView(Views.Public.class)
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Mono<ResponseDTO<Boolean>> create(@RequestBody @Valid UsagePulseDTO usagePulseDTO) {
+    return service
+        .createPulse(usagePulseDTO)
+        .thenReturn(new ResponseDTO<>(HttpStatus.CREATED.value(), true, null));
+  }
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStructure;
@@ -6,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface CustomDatasourceConfigurationStructureRepositoryCE {
 
-    Mono<UpdateResult> updateStructure(String datasourceId, DatasourceStructure structure);
+  Mono<UpdateResult> updateStructure(String datasourceId, DatasourceStructure structure);
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.repositories.NotificationRepository;
@@ -11,10 +12,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserChangedHandlerImpl extends UserChangedHandlerCEImpl implements UserChangedHandler {
 
-    public UserChangedHandlerImpl(ApplicationEventPublisher applicationEventPublisher,
-                                  NotificationRepository notificationRepository,
-                                  WorkspaceRepository workspaceRepository) {
+  public UserChangedHandlerImpl(
+      ApplicationEventPublisher applicationEventPublisher,
+      NotificationRepository notificationRepository,
+      WorkspaceRepository workspaceRepository) {
 
-        super(applicationEventPublisher, notificationRepository, workspaceRepository);
-    }
+    super(applicationEventPublisher, notificationRepository, workspaceRepository);
+  }
 }

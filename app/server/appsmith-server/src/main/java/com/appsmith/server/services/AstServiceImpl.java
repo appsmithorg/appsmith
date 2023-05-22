@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AstServiceImpl extends AstServiceCEImpl implements AstService {
 
-    public AstServiceImpl(CommonConfig commonConfig, InstanceConfig instanceConfig) {
-        super(commonConfig, instanceConfig);
-    }
+  public AstServiceImpl(CommonConfig commonConfig, InstanceConfig instanceConfig) {
+    super(commonConfig, instanceConfig);
+  }
 }

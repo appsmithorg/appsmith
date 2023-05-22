@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomFormLoginServiceCEImpl;
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomFormLoginServiceImpl extends CustomFormLoginServiceCEImpl {
 
-    @Autowired
-    public CustomFormLoginServiceImpl(UserRepository repository) {
-        super(repository);
-    }
+  @Autowired
+  public CustomFormLoginServiceImpl(UserRepository repository) {
+    super(repository);
+  }
 }

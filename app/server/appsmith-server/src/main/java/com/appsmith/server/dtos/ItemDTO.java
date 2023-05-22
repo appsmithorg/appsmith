@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.ApiTemplate;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ItemDTO {
-    ItemType type;
-    ApiTemplate item;
+
+  ItemType type;
+  ApiTemplate item;
 }

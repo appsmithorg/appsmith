@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import com.appsmith.server.acl.AppsmithRole;
@@ -10,9 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class InviteUser extends User {
 
-    String inviterUserId;
+  String inviterUserId;
 
-    String token;
+  String token;
 
-    AppsmithRole role;
+  AppsmithRole role;
 }

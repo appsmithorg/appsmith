@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import lombok.Getter;
@@ -10,8 +11,9 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class PricingPlan {
-    String name;
-    Double pricePerMonthInUSD;
-    Integer quotaPerMonth;
-    String details;
+
+  String name;
+  Double pricePerMonthInUSD;
+  Integer quotaPerMonth;
+  String details;
 }

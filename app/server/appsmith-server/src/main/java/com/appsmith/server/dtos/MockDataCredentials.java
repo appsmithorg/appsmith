@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import lombok.Getter;
@@ -6,13 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MockDataCredentials {
-    String dbname;
 
-    String username;
+  String dbname;
 
-    String password;
+  String username;
 
-    String host;
+  String password;
 
-    Integer port;
+  String host;
+
+  Integer port;
 }

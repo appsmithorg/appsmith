@@ -1,39 +1,42 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.exceptions.pluginExceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
-
 import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 public interface BasePluginError {
-     Integer getHttpErrorCode();
 
-     String getAppErrorCode();
+  Pattern errorPlaceholderPattern = Pattern.compile("\\{\\d+\\}");
 
-     String getMessage(Object...args);
+  Integer getHttpErrorCode();
 
-     String getTitle();
+  String getAppErrorCode();
 
-     AppsmithErrorAction getErrorAction();
+  String getMessage(Object... args);
 
-     String getErrorType();
+  String getTitle();
 
-     String getDownstreamErrorMessage(Object...args);
+  AppsmithErrorAction getErrorAction();
 
-     String getDownstreamErrorCode(Object...args);
+  String getErrorType();
 
-     Pattern errorPlaceholderPattern = Pattern.compile("\\{\\d+\\}");
+  String getDownstreamErrorMessage(Object... args);
 
-     default String replacePlaceholderWithValue(String origin, Object...args) {
-         if (origin == null) {
-             return null;
-         }
-         String formattedErrorAttribute = new MessageFormat(origin).format(args);
-         if (errorPlaceholderPattern.matcher(formattedErrorAttribute).matches()) {
-             return null;
-         } else if (formattedErrorAttribute.equals("null")) {
-             return null;
-         }
-         return formattedErrorAttribute;
-     }
+  String getDownstreamErrorCode(Object... args);
+
+  default String replacePlaceholderWithValue(String origin, Object... args) {
+    if (origin == null) {
+      return null;
+    }
+    String formattedErrorAttribute = new MessageFormat(origin).format(args);
+    if (errorPlaceholderPattern.matcher(formattedErrorAttribute).matches()) {
+      return null;
+    } else {
+      if (formattedErrorAttribute.equals("null")) {
+        return null;
+      }
+    }
+    return formattedErrorAttribute;
+  }
 }

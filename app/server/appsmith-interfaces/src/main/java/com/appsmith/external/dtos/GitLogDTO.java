@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.dtos;
 
 import lombok.AllArgsConstructor;
@@ -6,13 +7,14 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class GitLogDTO {
-    String commitId;
 
-    String authorName;
+  String commitId;
 
-    String authorEmail;
+  String authorName;
 
-    String commitMessage;
+  String authorEmail;
 
-    String timestamp;
+  String commitMessage;
+
+  String timestamp;
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
@@ -14,13 +15,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Document
 public class DatasourceConfigurationStructure extends BaseDomain {
-    @JsonView(Views.Public.class)
-    private String datasourceId;
 
-    @JsonView(Views.Public.class)
-    private String environmentId;
+  @JsonView(Views.Public.class)
+  private String datasourceId;
 
-    @JsonView(Views.Internal.class)
-    private DatasourceStructure structure;
+  @JsonView(Views.Public.class)
+  private String environmentId;
 
+  @JsonView(Views.Internal.class)
+  private DatasourceStructure structure;
 }

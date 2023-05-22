@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.PasswordResetToken;
@@ -6,6 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface PasswordResetTokenRepositoryCE extends BaseRepository<PasswordResetToken, String> {
 
-    Mono<PasswordResetToken> findByEmail(String email);
-
+  Mono<PasswordResetToken> findByEmail(String email);
 }

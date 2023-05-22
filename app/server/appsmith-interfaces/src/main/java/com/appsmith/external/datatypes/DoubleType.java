@@ -1,26 +1,28 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
-public class DoubleType implements AppsmithType{
-    @Override
-    public String performSmartSubstitution(String value) {
-        return String.valueOf(value);
-    }
+public class DoubleType implements AppsmithType {
 
-    @Override
-    public boolean test(String s) {
-        try {
-            Double.parseDouble(s);
-            return true;
-        } catch (NumberFormatException e) {
-            // Not a double
-        }
-        return false;
-    }
+  @Override
+  public String performSmartSubstitution(String value) {
+    return String.valueOf(value);
+  }
 
-    @Override
-    public DataType type() {
-        return DataType.DOUBLE;
+  @Override
+  public boolean test(String s) {
+    try {
+      Double.parseDouble(s);
+      return true;
+    } catch (NumberFormatException e) {
+      // Not a double
     }
+    return false;
+  }
+
+  @Override
+  public DataType type() {
+    return DataType.DOUBLE;
+  }
 }

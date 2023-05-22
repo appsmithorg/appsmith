@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.domains;
 
 import lombok.AllArgsConstructor;
@@ -15,9 +16,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class GitProfile {
 
-    String authorName;
+  String authorName;
 
-    String authorEmail;
+  String authorEmail;
 
-    Boolean useGlobalProfile;
+  Boolean useGlobalProfile;
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.services;
 
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -11,10 +12,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigServiceImpl extends ConfigServiceCEImpl implements ConfigService {
 
-    public ConfigServiceImpl(ConfigRepository repository,
-                             ApplicationRepository applicationRepository,
-                             DatasourceRepository datasourceRepository) {
+  public ConfigServiceImpl(
+      ConfigRepository repository,
+      ApplicationRepository applicationRepository,
+      DatasourceRepository datasourceRepository) {
 
-        super(repository, applicationRepository, datasourceRepository);
-    }
+    super(repository, applicationRepository, datasourceRepository);
+  }
 }

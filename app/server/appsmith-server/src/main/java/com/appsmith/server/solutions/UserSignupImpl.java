@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
@@ -16,17 +17,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
 
-    public UserSignupImpl(UserService userService,
-                          UserDataService userDataService,
-                          CaptchaService captchaService,
-                          AuthenticationSuccessHandler authenticationSuccessHandler,
-                          ConfigService configService,
-                          AnalyticsService analyticsService,
-                          EnvManager envManager,
-                          CommonConfig commonConfig,
-                          UserUtils userUtils) {
+  public UserSignupImpl(
+      UserService userService,
+      UserDataService userDataService,
+      CaptchaService captchaService,
+      AuthenticationSuccessHandler authenticationSuccessHandler,
+      ConfigService configService,
+      AnalyticsService analyticsService,
+      EnvManager envManager,
+      CommonConfig commonConfig,
+      UserUtils userUtils) {
 
-        super(userService, userDataService, captchaService, authenticationSuccessHandler, configService,
-                analyticsService, envManager, commonConfig, userUtils);
-    }
+    super(
+        userService,
+        userDataService,
+        captchaService,
+        authenticationSuccessHandler,
+        configService,
+        analyticsService,
+        envManager,
+        commonConfig,
+        userUtils);
+  }
 }

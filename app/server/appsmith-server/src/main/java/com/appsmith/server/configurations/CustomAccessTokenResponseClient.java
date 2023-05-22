@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.configurations;
 
 import com.appsmith.util.WebClientUtils;
@@ -9,14 +10,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-public class CustomAccessTokenResponseClient extends WebClientReactiveAuthorizationCodeTokenResponseClient {
+public class CustomAccessTokenResponseClient
+    extends WebClientReactiveAuthorizationCodeTokenResponseClient {
 
-    private static final WebClient webClient = WebClientUtils.builder().build();
+  private static final WebClient webClient = WebClientUtils.builder().build();
 
-    @Override
-    public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2AuthorizationCodeGrantRequest grantRequest) {
-        setWebClient(webClient);
-        return super.getTokenResponse(grantRequest);
-    }
-
+  @Override
+  public Mono<OAuth2AccessTokenResponse> getTokenResponse(
+      OAuth2AuthorizationCodeGrantRequest grantRequest) {
+    setWebClient(webClient);
+    return super.getTokenResponse(grantRequest);
+  }
 }

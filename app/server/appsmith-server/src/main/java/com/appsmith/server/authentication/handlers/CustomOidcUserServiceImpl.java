@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomOidcUserServiceCEImpl;
@@ -13,15 +14,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
-        implements ReactiveOAuth2UserService<OidcUserRequest, OidcUser> {
+    implements ReactiveOAuth2UserService<OidcUserRequest, OidcUser> {
 
-    private UserRepository repository;
-    private UserService userService;
+  private UserRepository repository;
+  private UserService userService;
 
-    @Autowired
-    public CustomOidcUserServiceImpl(UserRepository repository, UserService userService) {
-        super(repository, userService);
-        this.repository = repository;
-        this.userService = userService;
-    }
+  @Autowired
+  public CustomOidcUserServiceImpl(UserRepository repository, UserService userService) {
+    super(repository, userService);
+    this.repository = repository;
+    this.userService = userService;
+  }
 }

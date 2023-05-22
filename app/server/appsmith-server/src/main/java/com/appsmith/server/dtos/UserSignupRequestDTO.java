@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.LoginSource;
@@ -7,24 +8,23 @@ import lombok.Data;
 @Data
 public class UserSignupRequestDTO {
 
-    private String email;
+  private String email;
 
-    private String name;
+  private String name;
 
-    private LoginSource source = LoginSource.FORM;
+  private LoginSource source = LoginSource.FORM;
 
-    private UserState state = UserState.ACTIVATED;
+  private UserState state = UserState.ACTIVATED;
 
-    private boolean isEnabled = true;
+  private boolean isEnabled = true;
 
-    private String password;
+  private String password;
 
-    private String role;
+  private String role;
 
-    private String useCase;
+  private String useCase;
 
-    private boolean allowCollectingAnonymousData;
+  private boolean allowCollectingAnonymousData;
 
-    private boolean signupForNewsletter;
-
+  private boolean signupForNewsletter;
 }

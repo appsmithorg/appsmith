@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.external.models;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -12,6 +13,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @JsonPropertyOrder({"value", "type"})
 public class PsParameterDTO {
-    String value;
-    String type;
+
+  String value;
+  String type;
 }

@@ -1,3 +1,4 @@
+/* Copyright 2019-2023 Appsmith */
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.GitProfile;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class GitConnectDTO {
 
-    String remoteUrl;
+  String remoteUrl;
 
-    GitProfile gitProfile;
+  GitProfile gitProfile;
 }
