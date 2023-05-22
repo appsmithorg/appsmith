@@ -146,6 +146,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.wait(2000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
+      .eq(0)
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });

@@ -1,5 +1,5 @@
-import adminSettings from "../../../locators/AdminsSettings";
-import homePage from "../../../locators/HomePage";
+import adminSettings from "../../../../locators/AdminsSettings";
+import homePage from "../../../../locators/HomePage";
 
 describe("Form Login test functionality", function () {
   it("1. Go to admin settings and disable Form Signup", function () {
