@@ -20,7 +20,6 @@ import { commonConversionFlows } from "./CommonConversionFlows";
 //returns props for Fixed to Auto layout conversion flows based on which the Conversion Form can be rendered
 export const useFixedToAutoLayoutFlow = (
   dispatch: Dispatch<any>,
-  onCancel: () => void,
 ): {
   [key: string]: ConversionProps;
 } => {
@@ -29,12 +28,12 @@ export const useFixedToAutoLayoutFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       infoBlocks: [
         {
-          icon: "devices",
+          icon: "device",
           header: createMessage(BUILD_RESPONSIVE),
           info: createMessage(BUILD_RESPONSIVE_TEXT),
         },
         {
-          icon: "history-line",
+          icon: "history",
           header: createMessage(SAVE_SNAPSHOT),
           info: createMessage(SAVE_SNAPSHOT_TEXT),
         },
@@ -57,6 +56,6 @@ export const useFixedToAutoLayoutFlow = (
     [CONVERSION_STATES.CONVERSION_SPINNER]: {
       spinner: createMessage(CONVERTING_APP),
     },
-    ...commonConversionFlows(dispatch, onCancel),
+    ...commonConversionFlows(dispatch),
   };
 };

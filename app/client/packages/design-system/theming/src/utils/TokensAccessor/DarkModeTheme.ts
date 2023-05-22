@@ -31,6 +31,7 @@ export class DarkModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
+      // bg
       bg: this.bg.toString({ format: "hex" }),
       bgAccent: this.bgAccent.toString({ format: "hex" }),
       bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
@@ -39,10 +40,14 @@ export class DarkModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
+      bgAssistive: this.bgAssistive,
+      // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
+      fgOnAssistive: this.fgOnAssistive,
+      // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdFocus: this.bdFocus.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
@@ -111,6 +116,10 @@ export class DarkModeTheme implements ColorModeTheme {
     return this.bgAccentSubtleHover.clone().darken(0.1);
   }
 
+  private get bgAssistive() {
+    return this.fg.clone();
+  }
+
   /*
    * Foreground colors
    */
@@ -176,10 +185,14 @@ export class DarkModeTheme implements ColorModeTheme {
     return "#d91921";
   }
 
+  private get fgOnAssistive() {
+    return this.bg.clone();
+  }
+
   private get bdAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) <= 15) {
+    if (this.bg.contrastAPCA(this.seedColor) > -15) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.985;
         color.oklch.c = 0;
@@ -195,26 +208,37 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdNeutral() {
-    const color = this.seedColor.clone();
+    const color = this.bdAccent.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) >= -25 && !this.seedIsAchromatic) {
-      color.oklch.c = 0.008;
-      return color;
-    }
+    color.oklch.c = 0.035;
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
       color.oklch.c = 0;
-      return color;
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
+    if (this.bg.contrastAPCA(color) > -25) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
     return color;
   }
 
   private get bdNeutralHover() {
-    return this.bdNeutral.clone().lighten(0.06);
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.8) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.9) {
+      color.oklch.l = color.oklch.l - 0.25;
+    }
+
+    return color;
   }
 
   private get bdFocus() {

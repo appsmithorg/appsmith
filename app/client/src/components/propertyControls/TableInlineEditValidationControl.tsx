@@ -20,7 +20,6 @@ import {
   ORIGINAL_INDEX_KEY,
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
-import { Colors } from "constants/Colors";
 import {
   createMessage,
   TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
@@ -28,18 +27,25 @@ import {
 
 export const PromptMessage = styled.span`
   line-height: 17px;
+
+  > .code-wrapper {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 
 export const StyledCode = styled.span`
-  color: ${Colors.PRIMARY_ORANGE};
+  color: var(--ads-v2-color-fg-brand);
 `;
 
 export const CurlyBraces = styled.span`
-  color: ${Colors.PRIMARY_ORANGE};
+  color: var(--ads-v2-color-fg-brand);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type InputTextProp = {
@@ -70,6 +76,7 @@ export function InputText(props: InputTextProp) {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -158,9 +165,11 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         promptMessage={
           <PromptMessage>
             {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
-            <CurlyBraces>{"{{"}</CurlyBraces>
-            <StyledCode>currentRow.columnName</StyledCode>
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              <StyledCode>currentRow.columnName</StyledCode>
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         theme={theme}

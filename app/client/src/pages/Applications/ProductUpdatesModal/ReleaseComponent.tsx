@@ -2,15 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import { Colors } from "constants/Colors";
-import {
-  Case,
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Divider, Text, Button, Tag } from "design-system";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
@@ -23,35 +15,15 @@ const TagContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-const Tag = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  font-size: 13px;
-  font-weight: 600;
-  background-color: var(--appsmith-color-black-100);
-  margin-right: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--appsmith-color-black);
-`;
-
-export const StyledSeparator = styled.div`
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.modal.separator};
-  opacity: 0.6;
-  height: 1px;
-`;
-
 const StyledDate = styled.div`
   font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
   font-size: 12px;
   line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
   letter-spacing: ${(props) =>
     props.theme.typography.releaseList.letterSpacing}px;
-  color: var(--appsmith-color-black-700);
+  color: var(--ads-v2-color-fg);
   margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-left: 4px;
 `;
 
 const StyledContent = styled.div<{ maxHeight: number }>`
@@ -62,27 +34,27 @@ const StyledContent = styled.div<{ maxHeight: number }>`
     line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
     letter-spacing: ${(props) =>
       props.theme.typography.releaseList.letterSpacing}px;
-    color: var(--appsmith-color-black-700);
+    color: var(--ads-v2-color-fg);
   }
   a {
-    color: ${(props) => props.theme.colors.modal.link};
+    color: var(--ads-v2-color-fg-brand);
   }
   h1,
   h2,
   h3,
   h4 {
-    color: ${(props) => props.theme.colors.modal.title};
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
 
   h2 {
     display: block;
-    font-size: 18px;
+    font-size: 16px;
     margin-block-start: 0.83em;
     margin-block-end: 0.83em;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     font-weight: 500;
-    color: var(--appsmith-color-black);
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
 
   ul {
@@ -116,18 +88,6 @@ enum ReleaseComponentViewState {
   "expanded",
 }
 
-const StyledReadMore = styled.div`
-  padding: ${(props) => props.theme.spaces[2]}px;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
-  }
-  display: flex;
-  cursor: pointer;
-  .${Classes.TEXT} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-`;
-
 const ReadMoreContainer = styled.div`
   display: flex;
   padding: ${(props) => props.theme.spaces[8]}px 0;
@@ -141,22 +101,21 @@ const ReadMore = ({
   onClick: () => void;
 }) => (
   <ReadMoreContainer>
-    <StyledReadMore onClick={onClick}>
-      <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
-        {currentState === ReleaseComponentViewState.collapsed
-          ? "read more"
-          : "read less"}
-      </Text>
-      <Icon
-        fillColor={Colors.GREY_8}
-        name={
-          currentState === ReleaseComponentViewState.collapsed
-            ? "view-all"
-            : "view-less"
-        }
-        size={IconSize.SMALL}
-      />
-    </StyledReadMore>
+    <Button
+      endIcon={
+        currentState === ReleaseComponentViewState.collapsed
+          ? "arrow-right-line"
+          : "arrow-left-line"
+      }
+      kind="tertiary"
+      onClick={onClick}
+      renderAs="button"
+      startIcon=""
+    >
+      {currentState === ReleaseComponentViewState.collapsed
+        ? "Read more"
+        : "Read less"}
+    </Button>
   </ReadMoreContainer>
 );
 
@@ -191,12 +150,12 @@ function ReleaseComponent({ release }: ReleaseProps) {
   return descriptionHtml ? (
     <StyledContainer>
       <TagContainer>
-        <Tag>{tagName}</Tag>
+        <Tag isClosable={false} size="md">
+          {tagName}
+        </Tag>
         <StyledDate>{moment(publishedAt).format("D MMM YYYY")}</StyledDate>
       </TagContainer>
-      <Text color={Colors.BLACK} type={TextType.H1}>
-        {name}
-      </Text>
+      <Text kind="heading-s">{name}</Text>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}
@@ -208,7 +167,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
           onClick={toggleCollapsedState}
         />
       )}
-      <StyledSeparator />
+      <Divider />
     </StyledContainer>
   ) : null;
 }

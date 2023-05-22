@@ -15,7 +15,7 @@ import type { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import type { LabelPosition } from "components/constants";
-import { Icon } from "design-system-old";
+import { Icon } from "@design-system/widgets-old";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";

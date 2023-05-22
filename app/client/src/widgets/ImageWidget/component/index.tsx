@@ -333,7 +333,7 @@ class ImageComponent extends React.Component<
           {showDownloadBtn && (
             <ControlBtn
               borderRadius={borderRadius}
-              data-cy="t--image-download"
+              data-testid="t--image-download"
               download
               href={hrefUrl}
               target="_blank"

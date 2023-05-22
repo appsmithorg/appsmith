@@ -20,7 +20,7 @@ function RenderComponent(props: RenderComponentProps) {
 
   return (
     <Checkbox
-      cypressSelector={props.input?.name}
+      data-testid={props.input?.name}
       info={props.info}
       isDefaultChecked={props.input?.checked}
       label={props.label}

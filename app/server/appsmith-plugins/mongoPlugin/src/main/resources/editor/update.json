@@ -7,7 +7,7 @@
   "children": [
     {
       "controlType": "SECTION",
-      "label": "Select Collection to Query",
+      "label": "Select collection to query",
       "children": [
         {
           "label": "Collection",
@@ -48,11 +48,11 @@
           "initialValue": "SINGLE",
           "options": [
             {
-              "label": "Single Document",
+              "label": "Single document",
               "value": "SINGLE"
             },
             {
-              "label": "All Matching Documents",
+              "label": "All matching documents",
               "value": "ALL"
             }
           ]

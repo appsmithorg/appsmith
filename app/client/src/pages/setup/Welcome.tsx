@@ -38,6 +38,7 @@ const StyledBannerHeader = styled.h1`
   font-family: "Paytone One", sans-serif;
   font-size: 72px;
   margin: 0px 0px;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 const StyledBannerBody = styled.p`
@@ -45,6 +46,7 @@ const StyledBannerBody = styled.p`
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
   width: 400px;
+  color: var(--ads-v2-color-fg);
 `;
 
 const StyledImageBanner = styled.div`
