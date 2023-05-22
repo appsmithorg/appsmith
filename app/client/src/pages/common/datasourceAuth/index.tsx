@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
@@ -30,7 +29,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Category, Toaster, Variant } from "design-system-old";
+import { Button, toast } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -53,6 +52,7 @@ interface Props {
   isInvalid: boolean;
   pageId?: string;
   shouldRender?: boolean;
+  isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
@@ -85,25 +85,16 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
-  &&&& {
-    height: 32px;
-    width: ${(props) => (props.fluidWidth ? "" : "87px")};
-  }
-`;
-
 const SaveButtonContainer = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
   gap: 9px;
-  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
-  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
@@ -123,6 +114,7 @@ function DatasourceAuth({
   triggerSave,
   isFormDirty,
   scopeValue,
+  isInsideReconnectModal,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -182,7 +174,6 @@ function DatasourceAuth({
           !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const variant = Variant.danger;
         const oauthReason = status;
         AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
           dsName,
@@ -195,7 +186,7 @@ function DatasourceAuth({
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
-          Toaster.show({ text: display_message || message, variant });
+          toast.show(display_message || message, { kind: "error" });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
@@ -269,9 +260,16 @@ function DatasourceAuth({
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
-      dispatch(setDatasourceViewMode(true));
-      // we dont need to redirect it to active ds list instead ds would be shown in view only mode
-      dispatch(updateDatasource(getSanitizedFormData()));
+      // If the datasource is being saved from the reconnect modal, we don't want to redirect to the active datasource list
+      if (!isInsideReconnectModal) dispatch(setDatasourceViewMode(true));
+      dispatch(
+        updateDatasource(
+          getSanitizedFormData(),
+          undefined,
+          undefined,
+          isInsideReconnectModal,
+        ),
+      );
     }
   };
 
@@ -311,74 +309,63 @@ function DatasourceAuth({
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.DELETE]: (
-        <ActionButton
-          category={Category.primary}
+        <Button
           className="t--delete-datasource"
-          disabled={createMode || !canDeleteDatasource}
+          isDisabled={createMode || !canDeleteDatasource}
           isLoading={isDeleting}
           key={buttonType}
+          kind="error"
           onClick={() => {
             if (!isDeleting) {
               confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
             }
           }}
-          size="medium"
-          tag="button"
-          text={
-            isDeleting
-              ? createMessage(CONFIRM_CONTEXT_DELETING)
-              : confirmDelete
-              ? createMessage(CONFIRM_CONTEXT_DELETE)
-              : createMessage(CONTEXT_DELETE)
-          }
-          variant={Variant.danger}
-        />
+          size="md"
+        >
+          {isDeleting
+            ? createMessage(CONFIRM_CONTEXT_DELETING)
+            : confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE)}
+        </Button>
       ),
       [DatasourceButtonType.TEST]: (
-        <ActionButton
-          category={Category.secondary}
+        <Button
           className="t--test-datasource"
           isLoading={isTesting}
           key={buttonType}
+          kind="secondary"
           onClick={handleDatasourceTest}
-          size="medium"
-          tag="button"
-          text="Test"
-          variant={Variant.success}
-        />
+          size="md"
+        >
+          Test
+        </Button>
       ),
       [DatasourceButtonType.SAVE]: (
-        <ActionButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={
+          isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
-          filled
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save"
-          variant={Variant.success}
-        />
+          size="md"
+        >
+          Save
+        </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
-        <StyledButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={isInvalid || (!createMode && !canManageDatasource)}
-          filled
-          fluidWidth
+          isDisabled={isInvalid || (!createMode && !canManageDatasource)}
           isLoading={isSaving}
           key={buttonType}
           onClick={handleOauthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save and Authorize"
-          variant={Variant.success}
-        />
+          size="md"
+        >
+          Save and Authorize
+        </Button>
       ),
     }[buttonType];
   };

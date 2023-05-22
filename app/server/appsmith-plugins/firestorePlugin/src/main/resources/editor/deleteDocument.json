@@ -6,7 +6,7 @@
   },
   "children" : [
     {
-      "label": "Collection/Document Path",
+      "label": "Collection/Document path",
       "configProperty": "actionConfiguration.formData.path.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",

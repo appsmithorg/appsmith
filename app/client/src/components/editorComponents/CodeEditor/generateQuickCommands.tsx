@@ -8,20 +8,10 @@ import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type FeatureFlags from "entities/FeatureFlags";
-import { importRemixIcon, importSvg } from "design-system-old";
-
-const AddDatasourceIcon = importRemixIcon(
-  () => import("remixicon-react/AddBoxLineIcon"),
-);
-const MagicIcon = importRemixIcon(
-  () => import("remixicon-react/MagicLineIcon"),
-);
-const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
-const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
+import { Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -96,28 +86,14 @@ const generateCreateNewCommand = ({
 });
 
 const iconsByType = {
-  [Shortcuts.BINDING]: (
-    <EntityIcon noBorder>
-      <Binding className="shortcut" />
-    </EntityIcon>
-  ),
+  [Shortcuts.BINDING]: <Icon className="shortcut" name="binding" />,
   [Shortcuts.PLUS]: (
-    <AddDatasourceIcon
-      className="add-datasource-icon"
-      color={Colors.DOVE_GRAY2}
-      size={18}
-    />
+    <Icon className="add-datasource-icon" name="add-box-line" size="md" />
   ),
   [Shortcuts.FUNCTION]: (
-    <EntityIcon noBorder>
-      <Snippet className="snippet-icon shortcut" />
-    </EntityIcon>
+    <Icon className="snippet-icon shortcut" name="snippet" />
   ),
-  [Shortcuts.ASK_AI]: (
-    <EntityIcon noBorder>
-      <MagicIcon className="magic" />
-    </EntityIcon>
-  ),
+  [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" />,
 };
 
 function Command(props: { icon: any; name: string }) {
@@ -154,18 +130,18 @@ export const generateQuickCommands = (
   entityInfo: FieldEntityInformation,
 ) => {
   const { entityId, expectedType = "string", propertyPath } = entityInfo || {};
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
+  const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New Binding",
+    displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
   const insertSnippet: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "Insert Snippet",
+    displayText: "Insert snippet",
     shortcut: Shortcuts.FUNCTION,
     action: () =>
       executeCommand({
@@ -180,7 +156,7 @@ export const generateQuickCommands = (
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "New Datasource",
+    displayText: "New datasource",
     action: () => {
       executeCommand({
         actionType: SlashCommand.NEW_INTEGRATION,

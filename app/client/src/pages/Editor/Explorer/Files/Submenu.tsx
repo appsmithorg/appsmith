@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import {
   comboHelpText,
@@ -13,16 +12,10 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
-import classNames from "classnames";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
-import SubmenuHotKeys from "./SubmenuHotkeys";
-import scrollIntoView from "scroll-into-view-if-needed";
-import { Colors } from "constants/Colors";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { EntityClassNames } from "../Entity";
-import { TooltipComponent } from "design-system-old";
+import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   ADD_QUERY_JS_TOOLTIP,
   createMessage,
@@ -30,32 +23,24 @@ import {
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
-import { importSvg } from "design-system-old";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tooltip,
+  SearchInput,
+  Text,
+} from "design-system";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-
-const SearchIcon = importSvg(() => import("assets/icons/ads/search.svg"));
-const CrossIcon = importSvg(() => import("assets/icons/ads/cross.svg"));
 
 const SubMenuContainer = styled.div`
   width: 250px;
   .ops-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      display: none;
-      -webkit-appearance: none;
-    }
-    max-height: 220px;
+    max-height: 250px;
     overflow: hidden;
     overflow-y: auto;
-    div.active {
-      background: ${Colors.GREY_2};
-    }
-    > div:not(.section-title) {
-      &: hover {
-        background: ${Colors.GREY_2};
-      }
-    }
+    padding-top: 4px;
   }
 `;
 
@@ -73,18 +58,18 @@ export default function ExplorerSubMenu({
   const [query, setQuery] = useState("");
   const [show, setShow] = useState(openMenu);
   const fileOperations = useFilteredFileOperations(query);
+
+  const pageId = useSelector(getCurrentPageId);
+  const dispatch = useDispatch();
   const filteredFileOperations = fileOperations.filter(
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
-  const pageId = useSelector(getCurrentPageId);
-  const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const [activeItemIdx, setActiveItemIdx] = useState(0);
-  useEffect(() => setShow(openMenu), [openMenu]);
-  useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
+  useEffect(() => handleOpenChange(openMenu), [openMenu]);
+  useCloseMenuOnScroll(SIDEBAR_ID, show, () => handleOpenChange(false));
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -94,38 +79,19 @@ export default function ExplorerSubMenu({
     setQuery("");
   }, [show]);
 
-  useEffect(() => {
-    const element = document.getElementById(`file-op-${activeItemIdx}`);
-    if (element)
-      scrollIntoView(element, {
-        scrollMode: "if-needed",
-      });
-  }, [activeItemIdx]);
-
-  const handleUpKey = useCallback(() => {
-    setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex <= 0) return filteredFileOperations.length - 1;
-      return Math.max(currentActiveIndex - 1, 0);
-    });
-  }, [filteredFileOperations]);
-
-  const handleDownKey = useCallback(() => {
-    setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex >= filteredFileOperations.length - 1) return 0;
-      return Math.min(
-        currentActiveIndex + 1,
-        filteredFileOperations.length - 1,
-      );
-    });
-  }, [filteredFileOperations]);
-
-  const onChange = useCallback((e) => {
-    setQuery(e.target.value);
+  const onChange = useCallback((value) => {
+    setQuery(value);
   }, []);
 
-  const handleSelect = () => {
-    const item = filteredFileOperations[activeItemIdx];
-    handleClick(item);
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      // handle open
+    } else {
+      // handle close
+      onMenuClose();
+    }
+
+    setShow(open);
   };
 
   const handleClick = useCallback(
@@ -136,114 +102,88 @@ export default function ExplorerSubMenu({
       } else if (item.redirect) {
         item.redirect(pageId, DatasourceCreateEntryPoints.SUBMENU);
       }
-      setShow(false);
+      handleOpenChange(false);
     },
-    [pageId, dispatch, setShow],
+    [pageId, dispatch, handleOpenChange],
   );
 
   return (
-    <Popover2
-      canEscapeKeyClose
-      className="file-ops"
-      content={
-        <SubmenuHotKeys
-          handleDownKey={handleDownKey}
-          handleSubmitKey={handleSelect}
-          handleUpKey={handleUpKey}
-        >
-          <SubMenuContainer
-            className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+    <Menu open={show}>
+      <MenuTrigger asChild={false}>
+        {canCreateActions && (
+          <Tooltip
+            content={
+              (
+                <>
+                  {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+                  {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+                </>
+              ) as unknown as string
+            }
+            placement="right"
           >
-            <div className="px-4 py-2 text-sm font-medium text-gray">
-              Create New
-            </div>
-            <div className="flex items-center space-x-2 px-4">
-              <SearchIcon className="box-content w-4 h-4" />
-              <input
-                autoComplete="off"
-                autoFocus
-                className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
-                data-testId="t--search-file-operation"
-                onChange={onChange}
-                placeholder="Search datasources"
-                type="text"
-                value={query}
+            <AddButtonWrapper>
+              <EntityAddButton
+                className={`${className} ${show ? "selected" : ""}`}
+                onClick={() => handleOpenChange(true)}
               />
-              {query && (
-                <button
-                  className="p-1 hover:bg-trueGray-200"
-                  onClick={() => setQuery("")}
+            </AddButtonWrapper>
+          </Tooltip>
+        )}
+      </MenuTrigger>
+      <MenuContent
+        align="start"
+        onInteractOutside={() => handleOpenChange(false)}
+        side="right"
+        // Menu content has a max height which causes the whole content to scroll
+        style={{ maxHeight: "unset" }}
+      >
+        <SubMenuContainer
+          className={`overflow-y-auto overflow-x-hidden flex flex-col justify-start delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+          onKeyDown={(e) => {
+            // This is to prevent the Menu component to take focus away from the input
+            // https://github.com/radix-ui/primitives/issues/1175
+            e.stopPropagation();
+          }}
+        >
+          <div className="px-2 py-2">
+            <Text kind="heading-xs">Create new</Text>
+          </div>
+          <SearchInput
+            data-testId="t--search-file-operation"
+            onChange={onChange}
+            placeholder="Search datasources"
+            value={query}
+          />
+          <div className="ops-container">
+            {filteredFileOperations.map((item: any, idx: number) => {
+              const icon =
+                item.icon ||
+                (item.pluginId && (
+                  <EntityIcon>
+                    {getPluginIcon(pluginGroups[item.pluginId])}
+                  </EntityIcon>
+                ));
+
+              return (
+                <MenuItem
+                  data-testid="t--file-operation"
+                  id={`file-op-${idx}`}
+                  key={`file-op-${idx}`}
+                  onClick={() => handleClick(item)}
                 >
-                  <CrossIcon className="w-3 h-3 text-trueGray-100" />
-                </button>
-              )}
-            </div>
-            <div className="ops-container">
-              {filteredFileOperations.map((item: any, idx: number) => {
-                const icon =
-                  item.icon ||
-                  (item.pluginId && (
-                    <EntityIcon>
-                      {getPluginIcon(pluginGroups[item.pluginId])}
-                    </EntityIcon>
-                  ));
-                return (
-                  <div
-                    className={classNames({
-                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation":
-                        true,
-                      "cursor-pointer":
-                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                      active:
-                        activeItemIdx === idx &&
-                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                      "font-medium text-gray section-title":
-                        item.kind === SEARCH_ITEM_TYPES.sectionTitle,
-                    })}
-                    id={`file-op-${idx}`}
-                    key={`file-op-${idx}`}
-                    onClick={() => handleClick(item)}
-                  >
+                  <div className="flex gap-2 items-center">
                     {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
                       {item.shortTitle || item.title}
                     </span>
                   </div>
-                );
-              })}
-            </div>
-          </SubMenuContainer>
-        </SubmenuHotKeys>
-      }
-      isOpen={show}
-      minimal
-      onClose={() => {
-        setShow(false);
-        onMenuClose();
-      }}
-      placement="right-start"
-      transitionDuration={0}
-    >
-      {canCreateActions && (
-        <TooltipComponent
-          boundary="viewport"
-          className={EntityClassNames.TOOLTIP}
-          content={
-            <>
-              {createMessage(ADD_QUERY_JS_TOOLTIP)} (
-              {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-            </>
-          }
-          disabled={show}
-          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position="right"
-        >
-          <EntityAddButton
-            className={`${className} ${show ? "selected" : ""}`}
-            onClick={() => setShow(true)}
-          />
-        </TooltipComponent>
-      )}
-    </Popover2>
+                </MenuItem>
+              );
+            })}
+          </div>
+        </SubMenuContainer>
+      </MenuContent>
+    </Menu>
   );
 }
