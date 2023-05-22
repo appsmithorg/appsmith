@@ -433,7 +433,7 @@ public class DatasourceServiceTest {
                     datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration1);
 
                     return datasourceService
-                            .updateDatasourceStorages(datasourceStorageDTO, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
+                            .updateDatasourceStorage(datasourceStorageDTO, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
                 });
 
         StepVerifier
@@ -628,7 +628,11 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
+            DatasourceStorageDTO datasourceStorageDTO = datasource1.getDatasourceStorages()
+                    .get(FieldName.UNUSED_ENVIRONMENT_ID);
+            return datasourceService.testDatasource(datasourceStorageDTO, null);
+        });
 
         StepVerifier
                 .create(testResultMono)
@@ -691,8 +695,11 @@ public class DatasourceServiceTest {
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono
                 .flatMap(datasource1 -> {
-                    ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-                    return datasourceService.testDatasource(datasource1, null);
+                    DatasourceStorageDTO datasourceStorageDTO = datasource1.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID);
+
+                    ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+                    return datasourceService.testDatasource(datasourceStorageDTO, null);
                 });
 
         StepVerifier
@@ -1305,7 +1312,11 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
+                    DatasourceStorageDTO datasourceStorageDTO = datasource1.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    return datasourceService.testDatasource(datasourceStorageDTO, null);
+        });
 
         StepVerifier
                 .create(testResultMono)
@@ -1422,7 +1433,7 @@ public class DatasourceServiceTest {
 
                     DatasourceStorageDTO datasourceStorageDTO = datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
                     datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.updateDatasourceStorages(datasourceStorageDTO, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
+                    return datasourceService.updateDatasourceStorage(datasourceStorageDTO, FieldName.UNUSED_ENVIRONMENT_ID , Boolean.TRUE);
                 });
 
         StepVerifier

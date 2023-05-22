@@ -101,7 +101,7 @@ public class DatasourceControllerCE {
         log.debug("Going to update datasource from datasource controller with id: {} and environmentId: {}",
                 datasourceStorageDTO.getDatasourceId(), environmentId);
 
-        return datasourceService.updateDatasourceStorages(datasourceStorageDTO, environmentId , Boolean.TRUE)
+        return datasourceService.updateDatasourceStorage(datasourceStorageDTO, environmentId , Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -115,11 +115,11 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceStorageDTO datasourceStorageDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
-        log.debug("Going to test the datasource with name: {} and id: {}", datasource.getName(), datasource.getId());
-        return datasourceService.testDatasource(datasource, environmentId)
+        log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getId());
+        return datasourceService.testDatasource(datasourceStorageDTO, activeEnvironmentId)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 

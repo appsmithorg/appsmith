@@ -248,6 +248,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(datasource1 -> datasourceStorageService.findByDatasource(datasource1)
+                        .map(DatasourceStorageDTO:: new)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId)
+                        .map(datasourceStorageDTOMap ->  {
+                            datasource1.setDatasourceStorages(datasourceStorageDTOMap);
+                            return datasource1;
+                        }))
                 .flatMap(savedDatasource -> {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
                     if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
@@ -261,7 +268,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
 
     @Override
-    public Mono<Datasource> updateDatasourceStorages(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate) {
+    public Mono<Datasource> updateDatasourceStorage(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate) {
         String datasourceId = datasourceStorageDTO.getDatasourceId();
         String environmentId = datasourceStorageDTO.getEnvironmentId();
 
@@ -357,10 +364,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
      * the password from the db if its a saved datasource before testing.
      */
     @Override
-    public Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentId) {
+    public Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
 
-        DatasourceStorage datasourceStorage = datasourceStorageService
-                .getDatasourceStorageFromDatasource(datasource, environmentId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
 
         Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage)
                 .map(datasourceStorageService::checkEnvironment);
@@ -370,8 +376,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (datasourceStorage.getDatasourceId() != null && datasourceStorage.getDatasourceConfiguration() != null &&
                 datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceStorageMono =
-                    this.findById(datasource.getId(), datasourcePermission.getExecutePermission())
-                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
+                    this.findById(datasourceStorageDTO.getId(), datasourcePermission.getExecutePermission())
+                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, activeEnvironmentId))
                             .map(datasourceStorage1 -> {
                                 copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
                                 return datasourceStorage1;

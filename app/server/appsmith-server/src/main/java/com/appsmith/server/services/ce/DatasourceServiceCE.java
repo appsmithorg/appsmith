@@ -20,12 +20,12 @@ public interface DatasourceServiceCE {
     Mono<Datasource> validateDatasource(Datasource datasource);
 
     /**
-     * @param datasource    - The datasource which is about to be tested
-     * @param environmentId - environmentName, name of the environment on which the datasource is getting tested,
-     *                      this variable is unused in the CE version of the code.
+     * @param datasourceStorageDTO - The datasource which is about to be tested
+     * @param activeEnvironmentId  - environmentName, name of the environment on which the datasource is getting tested,
+     *                             this variable is unused in the CE version of the code.
      * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
      */
-    Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentId);
+    Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId);
 
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
 
@@ -65,7 +65,7 @@ public interface DatasourceServiceCE {
      * @param IsUserRefreshedUpdate
      * @return
      */
-    Mono<Datasource> updateDatasourceStorages(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
+    Mono<Datasource> updateDatasourceStorage(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
 

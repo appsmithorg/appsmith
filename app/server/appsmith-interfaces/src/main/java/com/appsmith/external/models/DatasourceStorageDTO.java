@@ -34,6 +34,9 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
         this.datasourceId = datasource.getId();
         this.environmentId = environmentId;
         this.isConfigured = datasource.getIsConfigured();
+        this.datasourceConfiguration = datasource.getDatasourceConfiguration();
+        this.invalids = datasource.getInvalids();
+        this.messages = datasource.getMessages();
 
         if (datasource.getDatasourceStorages() != null
                 && datasource.getDatasourceStorages().get(environmentId) != null ) {
