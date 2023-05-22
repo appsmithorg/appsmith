@@ -38,6 +38,8 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ShowAllButton = styled(Button)`
   margin: 0.25rem 1.5rem;
@@ -59,14 +61,21 @@ const Datasources = React.memo(() => {
     userWorkspacePermissions,
   );
 
-  const addDatasource = useCallback(() => {
-    history.push(
-      integrationEditorURL({
-        pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
-      }),
-    );
-  }, [pageId]);
+  const addDatasource = useCallback(
+    (entryPoint: string) => {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+      // Event for datasource creation click
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+        entryPoint,
+      });
+    },
+    [pageId],
+  );
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();
 
@@ -123,7 +132,10 @@ const Datasources = React.memo(() => {
       }
       isSticky
       name="Datasources"
-      onCreate={addDatasource}
+      onCreate={addDatasource.bind(
+        this,
+        DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS,
+      )}
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
       showAddButton={canCreateDatasource}
@@ -136,13 +148,20 @@ const Datasources = React.memo(() => {
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
           {...(canCreateDatasource && {
             addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
-            addFunction: addDatasource || noop,
+            addFunction:
+              addDatasource.bind(
+                this,
+                DatasourceCreateEntryPoints.ENTITY_EXPLORER_NEW_DATASOURCE,
+              ) || noop,
           })}
         />
       )}
       {datasourceElements.length > 0 && canCreateDatasource && (
         <AddEntity
-          action={addDatasource}
+          action={addDatasource.bind(
+            this,
+            DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS_CTA,
+          )}
           entityId="add_new_datasource"
           icon={<Icon name="plus" />}
           name={createMessage(ADD_DATASOURCE_BUTTON)}
