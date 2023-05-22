@@ -10,15 +10,15 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
+import com.appsmith.server.solutions.EmailSolution;
 import com.appsmith.server.solutions.UserChangedHandler;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 @Slf4j
 @Service
@@ -46,11 +46,11 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            TenantService tenantService,
                            PermissionGroupService permissionGroupService,
                            UserUtils userUtils,
-                           EmailService emailService) {
+                           EmailSolution emailSolution) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
                 sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
                 policyUtils, commonConfig, emailConfig, userChangedHandler, encryptionService, userDataService, tenantService,
-                permissionGroupService, userUtils, emailService);
+                permissionGroupService, userUtils, emailSolution);
     }
 }

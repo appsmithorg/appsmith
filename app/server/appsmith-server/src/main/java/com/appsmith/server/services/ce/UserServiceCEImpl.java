@@ -33,12 +33,12 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EmailSolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +95,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
-    private final EmailService emailService;
+    private final EmailSolution emailSolution;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -124,7 +124,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              TenantService tenantService,
                              PermissionGroupService permissionGroupService,
                              UserUtils userUtils,
-                             EmailService emailService) {
+                             EmailSolution emailSolution) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -141,7 +141,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
-        this.emailService = emailService;
+        this.emailSolution = emailSolution;
     }
 
     @Override
@@ -256,7 +256,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     );
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
-                    return emailService.sendForgetPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
+                    return emailSolution.sendForgetPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
 
                 })
                 .thenReturn(true);
@@ -586,7 +586,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Map<String, String> params = new HashMap<>();
         params.put("primaryLinkUrl", originHeader);
 
-        return emailService.updateTenantLogoInParams(params, originHeader)
+        return emailSolution.updateTenantLogoInParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
                         "Welcome to Appsmith",
@@ -646,8 +646,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<? extends User> createNewUser(String email, String originHeader,
-                                              String role) {
+    public Mono<? extends User> createNewUser(String email, String originHeader, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 

@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -24,9 +23,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               UserService userService,
                                               EmailSender emailSender,
                                               PermissionGroupPermission permissionGroupPermission,
-                                              EmailService emailService) {
+                                              EmailSolution emailSolution) {
 
         super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
-                permissionGroupPermission, emailService);
+                permissionGroupPermission, emailSolution);
     }
 }

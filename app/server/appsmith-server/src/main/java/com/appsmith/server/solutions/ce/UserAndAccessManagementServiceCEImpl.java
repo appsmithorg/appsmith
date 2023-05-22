@@ -11,11 +11,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EmailSolution;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -42,7 +42,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final UserService userService;
     private final EmailSender emailSender;
     private final PermissionGroupPermission permissionGroupPermission;
-    private final EmailService emailService;
+    private final EmailSolution emailSolution;
 
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
@@ -53,7 +53,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                 UserService userService,
                                                 EmailSender emailSender,
                                                 PermissionGroupPermission permissionGroupPermission,
-                                                EmailService emailService) {
+                                                EmailSolution emailSolution) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -63,7 +63,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.userService = userService;
         this.emailSender = emailSender;
         this.permissionGroupPermission = permissionGroupPermission;
-        this.emailService = emailService;
+        this.emailSolution = emailSolution;
     }
 
     /**
@@ -140,12 +140,12 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                             });
 
                     return getUserFromDbAndCheckIfUserExists
-                            .flatMap(existingUser -> emailService.sendInviteUserToWorkspaceEmail(originHeader,
-                                    workspace, currentUser, permissionGroup.getName(), existingUser, false)
+                            .flatMap(existingUser -> emailSolution.sendInviteUserToWorkspaceEmail(originHeader,
+                                            workspace, currentUser, permissionGroup.getName(), existingUser, false)
                                     .thenReturn(existingUser)
                             )
                             .switchIfEmpty(userService.createNewUser(username, originHeader, permissionGroup.getName())
-                                    .flatMap(createdUser -> emailService.sendInviteUserToWorkspaceEmail(originHeader,
+                                    .flatMap(createdUser -> emailSolution.sendInviteUserToWorkspaceEmail(originHeader,
                                                     workspace, currentUser, permissionGroup.getName(), createdUser, true)
                                             .thenReturn(createdUser)
                                     )

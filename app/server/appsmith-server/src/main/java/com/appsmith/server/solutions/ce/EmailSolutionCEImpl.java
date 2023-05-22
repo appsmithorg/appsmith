@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Appsmith;
@@ -20,22 +20,22 @@ import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_ADMINISTRA
 import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_DEVELOPER_TEXT;
 import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_VIEWER_TEXT;
 import static com.appsmith.server.constants.EmailConstants.FORGOT_PASSWORD_EMAIL_SUBJECT;
-import static com.appsmith.server.constants.EmailConstants.FORGOT_PASSWORD_TEMPLATE_CE;
+import static com.appsmith.server.constants.EmailConstants.FORGOT_PASSWORD_TEMPLATE;
 import static com.appsmith.server.constants.EmailConstants.INVITER_FIRST_NAME;
 import static com.appsmith.server.constants.EmailConstants.INVITER_WORKSPACE_NAME;
-import static com.appsmith.server.constants.EmailConstants.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE;
-import static com.appsmith.server.constants.EmailConstants.INVITE_USER_CLIENT_URL_FORMAT;
-import static com.appsmith.server.constants.EmailConstants.INVITE_WORKSPACE_TEMPLATE_CE;
+import static com.appsmith.server.constants.EmailConstants.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE;
+import static com.appsmith.server.constants.EmailConstants.INVITE_NEW_USER_TO_WORKSPACE_TEMPLATE;
 import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_URL;
 import static com.appsmith.server.constants.EmailConstants.RESET_URL;
+import static com.appsmith.server.constants.EmailConstants.SIGNUP_NEW_USER_CLIENT_URL_FORMAT;
 import static com.appsmith.server.constants.EmailConstants.WORKSPACE_EMAIL_SUBJECT_FOR_EXISTING_USER;
 import static com.appsmith.server.constants.EmailConstants.WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER;
-import static com.appsmith.server.constants.EmailConstants.WORKSPACE_URL;
+import static com.appsmith.server.constants.EmailConstants.WORKSPACE_URL_FORMAT;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 @Slf4j
 @AllArgsConstructor
-public class EmailServiceCEImpl implements EmailServiceCE {
+public class EmailSolutionCEImpl implements EmailSolutionCE {
 
     private final EmailSender emailSender;
     private final CommonConfig commonConfig;
@@ -44,12 +44,16 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     protected EmailDto getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
         if(isNewUser){
             String subject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, inviterWorkspace.getName());
-            return new EmailDto(subject, INVITE_WORKSPACE_TEMPLATE_CE);
+            return new EmailDto(subject, INVITE_NEW_USER_TO_WORKSPACE_TEMPLATE);
         }else {
-            return new EmailDto(WORKSPACE_EMAIL_SUBJECT_FOR_EXISTING_USER, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE);
+            return new EmailDto(WORKSPACE_EMAIL_SUBJECT_FOR_EXISTING_USER, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE);
         }
     }
 
+
+    /**
+     * Preparing the parameters which will be used in creating workspace email body from workspace template.
+     */
     private Map<String, String> getWorkspaceEmailParams(Workspace workspace, User inviter, String inviteUrl, String roleType, boolean isNewUser) {
         Map<String, String> params = new HashMap<>();
 
@@ -72,7 +76,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             params.put(PRIMARY_LINK_URL, inviteUrl);
         } else {
             if (workspace != null) {
-                params.put(PRIMARY_LINK_URL, String.format(WORKSPACE_URL, inviteUrl, workspace.getId()));
+                params.put(PRIMARY_LINK_URL, String.format(WORKSPACE_URL_FORMAT, inviteUrl, workspace.getId()));
             }
         }
         return params;
@@ -84,7 +88,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     protected EmailDto getSubjectAndForgotPasswordEmailTemplate(String instanceName) {
-        return new EmailDto(FORGOT_PASSWORD_EMAIL_SUBJECT, FORGOT_PASSWORD_TEMPLATE_CE);
+        return new EmailDto(FORGOT_PASSWORD_EMAIL_SUBJECT, FORGOT_PASSWORD_TEMPLATE);
     }
 
     @Override
@@ -128,7 +132,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     protected String getSignupUrl(String originHeader, User invitee) {
         String inviteUrl;
         inviteUrl = String.format(
-               INVITE_USER_CLIENT_URL_FORMAT,
+                SIGNUP_NEW_USER_CLIENT_URL_FORMAT,
                 originHeader,
                URLEncoder.encode(invitee.getUsername().toLowerCase(), StandardCharsets.UTF_8)
        );

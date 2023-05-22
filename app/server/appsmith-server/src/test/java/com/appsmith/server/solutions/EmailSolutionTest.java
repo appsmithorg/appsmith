@@ -1,9 +1,12 @@
-package com.appsmith.server.services;
+package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-public class EmailServiceTest {
+public class EmailSolutionTest {
 
 
     @Autowired
@@ -38,7 +41,7 @@ public class EmailServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    EmailService emailService;
+    EmailSolution emailSolution;
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
@@ -47,7 +50,7 @@ public class EmailServiceTest {
     PermissionGroupService permissionGroupService;
 
     private static String workspaceId;
-    private static final String workspaceName = "EmailServiceTest";
+    private static final String workspaceName = "EmailSolutionTest";
 
 
     @BeforeEach
@@ -87,7 +90,7 @@ public class EmailServiceTest {
                 .blockFirst();
 
         assertThat(permissionGroup).isNotNull();
-        Mono<Map<String, String>> paramsMono = emailService.sendInviteUserToWorkspaceEmail(originHeader, workspace, inviter,
+        Mono<Map<String, String>> paramsMono = emailSolution.sendInviteUserToWorkspaceEmail(originHeader, workspace, inviter,
                 permissionGroup.getName(), invitee, true);
 
         StepVerifier.create(paramsMono)
@@ -120,7 +123,7 @@ public class EmailServiceTest {
                 .blockFirst();
 
         assertThat(permissionGroup).isNotNull();
-        Mono<Map<String, String>> paramsMono = emailService.sendInviteUserToWorkspaceEmail(originHeader, workspace, inviter,
+        Mono<Map<String, String>> paramsMono = emailSolution.sendInviteUserToWorkspaceEmail(originHeader, workspace, inviter,
                 permissionGroup.getName(), invitee, false);
 
         StepVerifier.create(paramsMono)
