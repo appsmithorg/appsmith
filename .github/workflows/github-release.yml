@@ -227,6 +227,12 @@ jobs:
           name: client-build
           path: app/client/build
 
+      - name: Untar the client folder
+        run: |
+          tar -xvf app/client/build.tar -C app/client/build
+          echo "Cleaning up the client build"
+          rm app/client/build.tar
+
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
