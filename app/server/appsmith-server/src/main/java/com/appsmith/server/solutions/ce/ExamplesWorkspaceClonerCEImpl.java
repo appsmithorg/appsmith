@@ -209,9 +209,11 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     } else {
                         forkWithConfig = Boolean.FALSE;
                     }
-                    //Setting the forkWithConfiguration and exportWithConfiguration to null for newly forked app
+                    // Setting the forkWithConfiguration, exportWithConfiguration and forkingEnabled fields to null for
+                    // newly forked app
                     application.setForkWithConfiguration(null);
                     application.setExportWithConfiguration(null);
+                    application.setForkingEnabled(false);
 
                     final String defaultPageId = application.getPages().stream()
                             .filter(ApplicationPage::isDefault)
