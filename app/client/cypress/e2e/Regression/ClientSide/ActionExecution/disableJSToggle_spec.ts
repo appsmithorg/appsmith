@@ -6,6 +6,7 @@ const { agHelper, apiPage, entityExplorer, propPane } = _;
 describe("Disable JS toggle when Action selector code is not parsable", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    entityExplorer.NavigateToSwitcher("Explorer");
     apiPage.CreateApi("Api1", "GET");
     entityExplorer.SelectEntityByName("Button1", "Widgets");
   });
