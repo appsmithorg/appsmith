@@ -429,4 +429,10 @@ export class PropertyPane {
       "be.disabled",
     );
   }
+
+  public AssertSelectValue(value: string) {
+    cy.xpath(`//button[contains(@class, 't--open-dropdown-${value}')]`).should(
+      "exist",
+    );
+  }
 }

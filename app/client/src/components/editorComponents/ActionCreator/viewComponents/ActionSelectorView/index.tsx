@@ -55,7 +55,10 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const valueWithoutMoustache = getCodeFromMoustache(value);
 
-  const selectedOption = getSelectedFieldFromValue(value, options);
+  const selectedOption = getSelectedFieldFromValue(
+    valueWithoutMoustache,
+    options,
+  );
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
