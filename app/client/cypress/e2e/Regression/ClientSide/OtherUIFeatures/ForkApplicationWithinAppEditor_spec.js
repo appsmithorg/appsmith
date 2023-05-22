@@ -1,5 +1,6 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -11,7 +12,8 @@ describe("Fork application across workspaces", function () {
 
   it("1. Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {
     const appname = localStorage.getItem("AppName");
-    cy.SearchEntityandOpen("Input1");
+    _.entityExplorer.SelectEntityByName("Input1");
+
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.testJsontext("defaultvalue", "A");
     cy.wait("@inputUpdate").then((response) => {
