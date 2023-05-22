@@ -499,7 +499,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
-    this.agHelper.ClickButton("FORK");
+    this.agHelper.ClickButton("Fork");
   }
 
   public DeleteApplication(appliName: string) {
