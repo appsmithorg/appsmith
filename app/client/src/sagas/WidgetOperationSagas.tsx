@@ -82,7 +82,6 @@ import {
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system-old";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
@@ -168,6 +167,8 @@ import {
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { toast } from "design-system";
+
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   updatePositionsOfParentAndSiblings,
@@ -181,7 +182,7 @@ import {
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
-    Toaster.clear();
+    toast.dismiss();
     const start = performance.now();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const stateWidget: FlattenedWidgetProps = yield select(
@@ -932,9 +933,8 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (!selectedWidgets) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED),
-      variant: Variant.info,
+    toast.show(createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED), {
+      kind: "info",
     });
     return;
   }
@@ -944,9 +944,8 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   });
 
   if (!allAllowedToCopy) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_COPY_NOT_ALLOWED),
-      variant: Variant.info,
+    toast.show(createMessage(ERROR_WIDGET_COPY_NOT_ALLOWED), {
+      kind: "info",
     });
 
     return;
@@ -976,15 +975,17 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   });
 
   if (saveResult) {
-    Toaster.show({
-      text: createMessage(
+    toast.show(
+      createMessage(
         WIDGET_COPY,
         selectedWidgetProps.length > 1
           ? `${selectedWidgetProps.length} Widgets`
           : selectedWidgetProps[0].widgetName,
       ),
-      variant: Variant.success,
-    });
+      {
+        kind: "success",
+      },
+    );
   }
 }
 
@@ -1886,9 +1887,8 @@ function* cutWidgetSaga() {
   );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (!selectedWidgets) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
-      variant: Variant.info,
+    toast.show(createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED), {
+      kind: "info",
     });
     return;
   }
@@ -1898,9 +1898,8 @@ function* cutWidgetSaga() {
   });
 
   if (!allAllowedToCut) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED),
-      variant: Variant.info,
+    toast.show(createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED), {
+      kind: "info",
     });
     return;
   }
@@ -1928,15 +1927,17 @@ function* cutWidgetSaga() {
   });
 
   if (saveResult) {
-    Toaster.show({
-      text: createMessage(
+    toast.show(
+      createMessage(
         WIDGET_CUT,
         selectedWidgetProps.length > 1
           ? `${selectedWidgetProps.length} Widgets`
           : selectedWidgetProps[0].widgetName,
       ),
-      variant: Variant.success,
-    });
+      {
+        kind: "success",
+      },
+    );
   }
 
   yield put({

@@ -77,7 +77,7 @@ import {
 } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button, ScrollIndicator } from "design-system-old";
+import { Button } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -238,6 +238,7 @@ export type EditorProps = EditorStyleProps &
     onEditorFocus?: () => void;
     lineCommentString?: string;
     evaluatedPopUpLabel?: string;
+    removeHoverAndFocusStyle?: boolean;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -278,8 +279,8 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  currentLineNumber: number | null = null;
   AIEnabled = false;
-  lineRef: React.MutableRefObject<number | null> = React.createRef();
 
   constructor(props: Props) {
     super(props);
@@ -902,15 +903,15 @@ class CodeEditor extends Component<Props, State> {
       cm.setOption("matchBrackets", false);
     }
     if (!this.props.borderLess) return;
-    if (this.lineRef.current !== null) {
+    if (this.currentLineNumber !== null) {
       cm.removeLineClass(
-        this.lineRef.current,
+        this.currentLineNumber,
         "background",
         "CodeMirror-activeline-background",
       );
     }
     cm.addLineClass(line, "background", "CodeMirror-activeline-background");
-    this.lineRef.current = line;
+    this.currentLineNumber = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -981,13 +982,13 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
-    if (this.lineRef.current !== null) {
+    if (this.currentLineNumber !== null) {
       cm.removeLineClass(
-        this.lineRef.current,
+        this.currentLineNumber,
         "background",
         "CodeMirror-activeline-background",
       );
-      this.lineRef.current = null;
+      this.currentLineNumber = null;
     }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
@@ -1399,28 +1400,28 @@ class CodeEditor extends Component<Props, State> {
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       >
-        <div className="flex absolute gap-1 top-2 right-2 z-1">
+        <div className="flex absolute gap-1 top-[6px] right-[12px] z-1 justify-center">
           <Button
-            category="secondary"
             className={classNames(
               "h-5 !w-5 !p-0 ai-trigger invisible",
               this.state.isFocused && "!visible",
               !showAIButton && "!hidden",
             )}
-            onClick={(e: MouseEvent) => {
+            kind="secondary"
+            onClick={(e) => {
               e.stopPropagation();
               this.setState({ showAIWindow: true });
             }}
             tabIndex={-1}
-            tag="button"
-            text="AI"
-          />
+          >
+            AI
+          </Button>
           <Button
-            category="secondary"
             className={classNames(
               "h-5 !w-5 !p-0 commands-button invisible",
               !showSlashCommandButton && "!hidden",
             )}
+            kind="tertiary"
             onClick={() => {
               const newValue =
                 typeof this.props.input.value === "string"
@@ -1428,10 +1429,11 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            size="sm"
             tabIndex={-1}
-            tag="button"
-            text="/"
-          />
+          >
+            /
+          </Button>
         </div>
 
         <EvaluatedValuePopup
@@ -1484,6 +1486,7 @@ class CodeEditor extends Component<Props, State> {
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
               ref={this.editorWrapperRef}
+              removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
               size={size}
             >
               {this.state.peekOverlayProps && (
@@ -1529,7 +1532,6 @@ class CodeEditor extends Component<Props, State> {
               {this.props.rightIcon && (
                 <IconContainer>{this.props.rightIcon}</IconContainer>
               )}
-              <ScrollIndicator containerRef={this.editorWrapperRef} />
             </EditorWrapper>
           </AIWindow>
         </EvaluatedValuePopup>

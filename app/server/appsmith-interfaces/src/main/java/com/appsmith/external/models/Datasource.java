@@ -26,7 +26,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 public class Datasource extends BranchAwareDomain implements Forkable {
 
     @Transient
-    public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
+    public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";
 
     @JsonView(Views.Public.class)
     String name;

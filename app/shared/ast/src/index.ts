@@ -749,3 +749,33 @@ const jsObjectToCode = (script: string) => {
 const jsCodeToObject = (script: string) => {
   return script.replace(jsObjectDeclaration, "export default");
 };
+
+export const isFunctionPresent = (
+  script: string,
+  evaluationVersion: number,
+) => {
+  try {
+    const sanitizedScript = sanitizeScript(script, evaluationVersion);
+    const ast = getAST(sanitizedScript, {
+      locations: true,
+      ranges: true,
+    });
+
+    let isFunction = false;
+    simple(ast, {
+      FunctionDeclaration() {
+        isFunction = true;
+      },
+      FunctionExpression() {
+        isFunction = true;
+      },
+      ArrowFunctionExpression() {
+        isFunction = true;
+      },
+    });
+
+    return isFunction;
+  } catch (e) {
+    return false;
+  }
+};
