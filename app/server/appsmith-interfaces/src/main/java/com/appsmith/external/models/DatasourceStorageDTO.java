@@ -68,7 +68,7 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
             initialAuth = newDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
         }
 
-        if (!Boolean.TRUE.equals(forkWithConfiguration)) {
+        if (Boolean.TRUE.equals(forkWithConfiguration)) {
             DatasourceConfiguration dsConfig = new DatasourceConfiguration();
             dsConfig.setAuthentication(null);
             if (newDatasourceStorageDTO.getDatasourceConfiguration() != null) {

@@ -550,6 +550,10 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     final Datasource datasourceToFork = tuple.getT1();
                     final List<Datasource> existingDatasourcesInNewWorkspace = tuple.getT2();
 
+                    if (datasourceToFork.getWorkspaceId().equals(toWorkspaceId)) {
+                        return Mono.just(datasourceToFork);
+                    }
+
                     DatasourceStorageDTO storageDTOToFork = datasourceToFork.getDatasourceStorages().get(sourceEnvironmentId);
 
                     final AuthenticationDTO authentication = storageDTOToFork.getDatasourceConfiguration() == null
@@ -565,7 +569,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                          .filter(existingDatasource -> {
                                              // Check if there is a storage with the same configs in the target environment
                                              DatasourceStorageDTO existingStorageDTO = existingDatasource
-                                                     .getDatasourceStorages().get(sourceEnvironmentId);
+                                                     .getDatasourceStorages().get(destinationEnvironmentId);
                                              final AuthenticationDTO auth = existingStorageDTO.getDatasourceConfiguration() == null
                                                      ? null : existingStorageDTO.getDatasourceConfiguration().getAuthentication();
                                              if (auth != null) {
