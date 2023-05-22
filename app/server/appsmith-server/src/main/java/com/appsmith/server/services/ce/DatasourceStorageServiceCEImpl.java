@@ -286,6 +286,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("pluginName", datasourceStorage.getPluginName());
         analyticsProperties.put("dsName", datasourceStorage.getName());
+        analyticsProperties.put("dsId", datasourceStorage.getDatasourceId());
         analyticsProperties.put("envId", datasourceStorage.getEnvironmentId());
         DatasourceConfiguration dsConfig = datasourceStorage.getDatasourceConfiguration();
         if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
