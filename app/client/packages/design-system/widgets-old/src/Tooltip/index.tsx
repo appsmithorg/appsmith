@@ -36,10 +36,6 @@ export type TooltipProps = CommonComponentProps & {
   styles?: any;
 };
 
-const rootElementId = "tooltip-root";
-
-let portalContainer = document.getElementById(rootElementId);
-
 const TooltipWrapper = styled(Tooltip)<
   PropsWithChildren<{
     width?: string;
@@ -65,11 +61,18 @@ const TooltipWrapper = styled(Tooltip)<
   }
 `;
 
-if (!portalContainer) {
-  const tooltipPortalElement = document.createElement("div");
-  tooltipPortalElement.id = rootElementId;
-  document.body.append(tooltipPortalElement);
-  portalContainer = document.getElementById(rootElementId);
+function getPortalContainer() {
+  const rootElementId = "tooltip-root";
+  let portalContainer = document.getElementById(rootElementId);
+
+  if (!portalContainer) {
+    const tooltipPortalElement = document.createElement("div");
+    tooltipPortalElement.id = rootElementId;
+    document.body.append(tooltipPortalElement);
+    portalContainer = tooltipPortalElement;
+  }
+
+  return portalContainer;
 }
 
 function TooltipComponent(props: TooltipProps) {
@@ -97,7 +100,7 @@ function TooltipComponent(props: TooltipProps) {
       popoverClassName={`${GLOBAL_STYLE_TOOLTIP_CLASSNAME} ${
         props.popoverClassName ?? ""
       }`}
-      portalContainer={portalContainer as HTMLDivElement}
+      portalContainer={getPortalContainer()}
       position={props.position}
       transitionDuration={props.transitionDuration || 0}
       underline={props.underline}

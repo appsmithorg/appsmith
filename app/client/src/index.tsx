@@ -23,10 +23,6 @@ import AppErrorBoundary from "./AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
-runSagaMiddleware();
-
-appInitializer();
-
 function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
@@ -67,7 +63,23 @@ const mapStateToProps = (state: AppState) => ({
 
 const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const initAndRenderApp = () => {
+  runSagaMiddleware();
+
+  appInitializer();
+
+  ReactDOM.render(<App />, document.getElementById("root"));
+};
+
+// Some code of the app depends on the whole DOM being ready
+if (
+  document.readyState === "interactive" ||
+  document.readyState === "complete"
+) {
+  initAndRenderApp();
+} else {
+  document.addEventListener("DOMContentLoaded", initAndRenderApp);
+}
 
 // expose store when run in Cypress
 if ((window as any).Cypress) {
