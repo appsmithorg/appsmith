@@ -49,6 +49,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const Wrapper = styled.div`
   padding: var(--ads-v2-spaces-7);
@@ -359,6 +360,15 @@ export default function OnboardingChecklist() {
                     pageId,
                     selectedTab: INTEGRATION_TABS.ACTIVE,
                   }),
+                );
+                // Event for datasource creation click
+                const entryPoint =
+                  DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
+                AnalyticsUtil.logEvent(
+                  "NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE",
+                  {
+                    entryPoint,
+                  },
                 );
               }}
               size="md"
