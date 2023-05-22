@@ -46,7 +46,10 @@ import {
   hasCreateDatasourceActionPermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  DatasourceEditEntryPoints,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
   deleteTempDSFromDraft,
@@ -55,6 +58,7 @@ import {
   setDatasourceViewMode,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
+  datasourceDiscardAction,
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import {
@@ -75,6 +79,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -112,6 +117,7 @@ interface DatasourceFormFunctions {
   createTempDatasource: (data: any) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
   loadFilePickerAction: () => void;
+  datasourceDiscardAction: (pluginId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -250,6 +256,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   onDiscard() {
     this.closeDialogAndUnblockRoutes();
     this.state.navigation();
+    this.props.datasourceDiscardAction(this.props?.pluginId);
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -367,6 +374,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                           datasourceId,
                         }),
                       );
+                      AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+                        datasourceId: datasourceId,
+                        pluginName: plugin?.name,
+                        entryPoint:
+                          DatasourceEditEntryPoints.DATASOURCE_FORM_EDIT,
+                      });
                     }}
                     size="md"
                   >
@@ -589,6 +602,8 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
+  datasourceDiscardAction: (pluginId) =>
+    dispatch(datasourceDiscardAction(pluginId)),
 });
 
 export default connect(
