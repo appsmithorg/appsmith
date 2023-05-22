@@ -244,33 +244,65 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     }
   });
 
-  it("handles this keyword replacement", async () => {
+  it("handles JsObject cases", async () => {
     let result;
     jsObjectIdentifier.updateScript(JsObjectWithThisKeyword);
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(134);
+    // this keyword cases
+    result = await jsObjectIdentifier.extractExpressionAtPosition(140);
     expect(result).toBe("JsObject");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(153);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(159);
     expect(result).toBe("JsObject.numArray");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(174);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(180);
     expect(result).toBe("JsObject.objectArray");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(177);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(183);
     expect(result).toBe("JsObject.objectArray[0]");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(180);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(186);
     expect(result).toBe("JsObject.objectArray[0].x");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(202);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(208);
     expect(result).toBe("JsObject.objectData['x']");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(236);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(238);
     expect(result).toBe("JsObject.objectData['x']['a']");
 
-    result = await jsObjectIdentifier.extractExpressionAtPosition(241);
+    result = await jsObjectIdentifier.extractExpressionAtPosition(243);
     expect(result).toBe("JsObject.objectData['x']['a'].b");
+
+    // await keyword cases
+    // resetWidget
+    try {
+      result = undefined;
+      result = await jsObjectIdentifier.extractExpressionAtPosition(255);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // "Switch1"
+    try {
+      result = undefined;
+      result = await jsObjectIdentifier.extractExpressionAtPosition(266);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // Api1
+    result = await jsObjectIdentifier.extractExpressionAtPosition(287);
+    expect(result).toBe("Api1");
+
+    // run
+    result = await jsObjectIdentifier.extractExpressionAtPosition(292);
+    expect(result).toBe("Api1.run");
   });
 });
 
@@ -278,11 +310,13 @@ const JsObjectWithThisKeyword = `export default {
 	numArray: [1, 2, 3],
 	objectArray: [ {x: 123}, { y: "123"} ],
 	objectData: { x: 123, y: "123" },
-	myFun1: () => {
+	myFun1: async () => {
 		this;
 		this.numArray;
 		this.objectArray[0].x;
 		this.objectData["x"];
-        this.objectData["x"]["a"].b;
+    this.objectData["x"]["a"].b;
+		await resetWidget("Switch1");
+    await Api1.run();
 	},
 }`;

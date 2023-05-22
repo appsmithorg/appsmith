@@ -32,4 +32,5 @@ export enum NodeTypes {
   ExpressionStatement = "ExpressionStatement",
   BlockStatement = "BlockStatement",
   ConditionalExpression = "ConditionalExpression",
+  AwaitExpression = "AwaitExpression",
 }

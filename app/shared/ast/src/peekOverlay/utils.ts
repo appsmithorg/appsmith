@@ -6,6 +6,7 @@ import type {
   IdentifierNode,
   MemberExpressionNode,
 } from "../index";
+import { isAwaitExpressionNode } from "../index";
 import { isBinaryExpressionNode } from "../index";
 import { isConditionalExpressionNode } from "../index";
 import {
@@ -79,6 +80,8 @@ const getExpressionAtPosFromExpressionStatement = (
   const expressionNode = node.expression;
   if (isMemberExpressionNode(expressionNode)) {
     return getExpressionAtPosFromMemberExpression(expressionNode, pos, options);
+  } else if (isAwaitExpressionNode(expressionNode)) {
+    return getExpressionStringAtPos(expressionNode.argument, pos, options);
   } else if (isConditionalExpressionNode(expressionNode)) {
     return getExpressionAtPosFromConditionalExpression(
       expressionNode,
