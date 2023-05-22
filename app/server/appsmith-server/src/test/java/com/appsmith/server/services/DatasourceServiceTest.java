@@ -156,10 +156,10 @@ public class DatasourceServiceTest {
                             return Mono.zip(Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
                         }))
                 .assertNext(datasource -> {
-                    assertThat(datasource.getT1().getName()).isEqualTo("Untitled Datasource");
+                    assertThat(datasource.getT1().getName()).isEqualTo("Untitled datasource");
                     assertThat(datasource.getT1().getWorkspaceId()).isEqualTo("random-org-id-1");
                     assertThat(datasource.getT1().getUserPermissions()).isNotEmpty();
-                    assertThat(datasource.getT2().getName()).isEqualTo("Untitled Datasource");
+                    assertThat(datasource.getT2().getName()).isEqualTo("Untitled datasource");
                     assertThat(datasource.getT2().getWorkspaceId()).isEqualTo("random-org-id-2");
                     assertThat(datasource.getT2().getUserPermissions()).isNotEmpty();
                 })
@@ -520,12 +520,12 @@ public class DatasourceServiceTest {
                     final Datasource ds1 = tuple2.getT1();
                     assertThat(ds1.getId()).isNotEmpty();
                     assertThat(ds1.getPluginId()).isEqualTo(datasource1.getPluginId());
-                    assertThat(ds1.getName()).isEqualTo("Untitled Datasource");
+                    assertThat(ds1.getName()).isEqualTo("Untitled datasource");
 
                     final Datasource ds2 = tuple2.getT2();
                     assertThat(ds2.getId()).isNotEmpty();
                     assertThat(ds2.getPluginId()).isEqualTo(datasource1.getPluginId());
-                    assertThat(ds2.getName()).isEqualTo("Untitled Datasource 2");
+                    assertThat(ds2.getName()).isEqualTo("Untitled datasource 2");
                 })
                 .verifyComplete();
     }

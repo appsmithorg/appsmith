@@ -188,7 +188,7 @@ const createDragHandler = (
   dragElement.style.zIndex = renderDragBlockPositions?.zIndex ?? "3";
 
   if (cypressSelectorDragHandle) {
-    dragElement.setAttribute("data-cy", cypressSelectorDragHandle);
+    dragElement.setAttribute("data-testid", cypressSelectorDragHandle);
   }
 
   oldDragHandler
