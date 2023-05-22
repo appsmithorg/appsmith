@@ -226,10 +226,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: client-build
-          path: app/client/build
+          path: app/client
 
       - name: Untar the client folder
         run: |
+          mkdir -p app/client/build
           tar -xvf app/client/build.tar -C app/client/build
           echo "Cleaning up the client build"
           rm app/client/build.tar
