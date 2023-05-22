@@ -401,6 +401,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             isPluginAuthorized={isPluginAuthorized || false}
             isSaving={isSaving}
             pluginImage={pluginImage}
+            pluginName={plugin?.name || ""}
             pluginType={plugin?.type || ""}
             setDatasourceViewMode={setDatasourceViewMode}
             viewMode={viewMode}

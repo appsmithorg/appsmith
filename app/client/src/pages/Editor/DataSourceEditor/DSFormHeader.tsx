@@ -21,6 +21,7 @@ import { MenuComponent, RedMenuItem } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button } from "design-system";
 import { EDIT } from "ce/constants/messages";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -88,6 +89,7 @@ type DSFormHeaderProps = {
   isSaving: boolean;
   pluginImage: string;
   pluginType: string;
+  pluginName: string;
   setDatasourceViewMode: (viewMode: boolean) => void;
   viewMode: boolean;
 };
@@ -103,6 +105,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     isNewDatasource,
     isPluginAuthorized,
     pluginImage,
+    pluginName,
     pluginType,
     setDatasourceViewMode,
     viewMode,
@@ -174,6 +177,11 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             kind="secondary"
             onClick={() => {
               setDatasourceViewMode(false);
+              AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+                datasourceId: datasourceId,
+                pluginName,
+                entryPoint: DatasourceEditEntryPoints.DATASOURCE_FORM_EDIT,
+              });
             }}
           >
             {createMessage(EDIT)}

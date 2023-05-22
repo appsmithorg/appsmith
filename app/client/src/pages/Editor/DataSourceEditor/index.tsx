@@ -574,6 +574,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isSaving,
       pluginId,
       pluginImage,
+      pluginName,
       pluginType,
       setDatasourceViewMode,
       showDebugger,
@@ -605,6 +606,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             isPluginAuthorized={isPluginAuthorized}
             isSaving={isSaving}
             pluginImage={pluginImage}
+            pluginName={pluginName}
             pluginType={pluginType}
             setDatasourceViewMode={setDatasourceViewMode}
             viewMode={viewMode}
