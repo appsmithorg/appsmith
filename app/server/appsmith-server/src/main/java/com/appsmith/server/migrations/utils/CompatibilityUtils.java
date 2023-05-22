@@ -14,7 +14,7 @@ public class CompatibilityUtils {
      * MongoDB, and returns the correct query accordingly.
      *
      * @param mongoTemplate Meant to share the bean with this utility
-     * @param originalQuery The original query to be run without optimization
+     * @param originalQuery The original idempotent query to be run without optimization, idempotency is a must
      * @param clazz         The collection this query will be run on
      * @param <T>           The BaseDomain type this collection maps to
      * @return A query that is guaranteed to run on this instance, with or without optimization
