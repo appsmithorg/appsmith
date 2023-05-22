@@ -6,13 +6,15 @@ import { FooterComponent as Footer } from "./Footer";
 import type { UpgradePageProps } from "./types";
 
 export const Container = styled.div`
-  border-left: thin solid var(--appsmith-color-black-50);
-  background-color: var(--ads-color-black-50);
-  height: auto;
+  background-color: var(--ads-v2-color-bg-subtle);
   min-height: 0;
-  overflow: auto;
-  height: calc(100vh - 50px - 112px);
   width: 100%;
+  position: relative;
+
+  .scroll-container {
+    height: calc(100vh - 50px - 112px);
+    overflow: auto;
+  }
 `;
 
 export default function UpgradePage(props: UpgradePageProps) {
@@ -22,8 +24,10 @@ export default function UpgradePage(props: UpgradePageProps) {
       className="upgrade-page-container"
       data-testid="t--upgrade-page-container"
     >
-      <Header {...header} />
-      <Carousel {...carousel} />
+      <div className="scroll-container">
+        <Header {...header} />
+        <Carousel {...carousel} />
+      </div>
       <Footer {...footer} />
     </Container>
   );

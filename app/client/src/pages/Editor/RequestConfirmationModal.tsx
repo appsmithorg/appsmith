@@ -7,9 +7,14 @@ import {
   cancelActionConfirmationModal,
   acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
-import { DialogComponent } from "design-system-old";
-import styled from "styled-components";
-import { Button, Category, Size } from "design-system-old";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "design-system";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
@@ -20,19 +25,6 @@ type Props = {
   modals: ModalInfo[];
   dispatch: any;
 };
-
-const ModalBody = styled.div`
-  padding-bottom: 20px;
-`;
-
-const ModalFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-
-  button {
-    margin-left: 12px;
-  }
-`;
 
 class RequestConfirmationModal extends React.Component<Props> {
   addEventListener = () => {
@@ -79,50 +71,46 @@ class RequestConfirmationModal extends React.Component<Props> {
 
     // making sure that only modals that are set to be open are eventually opened.
     // basically filters out modals that have already been opened and prevents it from flashing after other modals have been confirmed.
-    const modalsToBeOpened = modals.filter((modal) => modal.modalOpen === true);
+    const modalsToBeOpened = modals.filter((modal) => modal.modalOpen);
 
     return (
       <>
-        {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
-          <DialogComponent
-            canEscapeKeyClose
-            canOutsideClickClose
-            isOpen={modalInfo?.modalOpen}
-            key={index}
-            maxHeight={"80vh"}
-            noModalBodyMarginTop
-            onClose={() => this.handleClose(modalInfo)}
-            title="Confirmation Dialog"
-            width={"580px"}
+        {modalsToBeOpened.map((modalInfo: ModalInfo) => (
+          <Modal
+            key={modalInfo.name}
+            onOpenChange={() => this.handleClose(modalInfo)}
+            open={modalInfo?.modalOpen}
           >
-            <ModalBody>
-              {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
-              <b>{modalInfo.name}</b> ?
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                category={Category.secondary}
-                cypressSelector="t--cancel-modal-btn"
-                onClick={() => {
-                  dispatch(cancelActionConfirmationModal(modalInfo.name));
-                  this.handleClose(modalInfo);
-                }}
-                size={Size.large}
-                tag="button"
-                text="No"
-                type="button"
-              />
-              <Button
-                category={Category.primary}
-                cypressSelector="t--confirm-modal-btn"
-                onClick={() => this.onConfirm(modalInfo)}
-                size={Size.large}
-                tag="button"
-                text="Yes"
-                type="button"
-              />
-            </ModalFooter>
-          </DialogComponent>
+            <ModalContent
+              data-testid="t--query-run-confirmation-modal"
+              style={{ width: "600px" }}
+            >
+              <ModalHeader>Confirmation dialog</ModalHeader>
+              <ModalBody>
+                {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
+                <b>{modalInfo.name}</b> ?
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  kind="secondary"
+                  onClick={() => {
+                    dispatch(cancelActionConfirmationModal(modalInfo.name));
+                    this.handleClose(modalInfo);
+                  }}
+                  size="md"
+                >
+                  No
+                </Button>
+                <Button
+                  kind="primary"
+                  onClick={() => this.onConfirm(modalInfo)}
+                  size="md"
+                >
+                  Yes
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         ))}
       </>
     );
