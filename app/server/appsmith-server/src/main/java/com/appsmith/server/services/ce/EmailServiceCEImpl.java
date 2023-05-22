@@ -1,6 +1,8 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.ce.FieldNameCE;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailDto;
@@ -9,32 +11,41 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.appsmith.server.constants.ce.EmailConstantsCE.EMAIL_ROLE_ADMINISTRATOR_TEXT;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.EMAIL_ROLE_DEVELOPER_TEXT;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.EMAIL_ROLE_VIEWER_TEXT;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.FORGOT_PASSWORD_TEMPLATE_CE;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.ForgotPasswordEmailSubject;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_USER_CLIENT_URL_FORMAT;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_WORKSPACE_TEMPLATE_CE;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.WORKSPACE_URL;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.WorkspaceEmailSubjectForExistingUser;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.WorkspaceEmailSubjectForNewUser;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 @Slf4j
 @AllArgsConstructor
 public class EmailServiceCEImpl implements EmailServiceCE {
 
     private final EmailSender emailSender;
-    public static final String INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE = "email/inviteExistingUserToWorkspaceTemplate.html";
-    public static final String INVITE_WORKSPACE_TEMPLATE_CE = "email/inviteWorkspaceTemplate.html";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
-    private static final String FORGOT_PASSWORD_TEMPLATE_CE = "email/forgotPasswordTemplate.html";
+    private final CommonConfig commonConfig;
 
 
 
-    @Override
-    public EmailDto getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
+
+
+    protected EmailDto getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
         if(isNewUser){
-            String subject = String.format("You’re invited to the workspace %s. \uD83E\uDD73 ", inviterWorkspace.getName());
+            String subject = String.format(WorkspaceEmailSubjectForNewUser, inviterWorkspace.getName());
             return new EmailDto(subject, INVITE_WORKSPACE_TEMPLATE_CE);
         }else {
-            String subject = "You’re invited to the workspace. \uD83E\uDD73 ";
-            return new EmailDto(subject, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE);
+            return new EmailDto(WorkspaceEmailSubjectForExistingUser, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE);
         }
     }
 
@@ -42,25 +53,25 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = new HashMap<>();
 
         if (inviter != null) {
-            params.put("inviterFirstName", org.apache.commons.lang3.StringUtils.defaultIfEmpty(inviter.getName(), inviter.getEmail()));
+            params.put(FieldName.INVITER_FIRST_NAME, defaultIfEmpty(inviter.getName(), inviter.getEmail()));
         }
         if(roleType != null){
-            if(roleType.startsWith(FieldNameCE.ADMINISTRATOR)){
-                params.put("role", "an " + FieldNameCE.ADMINISTRATOR.toLowerCase());
-            }else if(roleType.startsWith(FieldNameCE.DEVELOPER)){
-                params.put("role", "a " + FieldNameCE.DEVELOPER.toLowerCase());
-            }else if(roleType.startsWith(FieldNameCE.VIEWER)){
-                params.put("role", "an " + FieldNameCE.VIEWER.toLowerCase());
+            if(roleType.startsWith(FieldName.ADMINISTRATOR)){
+                params.put(FieldName.ROLE, EMAIL_ROLE_ADMINISTRATOR_TEXT);
+            }else if(roleType.startsWith(FieldName.DEVELOPER)){
+                params.put(FieldName.ROLE, EMAIL_ROLE_DEVELOPER_TEXT);
+            }else if(roleType.startsWith(FieldName.VIEWER)){
+                params.put(FieldName.ROLE, EMAIL_ROLE_VIEWER_TEXT);
             }
         }
         if (workspace != null) {
-            params.put("inviterWorkspaceName", workspace.getName());
+            params.put(FieldName.INVITER_WORKSPACE_NAME, workspace.getName());
         }
         if (isNewUser) {
-            params.put("primaryLinkUrl", inviteUrl);
+            params.put(FieldName.PRIMARY_LINK_URL, inviteUrl);
         } else {
             if (workspace != null) {
-                params.put("primaryLinkUrl", inviteUrl + "/applications#" + workspace.getId());
+                params.put(FieldName.PRIMARY_LINK_URL, String.format(WORKSPACE_URL, inviteUrl, workspace.getId()));
             }
         }
         return params;
@@ -71,15 +82,31 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         return Mono.just(params);
     }
 
-    @Override
-    public EmailDto getSubjectAndForgotPasswordEmailTemplate(String instanceName) {
-        String emailSubject = "Reset your Appsmith password";
-        return new EmailDto(emailSubject, FORGOT_PASSWORD_TEMPLATE_CE);
+    protected EmailDto getSubjectAndForgotPasswordEmailTemplate(String instanceName) {
+        return new EmailDto(ForgotPasswordEmailSubject, FORGOT_PASSWORD_TEMPLATE_CE);
     }
 
     @Override
-    public Mono<Map<String, String>> sendInviteWorkspaceEmail(String originHeader, Workspace workspace, User inviter,
-                                                              String permissionGroupName, User invitee, Boolean isNewUser) {
+    public Mono<Map<String, String>> sendForgetPasswordEmail(String email, String resetUrl, String originHeader) {
+        String instanceName = defaultIfEmpty(commonConfig.getInstanceName(), Appsmith.APPSMITH);
+        Map<String, String> params = new HashMap<>();
+        params.put(FieldName.RESET_URL, resetUrl);
+        EmailDto subjectAndEmailTemplate = this.getSubjectAndForgotPasswordEmailTemplate(instanceName);
+        return this.updateTenantLogoInParams(params, originHeader)
+                .flatMap(updatedParams ->
+                        emailSender.sendMail(
+                                email,
+                                subjectAndEmailTemplate.getSubject(),
+                                subjectAndEmailTemplate.getEmailTemplate(),
+                                updatedParams
+                        ).thenReturn(updatedParams)
+                );
+    }
+
+    @Override
+    public Mono<Map<String, String>> sendInviteUserToWorkspaceEmail(String originHeader, Workspace workspace, User inviter,
+                                                                    String permissionGroupName, User invitee, Boolean isNewUser) {
+        // This is a part of inviteUrl that will be sent to the user if it's not a new user
         String inviteUrl = originHeader;
         if(isNewUser){
             inviteUrl = getSignupUrl(originHeader, invitee);
@@ -97,7 +124,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 );
     }
 
-    public String getSignupUrl(String originHeader, User invitee) {
+    protected String getSignupUrl(String originHeader, User invitee) {
         String inviteUrl;
         inviteUrl = String.format(
                INVITE_USER_CLIENT_URL_FORMAT,

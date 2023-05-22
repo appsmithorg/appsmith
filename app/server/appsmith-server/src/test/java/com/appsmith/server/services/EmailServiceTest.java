@@ -87,7 +87,7 @@ public class EmailServiceTest {
                 .blockFirst();
 
         assertThat(permissionGroup).isNotNull();
-        Mono<Map<String, String>> paramsMono = emailService.sendInviteWorkspaceEmail(originHeader, workspace, inviter,
+        Mono<Map<String, String>> paramsMono = emailService.sendInviteUserToWorkspaceEmail(originHeader, workspace, inviter,
                 permissionGroup.getName(), invitee, true);
 
         StepVerifier.create(paramsMono)
@@ -120,7 +120,7 @@ public class EmailServiceTest {
                 .blockFirst();
 
         assertThat(permissionGroup).isNotNull();
-        Mono<Map<String, String>> paramsMono = emailService.sendInviteWorkspaceEmail(originHeader, workspace, inviter,
+        Mono<Map<String, String>> paramsMono = emailService.sendInviteUserToWorkspaceEmail(originHeader, workspace, inviter,
                 permissionGroup.getName(), invitee, false);
 
         StepVerifier.create(paramsMono)

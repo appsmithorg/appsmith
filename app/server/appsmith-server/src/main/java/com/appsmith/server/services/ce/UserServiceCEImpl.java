@@ -15,7 +15,6 @@ import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.EmailDto;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.Permission;
@@ -32,10 +31,16 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.*;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
-import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -93,7 +98,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final EmailService emailService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
-    private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
@@ -252,19 +256,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     );
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
-                    String instanceName = org.apache.commons.lang3.StringUtils.defaultIfEmpty(commonConfig.getInstanceName(), "Appsmith");
-                    Map<String, String> params = new HashMap<>();
-                    params.put("resetUrl", resetUrl);
-                    EmailDto subjectAndEmailTemplate = emailService.getSubjectAndForgotPasswordEmailTemplate(instanceName);
-                    return emailService.updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
-                            .flatMap(updatedParams ->
-                                    emailSender.sendMail(
-                                            email,
-                                            subjectAndEmailTemplate.getSubject(),
-                                            subjectAndEmailTemplate.getEmailTemplate(),
-                                            updatedParams
-                                    )
-                            );
+                    return emailService.sendForgetPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
+
                 })
                 .thenReturn(true);
     }
