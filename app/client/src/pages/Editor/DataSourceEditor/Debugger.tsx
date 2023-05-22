@@ -2,7 +2,6 @@ import React, { useRef, useCallback } from "react";
 import type { RefObject } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system-old";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -20,7 +19,9 @@ import Resizable, {
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import Errors from "components/editorComponents/Debugger/Errors";
-import DebbuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
+import DebbuggerLogs, {
+  LIST_HEADER_HEIGHT,
+} from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   getDebuggerSelectedTab,
@@ -28,6 +29,7 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
+import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
@@ -35,30 +37,24 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     overflow: hidden;
   }
-  .react-tabs__tab-list {
+  .ads-v2-tabs__list {
     margin: 0px;
   }
   &&& {
-    ul.react-tabs__tab-list {
+    ul.ads-v2-tabs__list {
       margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
-    .react-tabs__tab-panel {
-      height: calc(100% - 36px);
+    .ads-v2-tabs__panel {
+      height: calc(100% - ${LIST_HEADER_HEIGHT});
     }
   }
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 export const ResizerMainContainer = styled.div`
@@ -66,10 +62,6 @@ export const ResizerMainContainer = styled.div`
   flex-direction: column;
   height: calc(100% - 50px);
   overflow: hidden;
-  gap: 10px;
-  .db-form-resizer-content {
-    flex-direction: column;
-  }
 `;
 
 export const ResizerContentContainer = styled.div`
@@ -77,6 +69,12 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
+  &.db-form-resizer-content,
+  &.saas-form-resizer-content,
+  &.api-datasource-content-container {
+    flex-direction: column;
+    padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  }
 `;
 
 export default function Debugger() {
@@ -153,11 +151,13 @@ export default function Debugger() {
         tabs={DEBUGGER_TABS}
       />
 
-      <Icon
+      <CloseDebugger
         className="close-debugger t--close-debugger"
-        name="close-modal"
+        isIconButton
+        kind="tertiary"
         onClick={onClose}
-        size={IconSize.XL}
+        size="md"
+        startIcon="close-modal"
       />
     </TabbedViewContainer>
   ) : null;

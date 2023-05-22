@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import styled from "styled-components";
 import {
   getConnectingErrorDocUrl,
   getGitConnectError,
 } from "selectors/gitSyncSelectors";
-import type { NotificationBannerProps } from "design-system-old";
-import { NotificationBanner, NotificationVariant } from "design-system-old";
+import { Callout, Text } from "design-system";
+import styled from "styled-components";
 
-const NotificationContainer = styled.div`
-  margin-top: 16px;
-  max-width: calc(100% - 30px);
+const Container = styled.div`
+  width: calc(100% - 39px);
+
+  & .t--git-connection-error > .ads-v2-callout__children {
+    margin-top: 0;
+  }
 `;
 
 export default function GitConnectError({
@@ -32,24 +34,33 @@ export default function GitConnectError({
     }
   }, [error]);
 
-  const learnMoreClickHandler = () =>
+  const learnMoreClickHandler = (e: React.MouseEvent) => {
+    e.preventDefault();
     window.open(connectingErrorDocumentUrl, "_blank");
-
-  const notificationBannerOptions: NotificationBannerProps = {
-    canClose: true,
-    className: "error",
-    icon: "warning-line",
-    learnMoreClickHandler,
-    onClose: onClose,
-    variant: NotificationVariant.error,
   };
 
   return error ? (
-    <NotificationContainer className="t--git-connection-error">
-      <NotificationBanner {...notificationBannerOptions}>
-        <div style={{ marginBottom: "8px" }}>{titleMessage}</div>
-        <div style={{ marginBottom: "8px" }}>{error?.message}</div>
-      </NotificationBanner>
-    </NotificationContainer>
+    <Container>
+      <Callout
+        className="t--git-connection-error error"
+        isClosable
+        kind="error"
+        links={[
+          {
+            children: "Learn More",
+            onClick: learnMoreClickHandler,
+          },
+        ]}
+        onClose={onClose}
+      >
+        <Text kind="heading-s" style={{ marginBottom: "8px" }}>
+          {titleMessage}
+        </Text>
+        <br />
+        <Text kind="body-m" style={{ marginBottom: "8px" }}>
+          {error?.message}
+        </Text>
+      </Callout>
+    </Container>
   ) : null;
 }

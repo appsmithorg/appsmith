@@ -14,7 +14,6 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "@design-system/widgets-old";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -35,6 +34,7 @@ import {
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 import type { ThemeProp } from "widgets/constants";
+import { toast } from "design-system";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -413,9 +413,8 @@ function BtnWrapper(
       event: React.MouseEvent<HTMLElement>,
       error: string,
     ) => {
-      Toaster.show({
-        text: error,
-        variant: Variant.danger,
+      toast.show(error, {
+        kind: "error",
       });
       props.onClick && !props.isLoading && props.onClick(event);
     };

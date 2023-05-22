@@ -194,7 +194,7 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use mongo connection string URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                     Assertions.assertTrue(createdDatasource.getIsMock());
@@ -327,7 +327,7 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use mongo connection string URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                 })

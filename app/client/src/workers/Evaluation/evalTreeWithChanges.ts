@@ -13,6 +13,7 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
+import { setEvalContext } from "./evaluate";
 
 export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   let evalOrder: string[] = [];
@@ -27,6 +28,8 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
+  let unevalTree: UnEvalTree = {};
+  let configTree: ConfigTree = {};
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
@@ -44,6 +47,13 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       dataTreeEvaluator.oldConfigTree,
       unEvalUpdates,
     );
+
+    setEvalContext({
+      dataTree: dataTreeEvaluator.evalTree,
+      isDataField: false,
+      isTriggerBased: true,
+    });
+
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
@@ -51,6 +61,8 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       JSON.stringify(updateResponse.evalMetaUpdates),
     );
     staleMetaIds = updateResponse.staleMetaIds;
+    unevalTree = dataTreeEvaluator.getOldUnevalTree();
+    configTree = dataTreeEvaluator.oldConfigTree;
   }
 
   const evalTreeResponse: EvalTreeResponseData = {
@@ -63,15 +75,16 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     logs,
     unEvalUpdates,
     isCreateFirstTree,
-    configTree: dataTreeEvaluator?.oldConfigTree as ConfigTree,
+    configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded: false,
+    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
   };
 
   const data: UpdateDataTreeMessageData = {
     workerResponse: evalTreeResponse,
-    unevalTree: dataTreeEvaluator?.getOldUnevalTree() as UnEvalTree,
+    unevalTree,
   };
 
   sendMessage.call(self, {

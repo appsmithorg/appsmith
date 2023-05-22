@@ -23,14 +23,21 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
+
+  > .code-wrapper {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #575757;
+  color: var(--ads-v2-color-fg);
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type InputTextProp = {
@@ -72,9 +79,12 @@ function InputText(props: InputTextProp) {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current item using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentItem
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            Access the current item using{" "}
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              currentItem
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}
