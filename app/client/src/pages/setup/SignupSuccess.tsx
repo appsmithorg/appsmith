@@ -11,7 +11,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import Landing from "pages/setup/Welcome";
 import { Center } from "pages/setup/common";
-import { IconSize, Spinner } from "design-system-old";
+import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 
@@ -72,7 +72,7 @@ export function SignupSuccess() {
     // Showing a loader until the redirect
     return (
       <Center>
-        <Spinner size={IconSize.XXXXL} />
+        <Spinner size="lg" />
       </Center>
     );
   }

@@ -31,7 +31,6 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster, Variant } from "design-system-old";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   disableStartSignpostingAction,
@@ -84,6 +83,7 @@ import {
   ONBOARDING_SKIPPED_FIRST_TIME_USER,
 } from "@appsmith/constants/messages";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -416,14 +416,16 @@ function* endFirstTimeUserOnboardingSaga() {
       firstTimeUserExperienceAppId,
     ),
   );
-  Toaster.show({
-    text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),
-    hideProgressBar: false,
-    variant: Variant.success,
-    dispatchableAction: {
-      dispatch: store.dispatch,
-      type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-      payload: firstTimeUserExperienceAppId,
+  toast.show(createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER), {
+    kind: "success",
+    action: {
+      text: "undo",
+      effect: () => {
+        store.dispatch({
+          type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
+          payload: firstTimeUserExperienceAppId,
+        });
+      },
     },
   });
 }

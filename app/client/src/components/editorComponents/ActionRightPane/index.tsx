@@ -1,20 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import {
-  Button,
-  Category,
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
+import { Classes, getTypographyByKey } from "design-system-old";
+import { Button, Icon, Link } from "design-system";
 import { useState } from "react";
-import history from "utils/history";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import type { ReactNode } from "react";
@@ -35,7 +24,6 @@ import type {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
-import { Colors } from "constants/Colors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -45,9 +33,6 @@ import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
-  padding: ${(props) => props.theme.spaces[0]}px
-    ${(props) => props.theme.spaces[3]}px ${(props) => props.theme.spaces[4]}px;
-  overflow: auto;
   height: 100%;
   width: 100%;
   -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -57,9 +42,13 @@ const SideBar = styled.div`
     margin-top: ${(props) => props.theme.spaces[11]}px;
   }
 
+  & > a {
+    margin-top: 0;
+    margin-left: 0;
+  }
+
   .icon-text {
     display: flex;
-    margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
       ${getTypographyByKey("p1")}
@@ -98,6 +87,11 @@ const SideBar = styled.div`
   }
 `;
 
+const BackToCanvasLink = styled(Link)`
+  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+`;
+
 const Label = styled.span`
   cursor: pointer;
 `;
@@ -108,7 +102,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   }
 
   & > .icon-text:first-child {
-    color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
+    color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h4")}
     cursor: pointer;
     .${Classes.ICON} {
@@ -148,16 +142,6 @@ const Placeholder = styled.div`
   text-align: center;
 `;
 
-const BackButton = styled.div`
-  display: flex;
-  cursor: pointer;
-  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-  .${Classes.TEXT} {
-    margin-left: ${(props) => props.theme.spaces[3]}px;
-    letter-spacing: 0;
-  }
-`;
-
 type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
@@ -178,7 +162,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon keepColors name="down-arrow" size={IconSize.XXXL} />
+        <Icon name="down-arrow" size="lg" />
         <span className="label">{label}</span>
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -247,9 +231,7 @@ function ActionSidebar({
       }),
     );
   };
-  const navigateToCanvas = useCallback(() => {
-    history.push(builderURL({ pageId }));
-  }, [pageId]);
+
   const hasWidgets = Object.keys(widgets).length > 1;
 
   const pagePermissions = useSelector(getPagePermissions);
@@ -266,15 +248,14 @@ function ActionSidebar({
 
   return (
     <SideBar>
-      <BackButton onClick={navigateToCanvas}>
-        <Icon
-          fillColor={Colors.DOVE_GRAY}
-          keepColors
-          name="chevron-left"
-          size={IconSize.XS}
-        />
-        <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
-      </BackButton>
+      <BackToCanvasLink
+        kind="secondary"
+        startIcon="arrow-left-line"
+        target="_self"
+        to={builderURL({ pageId })}
+      >
+        {createMessage(BACK_TO_CANVAS)}
+      </BackToCanvasLink>
 
       {hasConnections && (
         <Connections
@@ -283,19 +264,17 @@ function ActionSidebar({
         />
       )}
       {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
-        <Collapsible label="Connect Widget">
+        <Collapsible label="Connect widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
-              category={Category.secondary}
               className={"t--select-in-canvas"}
+              kind="secondary"
               onClick={handleBindData}
-              size={Size.medium}
-              tag="button"
-              text="Select Widget"
-              type="button"
-              variant={Variant.info}
-            />
+              size="md"
+            >
+              Select widget
+            </Button>
           </SnipingWrapper>
         </Collapsible>
       )}

@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  Button,
-  Category,
-  hexToRgba,
-  Icon,
-  IconSize,
-  Size,
-} from "design-system-old";
+import { hexToRgba } from "design-system-old";
+import { Button, Icon, Spinner, Text } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -22,7 +16,6 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { AppIcon } from "design-system-old";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 
@@ -42,6 +35,7 @@ const OverlayBackdrop = styled.div`
   left: 0;
   right: 0;
   top: 0;
+  /* TODO: replaced hexToRgba (Albin) */
   background-color: ${hexToRgba(Colors.COD_GRAY, 0.7)};
   overflow: auto;
   pointer-events: none;
@@ -56,13 +50,8 @@ const RestartContainer = styled.div`
   width: 100%;
   height: ${(props) => props.theme.settings.footerHeight}px;
   z-index: 20;
-  padding: 0px ${(props) => props.theme.spaces[11]}px 0px
-    ${(props) =>
-      props.theme.homePage.leftPane.leftPadding +
-      props.theme.homePage.leftPane.width +
-      props.theme.homePage.main.marginLeft -
-      props.theme.spaces[11]}px;
-  background: var(--appsmith-color-black-0);
+  padding: 0px ${(props) => props.theme.spaces[11]}px 0px 276px;
+  background: var(--ads-v2-color-bg);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -81,19 +70,13 @@ const HeaderContents = styled.div`
   display: flex;
   align-items: center;
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
+  gap: 8px;
 `;
 
-const Heading = styled.span`
-  color: ${(props) => props.theme.colors.modal.headerText};
-  font-weight: ${(props) => props.theme.typography.h1.fontWeight};
-  font-size: ${(props) => props.theme.typography.h1.fontSize}px;
-  line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
-  text-transform: capitalize;
-`;
+const Heading = styled(Text)``;
 
 const AppIconWrapper = styled.div`
-  background: var(--appsmith-color-red-50);
+  background: var(--ads-v2-color-bg-error);
   border-radius: 50%;
   padding: 4px;
   margin-right: 12px;
@@ -103,22 +86,10 @@ const AppIconWrapper = styled.div`
     height: 18px;
 
     path {
-      fill: var(--appsmith-color-red-500);
+      fill: var(--ads-v2-color-fg-on-error);
     }
   }
 `;
-
-const StyledLoader = styled(Icon)`
-  animation: spin 2s linear infinite;
-  margin-right: 12px;
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-const RestartMessage = styled.p``;
 
 function Header() {
   const isRestartFailed = useSelector(getIsRestartFailed);
@@ -126,16 +97,15 @@ function Header() {
     <HeaderContents>
       {isRestartFailed ? (
         <AppIconWrapper>
-          <AppIcon name="server-line" />
+          <Icon name="server-line" />
         </AppIconWrapper>
       ) : (
-        <StyledLoader
-          fillColor={Colors.PRIMARY_ORANGE}
-          name="loader"
-          size={IconSize.XXXL}
+        <Spinner
+          iconProps={{ color: "var(--ads-v2-color-bg-brand)" }}
+          size="lg"
         />
       )}
-      <Heading>
+      <Heading kind="heading-m" renderAs="p">
         {isRestartFailed
           ? createMessage(RESTART_ERROR_HEADER)
           : createMessage(RESTART_BANNER_HEADER)}
@@ -154,20 +124,20 @@ export default function RestartBanner() {
       <RestartContainer>
         <RestartMessageWrapper>
           <Header />
-          <RestartMessage>
+          <Text renderAs="p">
             {isRestartFailed
               ? createMessage(RESTART_ERROR_BODY)
               : createMessage(RESTART_BANNER_BODY)}
-          </RestartMessage>
+          </Text>
         </RestartMessageWrapper>
         {isRestartFailed && (
           <Button
-            category={Category.primary}
-            data-cy="btn-refresh"
+            data-testid="btn-refresh"
             onClick={() => dispatch(retryServerRestart())}
-            size={Size.large}
-            text={createMessage(RETRY_BUTTON)}
-          />
+            size="md"
+          >
+            {createMessage(RETRY_BUTTON)}
+          </Button>
         )}
       </RestartContainer>
     </RestartBannerWrapper>
