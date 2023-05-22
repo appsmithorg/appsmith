@@ -4,7 +4,7 @@ import {
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 import { Tooltip } from "design-system";
 import React, { memo } from "react";
 import {
@@ -41,12 +41,7 @@ export default memo(function TableHeaderIndex() {
               content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
             >
               <RoundBg>
-                <Icon
-                  fillColor={Colors.WHITE}
-                  hoverFillColor={Colors.WHITE}
-                  name="help"
-                  size={IconSize.XXS}
-                />
+                <Icon name="help" />
               </RoundBg>
             </Tooltip>
           </TooltipWrapper>

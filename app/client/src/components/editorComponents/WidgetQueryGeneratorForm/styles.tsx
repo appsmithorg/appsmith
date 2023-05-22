@@ -64,7 +64,7 @@ export const ImageWrapper = styled.div`
 `;
 
 export const DatasourceImage = styled.img`
-  height: 20px;
+  height: 16px;
   width: auto;
 `;
 
@@ -91,10 +91,11 @@ export const GlobalStyles = createGlobalStyle`
 
 export const Binding = styled.div`
   display: flex;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 700;
   position: relative;
-  left: 4px;
+  left: 3px;
+  top: -1px;
   color: ${Colors.GRAY};
 `;
 

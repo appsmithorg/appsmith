@@ -1,7 +1,6 @@
 import React from "react";
 import type { AppState } from "@appsmith/reducers";
-import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
@@ -56,9 +55,13 @@ export function useColumns(alias: string) {
         return {
           ...column,
           id: column.value,
-          icon: <Icon color={Colors.GRAY} name="column" size={IconSize.XXL} />,
-          iconSize: IconSize.LARGE,
-          iconColor: Colors.GOLD,
+          icon: (
+            <Icon
+              color="var(--ads-v2-color-fg)"
+              name="layout-column-line"
+              size="md"
+            />
+          ),
         };
       });
     } else if (isArray(columns)) {
@@ -76,10 +79,12 @@ export function useColumns(alias: string) {
             value: column.name,
             subText: column.type,
             icon: (
-              <Icon color={Colors.GRAY} name="column" size={IconSize.XXL} />
+              <Icon
+                color="var(--ads-v2-color-fg)"
+                name="layout-column-line"
+                size="md"
+              />
             ),
-            iconSize: IconSize.LARGE,
-            iconColor: Colors.GOLD,
           };
         });
     } else {

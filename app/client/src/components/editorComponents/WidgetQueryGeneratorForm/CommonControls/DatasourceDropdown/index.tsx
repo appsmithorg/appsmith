@@ -126,7 +126,7 @@ function DatasourceDropdown() {
                   </>
                 }
                 leftIcon={option.icon}
-                rightIcon={<Icon name="add-box-line" size="xxl" />}
+                rightIcon={<Icon name="add-box-line" size="md" />}
               />
             </Option>
           );

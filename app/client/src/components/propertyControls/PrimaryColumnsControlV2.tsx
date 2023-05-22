@@ -8,8 +8,6 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import EmptyDataState from "components/utils/EmptyDataState";
-import { Size, Category } from "design-system-old";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
@@ -32,6 +30,7 @@ import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
+import { Colors } from "constants/Colors";
 
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;

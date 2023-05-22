@@ -28,7 +28,6 @@ import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
-import { Colors } from "constants/Colors";
 import { DropdownOption } from "./DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -295,7 +294,7 @@ export function useDatasource() {
         },
       },
     ];
-  }, [currentPageId, history, addBinding, addSnippet]);
+  }, [currentPageId, history, addBinding, addSnippet, propertyName]);
 
   const queries = useSelector(getActionsForCurrentPage);
 

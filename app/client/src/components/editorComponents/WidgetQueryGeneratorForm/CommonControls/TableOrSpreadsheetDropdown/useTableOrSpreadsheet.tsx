@@ -1,7 +1,5 @@
 import React from "react";
 import { fetchGheetSheets } from "actions/datasourceActions";
-import { Colors } from "constants/Colors";
-import { IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
 import { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -74,14 +72,26 @@ export function useTableOrSpreadsheet() {
         id: value,
         label: label,
         value: value,
-        icon: <Icon color={Colors.GRAY} name="tables" size={IconSize.XXL} />,
+        icon: (
+          <Icon
+            color="var(--ads-v2-color-fg)"
+            name="layout-left-2-line"
+            size="md"
+          />
+        ),
       }));
     } else if (datasourceStructure) {
       return (datasourceStructure.tables || []).map(({ name }) => ({
         id: name,
         label: name,
         value: name,
-        icon: <Icon color={Colors.GRAY} name="tables" size={IconSize.XXL} />,
+        icon: (
+          <Icon
+            color="var(--ads-v2-color-fg)"
+            name="layout-left-2-line"
+            size="md"
+          />
+        ),
       }));
     } else {
       return [];

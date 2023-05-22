@@ -17,8 +17,9 @@ const RightSection = styled.div`
 `;
 
 const IconContainer = styled.div`
-  width: 30px;
+  width: 24px;
   display: flex;
+  margin-top: 3px;
 `;
 
 const Label = styled.div`
