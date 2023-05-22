@@ -48,7 +48,7 @@ function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
       setterMethodMap[setterMethodName] = function (value: unknown) {
         if (!dataTreeEvaluator) return;
 
-        return applySetterMethod(path, value);
+        return applySetterMethod(path, value, setterMethodName);
       };
     }
   }
