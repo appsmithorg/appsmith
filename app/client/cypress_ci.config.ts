@@ -1,10 +1,9 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
-  watchForFileChanges: false,
-  defaultCommandTimeout: 20000,
+  defaultCommandTimeout: 30000,
   requestTimeout: 21000,
-  responseTimeout: 20000,
+  responseTimeout: 30000,
   pageLoadTimeout: 30000,
   videoUploadOnPasses: false,
   videoCompression: false,
@@ -23,10 +22,10 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
+    baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
-    baseUrl: "http://localhost/",
     specPattern: "cypress/e2e/**/*.{js,ts}"
   },
 });

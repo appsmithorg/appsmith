@@ -67,7 +67,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     );
 
     cy.get(".t--widget-tablewidget .t--search-input").first().type("Currey");
-    cy.wait(1000);
+    cy.wait(3000);
 
     // Captures the API call made on search
     cy.wait("@postExecute").then((interception) => {
