@@ -20,6 +20,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { MenuComponent, RedMenuItem } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button } from "design-system";
+import { EDIT } from "ce/constants/messages";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -33,8 +34,9 @@ export const FormTitleContainer = styled.div`
 `;
 
 export const Header = styled.div`
-  flex-direction: row;
   display: flex;
+  flex-direction: row;
+  flex: "1 1 10%";
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--ads-v2-color-border);
@@ -141,7 +143,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   };
 
   return (
-    <Header style={{ paddingTop: "20px", flex: "1 1 10%" }}>
+    <Header>
       <FormTitleContainer>
         <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
         <FormTitle
@@ -174,7 +176,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
               setDatasourceViewMode(false);
             }}
           >
-            EDIT
+            {createMessage(EDIT)}
           </EditDatasourceButton>
           <NewActionButton
             datasource={datasource as Datasource}

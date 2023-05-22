@@ -24,8 +24,13 @@ import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
+  CANCEL,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
+  SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+  SAVE_BUTTON_TEXT,
+  TEST_BUTTON_TEXT,
+  createMessage,
 } from "@appsmith/constants/messages";
 import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -117,7 +122,10 @@ const StyledAuthMessage = styled.div`
 
 function DatasourceAuth({
   datasource,
-  datasourceButtonConfiguration = ["CANCEL", "SAVE"],
+  datasourceButtonConfiguration = [
+    DatasourceButtonTypeEnum.CANCEL,
+    DatasourceButtonTypeEnum.SAVE,
+  ],
   deleteTempDSFromDraft,
   formData,
   getSanitizedFormData,
@@ -309,7 +317,7 @@ function DatasourceAuth({
           onClick={handleDatasourceTest}
           size="md"
         >
-          Test Configuration
+          {createMessage(TEST_BUTTON_TEXT)}
         </ActionButton>
       ),
       [DatasourceButtonType.CANCEL]: (
@@ -323,7 +331,7 @@ function DatasourceAuth({
           }}
           size="md"
         >
-          Cancel
+          {createMessage(CANCEL)}
         </Button>
       ),
       [DatasourceButtonType.SAVE]: (
@@ -337,7 +345,7 @@ function DatasourceAuth({
           onClick={handleDefaultAuthDatasourceSave}
           size="md"
         >
-          Save
+          {createMessage(SAVE_BUTTON_TEXT)}
         </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
@@ -349,7 +357,7 @@ function DatasourceAuth({
           onClick={handleOauthDatasourceSave}
           size="md"
         >
-          Save and Authorize
+          {createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
         </Button>
       ),
     }[buttonType];
