@@ -67,20 +67,20 @@ export function EmbedSnippetTab({
   return <ShareModal />;
 }
 
+// get only the part of the url after the domain name
+export const to = (url: string) => {
+  const path = _.drop(
+    url
+      .toString()
+      .toLowerCase()
+      .replace(/([a-z])?:\/\//, "$1")
+      .split("/"),
+  ).join("/");
+  return `/${path}`;
+};
+
 function ShareModal() {
   const embedSnippet = useUpdateEmbedSnippet();
-
-  // get only the part of the url after the domain name
-  const to = (url: string) => {
-    const path = _.drop(
-      url
-        .toString()
-        .toLowerCase()
-        .replace(/([a-z])?:\/\//, "$1")
-        .split("/"),
-    ).join("/");
-    return `/${path}`;
-  };
 
   return (
     <div className="flex flex-col gap-6">
