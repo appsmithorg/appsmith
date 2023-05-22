@@ -11,7 +11,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -254,6 +254,33 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isSwitchedOn: "bool",
       isDisabled: "bool",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "value",
+          type: "boolean",
+        },
+        setColour: {
+          path: "accentColor",
+          type: "string",
+        },
+      },
     };
   }
 

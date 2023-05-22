@@ -29,11 +29,8 @@ import type {
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { addSettersToDefinitions } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -227,11 +224,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (
-      widget: JSONFormWidgetProps,
-      extraDefsToDefine?: ExtraDef,
-      entityConfig?: WidgetEntityConfig,
-    ) => {
+    return (widget: JSONFormWidgetProps) => {
       const definitions: AutocompletionDefinitions = {
         "!doc":
           "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
@@ -242,8 +235,6 @@ class JSONFormWidget extends BaseWidget<
         fieldState: generateTypeDef(widget.fieldState),
         isValid: "bool",
       };
-
-      addSettersToDefinitions(definitions, entityConfig);
 
       return definitions;
     };

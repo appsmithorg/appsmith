@@ -44,6 +44,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
 };
 

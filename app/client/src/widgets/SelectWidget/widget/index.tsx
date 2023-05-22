@@ -4,7 +4,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 import type { LoDashStatic } from "lodash";
@@ -599,6 +599,33 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setOptions: {
+          path: "options",
+          type: "array",
+        },
+        setSelectedOption: {
+          path: "selectedOptionLabel",
+          type: "string",
+        },
+      },
+    };
   }
 
   isStringOrNumber = (value: any): value is string | number =>

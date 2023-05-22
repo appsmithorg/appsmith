@@ -10,7 +10,7 @@ import BaseWidget from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { Layers } from "constants/Layers";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
@@ -443,6 +443,25 @@ class MultiSelectWidget extends BaseWidget<
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+      },
     };
   }
 

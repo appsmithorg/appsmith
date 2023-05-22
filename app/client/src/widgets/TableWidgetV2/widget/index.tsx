@@ -108,10 +108,8 @@ import type {
 } from "./reactTableUtils/transformDataPureFn";
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { addSettersToDefinitions } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -182,11 +180,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (
-      widget: TableWidgetProps,
-      extraDefsToDefine?: ExtraDef,
-      entityConfig?: WidgetEntityConfig,
-    ) => {
+    return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
       const config = {
         "!doc":
           "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
@@ -217,8 +211,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
       };
-
-      addSettersToDefinitions(config, entityConfig);
 
       return config;
     };

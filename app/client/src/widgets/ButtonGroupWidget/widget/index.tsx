@@ -4,7 +4,7 @@ import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -571,6 +571,21 @@ class ButtonGroupWidget extends BaseWidget<
       });
     }
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
 
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
