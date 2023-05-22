@@ -32,14 +32,14 @@ export function CreateApplicationForm(
 
   return (
     <Form
-      data-cy="create-workspace-form"
+      data-testid="create-workspace-form"
       onSubmit={handleSubmit(submitHandler)}
     >
       {error && !pristine && <FormMessage intent="danger" message={error} />}
       <FormGroup helperText={error} intent={error ? "danger" : "none"}>
         <TextField
           autoFocus
-          data-cy="create-workspace-form__name"
+          data-testid="create-workspace-form__name"
           name="name"
           placeholder="Name"
           validate={noSpaces}
@@ -47,7 +47,7 @@ export function CreateApplicationForm(
       </FormGroup>
       <FormFooter
         canSubmit={!invalid}
-        data-cy="t--create-workspace-submit"
+        data-testid="t--create-workspace-submit"
         divider
         onCancel={onCancel}
         onSubmit={handleSubmit(submitHandler)}

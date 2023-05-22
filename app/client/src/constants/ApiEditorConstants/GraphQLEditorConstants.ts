@@ -60,7 +60,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
       value: true,
     },
     {
-      // Query Variables
+      // Query variables
       value: "",
     },
     {

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
-import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 
@@ -14,14 +13,18 @@ type CardProps = {
 
 export const Wrapper = styled.div`
   padding: 10px 5px 10px 5px;
-  border-radius: 0px;
+  border-radius: var(--ads-v2-border-radius);
   border: none;
   position: relative;
-  color: ${Colors.CHARCOAL};
+  color: var(--ads-v2-color-fg);
   height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: grab;
+  img {
+    cursor: grab;
+  }
 
   & > div {
     display: flex;
@@ -31,8 +34,7 @@ export const Wrapper = styled.div`
   }
 
   &:hover {
-    background: ${Colors.Gallery};
-    cursor: grab;
+    background: var(--ads-v2-color-bg-subtle);
   }
 
   & i {
@@ -43,7 +45,7 @@ export const Wrapper = styled.div`
 
 export const BetaLabel = styled.div`
   font-size: 10px;
-  background: ${Colors.TUNDORA};
+  background: var(--ads-v2-color-bg-emphasis);
   margin-top: 3px;
   padding: 2px 4px;
   border-radius: 3px;
@@ -56,10 +58,10 @@ export const IconLabel = styled.h5`
   min-height: 32px;
   text-align: center;
   margin: 0;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   font-weight: ${(props) => props.theme.fontWeights[1]};
   flex-shrink: 1;
-  font-size: ${(props) => props.theme.fontSizes[1]}px;
+  font-size: 11px;
   line-height: ${(props) => props.theme.lineHeights[2]}px;
 
   &::selection {

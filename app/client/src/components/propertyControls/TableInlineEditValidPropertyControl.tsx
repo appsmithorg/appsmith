@@ -86,9 +86,11 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
         promptMessage={
           <PromptMessage>
             {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
-            <CurlyBraces>{"{{"}</CurlyBraces>
-            <StyledCode>currentRow.columnName</StyledCode>
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              <StyledCode>currentRow.columnName</StyledCode>
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         theme={theme}

@@ -399,7 +399,7 @@ public class GraphQLPluginTest {
 
         StepVerifier
                 .create(invalidsMono)
-                .assertNext(invalids -> assertTrue(invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL"))));
+                .assertNext(invalids -> assertTrue(invalids.containsAll(Set.of("Missing Client ID", "Missing client secret", "Missing access token URL"))));
     }
 
     /**

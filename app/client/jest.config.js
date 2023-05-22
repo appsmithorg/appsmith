@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
+    "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -29,6 +29,9 @@ module.exports = {
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
     "design-system-old": "<rootDir>/../node_modules/design-system-old/build",
+    "@design-system/widgets-old":
+      "<rootDir>/../node_modules/@design-system/widgets-old",
+    "design-system": "<rootDir>/../node_modules/design-system/build",
     "^proxy-memoize$":
       "<rootDir>/../node_modules/proxy-memoize/dist/wrapper.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
@@ -71,8 +74,6 @@ module.exports = {
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
-      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
