@@ -18,21 +18,21 @@ import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   JS_ORIGIN_URI_FORM,
   REDIRECT_URL_FORM,
 } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
-
-const { disableLoginForm } = getAppsmithConfigs();
+import {
+  getThirdPartyAuths,
+  getIsFormLoginEnabled,
+} from "@appsmith/selectors/tenantSelectors";
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Form Login",
-  subText: "Enable your workspace to sign in with Appsmith Form.",
+  title: "Form login",
+  subText: "Enable your workspace to sign in with Appsmith form.",
   canSave: true,
   settings: [
     {
@@ -40,15 +40,14 @@ const FormAuth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Form Login",
-      toggleText: (value: boolean) => (value ? "Disabled" : "Enabled"),
+      label: "form login",
     },
     {
       id: "APPSMITH_SIGNUP_DISABLED",
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Form Signup",
+      label: "Form signup",
       toggleText: (value: boolean) =>
         value
           ? "Allow only invited users to signup"
@@ -62,7 +61,7 @@ const FormAuth: AdminConfigType = {
       label:
         "The form login method does not verify the emails of users that create accounts.",
       url: SIGNUP_RESTRICTION_DOC,
-      calloutType: "Warning",
+      calloutType: "warning",
     },
   ],
 };
@@ -70,7 +69,7 @@ const FormAuth: AdminConfigType = {
 export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Google Authentication",
+  title: "Google authentication",
   subText: "Enable your workspace to sign in with Google (OAuth).",
   canSave: true,
   settings: [
@@ -87,7 +86,7 @@ export const GoogleAuth: AdminConfigType = {
       category: SettingCategories.GOOGLE_AUTH,
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
-      label: "JavaScript Origin URL",
+      label: "JavaScript origin URL",
       formName: JS_ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
@@ -123,7 +122,7 @@ export const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
     {
@@ -132,7 +131,7 @@ export const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Allowed Domains",
+      label: "Allowed domains",
       placeholder: "domain1.com, domain2.com",
     },
   ],
@@ -141,7 +140,7 @@ export const GoogleAuth: AdminConfigType = {
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Github Authentication",
+  title: "Github authentication",
   subText:
     "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
@@ -169,7 +168,7 @@ export const GithubAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
   ],
@@ -178,11 +177,10 @@ export const GithubAuth: AdminConfigType = {
 export const FormAuthCallout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
-  label: "Form Login",
+  label: "Form login",
   subText: "Enable your workspace to sign in with Appsmith Form.",
   image: Lock,
-  type: "LINK",
-  isConnected: !disableLoginForm,
+  icon: "lock-password-line",
 };
 
 export const GoogleAuthCallout: AuthMethodType = {
@@ -192,7 +190,6 @@ export const GoogleAuthCallout: AuthMethodType = {
   subText:
     "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).",
   image: Google,
-  type: "LINK",
 };
 
 export const GithubAuthCallout: AuthMethodType = {
@@ -202,7 +199,6 @@ export const GithubAuthCallout: AuthMethodType = {
   subText:
     "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).",
   image: Github,
-  type: "LINK",
 };
 
 export const SamlAuthCallout: AuthMethodType = {
@@ -212,17 +208,15 @@ export const SamlAuthCallout: AuthMethodType = {
   subText: `Enable your workspace to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
   needsUpgrade: true,
-  type: "OTHER",
 };
 
 export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: "oidc",
   label: "OIDC",
-  subText: `Enable your workspace to sign in with Open ID Connect.`,
+  subText: `Enable your workspace to sign in with your preferred OIDC compliant provider.`,
   image: OIDC,
   needsUpgrade: true,
-  type: "OTHER",
 };
 
 const AuthMethods = [
@@ -234,6 +228,7 @@ const AuthMethods = [
 ];
 
 function AuthMain() {
+  FormAuthCallout.isConnected = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
     socialLoginList.includes("google");

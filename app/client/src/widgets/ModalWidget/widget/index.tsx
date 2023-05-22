@@ -55,14 +55,14 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           {
             helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
+            label: "Scroll contents",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -107,7 +107,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           {
             propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -117,11 +117,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",

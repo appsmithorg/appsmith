@@ -6,7 +6,6 @@ import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Icon, IconSize } from "design-system-old";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
@@ -117,17 +116,16 @@ export function TopStacked(props: TopStackedProps) {
     >
       <ScrollBtnContainer
         className="left-0 scroll-arrows"
-        navColorStyle={navColorStyle}
+        kind="tertiary"
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
         onTouchStart={() => startScrolling(true)}
-        primaryColor={primaryColor}
+        size="sm"
+        startIcon="left-arrow-2"
         visible={shouldShowLeftArrow}
-      >
-        <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+      />
 
       <div
         className="flex w-full hidden-scrollbar gap-x-2  items-center"
@@ -157,17 +155,16 @@ export function TopStacked(props: TopStackedProps) {
 
       <ScrollBtnContainer
         className="right-0 scroll-arrows"
-        navColorStyle={navColorStyle}
+        kind="tertiary"
         onMouseDown={() => startScrolling(false)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
         onTouchStart={() => startScrolling(false)}
-        primaryColor={primaryColor}
+        size="sm"
+        startIcon="right-arrow-2"
         visible={shouldShowRightArrow}
-      >
-        <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+      />
     </Container>
   );
 }

@@ -9,7 +9,7 @@ import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import type { DatePickerType } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
@@ -219,7 +219,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           {
             helpText: "Sets the format of the selected date",
             propertyName: "dateFormat",
-            label: "Date Format",
+            label: "Date format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
             options: [
@@ -280,7 +280,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,

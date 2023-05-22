@@ -19,6 +19,7 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
+// import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
@@ -780,6 +781,8 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
     dsl.children[0].flexLayers = flexLayers;
     dsl.children[0].responsiveBehavior = ResponsiveBehavior.Fill;
     dsl.children[0].positioning = Positioning.Vertical;
+    dsl.children[0].children[0].isFlexChild = true;
+    dsl.children[0].children[0].isListItemContainer = true;
   }
 
   return dsl;

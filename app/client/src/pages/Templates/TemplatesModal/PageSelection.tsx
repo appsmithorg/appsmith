@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import PagesLineIcon from "remixicon-react/PagesLineIcon";
-import {
-  Button,
-  CheckboxType,
-  Checkmark,
-  Classes,
-  Size,
-  Text,
-  TextType,
-  IconWrapper,
-} from "design-system-old";
+import { Button, Checkbox, Divider, Icon, Text } from "design-system";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
@@ -22,95 +12,51 @@ import {
   PAGE,
   PAGES,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
-  width: max(300px, 25%);
+  width: 280px;
   padding-left: ${(props) => props.theme.spaces[9]}px;
   position: sticky;
   top: 0;
-  position: -webkit-sticky;
   height: fit-content;
 `;
 
 const Card = styled.div`
-  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
-    0 4px 8px -2px rgba(0, 0, 0, 0.1);
   padding: ${(props) => props.theme.spaces[9]}px;
-  border: solid 1px ${Colors.GREY_4};
-
-  hr {
-    background-color: ${Colors.GRAY_400};
-    margin-top: ${(props) => props.theme.spaces[3]}px;
-  }
+  border: solid 1px var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  .checkbox {
-    margin-left: ${(props) => props.theme.spaces[3]}px;
-  }
-`;
-
-const StyledCheckMark = styled(Checkmark)`
-  width: 16px;
-  height: 16px;
-  ${(props) => !props.isChecked && `border: 1.8px solid ${Colors.GRAY_400};`}
-
-  &::after {
-    width: 5px;
-    height: 9px;
-    top: 1px;
-  }
-`;
-
-const CheckboxWrapper = styled.label`
-  position: relative;
-  display: block;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  color: ${(props) => props.theme.colors.checkbox.labelColor};
-  input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-  }
-
-  input:checked ~ ${StyledCheckMark}:after {
-    display: block;
-  }
 `;
 
 const Page = styled.div`
-  .${Classes.ICON} {
-    svg {
-      height: 20px;
-      width: 20px;
-    }
-    margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  .ads-v2-checkbox {
+    height: 16px;
+    width: 16px;
+    padding: 0;
+  }
 `;
-
 const PageName = styled.div`
   cursor: pointer;
   &:hover {
     text-decoration: underline;
     text-underline-offset: 2px;
   }
+  .cs-text {
+    margin-left: 4px;
+  }
 `;
-
 const StyledButton = styled(Button)`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-top: 12px;
 `;
 
 type PageSelectionProps = {
@@ -118,30 +64,6 @@ type PageSelectionProps = {
   template: Template;
   onPageSelection: (pageId: string) => void;
 };
-
-type CustomCheckboxProps = {
-  onChange: (checked: boolean) => void;
-  checked: boolean;
-};
-
-function CustomCheckbox(props: CustomCheckboxProps) {
-  return (
-    <CheckboxWrapper className="checkbox">
-      <input
-        checked={props.checked}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          props.onChange(e.target.checked);
-        }}
-        type="checkbox"
-      />
-      <StyledCheckMark
-        backgroundColor={Colors.GREY_900}
-        isChecked={props.checked}
-        type={CheckboxType.PRIMARY}
-      />
-    </CheckboxWrapper>
-  );
-}
 
 function PageSelection(props: PageSelectionProps) {
   const dispatch = useDispatch();
@@ -191,18 +113,21 @@ function PageSelection(props: PageSelectionProps) {
     <Wrapper>
       <Card>
         <CardHeader>
-          <Text type={TextType.H1}>
+          <Text kind="heading-s">
             {props.pages.length} {pagesText}
           </Text>
           <div className="flex">
-            <Text type={TextType.P4}>{createMessage(FILTER_SELECTALL)}</Text>
-            <CustomCheckbox
-              checked={selectedPages.length === props.pages.length}
+            {/* <Text type={TextType.P4}>{createMessage(FILTER_SELECTALL)}</Text> */}
+            <Checkbox
+              isDisabled={props.pages.length === 0}
+              isSelected={selectedPages.length === props.pages.length}
               onChange={onSelectAllToggle}
-            />
+            >
+              {createMessage(FILTER_SELECTALL)}
+            </Checkbox>
           </div>
         </CardHeader>
-        <hr />
+        <Divider />
         {props.pages.map((page) => {
           return (
             <Page key={page.id}>
@@ -210,27 +135,26 @@ function PageSelection(props: PageSelectionProps) {
                 className="flex items-center"
                 onClick={() => props.onPageSelection(page.id)}
               >
-                <IconWrapper className={Classes.ICON}>
-                  <PagesLineIcon />
-                </IconWrapper>
-                <Text type={TextType.P4}>{page.name.toUpperCase()}</Text>
+                <Icon name="page-line" size="md" />
+                <Text className="cs-text" kind="body-m">
+                  {page.name}
+                </Text>
               </PageName>
-              <CustomCheckbox
-                checked={selectedPages.includes(page.name)}
+              <Checkbox
+                isSelected={selectedPages.includes(page.name)}
                 onChange={(checked) => onSelection(page.name, checked)}
               />
             </Page>
           );
         })}
         <StyledButton
-          data-cy="template-fork-button"
-          disabled={!selectedPages.length}
+          data-testid="template-fork-button"
+          isDisabled={!selectedPages.length}
           onClick={importPagesToApp}
-          size={Size.large}
-          tag="button"
-          text={createMessage(FILTER_SELECT_PAGES)}
-          width="100%"
-        />
+          size="md"
+        >
+          {createMessage(FILTER_SELECT_PAGES)}
+        </StyledButton>
       </Card>
     </Wrapper>
   );

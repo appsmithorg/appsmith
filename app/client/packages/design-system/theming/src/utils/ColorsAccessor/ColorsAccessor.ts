@@ -38,11 +38,11 @@ export class ColorsAccessor {
   }
 
   get isGreen() {
-    return this.color.oklch.h >= 105 && this.color.oklch.h <= 165;
+    return this.color.oklch.h >= 116 && this.color.oklch.h <= 165;
   }
 
   get isYellow() {
-    return this.color.oklch.h >= 60 && this.color.oklch.h <= 75;
+    return this.color.oklch.h >= 60 && this.color.oklch.h <= 115;
   }
 
   get isRed() {

@@ -3,10 +3,7 @@ package com.appsmith.server.migrations;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
-import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QUser;
-import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -26,6 +23,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class MigrationHelperMethods {
     // Migration for deprecating archivedAt field in ActionDTO
@@ -191,5 +190,11 @@ public class MigrationHelperMethods {
                         .block();
             }
         });
+    }
+
+    public static Query getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(Plugin plugin) {
+        Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
+        Criteria isNotDeleted = where("deleted").ne(true);
+        return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));
     }
 }
