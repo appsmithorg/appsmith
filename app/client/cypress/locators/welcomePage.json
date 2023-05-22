@@ -13,5 +13,6 @@
   "dataCollection": ".t--welcome-form-datacollection",
   "newsLetter": ".t--welcome-form-newsletter",
   "createButton": ".t--welcome-form-create-button",
-  "createSuperUser" :"#super-user-form"
+  "createSuperUser": "#super-user-form",
+  "superUserForm": "[data-testid='super-user-form']"
 }

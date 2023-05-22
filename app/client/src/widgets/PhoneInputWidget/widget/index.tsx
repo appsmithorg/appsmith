@@ -83,7 +83,7 @@ class PhoneInputWidget extends BaseInputWidget<
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Value",
+              label: "Default value",
               controlType: "INPUT_TEXT",
               placeholderText: "(000) 000-0000",
               isBindProperty: true,
@@ -103,12 +103,13 @@ class PhoneInputWidget extends BaseInputWidget<
             {
               helpText: "Changes the country code",
               propertyName: "defaultDialCode",
-              label: "Default Country Code",
+              label: "Default country code",
               enableSearch: true,
               dropdownHeight: "156px",
               controlType: "DROP_DOWN",
               searchPlaceholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,
+              virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
@@ -118,7 +119,7 @@ class PhoneInputWidget extends BaseInputWidget<
             },
             {
               propertyName: "allowDialCodeChange",
-              label: "Change Country Code",
+              label: "Change country code",
               helpText: "Search by country",
               controlType: "SWITCH",
               isJSConvertible: true,

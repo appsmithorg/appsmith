@@ -43,6 +43,12 @@ const StyledTabIndicator = styled.div`
   margin: 0 6px 0 0;
 `;
 
+const StyledFormGroup = styled(FormGroup)`
+  && > .bp3-label {
+    color: var(--ads-v2-color-fg);
+  }
+`;
+
 export default function DetailsForm(
   props: SetupFormProps & { onNext?: () => void },
 ) {
@@ -69,7 +75,6 @@ export default function DetailsForm(
                 label={createMessage(WELCOME_FORM_FIRST_NAME)}
                 name="firstName"
                 placeholder="John"
-                size="md"
                 type="text"
               />
             </StyledFormGroup>
@@ -79,7 +84,6 @@ export default function DetailsForm(
                 label={createMessage(WELCOME_FORM_LAST_NAME)}
                 name="lastName"
                 placeholder="Doe"
-                size="md"
                 type="text"
               />
             </StyledFormGroup>
@@ -89,7 +93,6 @@ export default function DetailsForm(
               label={createMessage(WELCOME_FORM_EMAIL_ID)}
               name="email"
               placeholder="How can we reach you?"
-              size="md"
               type="email"
             />
           </StyledFormGroup>
@@ -98,7 +101,6 @@ export default function DetailsForm(
               label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
               name="password"
               placeholder="Make it strong!"
-              size="md"
               type="password"
             />
           </StyledFormGroup>
@@ -108,7 +110,6 @@ export default function DetailsForm(
               label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
               name="verifyPassword"
               placeholder="Type correctly"
-              size="md"
               type="password"
             />
           </StyledFormGroup>
@@ -137,7 +138,6 @@ export default function DetailsForm(
                   label={createMessage(WELCOME_FORM_ROLE)}
                   name="role_name"
                   placeholder=""
-                  size="md"
                   type="text"
                 />
               </StyledFormGroup>
@@ -160,7 +160,6 @@ export default function DetailsForm(
                   label={createMessage(WELCOME_FORM_CUSTOM_USE_CASE)}
                   name="custom_useCase"
                   placeholder=""
-                  size="md"
                   type="text"
                 />
               </StyledFormGroup>

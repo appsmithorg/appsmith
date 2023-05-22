@@ -3,7 +3,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { Button, Text, TextType } from "design-system-old";
+import { Text, Button } from "design-system";
 import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -16,19 +16,6 @@ const SettingWrapper = styled.div`
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  color: var(--appsmith-color-black-800);
-
-  .import-btn {
-    width: 40%;
-  }
-`;
-
-const StyledText = styled(Text)`
-  color: var(--appsmith-color-black-800);
-
-  &.setting-header {
-    font-weight: 500;
-  }
 `;
 
 export function ImportAppSettings() {
@@ -43,25 +30,23 @@ export function ImportAppSettings() {
   return (
     <>
       <SettingWrapper>
-        <StyledText className="setting-header" type={TextType.P1}>
+        <Text kind="heading-s">
           {createMessage(UPDATE_VIA_IMPORT_SETTING.settingHeader)}
-        </StyledText>
-        <StyledText type={TextType.P3}>
+        </Text>
+        <Text kind="body-m">
           {isGitConnected
             ? createMessage(UPDATE_VIA_IMPORT_SETTING.disabledForGit)
             : createMessage(UPDATE_VIA_IMPORT_SETTING.settingContent)}
-        </StyledText>
+        </Text>
         <Button
-          className="import-btn"
-          cypressSelector="t--app-setting-import-btn"
-          disabled={isGitConnected}
+          UNSAFE_width="40%"
+          data-testid="t--app-setting-import-btn"
+          isDisabled={isGitConnected}
           onClick={() => setIsModalOpen(true)}
-          size="small"
-          tag="button"
-          text={createMessage(
-            UPDATE_VIA_IMPORT_SETTING.settingActionButtonTxt,
-          ).toLocaleUpperCase()}
-        />
+          size="sm"
+        >
+          {createMessage(UPDATE_VIA_IMPORT_SETTING.settingActionButtonTxt)}
+        </Button>
       </SettingWrapper>
       <ImportApplicationModal
         appId={appId}

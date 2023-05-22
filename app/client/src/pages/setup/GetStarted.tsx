@@ -29,9 +29,6 @@ const ActionContainer = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  width: 136px;
-  height: 38px;
-  font-size: 13px;
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 

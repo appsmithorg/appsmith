@@ -13,11 +13,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
-import { cssDimensionValidator } from "./DimensionsInput";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
+
+const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
 const embedSettingContentConfig = {
   [AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE]: {
@@ -58,8 +59,8 @@ function useUpdateEmbedSnippet() {
   });
 
   const areDimensionValuesValid = useCallback((embedSetting: any) => {
-    const isHeightValid = cssDimensionValidator(embedSetting.height).isValid;
-    const isWidthValid = cssDimensionValidator(embedSetting.width).isValid;
+    const isHeightValid = regex.test(embedSetting.height);
+    const isWidthValid = regex.test(embedSetting.width);
 
     return isHeightValid && isWidthValid;
   }, []);
