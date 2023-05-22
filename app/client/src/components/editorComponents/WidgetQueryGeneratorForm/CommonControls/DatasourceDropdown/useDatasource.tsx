@@ -25,7 +25,7 @@ import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
-import { Icon } from "design-system-new";
+import { Icon } from "design-system";
 import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
 import { DropdownOption } from "./DropdownOption";

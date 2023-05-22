@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { ErrorMessage, SelectWrapper } from "../../styles";
 import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
-import { Select, Option } from "design-system-new";
+import { Select, Option } from "design-system";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 

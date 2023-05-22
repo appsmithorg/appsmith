@@ -1,4 +1,4 @@
-import { Option, Select } from "design-system-new";
+import { Option, Select } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import React, { memo } from "react";
 import { DropdownOption } from "../../CommonControls/DatasourceDropdown/DropdownOption";
