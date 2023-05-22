@@ -43,11 +43,11 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
+import { toast } from "design-system";
 import styled from "styled-components";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 
@@ -70,6 +70,8 @@ interface ReduxStateProps {
   applicationSlug: string;
   pageSlug: string;
   fromImporting?: boolean;
+  // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+  isInsideReconnectModal?: boolean;
   isDatasourceBeingSaved: boolean;
   triggerSave: boolean;
   isFormDirty: boolean;
@@ -153,16 +155,15 @@ class DataSourceEditor extends React.Component<Props> {
       if (responseStatus) {
         // Set default error message
         let message = REST_API_AUTHORIZATION_FAILED;
-        let variant = Variant.danger;
+        let kind: "error" | "success" = "error";
         if (responseStatus === "success") {
           message = REST_API_AUTHORIZATION_SUCCESSFUL;
-          variant = Variant.success;
+          kind = "success";
         } else if (responseStatus === "appsmith_error") {
           message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
         }
-        Toaster.show({
-          text: responseMessage || createMessage(message),
-          variant,
+        toast.show(responseMessage || createMessage(message), {
+          kind: kind,
         });
       }
     }
@@ -177,6 +178,7 @@ class DataSourceEditor extends React.Component<Props> {
       fromImporting,
       isDeleting,
       isFormDirty,
+      isInsideReconnectModal,
       isNewDatasource,
       isSaving,
       isTesting,
@@ -199,6 +201,7 @@ class DataSourceEditor extends React.Component<Props> {
         hiddenHeader={fromImporting}
         isDeleting={isDeleting}
         isFormDirty={isFormDirty}
+        isInsideReconnectModal={isInsideReconnectModal}
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
@@ -250,8 +253,14 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -272,19 +281,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
 

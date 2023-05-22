@@ -215,7 +215,7 @@ const PROPERTIES = {
         propertyName: "defaultValue",
         helpText:
           "Sets the default text of the field. The text is updated if the default text changes",
-        label: "Default Value",
+        label: "Default value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "John Doe",
         isBindProperty: true,
@@ -238,10 +238,11 @@ const PROPERTIES = {
       {
         propertyName: "dialCode",
         helpText: "Changes the country code",
-        label: "Default Country Code",
+        label: "Default country code",
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",
+        virtual: true,
         searchPlaceholderText: "Search by code or country name",
         options: ISDCodeDropdownOptions,
         hidden: (...args: HiddenFnParams) =>
@@ -259,6 +260,7 @@ const PROPERTIES = {
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",
+        virtual: true,
         searchPlaceholderText: "Search by code or name",
         options: CurrencyDropdownOptions,
         hidden: (...args: HiddenFnParams) =>
@@ -284,7 +286,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "allowCurrencyChange",
-        label: "Allow Currency Change",
+        label: "Allow currency change",
         helpText: "Search by currency or country",
         controlType: "SWITCH",
         isBindProperty: true,
@@ -297,7 +299,7 @@ const PROPERTIES = {
       {
         propertyName: "decimalsInCurrency",
         helpText: "No. of decimals in currency input",
-        label: "Decimals Allowed",
+        label: "Decimals allowed",
         controlType: "DROP_DOWN",
         options: [
           {
@@ -450,7 +452,7 @@ const PROPERTIES = {
         propertyName: "errorMessage",
         helpText:
           "The error message to display if the regex or valid property check fails",
-        label: "Error Message",
+        label: "Error message",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Not a valid email!",
         inputType: "TEXT",
@@ -534,14 +536,14 @@ const PROPERTIES = {
         label: "Position",
         helpText: "Sets the icon position of input field",
         controlType: "ICON_TABS",
-        fullWidth: true,
+        fullWidth: false,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],
