@@ -370,7 +370,7 @@ export class JSEditor {
   }
 
   public AssertSelectedFunction(funName: string) {
-    cy.get(`${this._funcDropdown} > span`).contains(funName).should("exist");
+    cy.get(`${this._funcDropdown} p`).contains(funName).should("exist");
   }
 
   //#endregion
