@@ -39,7 +39,6 @@ describe("Dynamic Height Width validation for multiple container", function () {
                       "response.body.responseMeta.status",
                       200,
                     );
-                    cy.wait(5000); //allow for container to adjust height for new option added
                     cy.get(".t--widget-checkboxgroupwidget")
                       .invoke("css", "height")
                       .then((newcheckboxheight) => {
