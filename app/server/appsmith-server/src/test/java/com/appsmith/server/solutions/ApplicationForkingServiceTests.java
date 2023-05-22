@@ -109,6 +109,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
+
+    private static String sourceWorkspaceId;
+
+    private static String sourceEnvironmentId;
     private static String testUserWorkspaceId;
     private static boolean isSetupDone = false;
     @Autowired
@@ -166,10 +170,13 @@ public class ApplicationForkingServiceTests {
         Workspace sourceWorkspace = new Workspace();
         sourceWorkspace.setName("Source Workspace");
         sourceWorkspace = workspaceService.create(sourceWorkspace).block();
+        sourceWorkspaceId = sourceWorkspace.getId();
+
+        sourceEnvironmentId = workspaceService.getDefaultEnvironmentId(sourceWorkspaceId).block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
-        app1.setWorkspaceId(sourceWorkspace.getId());
+        app1.setWorkspaceId(sourceWorkspaceId);
         app1.setForkingEnabled(true);
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
@@ -201,7 +208,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
         actionCollectionDTO.setApplicationId(sourceAppId);
-        actionCollectionDTO.setWorkspaceId(sourceWorkspace.getId());
+        actionCollectionDTO.setWorkspaceId(sourceWorkspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("export default {\n" +
@@ -295,7 +302,7 @@ public class ApplicationForkingServiceTests {
         final Mono<ApplicationImportDTO> resultMono = workspaceService.create(targetWorkspace)
                 .map(Workspace::getId)
                 .flatMap(targetWorkspaceId ->
-                        applicationForkingService.forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                        applicationForkingService.forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspaceId, sourceEnvironmentId)
                                 .flatMap(application -> importExportApplicationService
                                         .getApplicationImportDTO(
                                                 application.getId(),
@@ -399,7 +406,7 @@ public class ApplicationForkingServiceTests {
         Workspace workspace = workspaceService.create(targetWorkspace).block();
         testUserWorkspaceId = workspace.getId();
         Application targetApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
                 .block();
         final Mono<Application> resultMono = Mono.just(targetApplication);
 
@@ -416,7 +423,7 @@ public class ApplicationForkingServiceTests {
     public void test3_failForkApplicationWithInvalidPermission() {
 
         final Mono<ApplicationImportDTO> resultMono = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
                 .flatMap(application -> importExportApplicationService
                         .getApplicationImportDTO(
                                 application.getId(),
@@ -440,7 +447,7 @@ public class ApplicationForkingServiceTests {
 
         // Trigger the fork application flow
         applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspace.getId(), FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspace.getId(), sourceEnvironmentId)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 

@@ -156,6 +156,8 @@ public class ActionExecutionSolutionCETest {
 
     String workspaceId;
 
+    String defaultEnvironmentId;
+
     String branchName;
 
     @BeforeEach
@@ -170,6 +172,8 @@ public class ActionExecutionSolutionCETest {
         if (workspaceId == null) {
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         if (testApp == null && testPage == null) {
@@ -231,9 +235,9 @@ public class ActionExecutionSolutionCETest {
         Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
     }
 
@@ -668,9 +672,9 @@ public class ActionExecutionSolutionCETest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
@@ -1812,7 +1816,7 @@ public class ActionExecutionSolutionCETest {
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(installed_plugin.getId());
-        DatasourceDTO mockDatasource = mockDataService.createMockDataSet(mockDataSource, FieldName.UNUSED_ENVIRONMENT_ID).block();
+        DatasourceDTO mockDatasource = mockDataService.createMockDataSet(mockDataSource, defaultEnvironmentId).block();
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1824,7 +1828,7 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, FieldName.UNUSED_ENVIRONMENT_ID));
+        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, defaultEnvironmentId));
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();

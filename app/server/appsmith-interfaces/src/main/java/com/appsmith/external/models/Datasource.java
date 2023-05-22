@@ -176,6 +176,8 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
         newDs.makePristine();
         newDs.setWorkspaceId(toWorkspaceId);
         newDs.setDatasourceStorages(new HashMap<>());
+        newDs.setIsConfigured(null);
+        newDs.setInvalids(null);
 
         return newDs;
     }

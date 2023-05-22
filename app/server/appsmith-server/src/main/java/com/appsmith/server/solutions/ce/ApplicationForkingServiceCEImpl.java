@@ -33,7 +33,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private final ApplicationService applicationService;
     private final WorkspaceService workspaceService;
-    private final ForkExamplesWorkspace examplesWorkspaceCloner;
+    private final ForkExamplesWorkspace forkExamplesWorkspace;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
@@ -81,7 +81,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
                     }
 
-                    return examplesWorkspaceCloner.forkApplications(
+                    return forkExamplesWorkspace.forkApplications(
                             targetWorkspace.getId(),
                             Flux.fromIterable(Collections.singletonList(application)),
                             sourceEnvironmentId);
