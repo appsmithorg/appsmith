@@ -1,6 +1,6 @@
-import clsx from "clsx";
+import styled from "styled-components";
 import TreeStructure from "components/utils/TreeStructure";
-import { Icon, TooltipComponent } from "design-system-old";
+import { Text, Icon, Button, Tooltip } from "design-system";
 import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
@@ -11,6 +11,28 @@ import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
+
+const CallbackBlockContainer = styled.div<{
+  isSelected: boolean;
+  isExpanded: boolean;
+}>`
+  border: 1px solid var(--ads-v2-color-border);
+  border-bottom-color: ${(props) =>
+    props.isSelected
+      ? "var(--ads-v2-color-border-emphasis)"
+      : "var(--ads-v2-color-border)"};
+  border-radius: ${(props) =>
+    props.isExpanded
+      ? "var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0px 0px"
+      : "var(--ads-v2-border-radius)"};
+`;
+
+const CallbackButton = styled.button`
+  border: 1px solid var(--ads-v2-color-border);
+  border-top: none;
+  border-radius: 0px 0px var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+  background: var(--ads-v2-color-bg-subtle);
+`;
 
 const EMPTY_ACTION_BLOCK: TActionBlock = {
   code: "",
@@ -25,6 +47,7 @@ export default function ActionTree(props: {
   className?: string;
   id: string;
   level: number;
+  isLastBlock?: boolean;
   variant?: VariantType;
 }) {
   const { id } = props;
@@ -142,32 +165,33 @@ export default function ActionTree(props: {
         <ActionCard
           actionBlock={actionBlock}
           id={id}
+          isLastBlock={props.isLastBlock}
           level={props.level}
           onSelect={handleCardSelection}
           selected={isOpen}
+          showCallbacks={showCallbacks && areCallbacksApplicable}
           variant={props.variant}
         />
       </ActionSelector>
       {showCallbacks && areCallbacksApplicable ? (
-        <button
-          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent t--action-callbacks"
+        <CallbackButton
+          className="callback-collapse flex w-full justify-between px-2 py-1 border-t-transparent t--action-callbacks"
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
             setTouched(true);
           }}
         >
-          <span className="text-gray-800">Callbacks</span>
-          <div className="flex gap-1">
-            <span className="text-gray-800">
+          <Text kind="action-s">Callbacks</Text>
+          <div className="flex items-center gap-1">
+            <Text kind="action-s">
               {actionsCount > 0 ? actionsCount : "No"} actions
-            </span>
+            </Text>
             <Icon
-              fillColor="var(--ads-color-gray-700)"
               name={callbacksExpanded ? "expand-less" : "expand-more"}
-              size="extraLarge"
+              size="md"
             />
           </div>
-        </button>
+        </CallbackButton>
       ) : null}
       {callbacksExpanded && areCallbacksApplicable ? (
         <TreeStructure>
@@ -182,40 +206,36 @@ export default function ActionTree(props: {
               }) => (
                 <li key={label}>
                   <div className="flex flex-col pl-1">
-                    <div
-                      className={clsx(
-                        "flex bg-gray-50 border-[1px] border-gray-200 box-border flex-row justify-between items-start action-callback-add",
-                        selectedBlockId === `${id}_${blockType}_0` &&
-                          "border-b-gray-500",
-                      )}
+                    <CallbackBlockContainer
+                      className="flex flex-row justify-between items-start action-callback-add"
+                      isExpanded={callbacks.length > 0}
+                      isSelected={selectedBlockId === `${id}_${blockType}_0`}
                     >
-                      <TooltipComponent
-                        boundary="viewport"
-                        content={tooltipContent}
-                        popoverClassName="!max-w-[300px]"
-                      >
-                        <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300 px-2 py-1">
+                      <Tooltip content={tooltipContent}>
+                        <Text className="cursor-help px-2 py-1" kind="action-s">
                           {label}
-                        </span>
-                      </TooltipComponent>
+                        </Text>
+                      </Tooltip>
                       <button
-                        className={clsx(`t--action-add-${blockType}-callback`)}
+                        className={`t--action-add-${blockType}-callback`}
                         onClick={handleAddBlock}
                       >
                         <span className="icon w-7 h-7 flex items-center justify-center">
-                          <Icon
-                            fillColor="var(--ads-color-black-700)"
-                            name="plus"
-                            size="extraLarge"
+                          <Button
+                            isIconButton
+                            kind="tertiary"
+                            size="sm"
+                            startIcon="plus"
                           />
                         </span>
                       </button>
-                    </div>
+                    </CallbackBlockContainer>
                     {callbacks.map((cActionBlock, index) => (
                       <ActionTree
                         actionBlock={cActionBlock}
                         className="mt-0"
                         id={`${id}_${blockType}_${index}`}
+                        isLastBlock={index === callbacks.length - 1}
                         key={`${id}_${blockType}_${index}`}
                         level={props.level + 1}
                         onChange={(

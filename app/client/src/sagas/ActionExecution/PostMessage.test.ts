@@ -4,29 +4,22 @@ import { runSaga } from "redux-saga";
 
 describe("PostMessageSaga", () => {
   describe("postMessageSaga function", () => {
-    const generator = postMessageSaga(
-      {
-        type: "POST_MESSAGE",
-        payload: {
-          message: "hello world",
-          source: "window",
-          targetOrigin: "https://dev.appsmith.com",
-        },
+    const generator = postMessageSaga({
+      type: "POST_MESSAGE",
+      payload: {
+        message: "hello world",
+        source: "window",
+        targetOrigin: "https://dev.appsmith.com",
       },
-      {},
-    );
+    });
 
     it("executes postMessageSaga with the payload and trigger meta", () => {
       expect(generator.next().value).toStrictEqual(
-        spawn(
-          executePostMessage,
-          {
-            message: "hello world",
-            source: "window",
-            targetOrigin: "https://dev.appsmith.com",
-          },
-          {},
-        ),
+        spawn(executePostMessage, {
+          message: "hello world",
+          source: "window",
+          targetOrigin: "https://dev.appsmith.com",
+        }),
       );
     });
 
@@ -51,7 +44,6 @@ describe("PostMessageSaga", () => {
           source: "window",
           targetOrigin: "https://dev.appsmith.com",
         },
-        {},
       );
 
       expect(postMessage).toHaveBeenCalledWith(

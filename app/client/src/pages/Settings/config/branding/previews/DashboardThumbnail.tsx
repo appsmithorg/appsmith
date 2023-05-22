@@ -1,22 +1,37 @@
 import React from "react";
-
+import { Text } from "design-system";
 import PreviewBox from "./PreviewBox";
+import type { PreviewsProps } from ".";
+import { ContentBox } from "pages/Settings/components";
 import { importRemixIcon } from "design-system-old";
 
-const UserIcon = importRemixIcon(() => import("remixicon-react/User3FillIcon"));
+const DashboardThumbnail = (props: PreviewsProps) => {
+  const { shades } = props;
 
-const DashboardThumbnail = () => {
+  const UserIcon = importRemixIcon(
+    () => import("remixicon-react/User3FillIcon"),
+  );
+
   return (
-    <PreviewBox
-      className="items-center p-4 bg-gray-100 "
-      title="Dashboard Thumbnail"
-    >
-      <div className="flex items-center justify-between w-full h-full gap-2 px-5 bg-white">
-        <p>Application name</p>
-        <div className="p-2 border rounded-full">
-          <UserIcon className="w-3 h-3 " />
+    <PreviewBox className="items-center p-4" title="Dashboard Thumbnail">
+      <ContentBox
+        className="flex items-center justify-between border w-full h-full gap-2 px-5"
+        style={{
+          backgroundColor: shades.background,
+        }}
+      >
+        <Text color="var(--ads-v2-color-fg)" kind="heading-m" renderAs="span">
+          Application name
+        </Text>
+        <div
+          className="p-2 border rounded-full"
+          style={{
+            borderColor: "var(--ads-v2-color-border)",
+          }}
+        >
+          <UserIcon className="w-3 h-3" />
         </div>
-      </div>
+      </ContentBox>
     </PreviewBox>
   );
 };

@@ -21,6 +21,7 @@ import history, { NavigationMethod } from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { Link } from "design-system";
 import type { Plugin } from "api/PluginApi";
 
 function ActionLink(props: EntityLinkProps) {
@@ -48,7 +49,7 @@ function ActionLink(props: EntityLinkProps) {
   }, [action]);
 
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -78,7 +79,7 @@ function JSCollectionLink(props: EntityLinkProps) {
     }
   }, []);
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -112,7 +113,7 @@ function WidgetLink(props: EntityLinkProps) {
   }, [navigateToWidget]);
 
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -146,7 +147,7 @@ function DatasourceLink(props: EntityLinkProps) {
   };
 
   return (
-    <Link
+    <DebuggerEntityLink
       entityType={props.type}
       name={props.name}
       onClick={onClick}
@@ -155,14 +156,14 @@ function DatasourceLink(props: EntityLinkProps) {
   );
 }
 
-function Link(props: {
+function DebuggerEntityLink(props: {
   name: string;
   onClick: any;
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
 }) {
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
+    e.preventDefault();
     props.onClick();
   };
 
@@ -170,18 +171,22 @@ function Link(props: {
     case DebuggerLinkUI.ENTITY_TYPE:
       return (
         <span className="debugger-entity">
-          [<span onClick={onClick}>{props.name}</span>]
+          [
+          <Link kind="secondary" onClick={onClick} to="">
+            {props.name}
+          </Link>
+          ]
         </span>
       );
     case DebuggerLinkUI.ENTITY_NAME:
-      const link = props.name;
       return (
-        <span
+        <Link
           className="debugger-entity-link t--debugger-log-entity-link"
           onClick={onClick}
+          to=""
         >
-          {link}
-        </span>
+          {props.name}
+        </Link>
       );
     default:
       return null;

@@ -1,3 +1,5 @@
+// TODO (tanvi): Figure out why this file is still here and if it's safe to delete it.
+
 import type { JSXElementConstructor } from "react";
 import React from "react";
 import { importRemixIcon, importSvg } from "design-system-old";
