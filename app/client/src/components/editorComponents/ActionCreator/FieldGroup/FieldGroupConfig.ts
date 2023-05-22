@@ -35,7 +35,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     fields: [FieldType.PARAMS_FIELD],
     children: [{ label: "", value: "" }],
     defaultParams: "",
-    icon: "execute-query",
+    icon: "query-main",
   },
   [AppsmithFunction.jsFunction]: {
     label: createMessage(EXECUTE_JS_FUNCTION),
@@ -43,7 +43,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     fields: [],
     children: [{ label: "", value: "" }],
     defaultParams: "",
-    icon: "execute-js",
+    icon: "js",
   },
   [AppsmithFunction.navigateTo]: {
     label: createMessage(NAVIGATE_TO),
@@ -59,43 +59,43 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.NAVIGATION_TARGET_FIELD,
     ],
     defaultParams: `"", {}, 'SAME_WINDOW'`,
-    icon: "navigate-to",
+    icon: "page-line",
   },
   [AppsmithFunction.showAlert]: {
     label: createMessage(SHOW_ALERT),
     fields: [FieldType.ALERT_TEXT_FIELD, FieldType.ALERT_TYPE_SELECTOR_FIELD],
     defaultParams: `"", ''`,
-    icon: "show-alert",
+    icon: "message-2-line",
   },
   [AppsmithFunction.showModal]: {
     label: createMessage(SHOW_MODAL),
     fields: [FieldType.SHOW_MODAL_FIELD],
     defaultParams: `''`,
-    icon: "modal",
+    icon: "show-modal",
   },
   [AppsmithFunction.closeModal]: {
     label: createMessage(CLOSE_MODAL),
     fields: [FieldType.CLOSE_MODAL_FIELD],
     defaultParams: `''`,
-    icon: "modal",
+    icon: "show-modal",
   },
   [AppsmithFunction.storeValue]: {
     label: createMessage(STORE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_STORE_VALUE, FieldType.VALUE_TEXT_FIELD],
     defaultParams: `"", ""`,
-    icon: "store-value",
+    icon: "folder-download-line",
   },
   [AppsmithFunction.removeValue]: {
     label: createMessage(REMOVE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE],
     defaultParams: `""`,
-    icon: "remove-store",
+    icon: "folder-line",
   },
   [AppsmithFunction.clearStore]: {
     label: createMessage(CLEAR_STORE),
     fields: [],
     defaultParams: "",
-    icon: "clear-store",
+    icon: "folder-reduce-line",
   },
   [AppsmithFunction.download]: {
     label: createMessage(DOWNLOAD),
@@ -105,19 +105,19 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.DOWNLOAD_FILE_TYPE_FIELD,
     ],
     defaultParams: `"", "", ''`,
-    icon: "download-action",
+    icon: "download-line",
   },
   [AppsmithFunction.copyToClipboard]: {
     label: createMessage(COPY_TO_CLIPBOARD),
     fields: [FieldType.COPY_TEXT_FIELD],
     defaultParams: `""`,
-    icon: "copy-to-clipboard",
+    icon: "copy-control",
   },
   [AppsmithFunction.resetWidget]: {
     label: createMessage(RESET_WIDGET),
     fields: [FieldType.WIDGET_NAME_FIELD, FieldType.RESET_CHILDREN_FIELD],
     defaultParams: `"",true`,
-    icon: "reset-widget",
+    icon: "restart-line",
   },
   [AppsmithFunction.setInterval]: {
     label: createMessage(SET_INTERVAL),
@@ -129,13 +129,13 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     defaultParams: `() => {
       // add code here
     }, 5000, ''`,
-    icon: "set-interval",
+    icon: "timer-flash-line",
   },
   [AppsmithFunction.clearInterval]: {
     label: createMessage(CLEAR_INTERVAL),
     fields: [FieldType.CLEAR_INTERVAL_ID_FIELD],
     defaultParams: `""`,
-    icon: "clear-interval",
+    icon: "timer-line",
   },
   [AppsmithFunction.getGeolocation]: {
     label: createMessage(GET_GEO_LOCATION),
@@ -143,19 +143,19 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     defaultParams: `(location) => {
       // add code here
     }`,
-    icon: "get-geolocation",
+    icon: "map-2-line",
   },
   [AppsmithFunction.watchGeolocation]: {
     label: createMessage(WATCH_GEO_LOCATION),
     fields: [],
     defaultParams: "",
-    icon: "watch-geolocation",
+    icon: "map-pin-user-line",
   },
   [AppsmithFunction.stopWatchGeolocation]: {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
     fields: [],
     defaultParams: "",
-    icon: "stop-watch-geolocation",
+    icon: "map-pin-5-line",
   },
   [AppsmithFunction.postWindowMessage]: {
     label: createMessage(POST_MESSAGE),
@@ -165,6 +165,6 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.TARGET_ORIGIN_FIELD,
     ],
     defaultParams: `"", "window", "*"`,
-    icon: "post-message",
+    icon: "chat-upload-line",
   },
 };

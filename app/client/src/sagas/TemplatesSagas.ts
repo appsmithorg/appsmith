@@ -39,12 +39,12 @@ import {
 } from "actions/pluginActionActions";
 import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
-import { Toaster, Variant } from "design-system-old";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
 import { fetchPageDSLSaga } from "sagas/PageSagas";
+import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const isAirgappedInstance = isAirgapped();
@@ -292,10 +292,12 @@ function* forkTemplateToApplicationSaga(
       });
       yield put(getAllTemplates());
 
-      Toaster.show({
-        text: `Pages from '${action.payload.templateName}' template added successfully`,
-        variant: Variant.success,
-      });
+      toast.show(
+        `Pages from '${action.payload.templateName}' template added successfully`,
+        {
+          kind: "success",
+        },
+      );
     }
   } catch (error) {
     yield put({

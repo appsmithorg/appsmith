@@ -1,4 +1,3 @@
-import { Icon } from "@blueprintjs/core";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import type { SyntheticEvent } from "react";
@@ -35,27 +34,27 @@ import {
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "design-system-old";
-import { Colors } from "constants/Colors";
 import { onboardingCheckListUrl } from "RouteBuilder";
+import { Icon, Button } from "design-system";
 
 const Wrapper = styled.div<{ active: boolean }>`
   width: 100%;
   background-color: ${(props) =>
-    props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
+    props.active ? "var(--ads-v2-color-bg-brand)" : ""};
   cursor: ${(props) => (props.active ? "default" : "pointer")};
   height: ${(props) => props.theme.onboarding.statusBarHeight}px;
   padding: 12px 16px;
   transition: background-color 0.3s ease;
-  border: 1px solid ${Colors.Gallery};
+  border-bottom: 1px solid var(--ads-v2-color-border);
 
   ${(props) =>
     props.active &&
     `
       p {
-        color: ${Colors.WHITE};
+        color: var(--ads-v2-color-fg-on-brand);
       }
-      svg {
-        fill: ${Colors.WHITE};
+      svg, svg path {
+        fill: var(--ads-v2-color-fg-on-brand) !important;
       }
   `}
 
@@ -65,22 +64,25 @@ const Wrapper = styled.div<{ active: boolean }>`
 `;
 
 const TitleWrapper = styled.p`
-  color: ${Colors.GREY_10};
   ${getTypographyByKey("p4")}
+  color: var(--ads-v2-color-fg);
 `;
 
 const StatusText = styled.p`
-  color: ${Colors.GREY_10};
   font-size: 13px;
+  display: flex;
   & .hover-icons {
     transform: translate(3px, 0px);
     opacity: 0;
   }
 `;
 
-const ProgressContainer = styled.div`
-  background-color: rgb(0, 0, 0, 0.2);
-  border-radius: ${(props) => props.theme.radii[3]}px;
+const ProgressContainer = styled.div<StatusProgressbarContainerType>`
+  background-color: ${(props) =>
+    props.active
+      ? "var(--ads-v2-color-bg-brand-emphasis-plus)"
+      : "var(--ads-v2-color-bg-subtle)"};
+  border-radius: var(--ads-v2-border-radius);
   overflow: hidden;
   margin-top: 12px;
 `;
@@ -90,16 +92,16 @@ const Progressbar = styled.div<StatusProgressbarType>`
   height: 6px;
   background: ${(props) =>
     props.active
-      ? Colors.WHITE
-      : props.theme.colors.welcomeTourStickySidebarBackground};
+      ? "var(--ads-v2-color-bg)"
+      : "var(--ads-v2-color-bg-brand-emphasis-plus)"};
   transition: width 0.3s ease, background 0.3s ease;
-  border-radius: ${(props) => props.theme.radii[3]}px;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
-const StyledClose = styled(Icon)`
-  position: absolute;
-  top: 15px;
-  right: 13px;
+const StyledClose = styled(Button)`
+  position: absolute !important;
+  top: 9px;
+  right: 9px;
   opacity: 0;
   cursor: pointer;
 `;
@@ -108,10 +110,13 @@ type StatusProgressbarType = {
   percentage: number;
   active: boolean;
 };
+type StatusProgressbarContainerType = {
+  active: boolean;
+};
 
 export function StatusProgressbar(props: StatusProgressbarType) {
   return (
-    <ProgressContainer>
+    <ProgressContainer {...props}>
       <Progressbar {...props} />
     </ProgressContainer>
   );
@@ -228,25 +233,20 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     >
       <StyledClose
         className="hover-icons"
-        color={Colors.GREY_10}
-        data-cy="statusbar-skip"
-        icon="cross"
-        iconSize={14}
+        data-testid="statusbar-skip"
+        isIconButton
+        kind={isChecklistPage ? "primary" : "tertiary"}
         onClick={endFirstTimeUserOnboarding}
+        size="sm"
+        startIcon="close-control"
       />
-
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
-      <StatusText className="mt-2">
+      <StatusText className="mt-1">
         <span data-testid="statusbar-text">{content}</span>&nbsp;&nbsp;
         {!isChecklistPage && (
-          <Icon
-            className="hover-icons"
-            color={Colors.GREY_10}
-            icon="chevron-right"
-            iconSize={14}
-          />
+          <Icon className="hover-icons" name="right-arrow-2" size="md" />
         )}
       </StatusText>
       <StatusProgressbar

@@ -3,16 +3,15 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
-import { Colors } from "constants/Colors";
-import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import NewActionButton from "./NewActionButton";
 
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
+import { Icon } from "design-system";
 
 const ConnectedText = styled.div`
-  color: ${Colors.OXFORD_BLUE};
+  color: var(--ads-v2-color-fg);
   font-size: 17px;
   font-weight: bold;
   display: flex;
@@ -58,12 +57,12 @@ function Connected({
       {showDatasourceSavedText && (
         <Header>
           <ConnectedText>
-            <HeaderIcons.SAVE_SUCCESS
-              color={Colors.GREEN}
-              height={30}
-              width={30}
+            <Icon
+              color="var(--ads-v2-color-fg-success)"
+              name="success"
+              size="lg"
             />
-            <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
+            <div style={{ marginLeft: "12px" }}>Datasource saved</div>
           </ConnectedText>
           <NewActionButton
             datasource={datasource}

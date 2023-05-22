@@ -65,7 +65,6 @@ import {
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
@@ -104,8 +103,10 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
+import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -635,12 +636,14 @@ export function* evaluateSnippetSaga(action: any) {
           : JSON.stringify(result),
       ),
     );
-    Toaster.show({
-      text: createMessage(
+    toast.show(
+      createMessage(
         errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
       ),
-      variant: errors?.length ? Variant.danger : Variant.success,
-    });
+      {
+        kind: errors?.length ? "error" : "success",
+      },
+    );
     yield put(
       setGlobalSearchFilterContext({
         executionInProgress: false,
@@ -652,9 +655,8 @@ export function* evaluateSnippetSaga(action: any) {
         executionInProgress: false,
       }),
     );
-    Toaster.show({
-      text: createMessage(SNIPPET_EXECUTION_FAILED),
-      variant: Variant.danger,
+    toast.show(createMessage(SNIPPET_EXECUTION_FAILED), {
+      kind: "error",
     });
     log.error(e);
     Sentry.captureException(e);
@@ -694,6 +696,47 @@ export function* evaluateArgumentSaga(action: any) {
           name,
           errors: lintErrors,
           isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateActionSelectorFieldSaga(action: any) {
+  const { id, type, value } = action.payload;
+  try {
+    const workerResponse: {
+      errors: Array<unknown>;
+      result: unknown;
+    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+      expression: value,
+    });
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {}, "");
+      if (!validation.isValid)
+        validation.messages?.map((message) => {
+          lintErrors.unshift({
+            ...validation,
+            ...{
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+            },
+          });
+        });
+    }
+
+    yield put(
+      setEvaluatedActionSelectorField({
+        id,
+        evaluatedValue: {
+          value: workerResponse.result as string,
+          errors: lintErrors,
         },
       }),
     );
