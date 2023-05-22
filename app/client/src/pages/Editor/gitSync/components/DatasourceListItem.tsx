@@ -2,9 +2,9 @@ import React from "react";
 import { Text, TextType } from "design-system-old";
 import { Icon, Tooltip } from "design-system";
 import type { Datasource } from "entities/Datasource";
-import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
 
 const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;
