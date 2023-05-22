@@ -275,7 +275,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                         .put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceStorage));
                                 copyNestedNonNullProperties(datasource, dbDatasource);
                                 return dbDatasource;
-                            }));
+                            }))
+                    .flatMap(savedDatasource -> {
+                        Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
+                        if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                            analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
+                        } else {
+                            analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
+                        }
+                        return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
+                    });
         }
 
         // This is meant to be an update for just the datasource - like a rename
