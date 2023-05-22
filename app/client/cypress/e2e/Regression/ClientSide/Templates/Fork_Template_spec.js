@@ -58,7 +58,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     );
   });
 
-  it.only("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
+  it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
     HomePage.NavigateToHome();
     HomePage.SwitchToTemplatesTab();
     cy.wait(1000);
