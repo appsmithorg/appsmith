@@ -19,13 +19,13 @@ export const getUserRoleInWorkspace = () => {
   const { currentUser } = state?.ui?.users;
   const isSuperUser = currentUser?.isSuperUser;
   if (isSuperUser) return RAMP_FOR_ROLES.SUPER_USER;
-  const workspaceUsers = state.ui.workspaces.workspaceUsers;
-  if (workspaceUsers.length) {
+  const workspaceUsers = state?.ui?.workspaces?.workspaceUsers;
+  if (workspaceUsers?.length) {
     const workspaceUser = workspaceUsers.find(
       (user: any) => user?.username === currentUser?.username,
     );
     if (workspaceUser?.roles?.length) {
-      const [role] = workspaceUser.roles[0].name.split("-");
+      const [role] = workspaceUser.roles[0]?.name?.split("-");
       if (role) {
         return role.trim();
       }
