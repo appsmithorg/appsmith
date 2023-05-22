@@ -44,7 +44,7 @@ export const Form = styled.form`
   padding-bottom: 20px;
 `;
 
-const ViewModeWrapper = styled.div`
+export const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);

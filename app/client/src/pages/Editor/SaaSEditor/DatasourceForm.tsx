@@ -58,7 +58,6 @@ import {
 import { getDatasourceErrorMessage } from "./errorUtils";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
-import styled from "styled-components";
 import { getConfigInitialValues } from "components/formControls/utils";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { DSFormHeader } from "../DataSourceEditor/DSFormHeader";
@@ -67,7 +66,7 @@ import Debugger, {
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import { Form } from "../DataSourceEditor/DBForm";
+import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -129,13 +128,6 @@ type State = {
   unblock(): void;
   navigation(): void;
 };
-
-const ViewModeWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 20px 20px;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-`;
 
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
