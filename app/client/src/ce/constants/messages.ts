@@ -165,8 +165,10 @@ export const INVITE_USER_SUBMIT_SUCCESS = (
 ) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
-export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
+export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+  "Users will have access to all applications in this workspace";
 export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
