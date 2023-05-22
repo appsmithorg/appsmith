@@ -56,16 +56,26 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const queryParams = new URLSearchParams(location.search);
 
   useEffect(() => {
-    if (queryParams.get("fork") === "true" || isModalOpen) {
+    if (queryParams.get("fork") === "true") {
       handleOpen();
     }
   }, []);
 
   useEffect(() => {
-    if (!forkingApplication) {
-      const shouldCloseForcibly = isModalOpen && setModalClose;
-      shouldCloseForcibly && setModalClose(false);
+    // This effect makes sure that no if <ForkApplicationModel />
+    // is getting controlled from outside, then we always load workspaces
+    if (isModalOpen) {
+      handleOpen();
+      return;
     }
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    // when we fork from within the appeditor, fork modal remains open
+    // even on the landing page of "Forked" app, this closes it
+    const shouldCloseForcibly =
+      !forkingApplication && isModalOpen && setModalClose;
+    shouldCloseForcibly && setModalClose(false);
   }, [forkingApplication]);
 
   const forkApplication = () => {
@@ -119,13 +129,14 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   };
 
   const handleOpen = () => {
-    // TODO: removed if condition here. Ensure it will affect something or not.
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has("fork")) {
-      url.searchParams.append("fork", "true");
-      history.push(url.toString().slice(url.origin.length));
+    if (!props.setModalClose) {
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("fork")) {
+        url.searchParams.append("fork", "true");
+        history.push(url.toString().slice(url.origin.length));
+      }
     }
-    dispatch(getAllApplications());
+    !workspaceList.length && dispatch(getAllApplications());
   };
 
   const handleOnOpenChange = (isOpen: boolean) => {
@@ -135,11 +146,6 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       setModalClose && setModalClose(false);
       handleClose();
     }
-    /**
-     * Whenever we open this modal we are confident that user has some workspaces
-     * `workspaceList` cannot be empty.
-     */
-    !workspaceList.length && dispatch(getAllApplications());
   };
 
   return (
