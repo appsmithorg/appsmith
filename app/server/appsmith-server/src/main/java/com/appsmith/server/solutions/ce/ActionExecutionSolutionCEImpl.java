@@ -563,7 +563,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         return datasourceStorageMono
                 .flatMap(datasourceStorage -> {
-                    if (!StringUtils.hasLength(datasourceStorage.getId())) {
+                    if (!StringUtils.hasLength(datasourceStorage.getDatasourceId())) {
                         return Mono.just(new HashMap<>());
                     }
 
@@ -935,7 +935,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     data.put("pluginErrorDetails", ObjectUtils.defaultIfNull(actionExecutionResult.getPluginErrorDetails(), ""));
 
                     data.putAll(Map.of(
-                            "dsId", ObjectUtils.defaultIfNull(datasourceStorage.getId(), ""),
+                            "dsId", ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
+                            "envId", ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
                             "dsName", datasourceStorage.getName(),
                             "dsIsTemplate", ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
                             "dsIsMock", ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),

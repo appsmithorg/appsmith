@@ -179,6 +179,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // Set the fields from NewAction into Action
         action.setWorkspaceId(newAction.getWorkspaceId());
+        action.setApplicationId(newAction.getApplicationId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
         action.setTemplateId(newAction.getTemplateId());
@@ -188,6 +189,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setId(newAction.getId());
         action.setUserPermissions(newAction.getUserPermissions());
         action.setPolicies(newAction.getPolicies());
+        action.setCreatedAt(newAction.getCreatedAt());
     }
 
     @Override

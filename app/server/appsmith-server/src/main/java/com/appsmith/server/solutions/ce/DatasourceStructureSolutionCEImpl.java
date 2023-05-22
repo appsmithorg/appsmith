@@ -133,7 +133,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                         getAnalyticsPropertiesForTestEventStatus(datasourceStorage,false, error)).then(Mono.error(error)))
                 .flatMap(structure -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
                                 datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
-                        .then(datasourceStorage.getId() == null
+                        .then(datasourceStorage.getDatasourceId() == null
                                 ? Mono.empty()
                                 : datasourceStructureService
                                 .saveStructure(datasourceStorage.getDatasourceId(), structure)

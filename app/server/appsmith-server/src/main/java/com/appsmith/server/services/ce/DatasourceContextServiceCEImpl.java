@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
+import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.UpdatableConnection;
@@ -187,7 +187,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     public boolean getIsStale(DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
-        String datasourceId = datasourceStorage.getId();
+        String datasourceId = datasourceStorage.getDatasourceId();
         return datasourceId != null
                 && datasourceContextMap.get(datasourceContextIdentifier) != null
                 && datasourceStorage.getUpdatedAt() != null
