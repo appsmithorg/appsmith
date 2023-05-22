@@ -11,9 +11,10 @@ import type { QueryAction } from "entities/Action";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
+import type { Plugin } from "api/PluginApi";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -28,6 +29,9 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
+  );
+  const plugin: Plugin | undefined = useSelector((state: AppState) =>
+    getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
   );
   const createQueryAction = useCallback(
     (template: QueryTemplate) => {
@@ -53,6 +57,8 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             actionType: "Query",
             from: "explorer-template",
             dataSource: dataSource?.name,
+            datasourceId: props.datasourceId,
+            pluginName: plugin?.name,
           },
           ...queryactionConfiguration,
         }),

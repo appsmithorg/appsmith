@@ -31,6 +31,7 @@ import {
   isActionDirty,
   isActionSaving,
   getJSCollection,
+  getDatasource,
 } from "selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -134,6 +135,7 @@ import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
+import type { Datasource } from "entities/Datasource";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -492,6 +494,9 @@ export default function* executePluginActionTriggerSaga(
     yield select(getAction, actionId),
     `Action not found for id - ${actionId}`,
   );
+  const datasourceId: string = (action?.datasource as any)?.id;
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const plugin: Plugin = yield select(getPlugin, action?.pluginId);
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: action?.pluginType,
@@ -501,6 +506,10 @@ export default function* executePluginActionTriggerSaga(
     appMode: appMode,
     appName: currentApp.name,
     isExampleApp: currentApp.appIsExample,
+    pluginName: plugin?.name,
+    datasourceId: datasourceId,
+    isMock: !!datasource?.isMock,
+    actionId: action?.id,
   });
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
@@ -559,6 +568,20 @@ export default function* executePluginActionTriggerSaga(
         },
       },
     ]);
+    AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
+      type: action?.pluginType,
+      name: action?.name,
+      pageId: action?.pageId,
+      appId: currentApp.id,
+      appMode: appMode,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
+      pluginName: plugin?.name,
+      datasourceId: datasourceId,
+      isMock: !!datasource?.isMock,
+      actionId: action?.id,
+      ...payload.pluginErrorDetails,
+    });
     if (onError) {
       throw new PluginTriggerFailureError(
         createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
@@ -571,6 +594,19 @@ export default function* executePluginActionTriggerSaga(
       );
     }
   } else {
+    AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
+      type: action?.pluginType,
+      name: action?.name,
+      pageId: action?.pageId,
+      appId: currentApp.id,
+      appMode: appMode,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
+      pluginName: plugin?.name,
+      datasourceId: datasourceId,
+      isMock: !!datasource?.isMock,
+      actionId: action?.id,
+    });
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
       text: "Executed successfully from widget request",
@@ -678,6 +714,12 @@ function* runActionSaga(
     yield select(getAction, actionId),
     `action not found for id - ${actionId}`,
   );
+  const plugin: Plugin = yield select(getPlugin, actionObject?.pluginId);
+  const datasource: Datasource = yield select(
+    getDatasource,
+    (actionObject?.datasource as any)?.id,
+  );
+  const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
 
   const datasourceUrl = get(
     actionObject,
@@ -845,10 +887,26 @@ function* runActionSaga(
         show: false,
       },
     });
+    let failureEventName: EventName = "RUN_API_FAILURE";
+    if (actionObject.pluginType === PluginType.DB) {
+      failureEventName = "RUN_QUERY_FAILURE";
+    }
+    if (actionObject.pluginType === PluginType.SAAS) {
+      failureEventName = "RUN_SAAS_API_FAILURE";
+    }
+    AnalyticsUtil.logEvent(failureEventName, {
+      actionId,
+      actionName: actionObject.name,
+      pageName: pageName,
+      apiType: "INTERNAL",
+      datasourceId: datasource?.id,
+      pluginName: plugin?.name,
+      isMock: !!datasource?.isMock,
+      ...payload?.pluginErrorDetails,
+    });
     return;
   }
 
-  const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
   let eventName: EventName = "RUN_API";
   if (actionObject.pluginType === PluginType.DB) {
     eventName = "RUN_QUERY";
@@ -863,6 +921,9 @@ function* runActionSaga(
     pageName: pageName,
     responseTime: payload.duration,
     apiType: "INTERNAL",
+    datasourceId: datasource?.id,
+    pluginName: plugin?.name,
+    isMock: !!datasource?.isMock,
   });
 
   yield put({
@@ -946,6 +1007,16 @@ function* executePageLoadAction(pageAction: PageAction) {
     let currentApp: ApplicationPayload = yield select(getCurrentApplication);
     currentApp = currentApp || {};
     const appMode: APP_MODE | undefined = yield select(getAppMode);
+
+    // action is required to fetch the pluginId and pluginType.
+    const action = shouldBeDefined<Action>(
+      yield select(getAction, pageAction.id),
+      `action not found for id - ${pageAction.id}`,
+    );
+
+    const datasourceId: string = (action?.datasource as any)?.id;
+    const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const plugin: Plugin = yield select(getPlugin, action?.pluginId);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: pageAction.pluginType,
       name: pageAction.name,
@@ -955,13 +1026,11 @@ function* executePageLoadAction(pageAction: PageAction) {
       onPageLoad: true,
       appName: currentApp.name,
       isExampleApp: currentApp.appIsExample,
+      pluginName: plugin?.name,
+      datasourceId: datasourceId,
+      isMock: !!datasource?.isMock,
+      actionId: pageAction?.id,
     });
-
-    // action is required to fetch the pluginId and pluginType.
-    const action = shouldBeDefined<Action>(
-      yield select(getAction, pageAction.id),
-      `action not found for id - ${pageAction.id}`,
-    );
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
@@ -1033,7 +1102,36 @@ function* executePageLoadAction(pageAction: PageAction) {
         },
         pageAction.id,
       );
+      AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
+        type: pageAction.pluginType,
+        name: pageAction.name,
+        pageId: pageId,
+        appMode: appMode,
+        appId: currentApp.id,
+        onPageLoad: true,
+        appName: currentApp.name,
+        isExampleApp: currentApp.appIsExample,
+        pluginName: plugin?.name,
+        datasourceId: datasourceId,
+        isMock: !!datasource?.isMock,
+        actionId: pageAction?.id,
+        ...payload.pluginErrorDetails,
+      });
     } else {
+      AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
+        type: pageAction.pluginType,
+        name: pageAction.name,
+        pageId: pageId,
+        appMode: appMode,
+        appId: currentApp.id,
+        onPageLoad: true,
+        appName: currentApp.name,
+        isExampleApp: currentApp.appIsExample,
+        pluginName: plugin?.name,
+        datasourceId: datasourceId,
+        isMock: !!datasource?.isMock,
+        actionId: pageAction?.id,
+      });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         undefined,

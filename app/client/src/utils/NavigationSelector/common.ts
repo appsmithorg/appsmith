@@ -13,6 +13,10 @@ export const createNavData = (general: {
   url: string | undefined;
   peekable: boolean;
   peekData: unknown;
+  pluginName?: string;
+  datasourceId?: string;
+  isMock?: boolean;
+  actionType?: string;
 }): NavigationData => {
   return {
     name: general.name,
@@ -24,6 +28,10 @@ export const createNavData = (general: {
     navigable: !!general.url,
     peekable: general.peekable,
     peekData: general.peekData,
+    pluginName: general.pluginName,
+    datasourceId: general.datasourceId,
+    isMock: general.isMock,
+    actionType: general.actionType,
   };
 };
 
