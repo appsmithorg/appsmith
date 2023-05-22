@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;

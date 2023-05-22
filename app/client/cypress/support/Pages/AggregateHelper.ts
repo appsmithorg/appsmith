@@ -195,6 +195,17 @@ export class AggregateHelper {
     else this.GetElement(selector).should(textPresence, text);
   }
 
+  public GetNAssertElementTextLast(
+    selector: string,
+    text: string,
+    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
+    index = 0,
+  ) {
+    if (index >= 0)
+      this.GetElement(selector).last().should(textPresence, text);
+    else this.GetElement(selector).last().should(textPresence, text);
+  }
+
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     this.GetElement(this.locator._toastMsg)
       .should("have.length.at.least", length)
@@ -544,6 +555,16 @@ export class AggregateHelper {
       .scrollIntoView()
       .click({ force: force })
       .wait(waitTimeInterval);
+  }
+
+   public GetNMouseover(
+    selector: string,
+    index = 0,
+  ) {
+    cy.get(selector)
+      .eq(index)
+      .trigger("mouseover",{force: true})
+      .wait(500);
   }
 
   public GetSiblingNClick(
