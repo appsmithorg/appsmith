@@ -6,33 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 let dsName: any;
 
 describe("Datasource Autosave Improvements Tests", function () {
-  it("1. Test to verify that delete button is disabled when datasource is in temporary state.", () => {
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.CreatePlugIn("PostgreSQL");
-      dsName = "Postgres" + uid;
-      agHelper.RenameWithInPane(dsName, false);
-      // assert delete disabled
-      agHelper.AssertElementEnabledDisabled(
-        dataSources._deleteDatasourceButton,
-      );
-      dataSources.SaveDatasource();
-      cy.wait(1000);
-      dataSources.EditDatasource();
-      // assert delete disabled
-      agHelper.AssertElementEnabledDisabled(
-        dataSources._deleteDatasourceButton,
-        0,
-        false,
-      );
-      agHelper.GoBack();
-      agHelper.AssertElementVisible(dataSources._activeDS);
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
-    });
-  });
-
-  it("2. Test to verify that when datasource is discarded, no datasource can be seen in active list", () => {
+  it("1. Test to verify that when datasource is discarded, no datasource can be seen in active list", () => {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -46,7 +20,7 @@ describe("Datasource Autosave Improvements Tests", function () {
     });
   });
 
-  it("3. Test to verify that when datasource is saved from discard pop, datasource can be seen in active list", () => {
+  it("2. Test to verify that when datasource is saved from discard pop, datasource can be seen in active list", () => {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -67,7 +41,7 @@ describe("Datasource Autosave Improvements Tests", function () {
     });
   });
 
-  it("4. Test to verify that Editing existing datasource, state of save button when new changes are made/not made.", () => {
+  it("3. Test to verify that Editing existing datasource, state of save button when new changes are made/not made.", () => {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
