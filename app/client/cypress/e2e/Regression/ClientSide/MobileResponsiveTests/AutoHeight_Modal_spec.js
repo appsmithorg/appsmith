@@ -8,8 +8,9 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 let childHeight = 0;
 let containerHeight = 0;
 let inputHeight = 0;
-describe("validate auto height for form widget on auto layout canvas", () => {
-  it("form widget height should update on adding or deleting child widgets", () => {
+let iconHeight = 0;
+describe("validate auto height for modal widget on auto layout canvas", () => {
+  it("modal widget height should update on adding or deleting child widgets", () => {
     /**
      * Convert app to AutoLayout
      */
@@ -28,16 +29,16 @@ describe("validate auto height for form widget on auto layout canvas", () => {
     /**
      * Add widget.
      */
-    cy.dragAndDropToCanvas("formwidget", { x: 100, y: 200 });
-    cy.get(".t--widget-formwidget")
+    cy.dragAndDropToCanvas("modalwidget", { x: 100, y: 200 });
+    cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((height) => {
         containerHeight = parseInt(height?.split("px")[0]);
       });
 
     // add an input widget to the container.
-    cy.dragAndDropToWidget("inputwidgetv2", "formwidget", {
-      x: 100,
+    cy.dragAndDropToWidgetBySelector("inputwidgetv2", ".t--modal-widget", {
+      x: 250,
       y: 10,
     });
 
@@ -47,7 +48,7 @@ describe("validate auto height for form widget on auto layout canvas", () => {
         childHeight += parseInt(height?.split("px")[0]);
         inputHeight = parseInt(height?.split("px")[0]);
       });
-    cy.get(".t--widget-formwidget")
+    cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
@@ -59,7 +60,7 @@ describe("validate auto height for form widget on auto layout canvas", () => {
       });
 
     // Add a child Table widget to the container.
-    cy.dragAndDropToWidget("tablewidgetv2", "formwidget", {
+    cy.dragAndDropToWidgetBySelector("tablewidgetv2", ".t--modal-widget", {
       x: 100,
       y: 76,
     });
@@ -69,7 +70,7 @@ describe("validate auto height for form widget on auto layout canvas", () => {
       .then((height) => {
         childHeight += parseInt(height?.split("px")[0]);
       });
-    cy.get(".t--widget-formwidget")
+    cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
@@ -78,11 +79,11 @@ describe("validate auto height for form widget on auto layout canvas", () => {
       });
 
     // Delete table widget
-    cy.openPropertyPane("tablewidgetv2");
+    cy.openPropertyPaneFromModal("tablewidgetv2");
     cy.wait(1000);
     cy.get("[data-testid='t--delete-widget']").click({ force: true });
     cy.wait(1000);
-    cy.get(".t--widget-formwidget")
+    cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
@@ -91,29 +92,35 @@ describe("validate auto height for form widget on auto layout canvas", () => {
       });
   });
 
-  it("form widget should update height upon flex wrap on mobile viewport", () => {
+  it("modal widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
-    cy.dragAndDropToWidget("inputwidgetv2", "formwidget", {
+    cy.dragAndDropToWidgetBySelector("inputwidgetv2", ".t--modal-widget", {
       x: 50,
       y: 40,
     });
     cy.wait(1000);
-    cy.get(".t--widget-formwidget")
+    cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.equal(containerHeight);
       });
 
+    cy.get(".t--widget-iconbuttonwidget")
+      .invoke("css", "height")
+      .then((height) => {
+        iconHeight = parseInt(height?.split("px")[0]);
+      });
+
     // Switch to mobile viewport
     cy.get("#canvas-viewport").invoke("width", `400px`);
     cy.wait(2000);
-    cy.get(".t--widget-formwidget")
+    cy.get(".t--modal-widget")
       .invoke("css", "height")
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         // Flex wrap would lead to creation of a new row.
-        const numOfRowsAdded = 1;
+        const numOfRowsAdded = 2;
         // Row gap is 8px on mobile viewport (< row gap on desktop).
         const rowGapDiff = ROW_GAP - MOBILE_ROW_GAP;
         const originalRows = 2;
@@ -122,7 +129,8 @@ describe("validate auto height for form widget on auto layout canvas", () => {
         expect(updatedHeight).to.equal(
           containerHeight +
             inputHeight +
-            WIDGET_PADDING +
+            iconHeight +
+            WIDGET_PADDING * 2 +
             numOfRowsAdded * MOBILE_ROW_GAP -
             totalRowGapDiff,
         );
