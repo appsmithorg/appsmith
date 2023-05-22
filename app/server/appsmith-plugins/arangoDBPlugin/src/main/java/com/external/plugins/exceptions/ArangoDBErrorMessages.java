@@ -27,10 +27,10 @@ public class ArangoDBErrorMessages {
      ************************************************************************************************************************************************
      */
     public static final String DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG = "Could not find required authentication info. At least one of 'Username', 'Password', " +
-            "'Database Name' fields is missing. Please edit the 'Username', 'Password' and " +
-            "'Database Name' fields to provide authentication info.";
+            "'Database name' fields is missing. Please edit the 'Username', 'Password' and " +
+            "'Database name' fields to provide authentication info.";
 
-    public static final String DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG = "Could not find host address. Please edit the 'Host Address' field to provide the desired endpoint.";
+    public static final String DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG = "Could not find host address. Please edit the 'Host address' field to provide the desired endpoint.";
 
     public static final String DS_CA_CERT_NOT_FOUND_ERROR_MSG = "Could not find CA certificate. Please provide a CA certificate.";
 

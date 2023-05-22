@@ -1,4 +1,3 @@
-import { Toaster, Variant } from "design-system-old";
 import { createMessage } from "@appsmith/constants/messages";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
@@ -14,6 +13,7 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+import { toast } from "design-system";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -66,12 +66,14 @@ const logCyclicDependecyErrors = (
 ) => {
   if (!!layoutErrors) {
     for (let index = 0; index < layoutErrors.length; index++) {
-      Toaster.show({
-        text: createMessage(() => {
+      toast.show(
+        createMessage(() => {
           return layoutErrors[index]?.errorType;
         }),
-        variant: Variant.danger,
-      });
+        {
+          kind: "error",
+        },
+      );
     }
     AppsmithConsole.addLogs(
       layoutErrors.reduce((acc: Log[], error: LayoutOnLoadActionErrors) => {

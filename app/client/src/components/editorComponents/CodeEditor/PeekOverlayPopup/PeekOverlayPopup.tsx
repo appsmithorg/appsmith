@@ -4,13 +4,13 @@ import React, { useEffect, useRef } from "react";
 import ReactJson from "react-json-view";
 import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";
-import { MenuDivider } from "design-system-old";
 import _, { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { filterInternalProperties } from "utils/FilterInternalProperties";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { Divider } from "design-system";
 import { useSelector } from "react-redux";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getJSCollections } from "selectors/entitiesSelector";
 
 export type PeekOverlayStateProps = {
@@ -105,8 +105,9 @@ export function PeekOverlayPopUpContent(
         minHeight: "46px",
         maxHeight: `${CONTAINER_MAX_HEIGHT_PX}px`,
         width: "300px",
-        backgroundColor: "var(--appsmith-color-black-0)",
+        backgroundColor: "var(--ads-v2-color-bg)",
         boxShadow: "0px 0px 10px #0000001A", // color used from designs
+        borderRadius: "var(--ads-v2-border-radius)",
         left: `${props.position.left + props.position.width - 300}px`,
         ...(props.position.top >= CONTAINER_MAX_HEIGHT_PX
           ? {
@@ -128,7 +129,7 @@ export function PeekOverlayPopUpContent(
       >
         {dataType}
       </div>
-      <MenuDivider style={{ margin: 0 }} />
+      <Divider style={{ display: "block" }} />
       <div
         id="t--peek-overlay-data"
         ref={dataWrapperRef}

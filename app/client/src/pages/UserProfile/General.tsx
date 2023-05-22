@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import {
-  notEmptyValidator,
-  Text,
-  TextInput,
-  TextType,
-  Toaster,
-  Variant,
-} from "design-system-old";
+import { Button, Input, toast, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
@@ -25,17 +17,8 @@ import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
 import { createMessage } from "design-system-old/build/constants/messages";
+import { notEmptyValidator } from "design-system-old";
 import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
-
-const ForgotPassword = styled.a`
-  margin-top: 12px;
-  border-bottom: 1px solid transparent;
-  &:hover {
-    cursor: pointer;
-    text-decoration: none;
-  }
-  display: inline-block;
-`;
 
 const nameValidator = (
   value: string,
@@ -67,15 +50,13 @@ function General() {
   const forgotPassword = async () => {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
-      Toaster.show({
-        text: createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email),
-        variant: Variant.success,
+      toast.show(createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email), {
+        kind: "success",
       });
       dispatch(logoutUser());
     } catch (error) {
-      Toaster.show({
-        text: (error as { _error: string })._error,
-        variant: Variant.success,
+      toast.show((error as { _error: string })._error, {
+        kind: "success",
       });
     }
   };
@@ -95,64 +76,68 @@ function General() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>
+          <Text kind="body-m">
             {createMessage(USER_DISPLAY_PICTURE_PLACEHOLDER)}
           </Text>
         </LabelWrapper>
-        <UserProfileImagePicker />
+        <div className="user-profile-image-picker">
+          <UserProfileImagePicker />
+        </div>
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>
-            {createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
-          </Text>
-        </LabelWrapper>
-        {
-          <div style={{ flex: 1 }}>
-            <TextInput
-              cypressSelector="t--display-name"
-              defaultValue={name}
-              fill={false}
-              onBlur={saveName}
-              onChange={setName}
-              onKeyPress={(ev: React.KeyboardEvent) => {
-                if (ev.key === "Enter") {
-                  saveName();
-                }
-              }}
-              placeholder={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
-              validator={nameValidator}
-            />
-          </div>
-        }
+        <Input
+          data-testid="t--display-name"
+          defaultValue={name}
+          isRequired
+          label={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
+          labelPosition="top"
+          onBlur={saveName}
+          onChange={setName}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveName();
+            }
+          }}
+          placeholder={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
+          renderAs="input"
+          size="md"
+          type="text"
+        />
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>
-            {createMessage(USER_EMAIL_PLACEHOLDER)}
-          </Text>
-        </LabelWrapper>
-        <div style={{ flexDirection: "column", display: "flex" }}>
-          {<Text type={TextType.P1}>{user?.email}</Text>}
-
+        <Input
+          data-testid="t--user-name"
+          defaultValue={user?.email}
+          isDisabled
+          isReadOnly
+          label={createMessage(USER_EMAIL_PLACEHOLDER)}
+          labelPosition="top"
+          placeholder={createMessage(USER_EMAIL_PLACEHOLDER)}
+          renderAs="input"
+          size="md"
+          type="text"
+        />
+      </FieldWrapper>
+      <FieldWrapper>
+        <div
+          style={{
+            display: "flex",
+            flex: "1 1 0%",
+            justifyContent: "flex-end",
+          }}
+        >
           {isFormLoginEnabled && (
-            <ForgotPassword onClick={forgotPassword}>
+            <Button
+              kind="secondary"
+              onClick={forgotPassword}
+              renderAs="a"
+              size="md"
+            >
               {createMessage(USER_RESET_PASSWORD)}
-            </ForgotPassword>
+            </Button>
           )}
         </div>
       </FieldWrapper>
-      {/* <InputWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Website</Text>
-        </LabelWrapper>
-        <TextInput
-          placeholder="Your website"
-          onChange={() => null}
-          defaultValue={""}
-          cypressSelector="t--profile-website"
-        />
-      </InputWrapper> */}
     </Wrapper>
   );
 }
