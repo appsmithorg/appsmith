@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -34,8 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -85,26 +84,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
-                .map(userPermissionGroupIds -> {
-                    Optional<Policy> interestingPolicyOptional = baseDomain.getPolicies().stream()
-                            .filter(policy -> policy.getPermission().equals(permission))
-                            .findFirst();
-                    if (!interestingPolicyOptional.isPresent()) {
-                        return FALSE;
-                    }
-
-                    Policy interestingPolicy = interestingPolicyOptional.get();
-                    Set<String> permissionGroupsIds = interestingPolicy.getPermissionGroups();
-                    if (permissionGroupsIds == null || permissionGroupsIds.isEmpty()) {
-                        return FALSE;
-                    }
-
-                    return userPermissionGroupIds.stream()
-                            .filter(userPermissionGroupId -> permissionGroupsIds.contains(userPermissionGroupId))
-                            .findFirst()
-                            .map(permissionGroup -> TRUE)
-                            .orElse(FALSE);
-                });
+                .map(userPermissionGroupIds ->
+                        PolicyUtils.isPermissionPresentInPolicies(permission, baseDomain.getPolicies(), userPermissionGroupIds)
+                );
     }
 
     public static final String fieldName(Path<?> path) {

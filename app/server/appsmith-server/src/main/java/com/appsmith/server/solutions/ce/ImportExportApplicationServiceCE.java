@@ -59,7 +59,7 @@ public interface ImportExportApplicationServiceCE {
      * @param importedDoc    application resource which contains necessary information to save the application
      * @return saved application in DB
      */
-    Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc);
+    Mono<Application> importNewApplicationInWorkspaceFromJson(String workspaceId, ApplicationJson importedDoc);
 
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
@@ -69,10 +69,9 @@ public interface ImportExportApplicationServiceCE {
      * @param applicationId  application which needs to be saved with the updated resources
      * @return Updated application
      */
-    Mono<Application> importApplicationInWorkspace(String workspaceId,
-                                                   ApplicationJson importedDoc,
-                                                   String applicationId,
-                                                   String branchName);
+    Mono<Application> importApplicationInWorkspaceFromGit(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
+
+    Mono<Application> restoreSnapshot(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
 
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
 

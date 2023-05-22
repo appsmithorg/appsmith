@@ -328,7 +328,7 @@ public class CreateDBTablePageSolutionTests {
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(testWorkspace.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(testWorkspace.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 
         resource.setApplicationId(gitData.getDefaultApplicationId());

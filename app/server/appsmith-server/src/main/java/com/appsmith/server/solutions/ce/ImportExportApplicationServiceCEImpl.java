@@ -40,6 +40,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -602,7 +603,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         Mono<ApplicationImportDTO> importedApplicationMono = extractApplicationJson(filePart)
-                .flatMap(applicationJson -> importApplicationInWorkspace(workspaceId, applicationJson))
+                .flatMap(applicationJson -> importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson))
                 .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         return Mono.create(sink -> importedApplicationMono
@@ -665,6 +666,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
         }
 
+        ImportApplicationPermissionProvider permissionProvider = new ImportApplicationPermissionProvider().toBuilder()
+                .workspacePermission(Optional.of(workspacePermission.getReadPermission()))
+                .applicationPermission(Optional.of(applicationPermission.getEditPermission()))
+                .existingDatasourcesPermission(Optional.of(datasourcePermission.getEditPermission()))
+                .existingPagesPermission(Optional.of(pagePermission.getEditPermission()))
+                .existingActionsPermission(Optional.of(actionPermission.getEditPermission()))
+                .existingActionCollectionsPermission(Optional.of(actionPermission.getEditPermission()))
+                // add more for the individual pages
+                .build();
+
         Mono<ApplicationImportDTO> importedApplicationMono = isConnectedToGitMono
                 .flatMap(isConnectedToGit -> {
                     if (isConnectedToGit) {
@@ -684,7 +695,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ((JsonArray) json.get("pageList"))
                     */
 
-                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, null)
+                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, null, false, permissionProvider)
                             .onErrorResume(error -> {
                                 if (error instanceof AppsmithException) {
                                     return Mono.error(error);
@@ -708,26 +719,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     @Override
-    public Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc) {
+    public Mono<Application> importNewApplicationInWorkspaceFromJson(String workspaceId, ApplicationJson importedDoc) {
         // workspace id must be present and valid
         if(StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        // user must have permission to create application in this workspace
-        return workspaceService.findById(
-                        workspaceId, Optional.of(workspacePermission.getApplicationCreatePermission())
-                ).switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
-                )
-                .flatMap(workspace -> {
-                    List<Datasource> existingDatasources = new ArrayList<>();
-                    return importApplicationInWorkspace(workspace, importedDoc, null, null, false, existingDatasources);
-                });
+        ImportApplicationPermissionProvider permissionProvider = new ImportApplicationPermissionProvider().toBuilder()
+                .workspacePermission(Optional.of(workspacePermission.getApplicationCreatePermission()))
+                .existingDatasourcesPermission(Optional.of(workspacePermission.getDatasourceCreatePermission()))
+                .build();
+
+        return importApplicationInWorkspace(workspaceId, importedDoc, null, null, false, permissionProvider);
     }
 
     /**
-     * This function will update an existing application. The application may or may not be connected to Git.
+     * This function will update an existing application. The application is connected to Git.
      * @param workspaceId workspace to which application is going to be stored
      * @param importedDoc    application resource which contains necessary information to save the application
      * @param applicationId  application which needs to be saved with the updated resources
@@ -735,32 +742,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     @Override
-    public Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
-        Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(
-                                AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                FieldName.APPLICATION_ID,
-                                applicationId))
-                );
+    public Mono<Application> importApplicationInWorkspaceFromGit(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
+        ImportApplicationPermissionProvider permissionProvider = new ImportApplicationPermissionProvider()
+                .toBuilder() // to builder is required to copy the default values to the builder
+                .workspacePermission(Optional.of(workspacePermission.getReadPermission()))
+                .build();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(
-                workspaceId, Optional.of(workspacePermission.getDatasourceCreatePermission())
-        ).switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
-        );
+        return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
+    }
 
-        final Mono<List<Datasource>> existingDatasourcesListMono = datasourceRepository
-                .findAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
-                .collectList();
+    @Override
+    public Mono<Application> restoreSnapshot(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
+        ImportApplicationPermissionProvider permissionProvider = new ImportApplicationPermissionProvider().toBuilder()
+                .workspacePermission(Optional.of(workspacePermission.getReadPermission()))
+                .applicationPermission(Optional.of(applicationPermission.getEditPermission()))
+                .build();
 
-        return Mono.zip(workspaceMono, applicationMono, existingDatasourcesListMono)
-                .flatMap(objects -> {
-                    Workspace workspace = objects.getT1();
-                    Application application = objects.getT2();
-                    List<Datasource> existingDatasources = objects.getT3();
-                    return importApplicationInWorkspace(workspace, importedDoc, application, branchName, false, existingDatasources);
-                });
+        return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
     }
 
     /**
@@ -784,80 +782,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return errorField;
     }
 
-    private Mono<Map<String, String>> importDatasources(List<Datasource> importedDatasourceList, List<Datasource> existingDatasources, Map<String, String> pluginMap, Workspace workspace, ApplicationJson importedDoc) {
-        if (CollectionUtils.isEmpty(importedDatasourceList)) {
-            return Mono.empty();
-        }
-        Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
-
-        existingDatasources.stream()
-                .filter(datasource -> datasource.getGitSyncId() != null)
-                .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
-
-        // Check if the destination org have all the required plugins installed
-        for (Datasource datasource : importedDatasourceList) {
-            if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
-                log.error("Unable to find the plugin: {}, available plugins are: {}", datasource.getPluginId(), pluginMap.keySet());
-                return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
-            }
-        }
-        return Flux.fromIterable(importedDatasourceList)
-                // Check for duplicate datasources to avoid duplicates in target workspace
-                .flatMap(datasource -> {
-
-                    final String importedDatasourceName = datasource.getName();
-                    // Check if the datasource has gitSyncId and if it's already in DB
-                    if (datasource.getGitSyncId() != null
-                            && savedDatasourcesGitIdToDatasourceMap.containsKey(datasource.getGitSyncId())) {
-
-                        // Since the resource is already present in DB, just update resource
-                        Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
-                        datasource.setId(null);
-                        // Don't update datasource config as the saved datasource is already configured by user
-                        // for this instance
-                        datasource.setDatasourceConfiguration(null);
-                        datasource.setPluginId(null);
-                        copyNestedNonNullProperties(datasource, existingDatasource);
-                        // Don't update the datasource configuration for already available datasources
-                        existingDatasource.setDatasourceConfiguration(null);
-                        return datasourceService.update(existingDatasource.getId(), existingDatasource);
-                    }
-
-                    // This is explicitly copied over from the map we created before
-                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                    datasource.setWorkspaceId(workspace.getId());
-
-                    // Check if any decrypted fields are present for datasource
-                    if (importedDoc.getDecryptedFields() != null
-                            && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
-
-                        DecryptedSensitiveFields decryptedFields =
-                                importedDoc.getDecryptedFields().get(datasource.getName());
-
-                        updateAuthenticationDTO(datasource, decryptedFields);
-                    }
-
-                    return createUniqueDatasourceIfNotPresent(existingDatasources, datasource, workspace.getId());
-                })
-                .collectMap(Datasource::getName, Datasource::getId);
-    }
-
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
-     * @param workspace     workspace to which application is going to be stored
+     * @param workspaceId     workspace to which application is going to be stored
      * @param applicationJson application resource which contains necessary information to import the application
-     * @param targetApplication   application which needs to be saved with the updated resources
+     * @param applicationId   application which needs to be saved with the updated resources
      * @param branchName      name of the branch of application with applicationId
      * @param appendToApp     whether applicationJson will be appended to the existing app or not
      * @return Updated application
      */
-    private Mono<Application> importApplicationInWorkspace(Workspace workspace,
+    private Mono<Application> importApplicationInWorkspace(String workspaceId,
                                                            ApplicationJson applicationJson,
-                                                           Application targetApplication,
+                                                           String applicationId,
                                                            String branchName,
                                                            boolean appendToApp,
-                                                           List<Datasource> existingDatasources) {
+                                                           ImportApplicationPermissionProvider permissionProvider) {
         /*
             1. Migrate resource to latest schema
             2. Fetch workspace by id
@@ -894,9 +834,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
 
-//        Mono<Workspace> workspaceMono = workspaceService.findById(
-//                workspaceId, isGitSync ? Optional.empty() : Optional.of(workspacePermission.getApplicationCreatePermission())
-//        );
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, permissionProvider.getWorkspacePermission());
 
         /* We need to take care of the null case in case someone is trying to import an older app where JS libs did
         not exist */
@@ -917,10 +855,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
-
-//        final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-//                .findAllByWorkspaceId(workspaceId, isGitSync ? Optional.empty() : Optional.of(datasourcePermission.getEditPermission()))
-//                .cache();
+        final Flux<Datasource> existingDatasourceFlux = datasourceRepository
+                .findAllByWorkspaceId(workspaceId, permissionProvider.getExistingDatasourcesPermission())
+                .cache();
 
         assert importedApplication != null : "Received invalid application object!";
         if (importedApplication.getApplicationVersion() == null) {
@@ -943,23 +880,76 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return plugin;
                 })
                 .then(installedJSLibMono)
-//                .then(workspaceMono)
-//                .switchIfEmpty(Mono.error(
-//                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
-//                )
-//                .flatMap(workspace -> {
-//                    // Check if the request is to hydrate the application to DB for particular branch
-//                    // Application id will be present for GIT sync
-//                    if (applicationId != null) {
-//                        // No need to hydrate the datasource as we expect user will configure the datasource
-//                        return existingDatasourceFlux.collectList();
-//                    }
-//                    return Mono.just(new ArrayList<Datasource>());
-//                })
-                .then(Mono.defer(()-> importDatasources(importedDatasourceList, existingDatasources, pluginMap, workspace, importedDoc)))
-//                .thenMany(importDatasources(importedDatasourceList, existingDatasources, pluginMap, workspace, importedDoc))
-//                .collectMap(Datasource::getName, Datasource::getId)
-                .switchIfEmpty(Mono.just(new HashMap<>()))
+                .then(workspaceMono)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
+                )
+                .flatMap(workspace -> {
+                    // Check if the request is to hydrate the application to DB for particular branch
+                    // Application id will be present for GIT sync
+                    if (!StringUtils.isEmpty(applicationId)) {
+                        // No need to hydrate the datasource as we expect user will configure the datasource
+                        return existingDatasourceFlux.collectList();
+                    }
+                    return Mono.just(new ArrayList<Datasource>());
+                })
+                .flatMapMany(existingDatasources -> {
+                    if (CollectionUtils.isEmpty(importedDatasourceList)) {
+                        return Mono.empty();
+                    }
+                    Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
+
+                    existingDatasources.stream()
+                            .filter(datasource -> datasource.getGitSyncId() != null)
+                            .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
+
+                    // Check if the destination org have all the required plugins installed
+                    for (Datasource datasource : importedDatasourceList) {
+                        if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
+                            log.error("Unable to find the plugin: {}, available plugins are: {}", datasource.getPluginId(), pluginMap.keySet());
+                            return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
+                        }
+                    }
+                    return Flux.fromIterable(importedDatasourceList)
+                            // Check for duplicate datasources to avoid duplicates in target workspace
+                            .flatMap(datasource -> {
+
+                                final String importedDatasourceName = datasource.getName();
+                                // Check if the datasource has gitSyncId and if it's already in DB
+                                if (datasource.getGitSyncId() != null
+                                        && savedDatasourcesGitIdToDatasourceMap.containsKey(datasource.getGitSyncId())) {
+
+                                    // Since the resource is already present in DB, just update resource
+                                    Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
+                                    datasource.setId(null);
+                                    // Don't update datasource config as the saved datasource is already configured by user
+                                    // for this instance
+                                    datasource.setDatasourceConfiguration(null);
+                                    datasource.setPluginId(null);
+                                    copyNestedNonNullProperties(datasource, existingDatasource);
+                                    // Don't update the datasource configuration for already available datasources
+                                    existingDatasource.setDatasourceConfiguration(null);
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
+                                }
+
+                                // This is explicitly copied over from the map we created before
+                                datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                datasource.setWorkspaceId(workspaceId);
+
+                                // Check if any decrypted fields are present for datasource
+                                if (importedDoc.getDecryptedFields() != null
+                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+
+                                    DecryptedSensitiveFields decryptedFields =
+                                            importedDoc.getDecryptedFields().get(datasource.getName());
+
+                                    updateAuthenticationDTO(datasource, decryptedFields);
+                                }
+
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId);
+                            });
+                })
+                .collectMap(Datasource::getName, Datasource::getId)
                 .flatMap(map -> {
                             datasourceMap.putAll(map);
                             // 1. Assign the policies for the imported application
@@ -974,10 +964,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         return application;
                                     })
                                     .flatMap(application -> {
-                                        importedApplication.setWorkspaceId(workspace.getId());
+                                        importedApplication.setWorkspaceId(workspaceId);
                                         // Application Id will be present for GIT sync
-                                        if (targetApplication != null) {
-                                            return Mono.just(targetApplication)
+                                        if (!StringUtils.isEmpty(applicationId)) {
+                                            return applicationService.findById(applicationId, Optional.empty())
+                                                    .switchIfEmpty(
+                                                            Mono.error(new AppsmithException(
+                                                                    AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                                    FieldName.APPLICATION_ID,
+                                                                    applicationId))
+                                                    )
                                                     .flatMap(existingApplication -> {
                                                         if (appendToApp) {
                                                             // When we are appending the pages to the existing application
@@ -1115,7 +1111,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             // to the existing application
                                             continue;
                                         }
-                                        log.debug("Unable to find the page during import for appId {}, with name {}", targetApplication.getId(), applicationPage.getId());
+                                        log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
                                         unpublishedPageItr.remove();
                                     } else {
                                         applicationPage.setId(newPage.getId());
@@ -1141,7 +1137,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ApplicationPage applicationPage = publishedPagesItr.next();
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
                                     if (newPage == null) {
-                                        log.debug("Unable to find the page during import for appId {}, with name {}", targetApplication.getId(), applicationPage.getId());
+                                        log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
                                         if (!appendToApp) {
                                             publishedPagesItr.remove();
                                         }
@@ -1161,7 +1157,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // attached to the application:
                                 // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                                 // the git flow only
-                                if (targetApplication != null && !appendToApp) {
+                                if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                     Set<String> validPageIds = applicationPages.get(EDIT).stream()
                                             .map(ApplicationPage::getId)
                                             .collect(Collectors.toSet());
@@ -1183,8 +1179,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 // Delete the pages which were removed during git merge operation
                                                 // This does not apply to the traditional import via file approach
                                                 return Flux.fromIterable(invalidPageIds)
-                                                        .flatMap(applicationPageService::deleteUnpublishedPage)
-                                                        .flatMap(page -> newPageService.archiveById(page.getId())
+                                                        .flatMap(applicationPageService::deleteWithoutPermissionUnpublishedPage)
+                                                        .flatMap(page -> newPageService.archiveWithoutPermissionById(page.getId())
                                                                 .onErrorResume(e -> {
                                                                     log.debug("Unable to archive page {} with error {}", page.getId(), e.getMessage());
                                                                     return Mono.empty();
@@ -1227,7 +1223,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     // attached to the application:
                                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                                     // the git flow only
-                                    if (targetApplication != null && !appendToApp) {
+                                    if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                         // Remove unwanted actions
                                         Set<String> invalidActionIds = new HashSet<>();
                                         for (NewAction action : existingActions) {
@@ -1288,7 +1284,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // attached to the application:
                                 // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                                 // the git flow only
-                                if (targetApplication != null && !appendToApp) {
+                                if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                     // Remove unwanted action collections
                                     Set<String> invalidCollectionIds = new HashSet<>();
                                     for (ActionCollection collection : existingActionCollections) {
@@ -1297,7 +1293,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                     }
                                     return Flux.fromIterable(invalidCollectionIds)
-                                            .flatMap(collectionId -> actionCollectionService.deleteUnpublishedActionCollection(collectionId)
+                                            .flatMap(collectionId -> actionCollectionService.deleteWithoutPermissionUnpublishedActionCollection(collectionId)
                                                     // return an empty collection so that the filter can remove it from the list
                                                     .onErrorResume(throwable -> {
                                                         log.debug("Failed to delete collection with id {} during import", collectionId);
@@ -1350,7 +1346,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing application. Error: {}", errorMessage, throwable);
-                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspace.getId(), errorMessage));
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
 
@@ -2076,12 +2072,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * This will check if the datasource is already present in the workspace and create a new one if unable to find one
      *
-     * @param existingDatasources already present datasource in the workspace
+     * @param existingDatasourceFlux already present datasource in the workspace
      * @param datasource             which will be checked against existing datasources
      * @param workspaceId            workspace where duplicate datasource should be checked
      * @return already present or brand new datasource depending upon the equality check
      */
-    private Mono<Datasource> createUniqueDatasourceIfNotPresent(List<Datasource> existingDatasources,
+    private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
                                                                 String workspaceId) {
         /*
@@ -2097,7 +2093,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             datasourceConfig.getAuthentication().setAuthenticationType(null);
         }
 
-        return Flux.fromIterable(existingDatasources)
+        return existingDatasourceFlux
                 // For git import exclude datasource configuration
                 .filter(ds -> ds.getName().equals(datasource.getName()) && datasource.getPluginId().equals(ds.getPluginId()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
@@ -2116,7 +2112,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 datasource.setName(datasource.getName() + suffix);
                                 return datasource;
                             })
-                            .then(datasourceService.create(datasource));
+                            .then(datasourceService.createWithoutPermissions(datasource));
                 }));
     }
 
@@ -2315,31 +2311,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
 
-        Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getPageCreatePermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(
-                                AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                FieldName.APPLICATION_ID,
-                                applicationId))
-                );
+        ImportApplicationPermissionProvider permissionProvider = new ImportApplicationPermissionProvider().toBuilder()
+                .workspacePermission(Optional.of(workspacePermission.getReadPermission()))
+                .existingDatasourcesPermission(Optional.of(workspacePermission.getDatasourceCreatePermission()))
+                .applicationPermission(Optional.of(applicationPermission.getPageCreatePermission()))
+                .build();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(
-                workspaceId, Optional.of(workspacePermission.getDatasourceCreatePermission())
-        ).switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
-        );
-
-        final Mono<List<Datasource>> existingDatasourcesListMono = datasourceRepository
-                .findAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
-                .collectList();
-
-        return Mono.zip(workspaceMono, applicationMono, existingDatasourcesListMono)
-                .flatMap(objects -> {
-                    Workspace workspace = objects.getT1();
-                    Application application = objects.getT2();
-                    List<Datasource> existingDatasources = objects.getT3();
-                    return importApplicationInWorkspace(workspace, applicationJson, application, branchName, true, existingDatasources);
-                });
+        return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, branchName, true, permissionProvider);
     }
 
     private Mono<Map<String, String>> updateNewPagesBeforeMerge(Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {

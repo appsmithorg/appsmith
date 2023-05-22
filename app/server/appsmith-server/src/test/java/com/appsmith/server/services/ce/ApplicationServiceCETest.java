@@ -280,7 +280,7 @@ public class ApplicationServiceCETest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
             testPlugin = pluginService.findByPackageName("restapi-plugin").block();
@@ -3410,7 +3410,7 @@ public class ApplicationServiceCETest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService.createApplication(testApplication)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 
 

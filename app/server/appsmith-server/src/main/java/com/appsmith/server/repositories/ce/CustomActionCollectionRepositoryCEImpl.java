@@ -39,6 +39,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
+    public Flux<ActionCollection> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission) {
+        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId)).is(applicationId);
+        return queryAll(List.of(applicationCriteria), aclPermission);
+    }
+
+    @Override
     public Flux<ActionCollection> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
         Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId)).is(applicationId);

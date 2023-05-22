@@ -133,7 +133,7 @@ public class ApplicationSnapshotServiceUnitTest {
         // matcher to check that ApplicationJson created from chunks matches the original one
         ArgumentMatcher<ApplicationJson> matchApplicationJson;
         matchApplicationJson = applicationJson1 -> applicationJson1.getExportedApplication().getName().equals(application.getName());
-        Mockito.when(importExportApplicationService.importApplicationInWorkspace(eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
+        Mockito.when(importExportApplicationService.restoreSnapshot(eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
@@ -182,7 +182,7 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
                 .thenReturn(Flux.fromIterable(snapshots));
 
-        Mockito.when(importExportApplicationService.importApplicationInWorkspace(eq(application.getWorkspaceId()), any(), eq(branchedAppId), eq(branch)))
+        Mockito.when(importExportApplicationService.restoreSnapshot(eq(application.getWorkspaceId()), any(), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))

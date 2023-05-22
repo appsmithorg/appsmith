@@ -90,7 +90,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                     String applicationJsonString = objects.getT1();
                     Application application = objects.getT2();
                     ApplicationJson applicationJson = gson.fromJson(applicationJsonString, ApplicationJson.class);
-                    return importExportApplicationService.importApplicationInWorkspace(
+                    return importExportApplicationService.restoreSnapshot(
                             application.getWorkspaceId(), applicationJson, application.getId(), branchName
                     );
                 })
