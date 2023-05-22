@@ -9,6 +9,7 @@
     "prettier": "prettier --check ."
   },
   "dependencies": {
+    "@floating-ui/react": "^0.24.0",
     "@react-aria/button": "^3.7.0",
     "@react-aria/checkbox": "^3.9.0",
     "@react-aria/focus": "^3.11.0",
