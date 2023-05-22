@@ -2,7 +2,8 @@ import type React from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
 import type { EventName } from "utils/AnalyticsUtil";
-import type { RadioProps } from "pages/Settings/FormGroup/Radio";
+import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
+import type { CalloutKind, SelectOptionProps } from "design-system";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -12,7 +13,7 @@ type ControlType = {
 }[keyof ControlPropsType];
 
 type ControlPropsType = {
-  [SettingTypes.RADIO]: RadioProps;
+  [SettingTypes.RADIO]: RadioOptionProps;
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
   [SettingTypes.LINK]: unknown;
@@ -76,12 +77,12 @@ export type Setting = ControlType & {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
-  calloutType?: "Info" | "Warning" | "Notify";
+  calloutType?: CalloutKind;
   advanced?: Setting[];
   isRequired?: boolean;
   formName?: string;
   fieldName?: string;
-  dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
+  dropdownOptions?: Partial<SelectOptionProps>[];
   needsUpgrade?: boolean;
   upgradeLogEventName?: EventName;
   upgradeIntercomMessage?: string;

@@ -4,7 +4,7 @@ const dsl = require("../../fixtures/Mapdsl.json");
 const publishPage = require("../../locators/publishWidgetspage.json");
 
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
-  describe("Map Widget Functionality", function () {
+  describe("excludeForAirgap", "Map Widget Functionality", function () {
     before(() => {
       cy.addDsl(dsl);
     });

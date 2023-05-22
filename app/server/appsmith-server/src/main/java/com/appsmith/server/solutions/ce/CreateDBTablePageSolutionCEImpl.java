@@ -1053,8 +1053,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     private void createSuccessMessageAndSetAsset(Plugin plugin, CRUDPageResponseDTO crudPage) {
 
-        String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "LIST" : "TABLE";
-        String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "FILEPICKER" : "FORM";
+        String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "List" : "Table";
+        String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "Filepicker" : "Form";
 
         String successUrl = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ?
                 Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_S3 : Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR;
@@ -1063,7 +1063,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
         // Field used to send success message after the successful page creation
         String successMessage = "We have generated the <b>" + displayWidget + "</b> from the <b>" + plugin.getName()
-                + " Datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
+                + " datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
                 "data is already connected you can add more queries and modify the bindings";
 
         crudPage.setSuccessMessage(successMessage);

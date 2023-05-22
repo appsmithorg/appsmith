@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -75,6 +75,29 @@ public class SnowflakePluginTest {
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_WAREHOUSE_NAME_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_SCHEMA_NAME_ERROR_MSG));
+    }
+
+    @Test
+    public void testDatasourceWithInvalidUrl() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        datasourceConfiguration.setAuthentication(auth);
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("warehouse","warehouse"));
+        properties.add(new Property("db","dbName"));
+        properties.add(new Property("schema","schemaName"));
+        properties.add(new Property("role","userRole"));
+        datasourceConfiguration.setUrl("invalid.host.name");
+        datasourceConfiguration.setProperties(properties);
+        Mono<DatasourceTestResult> output = pluginExecutor.testDatasource(datasourceConfiguration);
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.getInvalids().contains(SnowflakeErrorMessages.
+                            UNABLE_TO_CREATE_CONNECTION_ERROR_MSG));
+                }).verifyComplete();
     }
 
     @Test

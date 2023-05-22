@@ -26,19 +26,20 @@
     "@typescript-eslint/parser": "^5.25.0",
     "chalk": "^4.1.1",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "9.7.0",
+    "cypress": "10.4.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-log-to-output": "^1.1.2",
     "cypress-multi-reporters": "^1.2.4",
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.7.1",
+    "cypress-tags": "^1.1.2",
     "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.4.0",
     "diff": "^5.0.0",
     "dotenv": "^8.1.0",
     "eslint-plugin-cypress": "^2.11.2",
     "tinycolor2": "^1.4.2",
-    "typescript": "4.5.5"
+    "typescript": "4.9.5"
   }
 }

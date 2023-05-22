@@ -2,6 +2,7 @@ import type { ChangeEvent } from "react";
 import React from "react";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -17,7 +18,6 @@ interface Props {
   height: string;
   folding: boolean;
   showLineNumbers?: boolean;
-  isReadOnly?: boolean;
   isRawView?: boolean;
   containerHeight?: number;
 }
@@ -38,9 +38,10 @@ function ReadOnlyEditor(props: Props) {
       : true,
     borderLess: true,
     folding: props.folding,
-    isReadOnly: props.isReadOnly,
+    isReadOnly: true,
     isRawView: props.isRawView,
     containerHeight: props.containerHeight,
+    border: CodeEditorBorder.NONE,
   };
   return <LazyCodeEditor {...editorProps} />;
 }

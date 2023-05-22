@@ -2,7 +2,6 @@ import React from "react";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import { Category } from "design-system-old";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
@@ -16,12 +15,12 @@ import {
   getDatasourceFormButtonConfig,
   getPlugin,
   getPluginDocumentationLinks,
+  getDatasourceScopeValue,
 } from "selectors/entitiesSelector";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
 import {
   ActionWrapper,
-  EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
@@ -64,13 +63,18 @@ import {
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { Button } from "design-system";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
 import { getConfigInitialValues } from "components/formControls/utils";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "../DataSourceEditor/Debugger";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -97,6 +101,8 @@ interface StateProps extends JSONtoFormProps {
   gsheetToken?: string;
   gsheetProjectID?: string;
   documentationLink: string | undefined;
+  showDebugger: boolean;
+  scopeValue?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -114,7 +120,7 @@ type DatasourceSaaSEditorProps = StateProps &
     datasourceId: string;
     pageId: string;
     pluginPackageName: string;
-  }>;
+  }> & { dispatch: any };
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
@@ -136,8 +142,7 @@ type State = {
 const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
-  padding: 24px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
@@ -160,8 +165,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -184,19 +196,20 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
     this.props.loadFilePickerAction();
@@ -277,7 +290,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      documentationLink,
       formConfig,
       formData,
       gsheetProjectID,
@@ -286,6 +298,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       pageId,
       plugin,
       pluginPackageName,
+      scopeValue,
+      showDebugger,
     } = this.props;
     const params: string = location.search;
     const viewMode =
@@ -341,9 +355,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
               {viewMode && (
                 <ActionWrapper>
-                  <EditDatasourceButton
-                    category={Category.secondary}
+                  <Button
                     className="t--edit-datasource"
+                    kind="secondary"
                     onClick={() => {
                       this.props.setDatasourceViewMode(false);
                       this.props.history.replace(
@@ -354,8 +368,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         }),
                       );
                     }}
-                    text="EDIT"
-                  />
+                    size="md"
+                  >
+                    Edit
+                  </Button>
                   {isGoogleSheetPlugin && (
                     <NewActionButton
                       datasource={datasource}
@@ -364,99 +380,96 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       }
                       eventFrom="datasource-pane"
                       plugin={plugin}
-                      style={{
-                        marginLeft: "16px",
-                      }}
                     />
                   )}
                 </ActionWrapper>
               )}
             </Header>
           )}
-          {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
-            <>
-              {/* This adds information banner when creating google sheets datasource,
+          <ResizerMainContainer>
+            <ResizerContentContainer className="saas-form-resizer-content">
+              {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
+                <>
+                  {/* This adds information banner when creating google sheets datasource,
               this info banner explains why appsmith requires permissions from users google account */}
-              {datasource &&
-              isGoogleSheetPlugin &&
-              datasource?.id === TEMP_DATASOURCE_ID ? (
-                <AuthMessage
-                  actionType={ActionType.DOCUMENTATION}
-                  calloutType="Notify"
-                  datasource={datasource}
-                  description={googleSheetsInfoMessage}
-                  pageId={pageId}
-                  style={{
-                    paddingTop: "24px",
-                  }}
-                />
-              ) : null}
-              {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
-              {datasource &&
-              isGoogleSheetPlugin &&
-              !isPluginAuthorized &&
-              datasource?.id !== TEMP_DATASOURCE_ID ? (
-                <AuthMessage
-                  datasource={datasource}
-                  description={authErrorMessage}
-                  pageId={pageId}
-                  style={{
-                    paddingTop: "24px",
-                  }}
-                />
-              ) : null}
-              {!_.isNil(sections)
-                ? _.map(sections, this.renderMainSection)
-                : null}
-              {""}
-            </>
-          )}
-          {viewMode && (
-            <ViewModeWrapper>
-              <Connected
-                errorComponent={
-                  datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+                  {datasource &&
+                  isGoogleSheetPlugin &&
+                  datasource?.id === TEMP_DATASOURCE_ID ? (
                     <AuthMessage
-                      actionType="authorize"
+                      actionType={ActionType.DOCUMENTATION}
+                      calloutType="info"
+                      datasource={datasource}
+                      description={googleSheetsInfoMessage}
+                      pageId={pageId}
+                    />
+                  ) : null}
+                  {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
+                  {datasource &&
+                  isGoogleSheetPlugin &&
+                  !isPluginAuthorized &&
+                  datasource?.id !== TEMP_DATASOURCE_ID ? (
+                    <AuthMessage
                       datasource={datasource}
                       description={authErrorMessage}
                       pageId={pageId}
                     />
-                  ) : null
-                }
-                showDatasourceSavedText={!isGoogleSheetPlugin}
-              />
-              <div style={{ marginTop: "30px" }}>
-                {!_.isNil(formConfig) &&
-                !_.isNil(datasource) &&
-                !hideDatasourceSection ? (
-                  <DatasourceInformation
-                    config={formConfig[0]}
-                    datasource={datasource}
-                    viewMode={!!viewMode}
+                  ) : null}
+                  {!_.isNil(sections)
+                    ? _.map(sections, this.renderMainSection)
+                    : null}
+                  {""}
+                </>
+              )}
+              {viewMode && (
+                <ViewModeWrapper>
+                  <Connected
+                    errorComponent={
+                      datasource &&
+                      isGoogleSheetPlugin &&
+                      !isPluginAuthorized ? (
+                        <AuthMessage
+                          actionType="authorize"
+                          datasource={datasource}
+                          description={authErrorMessage}
+                          pageId={pageId}
+                        />
+                      ) : null
+                    }
+                    showDatasourceSavedText={!isGoogleSheetPlugin}
                   />
-                ) : undefined}
-              </div>
-            </ViewModeWrapper>
-          )}
-          {/* Render datasource form call-to-actions */}
-          {datasource && (
-            <DatasourceAuth
-              datasource={datasource}
-              datasourceButtonConfiguration={datasourceButtonConfiguration}
-              datasourceDeleteTrigger={this.datasourceDeleteTrigger}
-              formData={formData}
-              getSanitizedFormData={_.memoize(this.getSanitizedData)}
-              isInvalid={this.validate()}
-              pageId={pageId}
-              shouldDisplayAuthMessage={!isGoogleSheetPlugin}
-              shouldRender={!viewMode}
-              triggerSave={this.props.isDatasourceBeingSavedFromPopup}
-            />
-          )}
+                  <div style={{ margin: "var(--ads-v2-spaces-7) 0" }}>
+                    {!_.isNil(formConfig) &&
+                    !_.isNil(datasource) &&
+                    !hideDatasourceSection ? (
+                      <DatasourceInformation
+                        config={formConfig[0]}
+                        datasource={datasource}
+                        viewMode={!!viewMode}
+                      />
+                    ) : undefined}
+                  </div>
+                </ViewModeWrapper>
+              )}
+              {/* Render datasource form call-to-actions */}
+              {datasource && (
+                <DatasourceAuth
+                  datasource={datasource}
+                  datasourceButtonConfiguration={datasourceButtonConfiguration}
+                  datasourceDeleteTrigger={this.datasourceDeleteTrigger}
+                  formData={formData}
+                  getSanitizedFormData={_.memoize(this.getSanitizedData)}
+                  isInvalid={this.validate()}
+                  pageId={pageId}
+                  scopeValue={scopeValue}
+                  shouldDisplayAuthMessage={!isGoogleSheetPlugin}
+                  shouldRender={!viewMode}
+                  triggerSave={this.props.isDatasourceBeingSavedFromPopup}
+                />
+              )}
+            </ResizerContentContainer>
+            {showDebugger && <Debugger />}
+          </ResizerMainContainer>
         </form>
-        {/* Documentation link opens up documentation in omnibar, for google sheets */}
-        {documentationLink && <DocumentationLink />}
         <SaveOrDiscardDatasourceModal
           datasourceId={datasourceId}
           datasourcePermissions={datasource?.userPermissions || []}
@@ -496,6 +509,13 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   merge(initialValues, datasource);
 
+  // get scopeValue to be shown in analytical events
+  const scopeValue = getDatasourceScopeValue(
+    state,
+    datasourceId,
+    DATASOURCE_SAAS_FORM,
+  );
+
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
     formData?.pluginId,
@@ -520,6 +540,8 @@ const mapStateToProps = (state: AppState, props: any) => {
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);
   const documentationLinks = getPluginDocumentationLinks(state);
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   return {
     datasource,
@@ -551,6 +573,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     canCreateDatasourceActions,
     gsheetToken,
     gsheetProjectID,
+    showDebugger,
+    scopeValue,
   };
 };
 

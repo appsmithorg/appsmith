@@ -47,7 +47,7 @@ import PerformanceTracker, {
 import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export function ReflowResizable(props: ResizableProps) {
   // Auto Layouts resizable is dependent on the app state of the widget so on delete it crashes the app
