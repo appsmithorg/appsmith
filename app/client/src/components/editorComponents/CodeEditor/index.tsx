@@ -587,14 +587,17 @@ class CodeEditor extends Component<Props, State> {
     this.editor.clearHistory();
   };
 
-  showPeekOverlay = (expression: string, tokenElement: Element) => {
+  showPeekOverlay = (
+    expression: string,
+    paths: string[],
+    tokenElement: Element,
+  ) => {
     const tokenElementPosition = tokenElement.getBoundingClientRect();
     if (this.state.peekOverlayProps) {
       if (tokenElement === this.state.peekOverlayProps.tokenElement) return;
       this.hidePeekOverlay();
     }
     tokenElement.classList.add(PEEK_STYLE_PERSIST_CLASS);
-    const paths = _.toPath(expression);
     this.setState({
       peekOverlayProps: {
         objectName: paths[0],
@@ -670,6 +673,7 @@ class CodeEditor extends Component<Props, State> {
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
           if (lineExpression) {
+            const paths = _.toPath(lineExpression);
             if (
               // global variables and functions
               // JsObject1, storeValue()
@@ -682,11 +686,11 @@ class CodeEditor extends Component<Props, State> {
               // string accessor - ["x"]
               tokenElement.classList.contains("cm-string")
             ) {
-              this.showPeekOverlay(lineExpression, tokenElement);
+              this.showPeekOverlay(lineExpression, paths, tokenElement);
             } else if (tokenElement.classList.contains("cm-keyword")) {
               // this keyword for jsObjects
               if (this.props.isJSObject && tokenElement.innerHTML === "this") {
-                this.showPeekOverlay(lineExpression, tokenElement);
+                this.showPeekOverlay(lineExpression, paths, tokenElement);
               }
             } else {
               this.hidePeekOverlay();

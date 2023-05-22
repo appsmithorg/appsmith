@@ -10,6 +10,9 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     sourceType: SourceType.module,
     thisExpressionReplacement: "JsObject",
   });
+
+  let result: string | undefined;
+
   it("handles MemberExpressions", async () => {
     let result;
 
@@ -118,6 +121,127 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       );
     }
     expect(result).toBe(undefined);
+  });
+
+  it("handles BinaryExpressions", async () => {
+    scriptIdentifier.updateScript(
+      `Api1.data.users[0].id === "myData test" ? "Yes" : "No"`,
+    );
+
+    // id
+    result = await scriptIdentifier.extractExpressionAtPosition(19);
+    expect(result).toBe("Api1.data.users[0].id");
+
+    // myData
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(27);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // ?
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(40);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // Yes
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(43);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // :
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(48);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // No
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(51);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBeUndefined();
+
+    // hardcoded LHS
+    scriptIdentifier.updateScript(`"sample" === "myData test" ? "Yes" : "No"`);
+    // sample
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(1);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+
+    // nested expressions
+    scriptIdentifier.updateScript(
+      `"sample" === "myData test" ? "nested" === "nested check" ? "Yes" : "No" : "No"`,
+    );
+    // nested
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(31);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+
+    // nested check
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(44);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+
+    // Yes
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(61);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+
+    // No
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(69);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
   });
 
   it("handles this keyword replacement", async () => {

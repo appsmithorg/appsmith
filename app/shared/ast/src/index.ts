@@ -118,8 +118,15 @@ export interface CallExpressionNode extends Node {
   arguments: ArgumentTypes[];
 }
 
-export interface ThisExpressionNode extends Node {
+export interface ThisExpressionNode extends Expression {
   type: "ThisExpression";
+}
+
+export interface ConditionalExpressionNode extends Expression {
+  type: "ConditionalExpression";
+  test: Expression;
+  alternate: Expression;
+  consequent: Expression;
 }
 
 export interface BlockStatementNode extends Node {
@@ -191,6 +198,11 @@ export const isThisExpressionNode = (
 ): node is ThisExpressionNode => {
   return node.type === NodeTypes.ThisExpression;
 };
+
+export const isConditionalExpressionNode = (
+  node: Node,
+): node is ConditionalExpressionNode =>
+  node.type === NodeTypes.ConditionalExpression;
 
 export const isBinaryExpressionNode = (
   node: Node,

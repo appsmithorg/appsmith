@@ -1,9 +1,13 @@
 import type { Node } from "acorn";
 import type {
+  BinaryExpressionNode,
+  ConditionalExpressionNode,
   ExpressionStatement,
   IdentifierNode,
   MemberExpressionNode,
 } from "../index";
+import { isBinaryExpressionNode } from "../index";
+import { isConditionalExpressionNode } from "../index";
 import {
   isCallExpressionNode,
   isExpressionStatementNode,
@@ -75,9 +79,45 @@ const getExpressionAtPosFromExpressionStatement = (
   const expressionNode = node.expression;
   if (isMemberExpressionNode(expressionNode)) {
     return getExpressionAtPosFromMemberExpression(expressionNode, pos, options);
+  } else if (isConditionalExpressionNode(expressionNode)) {
+    return getExpressionAtPosFromConditionalExpression(
+      expressionNode,
+      pos,
+      options,
+    );
   } else if (!isCallExpressionNode(expressionNode)) {
     // remove ; from expression statement
     return stringRemoveLastCharacter(escodegen.generate(node));
+  }
+};
+
+const getExpressionAtPosFromConditionalExpression = (
+  node: ConditionalExpressionNode,
+  pos: number,
+  options?: PeekOverlayExpressionIdentifierOptions,
+): string | undefined => {
+  if (isPositionWithinNode(node.test, pos)) {
+    if (isBinaryExpressionNode(node.test)) {
+      return getExpressionAtPosFromBinaryExpression(node.test, pos, options);
+    } else {
+      return getExpressionStringAtPos(node.test, pos, options);
+    }
+  } else if (isPositionWithinNode(node.consequent, pos)) {
+    return getExpressionStringAtPos(node.consequent, pos, options);
+  } else if (isPositionWithinNode(node.alternate, pos)) {
+    return getExpressionStringAtPos(node.alternate, pos, options);
+  }
+};
+
+const getExpressionAtPosFromBinaryExpression = (
+  node: BinaryExpressionNode,
+  pos: number,
+  options?: PeekOverlayExpressionIdentifierOptions,
+): string | undefined => {
+  if (isPositionWithinNode(node.left, pos)) {
+    return getExpressionStringAtPos(node.left, pos, options);
+  } else if (isPositionWithinNode(node.right, pos)) {
+    return getExpressionStringAtPos(node.right, pos, options);
   }
 };
 
