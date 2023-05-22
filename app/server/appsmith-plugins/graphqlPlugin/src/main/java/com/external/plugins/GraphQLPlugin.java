@@ -282,7 +282,8 @@ public class GraphQLPlugin extends BasePlugin {
                         objectMapper, hintMessages, errorResult, requestCaptureFilter
                     )
                     .onErrorResume(error -> {
-                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest, isBodySentWithApiRequest));
                         errorResult.setIsExecutionSuccess(false);
                         if (! (error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED, GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
