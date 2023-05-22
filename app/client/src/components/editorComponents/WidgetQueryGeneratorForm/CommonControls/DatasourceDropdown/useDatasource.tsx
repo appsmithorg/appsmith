@@ -146,9 +146,23 @@ export function useDatasource() {
     if (mockDatasources.length) {
       mockDatasourceOptions = mockDatasourceOptions.concat(
         mockDatasources
-          .filter(({ packageName }) =>
-            WidgetQueryGeneratorRegistry.has(packageName),
-          )
+          .filter(({ packageName }) => {
+            if (!WidgetQueryGeneratorRegistry.has(packageName)) {
+              return false;
+            }
+
+            /*
+             * remove mocks from which the user has already created the source.
+             */
+            const datasource: Datasource | undefined =
+              availableDatasources.find(
+                (d) =>
+                  pluginsPackageNamesMap[d.pluginId] === packageName &&
+                  d.isMock,
+              );
+
+            return !datasource;
+          })
           .map((datasource) => ({
             id: "sample " + datasource.name,
             label: "sample " + datasource.name,

@@ -114,18 +114,24 @@ export function useColumns(alias: string) {
     (column, columnObj) => {
       updateConfig(alias, columnObj.value);
 
-      AnalyticsUtil.logEvent(`GENERATE_QUERY_SET_COLUMN`, {
-        columnAlias: alias,
-        columnName: columnObj.value,
-        widgetName: widget.widgetName,
-        widgetType: widget.type,
-        propertyName: propertyName,
-        pluginType: config.datasourcePluginType,
-        pluginName: config.datasourcePluginName,
-      });
+      if (column) {
+        AnalyticsUtil.logEvent(`GENERATE_QUERY_SET_COLUMN`, {
+          columnAlias: alias,
+          columnName: columnObj.value,
+          widgetName: widget.widgetName,
+          widgetType: widget.type,
+          propertyName: propertyName,
+          pluginType: config.datasourcePluginType,
+          pluginName: config.datasourcePluginName,
+        });
+      }
     },
     [updateConfig, alias],
   );
+
+  const onClear = useCallback(() => {
+    updateConfig(alias, "");
+  }, [updateConfig]);
 
   const selectedValue = get(config, alias);
 
@@ -160,5 +166,6 @@ export function useColumns(alias: string) {
     primaryColumn,
     columns: columnList,
     disabled: isConnecting,
+    onClear,
   };
 }

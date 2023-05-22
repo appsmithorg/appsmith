@@ -4,7 +4,8 @@ import {
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize, TooltipComponent as Tooltip } from "design-system-old";
+import { Icon, IconSize } from "design-system-old";
+import { Tooltip } from "design-system";
 import React, { memo } from "react";
 import {
   ErrorMessage,
@@ -38,7 +39,6 @@ export default memo(function TableHeaderIndex() {
           <TooltipWrapper>
             <Tooltip
               content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
-              hoverOpenDelay={200}
             >
               <RoundBg>
                 <Icon

@@ -12,14 +12,23 @@ type Props = {
 };
 
 function ColumnDropdown(props: Props) {
-  const { disabled, error, isLoading, onSelect, options, selected, show } =
-    useColumns(props.alias);
+  const {
+    disabled,
+    error,
+    isLoading,
+    onClear,
+    onSelect,
+    options,
+    selected,
+    show,
+  } = useColumns(props.alias);
 
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
         <Label>{props.label}</Label>
         <Select
+          allowClear
           className={`t--one-click-binding-column-${props.alias}`}
           dropdownStyle={{
             minWidth: "350px",
@@ -28,6 +37,7 @@ function ColumnDropdown(props: Props) {
           isDisabled={disabled}
           isLoading={isLoading}
           isValid={!error}
+          onClear={onClear}
           onSelect={(value: string, selectedOption: DefaultOptionType) => {
             const option = options.find((d) => d.id === selectedOption.key);
 

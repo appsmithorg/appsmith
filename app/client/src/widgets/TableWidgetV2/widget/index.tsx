@@ -191,8 +191,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         allowAddNewRow: true,
         ...Object.keys(widget.primaryColumns).reduce(
           (prev: Record<string, boolean>, curr) => {
-            prev[`primaryColumns.${curr}.isEditable`] = true;
-            prev[`primaryColumns.${curr}.isCellEditable`] = true;
+            if (formConfig.primaryColumn !== curr) {
+              prev[`primaryColumns.${curr}.isEditable`] = true;
+              prev[`primaryColumns.${curr}.isCellEditable`] = true;
+            }
+
             prev[`showInlineEditingOptionDropdown`] = true;
 
             return prev;
