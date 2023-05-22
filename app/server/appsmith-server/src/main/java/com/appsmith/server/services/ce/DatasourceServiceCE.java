@@ -65,7 +65,7 @@ public interface DatasourceServiceCE {
      * @param IsUserRefreshedUpdate
      * @return
      */
-    Mono<Datasource> updateDatasourceStorages(DatasourceStorageDTO datasourceStorageDTO, String environmentId, Boolean IsUserRefreshedUpdate);
+    Mono<Datasource> updateDatasourceStorages(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
 
