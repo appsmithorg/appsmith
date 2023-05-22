@@ -81,7 +81,10 @@ import {
   jsCollectionIdURL,
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  DatasourceCreateEntryPoints,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
 import { toast } from "design-system";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
@@ -497,8 +500,12 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.snippet]: (e: SelectEvent, item: any) =>
       handleSnippetClick(e, item),
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
-      if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
-      else if (item.redirect) item.redirect(currentPageId, "OMNIBAR");
+      if (item.action)
+        dispatch(
+          item.action(currentPageId, DatasourceCreateEntryPoints.OMNIBAR),
+        );
+      else if (item.redirect)
+        item.redirect(currentPageId, DatasourceCreateEntryPoints.OMNIBAR);
       dispatch(toggleShowGlobalSearchModal());
     },
   };

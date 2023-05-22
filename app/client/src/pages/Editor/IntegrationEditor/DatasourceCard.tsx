@@ -49,6 +49,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -226,6 +227,11 @@ function DatasourceCard(props: DatasourceCardProps) {
         }),
       );
     }
+    AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+      datasourceId: datasource?.id,
+      pluginName: plugin?.name,
+      entryPoint: DatasourceEditEntryPoints.DATASOURCE_CARD_EDIT,
+    });
   }, [datasource.id, plugin]);
 
   const routeToGeneratePage = () => {
