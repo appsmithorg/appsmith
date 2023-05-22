@@ -7,9 +7,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 

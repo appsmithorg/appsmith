@@ -4,9 +4,6 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
