@@ -92,5 +92,39 @@ describe(
 
       cy.get(template.templateViewForkButton).should("be.visible");
     });
+
+    it("3. Add page from template to show only apps with 'allowPageImport:true'", () => {
+      cy.wait(5000);
+      cy.CheckAndUnfoldEntityItem("Pages");
+      cy.get(`.t--entity-name:contains(Page1)`)
+        .trigger("mouseover")
+        .click({ force: true });
+      cy.wait(1000);
+      cy.get(template.startFromTemplateCard).click();
+
+      cy.get(template.templateDialogBox).should("be.visible");
+      cy.wait("@fetchTemplate").then((interception) => {
+        const { response } = interception;
+        const templatesInResponse = response.body.data
+          .filter((card) => !!card.allowPageImport)
+          .map((card) => card.title);
+
+        if (templatesInResponse.length === 0) {
+          return;
+        }
+        cy.get(template.templateCard).then((cards) => {
+          expect(cards.length).equal(templatesInResponse.length);
+          const cardsInUINames = [];
+          cards.each((index, card) => {
+            const card = Cypress.$(card);
+            const title = card.find(".title").text();
+            cardsInUINames.push(title);
+          });
+          expect(cardsInUINames.sort().join()).to.equal(
+            templatesInResponse.sort().join(),
+          );
+        });
+      });
+    });
   },
 );
