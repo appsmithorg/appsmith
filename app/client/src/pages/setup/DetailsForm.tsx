@@ -15,6 +15,8 @@ import {
   WELCOME_FORM_CUSTOM_USE_CASE,
   WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
+  CONTINUE,
+  ONBOARDING_STATUS_GET_STARTED,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
@@ -183,7 +185,9 @@ export default function DetailsForm(
             size="md"
             type={isFirstPage() ? "button" : "submit"}
           >
-            {isFirstPage() ? "Continue" : "Get Started"}
+            {isFirstPage()
+              ? createMessage(CONTINUE)
+              : createMessage(ONBOARDING_STATUS_GET_STARTED)}
           </Button>
         </ButtonWrapper>
       </StyledFormBodyWrapper>

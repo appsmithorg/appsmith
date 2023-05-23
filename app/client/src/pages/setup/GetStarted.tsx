@@ -118,7 +118,7 @@ function NonSuperUser(
       <ActionContainer>
         <StyledButton
           className="t--get-started-button"
-          disabled={props.invalid}
+          isDisabled={props.invalid}
           kind="primary"
           renderAs="button"
           type="submit"
