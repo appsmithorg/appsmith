@@ -118,7 +118,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<DatasourceDTO> create(DatasourceDTO datasourceDTO, String environmentId) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
         return this.create(datasource)
-                .flatMap(datasource1 -> convertToDatasourceDTO(datasource1));
+                .flatMap(this::convertToDatasourceDTO);
     }
 
     @Override
@@ -190,6 +190,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .map(datasourceStorageDTO -> {
                                 DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
                                 datasourceStorage.prepareTransientFields(datasource1);
+                                String trueEnvironmentId = getTrueEnvironmentId(datasourceStorageDTO.getEnvironmentId());
+                                datasourceStorage.setEnvironmentId(getTrueEnvironmentId(trueEnvironmentId));
                                 return datasourceStorage;
                             })
                             .flatMap(datasourceStorage -> {
@@ -269,7 +271,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             // This is meant to be an update for storage
             return datasourceMono
                     .flatMap(dbDatasource -> datasourceStorageService
-                            .updateByDatasourceAndEnvironmentId(datasource, environmentId, isUserRefreshedUpdate)
+                            .updateByDatasourceAndEnvironmentId(datasource, getTrueEnvironmentId(environmentId), isUserRefreshedUpdate)
                             .map(datasourceStorage -> {
                                 datasource.getDatasourceStorages()
                                         .put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceStorage));
@@ -380,8 +382,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
+        // the datasource has been created with datasourceStorageKey as output of getTrueEnvironmentId
+        String trueEnvironmentId = this.getTrueEnvironmentId(environmentId);
         DatasourceStorage datasourceStorage = datasourceStorageService
-                .getDatasourceStorageFromDatasource(datasource, environmentId);
+                .getDatasourceStorageFromDatasource(datasource, trueEnvironmentId);
 
         Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage)
                 .flatMap(datasourceStorageService::checkEnvironment);
@@ -392,7 +396,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceStorageMono =
                     this.findById(datasource.getId(), datasourcePermission.getExecutePermission())
-                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
+                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, trueEnvironmentId))
                             .map(datasourceStorage1 -> {
                                 copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
                                 return datasourceStorage1;
