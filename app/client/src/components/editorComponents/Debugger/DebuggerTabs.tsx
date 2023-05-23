@@ -1,7 +1,6 @@
 import type { RefObject } from "react";
 import React, { useRef, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -29,11 +28,21 @@ import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { Button } from "design-system";
 
 const TABS_HEADER_HEIGHT = 36;
 
+export const CloseDebugger = styled(Button)`
+  &.close-debugger {
+    position: absolute;
+    top: 3px;
+    right: 0px;
+    padding: 9px 11px;
+  }
+`;
+
 const Container = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   position: absolute;
   bottom: 0;
   height: ${ActionExecutionResizerHeight}px;
@@ -41,18 +50,11 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.colors.debugger.background};
   border-top: 1px solid ${Colors.ALTO};
 
-  ul.react-tabs__tab-list {
+  ul.ads-v2-tabs__list {
     padding: 0px ${(props) => props.theme.spaces[12]}px;
   }
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     height: calc(100% - ${TABS_HEADER_HEIGHT}px);
-  }
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
   }
 `;
 
@@ -123,11 +125,13 @@ function DebuggerTabs() {
         selectedTabKey={selectedTab}
         tabs={DEBUGGER_TABS}
       />
-      <Icon
+      <CloseDebugger
         className="close-debugger t--close-debugger"
-        name="close-modal"
+        isIconButton
+        kind="tertiary"
         onClick={onClose}
-        size={IconSize.XL}
+        size="md"
+        startIcon="close-modal"
       />
     </Container>
   ) : null;
