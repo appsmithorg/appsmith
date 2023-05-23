@@ -2,7 +2,7 @@
 export class Templates {
   public locators = {
     _forkApp: ".t--fork-template",
-    _templateCard: "[data-cy='template-card']",
+    _templateCard: "[data-testid='template-card']",
   };
 
   ForkTemplateByName(name: string) {

@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Collapse } from "@blueprintjs/core";
-import { Checkbox, Text, TextType } from "design-system-old";
+import { Checkbox, Text } from "design-system";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
@@ -11,7 +10,10 @@ import {
 } from "selectors/templatesSelectors";
 import { thinScrollbar } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
+
+const FilterMainContainer = styled.div`
+  /* padding: 0 16px; */
+`;
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -32,22 +34,22 @@ const FilterWrapper = styled.div`
 const FilterItemWrapper = styled.div<{ selected: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11] - 10}px `};
-  .filter input + span {
-    ${(props) => !props.selected && `border: 1.8px solid ${Colors.GRAY_400};`}
+
+  .ads-v2-checkbox__label {
+    line-height: 16px;
   }
 `;
 
 const StyledFilterCategory = styled(Text)`
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
+  margin-bottom: 16px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
   font-weight: bold;
   text-transform: capitalize;
+  font-size: 13px;
 
   &.title {
     margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;
-    display: inline-block;
-    text-transform: uppercase;
-    // font-size: 14px;
+    color: var(--ads-v2-color-fg-emphasis);
   }
 `;
 
@@ -92,11 +94,13 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
     <FilterItemWrapper selected={selected}>
       <Checkbox
         // backgroundColor={Colors.GREY_900}
-        className="filter"
-        isDefaultChecked={selected}
-        label={item.label}
-        onCheckChange={onClick}
-      />
+        // className="filter"
+        defaultSelected={selected}
+        onChange={onClick}
+        value={item.label}
+      >
+        {item.label}
+      </Checkbox>
     </FilterItemWrapper>
   );
 }
@@ -134,7 +138,7 @@ function FilterCategory({
 
   return (
     <FilterCategoryWrapper>
-      <StyledFilterCategory type={TextType.P4}>
+      <StyledFilterCategory kind="body-m" renderAs="h4">
         {`${label} `}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
@@ -149,7 +153,7 @@ function FilterCategory({
             />
           );
         })}
-        <Collapse isOpen>
+        <>
           {filterList.slice(FILTERS_TO_SHOW).map((filter) => {
             return (
               <FilterItem
@@ -160,7 +164,7 @@ function FilterCategory({
               />
             );
           })}
-        </Collapse>
+        </>
         {/* We will be adding this back later */}
         {/* {!!filterList.slice(FILTERS_TO_SHOW).length && (
           <Text
@@ -186,8 +190,8 @@ function Filters() {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
-    <div>
-      <StyledFilterCategory className={"title"} type={TextType.SIDE_HEAD}>
+    <FilterMainContainer>
+      <StyledFilterCategory className={"title"} kind="heading-s" renderAs="h3">
         {createMessage(FILTERS)}
       </StyledFilterCategory>
       <FilterWrapper className="filter-wrapper">
@@ -202,7 +206,7 @@ function Filters() {
           );
         })}
       </FilterWrapper>
-    </div>
+    </FilterMainContainer>
   );
 }
 

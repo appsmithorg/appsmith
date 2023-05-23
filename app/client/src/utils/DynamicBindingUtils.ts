@@ -510,7 +510,7 @@ export function getDynamicBindingsChangesSaga(
       dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
     }
     if (isDynamic && !fieldExists) {
-      dynamicBindings.push({ key: bindingField });
+      dynamicBindings = [...dynamicBindings, { key: bindingField }];
     }
   }
 
