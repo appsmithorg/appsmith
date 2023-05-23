@@ -84,7 +84,7 @@ describe("DocumentViewer Widget Functionality", () => {
     deployMode.NavigateBacktoEditor();
 
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Document Link", encodedXlsDoc);
+    propPane.UpdatePropertyFieldValue("Document link", encodedXlsDoc);
     deployMode.DeployApp();
     //"456" is pressent in the encoded xlsx doc
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
