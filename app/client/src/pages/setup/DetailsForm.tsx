@@ -69,7 +69,7 @@ export default function DetailsForm(
         <StyledTabIndicator isFirstPage={isFirstPage} />
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
-        <div style={isFirstPage ? { display: "block" } : { display: "none" }}>
+        <div className={isFirstPage ? "block" : "none"}>
           <div className="flex flex-row justify-between w-100">
             <StyledFormGroup className="!w-52 t--welcome-form-first-name">
               <FormTextField
