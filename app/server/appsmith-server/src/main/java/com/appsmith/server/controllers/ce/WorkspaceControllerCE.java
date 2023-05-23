@@ -3,13 +3,13 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -68,7 +68,7 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     @JsonView(Views.Public.class)
     @PostMapping("/{workspaceId}/logo")
     public Mono<ResponseDTO<Workspace>> uploadLogo(@PathVariable String workspaceId,
-                                                      @RequestPart("file") Mono<Part> fileMono) {
+                                                   @RequestPart("file") Mono<Part> fileMono) {
         return fileMono
                 .flatMap(filePart -> service.uploadLogo(workspaceId, filePart))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
