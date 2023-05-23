@@ -177,6 +177,9 @@ export const WorkspaceText = styled.div`
     display: inline;
   }
 `;
+export const CustomRoleRampTooltip = styled(Tooltip)`
+  pointer-events: auto;
+`;
 
 const validateFormValues = (values: {
   users: string;
@@ -265,7 +268,7 @@ function CustomRolesRamp() {
     </span>
   );
   return (
-    <Tooltip content={rampText} placement="right">
+    <CustomRoleRampTooltip content={rampText} placement="right">
       <div className="flex flex-col gap-1">
         <div className="flex gap-1">
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
@@ -280,7 +283,7 @@ function CustomRolesRamp() {
           within an application
         </Text>
       </div>
-    </Tooltip>
+    </CustomRoleRampTooltip>
   );
 }
 
