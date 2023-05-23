@@ -431,8 +431,6 @@ export class PropertyPane {
   }
 
   public AssertSelectValue(value: string) {
-    cy.xpath(`//button[contains(@class, 't--open-dropdown-${value}')]`).should(
-      "exist",
-    );
+    cy.xpath(this.locator._selectByValue(value)).should("exist");
   }
 }
