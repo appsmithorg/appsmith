@@ -267,7 +267,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.dropdownOption).click();
   cy.get(signupPage.useCaseDropdown).click();
   cy.get(signupPage.dropdownOption).click();
-  cy.get(signupPage.roleUsecaseSubmit).click();
+  cy.get(signupPage.roleUsecaseSubmit).click({ force: true });
 
   cy.wait("@getMe");
   cy.wait(3000);

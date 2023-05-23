@@ -98,7 +98,11 @@ export default memo(function LandingPage(props: LandingPageProps) {
       <LandingPageContent>
         <StyledTextBanner>
           <Banner />
-          {props.forSuperUser ? <SuperUserForm /> : <NonSuperUserForm />}
+          {props.forSuperUser ? (
+            <SuperUserForm />
+          ) : (
+            <NonSuperUserForm onGetStarted={props.onGetStarted} />
+          )}
         </StyledTextBanner>
         <StyledImageBanner>
           <div className="flex self-start w-2/6 h-16 ml-56">
