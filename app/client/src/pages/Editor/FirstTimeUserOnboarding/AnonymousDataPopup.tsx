@@ -3,7 +3,7 @@ import { Callout } from "design-system";
 import {
   ONBOARDING_TELEMETRY_POPUP,
   createMessage,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 export default function AnonymousDataPopup(props: {
   onCloseCallout: () => void;

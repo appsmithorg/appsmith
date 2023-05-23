@@ -23,7 +23,7 @@ import { FormGroup } from "design-system-old";
 import { Button, Checkbox } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 import { Colors } from "constants/Colors";
-import { isAirgapped } from "ce/utils/airgapHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;

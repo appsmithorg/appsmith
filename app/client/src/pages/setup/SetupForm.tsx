@@ -19,7 +19,7 @@ import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
-import { isAirgapped } from "ce/utils/airgapHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const PageWrapper = styled.div`
   width: 100%;
