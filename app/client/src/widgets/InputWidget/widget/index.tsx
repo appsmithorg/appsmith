@@ -127,7 +127,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
+    const definitions = {
       "!doc":
         "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
       "!url": "https://docs.appsmith.com/widget-reference/input",
@@ -148,6 +148,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         "!doc": "Selected country code for Currency type input",
       },
     };
+
+    return definitions;
   }
 
   static getPropertyPaneConfig() {
