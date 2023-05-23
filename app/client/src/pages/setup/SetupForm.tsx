@@ -151,9 +151,9 @@ function SetupForm(props: SetupFormProps) {
     const anonymousDataInput = document.createElement("input");
     anonymousDataInput.type = "checkbox";
     anonymousDataInput.value = isAirgappedFlag ? "false" : "true";
+    anonymousDataInput.checked = isAirgappedFlag ? false : true;
     anonymousDataInput.name = "allowCollectingAnonymousData";
     anonymousDataInput.style.display = "none";
-    anonymousDataInput.checked = true;
     form.appendChild(anonymousDataInput);
     const signupForNewsletter: HTMLInputElement = document.querySelector(
       `[name="signupForNewsletter"]`,
