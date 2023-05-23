@@ -1,4 +1,3 @@
-import _ from "cypress/types/lodash";
 import {
   PROPERTY_SELECTOR,
   WIDGET,

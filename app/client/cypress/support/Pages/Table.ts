@@ -557,7 +557,7 @@ export class Table {
   public AddSampleTableData() {
     ObjectsRegistry.PropertyPane.ToggleJsMode("Table Data");
     ObjectsRegistry.PropertyPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       JSON.stringify(sampleTableData),
       true,
     );
