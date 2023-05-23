@@ -10,7 +10,7 @@ import BaseWidget from "widgets/BaseWidget";
 import { IconNames } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import IconButtonComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -210,6 +210,21 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       buttonColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
     };
   }
 

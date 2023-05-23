@@ -2,7 +2,7 @@ import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -311,6 +311,29 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultCheckedState",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   getPageView() {

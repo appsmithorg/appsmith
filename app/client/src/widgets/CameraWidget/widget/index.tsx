@@ -9,7 +9,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
@@ -221,6 +221,21 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   static getWidgetType(): string {
     return "CAMERA_WIDGET";
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   getPageView() {
