@@ -1557,6 +1557,12 @@ export const IN_APP_EMBED_SETTING = {
   allowEmbeddingLabel: () => "Embedding enabled",
   allowEmbeddingTooltip: () =>
     "This app can be embedded in all domains, including malicious ones",
+  forkApplicationConfirmation: {
+    title: () => "Allow developers to fork this app to their workspace?",
+    body: () => "Forking allows developers to copy your app to their workspace",
+    cancel: () => "CANCEL",
+    confirm: () => "ALLOW FORKING",
+  },
   copy: () => "Copy",
   copied: () => "Copied",
   limitEmbeddingLabel: () => "Embedding restricted",
@@ -1574,6 +1580,10 @@ export const IN_APP_EMBED_SETTING = {
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
+  forkContentHeader: () => "Fork",
+  forkLabel: () => "Make application forkable",
+  forkLabelTooltip: () =>
+    "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
   upgradeHeadingForInviteModal: () =>
