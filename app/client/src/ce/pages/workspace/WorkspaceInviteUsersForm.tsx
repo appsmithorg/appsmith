@@ -258,7 +258,7 @@ function InviteUserText() {
   );
 }
 
-function CustomRolesRamp() {
+export function CustomRolesRamp() {
   const rampText = (
     <span>
       {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
