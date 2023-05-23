@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import type { Column } from "react-table";
 import { useTable } from "react-table";
 import _ from "lodash";
 import * as XLSX from "xlsx";
@@ -78,11 +77,20 @@ const numberToExcelHeader = (index: number): string => {
 
 interface DocumentViewerState {
   sheetNames: string[];
-  currentTableData: any[];
-  currentTableHeaders: Column[];
-  tableData: Record<number, any[]>;
-  headerData: Record<number, Column[]>;
+  currentTableData: RowData[];
+  currentTableHeaders: HeaderCell[];
+  tableData: Record<number, RowData[]>;
+  headerData: Record<number, HeaderCell[]>;
 }
+
+interface HeaderCell {
+  Header: string;
+  accessor: string;
+}
+
+type RawSheetData = unknown[][];
+
+type RowData = Record<string, unknown>; // key is column name, value is cell value
 
 export default function XlsxViewer(props: { blob?: Blob }) {
   const [sheetIndex, setSheetIndex] = useState<number>(-1);
@@ -93,43 +101,48 @@ export default function XlsxViewer(props: { blob?: Blob }) {
       resetStates();
     } else {
       parseBlob(props.blob)
-        .then((jsonData: { sheetsData: any; sheetNames: string[] }) => {
-          const newState = newStateInstance();
-          newState.sheetNames = jsonData.sheetNames;
-          const newSheetIndex = jsonData.sheetsData.length > 0 ? 0 : -1;
+        .then(
+          (jsonData: { sheetsData: RawSheetData[]; sheetNames: string[] }) => {
+            const newState = newStateInstance();
+            newState.sheetNames = jsonData.sheetNames;
+            const newSheetIndex = jsonData.sheetsData.length > 0 ? 0 : -1;
 
-          jsonData.sheetsData.forEach((data: any[], index: number) => {
-            newState.tableData[index] = parseTableBody(data);
-            newState.headerData[index] = parseTableHeaders(data);
-          });
+            jsonData.sheetsData.forEach((data: RawSheetData, index: number) => {
+              newState.tableData[index] = parseTableBody(data);
+              newState.headerData[index] = parseTableHeaders(data);
+            });
 
-          newState.currentTableData = newState.tableData[newSheetIndex];
-          newState.currentTableHeaders = newState.headerData[newSheetIndex];
+            newState.currentTableData = newState.tableData[newSheetIndex];
+            newState.currentTableHeaders = newState.headerData[newSheetIndex];
 
-          setState(newState);
-          setSheetIndex(newSheetIndex);
-        })
+            setState(newState);
+            setSheetIndex(newSheetIndex);
+          },
+        )
         .catch(() => {
           resetStates();
         });
     }
   }, [props.blob]);
 
-  async function parseBlob(blob: Blob) {
+  async function parseBlob(
+    blob: Blob,
+  ): Promise<{ sheetsData: RawSheetData[]; sheetNames: string[] }> {
     const buffer = await blob.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: "array" });
-    const jsonData = convertWorkbookDataToJSON(workbook);
-    return jsonData;
+    return convertWorkbookDataToJSON(workbook);
   }
 
-  const convertWorkbookDataToJSON = (workbook: XLSX.WorkBook) => {
-    const sheetsData: any[] = [];
+  const convertWorkbookDataToJSON = (
+    workbook: XLSX.WorkBook,
+  ): { sheetsData: RawSheetData[]; sheetNames: string[] } => {
+    const sheetsData: RawSheetData[] = [];
     const sheetNames: string[] = [];
 
     workbook.SheetNames.forEach((name, index) => {
       sheetNames.push(name);
 
-      const result = XLSX.utils.sheet_to_json(
+      const result: RawSheetData = XLSX.utils.sheet_to_json(
         workbook.Sheets[workbook.SheetNames[index]],
         { header: 1 },
       );
@@ -140,13 +153,14 @@ export default function XlsxViewer(props: { blob?: Blob }) {
   };
 
   function newStateInstance() {
-    const defaultTableData: Record<number, []> = { "-1": [] };
+    const defaultTableData: Record<number, RowData[]> = { "-1": [] };
+    const defaultHeaderData: Record<number, HeaderCell[]> = { "-1": [] };
     const newState: DocumentViewerState = {
       sheetNames: [],
       currentTableData: [],
       currentTableHeaders: [],
       tableData: { ...defaultTableData },
-      headerData: { ...defaultTableData },
+      headerData: { ...defaultHeaderData },
     };
     return newState;
   }
@@ -157,13 +171,13 @@ export default function XlsxViewer(props: { blob?: Blob }) {
     setSheetIndex(-1);
   };
 
-  function parseTableBody(excelData: any[]) {
-    const data = [] as any;
+  function parseTableBody(excelData: RawSheetData): RowData[] {
+    const data: RowData[] = [];
     for (const row of excelData) {
-      const currRow = {} as any;
+      const currRow: RowData = {};
 
       for (const [index, value] of row.entries()) {
-        const columnLabel = String(numberToExcelHeader(index));
+        const columnLabel: string = numberToExcelHeader(index);
         let cellValue = value;
         if (_.isDate(value)) {
           cellValue = value.toDateString();
@@ -177,14 +191,14 @@ export default function XlsxViewer(props: { blob?: Blob }) {
     return data;
   }
 
-  const parseTableHeaders = (tableData: any[]) => {
-    const newHeader: any[] = [];
+  const parseTableHeaders = (tableData: RawSheetData): HeaderCell[] => {
+    const newHeader: HeaderCell[] = [];
     if (tableData.length) {
       // create header letters based on columnCount
       const headers = tableData[0];
 
       for (let i = 0; i < headers.length; i++) {
-        const currHeader = numberToExcelHeader(i);
+        const currHeader: string = numberToExcelHeader(i);
         newHeader.push({
           Header: currHeader,
           accessor: currHeader,
