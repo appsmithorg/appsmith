@@ -166,7 +166,7 @@ function getActionHeading(
     case AppsmithFunction.removeValue:
       return (
         FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_REMOVE_VALUE].getter(code) ||
-        "Add Key"
+        "Add key"
       );
 
     case AppsmithFunction.setInterval:
@@ -177,7 +177,7 @@ function getActionHeading(
 
     case AppsmithFunction.clearInterval:
       return (
-        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add ID"
+        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add Id"
       );
 
     case AppsmithFunction.getGeolocation:

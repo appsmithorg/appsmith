@@ -43,7 +43,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();
     propPane.SelectPlatformFunction("onRowSelected", "Navigate to");
-    cy.get(".t--open-dropdown-Select-Page").click();
+    cy.get(".t--open-dropdown-Select-page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)
       .click({ force: true });
