@@ -13,7 +13,8 @@ import styled from "styled-components";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { TooltipComponent, importRemixIcon } from "design-system-old";
+import { Tooltip } from "design-system";
+import { importRemixIcon } from "design-system-old";
 
 const AppsLineIcon = importRemixIcon(
   () => import("remixicon-react/AppsLineIcon"),
@@ -52,20 +53,11 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
   if (currentUser?.username === ANONYMOUS_USERNAME) {
     return null;
   }
-
   return (
-    <TooltipComponent
-      boundary="viewport"
+    <Tooltip
       content={createMessage(ALL_APPS)}
-      disabled={insideSidebar}
-      hoverOpenDelay={500}
-      modifiers={{
-        preventOverflow: {
-          enabled: true,
-          boundariesElement: "viewport",
-        },
-      }}
-      position="bottom"
+      isDisabled={insideSidebar}
+      mouseEnterDelay={0.5}
     >
       <Button
         borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
@@ -85,7 +77,7 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
         primaryColor={primaryColor}
         text={insideSidebar && !isMinimal && createMessage(ALL_APPS)}
       />
-    </TooltipComponent>
+    </Tooltip>
   );
 };
 

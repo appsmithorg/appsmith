@@ -13,7 +13,7 @@ function TableOrSpreadsheetDropdown() {
       <SelectWrapper className="space-y-2">
         {label}
         <Dropdown
-          cypressSelector="t--table-dropdown"
+          data-testid="t--table-dropdown"
           dropdownMaxHeight={"300px"}
           errorMsg={error}
           fillOptions

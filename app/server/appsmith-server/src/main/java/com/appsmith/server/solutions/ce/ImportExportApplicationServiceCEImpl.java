@@ -690,8 +690,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .createActionCollectionPermission(pagePermission.getActionCreatePermission())
                             .userPermissionGroups(objects.getT2())
                             .build();
+                    ApplicationJson jsonFile = objects.getT1();
+                    if (!StringUtils.isEmpty(applicationId) && jsonFile.getExportedApplication() != null) {
+                        // Remove the application name from JSON file as updating the application name is not supported
+                        // via JSON import. This is to avoid name conflict during the import flow within the workspace
+                        jsonFile.getExportedApplication().setName(null);
+                        jsonFile.getExportedApplication().setSlug(null);
+                    }
 
-                    return importApplicationInWorkspace(workspaceId, objects.getT1(), applicationId, null, false, permissionProvider)
+                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, null, false, permissionProvider)
                             .onErrorResume(error -> {
                                 if (error instanceof AppsmithException) {
                                     return Mono.error(error);

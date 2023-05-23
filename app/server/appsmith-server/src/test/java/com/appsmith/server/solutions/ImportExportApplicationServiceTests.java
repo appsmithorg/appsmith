@@ -3938,4 +3938,38 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateExistingApplication_existingApplication_applicationNameAndSlugRemainsUnchanged() {
+
+        /*
+        1. Create application
+        2. Import the application from valid JSON with saved applicationId
+        3. Name and slug will not be updated by the incoming changes from the json file
+         */
+
+        //Create application connected to git
+        Application testApplication = new Application();
+        final String appName = UUID.randomUUID().toString();
+        testApplication.setName(appName);
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        Application application = applicationPageService.createApplication(testApplication, workspaceId).block();
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+        final Mono<ApplicationImportDTO> resultMono = importExportApplicationService
+                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId());
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationImportDTO -> {
+                    Application application1 = applicationImportDTO.getApplication();
+                    assertThat(application1.getName()).isEqualTo(appName);
+                    assertThat(application1.getSlug()).isEqualTo(appName);
+                })
+                .verifyComplete();
+    }
+
 }
