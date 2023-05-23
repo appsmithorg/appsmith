@@ -33,6 +33,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     widgetSize: [

@@ -7,7 +7,7 @@ import MapComponent from "../component";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -63,6 +63,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         long: "number",
         title: "string",
         description: "string",
+      },
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
       },
     };
   }
