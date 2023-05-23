@@ -83,9 +83,15 @@ export function JSFunctionRun({
         {options.map((option) => (
           <Option key={option.value}>
             <OptionWrapper>
-              <OptionLabelWrapper>
-                <OptionLabel renderAs="p">{option.label}</OptionLabel>
-              </OptionLabelWrapper>
+              <Tooltip
+                content={option.label}
+                // Here, 18 is the maximum charecter length because the width of this menu does not change
+                isDisabled={(option.label?.length || 0) < 18}
+              >
+                <OptionLabelWrapper>
+                  <OptionLabel renderAs="p">{option.label}</OptionLabel>
+                </OptionLabelWrapper>
+              </Tooltip>
               {option.hasCustomBadge && <Tag isClosable={false}>{"Async"}</Tag>}
             </OptionWrapper>
           </Option>
