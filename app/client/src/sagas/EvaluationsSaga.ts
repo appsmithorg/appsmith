@@ -332,11 +332,7 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
   const { errors = [] } = response as any;
-  yield call(
-    dynamicTriggerErrorHandler,
-    errors,
-    triggerMeta.triggerPropertyName || "",
-  );
+  yield call(dynamicTriggerErrorHandler, errors);
   return response;
 }
 
