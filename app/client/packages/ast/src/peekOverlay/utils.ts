@@ -38,8 +38,12 @@ export const getExpressionStringAtPos = (
     return getExpressionAtPosFromCallExpression(node, pos, options);
   } else if (isBinaryExpressionNode(node)) {
     return getExpressionAtPosFromBinaryExpression(node, pos, options);
+  } else if (isAwaitExpressionNode(node)) {
+    return getExpressionStringAtPos(node.argument, pos, options);
+  } else if (isConditionalExpressionNode(node)) {
+    return getExpressionAtPosFromConditionalExpression(node, pos, options);
   } else if (isIdentifierNode(node)) {
-    return escodegen.generate(node);
+    return removeSemiColon(escodegen.generate(node));
   }
 };
 
@@ -56,12 +60,7 @@ const getExpressionAtPosFromMemberExpression = (
   }
   // position is within the object node
   if (pos <= objectNode.end) {
-    if (isMemberExpressionNode(objectNode)) {
-      return getExpressionAtPosFromMemberExpression(objectNode, pos, options);
-    } else if (isCallExpressionNode(objectNode)) {
-      return getExpressionAtPosFromCallExpression(objectNode, pos, options);
-    }
-    return escodegen.generate(objectNode);
+    return getExpressionStringAtPos(objectNode, pos, options);
   }
   // position is within the property node
   else {
@@ -84,24 +83,7 @@ const getExpressionAtPosFromExpressionStatement = (
   ) {
     node.expression = thisReplacementNode(node.expression, options);
   }
-  const expressionNode = node.expression;
-  if (isMemberExpressionNode(expressionNode)) {
-    return getExpressionAtPosFromMemberExpression(expressionNode, pos, options);
-  } else if (isAwaitExpressionNode(expressionNode)) {
-    return getExpressionStringAtPos(expressionNode.argument, pos, options);
-  } else if (isConditionalExpressionNode(expressionNode)) {
-    return getExpressionAtPosFromConditionalExpression(
-      expressionNode,
-      pos,
-      options,
-    );
-  } else if (isCallExpressionNode(expressionNode)) {
-    return getExpressionAtPosFromCallExpression(expressionNode, pos, options);
-  } else {
-    // remove ; from expression statement
-    console.log(node);
-    return stringRemoveLastCharacter(escodegen.generate(node));
-  }
+  return getExpressionStringAtPos(node.expression, pos, options);
 };
 
 const getExpressionAtPosFromCallExpression = (
@@ -177,8 +159,8 @@ const thisReplacementNode = (
   } as IdentifierNode;
 };
 
-const stringRemoveLastCharacter = (value: string) =>
-  value.slice(0, value.length - 1);
+const removeSemiColon = (value: string) =>
+  value.slice(-1) === ";" ? value.slice(0, value.length - 1) : value;
 
 const isLocalVariableNode = (node: Node) =>
   isMemberExpressionNode(node) &&
