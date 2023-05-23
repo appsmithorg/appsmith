@@ -23,6 +23,8 @@ import {
   NO_USERS_INVITED,
   BUSINESS_EDITION_TEXT,
   INVITE_USER_RAMP_TEXT,
+  CUSTOM_ROLES_RAMP_TEXT,
+  BUSINESS_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -32,6 +34,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
+import { Tag } from "design-system";
 import { Link } from "design-system";
 import {
   Avatar,
@@ -256,6 +259,35 @@ function InviteUserText() {
   );
 }
 
+function CustomRolesRamp() {
+  const rampText = (
+    <span>
+      {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
+      <Link kind="primary" target="_blank" to="https://appsmith.com/pricing">
+        {createMessage(BUSINESS_EDITION_TEXT)}
+      </Link>
+    </span>
+  );
+  return (
+    <Tooltip content={rampText} placement="right">
+      <div className="flex flex-col gap-1">
+        <div className="flex gap-1">
+          <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
+            Custom role
+          </Text>
+          <Tag isClosable={false} size="md">
+            {createMessage(BUSINESS_TEXT)}
+          </Tag>
+        </div>
+        <Text kind="body-s">
+          Can access specific applications or only certain pages and queries
+          within an application
+        </Text>
+      </div>
+    </Tooltip>
+  );
+}
+
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
@@ -441,7 +473,7 @@ function WorkspaceInviteUsersForm(props: any) {
               data-testid="t--invite-role-input"
               isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
-              listHeight={400}
+              listHeight={600}
               onDeselect={onRemoveOptions}
               onSelect={onSelect}
               optionLabelProp="label"
@@ -463,6 +495,9 @@ function WorkspaceInviteUsersForm(props: any) {
                   </div>
                 </Option>
               ))}
+              <Option disabled>
+                <CustomRolesRamp />
+              </Option>
             </Select>
           </div>
           <div>
