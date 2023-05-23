@@ -53,7 +53,10 @@ describe("@design-system/widgets/CheckboxGroup", () => {
 
   it("should render checked checkboxes when value is passed", () => {
     render(
-      <CheckboxGroup value={["value-1", "value-2"]}>
+      <CheckboxGroup
+        label="Checkbox Group Label"
+        value={["value-1", "value-2"]}
+      >
         <Checkbox value="value-1">Value 1</Checkbox>
         <Checkbox value="value-2">Value 2</Checkbox>
       </CheckboxGroup>,
@@ -68,7 +71,7 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     const onChangeSpy = jest.fn();
 
     render(
-      <CheckboxGroup onChange={onChangeSpy}>
+      <CheckboxGroup label="Checkbox Group Label" onChange={onChangeSpy}>
         <Checkbox value="value-1">Value 1</Checkbox>
         <Checkbox value="value-2">Value 2</Checkbox>
       </CheckboxGroup>,
@@ -81,7 +84,7 @@ describe("@design-system/widgets/CheckboxGroup", () => {
 
   it("should be able to render checkboxes in horizontal orientation", () => {
     render(
-      <CheckboxGroup orientation="horizontal">
+      <CheckboxGroup label="Checkbox Group Label" orientation="horizontal">
         <Checkbox value="value-1">Value 1</Checkbox>
         <Checkbox value="value-2">Value 2</Checkbox>
       </CheckboxGroup>,
@@ -93,7 +96,7 @@ describe("@design-system/widgets/CheckboxGroup", () => {
 
   it("should be able to render disabled checkboxes", () => {
     render(
-      <CheckboxGroup isDisabled>
+      <CheckboxGroup isDisabled label="Checkbox Group Label">
         <Checkbox value="value-1">Value 1</Checkbox>
         <Checkbox value="value-2">Value 2</Checkbox>
       </CheckboxGroup>,
@@ -106,7 +109,7 @@ describe("@design-system/widgets/CheckboxGroup", () => {
 
   it("should be able to render set label position to left", () => {
     const { container } = render(
-      <CheckboxGroup label="Checkbox Group" labelPosition="side">
+      <CheckboxGroup label="Checkbox Group Label" labelPosition="side">
         <Checkbox value="value-1">Value 1</Checkbox>
         <Checkbox value="value-2">Value 2</Checkbox>
       </CheckboxGroup>,
