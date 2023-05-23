@@ -142,6 +142,10 @@ class DocumentViewerWidget extends BaseWidget<
           path: "isVisible",
           type: "boolean",
         },
+        setURL: {
+          path: "docUrl",
+          type: "string",
+        },
       },
     };
   }

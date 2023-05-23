@@ -62,9 +62,7 @@ export const dataTreeTypeDefCreator = (
           def[entityName] = autocompleteDefinitions;
         }
 
-        // eslint-disable-next-line
-        // @ts-ignore
-        addSettersToDefinitions(def[entityName], entityConfig);
+        addSettersToDefinitions(def[entityName] as Def, entityConfig);
 
         flattenDef(def, entityName);
 
@@ -234,7 +232,7 @@ export function generateJSFunctionTypeDef(
 }
 
 export function addSettersToDefinitions(
-  definitions: Def | Record<string, unknown>,
+  definitions: Def,
   entityConfig?: WidgetEntityConfig,
 ) {
   if (entityConfig && entityConfig.__setters) {

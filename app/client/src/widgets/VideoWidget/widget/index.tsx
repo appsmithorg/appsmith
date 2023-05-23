@@ -132,6 +132,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           path: "isVisible",
           type: "boolean",
         },
+        setURL: {
+          path: "url",
+          type: "string",
+        },
         setPlaying: {
           path: "autoPlay",
           type: "boolean",
