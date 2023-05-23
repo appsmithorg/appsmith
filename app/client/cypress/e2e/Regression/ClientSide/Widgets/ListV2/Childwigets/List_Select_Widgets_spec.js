@@ -94,8 +94,8 @@ describe("Select Widgets", function () {
   it("b. Select Widgets isValid", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 550,
-      y: 10,
+      x: 350,
+      y: 120,
     });
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Select_Widget");
@@ -109,8 +109,8 @@ describe("Select Widgets", function () {
       .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
 
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 550,
-      y: 50,
+      x: 350,
+      y: 210,
     });
 
     cy.RenameWidgetFromPropertyPane(
