@@ -428,7 +428,11 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
-  public InviteUserToWorkspaceFromApp(email: string, role: string) {
+  public InviteUserToWorkspaceFromApp(
+    email: string,
+    role: string,
+    validate = true,
+  ) {
     const successMessage =
       CURRENT_REPO === REPO.CE
         ? "The user has been invited successfully"
@@ -446,7 +450,9 @@ export class HomePage {
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
     // cy.contains(email, { matchCase: false });
-    cy.contains(successMessage);
+    if (validate) {
+      cy.contains(successMessage);
+    }
   }
 
   public InviteUserToApplicationFromApp(email: string, role: string) {

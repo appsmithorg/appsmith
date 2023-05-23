@@ -12,7 +12,7 @@ import java.util.zip.ZipOutputStream;
 
 @Component
 public class FileUtils {
-    public byte [] createZip(ZipSourceFile...srcFiles) throws IOException {
+    public byte[] createZip(ZipSourceFile... srcFiles) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zipOut = new ZipOutputStream(baos);
 

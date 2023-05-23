@@ -15,7 +15,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.fasterxml.jackson.annotation.JsonView;
-
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import jakarta.validation.Valid;
 
 
 @RequestMapping(Url.PAGE_URL)
@@ -70,9 +68,10 @@ public class PageControllerCE {
     @PostMapping("/crud-page")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@RequestBody @NonNull CRUDPageResourceDTO resource,
-                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                 @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to create crud-page in application {}, branchName {}", resource.getApplicationId(), branchName);
-        return createDBTablePageSolution.createPageFromDBTable(null, resource, branchName)
+        return createDBTablePageSolution.createPageFromDBTable(null, resource, environmentId, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -81,9 +80,10 @@ public class PageControllerCE {
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@PathVariable String defaultPageId,
                                                                  @NonNull @RequestBody CRUDPageResourceDTO resource,
-                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                 @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
-        return createDBTablePageSolution.createPageFromDBTable(defaultPageId, resource, branchName)
+        return createDBTablePageSolution.createPageFromDBTable(defaultPageId, resource, environmentId, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

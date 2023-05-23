@@ -42,7 +42,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
-    cy.get(".t--open-dropdown-Select-Page").click();
+    cy.get(".t--open-dropdown-Select-page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)
       .click({ force: true });
