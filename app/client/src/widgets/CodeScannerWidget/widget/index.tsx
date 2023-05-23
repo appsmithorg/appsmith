@@ -25,6 +25,10 @@ class CodeScannerWidget extends BaseWidget<
           path: "isVisible",
           type: "boolean",
         },
+        setDisable: {
+          path: "isDisabled",
+          type: "boolean",
+        },
       },
     };
   }

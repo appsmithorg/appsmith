@@ -62,6 +62,14 @@ class RangeSliderWidget extends BaseWidget<
           path: "isVisible",
           type: "boolean",
         },
+        setDisable: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
       },
     };
   }

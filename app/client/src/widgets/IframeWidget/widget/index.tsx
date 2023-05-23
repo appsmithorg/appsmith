@@ -30,6 +30,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           path: "isVisible",
           type: "boolean",
         },
+        setURL: {
+          path: "source",
+          type: "string",
+        },
       },
     };
   }

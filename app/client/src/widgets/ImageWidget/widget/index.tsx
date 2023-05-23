@@ -35,6 +35,10 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           path: "isVisible",
           type: "boolean",
         },
+        setImage: {
+          path: "defaultImage",
+          type: "string",
+        },
       },
     };
   }
