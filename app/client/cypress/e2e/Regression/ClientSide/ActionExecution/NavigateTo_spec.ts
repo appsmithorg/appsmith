@@ -25,11 +25,11 @@ describe("Navigate To feature", () => {
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Navigate to");
-    cy.get(".t--open-dropdown-Select-Page").click();
+    cy.get(".t--open-dropdown-Select-page").click();
     agHelper.AssertElementLength(".bp3-menu-item", 2);
     cy.get(locator._dropDownValue("Page2")).click();
     cy.get("label")
-      .contains("Query Params")
+      .contains("Query params")
       .siblings()
       .find(".CodeEditorTarget")
       .then(($el) => {

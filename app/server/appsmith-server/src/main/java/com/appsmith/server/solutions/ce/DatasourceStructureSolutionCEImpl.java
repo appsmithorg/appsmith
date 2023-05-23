@@ -132,6 +132,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                     return e;
 
                 })
+                .onErrorResume(error -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED, datasource,
+                        getAnalyticsPropertiesForTestEventStatus(datasource,false, error)).then(Mono.error(error)))
                 .flatMap(structure -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
                                 datasource, getAnalyticsPropertiesForTestEventStatus(datasource, true, null))
                         .then(datasource.getId() == null ? Mono.empty() : datasourceConfigurationStructureService.
