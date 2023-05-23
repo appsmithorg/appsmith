@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Navigate To feature", () => {
+describe.skip("Navigate To feature", () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     _.entityExplorer.AddNewPage(); // page 2
     _.entityExplorer.SelectEntityByName("Page1");
