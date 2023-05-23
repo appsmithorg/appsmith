@@ -410,18 +410,17 @@ public class ForkExamplesWorkspaceServiceTests {
     public void cloneWorkspaceWithOnlyDatasources() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
+        Workspace workspace = workspaceService.create(newWorkspace).block();
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(newWorkspace),
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser(),
                         pluginService.findByPackageName("restapi-plugin").map(Plugin::getId)
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
-                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+                    String environmentId = tuple.getT1();
 
                     String pluginId = tuple.getT3();
                     final Datasource ds1 = new Datasource();
@@ -479,14 +478,14 @@ public class ForkExamplesWorkspaceServiceTests {
     public void cloneWorkspaceWithOnlyDatasourcesSpecifiedExplicitly() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(newWorkspace),
+
+        Workspace workspace = workspaceService.create(newWorkspace).block();
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
-                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+                    String environmentId = tuple.getT1();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -550,15 +549,15 @@ public class ForkExamplesWorkspaceServiceTests {
     public void cloneWorkspaceWithDatasourcesAndApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(newWorkspace),
+
+        Workspace workspace = workspaceService.create(newWorkspace).block();
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser(),
                         pluginService.findByPackageName("restapi-plugin").map(Plugin::getId)
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
-                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+                    String environmentId = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("first application");
@@ -817,18 +816,17 @@ public class ForkExamplesWorkspaceServiceTests {
     public void cloneApplicationForkWithConfigurationTrueWithActionsThrice() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");
+        Workspace workspace = workspaceService.create(sourceOrg).block();
 
         Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 2");
 
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(sourceOrg),
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
-                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+                    String environmentId = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("that great app");
@@ -1062,18 +1060,17 @@ public class ForkExamplesWorkspaceServiceTests {
     public void cloneApplicationForkWithConfigurationFalseWithActionsThrice() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");
+        Workspace workspace = workspaceService.create(sourceOrg).block();
 
         Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 2");
 
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(sourceOrg),
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
-                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+                    String environmentId = tuple.getT1();
                     final Application app1 = new Application();
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.FALSE);

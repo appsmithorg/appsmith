@@ -224,7 +224,6 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
 
         return Mono.just(datasourceStorage)
-                .flatMap(this::checkEnvironment)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
                 .flatMap(unsavedDatasourceStorage -> {

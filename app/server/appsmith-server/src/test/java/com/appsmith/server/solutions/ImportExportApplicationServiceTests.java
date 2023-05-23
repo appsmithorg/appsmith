@@ -3583,26 +3583,26 @@ public class ImportExportApplicationServiceTests {
 
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("workspace-" + randomUUID);
-        Mono<Workspace> workspaceMono = workspaceService.create(testWorkspace).cache();
+        Workspace workspace = workspaceService.create(testWorkspace).block();
 
-        Mono<Application> applicationMono = workspaceMono.flatMap(workspace -> {
-                    Application testApplication = new Application();
-                    testApplication.setName("application-" + randomUUID);
-                    testApplication.setExportWithConfiguration(true);
-                    testApplication.setWorkspaceId(workspace.getId());
-                    return applicationPageService.createApplication(testApplication);
-                })
+        Application testApplication = new Application();
+        testApplication.setName("application-" + randomUUID);
+        testApplication.setExportWithConfiguration(true);
+        testApplication.setWorkspaceId(workspace.getId());
+
+        Mono<Application> applicationMono = applicationPageService.
+                createApplication(testApplication)
                 .flatMap(application -> {
                     ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
                     accessDTO.setPublicAccess(true);
                     return applicationService.changeViewAccess(application.getId(), accessDTO).thenReturn(application);
                 });
 
-        Mono<Datasource> datasourceMono = workspaceMono.zipWith(pluginRepository.findByPackageName("restapi-plugin"))
+        Mono<Datasource> datasourceMono = workspaceService.getDefaultEnvironmentId(workspace.getId())
+                .zipWith(pluginRepository.findByPackageName("restapi-plugin"))
                 .flatMap(objects -> {
-                    Workspace workspace = objects.getT1();
+                    String defaultEnvironmentId = objects.getT1();
                     Plugin plugin = objects.getT2();
-                    String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
 
                     Datasource datasource = new Datasource();
                     datasource.setPluginId(plugin.getId());

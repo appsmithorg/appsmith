@@ -203,7 +203,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         })
                         .cache();
 
-        Mono<String> defaultEnvironmentIdMono = applicationMono
+        Mono<String> defaultEnvironmentIdMono = applicationService.findById(applicationId)
                 .flatMap(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()));
 
         /**
@@ -905,6 +905,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // This is explicitly copied over from the map we created before
                                 datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
                                 datasourceStorage.setWorkspaceId(workspaceId);
+                                datasourceStorage.setEnvironmentId(environmentId);
 
                                 // Check if any decrypted fields are present for datasource
                                 if (importedDoc.getDecryptedFields() != null

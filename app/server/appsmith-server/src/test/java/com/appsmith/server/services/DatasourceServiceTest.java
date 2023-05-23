@@ -640,7 +640,7 @@ public class DatasourceServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
-                .flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+                .flatMap(datasource1 -> datasourceService.testDatasource(datasource1, defaultEnvironmentId));
 
         StepVerifier
                 .create(testResultMono)
@@ -705,7 +705,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
                 .flatMap(datasource1 -> {
                     ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-                    return datasourceService.testDatasource(datasource1, null);
+                    return datasourceService.testDatasource(datasource1, defaultEnvironmentId);
                 });
 
         StepVerifier
@@ -1325,7 +1325,8 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
+                .flatMap(datasource1 -> datasourceService.testDatasource(datasource1, defaultEnvironmentId));
 
         StepVerifier
                 .create(testResultMono)
