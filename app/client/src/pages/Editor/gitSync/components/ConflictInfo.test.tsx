@@ -23,8 +23,8 @@ describe("ConflictInfo", () => {
     //check for text
     const container = await screen.getByTestId("t--conflict-info-container");
     const html = container.innerHTML.toString();
-    expect(html.includes("Learn More")).toBeTruthy();
-    expect(html.includes("OPEN REPO")).toBeTruthy();
+    expect(html.includes("Learn more")).toBeTruthy();
+    expect(html.includes("Open repository")).toBeTruthy();
     expect(
       html.includes(
         "Please resolve the merge conflicts manually on your repository.",

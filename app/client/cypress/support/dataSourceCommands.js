@@ -12,10 +12,10 @@ const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 const apiEditorLocators = require("../locators/ApiEditor");
 const dataSources = ObjectsRegistry.DataSources;
 
-const backgroundColorBlack = "rgb(0, 0, 0)";
-const backgroundColorGray1 = "rgb(250, 250, 250)";
-const backgroundColorGray2 = "rgb(240, 240, 240)";
-const backgroundColorGray8 = "rgb(113, 110, 110)";
+const backgroundColorBlack = "rgb(76, 86, 100)";
+const backgroundColorGray1 = "rgb(241, 245, 249)";
+const backgroundColorGray2 = "rgba(0, 0, 0, 0)";
+const backgroundColorGray8 = "rgb(106, 117, 133)";
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -44,24 +44,16 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
         201,
       );
       // select datasource to be deleted by datasource title
-      cy.contains("EDIT").click();
+      cy.get(".t--edit-datasource").click({ force: true });
 
       // delete datasource
-      cy.get(".t--delete-datasource").click();
-      cy.get(".t--delete-datasource").contains("Are you sure?").click();
-      cy.wait("@deleteDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      dataSources.DeleteDSDirectly(200);
     });
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
@@ -106,13 +98,15 @@ Cypress.Commands.add(
     // const databaseName = shouldAddTrailingSpaces
     //   ? datasourceFormData["mongo-databaseName"] + "  "
     //   : datasourceFormData["mongo-databaseName"];
-    cy.get(datasourceEditor["host"]).type(hostAddress);
-    cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor["host"]).clear().type(hostAddress);
+    cy.get(datasourceEditor.port)
+      .clear()
+      .type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
     //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
-    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
+    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -142,7 +136,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
+    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
     );
@@ -158,7 +152,7 @@ Cypress.Commands.add(
     // we are using postgresql data for elastic search,
     // in the future, this should be changed, just for testing purposes
     const hostAddress = "https://localhost";
-    const headerValue = "Bearer Token";
+    const headerValue = "Bearer token";
 
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
@@ -186,7 +180,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
+    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mysql-username"],
     );
@@ -209,7 +203,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mssql-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
+    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mssql-username"],
     );
@@ -233,7 +227,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.port).type(datasourceFormData["arango-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
 
-    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
+    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["arango-username"],
     );
@@ -256,7 +250,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["redshift-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
+    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["redshift-username"],
     );
@@ -311,7 +305,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
-  cy.get(datasourceEditor.PostgreSQL).click();
+  cy.get(datasourceEditor.PostgreSQL).click({ force: true });
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
 });
@@ -324,17 +318,7 @@ Cypress.Commands.add("createGoogleSheetsDatasource", () => {
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
-  cy.contains(".t--datasource-name", datasourceName).click();
-  cy.get(".t--delete-datasource").click();
-  cy.get(".t--delete-datasource").contains("Are you sure?").click();
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  dataSources.DeleteDatasouceFromActiveTab(datasourceName);
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {
@@ -399,21 +383,7 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
 Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
   //Navigate to active datasources panel.
   cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  //Select the datasource to delete
-  cy.get(".t--datasource-name").contains(renameVal).click();
-  //Click on delete and later confirm
-  cy.get(".t--delete-datasource").click();
-  cy.get(".t--delete-datasource").contains("Are you sure?").click();
-  //Verify the status of deletion
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  dataSources.DeleteDatasouceFromActiveTab(renameVal);
 });
 
 Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
@@ -454,7 +424,10 @@ Cypress.Commands.add("createMockDatasource", (datasourceName) => {
 Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "min-width", "150px")
-    .and("have.css", "border-radius", "4px")
+    .and(($el) => {
+      const borderRadius = $el.css("border-radius");
+      expect(borderRadius).to.match(/^(0px|4px)$/);
+    })
     .and("have.css", "align-items", "center");
 });
 
@@ -471,7 +444,7 @@ Cypress.Commands.add("datasourceCardStyle", (tag) => {
 
 Cypress.Commands.add("datasourceImageStyle", (tag) => {
   cy.get(tag)
-    .should("have.css", "height", "28px")
+    .should("have.css", "height", "34px")
     .and("have.css", "max-width", "100%");
 });
 
@@ -486,10 +459,10 @@ Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "background-color", backgroundColorGray2)
-    .and("have.css", "height", "48px")
-    .and("have.css", "border-radius", "50%")
-    .and("have.css", "display", "flex")
-    .and("have.css", "align-items", "center");
+    .and("have.css", "height", "34px")
+    .and("have.css", "border-radius", "0px")
+    .and("have.css", "display", "block")
+    .and("have.css", "align-items", "normal");
 });
 
 Cypress.Commands.add("datasourceNameStyle", (tag) => {

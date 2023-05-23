@@ -7,10 +7,10 @@
   "children": [
     {
       "controlType": "SECTION",
-      "label": "Select Bucket to Query",
+      "label": "Select bucket to query",
       "children": [
         {
-          "label": "Bucket Name",
+          "label": "Bucket name",
           "configProperty": "actionConfiguration.formData.bucket.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -25,13 +25,13 @@
       "description": "Optional",
       "children": [
         {
-          "label": "File Path",
+          "label": "File path",
           "configProperty": "actionConfiguration.formData.path.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
-          "label": "Base64 Encode File - Yes/No",
+          "label": "Base64 encode file - yes/no",
           "configProperty": "actionConfiguration.formData.read.dataType.data",
           "controlType": "DROP_DOWN",
           "-subtitle": "Allowed values: YES, NO",
