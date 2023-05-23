@@ -1633,6 +1633,8 @@ export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
 export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize datasource";
 export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 export const DATASOURCE_SCHEMA_NOT_AVAILABLE = () => "Schema is not available";
+export const DATASOURCE_INTERCOM_TEXT = () =>
+  "Do you need help setting up a Google Sheets datasource?";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";

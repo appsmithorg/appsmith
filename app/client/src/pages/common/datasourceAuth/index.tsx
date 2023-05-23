@@ -31,6 +31,7 @@ import {
   SAVE_BUTTON_TEXT,
   TEST_BUTTON_TEXT,
   createMessage,
+  DATASOURCE_INTERCOM_TEXT,
 } from "@appsmith/constants/messages";
 import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -39,6 +40,8 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { Colors } from "constants/Colors";
+import { getAppsmithConfigs } from "ce/configs";
+const { intercomAppID } = getAppsmithConfigs();
 
 interface Props {
   datasource: Datasource;
@@ -159,9 +162,6 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
 
-  const dsName = datasource?.name;
-  const orgId = datasource?.workspaceId;
-
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
@@ -179,27 +179,33 @@ function DatasourceAuth({
           !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const oauthReason = status;
-        AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-          dsName,
-          oauthReason,
-          orgId,
-          pluginName,
-        });
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           toast.show(display_message || message, { kind: "error" });
+          AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+            applicationId: applicationId,
+            datasourceId: datasourceId,
+            pageId: pageId,
+            oAuthPassOrFailVerdict: status,
+            workspaceId: datasource?.workspaceId,
+            datasourceName: datasource?.name,
+            pluginName: pluginName,
+          });
+
+          // Triggering intercom here, to understand what exact
+          // problem user is facing while creating google sheets datasource
+          if (intercomAppID && window.Intercom) {
+            window.Intercom(
+              "showNewMessage",
+              createMessage(DATASOURCE_INTERCOM_TEXT),
+            );
+          }
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
-        AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-          applicationId,
-          datasourceId,
-          pageId,
-        });
       }
     }
   }, [authType]);
@@ -291,10 +297,10 @@ function DatasourceAuth({
       );
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
-      dsName,
-      orgId,
-      pluginName,
-      scopeValue,
+      dsName: datasource?.name,
+      orgId: datasource?.workspaceId,
+      pluginName: pluginName,
+      scopeValue: scopeValue,
     });
   };
 
