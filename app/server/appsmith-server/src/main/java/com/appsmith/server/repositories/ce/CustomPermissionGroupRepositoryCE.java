@@ -22,5 +22,5 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
 
     Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
     Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
-
+    Mono<Set<String>> getCurrentUserPermissionGroups();
 }
