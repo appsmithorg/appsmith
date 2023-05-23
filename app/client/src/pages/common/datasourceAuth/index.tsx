@@ -87,6 +87,7 @@ export const DatasourceButtonType: Record<
 
 const SaveButtonContainer = styled.div`
   margin-top: 24px;
+  margin-bottom: 30px;
   display: flex;
   justify-content: flex-end;
   gap: 9px;
