@@ -7,7 +7,8 @@ import type { RateSize } from "../constants";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -321,6 +322,25 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
       },
     });
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultRate",
+          type: "number",
+        },
+      },
+    };
+  }
 
   getPageView() {
     return (

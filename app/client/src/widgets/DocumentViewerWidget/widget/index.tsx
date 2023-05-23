@@ -7,6 +7,7 @@ import BaseWidget from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -132,6 +133,21 @@ class DocumentViewerWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setURL: {
+          path: "docUrl",
+          type: "string",
+        },
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {

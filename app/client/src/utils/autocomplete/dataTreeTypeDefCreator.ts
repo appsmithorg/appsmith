@@ -61,7 +61,11 @@ export const dataTreeTypeDefCreator = (
         } else {
           def[entityName] = autocompleteDefinitions;
         }
+
+        addSettersToDefinitions(def[entityName] as Def, entityConfig);
+
         flattenDef(def, entityName);
+
         entityMap.set(entityName, {
           type: ENTITY_TYPE.WIDGET,
           subType: widgetType,
@@ -228,7 +232,7 @@ export function generateJSFunctionTypeDef(
 }
 
 export function addSettersToDefinitions(
-  definitions: Record<string, any>,
+  definitions: Def,
   entityConfig?: WidgetEntityConfig,
 ) {
   if (entityConfig && entityConfig.__setters) {
