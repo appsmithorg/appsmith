@@ -45,11 +45,13 @@ const getExpressionAtPosFromMemberExpression = (
   node: MemberExpressionNode,
   pos: number,
   options?: PeekOverlayExpressionIdentifierOptions,
+  replaceThisExpression = true,
 ): string | undefined => {
-  if (options?.thisExpressionReplacement) {
+  const objectNode = node.object;
+  if (isLocalVariableNode(node) || isLocalVariableNode(objectNode)) return;
+  if (replaceThisExpression && options?.thisExpressionReplacement) {
     node = replaceThisinMemberExpression(node, options);
   }
-  const objectNode = node.object;
   // position is within the object node
   if (pos <= objectNode.end) {
     if (isMemberExpressionNode(objectNode)) {
@@ -61,15 +63,11 @@ const getExpressionAtPosFromMemberExpression = (
   }
   // position is within the property node
   else {
-    // return undefined if object node has any local variable
-    if (isLocalVariableNode(objectNode)) return;
     const propertyNode = node.property;
     if (isMemberExpressionNode(propertyNode)) {
       return getExpressionAtPosFromMemberExpression(propertyNode, pos);
-    } else if (!isLocalVariableNode(node)) {
-      // return only when property node has no local variable
-      return escodegen.generate(node);
     }
+    return escodegen.generate(node);
   }
 };
 
