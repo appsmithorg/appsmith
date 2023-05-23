@@ -16,6 +16,8 @@ export const PRODUCT_RAMPS_LIST: { [key: string]: SupportedRampsType } = {
   [RAMP_NAME.CUSTOM_ROLES]: CUSTOM_ROLES,
 };
 
+export const RAMP_LINK_TO = "https://appsmith.com/pricing";
+
 export const getUserRoleInWorkspace = () => {
   const state = store.getState();
   const { currentUser } = state?.ui?.users;
