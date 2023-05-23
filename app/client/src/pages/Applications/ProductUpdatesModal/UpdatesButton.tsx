@@ -1,8 +1,7 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
-import { HelpIcons } from "icons/HelpIcons";
+import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import type { Theme } from "constants/DefaultTheme";
+import { Icon } from "design-system";
 
 const StyledUpdatesButton = styled.div`
   position: absolute;
@@ -48,23 +47,17 @@ const UpdatesButtonTextContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
 `;
 
-const UpdatesIcon = () => {
-  const theme = useTheme() as Theme;
-
+function UpdatesButton({
+  newReleasesCount,
+  onClick,
+}: {
+  newReleasesCount: string;
+  onClick: () => void;
+}) {
   return (
-    <HelpIcons.UPDATES
-      color={theme.colors.floatingBtn.iconColor}
-      height={12}
-      width={13}
-    />
-  );
-};
-
-function UpdatesButton({ newReleasesCount }: { newReleasesCount: string }) {
-  return (
-    <StyledUpdatesButton data-cy="t--product-updates-btn">
+    <StyledUpdatesButton data-testid="t--product-updates-btn" onClick={onClick}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <UpdatesIcon />
+        <Icon name="gift-line" size="sm" />
         <UpdatesButtonTextContainer>
           What&apos;s New?
         </UpdatesButtonTextContainer>
