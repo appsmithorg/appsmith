@@ -803,6 +803,10 @@ public class ImportExportApplicationServiceTests {
         Mono<Workspace> workspaceMono = workspaceService
                 .create(newWorkspace).cache();
 
+        String environmentId = workspaceMono
+                .flatMap(workspace -> workspaceService.getDefaultEnvironmentId(workspace.getId()))
+                .block();
+
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace -> importExportApplicationService
                         .extractFileAndSaveApplication(workspace.getId(), filePart)
@@ -889,7 +893,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
-                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(defaultEnvironmentId);
+                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(environmentId);
                         assertThat(storageDTO.getDatasourceConfiguration()).isNotNull();
                     });
 
