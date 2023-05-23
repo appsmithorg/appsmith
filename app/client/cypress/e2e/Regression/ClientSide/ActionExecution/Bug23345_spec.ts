@@ -1,10 +1,12 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-const { agHelper, entityExplorer, propPane } = _;
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Delete No Action card without any error", () => {
-  it("Bug 23345", () => {
+  it("1. Bug 23345", () => {
     entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
 
     propPane.AddAction("onClick");
