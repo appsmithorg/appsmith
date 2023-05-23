@@ -1,8 +1,8 @@
 import React from "react";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field } from "redux-form";
-import type { DropdownOption, RenderOption } from "design-system-old";
 import DropdownWrapper from "./DropdownWrapper";
+import type { SelectOptionProps } from "design-system";
 
 const renderComponent = (
   componentProps: SelectFieldProps & {
@@ -21,16 +21,15 @@ type SelectFieldProps = {
   name: string;
   placeholder: string;
   onSelect?: (val: any, option: any) => void;
-  options: Partial<DropdownOption>[];
-  selected?: Partial<DropdownOption> | Partial<DropdownOption>[];
+  options: Partial<SelectOptionProps>[];
+  selected?: Partial<SelectOptionProps> | Partial<SelectOptionProps>[];
   size?: "large" | "small";
   outline?: boolean;
   removeSelectedOption?: DropdownOnSelect;
   showLabelOnly?: boolean;
-  labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
+  labelRenderer?: (selected: Partial<SelectOptionProps>[]) => JSX.Element;
   fillOptions?: boolean;
   disabled?: boolean;
-  renderOption?: RenderOption;
   dropdownMaxHeight?: string;
   enableSearch?: boolean;
 };
@@ -52,7 +51,6 @@ export function SelectField(props: SelectFieldProps) {
       outline={props.outline}
       placeholder={props.placeholder}
       removeSelectedOption={props.removeSelectedOption}
-      renderOption={props?.renderOption}
       selected={props.selected}
       showLabelOnly={props.showLabelOnly}
       size={props.size}

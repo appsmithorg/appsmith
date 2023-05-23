@@ -1,4 +1,4 @@
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../utils/TriggerEmitter";
 import { evalContext } from "../mock";
 

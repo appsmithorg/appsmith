@@ -55,7 +55,8 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "ce/sagas/userSagas";
+} from "@appsmith/sagas/userSagas";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export default class AppEditorEngine extends AppEngine {
@@ -206,14 +207,25 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *completeChore() {
+    const isFirstTimeUserOnboardingComplete: boolean = yield select(
+      getFirstTimeUserOnboardingComplete,
+    );
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    AnalyticsUtil.logEvent("EDITOR_OPEN", {
-      appId: currentApplication.id,
-      appName: currentApplication.name,
-    });
+    if (currentApplication) {
+      AnalyticsUtil.logEvent("EDITOR_OPEN", {
+        appId: currentApplication.id,
+        appName: currentApplication.name,
+      });
+    }
     yield put(loadGuidedTourInit());
+    if (isFirstTimeUserOnboardingComplete) {
+      yield put({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+        payload: [],
+      });
+    }
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

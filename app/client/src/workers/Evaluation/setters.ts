@@ -8,19 +8,45 @@ import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "./fns/utils/Messenger";
 import { dataTreeEvaluator } from "./handlers/evalTree";
-import { get, set } from "lodash";
+import { set } from "lodash";
+import { validate } from "./validations";
 
-export function applySetterMethod(path: string, value: unknown) {
+export function applySetterMethod(
+  path: string,
+  value: unknown,
+  setterMethodName: string,
+) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
-  const evalTree = dataTreeEvaluator?.getEvalTree();
-  const configTree = dataTreeEvaluator?.getConfigTree();
 
-  if (!evalTree || !configTree) return;
+  if (!dataTreeEvaluator) return;
 
-  const entity = get(evalTree, entityName);
+  const evalTree = dataTreeEvaluator.getEvalTree();
+  const configTree = dataTreeEvaluator.getConfigTree();
+
+  const entity = evalTree[entityName];
+  const entityConfig = configTree[entityName];
+
   const updatedProperties: string[][] = [];
   const overriddenProperties: string[] = [];
   const evalMetaUpdates: EvalMetaUpdates = [];
+
+  const { validationPaths } = entityConfig;
+
+  if (validationPaths) {
+    const validationConfig = validationPaths[propertyPath];
+    const { isValid, messages } = validate(
+      validationConfig,
+      value,
+      {},
+      propertyPath,
+    );
+    if (!isValid) {
+      const message = messages && messages[0] ? messages[0].message : "";
+      const error = new Error(message);
+      error.name = entityName + "." + setterMethodName + " failed";
+      throw error;
+    }
+  }
 
   if (isWidget(entity)) {
     overrideWidgetProperties({

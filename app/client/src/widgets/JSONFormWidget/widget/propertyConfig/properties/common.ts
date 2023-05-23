@@ -2,7 +2,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";
 import {
   ARRAY_ITEM_KEY,
@@ -279,6 +279,24 @@ const COMMON_PROPERTIES = {
         dependencies: ["schema", "sourceData"],
         updateHook: updateChildrenDisabledStateHook,
       },
+      {
+        propertyName: "shouldAllowAutofill",
+        label: "Allow autofill",
+        helpText: "Allow users to autofill values from browser",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) => {
+          //should be shown for only inputWidgetV2 and for email or password input types
+          return getSchemaItem(...args).fieldTypeNotIncludes([
+            FieldType.EMAIL_INPUT,
+            FieldType.PASSWORD_INPUT,
+          ]);
+        },
+        dependencies: ["schema", "sourceData"],
+      },
     ],
     events: [
       {
@@ -317,7 +335,7 @@ const COMMON_PROPERTIES = {
     label: [
       {
         propertyName: "labelTextColor",
-        label: "Font Color",
+        label: "Font color",
         helpText: "Control the color of the label associated",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
@@ -334,7 +352,7 @@ const COMMON_PROPERTIES = {
       },
       {
         propertyName: "labelTextSize",
-        label: "Font Size",
+        label: "Font size",
         helpText: "Control the font size of the label associated",
         defaultValue: "0.875rem",
         controlType: "DROP_DOWN",
@@ -382,11 +400,11 @@ const COMMON_PROPERTIES = {
         controlType: "BUTTON_GROUP",
         options: [
           {
-            icon: "BOLD_FONT",
+            icon: "text-bold",
             value: "BOLD",
           },
           {
-            icon: "ITALICS_FONT",
+            icon: "text-italic",
             value: "ITALIC",
           },
         ],
@@ -401,7 +419,7 @@ const COMMON_PROPERTIES = {
     borderShadow: [
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         customJSControl: "JSON_FORM_COMPUTE_VALUE",
@@ -418,7 +436,7 @@ const COMMON_PROPERTIES = {
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
@@ -437,7 +455,7 @@ const COMMON_PROPERTIES = {
       {
         propertyName: "accentColor",
         helpText: "Sets the accent color",
-        label: "Accent Color",
+        label: "Accent color",
         controlType: "COLOR_PICKER",
         customJSControl: "JSON_FORM_COMPUTE_VALUE",
         isJSConvertible: true,

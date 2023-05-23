@@ -5,14 +5,8 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import {
-  Button,
-  Category,
-  Classes,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes, Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import {
   CodeEditorBorder,
   EditorTheme,
@@ -42,7 +36,7 @@ const PaginationFieldWrapper = styled.div`
 const Step = styled(Text)`
   display: block;
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  color: var(--ads-v2-color-fg);
   margin-left: ${(props) => props.theme.spaces[11] + 2}px;
 `;
 
@@ -50,7 +44,7 @@ const StepTitle = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   span {
-    color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -63,15 +57,14 @@ const PaginationTypeView = styled.div`
 
 const PaginationSection = styled.div`
   display: flex;
-  padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[12]}px;
+  padding: var(--ads-v2-spaces-4) 0 0 0;
 `;
 
 const Example = styled(Text)`
   display: block;
   margin-left: ${(props) => props.theme.spaces[11] + 2}px;
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  color: var(--ads-v2-color-fg);
 `;
 
 const BindingKey = styled.div`
@@ -80,9 +73,9 @@ const BindingKey = styled.div`
   margin-left: ${(props) => props.theme.spaces[11] + 2}px;
   width: fit-content;
   span {
-    color: ${(props) => props.theme.colors.apiPane.pagination.label};
+    color: var(--ads-v2-color-fg);
   }
-  background: ${(props) => props.theme.colors.apiPane.pagination.bindingBg};
+  background: var(--ads-v2-color-bg);
 `;
 
 const GifContainer = styled.div`
@@ -117,7 +110,7 @@ export default function Pagination(props: PaginationProps) {
               value: PaginationType.PAGE_NO,
             },
             {
-              label: "Paginate with Response Url",
+              label: "Paginate with Response URL",
               value: PaginationType.URL,
             },
           ]}
@@ -183,14 +176,14 @@ export default function Pagination(props: PaginationProps) {
                   </Text>
                 </StepTitle>
                 <Step type={TextType.P1}>Configure Next and Previous URL </Step>
-                <Step type={TextType.P1}>Previous url</Step>
+                <Step type={TextType.P1}>Previous URL</Step>
                 <PaginationFieldWrapper
                   data-replay-id={btoa("actionConfiguration.prev")}
                 >
                   <DynamicTextField
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationPrev"
-                    evaluatedPopUpLabel="Previous Url"
+                    evaluatedPopUpLabel="Previous URL"
                     fill={!!true}
                     focusElementName={`${props.actionName}.actionConfiguration.prev`}
                     height="100%"
@@ -198,26 +191,24 @@ export default function Pagination(props: PaginationProps) {
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.secondary}
                     className="t--apiFormPaginationPrevTest"
-                    height="auto"
+                    kind="secondary"
                     onClick={() => {
                       props.onTestClick("PREV");
                     }}
-                    size={Size.medium}
-                    tag="button"
-                    text={"Test"}
-                    type="button"
-                  />
+                    size="md"
+                  >
+                    Test
+                  </Button>
                 </PaginationFieldWrapper>
-                <Step type={TextType.P1}>Next url</Step>
+                <Step type={TextType.P1}>Next URL</Step>
                 <PaginationFieldWrapper
                   data-replay-id={btoa("actionConfiguration.next")}
                 >
                   <DynamicTextField
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationNext"
-                    evaluatedPopUpLabel="Next Url"
+                    evaluatedPopUpLabel="Next URL"
                     fill={!!true}
                     focusElementName={`${props.actionName}.actionConfiguration.next`}
                     height="100%"
@@ -225,17 +216,15 @@ export default function Pagination(props: PaginationProps) {
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.secondary}
                     className="t--apiFormPaginationNextTest"
-                    height="auto"
+                    kind="secondary"
                     onClick={() => {
                       props.onTestClick("NEXT");
                     }}
-                    size={Size.medium}
-                    tag="button"
-                    text={"Test"}
-                    type="button"
-                  />
+                    size="md"
+                  >
+                    Test
+                  </Button>
                 </PaginationFieldWrapper>
               </div>
               <GifContainer>

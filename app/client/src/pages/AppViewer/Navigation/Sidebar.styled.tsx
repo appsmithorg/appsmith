@@ -1,6 +1,5 @@
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import {
   getMenuContainerBackgroundColor,
@@ -23,7 +22,7 @@ export const StyledSidebar = styled.div<{
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid ${Colors.GRAY_300};
+  border-right: 1px solid var(--ads-v2-color-border);
 
   ${({ isMinimal }) => {
     const width = isMinimal ? SIDEBAR_WIDTH.MINIMAL : SIDEBAR_WIDTH.REGULAR;
@@ -43,12 +42,12 @@ export const StyledMenuContainer = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
-  margin: 16px 0 0 0;
+  margin: 20px 0 0 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
-  padding: 0 8px;
+  padding: 0 16px 12px;
   flex-grow: 1;
   padding-bottom: 12px;
 
@@ -107,7 +106,7 @@ export const StyledCtaContainer = styled.div`
 `;
 
 export const StyledHeader = styled.div`
-  padding: 16px 8px 0px;
+  padding: 20px 20px 0px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;

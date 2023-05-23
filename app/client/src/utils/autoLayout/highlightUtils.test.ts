@@ -1,4 +1,3 @@
-import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
@@ -105,7 +104,7 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       };
-      const offsetTop = (ROW_GAP - DEFAULT_HIGHLIGHT_SIZE / 2) / 2;
+      const offsetTop = ROW_GAP;
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         "1",

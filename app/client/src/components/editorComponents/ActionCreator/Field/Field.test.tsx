@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen } from "test/testUtils";
 import "@testing-library/jest-dom";
 import React from "react";
 import { ThemeProvider } from "styled-components";
@@ -14,7 +14,7 @@ describe("Field component", () => {
         return null;
       },
       id: "page-name",
-      text: "Page Name",
+      text: "Page name",
     },
     activeTabApiAndQueryCallback: {
       action: () => {
@@ -30,7 +30,7 @@ describe("Field component", () => {
     navigateToSwitches: [
       {
         id: "page-name",
-        text: "Page Name",
+        text: "Page name",
         action: () => {
           return null;
         },

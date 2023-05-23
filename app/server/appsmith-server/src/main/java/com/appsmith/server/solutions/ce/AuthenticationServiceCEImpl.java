@@ -467,19 +467,11 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 Mono<String> accessTokenMono = Mono.just(accessToken);
                                 Mono<String> projectIdMono = Mono.just(projectID);
 
-                                return featureFlagService.check(FeatureFlagEnum.LIMITING_GOOGLE_SHEET_ACCESS)
-                                        .flatMap(isFeatureFlag -> {
-                                            if (Boolean.TRUE.equals(isFeatureFlag)) {
-
-                                                return pluginExecutorHelper
-                                                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
-                                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                                                                .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
-                                                        .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
-                                            }
-
-                                            return Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono);
-                                        });
+                                return pluginExecutorHelper
+                                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
+                                        .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
                             });
                 })
                 .flatMap(tuple -> {

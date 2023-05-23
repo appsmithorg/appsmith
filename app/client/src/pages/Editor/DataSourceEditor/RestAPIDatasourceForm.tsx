@@ -14,7 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant } from "design-system-old";
+import { Button, Callout, toast } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -41,7 +41,6 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { Callout } from "design-system-old";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -57,6 +56,10 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import type {
+  ClientCredentials,
+  AuthorizationCode,
+} from "entities/Datasource/RestAPIForm";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import Debugger, {
@@ -110,20 +113,7 @@ type Props = DatasourceRestApiEditorProps &
 const FormInputContainer = styled.div`
   margin-top: 16px;
   .t--save-and-authorize-datasource {
-    margin-left: 20px;
-  }
-`;
-
-const StyledButton = styled(Button)`
-  &&&& {
-    width: 87px;
-    height: 32px;
-  }
-`;
-
-const AuthorizeButton = styled(StyledButton)`
-  &&&& {
-    width: 180px;
+    margin-left: 0;
   }
 `;
 
@@ -286,9 +276,8 @@ class DatasourceRestAPIEditor extends React.Component<
       !datasource.datasourceConfiguration ||
       !datasource.datasourceConfiguration.url
     ) {
-      Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
-        variant: Variant.danger,
+      toast.show("Unable to create API. Try adding a url to the datasource", {
+        kind: "error",
       });
       return;
     }
@@ -421,7 +410,9 @@ class DatasourceRestAPIEditor extends React.Component<
       <>
         {messages &&
           messages.map((msg, i) => (
-            <Callout fill key={i} text={msg} variant={Variant.warning} />
+            <Callout key={i} kind="warning">
+              {msg}
+            </Callout>
           ))}
         {this.renderGeneralSettings()}
         {this.renderAuthFields()}
@@ -432,10 +423,9 @@ class DatasourceRestAPIEditor extends React.Component<
           _.get(authentication, "grantType") ===
             GrantType.AuthorizationCode && (
             <FormInputContainer>
-              <AuthorizeButton
-                category={Category.primary}
+              <Button
                 className="t--save-and-authorize-datasource"
-                disabled={this.validate()}
+                isDisabled={this.validate()}
                 isLoading={isSaving}
                 onClick={() =>
                   this.save(
@@ -446,12 +436,9 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
-                tag="button"
-                text={
-                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
-                }
-                variant={Variant.success}
-              />
+              >
+                {isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
+              </Button>
             </FormInputContainer>
           )}
       </>
@@ -464,8 +451,8 @@ class DatasourceRestAPIEditor extends React.Component<
     return (
       <section
         className="t--section-general"
-        data-cy="section-General"
         data-replay-id="section-General"
+        data-testid="section-General"
       >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
@@ -492,7 +479,7 @@ class DatasourceRestAPIEditor extends React.Component<
         <FormInputContainer data-replay-id={btoa("queryParameters")}>
           {this.renderKeyValueControlViaFormControl(
             "queryParameters",
-            "Query Parameters",
+            "Query parameters",
             "",
             false,
           )}
@@ -520,7 +507,7 @@ class DatasourceRestAPIEditor extends React.Component<
           <FormInputContainer data-replay-id={btoa("sessionSignatureKey")}>
             {this.renderInputTextControlViaFormControl({
               configProperty: "sessionSignatureKey",
-              label: "Session Details Signature Key",
+              label: "Session details signature key",
               placeholderText: "",
               dataType: "TEXT",
               encrypted: false,
@@ -545,15 +532,15 @@ class DatasourceRestAPIEditor extends React.Component<
                 value: AuthType.OAuth2,
               },
               {
-                label: "API Key",
+                label: "API key",
                 value: AuthType.apiKey,
               },
               {
-                label: "Bearer Token",
+                label: "Bearer token",
                 value: AuthType.bearerToken,
               },
             ],
-            "Authentication Type",
+            "Authentication type",
             "",
             false,
             "",
@@ -568,13 +555,15 @@ class DatasourceRestAPIEditor extends React.Component<
     if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
       return (
         <Collapsible defaultIsOpen title="Certificate Details">
-          {this.renderFilePickerControlViaFormControl(
-            "connection.ssl.certificateFile",
-            "Upload Certificate",
-            "",
-            false,
-            true,
-          )}
+          <div style={{ marginTop: "16px" }}>
+            {this.renderFilePickerControlViaFormControl(
+              "connection.ssl.certificateFile",
+              "Upload Certificate",
+              "",
+              false,
+              true,
+            )}
+          </div>
         </Collapsible>
       );
     }
@@ -651,7 +640,7 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
-              label: "Header Prefix",
+              label: "Header prefix",
               placeholderText: "eg: Bearer ",
               dataType: "TEXT",
               encrypted: false,
@@ -668,8 +657,8 @@ class DatasourceRestAPIEditor extends React.Component<
       <FormInputContainer data-replay-id={btoa("authentication.bearerToken")}>
         {this.renderInputTextControlViaFormControl({
           configProperty: "authentication.bearerToken",
-          label: "Bearer Token",
-          placeholderText: "Bearer Token",
+          label: "Bearer token",
+          placeholderText: "Bearer token",
           dataType: "TEXT",
           encrypted: true,
           isRequired: false,
@@ -707,10 +696,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2 = () => {
-    const { authentication } = this.props.formData;
+    const authentication = this.props.formData.authentication as
+      | ClientCredentials
+      | AuthorizationCode
+      | undefined;
     if (!authentication) return;
     let content;
-    switch (_.get(authentication, "grantType")) {
+    switch (authentication.grantType) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;
@@ -734,7 +726,7 @@ class DatasourceRestAPIEditor extends React.Component<
                 value: GrantType.AuthorizationCode,
               },
             ],
-            "Grant Type",
+            "Grant type",
             "",
             false,
             "",
@@ -776,7 +768,7 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
-              label: "Header Prefix",
+              label: "Header prefix",
               placeholderText: "eg: Bearer ",
               dataType: "TEXT",
               encrypted: false,
@@ -789,7 +781,7 @@ class DatasourceRestAPIEditor extends React.Component<
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.accessTokenUrl",
-            label: "Access Token URL",
+            label: "Access token URL",
             placeholderText: "https://example.com/login/oauth/access_token",
             dataType: "TEXT",
             encrypted: false,
@@ -812,8 +804,8 @@ class DatasourceRestAPIEditor extends React.Component<
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.clientSecret",
-            label: "Client Secret",
-            placeholderText: "Client Secret",
+            label: "Client secret",
+            placeholderText: "Client secret",
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,

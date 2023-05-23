@@ -2,7 +2,7 @@ import {
   createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import {
   Icon,
@@ -55,7 +55,7 @@ export function TableHeaderIndex() {
           </TooltipWrapper>
         </Row>
         <TextInput
-          cypressSelector="t--tableHeaderIndex"
+          data-testid="t--tableHeaderIndex"
           dataType="text"
           errorMsg={error}
           fill

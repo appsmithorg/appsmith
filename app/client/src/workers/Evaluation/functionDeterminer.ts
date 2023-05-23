@@ -18,6 +18,7 @@ class FunctionDeterminer {
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: false,
+      enableJSFnPostProcessors: false,
     });
 
     addDataTreeToContext({
@@ -39,6 +40,7 @@ class FunctionDeterminer {
     userLogs.enable();
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
+      enableJSFnPostProcessors: true,
     });
 
     if (!dataTreeEvaluator) return;

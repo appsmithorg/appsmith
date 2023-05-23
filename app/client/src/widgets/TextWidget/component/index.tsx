@@ -6,7 +6,7 @@ import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import type { TextSize } from "constants/WidgetConstants";
 import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
@@ -20,7 +20,9 @@ export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 const ELLIPSIS_HEIGHT = 15;
 
-export const TextContainer = styled.div`
+export const TextContainer = styled.div<{
+  fontFamily?: string;
+}>`
   & {
     height: 100%;
     width: 100%;
@@ -81,6 +83,12 @@ export const TextContainer = styled.div`
       text-decoration: underline;
     }
   }
+
+  ${(props) =>
+    props.fontFamily &&
+    `
+    font-family: ${props.fontFamily};
+  `}
 `;
 
 const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
@@ -144,6 +152,9 @@ export const StyledText = styled(Text)<StyledTextProps>`
     line-height: 1.2;
     white-space: pre-wrap;
     text-align: ${(props) => props.textAlign.toLowerCase()};
+  }
+  .auto-layout & span {
+    min-height: 32px;
   }
 `;
 
@@ -278,6 +289,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       backgroundColor,
       disableLink,
       ellipsize,
+      fontFamily,
       fontSize,
       fontStyle,
       overflow,
@@ -290,9 +302,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     return (
       <>
         <TextContainer
-          style={{
-            fontFamily: this.props.fontFamily,
-          }}
+          fontFamily={fontFamily !== "System Default" ? fontFamily : undefined}
         >
           <StyledText
             backgroundColor={backgroundColor}

@@ -5,7 +5,7 @@ import { MenuItemsSource } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Menu Button",
+  name: "Menu button",
   iconSVG: IconSVG,
   defaults: {
     label: "Open Menu",

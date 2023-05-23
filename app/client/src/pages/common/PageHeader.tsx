@@ -17,17 +17,14 @@ import {
   matchTemplatesIdPath,
 } from "constants/routes";
 import history from "utils/history";
-import Button from "components/editorComponents/Button";
+import EditorButton from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
-import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
-import { Indices } from "constants/Layers";
-import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Button } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { get } from "lodash";
@@ -40,15 +37,14 @@ const StyledPageHeader = styled(StyledHeader)<{
   showSeparator?: boolean;
   showingTabs: boolean;
 }>`
-  box-shadow: none;
   justify-content: normal;
-  background: white;
+  background: var(--ads-v2-color-bg);
   height: 48px;
-  color: white;
+  color: var(--ads-v2-color-bg);
   position: fixed;
   top: 0;
-  z-index: ${Indices.Layer9};
-  box-shadow: 0px 1px 0px ${Colors.GALLERY_2};
+  z-index: var(--ads-v2-z-index-9);
+  border-bottom: 1px solid var(--ads-v2-color-border);
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -69,37 +65,69 @@ const HeaderSection = styled.div`
   }
 `;
 
-const StyledDropDownContainer = styled.div``;
-
-const StyledTwoLineHamburger = styled(TwoLineHamburger)`
-  fill: ${Colors.BLACK};
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-`;
-
 const Tabs = styled.div`
   display: flex;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 16px;
   box-sizing: border-box;
   margin-left: ${(props) => props.theme.spaces[16]}px;
   height: 100%;
-  gap: ${(props) => `${props.theme.spaces[0]}px ${props.theme.spaces[12]}px`};
   flex: 1;
-  padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
-const TabName = styled.div<{ isSelected: boolean }>`
-  color: ${Colors.GRAY};
-  border-bottom: 2px solid transparent;
-  text-align: center;
+const TabsList = styled.div`
+  display: flex;
+  display: flex;
+  gap: var(--ads-v2-spaces-4);
+  width: 100%;
+  padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-1) 0
+    var(--ads-v2-spaces-1);
+`;
+const Tab = styled.div<{ isSelected: boolean }>`
+  --tab-color: ${(props) =>
+    props.isSelected
+      ? "var(--ads-v2-color-fg)"
+      : "var(--ads-v2-color-fg-muted)"};
+  --tab-selection-color: transparent;
+  appearance: none;
+  position: relative;
+  cursor: pointer;
+  padding: var(--ads-v2-spaces-2);
+  padding-bottom: var(--ads-v2-spaces-3);
+  background-color: var(--ads-v2-color-bg);
+  border: none; // get rid of button styles
+  color: var(--tab-color);
+  min-width: fit-content;
+  border-radius: var(--ads-v2-border-radius);
+  margin-bottom: 2px;
+  padding-top: 4px;
+
+  &:after {
+    content: "";
+    height: 2px;
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    background-color: ${(props) =>
+      props.isSelected
+        ? `var(--ads-v2-color-border-brand)`
+        : `var(--tab-selection-color)`};
+  }
+
   display: flex;
   align-items: center;
-  ${(props) =>
-    props.isSelected &&
-    `border-bottom: 2px solid var(--ads-color-brand);
-  color: ${Colors.COD_GRAY};`}
-  cursor: pointer;
+  gap: var(--ads-v2-spaces-3);
+
+  &:hover {
+    --tab-selection-color: var(--ads-v2-color-border-emphasis);
+  }
+
+  &:focus-visible {
+    --tab-color: var(--ads-v2-color-fg);
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline);
+  }
 `;
 
 type PageHeaderProps = {
@@ -182,20 +210,19 @@ export function PageHeader(props: PageHeaderProps) {
           </Link>
         )}
       </HeaderSection>
-
       <Tabs>
         {showTabs && !isMobile && (
-          <>
-            <TabName
+          <TabsList>
+            <Tab
               className="t--apps-tab"
               isSelected={matchApplicationPath(location.pathname)}
               onClick={() => history.push(APPLICATIONS_URL)}
             >
               <div>Apps</div>
-            </TabName>
+            </Tab>
 
             {!isAirgappedInstance && (
-              <TabName
+              <Tab
                 className="t--templates-tab"
                 isSelected={
                   matchTemplatesPath(location.pathname) ||
@@ -207,16 +234,16 @@ export function PageHeader(props: PageHeaderProps) {
                 }}
               >
                 <div>Templates</div>
-              </TabName>
+              </Tab>
             )}
-          </>
+          </TabsList>
         )}
       </Tabs>
 
       {user && !isMobile && (
-        <StyledDropDownContainer>
+        <div>
           {user.username === ANONYMOUS_USERNAME ? (
-            <Button
+            <EditorButton
               filled
               intent={"primary"}
               onClick={() => history.push(loginUrl)}
@@ -233,17 +260,24 @@ export function PageHeader(props: PageHeaderProps) {
               userName={user.username}
             />
           )}
-        </StyledDropDownContainer>
+        </div>
       )}
       {isMobile && !isMobileSidebarOpen && (
-        <StyledTwoLineHamburger onClick={() => setIsMobileSidebarOpen(true)} />
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() => setIsMobileSidebarOpen(true)}
+          size={"md"}
+          startIcon="hamburger"
+        />
       )}
       {isMobile && isMobileSidebarOpen && (
-        <Icon
-          fillColor={Colors.CRUSTA}
-          name="close-x"
+        <Button
+          isIconButton
+          kind="tertiary"
           onClick={() => setIsMobileSidebarOpen(false)}
-          size={IconSize.XXXXL}
+          size="sm"
+          startIcon="close-x"
         />
       )}
       {isMobile && user && (

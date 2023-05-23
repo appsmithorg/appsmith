@@ -20,10 +20,10 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import { Icon } from "design-system";
 
 type ExplorerWidgetGroupProps = {
   step: number;

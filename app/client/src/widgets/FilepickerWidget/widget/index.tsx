@@ -94,7 +94,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
-            label: "Allowed File Types",
+            label: "Allowed file types",
             controlType: "DROP_DOWN",
             isMultiSelect: true,
             placeholderText: "Select file types",
@@ -156,7 +156,7 @@ class FilePickerWidget extends BaseWidget<
           {
             helpText: "Set the format of the data read from the files",
             propertyName: "fileDataType",
-            label: "Data Format",
+            label: "Data format",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -207,7 +207,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,

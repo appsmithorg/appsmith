@@ -12,7 +12,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -338,7 +337,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         application1.setEditModeThemeId(themeId);
                         application1.setPublishedModeThemeId(themeId);
                         return themeId;
-                    }).then(applicationService.createDefault(application1));
+                    }).then(applicationService.createDefaultApplication(application1));
                 })
                 .flatMap(savedApplication -> {
 
@@ -766,7 +765,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(applicationUserTuple2 -> {
                                 Application application1 = applicationUserTuple2.getT1();
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
-                                return applicationService.createDefault(application1);
+                                return applicationService.createDefaultApplication(application1);
                             })
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())

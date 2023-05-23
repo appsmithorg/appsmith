@@ -20,7 +20,6 @@ import type {
   JSActionEntityConfig,
   JSActionEntity,
   WidgetConfig,
-  EntityConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 
@@ -54,7 +53,6 @@ export type DataTree = {
 
 export interface WidgetEntityConfig
   extends Partial<WidgetProps>,
-    EntityConfig,
     Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
     WidgetConfig {
   defaultMetaProps: Array<string>;

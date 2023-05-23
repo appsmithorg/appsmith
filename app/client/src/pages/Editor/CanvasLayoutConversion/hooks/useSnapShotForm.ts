@@ -14,21 +14,22 @@ import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
+import {
+  setConversionStop,
+  setLayoutConversionStateAction,
+} from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import { Colors } from "constants/Colors";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Variant } from "design-system-old";
+import type { ReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
   dispatch: Dispatch<any>,
   readableSnapShotDetails: ReadableSnapShotDetails | undefined,
-  onCancel: () => void,
   backState?: CONVERSION_STATES,
 ): {
   [key: string]: ConversionProps;
@@ -38,14 +39,11 @@ export const snapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       bannerMessageDetails: {
         message: createMessage(USE_SNAPSHOT_TEXT),
-        backgroundColor: Colors.GRAY_100,
-        iconName: "question-line",
-        iconColor: Colors.GRAY_600,
-        textColor: Colors.GRAY_800,
+        kind: "info",
       },
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
-        icon: "history-line",
+        icon: "history",
         text: createMessage(
           SNAPSHOT_TIME_FROM_MESSAGE,
           readableSnapShotDetails.timeSince,
@@ -77,7 +75,7 @@ export const snapShotFlow = (
     [CONVERSION_STATES.DISCARD_SNAPSHOT]: {
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(DISCARD_SNAPSHOT_TEXT),
-        icon: "history-line",
+        icon: "history",
         text: createMessage(
           SNAPSHOT_TIME_FROM_MESSAGE,
           readableSnapShotDetails.timeSince,
@@ -87,9 +85,9 @@ export const snapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       primaryButton: {
         text: createMessage(DISCARD),
-        variant: Variant.danger,
+        closeModal: true,
         onClick: () => {
-          onCancel();
+          dispatch(setConversionStop());
           dispatch({
             type: ReduxActionTypes.DELETE_SNAPSHOT,
           });
@@ -99,22 +97,20 @@ export const snapShotFlow = (
     [CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER]: {
       spinner: createMessage(RESTORING_SNAPSHOT),
     },
-    ...commonConversionFlows(dispatch, onCancel),
+    ...commonConversionFlows(dispatch),
   };
 };
 
-export const useSnapShotForm = (onCancel: () => void) => {
+export const useSnapShotForm = () => {
   const conversionState = useSelector(
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+
   const dispatch = useDispatch();
 
-  const snapshotFlowStates = snapShotFlow(
-    dispatch,
-    readableSnapShotDetails,
-    onCancel,
-  );
+  const snapshotFlowStates = snapShotFlow(dispatch, readableSnapShotDetails);
 
   return snapshotFlowStates[conversionState] || {};
 };

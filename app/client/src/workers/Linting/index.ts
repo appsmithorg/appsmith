@@ -7,13 +7,11 @@ import type {
   getlintErrorsFromTreeProps,
   getlintErrorsFromTreeResponse,
 } from "./types";
-import {
-  lintBindingPath,
-  lintJSObjectBody,
-  lintJSObjectProperty,
-  lintTriggerPath,
-  sortLintingPathsByType,
-} from "./utils";
+import lintBindingPath from "./utils/lintBindingPath";
+import lintTriggerPath from "./utils/lintTriggerPath";
+import lintJSObjectBody from "./utils/lintJSObjectBody";
+import sortLintingPathsByType from "./utils/sortLintingPathsByType";
+import lintJSObjectProperty from "./utils/lintJSObjectProperty";
 
 export function getlintErrorsFromTree({
   asyncJSFunctionsInDataFields,

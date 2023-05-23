@@ -1,31 +1,48 @@
 import React from "react";
 import PreviewBox from "./PreviewBox";
-
-import AddIcon from "remixicon-react/AddFillIcon";
-
+import { Icon, Text } from "design-system";
 import type { PreviewsProps } from ".";
+import { ContentBox } from "pages/Settings/components";
 
 const FaviconPreview = (props: PreviewsProps) => {
-  const { favicon } = props;
+  const { favicon, shades } = props;
 
   return (
-    <PreviewBox className="items-center p-4 bg-gray-100 " title="Browser tab">
-      <div className="w-full h-full bg-white">
-        <div className="flex items-center gap-2 px-4 pt-2 bg-gray-200 ">
+    <PreviewBox
+      className="items-center p-4"
+      style={{
+        backgroundColor: shades?.background,
+      }}
+      title="Browser tab"
+    >
+      <ContentBox className="w-full h-full border bg-white">
+        <div
+          className="flex items-center gap-2 px-4 pt-2"
+          style={{
+            backgroundColor: "var(--ads-v2-color-bg-muted)",
+          }}
+        >
           <div className="flex items-center gap-2 px-3 py-2 bg-white w-fit">
             <img
               alt="Branding Logo"
               className="w-3 h-3 t--branding-favicon"
               src={favicon}
             />
-            <span className="text-xs">Application Name</span>
+            <Text kind="body-s" renderAs="span">
+              Application name
+            </Text>
           </div>
-          <AddIcon className="w-4 h-4" />
+          <Icon name="add-line" size="md" />
         </div>
-        <div className="p-3 border-b h-11">
-          <div className="w-full h-full bg-gray-100" />
-        </div>
-      </div>
+        <ContentBox className="p-3 border-b h-11">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundColor: "var(--ads-v2-color-bg-muted)",
+            }}
+          />
+        </ContentBox>
+      </ContentBox>
     </PreviewBox>
   );
 };
