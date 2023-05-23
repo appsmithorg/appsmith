@@ -94,7 +94,7 @@ export const Binding = styled.div`
   font-size: 12px;
   font-weight: 700;
   position: relative;
-  left: 3px;
+  left: 1px;
   top: -1px;
   color: ${Colors.GRAY};
 `;

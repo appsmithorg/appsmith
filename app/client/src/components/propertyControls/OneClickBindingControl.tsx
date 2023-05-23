@@ -31,12 +31,6 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
     );
   };
 
-  public onSourceClose = () => {
-    if (this.props.widgetProperties.isConnectDataEnabled) {
-      this.updateProperty?.("isConnectDataEnabled", false);
-    }
-  };
-
   private getErrorMessage = () => {
     const errorObj =
       this.props.widgetProperties.__evaluation__?.errors?.[
@@ -56,8 +50,6 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         entityId={this.props.widgetProperties.widgetId}
         errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType}
-        isSourceOpen={this.props.widgetProperties.isConnectDataEnabled}
-        onSourceClose={this.onSourceClose}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}

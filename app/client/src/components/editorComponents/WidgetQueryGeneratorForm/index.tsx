@@ -12,8 +12,10 @@ import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import {
   getisOneClickBindingConnectingForWidget,
+  getIsOneClickBindingOptionsVisibility,
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
+import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -76,8 +78,6 @@ type Props = {
   entityId: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
   widgetId: string;
-  isSourceOpen: boolean;
-  onSourceClose: () => void;
   errorMsg: string;
 };
 
@@ -90,13 +90,13 @@ function WidgetQueryGeneratorForm(props: Props) {
     entityId,
     errorMsg,
     expectedType,
-    isSourceOpen,
-    onSourceClose,
     onUpdate,
     propertyPath,
     propertyValue,
     widgetId,
   } = props;
+
+  const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
 
   const formData = useSelector(getOneClickBindingConfigForWidget(widgetId));
 
@@ -116,6 +116,10 @@ function WidgetQueryGeneratorForm(props: Props) {
       searchableColumn: formData.searchableColumn,
     };
   }
+
+  const onSourceClose = useCallback(() => {
+    dispatch(updateOneClickBindingOptionsVisibility(false));
+  }, [dispatch]);
 
   const [config, setConfig] = useState({
     ...formState,
