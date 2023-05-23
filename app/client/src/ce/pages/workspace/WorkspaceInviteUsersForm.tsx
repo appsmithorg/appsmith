@@ -57,7 +57,7 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { showProductRamps } from "@appsmith/utils/ProductRamps";
+import { RAMP_LINK_TO, showProductRamps } from "@appsmith/utils/ProductRamps";
 import { RAMP_NAME } from "@appsmith/utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
@@ -244,11 +244,7 @@ function InviteUserText() {
       {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) ? (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
-          <Link
-            kind="primary"
-            target="_blank"
-            to="https://appsmith.com/pricing"
-          >
+          <Link kind="primary" target="_blank" to={RAMP_LINK_TO}>
             {createMessage(BUSINESS_EDITION_TEXT)}
           </Link>
         </>
@@ -263,7 +259,7 @@ function CustomRolesRamp() {
   const rampText = (
     <span>
       {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
-      <Link kind="primary" target="_blank" to="https://appsmith.com/pricing">
+      <Link kind="primary" target="_blank" to={RAMP_LINK_TO}>
         {createMessage(BUSINESS_EDITION_TEXT)}
       </Link>
     </span>
@@ -495,9 +491,11 @@ function WorkspaceInviteUsersForm(props: any) {
                   </div>
                 </Option>
               ))}
-              <Option disabled>
-                <CustomRolesRamp />
-              </Option>
+              {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                <Option disabled>
+                  <CustomRolesRamp />
+                </Option>
+              )}
             </Select>
           </div>
           <div>
