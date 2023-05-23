@@ -36,6 +36,8 @@ export const getExpressionStringAtPos = (
     return getExpressionAtPosFromExpressionStatement(node, pos, options);
   } else if (isCallExpressionNode(node)) {
     return getExpressionAtPosFromCallExpression(node, pos, options);
+  } else if (isBinaryExpressionNode(node)) {
+    return getExpressionAtPosFromBinaryExpression(node, pos, options);
   } else if (isIdentifierNode(node)) {
     return escodegen.generate(node);
   }
@@ -97,6 +99,7 @@ const getExpressionAtPosFromExpressionStatement = (
     return getExpressionAtPosFromCallExpression(expressionNode, pos, options);
   } else {
     // remove ; from expression statement
+    console.log(node);
     return stringRemoveLastCharacter(escodegen.generate(node));
   }
 };
@@ -106,18 +109,18 @@ const getExpressionAtPosFromCallExpression = (
   pos: number,
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
+  let selectedNode: Node | undefined;
   if (isPositionWithinNode(node.callee, pos)) {
-    console.log(node.callee);
-    return getExpressionStringAtPos(node.callee, pos, options);
+    selectedNode = node.callee;
   } else if (node.arguments.length > 0) {
     const argumentNode = node.arguments.find((node) =>
       isPositionWithinNode(node, pos),
     );
     if (argumentNode) {
-      console.log(argumentNode);
-      return getExpressionStringAtPos(argumentNode, pos, options);
+      selectedNode = argumentNode;
     }
   }
+  return selectedNode && getExpressionStringAtPos(selectedNode, pos, options);
 };
 
 const getExpressionAtPosFromConditionalExpression = (
@@ -125,17 +128,15 @@ const getExpressionAtPosFromConditionalExpression = (
   pos: number,
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
+  let selectedNode: Node | undefined;
   if (isPositionWithinNode(node.test, pos)) {
-    if (isBinaryExpressionNode(node.test)) {
-      return getExpressionAtPosFromBinaryExpression(node.test, pos, options);
-    } else {
-      return getExpressionStringAtPos(node.test, pos, options);
-    }
+    selectedNode = node.test;
   } else if (isPositionWithinNode(node.consequent, pos)) {
-    return getExpressionStringAtPos(node.consequent, pos, options);
+    selectedNode = node.consequent;
   } else if (isPositionWithinNode(node.alternate, pos)) {
-    return getExpressionStringAtPos(node.alternate, pos, options);
+    selectedNode = node.alternate;
   }
+  return selectedNode && getExpressionStringAtPos(selectedNode, pos, options);
 };
 
 const getExpressionAtPosFromBinaryExpression = (
@@ -143,11 +144,13 @@ const getExpressionAtPosFromBinaryExpression = (
   pos: number,
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
+  let selectedNode: Node | undefined;
   if (isPositionWithinNode(node.left, pos)) {
-    return getExpressionStringAtPos(node.left, pos, options);
+    selectedNode = node.left;
   } else if (isPositionWithinNode(node.right, pos)) {
-    return getExpressionStringAtPos(node.right, pos, options);
+    selectedNode = node.right;
   }
+  return selectedNode && getExpressionStringAtPos(selectedNode, pos, options);
 };
 
 export const replaceThisinMemberExpression = (
