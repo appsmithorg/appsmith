@@ -3,10 +3,7 @@ import { parse } from "acorn";
 import { simple } from "acorn-walk";
 import type { SourceType } from "../constants/ast";
 import { ECMA_VERSION } from "../constants/ast";
-import {
-  getExpressionStringAtPos,
-  isPositionWithinNode,
-} from "../peekOverlay/utils";
+import { getExpressionStringAtPos, isPositionWithinNode } from "./utils";
 
 export class PeekOverlayExpressionIdentifier {
   private parsedScript?: Node;

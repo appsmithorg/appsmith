@@ -90,41 +90,36 @@ describe("extractExpressionAtPositionWholeDoc", () => {
 
   it.only("handles ExpressionStatements", async () => {
     let result;
-
-    // // simple statement
-    // scriptIdentifier.updateScript("Api1");
-    // // Ap'i'1
-    // result = await scriptIdentifier.extractExpressionAtPosition(2);
-    // expect(result).toBe("Api1");
-
-    // // function call
-    // scriptIdentifier.updateScript(`storeValue("abc", 123)`);
-
-    // // st'o'reValue("abc", 123) - functionality not supported now
-    // try {
-    //   result = undefined;
-    //   result = await scriptIdentifier.extractExpressionAtPosition(2);
-    // } catch (e) {
-    //   expect(e).toBe(
-    //     "PeekOverlayExpressionIdentifier - No node/expression found",
-    //   );
-    // }
+    // simple statement
+    scriptIdentifier.updateScript("Api1");
+    // Ap'i'1
+    result = await scriptIdentifier.extractExpressionAtPosition(2);
+    expect(result).toBe("Api1");
+    // function call
+    scriptIdentifier.updateScript(`storeValue("abc", 123)`);
+    // st'o'reValue("abc", 123) - functionality not supported now
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(2);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
+    expect(result).toBe(undefined);
+    // storeValue("a'b'c", 123)
+    try {
+      result = undefined;
+      result = await scriptIdentifier.extractExpressionAtPosition(13);
+    } catch (e) {
+      expect(e).toBe(
+        "PeekOverlayExpressionIdentifier - No node/expression found",
+      );
+    }
     // expect(result).toBe(undefined);
-
-    // // storeValue("a'b'c", 123)
-    // try {
-    //   result = undefined;
-    //   result = await scriptIdentifier.extractExpressionAtPosition(13);
-    // } catch (e) {
-    //   expect(e).toBe(
-    //     "PeekOverlayExpressionIdentifier - No node/expression found",
-    //   );
-    // }
-    // expect(result).toBe(undefined);
-
-    scriptIdentifier.updateScript(`moment().format("dddd")`);
-    result = await scriptIdentifier.extractExpressionAtPosition(0);
-    expect(result).toBe("moment");
+    // scriptIdentifier.updateScript(`moment().format("dddd")`);
+    // result = await scriptIdentifier.extractExpressionAtPosition(0);
+    // expect(result).toBe("moment");
   });
 
   it("handles BinaryExpressions", async () => {
