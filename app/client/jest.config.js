@@ -17,15 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-<<<<<<< HEAD
-<<<<<<< HEAD
     "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never)",
-=======
-    "<rootDir>/node_modules/(?!codemirror|design-system-new|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
->>>>>>> 6f4c68d294 (fix all cypress failure)
-=======
-    "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
->>>>>>> c9ecddda31 (test fixes)
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
