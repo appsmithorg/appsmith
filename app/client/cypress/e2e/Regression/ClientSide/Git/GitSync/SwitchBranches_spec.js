@@ -233,6 +233,7 @@ describe("Git sync:", function () {
 
   it("7. branch list search", function () {
     cy.get("[data-testid=t--branch-creating-spinner]").should("not.exist");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     _.gitSync.CreateGitBranch("parentBranch", true);
