@@ -33,6 +33,7 @@ import {
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
 import { get, isFunction, memoize } from "lodash";
+import { useEffect, useRef } from "react";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -92,10 +93,39 @@ const REFERENCE_KEY = "$$refs$$";
 
 const EventsRestrictedWidget = (props: any) => {
   const isPreviewMode = useSelector(previewModeSelector);
+  const wrapperRef = useRef<any>();
+  const metaCtrlKeyCodes = useRef<number[]>([]);
+  const onCmdPress = (evt: any, down: boolean) => {
+    if (!down && metaCtrlKeyCodes.current.length) {
+      if (metaCtrlKeyCodes.current.includes(evt.keyCode)) {
+        wrapperRef.current.style.pointerEvents = "none";
+      }
+    } else if (evt.ctrlKey || evt.metaKey) {
+      if (!metaCtrlKeyCodes.current.includes(evt.ketCode)) {
+        metaCtrlKeyCodes.current.push(evt.keyCode);
+      }
+      wrapperRef.current.style.pointerEvents = "unset";
+    }
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", (evt) => onCmdPress(evt, true));
+    window.addEventListener("keyup", (evt) => onCmdPress(evt, false));
+    return () => {
+      window.removeEventListener("keydown", (evt) => onCmdPress(evt, true));
+      window.removeEventListener("keyup", (evt) => onCmdPress(evt, false));
+    };
+  }, []);
   return isPreviewMode ? (
     props.children
   ) : (
-    <div style={{ height: "100%", width: "100%", pointerEvents: "none" }}>
+    <div
+      ref={wrapperRef}
+      style={{
+        height: "100%",
+        width: "100%",
+        pointerEvents: "none",
+      }}
+    >
       {props.children}
     </div>
   );

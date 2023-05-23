@@ -71,7 +71,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
         let type: SelectionRequestType = SelectionRequestType.One;
         if (e.metaKey || e.ctrlKey) {
-          type = SelectionRequestType.PushPop;
+          // type = SelectionRequestType.PushPop;
         } else if (e.shiftKey) {
           type = SelectionRequestType.ShiftSelect;
         }
@@ -88,7 +88,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
         }
 
         if (
-          type === SelectionRequestType.PushPop ||
+          // type === SelectionRequestType.PushPop ||
           type === SelectionRequestType.ShiftSelect
         ) {
           e.stopPropagation();
