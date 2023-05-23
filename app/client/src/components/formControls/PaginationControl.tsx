@@ -4,30 +4,29 @@ import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
 import { PaginationSubComponent } from "components/formControls/utils";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
-  font-weight: 400;
+  /* font-weight: 400; */
   font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
+  color: var(--ads-v2-color-fg-muted);
+  line-height: 12px;
 `;
 
 export const FormControlContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 280px;
+  width: 270px;
   margin-right: 1rem;
 `;
 
 const PaginationContainer = styled.div`
   display: grid;
-  grid-gap: 8px 16px;
-  grid-template-columns: repeat(auto-fill, 280px);
+  grid-gap: 5px 5px;
+  grid-template-columns: repeat(auto-fill, 270px);
 `;
 
 // using query dynamic input text for both so user can dynamically change these values.
@@ -36,7 +35,7 @@ const valueFieldConfig: any = {
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
   customStyles: {
-    width: "280px",
+    // width: "280px",
   },
 };
 
@@ -84,12 +83,12 @@ export function Pagination(props: {
   );
 
   const defaultStyles = {
-    width: "280px",
+    // width: "280px",
     ...customStyles,
   };
 
   return (
-    <PaginationContainer data-cy={name}>
+    <PaginationContainer data-testid={name}>
       {/*  form control for Limit field */}
       <FormControlContainer>
         <FormControl

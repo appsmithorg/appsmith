@@ -166,7 +166,12 @@ export const useRenderBlocksOnCanvas = (
         canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
         canvasCtx.setLineDash([]);
         const { height, posX, posY, width } = highlight;
-        let val = scrollParent?.scrollTop || 0;
+        const isWidgetScrolling =
+          scrollParent?.className.includes("appsmith_widget_");
+        let val =
+          isMainContainer || isWidgetScrolling
+            ? scrollParent?.scrollTop || 0
+            : 0;
         if (
           !isMainContainer &&
           totalScrollTop &&

@@ -1,4 +1,4 @@
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";

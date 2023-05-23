@@ -28,14 +28,14 @@ class StatboxWidget extends ContainerWidget {
           {
             propertyName: "shouldScrollContents",
             helpText: "Enables scrolling for content inside the widget",
-            label: "Scroll Contents",
+            label: "Scroll contents",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -69,7 +69,7 @@ class StatboxWidget extends ContainerWidget {
             propertyName: "backgroundColor",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -80,7 +80,7 @@ class StatboxWidget extends ContainerWidget {
             propertyName: "borderColor",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            label: "Border Color",
+            label: "Border color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -90,12 +90,12 @@ class StatboxWidget extends ContainerWidget {
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderWidth",
             helpText: "Enter value for border width",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -105,7 +105,7 @@ class StatboxWidget extends ContainerWidget {
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -116,7 +116,7 @@ class StatboxWidget extends ContainerWidget {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",

@@ -1,8 +1,8 @@
-import { SegmentHeader } from "design-system-old";
 import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";
 import { createMessage, LOCAL_BRANCHES } from "@appsmith/constants/messages";
+import { Text } from "design-system";
 
 /**
  * LocalBranchList: returns a list of local branches
@@ -24,10 +24,13 @@ export function LocalBranchList(
   return (
     <div data-testid="t--git-local-branch-list-container">
       {localBranches?.length > 0 && (
-        <SegmentHeader
+        <Text
+          color="var(--ads-v2-color-fg-muted)"
           data-testid="t--branch-list-header-local"
-          title={createMessage(LOCAL_BRANCHES)}
-        />
+          kind="heading-xs"
+        >
+          {createMessage(LOCAL_BRANCHES)}
+        </Text>
       )}
       {localBranches
         .map((branch: string, index: number) => ({

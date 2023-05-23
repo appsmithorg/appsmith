@@ -5,7 +5,7 @@ const PAGE_ID = 2;
 export const initialState: any = {
   entities: {
     pageList: {
-      applicationId: 1,
+      applicationId: "1",
       currentPageId: PAGE_ID,
       pages: [
         {
@@ -37,7 +37,7 @@ export const initialState: any = {
     onBoarding: {
       firstTimeUserOnboardingComplete: false,
       showFirstTimeUserOnboardingModal: true,
-      enableFirstTimeUserOnboarding: true,
+      firstTimeUserOnboardingApplicationIds: ["1"],
     },
     theme: {
       theme: {

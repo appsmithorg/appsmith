@@ -349,9 +349,17 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   }, [schemaItem, isDirty, isValueValid, inputText]);
 
   const fieldComponent = useMemo(() => {
+    const autoFillProps =
+      !schemaItem.shouldAllowAutofill &&
+      [FieldType.EMAIL_INPUT, FieldType.PASSWORD_INPUT].includes(
+        schemaItem.fieldType,
+      )
+        ? { autoComplete: "off" }
+        : {};
     return (
       <BaseInputComponent
         {...conditionalProps}
+        {...autoFillProps}
         accentColor={schemaItem.accentColor}
         borderRadius={schemaItem.borderRadius}
         boxShadow={schemaItem.boxShadow}

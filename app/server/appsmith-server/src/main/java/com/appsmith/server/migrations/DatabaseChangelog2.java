@@ -2817,7 +2817,7 @@ public class DatabaseChangelog2 {
         plugin.setPackageName("oracle-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.png");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
         plugin.setDefaultInstall(true);
         try {
@@ -2832,7 +2832,7 @@ public class DatabaseChangelog2 {
     public void updateOraclePluginName(MongoTemplate mongoTemplate) {
         Plugin oraclePlugin = mongoTemplate.findOne(query(where("packageName").is("oracle-plugin")), Plugin.class);
         oraclePlugin.setName("Oracle");
-        oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.png");
+        oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
         mongoTemplate.save(oraclePlugin);
     }
 }

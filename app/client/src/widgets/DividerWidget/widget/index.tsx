@@ -53,7 +53,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -124,19 +124,16 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 label: "Solid",
                 value: "solid",
                 icon: "cap-solid",
-                iconSize: "large",
               },
               {
                 label: "Dashed",
                 value: "dashed",
                 icon: "line-dashed",
-                iconSize: "large",
               },
               {
                 label: "Dotted",
                 value: "dotted",
                 icon: "line-dotted",
-                iconSize: "large",
               },
             ],
             isJSConvertible: true,
@@ -170,22 +167,19 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isJSConvertible: true,
             options: [
               {
-                label: "No Cap",
+                label: "No cap",
                 value: "nc",
                 icon: "cap-solid",
-                iconSize: "large",
               },
               {
                 label: "Arrow",
                 value: "arrow",
                 icon: "arrow-forward",
-                iconSize: "large",
               },
               {
                 label: "Dot",
                 value: "dot",
                 icon: "cap-dot",
-                iconSize: "large",
               },
             ],
             isBindProperty: true,
@@ -203,21 +197,21 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             helpText:
               "Changes the position of the cap if a valid cap is selected.",
             propertyName: "capSide",
-            label: "Cap Position",
+            label: "Cap position",
             controlType: "ICON_TABS",
             fullWidth: true,
             options: [
               {
-                icon: "DIVIDER_CAP_LEFT",
+                startIcon: "contract-left-line",
                 value: -1,
               },
               {
-                icon: "DIVIDER_CAP_ALL",
+                startIcon: "column-freeze",
                 value: 0,
                 width: 48,
               },
               {
-                icon: "DIVIDER_CAP_RIGHT",
+                startIcon: "contract-right-line",
                 value: 1,
               },
             ],

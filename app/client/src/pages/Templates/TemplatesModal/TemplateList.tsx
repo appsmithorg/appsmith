@@ -1,6 +1,11 @@
-import { importTemplateIntoApplication } from "actions/templateActions";
+import {
+  FETCHING_TEMPLATE_LIST,
+  FORKING_TEMPLATE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import type { Template } from "api/TemplatesApi";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   isFetchingTemplatesSelector,
   isImportingTemplateToAppSelector,
@@ -9,21 +14,14 @@ import styled from "styled-components";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
-import type { Template } from "api/TemplatesApi";
-import TemplateModalHeader from "./Header";
-import {
-  createMessage,
-  FETCHING_TEMPLATE_LIST,
-  FORKING_TEMPLATE,
-} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   display: flex;
   height: 85vh;
-  overflow: auto;
+  overflow-y: hidden;
 
-  .modal-header {
-    padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  .templates-search {
+    background-color: var(--ads-v2-color-bg);
   }
 `;
 
@@ -36,12 +34,7 @@ const FilterWrapper = styled.div`
 const ListWrapper = styled.div`
   height: 79vh;
   overflow: auto;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
+  width: 100%;
 `;
 
 type TemplateListProps = {
@@ -50,9 +43,8 @@ type TemplateListProps = {
 };
 
 function TemplateList(props: TemplateListProps) {
-  const dispatch = useDispatch();
   const onForkTemplateClick = (template: Template) => {
-    dispatch(importTemplateIntoApplication(template.id, template.title));
+    props.onTemplateClick(template.id);
   };
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
@@ -69,11 +61,6 @@ function TemplateList(props: TemplateListProps) {
 
   return (
     <Wrapper className="flex flex-col">
-      <TemplateModalHeader
-        className="modal-header"
-        hideBackButton
-        onClose={props.onClose}
-      />
       <div className="flex">
         <FilterWrapper>
           <Filters />

@@ -1,5 +1,5 @@
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 import { evalContext } from "../mock";

@@ -45,6 +45,9 @@
   "smtp-username": "root",
   "smtp-password": "root",
 
+  "redis-host": "host.docker.internal",
+  "redis-port": "6379",
+
   "OAuth_Username": "testuser@appsmith.com",
   "OAuth_Host": "http://localhost:6001",
   "OAuth_ApiUrl": "http://host.docker.internal:6001",

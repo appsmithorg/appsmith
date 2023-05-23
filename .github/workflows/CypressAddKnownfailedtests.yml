@@ -3,7 +3,7 @@ name: Cypress Add Known failed tests
 on:
   issues:
     types: [opened, closed, reopened]
-   
+
 jobs:
   IssueOpened:
     if: (github.event.action == 'opened' || github.event.action == 'reopened') && contains( github.event.issue.labels.*.name, 'CI impacted')
@@ -19,14 +19,16 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           XATATOKEN: ${{ secrets.XATA_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "Issue title: ${{ github.event.issue.title }}"
-          echo "Issue body: ${{ github.event.issue.body }}"
+          echo "Issue title: $ISSUE_TITLE"
+          echo "Issue body: $ISSUE_BODY"
           #echo "$GITHUB_CONTEXT"
           chmod a+x app/client/cypress/xataadd.sh
-          echo "${{ github.event.issue.title }}"|awk '{print $2}'
-          echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
-          
+          echo "$ISSUE_TITLE"|awk '{print $2}'
+          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
+
   IssueClosed:
     if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'CI impacted')
     runs-on: ubuntu-latest
@@ -41,12 +43,11 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
           XATATOKEN: ${{ secrets.XATA_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "Issue title: ${{ github.event.issue.title }}"
-          echo "Issue body: ${{ github.event.issue.body }}"
+          echo "Issue title: $ISSUE_TITLE"
+          echo "Issue body: $ISSUE_BODY"
           #echo "$GITHUB_CONTEXT"
           chmod a+x app/client/cypress/xatadel.sh
-          echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xatadel.sh
-          
-          
-          
+          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/cypress/xatadel.sh

@@ -4,7 +4,7 @@ import { reduxForm, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "@appsmith/constants/forms";
 import type { RouteComponentProps } from "react-router-dom";
-import { useHistory, useLocation, withRouter, Link } from "react-router-dom";
+import { useHistory, useLocation, withRouter } from "react-router-dom";
 import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
@@ -23,16 +23,15 @@ import {
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
-
+import { FormGroup } from "design-system-old";
+import { Button, Link, Callout } from "design-system";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import type { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -44,13 +43,17 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 declare global {
   interface Window {
     grecaptcha: any;
   }
 }
-const { disableLoginForm, googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -75,8 +78,9 @@ type SignUpFormProps = InjectedFormProps<
 
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   useEffect(() => {
-    if (disableLoginForm) {
+    if (!isFormLoginEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
       history.replace({
         pathname: AUTH_LOGIN_URL,
@@ -86,7 +90,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = ThirdPartyLoginRegistry.get();
+  const socialLoginList = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 
@@ -143,10 +147,12 @@ export function SignUp(props: SignUpFormProps) {
   };
 
   const footerSection = (
-    <div className="px-2 py-4 text-base text-center border-b">
+    <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
       {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
       <Link
-        className="t--sign-up ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)]"
+        className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
+        kind="primary"
+        target="_self"
         to={AUTH_LOGIN_URL}
       >
         {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
@@ -160,11 +166,11 @@ export function SignUp(props: SignUpFormProps) {
       subtitle={createMessage(SIGNUP_PAGE_SUBTITLE)}
       title={createMessage(SIGNUP_PAGE_TITLE)}
     >
-      {showError && <FormMessage intent="danger" message={errorMessage} />}
+      {showError && <Callout kind="error">{errorMessage}</Callout>}
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
-      {!disableLoginForm && (
+      {isFormLoginEnabled && (
         <SpacedSubmitForm
           action={signupURL.toString()}
           id="signup-form"
@@ -196,9 +202,9 @@ export function SignUp(props: SignUpFormProps) {
           </FormGroup>
           <FormActions>
             <Button
-              disabled={shouldDisableSignupButton}
-              fill
+              isDisabled={shouldDisableSignupButton}
               isLoading={submitting}
+              kind="primary"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
@@ -207,11 +213,11 @@ export function SignUp(props: SignUpFormProps) {
                   PerformanceTransactionName.SIGN_UP,
                 );
               }}
-              size={Size.large}
-              tag="button"
-              text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+              size="md"
               type="submit"
-            />
+            >
+              {createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+            </Button>
           </FormActions>
         </SpacedSubmitForm>
       )}

@@ -1,10 +1,12 @@
-import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ce/constants/messages";
+import {
+  createMessage,
+  SELECT_ALL_WIDGETS_MSG,
+} from "@appsmith/constants/messages";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system-old";
 import { uniq } from "lodash";
 import type {
   CanvasWidgetsReduxState,
@@ -19,6 +21,7 @@ import {
 import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import WidgetFactory from "utils/WidgetFactory";
+import { toast } from "design-system";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 /**
@@ -311,10 +314,8 @@ export function* selectAllWidgetsInCanvasSaga() {
         );
       });
       if (isAnyModalSelected) {
-        Toaster.show({
-          text: createMessage(SELECT_ALL_WIDGETS_MSG),
-          variant: Variant.info,
-          duration: 3000,
+        toast.show(createMessage(SELECT_ALL_WIDGETS_MSG), {
+          kind: "info",
         });
       }
       return allSelectableChildren;

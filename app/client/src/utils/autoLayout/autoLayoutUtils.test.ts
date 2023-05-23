@@ -18,6 +18,7 @@ import {
 } from "./AutoLayoutUtils";
 import { data, dataForgetCanvasDimensions } from "./testData";
 import { FlexLayerAlignment } from "./constants";
+import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 
 describe("test AutoLayoutUtils methods", () => {
   const mainCanvasWidth = 960;
@@ -187,7 +188,7 @@ describe("test AutoLayoutUtils methods", () => {
     const mainCanvasWidth = 1166;
     const widgets = dataForgetCanvasDimensions;
     const mainContainerPadding = 4 * 2;
-    const containerPadding = (4 + 6) * 2;
+    const containerPadding = (4 + AUTO_LAYOUT_CONTAINER_PADDING) * 2;
     it("should return proper dimension for MainContainer", () => {
       const button0parent = widgets["kv4o6eopdn"]
         .parentId as keyof typeof widgets;

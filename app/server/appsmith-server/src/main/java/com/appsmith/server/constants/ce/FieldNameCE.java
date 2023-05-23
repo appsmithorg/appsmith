@@ -19,7 +19,7 @@ public class FieldNameCE {
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
-    public static String APPLICATION_ID = "applicationId";
+    public static final String APPLICATION_ID = "applicationId";
     public static String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String DEFAULT_RESOURCES = "defaultResources";
     public static String PLUGIN_ID = "pluginId";

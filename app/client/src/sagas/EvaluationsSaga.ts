@@ -65,7 +65,6 @@ import {
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
@@ -104,9 +103,11 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "ce/configs";
+import { toast } from "design-system";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import type { EvalMetaUpdates } from "ce/workers/common/DataTreeEvaluator/types";
+import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -148,6 +149,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
+    undefinedEvalValuesMap,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -206,6 +208,7 @@ export function* updateDataTreeHandler(
         isCreateFirstTree,
         isNewWidgetAdded,
         configTree,
+        undefinedEvalValuesMap,
       );
     }
 
@@ -389,6 +392,7 @@ export function* executeTriggerRequestSaga(
 }
 
 export function* clearEvalCache() {
+  yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
   return true;
 }
@@ -403,6 +407,7 @@ function* executeAsyncJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
+  isExecuteJSFunc: boolean,
 ) {
   let response: JSFunctionExecutionResponse;
   const functionCall = `${collectionName}.${action.name}()`;
@@ -424,7 +429,7 @@ function* executeAsyncJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      logActionExecutionError(e.message);
+      logActionExecutionError(e.message, isExecuteJSFunc);
     }
     response = { errors: [e], result: undefined };
   }
@@ -435,6 +440,7 @@ export function* executeJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
+  isExecuteJSFunc: boolean,
 ) {
   let response: {
     errors: unknown[];
@@ -448,6 +454,7 @@ export function* executeJSFunction(
       collectionName,
       action,
       collectionId,
+      isExecuteJSFunc,
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
@@ -630,12 +637,14 @@ export function* evaluateSnippetSaga(action: any) {
           : JSON.stringify(result),
       ),
     );
-    Toaster.show({
-      text: createMessage(
+    toast.show(
+      createMessage(
         errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
       ),
-      variant: errors?.length ? Variant.danger : Variant.success,
-    });
+      {
+        kind: errors?.length ? "error" : "success",
+      },
+    );
     yield put(
       setGlobalSearchFilterContext({
         executionInProgress: false,
@@ -647,9 +656,8 @@ export function* evaluateSnippetSaga(action: any) {
         executionInProgress: false,
       }),
     );
-    Toaster.show({
-      text: createMessage(SNIPPET_EXECUTION_FAILED),
-      variant: Variant.danger,
+    toast.show(createMessage(SNIPPET_EXECUTION_FAILED), {
+      kind: "error",
     });
     log.error(e);
     Sentry.captureException(e);
@@ -689,6 +697,47 @@ export function* evaluateArgumentSaga(action: any) {
           name,
           errors: lintErrors,
           isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateActionSelectorFieldSaga(action: any) {
+  const { id, type, value } = action.payload;
+  try {
+    const workerResponse: {
+      errors: Array<unknown>;
+      result: unknown;
+    } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+      expression: value,
+    });
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {}, "");
+      if (!validation.isValid)
+        validation.messages?.map((message) => {
+          lintErrors.unshift({
+            ...validation,
+            ...{
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+            },
+          });
+        });
+    }
+
+    yield put(
+      setEvaluatedActionSelectorField({
+        id,
+        evaluatedValue: {
+          value: workerResponse.result as string,
+          errors: lintErrors,
         },
       }),
     );

@@ -1,4 +1,3 @@
-import { ReactComponent as CanvasResizerIcon } from "assets/icons/ads/app-icons/canvas-resizer.svg";
 import { layoutConfigurations } from "constants/WidgetConstants";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,6 +11,11 @@ import {
 import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
+import { importSvg } from "design-system-old";
+
+const CanvasResizerIcon = importSvg(
+  () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
+);
 
 const AutoLayoutCanvasResizer = styled.div`
   position: sticky;

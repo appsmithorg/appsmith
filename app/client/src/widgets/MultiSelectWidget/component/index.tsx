@@ -14,7 +14,7 @@ import {
   MODAL_PORTAL_CLASSNAME,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
-import { Icon } from "design-system-old";
+import { Icon } from "@design-system/widgets-old";
 import type { Alignment } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";

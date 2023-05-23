@@ -6,9 +6,7 @@
   "license": "MIT",
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build": "build-storybook",
-    "lint:ci": "echo 'No lint specified'",
-    "prettier:ci": "echo 'No prettier specified'"
+    "build": "build-storybook"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -38,8 +36,6 @@
     "@capsizecss/core": "^3.1.0",
     "@capsizecss/metrics": "^1.0.1",
     "colorjs.io": "^0.4.3",
-    "react": "^17.0.2",
-    "react-docgen-typescript": "^2.2.2",
-    "react-dom": "^17.0.2"
+    "react-docgen-typescript": "^2.2.2"
   }
 }

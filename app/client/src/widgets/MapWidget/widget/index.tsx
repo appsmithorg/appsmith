@@ -181,7 +181,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "zoomLevel",
-            label: "Zoom Level",
+            label: "Zoom level",
             controlType: "STEP",
             helpText: "Changes the default zoom of the map",
             stepType: "ZOOM_PERCENTAGE",
@@ -200,7 +200,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -219,7 +219,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
           {
             propertyName: "isClickedMarkerCentered",
-            label: "Map & Marker centering",
+            label: "Map & marker centering",
             helpText:
               "Controls whether the clicked marker is centered on the map",
             controlType: "SWITCH",
@@ -248,7 +248,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Create Marker",
+        sectionName: "Create marker",
         children: [
           {
             propertyName: "enableCreateMarker",
@@ -294,11 +294,11 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -310,7 +310,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -453,7 +453,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           >
             <h1>{"Map Widget disabled"}</h1>
             <mark>Key: x{this.props.googleMapsApiKey}x</mark>
-            <p>{"Map widget requires a Google Maps API Key"}</p>
+            <p>{"Map widget requires a Google Maps API key"}</p>
             <p>
               {"See our"}
               <a
@@ -463,7 +463,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               >
                 {" documentation "}
               </a>
-              {"to configure API Keys"}
+              {"to configure API keys"}
             </p>
           </DisabledContainer>
         )}

@@ -10,6 +10,7 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 import {
   API_STATUS_CODES,
+  DEFAULT_ENV_NAME,
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "@appsmith/constants/ApiConstants";
@@ -22,7 +23,7 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -89,6 +90,14 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
+  }
+
+  // Add header for environment name
+  let activeEnv = getQueryParamsObject().environment;
+  if (activeEnv === undefined || activeEnv === null || activeEnv === "")
+    activeEnv = DEFAULT_ENV_NAME;
+  if (activeEnv.length > 0 && config.headers) {
+    config.headers.environmentName = activeEnv;
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();

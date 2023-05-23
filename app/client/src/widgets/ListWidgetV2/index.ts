@@ -132,6 +132,7 @@ export const CONFIG = {
                     containerStyle: "card",
                     dragDisabled: true,
                     isDeletable: false,
+                    isListItemContainer: true,
                     disallowCopy: true,
                     noContainerOffset: true,
                     positioning: Positioning.Fixed,
@@ -346,6 +347,7 @@ export const CONFIG = {
               },
               [containerId]: {
                 positioning: Positioning.Vertical,
+                isFlexChild: true,
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
