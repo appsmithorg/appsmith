@@ -1,28 +1,22 @@
 import React, { useEffect, useState } from "react";
 import webfontloader from "webfontloader";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import {
   ThemeProvider,
   TokensAccessor,
   defaultTokens,
 } from "@design-system/theming";
-import { createGlobalFontStack } from "@design-system/widgets";
 import Color from "colorjs.io";
 
 const StyledThemeProvider = styled(ThemeProvider)`
   display: inline-flex;
-  min-width: 100%;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   padding: 16px;
   align-items: center;
   justify-content: center;
   background: var(--color-bg);
   color: var(--color-fg);
-`;
-const { fontFaces } = createGlobalFontStack();
-
-const GlobalStyles = createGlobalStyle`
-   ${fontFaces}
 `;
 
 const tokensAccessor = new TokensAccessor(defaultTokens);
@@ -30,42 +24,16 @@ const tokensAccessor = new TokensAccessor(defaultTokens);
 export const theming = (Story, args) => {
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
 
-  // Load the font if it's not the default
-  useEffect(() => {
-    if (
-      args.globals.fontFamily &&
-      args.globals.fontFamily !== "System Default"
-    ) {
-      webfontloader.load({
-        google: {
-          families: [`${args.globals.fontFamily}:300,400,500,700`],
-        },
-      });
-    }
-  }, [args.globals.fontFamily]);
+  const updateFontFamily = (fontFamily) => {
+    tokensAccessor.updateFontFamily(fontFamily);
 
-  useEffect(() => {
-    if (args.globals.accentColor) {
-      let color;
-
-      try {
-        color = Color.parse(args.globals.accentColor);
-      } catch (error) {
-        console.error(error);
-      }
-
-      if (color) {
-        tokensAccessor.updateSeedColor(args.globals.accentColor);
-
-        setTheme((prevState) => {
-          return {
-            ...prevState,
-            ...tokensAccessor.getColors(),
-          };
-        });
-      }
-    }
-  }, [args.globals.accentColor]);
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        ...tokensAccessor.getFontFamily(),
+      };
+    });
+  };
 
   useEffect(() => {
     if (args.globals.colorMode) {
@@ -95,10 +63,64 @@ export const theming = (Story, args) => {
     }
   }, [args.globals.borderRadius]);
 
+  useEffect(() => {
+    if (args.globals.accentColor) {
+      let color;
+
+      try {
+        color = Color.parse(args.globals.accentColor);
+      } catch (error) {
+        console.error(error);
+      }
+
+      if (color) {
+        tokensAccessor.updateSeedColor(args.globals.accentColor);
+
+        setTheme((prevState) => {
+          return {
+            ...prevState,
+            ...tokensAccessor.getColors(),
+          };
+        });
+      }
+    }
+  }, [args.globals.accentColor]);
+
+  useEffect(() => {
+    if (
+      args.globals.fontFamily &&
+      args.globals.fontFamily !== "Arial" &&
+      args.globals.fontFamily !== "System Default"
+    ) {
+      webfontloader.load({
+        google: {
+          families: [`${args.globals.fontFamily}:300,400,500,700`],
+        },
+        active: () => {
+          updateFontFamily(args.globals.fontFamily);
+        },
+      });
+    } else {
+      updateFontFamily(args.globals.fontFamily);
+    }
+  }, [args.globals.fontFamily]);
+
+  useEffect(() => {
+    if (args.globals.rootUnit) {
+      tokensAccessor.updateRootUnit(args.globals.rootUnit);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getRootUnit(),
+        };
+      });
+    }
+  }, [args.globals.rootUnit]);
+
   return (
     <StyledThemeProvider theme={theme}>
-      <GlobalStyles />
-      <Story fontFamily={args.globals.fontFamily} />
+      <Story />
     </StyledThemeProvider>
   );
 };

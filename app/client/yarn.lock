@@ -1925,7 +1925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capsizecss/metrics@npm:^1.0.1":
+"@capsizecss/metrics@npm:^1.0.1, @capsizecss/metrics@npm:^1.1.1":
   version: 1.1.1
   resolution: "@capsizecss/metrics@npm:1.1.1"
   checksum: 5ba1b77f510c9e67bb25f686bf2a9f6124ceade7f5c5ce0971d63d3feccfab2bc3fb735c588ef7f0e2a2ea404f4ea4f618f70b4717ab2386de59839b0c861d8b
@@ -2242,6 +2242,9 @@ __metadata:
 "@design-system/theming@workspace:^, @design-system/theming@workspace:packages/design-system/theming":
   version: 0.0.0-use.local
   resolution: "@design-system/theming@workspace:packages/design-system/theming"
+  dependencies:
+    "@capsizecss/core": ^3.1.0
+    "@capsizecss/metrics": ^1.1.1
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -2290,8 +2293,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@design-system/widgets@workspace:packages/design-system/widgets"
   dependencies:
-    "@capsizecss/core": ^3.1.0
-    "@capsizecss/metrics": ^1.0.1
     "@design-system/headless": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@react-aria/utils": ^3.16.0

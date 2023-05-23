@@ -1,67 +1,80 @@
 {
+  "rootUnit": 4,
   "color": {
     "bg": {
-      "value": "#f9faff",
+      "value": "rgb(97.488% 97.871% 100%)",
       "type": "color"
     },
     "bg-accent": {
-      "value": "#553de9",
+      "value": "rgb(33.333% 23.922% 91.373%)",
       "type": "color"
     },
     "bg-accent-hover": {
-      "value": "#6150fb",
+      "value": "rgb(38.033% 31.188% 98.353%)",
       "type": "color"
     },
     "bg-accent-active": {
-      "value": "#5035e2",
+      "value": "rgb(31.537% 20.805% 88.597%)",
       "type": "color"
     },
     "bg-accent-subtle-hover": {
-      "value": "#ecedff",
+      "value": "rgb(92.573% 93.093% 100%)",
       "type": "color"
     },
     "bg-accent-subtle-active": {
-      "value": "#e1e3ff",
+      "value": "rgb(88.332% 89.201% 100%)",
       "type": "color"
     },
     "bg-assistive": {
-      "value": "#040411",
+      "value": "rgb(1.6475% 1.7126% 6.8084%)",
       "type": "color"
     },
     "fg": {
-      "value": "#040411",
+      "value": "rgb(1.6475% 1.7126% 6.8084%)",
       "type": "color"
     },
     "fg-accent": {
-      "value": "#553de9",
+      "value": "rgb(33.333% 23.922% 91.373%)",
       "type": "color"
     },
     "fg-on-accent": {
-      "value": "#f8f9ff",
+      "value": "rgb(91.588% 90.378% 100%)",
+      "type": "color"
+    },
+    "fg-on-assistive": {
+      "value": "rgb(97.488% 97.871% 100%)",
+      "type": "color"
+    },
+    "fg-neutral": {
+      "value": "rgb(37.869% 38.922% 47.553%)",
+      "type": "color"
+    },
+    "fg-positive": {
+      "value": "#4ade80",
+      "type": "color"
+    },
+    "fg-warn": {
+      "value": "#facc15",
       "type": "color"
     },
     "fg-negative": {
       "value": "#d91921",
       "type": "color"
     },
-    "fg-on-assistive": {
-      "value": "#f9faff",
-      "type": "color"
-    },
     "bd-accent": {
-      "value": "#553de9",
+      "value": "rgb(33.333% 23.922% 91.373%)",
       "type": "color"
     },
     "bd-neutral": {
-      "value": "#616379",
+      "value": "rgb(37.869% 38.922% 47.553%)",
       "type": "color"
     },
     "bd-neutral-hover": {
-      "value": "#7d8097",
+      "value": "rgb(49.162% 50.308% 59.345%)",
       "type": "color"
     },
     "bd-focus": {
-      "value": "#7b6200",
+      "value": "rgb(48.174% 38.558% 0%)",
       "type": "color"
     },
     "bd-negative": {
@@ -71,12 +84,6 @@
     "bd-negative-hover": {
       "value": "#b90707",
       "type": "color"
-    }
-  },
-  "sizing": {
-    "root-unit": {
-      "value": "4px",
-      "type": "sizing"
     }
   },
   "spacing": {

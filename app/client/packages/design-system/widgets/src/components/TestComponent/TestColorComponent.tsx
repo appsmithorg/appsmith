@@ -118,6 +118,13 @@ export const TestColorComponent = (props: any) => {
             const seedColor = COLORS[colorKey][colorNestedKey];
 
             const tokensAccessor = new TokensAccessor({
+              rootUnit: 4,
+              typography: {
+                footnote: {
+                  capHeight: 1.4,
+                  lineGap: 1,
+                },
+              },
               seedColor,
               colorMode: colorMode,
             });
@@ -181,7 +188,7 @@ export const TestColorComponent = (props: any) => {
                     data-hovered={isHovered ? "" : undefined}
                     data-variant={variant}
                   >
-                    <Text capHeight={6.5} lineClamp={2}>
+                    <Text lineClamp={2} textAlign="center" variant="footnote">
                       {children({
                         seed: getSeed(),
                         derived: getDerived(),

@@ -24,11 +24,4 @@ describe("@design-system/widgets/Text", () => {
     const text = container.querySelector("div span") as HTMLElement;
     expect(text).toHaveStyle("text-overflow: ellipsis");
   });
-
-  it("should be able to render paragraph with as prop", () => {
-    const { container } = render(<Text as="p">My Text</Text>);
-
-    const text = container.querySelector("p") as HTMLElement;
-    expect(text).toBeInTheDocument();
-  });
 });

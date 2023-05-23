@@ -14,5 +14,19 @@
   },
   "opacity": {
     "disabled": 0.3
+  },
+  "typography": {
+    "heading": {
+      "capHeight": 6,
+      "lineGap": 6
+    },
+    "body": {
+      "capHeight": 2.5,
+      "lineGap": 2
+    },
+    "footnote": {
+      "capHeight": 1.5,
+      "lineGap": 1
+    }
   }
 }

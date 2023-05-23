@@ -1,31 +1,47 @@
-import React from "react";
+import type { Ref } from "react";
+import React, { forwardRef } from "react";
 import { StyledText } from "./index.styled";
-import type { fontFamilyTypes } from "../../utils/typography";
+import { useThemeContext } from "@design-system/theming";
+import type { TypographyVariants } from "@design-system/theming";
 
-export type TextProps = {
-  children: React.ReactNode;
-  isLoading?: boolean;
-  isDisabled?: boolean;
-  fontFamily?: fontFamilyTypes;
-  fontSize?: string;
-  color?: string;
-  fontWeight?: "normal" | "bold" | "bolder" | "lighter";
-  textDecoration?: "none" | "underline" | "line-through";
-  fontStyle?: "normal" | "italic";
+export interface TextProps {
+  variant?: TypographyVariants;
+  type?: "default" | "neutral" | "positive" | "negative" | "warn";
+  isBold?: boolean;
+  isItalic?: boolean;
   textAlign?: "left" | "center" | "right";
-  capHeight?: number;
-  lineGap?: number;
-  as?: keyof JSX.IntrinsicElements;
   lineClamp?: number;
   className?: string;
-};
+  children: React.ReactNode;
+}
 
-export const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
-  (props, ref) => {
-    const { children, ...rest } = props;
+export const Text = forwardRef(
+  (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
+    const {
+      children,
+      className,
+      isBold = false,
+      isItalic = false,
+      lineClamp,
+      textAlign = "left",
+      type = "default",
+      variant = "body",
+    } = props;
+
+    const { typography } = useThemeContext();
 
     return (
-      <StyledText ref={ref} {...rest}>
+      <StyledText
+        classNam={className}
+        isBold={isBold}
+        isItalic={isItalic}
+        lineClamp={lineClamp}
+        ref={ref}
+        textAlign={textAlign}
+        type={type}
+        typography={typography}
+        variant={variant}
+      >
         <span>{children}</span>
       </StyledText>
     );

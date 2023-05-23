@@ -10,25 +10,31 @@ import type {
   ThemeTokens,
   TokenType,
   ColorTypes,
+  Typography,
+  fontFamilyTypes,
 } from "./types";
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;
   private colorMode?: ColorMode;
   private borderRadius?: TokenObj;
-  private rootUnit?: number;
+  private rootUnit: number;
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
+  private typography?: Typography;
+  private fontFamily?: fontFamilyTypes;
 
   constructor({
     borderRadius,
     borderWidth,
     boxShadow,
     colorMode,
+    fontFamily,
     opacity,
     rootUnit,
     seedColor,
+    typography,
   }: TokenSource) {
     this.seedColor = seedColor;
     this.colorMode = colorMode;
@@ -37,7 +43,21 @@ export class TokensAccessor {
     this.boxShadow = boxShadow;
     this.borderWidth = borderWidth;
     this.opacity = opacity;
+    this.fontFamily = fontFamily;
+    this.typography = typography;
   }
+
+  updateRootUnit = (rootUnit: number) => {
+    this.rootUnit = rootUnit;
+  };
+
+  updateFontFamily = (fontFamily: fontFamilyTypes) => {
+    this.fontFamily = fontFamily;
+  };
+
+  updateTypography = (typography: Typography) => {
+    this.typography = typography;
+  };
 
   updateSeedColor = (color: ColorTypes) => {
     this.seedColor = color;
@@ -49,10 +69,6 @@ export class TokensAccessor {
 
   updateBorderRadius = (borderRadius: TokenObj) => {
     this.borderRadius = borderRadius;
-  };
-
-  updateRootUnit = (rootUnit: number) => {
-    this.rootUnit = rootUnit;
   };
 
   updateBoxShadow = (boxShadow: TokenObj) => {
@@ -69,14 +85,27 @@ export class TokensAccessor {
 
   getAllTokens = () => {
     return {
+      ...this.getRootUnit(),
+      ...this.getTypography(),
       ...this.getColors(),
-      ...this.getSizing(),
       ...this.getSpacing(),
       ...this.getBorderRadius(),
       ...this.getBoxShadow(),
       ...this.getBorderWidth(),
       ...this.getOpacity(),
     };
+  };
+
+  getRootUnit = () => {
+    return { rootUnit: this.rootUnit };
+  };
+
+  getFontFamily = () => {
+    return { fontFamily: this.fontFamily };
+  };
+
+  getTypography = () => {
+    return { typography: this.typography };
   };
 
   getColors = () => {
@@ -99,16 +128,6 @@ export class TokensAccessor {
           "color",
         );
     }
-  };
-
-  getSizing = () => {
-    if (this.rootUnit == null) return {} as ThemeTokens;
-
-    const sizing = {
-      rootUnit: `${this.rootUnit}px`,
-    };
-
-    return this.createTokenObject(sizing, "sizing");
   };
 
   getSpacing = (count = 6) => {
