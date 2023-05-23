@@ -1,40 +1,23 @@
 import React, { useState } from "react";
 import {
-  DialogComponent,
-  Switch,
-  TextType,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Text,
   Button,
-  Category,
-  Size,
-} from "design-system-old";
+  Switch,
+} from "design-system";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import styled from "styled-components";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import SwitchWrapper from "../../Components/SwitchWrapper";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-
-const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
-  .bp3-popover-content > div {
-    text-align: center;
-    max-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-  justify-content: flex-end;
-`;
 
 type ConfirmEnableForkingModalProps = {
   isOpen: boolean;
@@ -48,42 +31,46 @@ function ConfirmEnableForkingModal({
   onConfirm,
 }: ConfirmEnableForkingModalProps) {
   return (
-    <DialogComponent
-      isOpen={isOpen}
-      onClose={onClose}
-      title={createMessage(
-        IN_APP_EMBED_SETTING.forkApplicationConfirmation.title,
-      )}
+    <Modal
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+      open={isOpen}
     >
-      <div id="confirm-fork-modal">
-        <Text type={TextType.P1}>
-          {createMessage(IN_APP_EMBED_SETTING.forkApplicationConfirmation.body)}
-        </Text>
-
-        <ButtonWrapper>
-          <Button
-            category={Category.secondary}
-            onClick={onClose}
-            size={Size.large}
-            tag="button"
-            text={createMessage(
+      <ModalContent id="confirm-fork-modal">
+        <ModalHeader>
+          {createMessage(
+            IN_APP_EMBED_SETTING.forkApplicationConfirmation.title,
+          )}
+        </ModalHeader>
+        <ModalBody>
+          <Text kind="body-m">
+            {createMessage(
+              IN_APP_EMBED_SETTING.forkApplicationConfirmation.body,
+            )}
+          </Text>
+        </ModalBody>
+        <ModalFooter>
+          <Button kind="secondary" onClick={onClose} size="md">
+            {createMessage(
               IN_APP_EMBED_SETTING.forkApplicationConfirmation.cancel,
             )}
-            width={"142px"}
-          />
+          </Button>
           <Button
-            category={Category.primary}
-            data-cy={"allow-forking"}
+            data-testid={"allow-forking"}
+            kind="primary"
             onClick={onConfirm}
-            size={Size.large}
-            tag="button"
-            text={createMessage(
+            size="md"
+          >
+            {createMessage(
               IN_APP_EMBED_SETTING.forkApplicationConfirmation.confirm,
             )}
-          />
-        </ButtonWrapper>
-      </div>
-    </DialogComponent>
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -128,22 +115,19 @@ function MakeApplicationForkable({
       </div>
       <div className="px-4">
         <div className="flex justify-between items-center pb-4">
-          <StyledPropertyHelpLabel
-            label={createMessage(IN_APP_EMBED_SETTING.forkLabel)}
-            lineHeight="1.17"
-            maxWidth="270px"
-            tooltip={createMessage(IN_APP_EMBED_SETTING.forkLabelTooltip)}
-          />
-          <SwitchWrapper>
-            <Switch
-              checked={!!application?.forkingEnabled}
-              className="mb-0"
-              data-cy="forking-enabled-toggle"
-              disabled={isFetchingApplication}
-              large
-              onChange={onChangeInit}
+          <Switch
+            data-testid={"forking-enabled-toggle"}
+            isDisabled={isFetchingApplication}
+            isSelected={!!application?.forkingEnabled}
+            onChange={onChangeInit}
+          >
+            <PropertyHelpLabel
+              label={createMessage(IN_APP_EMBED_SETTING.forkLabel)}
+              lineHeight="1.17"
+              maxWidth="270px"
+              tooltip={createMessage(IN_APP_EMBED_SETTING.forkLabelTooltip)}
             />
-          </SwitchWrapper>
+          </Switch>
         </div>
       </div>
       <div

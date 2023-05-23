@@ -183,7 +183,7 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-testid='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
-  _dialogCloseButton = ".bp3-icon-small-cross";
+  _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";

@@ -99,7 +99,7 @@ describe("Fork application across workspaces", function () {
           cy.wait(10000);
           cy.get(applicationLocators.forkButton).first().click({ force: true });
           cy.get(homePage.forkAppWorkspaceButton).should("be.visible");
-          agHelper.GetNClick(locators._dialogCloseButton);
+          agHelper.GetNClick(_.locators._dialogCloseButton);
           cy.LogOut();
           cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
           homePageHelper.CreateNewApplication();

@@ -10,10 +10,9 @@ export class EmbedSettings {
     _allowAllText: "Embedding enabled",
     _restrictedText: "Embedding restricted",
     _disabledText: "Embedding disabled",
-    _showNavigationBar: "[data-cy='show-navigation-bar-toggle']",
-    _enableForking: "[data-cy='forking-enabled-toggle']",
-    _confirmForking: "[data-cy='allow-forking']",
-    _controlIndicator: ".bp3-control-indicator",
+    _showNavigationBar: "[data-testid='show-navigation-bar-toggle']",
+    _enableForking: "[data-testid='forking-enabled-toggle']",
+    _confirmForking: "[data-testid='allow-forking']",
   };
 
   public OpenEmbedSettings() {
@@ -53,10 +52,7 @@ export class EmbedSettings {
     const input = this.agHelper.GetElement(this.locators._enableForking);
     input.invoke("attr", "checked").then((value) => {
       if (value !== check) {
-        this.agHelper.GetSiblingNClick(
-          this.locators._enableForking,
-          this.locators._controlIndicator,
-        );
+        this.agHelper.GetNClick(this.locators._enableForking);
 
         if (check) {
           this.agHelper.GetNClick(this.locators._confirmForking);
