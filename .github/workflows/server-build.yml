@@ -29,7 +29,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -148,7 +148,7 @@ jobs:
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          ./build.sh $args
+          ./build.sh -DskipTests
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
