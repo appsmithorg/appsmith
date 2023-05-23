@@ -113,6 +113,7 @@ public class GitServiceTest {
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
             "with git to use version control service";
     private static String workspaceId;
+    private static String defaultEnvironmentId;
     private static Application gitConnectedApplication = new Application();
     private static Boolean isSetupDone = false;
     private static final GitProfile testUserProfile = new GitProfile();
@@ -168,6 +169,7 @@ public class GitServiceTest {
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
                 Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
+                defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
             }
         }
 
@@ -2844,6 +2846,7 @@ public class GitServiceTest {
         final String testWorkspaceId = workspaceService.create(workspace)
                 .map(Workspace::getId)
                 .block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(testWorkspaceId).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2857,9 +2860,9 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
@@ -2896,6 +2899,7 @@ public class GitServiceTest {
         final String testWorkspaceId = workspaceService.create(workspace)
                 .map(Workspace::getId)
                 .block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(testWorkspaceId).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2909,9 +2913,9 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
         
         datasourceService.create(datasource).block();
@@ -2973,9 +2977,9 @@ public class GitServiceTest {
         datasource.setName("db-auth-1");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();

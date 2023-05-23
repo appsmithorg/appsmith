@@ -132,6 +132,7 @@ public class ImportExportApplicationServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
     private static String workspaceId;
+    private static String defaultEnvironmentId;
     private static String testAppId;
     private static Datasource jsDatasource;
     private static Plugin installedJsPlugin;
@@ -188,6 +189,7 @@ public class ImportExportApplicationServiceTests {
         workspace.setName("Import-Export-Test-Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
+        defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
@@ -210,9 +212,9 @@ public class ImportExportApplicationServiceTests {
                 new Property("X-Answer", "42")
         ));
         ds1.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage1));
         ds1.setDatasourceStorages(storages1);
 
         Datasource ds2 = new Datasource();
@@ -223,9 +225,9 @@ public class ImportExportApplicationServiceTests {
         DBAuth auth = new DBAuth();
         auth.setPassword("awesome-password");
         ds2.getDatasourceConfiguration().setAuthentication(auth);
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage2));
         ds2.setDatasourceStorages(storages2);
 
         jsDatasource = new Datasource();
@@ -887,7 +889,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
-                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(defaultEnvironmentId);
                         assertThat(storageDTO.getDatasourceConfiguration()).isNotNull();
                     });
 
@@ -1067,7 +1069,8 @@ public class ImportExportApplicationServiceTests {
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
-                                        , MANAGE_ACTIONS, null).collectList()
+                                        , MANAGE_ACTIONS, null).collectList(),
+                                workspaceMono.flatMap(workspace -> workspaceService.getDefaultEnvironmentId(workspace.getId()))
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
@@ -1075,6 +1078,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionDTO> actionDTOS = tuple.getT3();
                     final List<PageDTO> pageList = tuple.getT4();
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
+                    String environmentId = tuple.getT6();
 
                     assertThat(application.getName()).isEqualTo("valid_application");
                     assertThat(application.getWorkspaceId()).isNotNull();
@@ -1087,7 +1091,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
-                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                        DatasourceStorageDTO storageDTO = datasource.getDatasourceStorages().get(environmentId);
                         assertThat(storageDTO.getDatasourceConfiguration()).isNotNull();
                     });
 
@@ -2457,6 +2461,7 @@ public class ImportExportApplicationServiceTests {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Duplicate datasource with different plugin org");
         testWorkspace = workspaceService.create(testWorkspace).block();
+        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(testWorkspace.getId()).block();
 
         Datasource testDatasource = new Datasource();
         // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
@@ -2466,9 +2471,9 @@ public class ImportExportApplicationServiceTests {
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         testDatasource.setDatasourceStorages(storages);
 
         datasourceService.create(testDatasource).block();
@@ -2516,7 +2521,7 @@ public class ImportExportApplicationServiceTests {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Duplicate datasource with same plugin org");
         testWorkspace = workspaceService.create(testWorkspace).block();
-
+        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(testWorkspace.getId()).block();
         Datasource testDatasource = new Datasource();
         // Chose plugin same as mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
@@ -2525,9 +2530,9 @@ public class ImportExportApplicationServiceTests {
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         testDatasource.setDatasourceStorages(storages);
         datasourceService.create(testDatasource).block();
 
@@ -3597,6 +3602,7 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(objects -> {
                     Workspace workspace = objects.getT1();
                     Plugin plugin = objects.getT2();
+                    String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
 
                     Datasource datasource = new Datasource();
                     datasource.setPluginId(plugin.getId());
@@ -3619,9 +3625,9 @@ public class ImportExportApplicationServiceTests {
                     datasourceConfiguration.setUrl("https://mock-api.appsmith.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource);

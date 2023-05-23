@@ -206,6 +206,7 @@ public class ApplicationServiceCETest {
     @Autowired
     SessionUserService sessionUserService;
     String workspaceId;
+    String defaultEnvironmentId;
     @Autowired
     private AssetRepository assetRepository;
 
@@ -228,6 +229,8 @@ public class ApplicationServiceCETest {
         if (workspaceId == null) {
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
             if (StringUtils.hasLength(gitConnectedApp.getId())) {
                 applicationPageService.deleteApplication(gitConnectedApp.getId()).block();
@@ -263,9 +266,9 @@ public class ApplicationServiceCETest {
             datasourceConfiguration.setUrl("http://test.com");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setWorkspaceId(workspaceId);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
             datasource.setDatasourceStorages(storages);
             testDatasource = datasourceService.create(datasource).block();
         }
@@ -1221,9 +1224,9 @@ public class ApplicationServiceCETest {
         datasource.setWorkspaceId(workspaceId);
 
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -2735,9 +2738,9 @@ public class ApplicationServiceCETest {
         datasource.setWorkspaceId(workspaceId);
 
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -2951,9 +2954,9 @@ public class ApplicationServiceCETest {
         datasource.setWorkspaceId(workspaceId);
 
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();

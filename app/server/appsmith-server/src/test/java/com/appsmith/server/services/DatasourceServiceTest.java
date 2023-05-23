@@ -112,6 +112,7 @@ public class DatasourceServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     String workspaceId = "";
+    private String defaultEnvironmentId;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -123,6 +124,7 @@ public class DatasourceServiceTest {
         if (!StringUtils.hasLength(workspaceId)) {
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
     }
 
@@ -142,14 +144,17 @@ public class DatasourceServiceTest {
                         .flatMap(tuple2 -> {
                             Workspace workspace = tuple2.getT1();
                             Plugin plugin = tuple2.getT2();
-                            Datasource datasource = new Datasource();
-                            datasource.setWorkspaceId(workspace.getId());
-                            datasource.setPluginId(plugin.getId());
-                            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
-                            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                            storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
-                            datasource.setDatasourceStorages(storages);
-                            return datasourceService.create(datasource);
+                            return workspaceService.getDefaultEnvironmentId(workspace.getId())
+                                    .flatMap(environmentId -> {
+                                        Datasource datasource = new Datasource();
+                                        datasource.setWorkspaceId(workspace.getId());
+                                        datasource.setPluginId(plugin.getId());
+                                        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+                                        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                                        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+                                        datasource.setDatasourceStorages(storages);
+                                        return datasourceService.create(datasource);
+                                    });
                         })
                         .flatMap(datasource1 -> {
                             Workspace workspace2 = new Workspace();
@@ -159,15 +164,18 @@ public class DatasourceServiceTest {
                         })
                         .flatMap(tuple2 -> {
                             Datasource datasource1 = tuple2.getT1();
-                            final Workspace org2 = tuple2.getT2();
-                            Datasource datasource2 = new Datasource();
-                            datasource2.setWorkspaceId(org2.getId());
-                            datasource2.setPluginId(datasource1.getPluginId());
-                            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource2, FieldName.UNUSED_ENVIRONMENT_ID);
-                            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                            storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
-                            datasource2.setDatasourceStorages(storages);
-                            return Mono.zip(Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
+                            final Workspace workspace2 = tuple2.getT2();
+                            return workspaceService.getDefaultEnvironmentId(workspace2.getId())
+                                    .flatMap(environmentId -> {
+                                        Datasource datasource2 = new Datasource();
+                                        datasource2.setWorkspaceId(workspace2.getId());
+                                        datasource2.setPluginId(datasource1.getPluginId());
+                                        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource2, environmentId);
+                                        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                                        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+                                        datasource2.setDatasourceStorages(storages);
+                                        return Mono.zip(Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
+                                    });
                         }))
                 .assertNext(datasource -> {
                     assertThat(datasource.getT1().getName()).isEqualTo("Untitled datasource");
@@ -192,13 +200,14 @@ public class DatasourceServiceTest {
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-pluginId");
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         StepVerifier
@@ -235,9 +244,9 @@ public class DatasourceServiceTest {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         StepVerifier
@@ -259,7 +268,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -268,9 +277,9 @@ public class DatasourceServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -306,6 +315,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -337,9 +347,9 @@ public class DatasourceServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -391,7 +401,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Datasource datasource = new Datasource();
@@ -408,9 +418,9 @@ public class DatasourceServiceTest {
         connection.setSsl(sslDetails);
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         datasource.setWorkspaceId(workspaceId);
@@ -430,10 +440,10 @@ public class DatasourceServiceTest {
                     ssl.getKeyFile().setName("ssl_key_file_id2");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
-                    datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
+                    datasource1.getDatasourceStorages().get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration1);
                     return datasourceService
-                            .updateByEnvironmentId(datasource1.getId(), datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
+                            .updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
         StepVerifier
@@ -442,8 +452,8 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getDatasourceStorages()).containsKey(FieldName.UNUSED_ENVIRONMENT_ID);
-                    assertThat(createdDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
+                    assertThat(createdDatasource.getDatasourceStorages()).containsKey(defaultEnvironmentId);
+                    assertThat(createdDatasource.getDatasourceStorages().get(defaultEnvironmentId)
                             .getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName())
                             .isEqualTo("ssl_key_file_id2");
                     assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
@@ -489,9 +499,9 @@ public class DatasourceServiceTest {
         auth.setPassword("test");
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         datasource.setWorkspaceId(workspaceId);
@@ -518,7 +528,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasource1.setDatasourceConfiguration(datasourceConfiguration1);
 
-                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
         StepVerifier
@@ -545,7 +555,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
 
@@ -553,18 +563,18 @@ public class DatasourceServiceTest {
         datasource1.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource1.getDatasourceConfiguration().setUrl("http://test.com");
         datasource1.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage1 = new DatasourceStorage(datasource1, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage1));
         datasource1.setDatasourceStorages(storages1);
 
         Datasource datasource2 = new Datasource();
         datasource2.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource2.getDatasourceConfiguration().setUrl("http://test.com");
         datasource2.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(datasource2, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage2 = new DatasourceStorage(datasource2, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage2));
         datasource2.setDatasourceStorages(storages2);
 
         final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
@@ -603,7 +613,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -614,9 +624,9 @@ public class DatasourceServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<DatasourceDTO> datasourceDTOMono = pluginMono
@@ -629,7 +639,8 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
+                .flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)
@@ -651,6 +662,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -675,9 +687,9 @@ public class DatasourceServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<DatasourceDTO> datasourceDTOMono = pluginMono
@@ -717,7 +729,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -727,9 +739,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
@@ -763,6 +775,7 @@ public class DatasourceServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = createdWorkspace.getId();
+        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
@@ -780,9 +793,9 @@ public class DatasourceServiceTest {
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
                     datasource.setWorkspaceId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     final Application application = new Application();
@@ -841,6 +854,7 @@ public class DatasourceServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = createdWorkspace.getId();
+        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
@@ -858,9 +872,9 @@ public class DatasourceServiceTest {
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
                     datasource.setWorkspaceId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     final Application application = new Application();
@@ -929,6 +943,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -944,9 +959,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -959,7 +974,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = savedDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO datasourceStorageDTO = savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     DBAuth authentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(encryptionService.decryptString(authentication.getPassword())).isEqualTo(password);
@@ -979,6 +994,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -991,9 +1007,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<DatasourceStorage> datasourceStorageMono = pluginMono
@@ -1002,7 +1018,7 @@ public class DatasourceServiceTest {
                     return datasource;
                 })
                 .flatMap(datasourceService::create)
-                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, FieldName.UNUSED_ENVIRONMENT_ID));
+                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
 
         StepVerifier
                 .create(datasourceStorageMono)
@@ -1028,7 +1044,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -1044,9 +1060,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = pluginMono
@@ -1063,15 +1079,15 @@ public class DatasourceServiceTest {
                     DBAuth partialAuthenticationDTO = new DBAuth();
                     partialAuthenticationDTO.setUsername(username);
                     datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
-                    original.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
+                    original.getDatasourceStorages().get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.updateByEnvironmentId(original.getId(), original, FieldName.UNUSED_ENVIRONMENT_ID);
+                    return datasourceService.updateByEnvironmentId(original.getId(), original, defaultEnvironmentId);
                 });
 
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     DBAuth authentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
@@ -1094,6 +1110,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("postgres-plugin");
@@ -1109,9 +1126,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = pluginMono
@@ -1151,6 +1168,7 @@ public class DatasourceServiceTest {
 
         Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
+        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
@@ -1183,9 +1201,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.getEndpoints().add(new Endpoint("hostname/", 5432L));
         datasourceConfiguration.getEndpoints().add(new Endpoint("hostname:", 5432L));
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -1232,7 +1250,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -1242,9 +1260,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         datasourceConfiguration.getEndpoints().add(new Endpoint(" hostname ", 5432L));
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -1260,7 +1278,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getInvalids()).isEmpty();
                     assertThat(datasourceStorageDTO.getDatasourceConfiguration().getEndpoints()).isEqualTo(List.of(new Endpoint("hostname", 5432L)));
                 })
@@ -1279,6 +1297,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -1291,9 +1310,9 @@ public class DatasourceServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<DatasourceDTO> datasourceDTOMono = pluginMono
@@ -1340,7 +1359,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -1349,9 +1368,9 @@ public class DatasourceServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://localhost");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -1365,7 +1384,7 @@ public class DatasourceServiceTest {
                 .create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
-                            .get(FieldName.UNUSED_ENVIRONMENT_ID);
+                            .get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages()).isNotEmpty();
 
                     String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
@@ -1389,7 +1408,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
 
@@ -1402,9 +1421,9 @@ public class DatasourceServiceTest {
         connection.setType(Connection.Type.REPLICA_SET);
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         datasource.setWorkspaceId(workspaceId);
@@ -1420,14 +1439,14 @@ public class DatasourceServiceTest {
                     Connection connection1 = new Connection();
                     datasourceConfiguration1.setConnection(connection1);
                     datasourceConfiguration1.setUrl("http://localhost");
-                    datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID).setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    datasource1.getDatasourceStorages().get(defaultEnvironmentId).setDatasourceConfiguration(datasourceConfiguration1);
+                    return datasourceService.updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages().size()).isNotZero();
                     String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
                             "inside a docker container or on the cloud. To enable access to your localhost you may " +
@@ -1453,9 +1472,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         datasourceConfiguration.getEndpoints().add(endpoint);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -1468,7 +1487,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(createdDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages()).isNotEmpty();
 
                     String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
@@ -1492,7 +1511,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         Datasource datasource = new Datasource();
@@ -1504,9 +1523,9 @@ public class DatasourceServiceTest {
         connection.setType(Connection.Type.REPLICA_SET);
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         datasource.setWorkspaceId(workspaceId);
@@ -1526,16 +1545,16 @@ public class DatasourceServiceTest {
                     Endpoint endpoint = new Endpoint("http://127.0.0.1/xyz", 0L);
                     datasourceConfiguration1.setEndpoints(new ArrayList<>());
                     datasourceConfiguration1.getEndpoints().add(endpoint);
-                    datasource1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID)
+                    datasource1.getDatasourceStorages().get(defaultEnvironmentId)
                             .setDatasourceConfiguration(datasourceConfiguration1);
                     return datasourceService
-                            .updateByEnvironmentId(datasource1.getId(), datasource1, FieldName.UNUSED_ENVIRONMENT_ID);
+                            .updateByEnvironmentId(datasource1.getId(), datasource1, defaultEnvironmentId);
                 });
 
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO datasourceStorageDTO = updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     assertThat(datasourceStorageDTO.getMessages().size()).isNotZero();
                     String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
                             "inside a docker container or on the cloud. To enable access to your localhost you may " +
@@ -1560,7 +1579,7 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -1574,9 +1593,9 @@ public class DatasourceServiceTest {
         datasourceConfiguration.getEndpoints().add(nullHost);
 
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -1638,14 +1657,15 @@ public class DatasourceServiceTest {
     private Datasource createDatasource(String name, String workspaceId) {
 
         Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
+        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Datasource datasource = new Datasource();
         datasource.setPluginId(plugin.getId());
         datasource.setWorkspaceId(workspaceId);
         datasource.setName(name);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
         Datasource createdDatasource = datasourceService.create(datasource).block();
         return createdDatasource;

@@ -983,15 +983,16 @@ public class WorkspaceServiceTest {
         Mono<Datasource> datasourceMono = workspaceMono
                 .zipWith(pluginService.findByPackageName("postgres-plugin"))
                 .flatMap(tuple2 -> {
-                    Workspace org = tuple2.getT1();
+                    Workspace workspace1 = tuple2.getT1();
                     Plugin plugin = tuple2.getT2();
+                    String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspace1.getId()).block();
                     Datasource datasource = new Datasource();
                     datasource.setName("test datasource");
-                    datasource.setWorkspaceId(org.getId());
+                    datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });

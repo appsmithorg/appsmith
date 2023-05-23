@@ -151,7 +151,9 @@ public class ForkExamplesWorkspaceServiceTests {
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add),
                         getActionCollectionsInWorkspace(workspace)
-                                .map(data.actionCollections::add)
+                                .map(data.actionCollections::add),
+                        workspaceService.getDefaultEnvironmentId(workspace.getId())
+                                .doOnSuccess(signal -> data.defaultEnvironmentId = signal)
                 )
                 .thenReturn(data);
     }
@@ -371,35 +373,39 @@ public class ForkExamplesWorkspaceServiceTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace sourceOrg1 = tuple.getT1();
+                    final Workspace sourceWorkspace = tuple.getT1();
                     Application app1 = new Application();
                     app1.setName("awesome app");
-                    app1.setWorkspaceId(sourceOrg1.getId());
+                    app1.setWorkspaceId(sourceWorkspace.getId());
 
                     return Mono.zip(
                             applicationPageService.createApplication(app1),
-                            workspaceService.create(targetOrg)
+                            workspaceService.create(targetOrg),
+                            workspaceService.getDefaultEnvironmentId(sourceWorkspace.getId())
                     );
                 })
                 .flatMapMany(tuple -> {
-                    final String workspaceId = tuple.getT2().getId();
                     final String originalId = tuple.getT1().getId();
                     final String originalName = tuple.getT1().getName();
+                    final String workspaceId = tuple.getT2().getId();
+                    final String sourceEnvironmentId = tuple.getT3();
 
                     Mono<Void> cloneMono = Mono.just(tuple.getT1())
                             .map(app -> {
                                 // We reset these values here because the clone method updates them and that just messes with our test.
                                 app.setId(originalId);
                                 app.setName(originalName);
-                                return app;
+                                return examplesWorkspaceCloner.forkApplications(
+                                        workspaceId,
+                                        Flux.just(app),
+                                        sourceEnvironmentId);
                             })
-                            .flatMap(app -> examplesWorkspaceCloner.forkApplications(workspaceId, Flux.fromArray(new Application[]{app}), FieldName.UNUSED_ENVIRONMENT_ID))
                             .then();
                     // Clone this application into the same workspace thrice.
                     return cloneMono
                             .then(cloneMono)
                             .then(cloneMono)
-                            .thenMany(Flux.defer(() -> applicationRepository.findByWorkspaceId(workspaceId)));
+                            .thenMany(applicationRepository.findByWorkspaceId(workspaceId));
                 })
                 .map(Application::getName)
                 .collectList();
@@ -428,6 +434,8 @@ public class ForkExamplesWorkspaceServiceTests {
                 )
                 .flatMap(tuple -> {
                     final Workspace workspace = tuple.getT1();
+                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+
                     String pluginId = tuple.getT3();
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -439,9 +447,9 @@ public class ForkExamplesWorkspaceServiceTests {
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
@@ -452,9 +460,9 @@ public class ForkExamplesWorkspaceServiceTests {
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
                     ds2.getDatasourceConfiguration().setAuthentication(auth);
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
                     ds2.setDatasourceStorages(storages2);
 
                     return Mono.when(
@@ -491,6 +499,7 @@ public class ForkExamplesWorkspaceServiceTests {
                 )
                 .flatMap(tuple -> {
                     final Workspace workspace = tuple.getT1();
+                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -502,9 +511,9 @@ public class ForkExamplesWorkspaceServiceTests {
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
@@ -515,9 +524,9 @@ public class ForkExamplesWorkspaceServiceTests {
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
                     ds2.getDatasourceConfiguration().setAuthentication(auth);
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
                     ds2.setDatasourceStorages(storages2);
 
                     return Mono.zip(
@@ -562,6 +571,7 @@ public class ForkExamplesWorkspaceServiceTests {
                 )
                 .flatMap(tuple -> {
                     final Workspace workspace = tuple.getT1();
+                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
 
                     final Application app1 = new Application();
                     app1.setName("first application");
@@ -578,18 +588,18 @@ public class ForkExamplesWorkspaceServiceTests {
                     ds1.setName("datasource 1");
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(pluginId);
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(pluginId);
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
                     ds2.setDatasourceStorages(storages2);
 
                     Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -639,6 +649,7 @@ public class ForkExamplesWorkspaceServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
         final Workspace workspace = workspaceService.create(newWorkspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
         final User user = sessionUserService.getCurrentUser().block();
 
         final Application app1 = new Application();
@@ -655,18 +666,18 @@ public class ForkExamplesWorkspaceServiceTests {
         ds1.setName("ds 1");
         ds1.setWorkspaceId(workspace.getId());
         ds1.setPluginId(installedPlugin.getId());
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
         ds1.setDatasourceStorages(storages1);
 
         final Datasource ds2 = new Datasource();
         ds2.setName("ds 2");
         ds2.setWorkspaceId(workspace.getId());
         ds2.setPluginId(installedPlugin.getId());
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
         ds2.setDatasourceStorages(storages2);
 
         final Application app = applicationPageService.createApplication(app1).block();
@@ -829,17 +840,18 @@ public class ForkExamplesWorkspaceServiceTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace sourceOrg1 = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
+                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
 
                     final Application app1 = new Application();
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.TRUE);
-                    app1.setWorkspaceId(sourceOrg1.getId());
+                    app1.setWorkspaceId(workspace.getId());
                     app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setWorkspaceId(sourceOrg1.getId());
+                    ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(dc);
@@ -883,14 +895,14 @@ public class ForkExamplesWorkspaceServiceTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setWorkspaceId(sourceOrg1.getId());
+                    ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
                     ds2.setDatasourceConfiguration(dc2);
@@ -915,18 +927,18 @@ public class ForkExamplesWorkspaceServiceTests {
                             null,
                             false
                     ));
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
                     ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
-                    ds3.setWorkspaceId(sourceOrg1.getId());
+                    ds3.setWorkspaceId(workspace.getId());
                     ds3.setPluginId(installedPlugin.getId());
-                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
-                    storages3.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage3));
+                    storages3.put(environmentId, new DatasourceStorageDTO(datasourceStorage3));
                     ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
@@ -948,21 +960,21 @@ public class ForkExamplesWorkspaceServiceTests {
                                 final ActionDTO action1 = new ActionDTO();
                                 action1.setName("action1");
                                 action1.setPageId(firstPage.getId());
-                                action1.setWorkspaceId(sourceOrg1.getId());
+                                action1.setWorkspaceId(workspace.getId());
                                 action1.setDatasource(ds1WithId);
                                 action1.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(firstPage.getId());
                                 action2.setName("action2");
-                                action2.setWorkspaceId(sourceOrg1.getId());
+                                action2.setWorkspaceId(workspace.getId());
                                 action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action3 = new ActionDTO();
                                 action3.setPageId(firstPage.getId());
                                 action3.setName("action3");
-                                action3.setWorkspaceId(sourceOrg1.getId());
+                                action3.setWorkspaceId(workspace.getId());
                                 action3.setDatasource(ds2WithId);
                                 action3.setPluginId(installedPlugin.getId());
 
@@ -990,7 +1002,7 @@ public class ForkExamplesWorkspaceServiceTests {
                                         .flatMap(app -> examplesWorkspaceCloner.forkApplications(
                                                 targetOrg1.getId(),
                                                 Flux.fromArray(new Application[]{app}),
-                                                FieldName.UNUSED_ENVIRONMENT_ID))
+                                                environmentId))
                                         .then();
 
                                 return clonerMono
@@ -1036,11 +1048,11 @@ public class ForkExamplesWorkspaceServiceTests {
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
                     assertThat(storage1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
                     assertThat(storage2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
@@ -1073,17 +1085,17 @@ public class ForkExamplesWorkspaceServiceTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace sourceOrg1 = tuple.getT1();
-
+                    final Workspace workspace = tuple.getT1();
+                    String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
                     final Application app1 = new Application();
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.FALSE);
-                    app1.setWorkspaceId(sourceOrg1.getId());
+                    app1.setWorkspaceId(workspace.getId());
                     app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setWorkspaceId(sourceOrg1.getId());
+                    ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(dc);
@@ -1127,14 +1139,14 @@ public class ForkExamplesWorkspaceServiceTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
-                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-                    storages1.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage1));
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
                     ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setWorkspaceId(sourceOrg1.getId());
+                    ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
                     ds2.setDatasourceConfiguration(dc2);
@@ -1159,18 +1171,18 @@ public class ForkExamplesWorkspaceServiceTests {
                             null,
                             false
                     ));
-                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-                    storages2.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage2));
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
                     ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
-                    ds3.setWorkspaceId(sourceOrg1.getId());
+                    ds3.setWorkspaceId(workspace.getId());
                     ds3.setPluginId(installedPlugin.getId());
-                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, environmentId);
                     HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
-                    storages3.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage3));
+                    storages3.put(environmentId, new DatasourceStorageDTO(datasourceStorage3));
                     ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
@@ -1192,21 +1204,21 @@ public class ForkExamplesWorkspaceServiceTests {
                                 final ActionDTO action1 = new ActionDTO();
                                 action1.setName("action1");
                                 action1.setPageId(firstPage.getId());
-                                action1.setWorkspaceId(sourceOrg1.getId());
+                                action1.setWorkspaceId(workspace.getId());
                                 action1.setDatasource(ds1WithId);
                                 action1.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(firstPage.getId());
                                 action2.setName("action2");
-                                action2.setWorkspaceId(sourceOrg1.getId());
+                                action2.setWorkspaceId(workspace.getId());
                                 action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action3 = new ActionDTO();
                                 action3.setPageId(firstPage.getId());
                                 action3.setName("action3");
-                                action3.setWorkspaceId(sourceOrg1.getId());
+                                action3.setWorkspaceId(workspace.getId());
                                 action3.setDatasource(ds2WithId);
                                 action3.setPluginId(installedPlugin.getId());
 
@@ -1234,7 +1246,7 @@ public class ForkExamplesWorkspaceServiceTests {
                                         .flatMap(app -> examplesWorkspaceCloner.forkApplications(
                                                 targetOrg1.getId(),
                                                 Flux.fromArray(new Application[]{app}),
-                                                FieldName.UNUSED_ENVIRONMENT_ID))
+                                                environmentId))
                                         .then();
 
                                 return clonerMono
@@ -1285,11 +1297,11 @@ public class ForkExamplesWorkspaceServiceTests {
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
                     assertThat(storage1.getDatasourceConfiguration().getAuthentication()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
                     assertThat(storage2.getDatasourceConfiguration().getAuthentication()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
@@ -1343,5 +1355,6 @@ public class ForkExamplesWorkspaceServiceTests {
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
         List<ActionCollectionDTO> actionCollections = new ArrayList<>();
+        String defaultEnvironmentId;
     }
 }

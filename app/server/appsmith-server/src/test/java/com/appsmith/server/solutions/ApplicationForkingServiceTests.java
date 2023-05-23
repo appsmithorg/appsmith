@@ -109,9 +109,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
-
     private static String sourceWorkspaceId;
-
     private static String sourceEnvironmentId;
     private static String testUserWorkspaceId;
     private static boolean isSetupDone = false;
@@ -552,6 +550,10 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("ws_" + uniqueString);
         Workspace createdSrcWorkspace = workspaceService.create(srcWorkspace).block();
 
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(createdSrcWorkspace.getId())
+                .block();
+
         Application srcApplication = new Application();
         srcApplication.setName("app_" + uniqueString);
         Application createdSrcApplication = applicationPageService
@@ -568,7 +570,7 @@ public class ApplicationForkingServiceTests {
         destWorkspace.setName("ws_dest_" + uniqueString);
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
         Application forkedApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), createdSrcDefaultEnvironmentId)
                 .block();
 
         Theme forkedApplicationEditModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
@@ -626,6 +628,10 @@ public class ApplicationForkingServiceTests {
 
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .block();
+
         Application application = new Application();
         application.setName("app_" + uniqueString);
         Application createdSrcApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
@@ -635,7 +641,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
 
         Application forkedApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), createdSrcDefaultEnvironmentId)
                 .block();
         Theme forkedApplicationTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
 
@@ -677,6 +683,10 @@ public class ApplicationForkingServiceTests {
         workspace.setName("ws_" + uniqueString);
         Workspace createdSrcWorkspace = workspaceService.create(workspace).block();
 
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(createdSrcWorkspace.getId())
+                .block();
+
         Application application = new Application();
         application.setName("app_" + uniqueString);
         Application createdSrcApplication = applicationPageService.createApplication(application, createdSrcWorkspace.getId()).block();
@@ -692,7 +702,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
 
         Application forkedApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), createdSrcDefaultEnvironmentId)
                 .block();
 
         Theme forkedApplicationEditModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
@@ -752,6 +762,10 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("delete-edit-mode-page-src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId())
+                .block();
+
         Application application = new Application();
         application.setName("delete-edit-mode-page-app");
         assert srcWorkspace != null;
@@ -763,7 +777,7 @@ public class ApplicationForkingServiceTests {
         applicationPageService.publish(originalAppId, true).block();
         applicationPageService.deleteUnpublishedPage(pageId).block();
         Application resultApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(pageDTO.getApplicationId(), targetWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(pageDTO.getApplicationId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .block();
         final Mono<Application> resultMono = Mono.just(resultApplication);
 
@@ -810,6 +824,10 @@ public class ApplicationForkingServiceTests {
         Workspace workspace = new Workspace();
         workspace.setName("ws_" + uniqueString);
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .block();
 
         Application application = new Application();
         application.setName("app_" + uniqueString);
@@ -858,7 +876,7 @@ public class ApplicationForkingServiceTests {
                 .forkApplicationToWorkspaceWithEnvironment(
                         createdBranchApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                         createdDestWorkspace.getId(),
-                        FieldName.UNUSED_ENVIRONMENT_ID)
+                        createdSrcDefaultEnvironmentId)
                 .block();
 
         Mono<Application> applicationMono = Mono.just(resultApplication);
@@ -883,6 +901,10 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("fork-internal-fields-src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId())
+                .block();
+
         Application application = new Application();
         application.setName("fork-internal-fields-app");
         assert srcWorkspace != null;
@@ -890,7 +912,7 @@ public class ApplicationForkingServiceTests {
         srcApp.setForkWithConfiguration(true);
         srcApp.setExportWithConfiguration(true);
         Application resultApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, createdSrcDefaultEnvironmentId)
                 .block();
         final Mono<Application> resultMono = Mono.just(resultApplication);
 
@@ -914,6 +936,10 @@ public class ApplicationForkingServiceTests {
         Workspace srcWorkspace = new Workspace();
         srcWorkspace.setName("src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
+
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId())
+                .block();
 
         Application application = new Application();
         application.setName("app1");
@@ -940,9 +966,9 @@ public class ApplicationForkingServiceTests {
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, srcDefaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(srcDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
@@ -972,8 +998,12 @@ public class ApplicationForkingServiceTests {
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcApp.getWorkspaceId())
+                .block();
+
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importExportApplicationService
                         .getApplicationImportDTO(
                                 application.getId(),
@@ -1000,8 +1030,12 @@ public class ApplicationForkingServiceTests {
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcApp.getWorkspaceId())
+                .block();
+
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importExportApplicationService
                         .getApplicationImportDTO(
                                 application.getId(),
@@ -1028,8 +1062,12 @@ public class ApplicationForkingServiceTests {
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcApp.getWorkspaceId())
+                .block();
+
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, FieldName.UNUSED_ENVIRONMENT_ID)
+                .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importExportApplicationService
                         .getApplicationImportDTO(
                                 application.getId(),

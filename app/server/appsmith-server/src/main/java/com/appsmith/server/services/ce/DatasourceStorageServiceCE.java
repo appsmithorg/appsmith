@@ -33,7 +33,7 @@ public interface DatasourceStorageServiceCE {
     Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration);
     Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage);
 
-    DatasourceStorage checkEnvironment(DatasourceStorage datasourceStorage);
+    Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage);
 
     Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage);
 

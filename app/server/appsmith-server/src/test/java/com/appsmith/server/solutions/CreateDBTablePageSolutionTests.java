@@ -4,9 +4,9 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
@@ -74,6 +74,7 @@ public class CreateDBTablePageSolutionTests {
     private static final Datasource testDatasource = new Datasource();
     private static final DatasourceStorageStructure testDatasourceStructure = new DatasourceStorageStructure();
     private static Workspace testWorkspace;
+    private static String testDefaultEnvironmentId;
     private static Application testApp;
     private static Plugin postgreSQLPlugin;
     private static final DatasourceStructure structure = new DatasourceStructure();
@@ -159,6 +160,7 @@ public class CreateDBTablePageSolutionTests {
             Workspace workspace = new Workspace();
             workspace.setName("Create-DB-Table-Page-Org");
             testWorkspace = workspaceService.create(workspace).block();
+            testDefaultEnvironmentId = workspaceService.getDefaultEnvironmentId(testWorkspace.getId()).block();
         }
 
         if (testApp == null) {
@@ -196,15 +198,15 @@ public class CreateDBTablePageSolutionTests {
             datasourceConfiguration.setUrl("http://test.com");
             testDatasource.setDatasourceConfiguration(datasourceConfiguration);
 
-            DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, FieldName.UNUSED_ENVIRONMENT_ID);
+            DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, testDefaultEnvironmentId);
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
             testDatasource.setDatasourceStorages(storages);
 
             Datasource datasource = datasourceService.create(testDatasource).block();
 
             testDatasourceStructure.setDatasourceId(datasource.getId());
-            testDatasourceStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+            testDatasourceStructure.setEnvironmentId(testDefaultEnvironmentId);
             testDatasourceStructure.setStructure(structure);
             datasourceStructureService.save(testDatasourceStructure).block();
         }
@@ -224,7 +226,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(
                 testApp.getPages().get(0).getId(),
                 resource,
-                FieldName.UNUSED_ENVIRONMENT_ID,
+                testDefaultEnvironmentId,
                 "");
 
         StepVerifier
@@ -252,7 +254,7 @@ public class CreateDBTablePageSolutionTests {
                     return solution.createPageFromDBTable(
                             testApp.getPages().get(0).getId(),
                             resource,
-                            FieldName.UNUSED_ENVIRONMENT_ID,
+                            testDefaultEnvironmentId,
                             null);
                 });
 
@@ -270,7 +272,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(
                 testApp.getPages().get(0).getId(),
                 new CRUDPageResourceDTO(),
-                FieldName.UNUSED_ENVIRONMENT_ID,
+                testDefaultEnvironmentId,
                 "");
 
         StepVerifier
@@ -288,7 +290,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(
                 pageId,
                 resource,
-                FieldName.UNUSED_ENVIRONMENT_ID,
+                testDefaultEnvironmentId,
                 "invalidBranch");
 
         StepVerifier
@@ -306,7 +308,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(
                 null,
                 resource,
-                FieldName.UNUSED_ENVIRONMENT_ID,
+                testDefaultEnvironmentId,
                 null);
 
         StepVerifier
@@ -356,7 +358,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resource,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         gitData.getBranchName()))
                 .flatMap(crudPageResponseDTO ->
                         newPageService.findByBranchNameAndDefaultPageId(gitData.getBranchName(), crudPageResponseDTO.getPage().getId(), READ_PAGES));
@@ -401,7 +403,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resource,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         ""))
                 .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -455,7 +457,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resourceDTO,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         ""));
 
         StepVerifier
@@ -522,9 +524,9 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setName("MySql-CRUD-Page-Table-With-Less-Columns-DS");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource);
@@ -532,7 +534,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(datasource -> {
                     DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
                     datasourceStorageStructure.setDatasourceId(datasource.getId());
-                    datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+                    datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
                     datasourceStorageStructure.setStructure(structure);
 
                     return datasourceStructureService.save(datasourceStorageStructure)
@@ -547,7 +549,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resourceDTO,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         null));
 
         StepVerifier
@@ -610,16 +612,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("MySql-CRUD-Page-Table-DS");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource)
                             .flatMap(datasource1 -> {
                                 DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
                                 datasourceStorageStructure.setDatasourceId(datasource1.getId());
-                                datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+                                datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
                                 datasourceStorageStructure.setStructure(structure);
 
                                 return datasourceStructureService.save(datasourceStorageStructure)
@@ -635,7 +637,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resource,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         null));
 
         StepVerifier
@@ -691,16 +693,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Redshift-CRUD-Page-Table-DS");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource)
                             .flatMap(datasource1 -> {
                                 DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
                                 datasourceStorageStructure.setDatasourceId(datasource1.getId());
-                                datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+                                datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
                                 datasourceStorageStructure.setStructure(structure);
 
                                 return datasourceStructureService.save(datasourceStorageStructure)
@@ -716,7 +718,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resource,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         ""))
                 .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -821,16 +823,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Snowflake-CRUD-Page-Table-DS");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource)
                             .flatMap(datasource1 -> {
                                 DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
                                 datasourceStorageStructure.setDatasourceId(datasource1.getId());
-                                datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+                                datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
                                 datasourceStorageStructure.setStructure(structure);
 
                                 return datasourceStructureService.save(datasourceStorageStructure)
@@ -845,7 +847,7 @@ public class CreateDBTablePageSolutionTests {
                     return solution.createPageFromDBTable(
                             null,
                             resource,
-                            FieldName.UNUSED_ENVIRONMENT_ID,
+                            testDefaultEnvironmentId,
                             "");
                 })
                 .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
@@ -894,9 +896,9 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setName("S3-CRUD-Page-Table-DS");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
                     pluginName.append(plugin.getName());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource)
@@ -916,7 +918,7 @@ public class CreateDBTablePageSolutionTests {
                     return solution.createPageFromDBTable(
                             null,
                             resource,
-                            FieldName.UNUSED_ENVIRONMENT_ID,
+                            testDefaultEnvironmentId,
                             "");
                 });
 
@@ -978,9 +980,9 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
                     datasource.setName("Google-Sheet-CRUD-Page-Table-DS");
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource)
@@ -1002,7 +1004,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resource,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         null))
                 .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -1054,16 +1056,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Mongo-CRUD-Page-Table-DS");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource)
                             .flatMap(datasource1 -> {
                                 DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
                                 datasourceStorageStructure.setDatasourceId(datasource1.getId());
-                                datasourceStorageStructure.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+                                datasourceStorageStructure.setEnvironmentId(testDefaultEnvironmentId);
                                 datasourceStorageStructure.setStructure(structure);
 
                                 return datasourceStructureService.save(datasourceStorageStructure)
@@ -1079,7 +1081,7 @@ public class CreateDBTablePageSolutionTests {
                 .flatMap(savedPage -> solution.createPageFromDBTable(
                         savedPage.getId(),
                         resource,
-                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        testDefaultEnvironmentId,
                         null))
                 .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 

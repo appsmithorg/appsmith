@@ -224,7 +224,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
 
         return Mono.just(datasourceStorage)
-                .map(this::checkEnvironment)
+                .flatMap(this::checkEnvironment)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
                 .flatMap(unsavedDatasourceStorage -> {
@@ -239,9 +239,9 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public DatasourceStorage checkEnvironment(DatasourceStorage datasourceStorage) {
+    public Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage) {
         datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
-        return datasourceStorage;
+        return Mono.just(datasourceStorage);
     }
 
     private DatasourceStorage sanitizeDatasourceStorage(DatasourceStorage datasourceStorage) {

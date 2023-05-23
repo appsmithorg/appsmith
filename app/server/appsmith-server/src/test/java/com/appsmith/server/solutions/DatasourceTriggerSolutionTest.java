@@ -74,6 +74,7 @@ public class DatasourceTriggerSolutionTest {
     FeatureFlagService featureFlagService;
 
     String workspaceId;
+    String defaultEnvironmentId;
 
     String datasourceId;
 
@@ -85,6 +86,7 @@ public class DatasourceTriggerSolutionTest {
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
+        defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
@@ -94,9 +96,9 @@ public class DatasourceTriggerSolutionTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
         datasource.setDatasourceStorages(storages);
         datasource = datasourceService.create(datasource).block();
 
