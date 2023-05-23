@@ -56,6 +56,7 @@ import {
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
+  updateCurrentApplicationForkingEnabled,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -412,6 +413,13 @@ export function* updateApplicationSaga(
         if (request.embedSetting) {
           yield put(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
+          );
+        }
+        if ("forkingEnabled" in request) {
+          yield put(
+            updateCurrentApplicationForkingEnabled(
+              response.data.forkingEnabled,
+            ),
           );
         }
         if (
