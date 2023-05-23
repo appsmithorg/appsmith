@@ -86,7 +86,6 @@ const getOriginalColumn = (
 type State = {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
-  hasEditableColumn: boolean;
   hasScrollableList: boolean;
 };
 
@@ -113,12 +112,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     this.state = {
       focusedIndex: null,
       duplicateColumnIds,
-      hasEditableColumn: false,
       hasScrollableList: false,
     };
-  }
-  componentDidMount() {
-    this.checkAndUpdateIfEditableColumnPresent();
   }
 
   componentDidUpdate(prevProps: ControlProps): void {
@@ -140,7 +135,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex,
         true,
       );
-      this.checkAndUpdateIfEditableColumnPresent();
     }
 
     const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
@@ -213,7 +207,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       <>
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
-          {this.state.hasEditableColumn && (
+          {this.isEditableColumnPresent() && (
             <EdtiableCheckboxWrapper
               className="flex t--uber-editable-checkbox"
               rightPadding={this.state.hasScrollableList}
@@ -460,16 +454,10 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     }
   };
 
-  checkAndUpdateIfEditableColumnPresent = () => {
-    const hasEditableColumn = !!Object.values(this.props.propertyValue).find(
-      (column) => isColumnTypeEditable((column as ColumnProperties).columnType),
+  isEditableColumnPresent = () => {
+    return !!Object.values(this.props.propertyValue).find((column) =>
+      isColumnTypeEditable((column as ColumnProperties).columnType),
     );
-
-    if (hasEditableColumn !== this.state.hasEditableColumn) {
-      this.setState({
-        hasEditableColumn,
-      });
-    }
   };
 
   static getControlType() {
