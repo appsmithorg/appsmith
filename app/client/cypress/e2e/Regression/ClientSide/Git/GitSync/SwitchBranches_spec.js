@@ -139,8 +139,8 @@ describe("Git sync:", function () {
       urlObject.searchParams.set(branchQueryKey, childBranchKey);
       cy.visit(urlObject.toString());
 
-      cy.get("[data-testid=t--branch-creating-spinner]").should("exist");
-      cy.get("[data-testid=t--branch-creating-spinner]").should("not.exist");
+      cy.get(".ads-v2-spinner").should("exist");
+      cy.get(".ads-v2-spinner").should("not.exist");
 
       cy.get(".t--widget-tablewidgetv2").should("not.exist");
 
@@ -232,7 +232,7 @@ describe("Git sync:", function () {
   });
 
   it("7. branch list search", function () {
-    cy.get("[data-testid=t--branch-creating-spinner]").should("not.exist");
+    cy.get(".ads-v2-spinner").should("not.exist");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     _.gitSync.CreateGitBranch("parentBranch", true);
