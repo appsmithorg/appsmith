@@ -320,7 +320,7 @@ export const SegmentedControlContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
-  overflow: scroll;
+  overflow: clip;
 `;
 
 type QueryFormProps = {
