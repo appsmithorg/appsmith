@@ -1,9 +1,7 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-const { jsEditor } = _;
+import { jsEditor } from "../../../../support/Objects/ObjectsCore";
 
 describe("List no functions on empty collection", () => {
-  it("1. should not show functions when whole code is deleted", () => {
+  it("1. Bug 9585: should not show functions when whole code is deleted", () => {
     jsEditor.CreateJSObject(
       `export default {
   myFun1: () => {

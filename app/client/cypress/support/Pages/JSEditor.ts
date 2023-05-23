@@ -84,6 +84,7 @@ export class JSEditor {
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
   _funcDropdown = ".t--formActionButtons .function-select-dropdown";
+  _funcDropdownValue = `${this._funcDropdown} p`;
   _funcDropdownOptions = ".rc-virtual-list .rc-select-item-option p";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
@@ -370,7 +371,7 @@ export class JSEditor {
   }
 
   public AssertSelectedFunction(funName: string) {
-    cy.get(`${this._funcDropdown} p`).contains(funName).should("exist");
+    cy.get(this._funcDropdownValue).contains(funName).should("exist");
   }
 
   //#endregion
