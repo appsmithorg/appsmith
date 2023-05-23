@@ -60,8 +60,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     // );
     cy.commitAndPush();
   });
-  // skipping this test as saving page is taking lot of time
-  it.skip("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function () {
+  it("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function () {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
@@ -88,7 +87,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       cy.wait(2000);
       cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePage.appEditIcon).first().click({ force: true });
-      cy.wait(20000); // add wait for page to save
+      cy.wait(10000); // add wait for page to save
       cy.switchGitBranch(branchName);
       cy.get(homePage.publishButton).click({ force: true });
       _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
