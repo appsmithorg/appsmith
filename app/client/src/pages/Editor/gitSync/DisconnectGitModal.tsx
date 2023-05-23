@@ -5,7 +5,12 @@ import {
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
+import {
+  revokeGit,
+  setDisconnectingGitApplication,
+  setIsDisconnectGitModalOpen,
+  setIsGitSyncModalOpen,
+} from "actions/gitSyncActions";
 import {
   Button,
   Callout,
@@ -22,6 +27,7 @@ import {
   createMessage,
   GIT_REVOKE_ACCESS,
   GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
+  GO_BACK,
   NONE_REVERSIBLE_MESSAGE,
   REVOKE,
 } from "@appsmith/constants/messages";
@@ -35,6 +41,13 @@ function DisconnectGitModal() {
   const gitDisconnectDocumentUrl = useSelector(getDisconnectDocUrl);
   const [appName, setAppName] = useState("");
   const [isRevoking, setIsRevoking] = useState(false);
+
+  const handleClickOnBack = useCallback(() => {
+    dispatch(setIsDisconnectGitModalOpen(false));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(setDisconnectingGitApplication({ id: "", name: "" }));
+  }, [dispatch]);
+
   const handleClose = useCallback(() => {
     dispatch(setIsDisconnectGitModalOpen(false));
   }, [dispatch, setIsDisconnectGitModalOpen]);
@@ -103,9 +116,17 @@ function DisconnectGitModal() {
         </ModalBody>
         <ModalFooter>
           <Button
+            className="t--git-revoke-back-button"
+            kind="secondary"
+            onClick={handleClickOnBack}
+            size="md"
+          >
+            {createMessage(GO_BACK)}
+          </Button>
+          <Button
             className="t--git-revoke-button"
             isDisabled={shouldDisableRevokeButton}
-            kind="error"
+            kind="primary"
             onClick={onDisconnectGit}
             size="md"
           >
