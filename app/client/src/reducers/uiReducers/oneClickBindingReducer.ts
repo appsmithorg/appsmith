@@ -6,11 +6,13 @@ import type { WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/type
 const initialState: OneClickBindingState = {
   isConnecting: false,
   config: null,
+  showOptions: false,
 };
 
 export interface OneClickBindingState {
   isConnecting: boolean;
   config: WidgetQueryGenerationFormConfig | null;
+  showOptions: boolean;
 }
 
 const oneClickBindingReducer = createReducer(initialState, {
@@ -40,6 +42,15 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
+    };
+  },
+  [ReduxActionTypes.SET_ONE_CLICK_BINDING_OPTIONS_VISIBILITY]: (
+    state: OneClickBindingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showOptions: action.payload,
     };
   },
 });

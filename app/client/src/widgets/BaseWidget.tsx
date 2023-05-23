@@ -734,6 +734,12 @@ abstract class BaseWidget<
     }
   }
 
+  updateOneClickBindingOptionsVisibility(visibility: boolean) {
+    const { updateOneClickBindingOptionsVisibility } = this.context;
+
+    updateOneClickBindingOptionsVisibility?.(visibility);
+  }
+
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {

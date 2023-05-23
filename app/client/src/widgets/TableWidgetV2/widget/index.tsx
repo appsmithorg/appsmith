@@ -2632,7 +2632,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   onConnectData = () => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("isConnectDataEnabled", true);
+      super.updateOneClickBindingOptionsVisibility(true);
     }
   };
 }
