@@ -21,7 +21,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
-import org.apache.commons.collections.map.Flat3Map;
+import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -34,8 +34,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
@@ -183,8 +181,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         return Mono.justOrEmpty(user.getId())
                 .switchIfEmpty(
                         tenantService.getDefaultTenantId()
-                        .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
-                        .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
+                                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
+                                .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
                 )
                 .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
                 .thenReturn(user);
@@ -273,8 +271,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                             addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
                     );
                     return Mono.zip(
-                        analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
-                        repository.save(userData)
+                            analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
+                            repository.save(userData)
                     );
                 })
                 .map(Tuple2::getT2);

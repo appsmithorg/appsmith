@@ -203,7 +203,7 @@ public class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void findApplicationPage_CheckPageIcon_IsValid(){
+    public void findApplicationPage_CheckPageIcon_IsValid() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + randomId);
@@ -221,7 +221,7 @@ public class NewPageServiceTest {
                     return applicationPageService.createPage(pageDTO);
                 })
                 .flatMap(pageDTO ->
-                                applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
+                        applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false)
                 );
 
         StepVerifier.create(applicationPageDTOMono).assertNext(applicationPageDTO -> {

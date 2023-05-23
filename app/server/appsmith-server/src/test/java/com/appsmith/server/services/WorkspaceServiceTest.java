@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -16,8 +18,8 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -62,6 +64,7 @@ import reactor.util.function.Tuple6;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -93,58 +96,40 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class WorkspaceServiceTest {
 
+    private static final String origin = "http://appsmith-local.test";
     @Autowired
     WorkspaceService workspaceService;
-
     @Autowired
     UserWorkspaceService userWorkspaceService;
-
     @Autowired
     WorkspaceRepository workspaceRepository;
-
     @Autowired
     ApplicationPageService applicationPageService;
-
     @Autowired
     ApplicationService applicationService;
-
     @Autowired
     UserService userService;
-
     @Autowired
     DatasourceService datasourceService;
-
     @Autowired
     DatasourceRepository datasourceRepository;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     RoleGraph roleGraph;
-
-    @Autowired
-    private AssetRepository assetRepository;
-
-
-    @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
-
-    @Autowired
-    private UserAndAccessManagementService userAndAccessManagementService;
-
-    @Autowired
-    private PluginService pluginService;
-
     @Autowired
     MongoTemplate mongoTemplate;
-
+    Workspace workspace;
+    @Autowired
+    private AssetRepository assetRepository;
+    @Autowired
+    private PermissionGroupRepository permissionGroupRepository;
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+    @Autowired
+    private PluginService pluginService;
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
-    Workspace workspace;
-
-    private static String origin = "http://appsmith-local.test";
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -553,7 +538,7 @@ public class WorkspaceServiceTest {
                 .build();
 
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
-        for (String validEmail: validEmails) {
+        for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
@@ -621,7 +606,7 @@ public class WorkspaceServiceTest {
                 "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
                 "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
                 "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
-        for (String validWebsite: validWebsites) {
+        for (String validWebsite : validWebsites) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
@@ -998,12 +983,17 @@ public class WorkspaceServiceTest {
         Mono<Datasource> datasourceMono = workspaceMono
                 .zipWith(pluginService.findByPackageName("postgres-plugin"))
                 .flatMap(tuple2 -> {
-                    Workspace org = tuple2.getT1();
+                    Workspace workspace1 = tuple2.getT1();
                     Plugin plugin = tuple2.getT2();
+                    String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspace1.getId()).block();
                     Datasource datasource = new Datasource();
                     datasource.setName("test datasource");
-                    datasource.setWorkspaceId(org.getId());
+                    datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+                    HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });
 
@@ -1531,7 +1521,7 @@ public class WorkspaceServiceTest {
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
         Mono<Workspace> deleteWorkspaceMono = workspaceService.archiveById(savedWorkspace.getId())
-                                .then(workspaceRepository.findById(savedWorkspace.getId()));
+                .then(workspaceRepository.findById(savedWorkspace.getId()));
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
         // as it doesn't expect an onNext signal at this point.
