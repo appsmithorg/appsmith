@@ -262,7 +262,7 @@ function InputTypeUpdateHook(
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    const definitions: AutocompletionDefinitions = {
+    return {
       "!doc":
         "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
       "!url": "https://docs.appsmith.com/widget-reference/input",
@@ -280,9 +280,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
     };
-
-    return definitions;
   }
+
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
