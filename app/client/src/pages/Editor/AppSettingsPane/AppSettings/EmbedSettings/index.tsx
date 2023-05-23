@@ -19,6 +19,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import MakeApplicationForkable from "./MakeApplicationForkable";
 import EmbedSnippetTab from "@appsmith/pages/Applications/EmbedSnippetTab";
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
@@ -46,6 +47,10 @@ function EmbedSettings() {
   const canShareWithPublic = isPermitted(
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
+  );
+  const canMarkAppForkable = isPermitted(
+    userAppPermissions,
+    PERMISSION_TYPE.EXPORT_APPLICATION,
   );
 
   return (
@@ -86,6 +91,9 @@ function EmbedSettings() {
         </>
       )}
 
+      {canMarkAppForkable && (
+        <MakeApplicationForkable application={application} />
+      )}
       <EmbedSnippetTab isAppSettings />
     </div>
   );
