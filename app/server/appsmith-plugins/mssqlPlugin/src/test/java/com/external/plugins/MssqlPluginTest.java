@@ -14,6 +14,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +45,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.MssqlTestDBContainerManager.*;
+import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
+import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
+import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
@@ -677,12 +680,12 @@ public class MssqlPluginTest {
         List<Param> params = new ArrayList<>();
         executeActionDTO.setParams(params);
 
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.NO_VERIFY);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -713,12 +716,12 @@ public class MssqlPluginTest {
         List<Param> params = new ArrayList<>();
         executeActionDTO.setParams(params);
 
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
         dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLE);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {

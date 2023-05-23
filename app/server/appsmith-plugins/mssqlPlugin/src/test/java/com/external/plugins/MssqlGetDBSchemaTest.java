@@ -11,13 +11,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
-import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
@@ -130,25 +127,25 @@ public class MssqlGetDBSchemaTest {
                     supplierTable.get().getTemplates().stream()
                             .filter(template -> "select".equalsIgnoreCase(template.getTitle()) || "delete".equalsIgnoreCase(template.getTitle()))
                             .forEach(template -> {
-                                /**
+
+                                /*
                                  * Not sure how to test query templates for insert and update queries as these
                                  * queries include column names in an order that is not fixed. Hence, skipping testing
                                  * them for now.
                                  */
 
-                                String expectedSelectQueryTemplate = null;
+                                String expectedQueryTemplate = null;
                                 if ("select".equalsIgnoreCase(template.getTitle())) {
-                                    expectedSelectQueryTemplate = "select top 10 * from dbo.supplier";
+                                    expectedQueryTemplate = "select top 10 * from dbo.supplier";
                                 }
                                 else if ("delete".equalsIgnoreCase(template.getTitle())) {
-                                    expectedSelectQueryTemplate = "delete from dbo.supplier where 1=0 -- specify a valid" +
+                                    expectedQueryTemplate = "delete from dbo.supplier where 1=0 -- specify a valid" +
                                             " condition here. removing the condition may delete everything in the " +
                                             "table!";
                                 }
 
-                                String templateQuery =
-                                        getDataValueSafelyFromFormData((Map<String, Object>) template.getConfiguration(), "body", STRING_TYPE);
-                                assertEquals(expectedSelectQueryTemplate, templateQuery.toLowerCase(),
+                                String templateQuery = template.getBody();
+                                assertEquals(expectedQueryTemplate, templateQuery.toLowerCase(),
                                         templateQuery.toLowerCase());
                             });
                 })

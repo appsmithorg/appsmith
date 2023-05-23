@@ -273,14 +273,10 @@ public class MssqlDatasourceUtils {
                             " -- Specify a valid condition here. Removing the condition may " +
                             "delete everything in the table!", table.getName());
 
-                    table.getTemplates().add(new DatasourceStructure.Template("SELECT", null,
-                            Map.of("body", Map.of("data", selectQueryTemplate))));
-                    table.getTemplates().add(new DatasourceStructure.Template("INSERT", null,
-                            Map.of("body", Map.of("data", insertQueryTemplate))));
-                    table.getTemplates().add(new DatasourceStructure.Template("UPDATE", null,
-                            Map.of("body", Map.of("data", updateQueryTemplate))));
-                    table.getTemplates().add(new DatasourceStructure.Template("DELETE", null,
-                            Map.of("body", Map.of("data", deleteQueryTemplate))));
+                    table.getTemplates().add(new DatasourceStructure.Template("SELECT", selectQueryTemplate));
+                    table.getTemplates().add(new DatasourceStructure.Template("INSERT", insertQueryTemplate));
+                    table.getTemplates().add(new DatasourceStructure.Template("UPDATE", updateQueryTemplate));
+                    table.getTemplates().add(new DatasourceStructure.Template("DELETE", deleteQueryTemplate));
                 });
     }
 
