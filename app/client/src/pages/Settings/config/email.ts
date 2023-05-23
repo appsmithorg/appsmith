@@ -30,7 +30,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "SMTP Host",
+      label: "SMTP host",
       placeholder: "email-smtp.us-east-2.amazonaws.com",
     },
     {
@@ -39,7 +39,7 @@ export const config: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.NUMBER,
       placeholder: "25",
-      label: "SMTP Port",
+      label: "SMTP port",
       validate: (value: string) => {
         const port = parseInt(value);
         if (value && (port < 0 || port > 65535)) {
@@ -52,7 +52,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "From Address",
+      label: "From address",
       placeholder: "admin@appsmith.com",
       validate: (value: string) => {
         if (value && !isEmail(value)) {
@@ -60,14 +60,14 @@ export const config: AdminConfigType = {
         }
       },
       subText:
-        "You will need to verify your from email address to begin sending emails",
+        "* You will need to verify your from email address to begin sending emails",
     },
     {
       id: "APPSMITH_REPLY_TO",
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Reply-To Address",
+      label: "Reply-to address",
       placeholder: "admin@appsmith.com",
       validate: (value: string) => {
         if (value && !isEmail(value)) {
@@ -75,20 +75,20 @@ export const config: AdminConfigType = {
         }
       },
       subText:
-        "You will need to verify your to email address to begin receiving emails",
+        "* You will need to verify your to email address to begin receiving emails",
     },
     {
       id: "APPSMITH_MAIL_SMTP_TLS_ENABLED",
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TOGGLE,
-      label: "TLS Protected Connection",
+      label: "TLS protected connection",
     },
     {
       id: "APPSMITH_MAIL_USERNAME",
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "SMTP Username",
+      label: "SMTP username",
       isVisible: (values: Record<string, any>) => {
         return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
       },
@@ -98,7 +98,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.PASSWORD,
-      label: "SMTP Password",
+      label: "SMTP password",
       isVisible: (values: Record<string, any>) => {
         return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
       },
@@ -130,7 +130,7 @@ export const config: AdminConfigType = {
           !settings["APPSMITH_MAIL_FROM"]
         );
       },
-      text: "Send Test Email",
+      text: "Send test email",
     },
   ],
 };

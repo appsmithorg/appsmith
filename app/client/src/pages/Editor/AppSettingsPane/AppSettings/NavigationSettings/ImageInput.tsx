@@ -1,13 +1,14 @@
-import { Button, Size, Spinner } from "design-system-old";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import styled from "styled-components";
+import classNames from "classnames";
+import { Button, Spinner } from "design-system";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "@appsmith/selectors/applicationSelectors";
-import styled from "styled-components";
-import classNames from "classnames";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ContentBox } from "pages/Settings/components";
 
 type ImageInputProps = {
   value?: any;
@@ -69,7 +70,7 @@ export const ImageInput = (props: ImageInputProps) => {
     if (isUploadingNavigationLogo || isDeletingNavigationLogo) {
       return (
         <div className="px-4 py-10 w-full flex justify-center">
-          <Spinner size="extraExtraExtraExtraLarge" />
+          <Spinner size="lg" />
         </div>
       );
     }
@@ -91,21 +92,15 @@ export const ImageInput = (props: ImageInputProps) => {
   };
 
   return (
-    <div
+    <ContentBox
       className={`relative flex items-center justify-center w-full border h-28 group ${
         className ? className : ""
       }`}
     >
       {renderLogo()}
 
-      <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
-        <Button
-          icon="upload-line"
-          iconPosition="left"
-          onClick={onFileInputClick}
-          size={Size.medium}
-          text="Upload"
-        >
+      <div className="absolute inset-0 items-center justify-center hidden gap-2 group-hover:flex bg-opacity-20 hover-state">
+        <Button onClick={onFileInputClick} size="md" startIcon="upload-line">
           Upload
         </Button>
       </div>
@@ -117,7 +112,7 @@ export const ImageInput = (props: ImageInputProps) => {
         ref={fileInputRef}
         type="file"
       />
-    </div>
+    </ContentBox>
   );
 };
 

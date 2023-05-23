@@ -1,20 +1,9 @@
 import { enableGuidedTour } from "actions/onboardingActions";
-import { getTypographyByKey } from "design-system-old";
 import { createMessage, END_TUTORIAL } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
-import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const EndTutorial = styled.span`
-  color: ${(props) => props.theme.colors.guidedTour.endTourButton.color};
-  ${getTypographyByKey("btnMedium")}
-  cursor: pointer;
-
-  &:hover {
-    color: ${(props) => props.theme.colors.guidedTour.endTourButton.hoverColor};
-  }
-`;
+import { Button } from "design-system";
 
 function EndTour() {
   const dispatch = useDispatch();
@@ -24,9 +13,9 @@ function EndTour() {
   };
 
   return (
-    <EndTutorial className="mr-3" onClick={endTour}>
+    <Button kind="tertiary" onClick={endTour} size="md">
       {createMessage(END_TUTORIAL)}
-    </EndTutorial>
+    </Button>
   );
 }
 
