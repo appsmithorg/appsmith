@@ -431,6 +431,6 @@ export class PropertyPane {
   }
 
   public AssertSelectValue(value: string) {
-    cy.xpath(this.locator._selectByValue(value)).should("exist");
+    this.agHelper.AssertElementExist(this.locator._selectByValue(value));
   }
 }
