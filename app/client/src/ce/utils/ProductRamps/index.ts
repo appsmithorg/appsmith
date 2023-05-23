@@ -9,8 +9,6 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 
-const { cloudHosting } = getAppsmithConfigs();
-
 export const PRODUCT_RAMPS_LIST: { [key: string]: SupportedRampsType } = {
   [RAMP_NAME.INVITE_USER_TO_APP]: INVITE_USER_TO_APP,
   [RAMP_NAME.CUSTOM_ROLES]: CUSTOM_ROLES,
@@ -38,6 +36,7 @@ export const getUserRoleInWorkspace = () => {
 };
 
 export const showProductRamps = (rampName: string) => {
+  const { cloudHosting } = getAppsmithConfigs();
   const role = getUserRoleInWorkspace();
   const env: EnvTypes = cloudHosting ? "CLOUD_HOSTED" : "SELF_HOSTED";
   if (rampName in PRODUCT_RAMPS_LIST) {
