@@ -36,7 +36,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
-    private final DatasourceStorageRepository repository;
+    protected final DatasourceStorageRepository repository;
     private final DatasourceStorageTransferSolution datasourceStorageTransferSolution;
     private final DatasourcePermission datasourcePermission;
     private final PluginService pluginService;

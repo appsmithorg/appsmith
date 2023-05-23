@@ -2,13 +2,12 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -19,11 +18,14 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
     private final DatasourceRepository datasourceRepository;
 
     private final DatasourceStorageRepository datasourceStorageRepository;
+    private final WorkspaceService workspaceService;
 
     public DatasourceStorageTransferSolutionCEImpl(DatasourceRepository datasourceRepository,
-                                                   DatasourceStorageRepository datasourceStorageRepository) {
+                                                   DatasourceStorageRepository datasourceStorageRepository,
+                                                   WorkspaceService workspaceService) {
         this.datasourceRepository = datasourceRepository;
         this.datasourceStorageRepository = datasourceStorageRepository;
+        this.workspaceService = workspaceService;
     }
 
 
@@ -52,12 +54,7 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
     @Override
     public Mono<DatasourceStorage> transferToFallbackEnvironmentAndGetDatasourceStorage(Datasource datasource) {
 
-        return getFallbackEnvironmentId(datasource.getWorkspaceId())
+        return workspaceService.getDefaultEnvironmentId(datasource.getWorkspaceId())
                 .flatMap(environmentId -> transferDatasourceStorage(datasource, environmentId));
     }
-
-    protected Mono<String> getFallbackEnvironmentId(String workspaceId) {
-        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
-    }
-
 }
