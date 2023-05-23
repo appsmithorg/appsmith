@@ -4,7 +4,9 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
+import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -46,14 +48,16 @@ public class Migration012TransferToDatasourceStorage {
     public void executeMigration() {
         // First fetch all datasource ids and workspace ids for datasources that
         // do not have `hasDatasourceStorage` value set as true
-        final Query datasourceQuery = query(findDatasourceIdsToUpdate());
+        final Query datasourceQuery = query(findDatasourceIdsToUpdate()).cursorBatchSize(1024);
         datasourceQuery.fields().include(
                 fieldName(QDatasource.datasource.id),
                 fieldName(QDatasource.datasource.workspaceId));
-        // TODO: Wait for performance optimization utility, so we can use that here
+
+        final Query performanceOptimizedQuery = CompatibilityUtils
+                .optimizeQueryForNoCursorTimeout(mongoTemplate, datasourceQuery, Datasource.class);
 
         final List<Datasource> datasourcesWithIds =
-                mongoTemplate.find(datasourceQuery, Datasource.class);
+                mongoTemplate.find(performanceOptimizedQuery, Datasource.class);
 
         // Prepare a map of datasourceId to workspaceId
         final Map<String, String> datasourceIdMap = datasourcesWithIds.stream().parallel()
@@ -76,8 +80,11 @@ public class Migration012TransferToDatasourceStorage {
                 fieldName(QDatasource.datasource.datasourceConfiguration)
         );
 
+        final Query performanceOptimizedUpdateQuery = CompatibilityUtils
+                .optimizeQueryForNoCursorTimeout(mongoTemplate, datasourcesToUpdateQuery, Datasource.class);
+
         mongoTemplate
-                .stream(datasourcesToUpdateQuery, Datasource.class)
+                .stream(performanceOptimizedUpdateQuery, Datasource.class)
                 .forEach(datasource -> {
                     // For each of these datasources, we want to build a new datasource storage
 
@@ -113,7 +120,9 @@ public class Migration012TransferToDatasourceStorage {
                                     .addCriteria(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
                             new Update()
                                     .set(migrationFlag, true)
-                                    .unset(fieldName(QDatasource.datasource.datasourceConfiguration)),
+                                    .unset(fieldName(QDatasource.datasource.datasourceConfiguration))
+                                    .unset(fieldName(QDatasource.datasource.invalids))
+                                    .unset(fieldName(QDatasource.datasource.isConfigured)),
                             Datasource.class);
                 });
 
