@@ -1,5 +1,6 @@
 export class CommonLocators {
   _body = "body";
+  _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".ads-v2-spinner";
@@ -116,7 +117,9 @@ export class CommonLocators {
     fieldName +
     "']/ancestor::div[contains(@class, 't--property-control-" +
     fieldName.replace(/ +/g, "").toLowerCase() +
-    "')]";
+    "')] | //label[text()='" +
+    fieldName +
+    "']/following-sibling::div";
   _existingFieldValueByName = (fieldName: string) =>
     this._existingFieldTextByName(fieldName) +
     "//div[contains(@class,'CodeMirror-code')]";
@@ -194,4 +197,6 @@ export class CommonLocators {
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _popUpCloseBtn = (popupname: string) =>
+    `//*[text()='${popupname}']/following-sibling::button`;
 }

@@ -1,91 +1,74 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const {
-  AggregateHelper: agHelper,
-  CommonLocators: locator,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Navigate To feature", () => {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
-    // create a new page
-    ee.AddNewPage(); // page 2
-    ee.SelectEntityByName("Page1");
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
+    _.entityExplorer.AddNewPage(); // page 2
+    _.entityExplorer.SelectEntityByName("Page1");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
+    _.dataSources.ValidateNSelectDropdown(
+      "Choose Page",
+      "Select Page",
+      "Page2",
+    );
+    _.propPane.UpdatePropertyFieldValue(
+      "Query Params",
+      `{{
+      {
+       test: '123'
+      }
+      }}`,
+    );
+    _.agHelper.AssertAutoSave();
+    _.agHelper.PopupClose("onClick");
+    _.agHelper.ClickButton("Submit");
+    cy.url().should("include", "a=b").and("include", "test=123");
+    _.entityExplorer.SelectEntityByName("Page1");
+    _.deployMode.DeployApp();
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.GetNAssertContains(
+      _.locators._emptyPageTxt,
+      "This page seems to be blank",
+    );
+    cy.url().then(($url) => {
+      cy.log("deploy url is" + $url);
+      expect($url).to.contain("test=123");
     });
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.SelectPlatformFunction("onClick", "Navigate to");
-    cy.get(".t--open-dropdown-Select-Page").click();
-    agHelper.AssertElementLength(".bp3-menu-item", 2);
-    cy.get(locator._dropDownValue("Page2")).click();
-    cy.get("label")
-      .contains("Query Params")
-      .siblings()
-      .find(".CodeEditorTarget")
-      .then(($el) => {
-        cy.updateCodeInput($el, "{{{ test: '123' }}}");
-        agHelper.Sleep(2000);
-        agHelper.ClickButton("Submit");
-        cy.url().should("include", "a=b");
-        cy.url().should("include", "test=123");
-        ee.SelectEntityByName("Page1");
-        deployMode.DeployApp();
-        agHelper.ClickButton("Submit");
-        cy.get(".bp3-heading").contains("This page seems to be blank");
-        cy.url().should("include", "a=b");
-        cy.url().should("include", "test=123");
-        deployMode.NavigateBacktoEditor();
-      });
+    //cy.location().its('href').should('include', 'test=123')//both are same
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
-    });
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.SelectPlatformFunction("onClick", "Navigate to");
-    agHelper.GetNClick(propPane._navigateToType("URL"));
-    cy.get("label")
-      .contains("Enter URL")
-      .siblings("div")
-      .within(() => {
-        cy.get(".t--code-editor-wrapper").type("wrongPage");
-      });
-    deployMode.DeployApp();
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Enter a valid URL or page name");
-    deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("Page1");
+    _.propPane.DeleteWidgetFromPropertyPane("Button1");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 300);
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
+    _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    _.agHelper.TypeText(
+      _.propPane._actionSelectorFieldByLabel("Enter URL"),
+      "wrongPage",
+    );
+    _.deployMode.DeployApp();
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateToastMessage("Enter a valid URL or page name");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Navigates to url entered from the url tab of navigate to", () => {
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
-    });
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.SelectPlatformFunction("onClick", "Navigate to");
-    agHelper.GetNClick(propPane._navigateToType("URL"));
-    cy.get("label")
-      .contains("Enter URL")
-      .siblings("div")
-      .within(() => {
-        cy.get(".t--code-editor-wrapper").type("google.com");
-      });
-    deployMode.DeployApp();
-    agHelper.ClickButton("Submit");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.DeleteWidgetFromPropertyPane("Button1");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 100);
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
+    _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    _.agHelper.TypeText(
+      _.propPane._actionSelectorFieldByLabel("Enter URL"),
+      "google.com",
+    );
+    _.deployMode.DeployApp();
+    _.agHelper.ClickButton("Submit");
     cy.url().should("include", "google.com");
     // go back to appsmith
-    cy.go(-1);
-    deployMode.NavigateBacktoEditor();
-    cy.wait(1000);
+    //cy.go(-1);
   });
 });

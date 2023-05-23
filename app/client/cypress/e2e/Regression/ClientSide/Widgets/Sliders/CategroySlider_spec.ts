@@ -1,13 +1,5 @@
-import {
-  getWidgetSelector,
-  WIDGET,
-} from "../../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper;
-const ee = ObjectsRegistry.EntityExplorer;
-const locator = ObjectsRegistry.CommonLocators;
-const propPane = ObjectsRegistry.PropertyPane;
+import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Category Slider spec", () => {
   before(() => {
@@ -16,60 +8,66 @@ describe("Category Slider spec", () => {
      * and a Text widget with binding {{CategorySlider1.value}}
      */
     cy.fixture("categorySliderWidgetDsl").then((dsl: string) => {
-      agHelper.AddDsl(dsl);
+      _.agHelper.AddDsl(dsl);
     });
   });
 
   it("1. Validates Default Value", () => {
     // open the Property Pane
-    ee.SelectEntityByName("CategorySlider1", "Widgets");
+    _.entityExplorer.SelectEntityByName("CategorySlider1", "Widgets");
 
-    propPane.UpdatePropertyFieldValue("Default value", "mdx");
+    _.propPane.UpdatePropertyFieldValue("Default value", "mdx");
 
-    agHelper.VerifyEvaluatedErrorMessage(
+    _.agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
     );
 
-    propPane.UpdatePropertyFieldValue("Default value", "");
+    _.propPane.UpdatePropertyFieldValue("Default value", "");
 
-    agHelper.VerifyEvaluatedErrorMessage(
+    _.agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
     );
 
-    propPane.UpdatePropertyFieldValue("Default value", "md");
+    _.propPane.UpdatePropertyFieldValue("Default value", "md");
 
-    // agHelper.VerifyEvaluatedValue("md");
+    // _.agHelper.VerifyEvaluatedValue("md");
   });
 
   it("2. Change Step Size and check if value changes", () => {
     // Assert Text widget has value 10
-    agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
-      expect($label).to.eq("md");
-    });
+    _.agHelper
+      .GetText(getWidgetSelector(_.draggableWidgets.TEXT))
+      .then(($label) => {
+        expect($label).to.eq("md");
+      });
 
     // open the Property Pane
-    ee.SelectEntityByName("CategorySlider1", "Widgets");
+    _.entityExplorer.SelectEntityByName("CategorySlider1", "Widgets");
 
     // Change the slider value
-    agHelper.GetElement(locator._sliderThumb).focus().type("{rightArrow}");
+    _.agHelper.GetElement(_.locators._sliderThumb).focus().type("{rightArrow}");
 
     // Assert the Text widget has value 20
-    agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
-      expect($label).to.eq("lg");
-    });
+    _.agHelper
+      .GetText(getWidgetSelector(_.draggableWidgets.TEXT))
+      .then(($label) => {
+        expect($label).to.eq("lg");
+      });
 
     // Change the slider value
-    agHelper
-      .GetElement(locator._sliderThumb)
+    _.agHelper
+      .GetElement(_.locators._sliderThumb)
       .focus()
       .type("{leftArrow}")
       .type("{leftArrow}");
 
-    agHelper.Sleep(200);
+    _.agHelper.Sleep(200);
 
     // Assert the Text widget has value 0
-    agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
-      expect($label).to.eq("sm");
-    });
+    _.agHelper
+      .GetText(getWidgetSelector(_.draggableWidgets.TEXT))
+      .then(($label) => {
+        expect($label).to.eq("sm");
+      });
   });
 });
