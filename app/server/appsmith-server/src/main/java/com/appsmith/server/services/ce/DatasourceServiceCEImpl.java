@@ -382,8 +382,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
+        // the datasource has been created with datasourceStorageKey as output of getTrueEnvironmentId
+        String trueEnvironmentId = this.getTrueEnvironmentId(environmentId);
         DatasourceStorage datasourceStorage = datasourceStorageService
-                .getDatasourceStorageFromDatasource(datasource, environmentId);
+                .getDatasourceStorageFromDatasource(datasource, trueEnvironmentId);
 
         Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage)
                 .flatMap(datasourceStorageService::checkEnvironment);
@@ -394,7 +396,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceStorageMono =
                     this.findById(datasource.getId(), datasourcePermission.getExecutePermission())
-                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
+                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, trueEnvironmentId))
                             .map(datasourceStorage1 -> {
                                 copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
                                 return datasourceStorage1;

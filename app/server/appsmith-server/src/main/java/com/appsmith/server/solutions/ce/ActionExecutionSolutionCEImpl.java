@@ -178,7 +178,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
                         }))
-                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentId))
+                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, datasourceService.getTrueEnvironmentId(environmentId))) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
