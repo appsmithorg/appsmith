@@ -4,10 +4,10 @@ import UpgradePage from "./UpgradePage";
 import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
 import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";
 import PreventAccidentalDamageImage from "assets/images/upgrade/access-control/prevent-accidental-damage.png";
-import { createMessage } from "design-system-old/build/constants/messages";
 import {
   ACCESS_CONTROL_UPGRADE_PAGE_FOOTER,
   ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING,
+  createMessage,
   GRANULAR_ACCESS_CONTROL_FOR_TEAMS,
   INTRODUCING,
   PREVENT_ACCIDENTAL_DAMAGE,

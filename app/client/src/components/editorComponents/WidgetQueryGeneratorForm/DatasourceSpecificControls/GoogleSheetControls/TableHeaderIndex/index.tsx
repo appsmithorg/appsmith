@@ -55,7 +55,7 @@ export function TableHeaderIndex() {
           </TooltipWrapper>
         </Row>
         <TextInput
-          cypressSelector="t--tableHeaderIndex"
+          data-testid="t--tableHeaderIndex"
           dataType="text"
           errorMsg={error}
           fill

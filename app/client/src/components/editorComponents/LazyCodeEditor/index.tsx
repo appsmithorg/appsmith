@@ -4,10 +4,10 @@ import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import type CodeEditor from "components/editorComponents/CodeEditor";
 import CodeEditorFallback from "./CodeEditorFallback";
-import { Toaster, Variant } from "design-system-old";
 import { CODE_EDITOR_LOADING_ERROR } from "ce/constants/messages";
 import assertNever from "assert-never/index";
 import log from "loglevel";
+import { toast } from "design-system";
 
 let CachedCodeEditor: typeof CodeEditor | undefined;
 
@@ -115,9 +115,8 @@ class LazyCodeEditorStateMachine {
           this.transition("LOADING_FINISHED");
         } catch (error) {
           log.error(error);
-          Toaster.show({
-            text: CODE_EDITOR_LOADING_ERROR((error as any).message),
-            variant: Variant.danger,
+          toast.show(CODE_EDITOR_LOADING_ERROR((error as any).message), {
+            kind: "error",
           });
           this.transition("LOADING_ERRORED");
         }
@@ -227,10 +226,12 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
       <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
           input={input}
+          isReadOnly={otherProps.isReadOnly}
           onInteracted={() => {
             stateMachine.current.transition("PLACEHOLDER_INTERACTED");
           }}
           placeholder={placeholder}
+          showLineNumbers={otherProps.showLineNumbers}
           showLoadingProgress={showLoadingProgress}
         />
       </LazyEditorWrapper>

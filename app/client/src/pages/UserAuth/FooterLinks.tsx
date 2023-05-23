@@ -1,22 +1,15 @@
 import React from "react";
+import { Link } from "design-system";
 
 function FooterLinks() {
   return (
     <div className="flex items-center justify-center gap-4 px-2 py-2">
-      <a
-        className="text-gray-900 hover:text-inherit"
-        href="/privacy-policy.html"
-        target="_blank"
-      >
-        Privacy Policy
-      </a>
-      <a
-        className="text-gray-900 hover:text-inherit"
-        href="/terms-and-conditions.html"
-        target="_blank"
-      >
+      <Link target="_blank" to="/privacy-policy.html">
+        Privacy policy
+      </Link>
+      <Link target="_blank" to="/terms-and-conditions.html">
         Terms and conditions
-      </a>
+      </Link>
     </div>
   );
 }
