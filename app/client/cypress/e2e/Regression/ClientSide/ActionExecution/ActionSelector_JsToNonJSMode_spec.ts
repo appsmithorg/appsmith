@@ -135,7 +135,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 3);
     _.agHelper.GetNAssertElementText(
       _.propPane._selectorViewButton,
-      "Select Modal",
+      "Select modal",
     );
   });
 
@@ -559,18 +559,18 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.AssertElementVisible(_.propPane._navigateToType("Page Name"));
+    _.agHelper.AssertElementVisible(_.propPane._navigateToType("Page name"));
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectPage,
-      "Select Page",
+      "Select page",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
-      "Query Params",
+      "Query params",
       "have.text",
       0,
     );
@@ -598,7 +598,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.AssertElementVisible(_.propPane._navigateToType("Page Name"));
+    _.agHelper.AssertElementVisible(_.propPane._navigateToType("Page name"));
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectPage,
@@ -609,7 +609,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
-      "Query Params",
+      "Query params",
       "have.text",
       0,
     );
@@ -648,7 +648,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
-      "Query Params",
+      "Query params",
       "have.text",
       1,
     );
@@ -741,7 +741,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectModal,
-      "Select Modal",
+      "Select modal",
       "have.text",
       0,
     );
@@ -787,7 +787,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectModal,
-      "Select Modal",
+      "Select modal",
       "have.text",
       0,
     );
@@ -894,7 +894,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Remove valueAdd Key",
+      "Remove valueAdd key",
       "have.text",
       0,
     );
@@ -1098,7 +1098,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._selectorViewButton,
-      "Select Widget",
+      "Select widget",
       "have.text",
       0,
     );
@@ -1188,7 +1188,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._selectorViewButton,
-      "Select Widget",
+      "Select widget",
       "have.text",
       0,
     );
@@ -1279,7 +1279,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Clear intervalAdd ID",
+      "Clear intervalAdd Id",
       "have.text",
       0,
     );
