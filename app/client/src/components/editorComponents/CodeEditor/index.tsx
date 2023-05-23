@@ -848,6 +848,16 @@ class CodeEditor extends Component<Props, State> {
               }
 
               if (navigationData.url) {
+                if (navigationData.type === ENTITY_TYPE.ACTION) {
+                  AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+                    actionId: navigationData?.id,
+                    datasourceId: navigationData?.datasourceId,
+                    pluginName: navigationData?.pluginName,
+                    actionType: navigationData?.actionType,
+                    isMock: !!navigationData?.isMock,
+                    from: NavigationMethod.CommandClick,
+                  });
+                }
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });

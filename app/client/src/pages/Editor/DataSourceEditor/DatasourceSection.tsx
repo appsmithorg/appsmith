@@ -129,6 +129,7 @@ export default class RenderDatasourceInformation extends React.Component<{
               if (
                 !value &&
                 !!viewMode &&
+                !!section.hidden &&
                 "comparison" in section.hidden &&
                 section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
               ) {
