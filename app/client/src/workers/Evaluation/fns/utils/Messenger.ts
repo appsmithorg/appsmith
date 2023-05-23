@@ -63,7 +63,11 @@ export class WorkerMessenger {
     }
   }
 
-  static respond(messageId: string, data: unknown, timeTaken: number) {
+  static respond(messageId: string, data: any, timeTaken: number) {
+    if (data.result) {
+      data.result =
+        typeof data.result === "function" ? String(data.result) : data.result;
+    }
     try {
       sendMessage.call(self, {
         messageId,
