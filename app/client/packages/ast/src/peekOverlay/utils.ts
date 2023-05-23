@@ -16,9 +16,9 @@ import {
   isMemberExpressionNode,
   isThisExpressionNode,
 } from "../index";
-import type { PeekOverlayExpressionIdentifierOptions } from "peekOverlay";
 import * as escodegen from "escodegen";
 import { NodeTypes } from "../constants/ast";
+import type { PeekOverlayExpressionIdentifierOptions } from "./index";
 
 export const isPositionWithinNode = (node: Node, pos: number) =>
   pos >= node.start && pos <= node.end;

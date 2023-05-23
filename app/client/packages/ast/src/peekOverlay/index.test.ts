@@ -88,7 +88,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     expect(result).toBe(undefined);
   });
 
-  it.only("handles ExpressionStatements", async () => {
+  it("handles ExpressionStatements", async () => {
     let result;
     // simple statement
     scriptIdentifier.updateScript("Api1");
