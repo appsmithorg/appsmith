@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { Field } from "redux-form";
 import { DropdownWrapper, FormBodyWrapper, withDropdown } from "./common";
@@ -24,7 +24,6 @@ import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
 import { Button, Checkbox } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
-import { Colors } from "constants/Colors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const DetailsFormWrapper = styled.div`
@@ -38,11 +37,14 @@ const StyledTabIndicatorWrapper = styled.div`
   display: flex;
 `;
 
-const StyledTabIndicator = styled.div`
+const StyledTabIndicator = styled.div<{ isFirstPage?: boolean }>`
   width: 48px;
-  background-color: var(--ads-color-brand);
   height: 3px;
   margin: 0 6px 0 0;
+  background-color: ${(props) =>
+    props.isFirstPage
+      ? `var(--ads-color-black-300);`
+      : `var(--ads-color-brand);`};
 `;
 
 const StyledFormGroup = styled(FormGroup)`
@@ -58,18 +60,16 @@ export default function DetailsForm(
 
   const [formState, setFormState] = useState(0);
 
-  const isFirstPage = () => formState === 0;
+  const isFirstPage = useMemo(() => formState === 0, [formState]);
 
   return (
     <DetailsFormWrapper ref={ref}>
       <StyledTabIndicatorWrapper>
         <StyledTabIndicator />
-        <StyledTabIndicator
-          style={isFirstPage() ? { backgroundColor: `${Colors.GRAY_300}` } : {}}
-        />
+        <StyledTabIndicator isFirstPage={isFirstPage} />
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
-        <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
+        <div style={isFirstPage ? { display: "block" } : { display: "none" }}>
           <div className="flex flex-row justify-between w-100">
             <StyledFormGroup className="!w-52 t--welcome-form-first-name">
               <FormTextField
@@ -117,7 +117,7 @@ export default function DetailsForm(
           </StyledFormGroup>
         </div>
 
-        {!isFirstPage() && (
+        {!isFirstPage && (
           <div>
             <DropdownWrapper
               className="t--welcome-form-role-dropdown"
@@ -180,12 +180,12 @@ export default function DetailsForm(
             isDisabled={props.invalid}
             kind="primary"
             onClick={() => {
-              if (isFirstPage()) setFormState(1);
+              if (isFirstPage) setFormState(1);
             }}
             size="md"
-            type={isFirstPage() ? "button" : "submit"}
+            type={isFirstPage ? "button" : "submit"}
           >
-            {isFirstPage()
+            {isFirstPage
               ? createMessage(CONTINUE)
               : createMessage(ONBOARDING_STATUS_GET_STARTED)}
           </Button>
