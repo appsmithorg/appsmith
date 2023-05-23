@@ -20,20 +20,21 @@ export const CheckboxGroup = forwardRef(
     const { children, className, orientation = "vertical" } = props;
     const domRef = useDOMRef(ref);
     const state = useCheckboxGroupState(props);
-    const { descriptionProps, errorMessageProps, groupProps, labelProps } =
-      useCheckboxGroup(props, state);
+    const { errorMessageProps, groupProps, labelProps } = useCheckboxGroup(
+      props,
+      state,
+    );
 
     return (
       <Field
         {...props}
-        descriptionProps={descriptionProps}
         errorMessageProps={errorMessageProps}
         includeNecessityIndicatorInAccessibilityName
         labelProps={labelProps}
         ref={domRef}
         wrapperClassName={className}
       >
-        <div {...groupProps} data-field-group data-orientation={orientation}>
+        <div {...groupProps} data-field-group="" data-orientation={orientation}>
           <CheckboxGroupContext.Provider value={state}>
             {children}
           </CheckboxGroupContext.Provider>
