@@ -10,6 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const Container = styled.div`
   height: 75px;
@@ -47,6 +48,12 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
       widgetTitle,
       widgetId,
       widgetType,
+    });
+
+    // Event for datasource creation click
+    const entryPoint = DatasourceCreateEntryPoints.PROPERTY_PANE_CONNECT_DATA;
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+      entryPoint,
     });
   };
 

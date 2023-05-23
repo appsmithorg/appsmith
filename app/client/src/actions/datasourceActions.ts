@@ -438,6 +438,15 @@ export const updateDatasourceAuthState = (
   };
 };
 
+export const datasourceDiscardAction = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
+    payload: {
+      pluginId: pluginId,
+    },
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,
