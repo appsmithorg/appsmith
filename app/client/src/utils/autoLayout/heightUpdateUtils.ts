@@ -5,8 +5,10 @@ import {
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import {
+  getBottomRow,
   getTopRow,
   getWidgetMinMaxDimensionsInPixel,
+  getWidgetRows,
   setDimensions,
 } from "./flexWidgetUtils";
 
@@ -33,6 +35,10 @@ export function shouldUpdateParentHeight(
     widget.type === "LIST_WIDGET_V2"
   )
     return false;
+
+  if (widget.parentId && widgets[widget.parentId].type === "TABS_WIDGET") {
+    return true;
+  }
 
   return computedHeight !== parentHeight;
 }
@@ -155,4 +161,48 @@ export function getDivisor(widget: FlattenedWidgetProps): number {
   return widget.type === "CANVAS_WIDGET"
     ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT
     : 1;
+}
+
+export function getContainerLikeWidgetHeight(
+  widgets: CanvasWidgetsReduxState,
+  parent: FlattenedWidgetProps,
+  isMobile: boolean,
+  metaProps?: Record<string, any>,
+): number {
+  if (!parent.children || !parent.children.length)
+    return getWidgetRows(parent, isMobile);
+  let children: string[] = parent?.children;
+
+  /**
+   * If the parent is a tabs widget,
+   * then we need to get the selected tab widget id
+   */
+  if (parent.type === "TABS_WIDGET") {
+    if (
+      metaProps &&
+      metaProps[parent.widgetId] &&
+      metaProps[parent.widgetId]?.selectedTabWidgetId
+    ) {
+      children = [metaProps[parent.widgetId]?.selectedTabWidgetId];
+    } else children = [parent.children[0]];
+  }
+  return getTotalRowsOfAllChildren(widgets, children, isMobile);
+}
+
+export function getTotalRowsOfAllChildren(
+  widgets: CanvasWidgetsReduxState,
+  children: string[],
+  isMobile: boolean,
+): number {
+  if (!children || !children.length) return 0;
+  let top = 10000,
+    bottom = 0;
+  for (const childId of children) {
+    const child = widgets[childId];
+    if (!child) continue;
+    const divisor = getDivisor(child);
+    top = Math.min(top, getTopRow(child, isMobile));
+    bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
+  }
+  return bottom - top;
 }

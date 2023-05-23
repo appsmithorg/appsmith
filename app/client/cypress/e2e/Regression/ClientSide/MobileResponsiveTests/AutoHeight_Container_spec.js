@@ -90,7 +90,7 @@ describe("Validate auto height for container widget on auto layout canvas", () =
       });
   });
 
-  it("form widget should update height upon flex wrap on mobile viewport", () => {
+  it("container widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
     cy.dragAndDropToWidget("inputwidgetv2", "containerwidget", {
       x: 50,

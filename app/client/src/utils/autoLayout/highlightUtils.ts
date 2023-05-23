@@ -20,11 +20,7 @@ import {
   getWidgetHeight,
   getWidgetWidth,
 } from "./flexWidgetUtils";
-import {
-  getAlignmentSizeInfo,
-  getTotalRowsOfAllChildren,
-  getWrappedAlignmentInfo,
-} from "./positionUtils";
+import { getAlignmentSizeInfo, getWrappedAlignmentInfo } from "./positionUtils";
 import type {
   AlignmentChildren,
   AlignmentInfo,
@@ -33,6 +29,7 @@ import type {
   HighlightInfo,
   LayerChild,
 } from "./autoLayoutTypes";
+import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState
