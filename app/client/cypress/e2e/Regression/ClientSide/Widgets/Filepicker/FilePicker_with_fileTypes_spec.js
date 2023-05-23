@@ -7,12 +7,14 @@ describe("FilePicker Widget Functionality with different file types", function (
     cy.addDsl(dsl);
   });
 
-  it("Check file upload of type jpeg", function () {
+  it("1. Check file upload of type jpeg", function () {
     _.entityExplorer.SelectEntityByName("FilePicker1");
 
-    const fixturePath = "AAAFlowerVase.jpeg";
+    const fixturePath = "cypress/fixtures/AAAFlowerVase.json";
     cy.get(commonlocators.filepickerv2).click();
-    cy.get(commonlocators.filePickerInput).first().attachFile(fixturePath);
+    cy.get(commonlocators.filePickerInput).first().selectFile(fixturePath, {
+      force: true,
+    });
     cy.get(commonlocators.filePickerUploadButton).click();
     cy.get(commonlocators.dashboardItemName).contains("AAAFlowerVase.jpeg");
     //eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -20,13 +22,15 @@ describe("FilePicker Widget Functionality with different file types", function (
     cy.get("button").contains("Upload 1 file");
   });
 
-  it("Replace an existing file type with another file type", function () {
+  it("2. Replace an existing file type with another file type", function () {
     cy.get(commonlocators.filepickerv2).click();
     cy.get("button.uppy-Dashboard-Item-action--remove").click();
     cy.get("button.uppy-Dashboard-browse").should("be.visible");
     cy.get(commonlocators.filePickerInput)
       .first()
-      .attachFile("appsmithlogo.png");
+      .selectFile("cypress/fixtures/appsmithlogo.json", {
+        force: true,
+      });
     cy.get(commonlocators.filePickerUploadButton).click();
     cy.get(commonlocators.filepickerv2).click();
     cy.get(commonlocators.dashboardItemName).contains("appsmithlogo.png");
