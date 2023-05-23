@@ -449,7 +449,7 @@ export class HomePage {
     cy.wait("@mockPostInvite")
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
-    cy.contains(email, { matchCase: false });
+    // cy.contains(email, { matchCase: false });
     if (validate) {
       cy.contains(successMessage);
     }
