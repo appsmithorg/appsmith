@@ -36,33 +36,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 public class ApplicationTemplateServiceTest {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static MockWebServer mockCloudServices;
     ApplicationTemplateService applicationTemplateService;
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    @MockBean
-    private UserDataService userDataService;
-
-    @MockBean
-    private CloudServicesConfig cloudServicesConfig;
-
-    @MockBean
-    private ReleaseNotesService releaseNotesService;
-
-    @MockBean
-    private ImportExportApplicationService importExportApplicationService;
-
-    @MockBean
-    private AnalyticsService analyticsService;
-
-    @MockBean
-    private ApplicationService applicationService;
-
-    @MockBean
-    private ResponseUtils responseUtils;
     @MockBean
     ApplicationPermission applicationPermission;
-
-    private static MockWebServer mockCloudServices;
+    @MockBean
+    private UserDataService userDataService;
+    @MockBean
+    private CloudServicesConfig cloudServicesConfig;
+    @MockBean
+    private ReleaseNotesService releaseNotesService;
+    @MockBean
+    private ImportExportApplicationService importExportApplicationService;
+    @MockBean
+    private AnalyticsService analyticsService;
+    @MockBean
+    private ApplicationService applicationService;
+    @MockBean
+    private ResponseUtils responseUtils;
 
     @BeforeAll
     public static void setUp() throws IOException {

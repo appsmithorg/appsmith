@@ -22,6 +22,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -36,7 +37,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -271,7 +271,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                             defaultPageId = applicationPage.getId();
                         }
                     }
-                    if(!StringUtils.hasLength(defaultPageId) && !CollectionUtils.isEmpty(applicationPages)) {
+                    if (!StringUtils.hasLength(defaultPageId) && !CollectionUtils.isEmpty(applicationPages)) {
                         log.error("application {} has no default page, returning first page as default", application.getId());
                         defaultPageId = applicationPages.get(0).getId();
                     }

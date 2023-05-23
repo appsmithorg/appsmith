@@ -40,6 +40,7 @@ import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -128,6 +129,11 @@ export default function OnboardingTasks() {
                   selectedTab: INTEGRATION_TABS.NEW,
                 }),
               );
+              // Event for datasource creation click
+              const entryPoint = DatasourceCreateEntryPoints.ONBOARDING;
+              AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+                entryPoint,
+              });
             }}
             size="md"
             startIcon="plus"

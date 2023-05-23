@@ -5,9 +5,9 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
@@ -258,7 +258,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                 userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                 userAndPermissionGroupDTO.setUsername(user.getUsername());
-                if(userData != null) {
+                if (userData != null) {
                     userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
                 }
             });
@@ -333,7 +333,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                     UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                                     userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
-                                    if(userData != null) {
+                                    if (userData != null) {
                                         userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
                                     }
                                 });

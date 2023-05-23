@@ -92,6 +92,15 @@ export const updateCurrentApplicationEmbedSetting = (
   };
 };
 
+export const updateCurrentApplicationForkingEnabled = (
+  forkingEnabled: boolean,
+) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE,
+    payload: forkingEnabled,
+  };
+};
+
 export const updateApplicationNavigationSettingAction = (
   navigationSetting: NavigationSetting,
 ) => {
