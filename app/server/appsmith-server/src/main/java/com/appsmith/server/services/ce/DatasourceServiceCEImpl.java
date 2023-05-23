@@ -118,7 +118,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<DatasourceDTO> create(DatasourceDTO datasourceDTO, String environmentId) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
         return this.create(datasource)
-                .flatMap(datasource1 -> convertToDatasourceDTO(datasource1));
+                .flatMap(this::convertToDatasourceDTO);
     }
 
     @Override
