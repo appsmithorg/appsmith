@@ -570,6 +570,18 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        forkingEnabled: action.payload,
+      },
+    };
+  },
   [ReduxActionTypes.UPDATE_NAVIGATION_SETTING]: (
     state: ApplicationsReduxState,
     action: ReduxAction<NavigationSetting>,

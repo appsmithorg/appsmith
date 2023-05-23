@@ -150,7 +150,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
-    
+
     @Override
     public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
         Criteria pageIdCriteria = where(
