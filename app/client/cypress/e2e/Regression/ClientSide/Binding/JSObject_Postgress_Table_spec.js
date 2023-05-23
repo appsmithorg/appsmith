@@ -1,7 +1,6 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/inputdsl.json");
-import _ from "cypress/types/lodash";
 import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const publish = require("../../../../locators/publishWidgetspage.json");
