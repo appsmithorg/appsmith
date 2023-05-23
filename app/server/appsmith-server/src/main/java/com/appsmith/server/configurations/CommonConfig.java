@@ -135,7 +135,7 @@ public class CommonConfig {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
-    
+
     public String getRtsBaseUrl() {
         return "http://127.0.0.1:" + rtsPort;
     }

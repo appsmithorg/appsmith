@@ -5,8 +5,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
-
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -33,6 +33,9 @@ public class ActionServiceTest {
     @MockBean
     VariableReplacementService variableReplacementService;
 
+    @MockBean
+    NewActionService newActionService;
+
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -46,9 +49,13 @@ public class ActionServiceTest {
         Mockito.when(variableReplacementService.replaceAll(Mockito.any(AppsmithDomain.class)))
                 .thenReturn(Mono.just(mockConfiguration));
 
+
         ActionDTO unpublishedAction = new ActionDTO();
         unpublishedAction.setActionConfiguration(new ActionConfiguration());
         unpublishedAction.getActionConfiguration().setBody("<<variable>>");
+
+        Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any(AclPermission.class)))
+                .thenReturn(Mono.just(unpublishedAction));
 
         NewAction action = new NewAction();
         action.setUnpublishedAction(unpublishedAction);
@@ -57,7 +64,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId("actionId");
         executeActionDTO.setViewMode(false);
 
-        Mono<ActionDTO> renderedActionMono = actionExecutionSolution.getValidActionForExecution(executeActionDTO, "actionId", action);
+        Mono<ActionDTO> renderedActionMono = actionExecutionSolution.getValidActionForExecution(executeActionDTO);
 
         StepVerifier.create(renderedActionMono)
                 .assertNext(actionDTO -> {

@@ -10,8 +10,9 @@ public class ImportExportUtils {
 
     /**
      * Method to provide non-cryptic and user-friendly error message with actionable input for Import-Export flows
+     *
      * @param throwable Exception from which the user-friendly message needs to be extracted
-     * @return          Error message string
+     * @return Error message string
      */
     public static String getErrorMessage(Throwable throwable) {
         log.error("Error while importing the application, reason: {}", throwable.getMessage());

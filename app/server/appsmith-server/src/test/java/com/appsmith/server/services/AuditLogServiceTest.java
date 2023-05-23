@@ -9,7 +9,9 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
@@ -42,21 +44,23 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.AuditLogExportDTO;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
+import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
@@ -66,8 +70,6 @@ import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
-import com.appsmith.server.dtos.ExportFileDTO;
-import com.appsmith.server.dtos.AuditLogExportDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -93,7 +95,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -154,7 +155,6 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CL
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_SECRET;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.CREATE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.DELETE;
@@ -215,7 +215,7 @@ public class AuditLogServiceTest {
 
     @Autowired
     NewActionService newActionService;
-    
+
     @Autowired
     ActionExecutionSolution actionExecutionSolution;
 
@@ -241,13 +241,16 @@ public class AuditLogServiceTest {
     CreateDBTablePageSolution createDBTablePageSolution;
 
     @Autowired
-    DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+    DatasourceStructureService datasourceStructureService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @MockBean
     PluginExecutor pluginExecutor;
+
+    @Autowired
+    EnvironmentService environmentService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -270,6 +273,7 @@ public class AuditLogServiceTest {
     UserWorkspaceService userWorkspaceService;
 
     private static String workspaceId;
+    private static String defaultEnvironmentId;
     private static Application app;
     private static Application gitConnectedApp;
     private static String workspaceName = "AuditLogsTest";
@@ -293,6 +297,8 @@ public class AuditLogServiceTest {
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
                 Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
+
+                defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
             }
 
             // Make api_user super user as AuditLogs are accessible for super users only
@@ -1110,6 +1116,7 @@ public class AuditLogServiceTest {
 
         Application application = new Application();
         application.setName("AuditLogApplication");
+        application.setWorkspaceId(createdWorkspace.getId());
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
@@ -1236,7 +1243,8 @@ public class AuditLogServiceTest {
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId()).block();
+
+        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId(), null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getApplication().getId(), null, null, null, null, null);
 
@@ -1293,12 +1301,22 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
+
         Application application = new Application();
         application.setName("AuditLogApplication");
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdWorkspace.getId()).block();
+        ApplicationImportDTO forkedApplication = applicationForkingService
+                .forkApplicationToWorkspaceWithEnvironment(createdApplication.getId(), createdWorkspace.getId(), environmentId)
+                .flatMap(application1 -> importExportApplicationService
+                        .getApplicationImportDTO(
+                                application1.getId(),
+                                application1.getWorkspaceId(),
+                                application1
+                        ))
+                .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getApplication().getId(), null, null, null, null, null);
 
@@ -1824,11 +1842,11 @@ public class AuditLogServiceTest {
      * @return Datasource
      */
 
-    private Datasource createDatasource(String workspaceId) {
+    private Datasource createDatasource(String workspaceId, String name) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
-        datasource.setName("test db datasource empty");
+        datasource.setName(name);
         datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
@@ -1848,6 +1866,12 @@ public class AuditLogServiceTest {
         String pluginId = pluginRepository.findByPackageName("restapi-plugin").block().getId();
         datasource.setPluginId(pluginId);
 
+        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
         return datasourceService.create(datasource).block();
     }
 
@@ -1856,7 +1880,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceCreated_success() {
-        Datasource finalDatasource = createDatasource(workspaceId);
+        Datasource finalDatasource = createDatasource(workspaceId, "ds Create");
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
 
@@ -1908,13 +1932,26 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceUpdated_success() {
-        Datasource finalDatasource = createDatasource(workspaceId);
+        Datasource finalDatasource = createDatasource(workspaceId, "ds Update");
+
         finalDatasource.setName("updatedDatasource");
-        Datasource updatedDatasource = datasourceService.update(finalDatasource.getId(), finalDatasource).block();
+        Datasource updatedDatasource = datasourceService
+                .updateByEnvironmentId(finalDatasource.getId(), finalDatasource, defaultEnvironmentId)
+                .block();
+
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.updated", resourceType, finalDatasource.getId(), null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(
+                null,
+                "datasource.updated",
+                resourceType,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
         StepVerifier
                 .create(auditLogService.getAuditLogs(params))
@@ -1962,7 +1999,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_datasourceDeleted_success() {
-        Datasource finalDatasource = createDatasource(workspaceId);
+        Datasource finalDatasource = createDatasource(workspaceId, "ds Delete");
         Datasource deletedDatasource = datasourceService.archiveById(finalDatasource.getId()).block();
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
@@ -2026,7 +2063,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId());
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Create");
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2106,7 +2143,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId());
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Update");
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2190,7 +2227,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId());
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Update Multiple");
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2241,7 +2278,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        Datasource createdDatasource = createDatasource(createdWorkspace.getId());
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId(), "query Delete");
 
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("AuditLogQuery");
@@ -2316,6 +2353,8 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
+
         Application application = new Application();
         application.setName("AuditLogApplication");
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
@@ -2353,7 +2392,7 @@ public class AuditLogServiceTest {
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
-        Mockito.when(pluginExecutor.executeParameterized(any(), any(), any(), any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any())).thenReturn(Mono.just(mockResult));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -2370,9 +2409,18 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, null).block();
+        actionExecutionSolution.executeAction(executeActionDTO, environmentId).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(
+                null,
+                "query.executed",
+                "Query",
+                createdAction.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
 
         StepVerifier
                 .create(auditLogService.getAuditLogs(params))
@@ -2434,6 +2482,7 @@ public class AuditLogServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
 
         Application application = new Application();
         application.setName("AuditLogApplication");
@@ -2472,7 +2521,7 @@ public class AuditLogServiceTest {
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
-        Mockito.when(pluginExecutor.executeParameterized(any(), any(), any(), any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any())).thenReturn(Mono.just(mockResult));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -2492,7 +2541,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(true);
 
-        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, null).block();
+        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, environmentId).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
@@ -3176,6 +3225,8 @@ public class AuditLogServiceTest {
         workspace.setName("Create-DB-Table-Page-Org");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
+
         Application application = new Application();
         application.setName("DB-Table-Page-Test-Application");
         application.setWorkspaceId(createdWorkspace.getId());
@@ -3210,13 +3261,20 @@ public class AuditLogServiceTest {
         testDatasource.setName("CRUD-Page-Table-DS");
         datasourceConfiguration.setUrl("http://test.com");
         testDatasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        testDatasource.setDatasourceStorages(storages);
+
         datasourceService.create(testDatasource)
                 .flatMap(datasource -> {
-                    DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
-                    datasourceConfigurationStructure.setDatasourceId(datasource.getId());
-                    datasourceConfigurationStructure.setStructure(structure);
+                    DatasourceStorageStructure datasourceStructure = new DatasourceStorageStructure();
+                    datasourceStructure.setDatasourceId(datasource.getId());
+                    datasourceStructure.setEnvironmentId(environmentId);
+                    datasourceStructure.setStructure(structure);
 
-                    return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                    return datasourceStructureService.save(datasourceStructure)
                             .thenReturn(datasource);
                 }).block();
 
@@ -3229,7 +3287,11 @@ public class AuditLogServiceTest {
         newPage.setName("crud-admin-page");
 
         return applicationPageService.createPage(newPage)
-                .flatMap(savedPage -> createDBTablePageSolution.createPageFromDBTable(savedPage.getId(), crudPageResourceDTO, ""))
+                .flatMap(savedPage -> createDBTablePageSolution.createPageFromDBTable(
+                        savedPage.getId(),
+                        crudPageResourceDTO,
+                        environmentId,
+                        ""))
                 .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
     }
 
@@ -4830,7 +4892,6 @@ public class AuditLogServiceTest {
         deletePermissionGroupDTOForGroup.setUserGroupId(createdUserGroup.getId());
         userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), deletePermissionGroupDTOForGroup, "test").block();
         assertAuditLogRoleUnAssignedFromUserGroup(workspaceViewerRole, apiUser, createdUserGroup);
-
 
 
     }

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
@@ -115,6 +116,14 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
                     return isAllowed.get();
                 });
+    }
+
+    @Override
+    public Mono<String> getDefaultEnvironmentId(String workspaceId) {
+        return environmentService.findByWorkspaceId(workspaceId)
+                .filter(Environment::getIsDefault)
+                .next()
+                .map(Environment::getId);
     }
 
     @Override

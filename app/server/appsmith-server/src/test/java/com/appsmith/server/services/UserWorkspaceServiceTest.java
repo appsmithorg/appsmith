@@ -13,7 +13,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -52,41 +51,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserWorkspaceServiceTest {
 
     @Autowired
-    private UserWorkspaceService userWorkspaceService;
-
-    @Autowired
-    private WorkspaceRepository workspaceRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PolicyUtils policyUtils;
-
-    @Autowired
-    private ApplicationRepository applicationRepository;
-
-    @Autowired
-    private PolicyGenerator policyGenerator;
-
-    @Autowired
-    private UserDataService userDataService;
-
-    @Autowired
-    private ApplicationPageService applicationPageService;
-
-    @Autowired
     WorkspaceService workspaceService;
-
     @Autowired
     NewPageService newPageService;
-
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
-
     @Autowired
     SessionUserService sessionUserService;
-
     @Autowired
     UserService userService;
     @Autowired
@@ -95,7 +66,22 @@ public class UserWorkspaceServiceTest {
     UserUtils userUtils;
     @Autowired
     PermissionGroupService permissionGroupService;
-
+    @Autowired
+    private UserWorkspaceService userWorkspaceService;
+    @Autowired
+    private WorkspaceRepository workspaceRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PolicyUtils policyUtils;
+    @Autowired
+    private ApplicationRepository applicationRepository;
+    @Autowired
+    private PolicyGenerator policyGenerator;
+    @Autowired
+    private UserDataService userDataService;
+    @Autowired
+    private ApplicationPageService applicationPageService;
     private Workspace workspace;
     private User user;
 
