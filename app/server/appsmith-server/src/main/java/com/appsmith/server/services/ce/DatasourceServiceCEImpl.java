@@ -391,11 +391,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(tuple2 -> {
                     String trueEnvironmentId = tuple2.getT1();
                     Datasource datasource = tuple2.getT2();
+
+                    DatasourceStorage datasourceStorage = datasourceStorageService
+                            .getDatasourceStorageFromDatasource(datasource, trueEnvironmentId);
+
+                    if (datasource.getId() == null) {
+                        return Mono.just(datasourceStorage);
+                    }
                     // Check if we have execute access on this datasource
                     return this.findById(datasource.getId(), datasourcePermission.getExecutePermission())
                             .flatMap(dbDatasource -> {
-                                DatasourceStorage datasourceStorage = datasourceStorageService
-                                        .getDatasourceStorageFromDatasource(datasource, trueEnvironmentId);
                                 // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
                                 // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
                                 // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
