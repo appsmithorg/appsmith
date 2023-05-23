@@ -13329,7 +13329,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-real-events@npm:^1.7.1, cypress-real-events@npm:^1.8.1":
+"cypress-real-events@npm:^1.8.1":
   version: 1.8.1
   resolution: "cypress-real-events@npm:1.8.1"
   peerDependencies:
@@ -13358,7 +13358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-xpath@npm:^1.4.0, cypress-xpath@npm:^1.6.0":
+"cypress-xpath@npm:^1.6.0":
   version: 1.8.0
   resolution: "cypress-xpath@npm:1.8.0"
   checksum: 11792ec46b898f2e00ced81dedcdca8e30d5c232778780210423d1ec0b07cd8b2a29a475d38eadaf9fd7e962efec7f5cee17f92884c308636cfa506efe6017e6
