@@ -41,7 +41,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
     });
 
     dataSources.RunQuery({ toValidateResponse: false });
-    dataSources.ReadQueryTableResponse(3).then((text) => {
+    dataSources.ReadQueryTableResponse(0).then((text) => {
       const tableRowTxt = text;
       cy.get(queryEditor.suggestedTableWidget).click();
       _.entityExplorer.SelectEntityByName("Table1");
