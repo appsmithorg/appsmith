@@ -76,6 +76,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
                                                                           String defaultApplicationId,
                                                                           String fieldName,
                                                                           AclPermission aclPermission);
+
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);

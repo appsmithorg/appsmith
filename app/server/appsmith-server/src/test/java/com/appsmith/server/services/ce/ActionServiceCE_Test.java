@@ -7,6 +7,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
@@ -171,6 +173,8 @@ public class ActionServiceCE_Test {
 
     String workspaceId;
 
+    String defaultEnvironmentId;
+
     String branchName;
 
     @BeforeEach
@@ -185,6 +189,8 @@ public class ActionServiceCE_Test {
         if (workspaceId == null) {
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
+
+            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         if (testApp == null && testPage == null) {
@@ -210,7 +216,7 @@ public class ActionServiceCE_Test {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
@@ -638,7 +644,6 @@ public class ActionServiceCE_Test {
     }
 
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void checkActionInViewMode() {
@@ -748,6 +753,10 @@ public class ActionServiceCE_Test {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
         ActionDTO action = new ActionDTO();
@@ -820,6 +829,10 @@ public class ActionServiceCE_Test {
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -1150,9 +1163,9 @@ public class ActionServiceCE_Test {
                             "bindingPath", "{{paginatedApi.data}}"
                     ));
                     JSONArray dynamicBindingsPathList = new JSONArray();
-                    dynamicBindingsPathList.addAll(List.of(
+                    dynamicBindingsPathList.add(
                             new JSONObject(Map.of("key", "bindingPath"))
-                    ));
+                    );
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);

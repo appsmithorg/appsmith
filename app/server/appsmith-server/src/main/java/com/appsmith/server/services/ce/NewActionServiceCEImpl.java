@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
+import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -88,7 +88,6 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-
 
 @Slf4j
 public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewAction, String> implements NewActionServiceCE {
@@ -180,6 +179,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // Set the fields from NewAction into Action
         action.setWorkspaceId(newAction.getWorkspaceId());
+        action.setApplicationId(newAction.getApplicationId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
         action.setTemplateId(newAction.getTemplateId());
@@ -189,6 +189,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setId(newAction.getId());
         action.setUserPermissions(newAction.getUserPermissions());
         action.setPolicies(newAction.getPolicies());
+        action.setCreatedAt(newAction.getCreatedAt());
     }
 
     @Override
@@ -603,9 +604,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
 
-
-
-
     @Override
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository.findByUnpublishedNameAndPageId(name, pageId, permission)
@@ -928,25 +926,25 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
             if (FALSE.equals(includeJsActions)) {
                 actionsFromRepository = repository.findNonJsActionsByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID),
-                                                                                              false,
-                                                                                              actionPermission.getReadPermission());
+                        false,
+                        actionPermission.getReadPermission());
 
             } else {
                 actionsFromRepository = repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID),
-                                                                                  false,
-                                                                                  actionPermission.getReadPermission());
+                        false,
+                        actionPermission.getReadPermission());
             }
 
         } else {
 
             if (FALSE.equals(includeJsActions)) {
                 actionsFromRepository = repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, false,
-                                                                                                  actionPermission.getReadPermission(),
-                                                                                                  sort);
+                        actionPermission.getReadPermission(),
+                        sort);
             } else {
                 actionsFromRepository = repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false,
-                                                                                             actionPermission.getReadPermission(),
-                                                                                             sort);
+                        actionPermission.getReadPermission(),
+                        sort);
             }
         }
 
@@ -955,7 +953,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
                 .flatMap(this::setTransientFieldsInUnpublishedAction)
                 // this generates four different tags, (ApplicationId, FieldId) *(True, False)
-                .tag("includeJsAction", (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID: FieldName.APPLICATION_ID )+ includeJsActions.toString())
+                .tag("includeJsAction", (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID : FieldName.APPLICATION_ID) + includeJsActions.toString())
                 .name(GET_ACTION_REPOSITORY_CALL)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -1056,7 +1054,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return pluginMapMono
                 .thenMany(Flux.fromIterable(actionList))
-                .flatMap(action-> {
+                .flatMap(action -> {
                     if (!isPluginTypeOrPluginIdMissing(action)) {
                         return Mono.just(action);
                     }
@@ -1162,7 +1160,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     executePluginDTO.setInstallationKey(instanceId);
                     executePluginDTO.setPluginName(plugin.getPluginName());
                     executePluginDTO.setPluginVersion(plugin.getVersion());
-                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
+                    executePluginDTO.setDatasource(new RemoteDatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
                     datasourceContext.setConnection(executePluginDTO);
 
                     return datasourceContext;
@@ -1462,7 +1460,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 Datasource updatedDatasource =
                                         policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
-
                                 return datasourceService.save(updatedDatasource);
                             });
                 });
@@ -1526,8 +1523,5 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return analyticsProperties;
     }
 
-    @Override
-    public Mono<Boolean> isPermissionPresentForCurrentUser(NewAction obj, String permission) {
-        return repository.isPermissionPresentForCurrentUser(obj, permission);
-    }
+
 }

@@ -81,7 +81,7 @@ public class PolicyUtils {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
                 Set<String> permissionGroups = new HashSet<>();
-                if(policy.getPermissionGroups() != null) {
+                if (policy.getPermissionGroups() != null) {
                     permissionGroups.addAll(policy.getPermissionGroups());
                 }
                 if (policyMap1.get(permission).getPermissionGroups() != null) {
@@ -299,12 +299,12 @@ public class PolicyUtils {
 
     public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
-        if(StringUtils.hasLength(application.getEditModeThemeId())) {
+        if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
                     themeRepository.findById(application.getEditModeThemeId(), READ_THEMES)
             );
         }
-        if(StringUtils.hasLength(application.getPublishedModeThemeId())) {
+        if (StringUtils.hasLength(application.getPublishedModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
                     themeRepository.findById(application.getPublishedModeThemeId(), READ_THEMES)
             );

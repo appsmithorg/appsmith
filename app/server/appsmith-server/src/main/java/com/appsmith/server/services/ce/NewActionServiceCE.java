@@ -98,7 +98,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
-    public Mono<NewAction> sanitizeAction(NewAction action);
+    Mono<NewAction> sanitizeAction(NewAction action);
 
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 

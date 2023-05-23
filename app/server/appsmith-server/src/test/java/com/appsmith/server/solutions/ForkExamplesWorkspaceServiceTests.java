@@ -7,6 +7,8 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PEMCertificate;
@@ -69,9 +71,11 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -85,41 +89,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
-public class ExamplesWorkspaceClonerTests {
-
-    @Autowired
-    private ExamplesWorkspaceCloner examplesWorkspaceCloner;
-
-    @Autowired
-    private ApplicationService applicationService;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private WorkspaceService workspaceService;
-
-    @Autowired
-    private ApplicationPageService applicationPageService;
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private NewActionService newActionService;
-
-    @Autowired
-    private ActionCollectionService actionCollectionService;
-
-    @Autowired
-    private PluginRepository pluginRepository;
-
-    @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
+public class ForkExamplesWorkspaceServiceTests {
 
     @MockBean
     PluginExecutor pluginExecutor;
-
+    @Autowired
+    private ForkExamplesWorkspace forkExamplesWorkspace;
+    @Autowired
+    private ApplicationService applicationService;
+    @Autowired
+    private DatasourceService datasourceService;
+    @Autowired
+    private WorkspaceService workspaceService;
+    @Autowired
+    private ApplicationPageService applicationPageService;
+    @Autowired
+    private SessionUserService sessionUserService;
+    @Autowired
+    private NewActionService newActionService;
+    @Autowired
+    private ActionCollectionService actionCollectionService;
+    @Autowired
+    private PluginRepository pluginRepository;
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
     @Autowired
     private LayoutActionService layoutActionService;
 
@@ -143,14 +136,6 @@ public class ExamplesWorkspaceClonerTests {
     @Autowired
     private PluginService pluginService;
 
-    private static class WorkspaceData {
-        Workspace workspace;
-        List<Application> applications = new ArrayList<>();
-        List<Datasource> datasources = new ArrayList<>();
-        List<ActionDTO> actions = new ArrayList<>();
-        List<ActionCollectionDTO> actionCollections = new ArrayList<>();
-    }
-
     public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
         final WorkspaceData data = new WorkspaceData();
         data.workspace = workspace;
@@ -161,12 +146,14 @@ public class ExamplesWorkspaceClonerTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
+                                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.of(READ_DATASOURCES))
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add),
                         getActionCollectionsInWorkspace(workspace)
-                                .map(data.actionCollections::add)
+                                .map(data.actionCollections::add),
+                        workspaceService.getDefaultEnvironmentId(workspace.getId())
+                                .doOnSuccess(signal -> data.defaultEnvironmentId = signal)
                 )
                 .thenReturn(data);
     }
@@ -185,7 +172,7 @@ public class ExamplesWorkspaceClonerTests {
         final Mono<WorkspaceData> resultMono = workspaceService.create(newWorkspace)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
-                        examplesWorkspaceCloner.cloneWorkspaceForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
+                        forkExamplesWorkspace.forkWorkspaceForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
                 .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
@@ -229,7 +216,7 @@ public class ExamplesWorkspaceClonerTests {
                                     applicationPageService.createApplication(app2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                    forkExamplesWorkspace.forkWorkspaceForUser(
                                             workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1()}),
@@ -290,7 +277,7 @@ public class ExamplesWorkspaceClonerTests {
                                     })
                             )
                             .flatMap(tuple1 ->
-                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                    forkExamplesWorkspace.forkWorkspaceForUser(
                                             workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
@@ -352,7 +339,7 @@ public class ExamplesWorkspaceClonerTests {
                     return Mono.when(
                             applicationPageService.createApplication(app1),
                             applicationPageService.createApplication(app2)
-                    ).then(examplesWorkspaceCloner.cloneWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(forkExamplesWorkspace.forkWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
                 .flatMap(this::loadWorkspaceData);
 
@@ -374,48 +361,39 @@ public class ExamplesWorkspaceClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneApplicationMultipleTimes() {
-        Workspace sourceOrg = new Workspace();
-        sourceOrg.setName("Source Org 1");
+        Workspace originalWorkspace = new Workspace();
+        originalWorkspace.setName("Source Org 1");
+        Workspace sourceWorkspace = workspaceService.create(originalWorkspace).block();
 
-        Workspace targetOrg = new Workspace();
-        targetOrg.setName("Target Org 1");
+        Application app1 = new Application();
+        app1.setName("awesome app");
+        app1.setWorkspaceId(sourceWorkspace.getId());
+        Application sourceApplication = applicationPageService.createApplication(app1).block();
+        final String appId = sourceApplication.getId();
+        final String appName = sourceApplication.getName();
 
-        final Mono<List<String>> resultMono = Mono
-                .zip(
-                        workspaceService.create(sourceOrg),
-                        sessionUserService.getCurrentUser()
-                )
-                .flatMap(tuple -> {
-                    final Workspace sourceOrg1 = tuple.getT1();
-                    Application app1 = new Application();
-                    app1.setName("awesome app");
-                    app1.setWorkspaceId(sourceOrg1.getId());
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Target Org 1");
+        Workspace targetWorkspace = workspaceService.create(newWorkspace).block();
+        String sourceEnvironmentId = workspaceService.getDefaultEnvironmentId(sourceWorkspace.getId()).block();
 
-                    return Mono.zip(
-                            applicationPageService.createApplication(app1),
-                            workspaceService.create(targetOrg)
-                    );
+
+        Mono<Void> cloneMono = Mono.just(sourceApplication)
+                .map(sourceApplication1 -> {
+                    sourceApplication1.setName(appName);
+                    sourceApplication1.setId(appId);
+                    return sourceApplication1;
                 })
-                .flatMapMany(tuple -> {
-                    final String workspaceId = tuple.getT2().getId();
-                    final String originalId = tuple.getT1().getId();
-                    final String originalName = tuple.getT1().getName();
-
-                    Mono<Void> cloneMono = Mono.just(tuple.getT1())
-                            .map(app -> {
-                                // We reset these values here because the clone method updates them and that just messes with our test.
-                                app.setId(originalId);
-                                app.setName(originalName);
-                                return app;
-                            })
-                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{app})))
-                            .then();
-                    // Clone this application into the same workspace thrice.
-                    return cloneMono
-                            .then(cloneMono)
-                            .then(cloneMono)
-                            .thenMany(Flux.defer(() -> applicationRepository.findByWorkspaceId(workspaceId)));
-                })
+                .flatMap(sourceApplication1 -> forkExamplesWorkspace.forkApplications(
+                        targetWorkspace.getId(),
+                        Flux.just(sourceApplication1),
+                        sourceEnvironmentId))
+                .then();
+        // Clone this application into the same workspace thrice.
+        Mono<List<String>> resultMono = cloneMono
+                .then(cloneMono)
+                .then(cloneMono)
+                .thenMany(applicationRepository.findByWorkspaceId(targetWorkspace.getId()))
                 .map(Application::getName)
                 .collectList();
 
@@ -432,17 +410,18 @@ public class ExamplesWorkspaceClonerTests {
     public void cloneWorkspaceWithOnlyDatasources() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
+        Workspace workspace = workspaceService.create(newWorkspace).block();
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(newWorkspace),
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser(),
                         pluginService.findByPackageName("restapi-plugin").map(Plugin::getId)
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
+                    String environmentId = tuple.getT1();
+
                     String pluginId = tuple.getT3();
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -454,6 +433,10 @@ public class ExamplesWorkspaceClonerTests {
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
@@ -463,11 +446,15 @@ public class ExamplesWorkspaceClonerTests {
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
                     ds2.getDatasourceConfiguration().setAuthentication(auth);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     return Mono.when(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).then(examplesWorkspaceCloner.cloneWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(forkExamplesWorkspace.forkWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
                 .flatMap(this::loadWorkspaceData);
 
@@ -491,13 +478,14 @@ public class ExamplesWorkspaceClonerTests {
     public void cloneWorkspaceWithOnlyDatasourcesSpecifiedExplicitly() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(newWorkspace),
+
+        Workspace workspace = workspaceService.create(newWorkspace).block();
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
+                    String environmentId = tuple.getT1();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -509,6 +497,10 @@ public class ExamplesWorkspaceClonerTests {
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
@@ -518,11 +510,15 @@ public class ExamplesWorkspaceClonerTests {
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
                     ds2.getDatasourceConfiguration().setAuthentication(auth);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     return Mono.zip(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).flatMap(tuple1 -> examplesWorkspaceCloner.cloneWorkspaceForUser(
+                    ).flatMap(tuple1 -> forkExamplesWorkspace.forkWorkspaceForUser(
                             workspace.getId(),
                             tuple.getT2(),
                             Flux.empty(),
@@ -553,14 +549,15 @@ public class ExamplesWorkspaceClonerTests {
     public void cloneWorkspaceWithDatasourcesAndApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(newWorkspace),
+
+        Workspace workspace = workspaceService.create(newWorkspace).block();
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser(),
                         pluginService.findByPackageName("restapi-plugin").map(Plugin::getId)
                 )
                 .flatMap(tuple -> {
-                    final Workspace workspace = tuple.getT1();
+                    String environmentId = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("first application");
@@ -577,11 +574,19 @@ public class ExamplesWorkspaceClonerTests {
                     ds1.setName("datasource 1");
                     ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(pluginId);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(pluginId);
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                             .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -594,7 +599,7 @@ public class ExamplesWorkspaceClonerTests {
                                     datasourceService.create(ds2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                    forkExamplesWorkspace.forkWorkspaceForUser(
                                             workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
@@ -630,6 +635,7 @@ public class ExamplesWorkspaceClonerTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
         final Workspace workspace = workspaceService.create(newWorkspace).block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
         final User user = sessionUserService.getCurrentUser().block();
 
         final Application app1 = new Application();
@@ -643,14 +649,22 @@ public class ExamplesWorkspaceClonerTests {
         app2.setIsPublic(true);
 
         final Datasource ds1 = new Datasource();
-        ds1.setName("datasource 1");
+        ds1.setName("ds 1");
         ds1.setWorkspaceId(workspace.getId());
         ds1.setPluginId(installedPlugin.getId());
+        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+        storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+        ds1.setDatasourceStorages(storages1);
 
         final Datasource ds2 = new Datasource();
-        ds2.setName("datasource 2");
+        ds2.setName("ds 2");
         ds2.setWorkspaceId(workspace.getId());
         ds2.setPluginId(installedPlugin.getId());
+        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+        ds2.setDatasourceStorages(storages2);
 
         final Application app = applicationPageService.createApplication(app1).block();
         final Application app2Again = applicationPageService.createApplication(app2).block();
@@ -668,7 +682,7 @@ public class ExamplesWorkspaceClonerTests {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "testWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "draft {{ newPageAction.data }}");
         layout.setDsl(dsl);
@@ -740,12 +754,13 @@ public class ExamplesWorkspaceClonerTests {
                 .map(tuple2 -> {
                     log.info("Created action and added page to app {}", tuple2);
                     return tuple2;
-                }).block();
+                })
+                .block();
         layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
         layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
-        final Mono<WorkspaceData> resultMono = examplesWorkspaceCloner.cloneWorkspaceForUser(
+        final Mono<WorkspaceData> resultMono = forkExamplesWorkspace.forkWorkspaceForUser(
                         workspace.getId(),
                         user,
                         Flux.fromIterable(List.of(app, app2Again)),
@@ -778,8 +793,8 @@ public class ExamplesWorkspaceClonerTests {
 
                     assertThat(data.datasources).hasSize(2);
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
-                            "datasource 1",
-                            "datasource 2"
+                            "ds 1",
+                            "ds 2"
                     );
 
                     assertThat(data.actions).hasSize(3);
@@ -801,27 +816,27 @@ public class ExamplesWorkspaceClonerTests {
     public void cloneApplicationForkWithConfigurationTrueWithActionsThrice() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");
+        Workspace workspace = workspaceService.create(sourceOrg).block();
 
         Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 2");
 
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(sourceOrg),
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace sourceOrg1 = tuple.getT1();
+                    String environmentId = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.TRUE);
-                    app1.setWorkspaceId(sourceOrg1.getId());
+                    app1.setWorkspaceId(workspace.getId());
                     app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setWorkspaceId(sourceOrg1.getId());
+                    ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(dc);
@@ -865,10 +880,14 @@ public class ExamplesWorkspaceClonerTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setWorkspaceId(sourceOrg1.getId());
+                    ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
                     ds2.setDatasourceConfiguration(dc2);
@@ -893,11 +912,19 @@ public class ExamplesWorkspaceClonerTests {
                             null,
                             false
                     ));
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
-                    ds3.setWorkspaceId(sourceOrg1.getId());
+                    ds3.setWorkspaceId(workspace.getId());
                     ds3.setPluginId(installedPlugin.getId());
+                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
+                    storages3.put(environmentId, new DatasourceStorageDTO(datasourceStorage3));
+                    ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
                             .flatMap(createdApp -> Mono.zip(
@@ -918,21 +945,21 @@ public class ExamplesWorkspaceClonerTests {
                                 final ActionDTO action1 = new ActionDTO();
                                 action1.setName("action1");
                                 action1.setPageId(firstPage.getId());
-                                action1.setWorkspaceId(sourceOrg1.getId());
+                                action1.setWorkspaceId(workspace.getId());
                                 action1.setDatasource(ds1WithId);
                                 action1.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(firstPage.getId());
                                 action2.setName("action2");
-                                action2.setWorkspaceId(sourceOrg1.getId());
+                                action2.setWorkspaceId(workspace.getId());
                                 action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action3 = new ActionDTO();
                                 action3.setPageId(firstPage.getId());
                                 action3.setName("action3");
-                                action3.setWorkspaceId(sourceOrg1.getId());
+                                action3.setWorkspaceId(workspace.getId());
                                 action3.setDatasource(ds2WithId);
                                 action3.setPluginId(installedPlugin.getId());
 
@@ -957,10 +984,10 @@ public class ExamplesWorkspaceClonerTests {
                                             app.setName(originalName);
                                             return app;
                                         })
-                                        .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
+                                        .flatMap(app -> forkExamplesWorkspace.forkApplications(
                                                 targetOrg1.getId(),
-                                                Flux.fromArray(new Application[]{app})
-                                        ))
+                                                Flux.fromArray(new Application[]{app}),
+                                                environmentId))
                                         .then();
 
                                 return clonerMono
@@ -1006,10 +1033,12 @@ public class ExamplesWorkspaceClonerTests {
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",
@@ -1031,27 +1060,26 @@ public class ExamplesWorkspaceClonerTests {
     public void cloneApplicationForkWithConfigurationFalseWithActionsThrice() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");
+        Workspace workspace = workspaceService.create(sourceOrg).block();
 
         Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 2");
 
-        final Mono<WorkspaceData> resultMono = Mono
-                .zip(
-                        workspaceService.create(sourceOrg),
+        final Mono<WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Workspace sourceOrg1 = tuple.getT1();
-
+                    String environmentId = tuple.getT1();
                     final Application app1 = new Application();
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.FALSE);
-                    app1.setWorkspaceId(sourceOrg1.getId());
+                    app1.setWorkspaceId(workspace.getId());
                     app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setWorkspaceId(sourceOrg1.getId());
+                    ds1.setWorkspaceId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(dc);
@@ -1095,10 +1123,14 @@ public class ExamplesWorkspaceClonerTests {
                     auth.setIsAuthorized(true);
                     auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
+                    DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+                    ds1.setDatasourceStorages(storages1);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setWorkspaceId(sourceOrg1.getId());
+                    ds2.setWorkspaceId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
                     ds2.setDatasourceConfiguration(dc2);
@@ -1123,11 +1155,19 @@ public class ExamplesWorkspaceClonerTests {
                             null,
                             false
                     ));
+                    DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+                    ds2.setDatasourceStorages(storages2);
 
                     final Datasource ds3 = new Datasource();
                     ds3.setName("datasource 3");
-                    ds3.setWorkspaceId(sourceOrg1.getId());
+                    ds3.setWorkspaceId(workspace.getId());
                     ds3.setPluginId(installedPlugin.getId());
+                    DatasourceStorage datasourceStorage3 = new DatasourceStorage(ds3, environmentId);
+                    HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
+                    storages3.put(environmentId, new DatasourceStorageDTO(datasourceStorage3));
+                    ds3.setDatasourceStorages(storages3);
 
                     return applicationPageService.createApplication(app1)
                             .flatMap(createdApp -> Mono.zip(
@@ -1148,21 +1188,21 @@ public class ExamplesWorkspaceClonerTests {
                                 final ActionDTO action1 = new ActionDTO();
                                 action1.setName("action1");
                                 action1.setPageId(firstPage.getId());
-                                action1.setWorkspaceId(sourceOrg1.getId());
+                                action1.setWorkspaceId(workspace.getId());
                                 action1.setDatasource(ds1WithId);
                                 action1.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(firstPage.getId());
                                 action2.setName("action2");
-                                action2.setWorkspaceId(sourceOrg1.getId());
+                                action2.setWorkspaceId(workspace.getId());
                                 action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action3 = new ActionDTO();
                                 action3.setPageId(firstPage.getId());
                                 action3.setName("action3");
-                                action3.setWorkspaceId(sourceOrg1.getId());
+                                action3.setWorkspaceId(workspace.getId());
                                 action3.setDatasource(ds2WithId);
                                 action3.setPluginId(installedPlugin.getId());
 
@@ -1187,10 +1227,10 @@ public class ExamplesWorkspaceClonerTests {
                                             app.setName(originalName);
                                             return app;
                                         })
-                                        .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
+                                        .flatMap(app -> forkExamplesWorkspace.forkApplications(
                                                 targetOrg1.getId(),
-                                                Flux.fromArray(new Application[]{app})
-                                        ))
+                                                Flux.fromArray(new Application[]{app}),
+                                                environmentId))
                                         .then();
 
                                 return clonerMono
@@ -1241,10 +1281,12 @@ public class ExamplesWorkspaceClonerTests {
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication()).isNull();
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage1.getDatasourceConfiguration().getAuthentication()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication()).isNull();
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage2.getDatasourceConfiguration().getAuthentication()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",
@@ -1260,8 +1302,6 @@ public class ExamplesWorkspaceClonerTests {
                 })
                 .verifyComplete();
     }
-
-
 
     private List<String> getUnpublishedActionName(List<ActionDTO> actions) {
         List<String> names = new ArrayList<>();
@@ -1291,5 +1331,14 @@ public class ExamplesWorkspaceClonerTests {
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), false));
+    }
+
+    private static class WorkspaceData {
+        Workspace workspace;
+        List<Application> applications = new ArrayList<>();
+        List<Datasource> datasources = new ArrayList<>();
+        List<ActionDTO> actions = new ArrayList<>();
+        List<ActionCollectionDTO> actionCollections = new ArrayList<>();
+        String defaultEnvironmentId;
     }
 }

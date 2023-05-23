@@ -11,6 +11,8 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
@@ -56,6 +58,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SequenceService;
@@ -136,6 +139,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
+    private final DatasourceStorageService datasourceStorageService;
     private final PermissionGroupRepository permissionGroupRepository;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
@@ -199,7 +203,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             }
                             exportWithConfiguration.set(application.getExportWithConfiguration());
                             return application;
-                        });
+                        })
+                        .cache();
+
+        Mono<String> defaultEnvironmentIdMono = applicationService.findById(applicationId)
+                .flatMap(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()));
 
         /**
          * Since we are exporting for git, we only consider unpublished JS libraries
@@ -272,7 +280,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             applicationJson.setEditModeTheme(editModeTheme);
                             applicationJson.setPublishedTheme(publishedModeTheme);
                             return themesTuple;
-                        }).thenReturn(application))
+                        })
+                        .thenReturn(application))
                 .flatMap(application -> {
 
                     // Refactor application to remove the ids
@@ -339,7 +348,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     newPage.sanitiseToExportDBObject();
                                 });
                                 applicationJson.setPageList(newPageList);
-                                applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
+                                applicationJson.setUpdatedResources(new HashMap<>() {{
                                     put(FieldName.PAGE_LIST, updatedPageSet);
                                 }});
 
@@ -349,13 +358,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         : Optional.of(datasourcePermission.getEditPermission());
 
                                 Flux<Datasource> datasourceFlux =
-                                        datasourceRepository.findAllByWorkspaceId(workspaceId, optionalPermission3);
-                                return datasourceFlux.collectList();
+                                        datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, optionalPermission3);
+                                return datasourceFlux.collectList().zipWith(defaultEnvironmentIdMono);
                             })
-                            .flatMapMany(datasourceList -> {
+                            .flatMapMany(tuple2 -> {
+                                List<Datasource> datasourceList = tuple2.getT1();
+                                String environmentId = tuple2.getT2();
                                 datasourceList.forEach(datasource ->
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
-                                applicationJson.setDatasourceList(datasourceList);
+                                List<DatasourceStorage> storageList = datasourceList.stream()
+                                        .map(datasource -> datasourceStorageService.getDatasourceStorageFromDatasource(datasource, environmentId))
+                                        .collect(Collectors.toList());
+                                applicationJson.setDatasourceList(storageList);
 
                                 Optional<AclPermission> optionalPermission1 = isGitSync ? Optional.empty() :
                                         TRUE.equals(exportWithConfiguration.get())
@@ -495,16 +509,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 if (TRUE.equals(exportWithConfiguration.get()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
-                                    applicationJson.getDatasourceList().forEach(datasource -> {
-                                        decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
-                                        datasource.sanitiseToExportResource(pluginMap);
+                                    applicationJson.getDatasourceList().forEach(datasourceStorage -> {
+                                        decryptedFields.put(datasourceStorage.getName(), getDecryptedFields(datasourceStorage));
+                                        datasourceStorage.sanitiseToExportResource(pluginMap);
                                     });
                                     applicationJson.setDecryptedFields(decryptedFields);
                                 } else {
-                                    applicationJson.getDatasourceList().forEach(datasource -> {
+                                    applicationJson.getDatasourceList().forEach(datasourceStorage -> {
                                         // Remove the datasourceConfiguration object as user will configure it once imported to other instance
-                                        datasource.setDatasourceConfiguration(null);
-                                        datasource.sanitiseToExportResource(pluginMap);
+                                        datasourceStorage.setDatasourceConfiguration(null);
+                                        datasourceStorage.sanitiseToExportResource(pluginMap);
                                     });
                                 }
 
@@ -842,7 +856,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Application importedApplication = importedDoc.getExportedApplication();
 
-        List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
+        List<DatasourceStorage> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
@@ -868,8 +882,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
-        final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByWorkspaceId(workspaceId)
+        final Flux<Datasource> existingDatasourceFlux = datasourceService
+                .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
                 .cache();
 
         assert importedApplication != null : "Received invalid application object!";
@@ -908,11 +922,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     } else {
                         existingDatasourceMono = Mono.just(new ArrayList<>());
                     }
-                    return Mono.zip(existingDatasourceMono, Mono.just(workspace));
+                    return Mono.zip(existingDatasourceMono, Mono.just(workspace), workspaceService.getDefaultEnvironmentId(workspaceId));
                 })
                 .flatMapMany(objects -> {
                     List<Datasource> existingDatasources = objects.getT1();
                     Workspace workspace = objects.getT2();
+                    String environmentId = objects.getT3();
                     if (CollectionUtils.isEmpty(importedDatasourceList)) {
                         return Mono.empty();
                     }
@@ -923,7 +938,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
                     // Check if the destination org have all the required plugins installed
-                    for (Datasource datasource : importedDatasourceList) {
+                    for (DatasourceStorage datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
                             log.error("Unable to find the plugin: {}, available plugins are: {}", datasource.getPluginId(), pluginMap.keySet());
                             return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
@@ -931,45 +946,56 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Flux.fromIterable(importedDatasourceList)
                             // Check for duplicate datasources to avoid duplicates in target workspace
-                            .flatMap(datasource -> {
+                            .flatMap(datasourceStorage -> {
 
-                                final String importedDatasourceName = datasource.getName();
+                                final String importedDatasourceName = datasourceStorage.getName();
                                 // Check if the datasource has gitSyncId and if it's already in DB
-                                if (datasource.getGitSyncId() != null
-                                        && savedDatasourcesGitIdToDatasourceMap.containsKey(datasource.getGitSyncId())) {
+                                if (datasourceStorage.getGitSyncId() != null
+                                        && savedDatasourcesGitIdToDatasourceMap.containsKey(datasourceStorage.getGitSyncId())) {
 
                                     // Since the resource is already present in DB, just update resource
-                                    Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
+                                    Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasourceStorage.getGitSyncId());
                                     if(!permissionProvider.hasEditPermission(existingDatasource)) {
                                         log.error("Trying to update datasource {} without edit permission", existingDatasource.getName());
                                         return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, existingDatasource.getId()));
                                     }
-                                    datasource.setId(null);
+                                    datasourceStorage.setId(null);
                                     // Don't update datasource config as the saved datasource is already configured by user
                                     // for this instance
-                                    datasource.setDatasourceConfiguration(null);
-                                    datasource.setPluginId(null);
-                                    copyNestedNonNullProperties(datasource, existingDatasource);
+                                    datasourceStorage.setDatasourceConfiguration(null);
+                                    datasourceStorage.setPluginId(null);
+                                    datasourceStorage.setEnvironmentId(environmentId);
+                                    Datasource newDatasource = new Datasource(datasourceStorage);
+                                    newDatasource.setPolicies(null);
+
+                                    copyNestedNonNullProperties(newDatasource, existingDatasource);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
+                                    return datasourceService.save(existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
-                                datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                                datasource.setWorkspaceId(workspaceId);
+                                datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
+                                datasourceStorage.setWorkspaceId(workspaceId);
+                                datasourceStorage.setEnvironmentId(environmentId);
 
                                 // Check if any decrypted fields are present for datasource
                                 if (importedDoc.getDecryptedFields() != null
-                                        && importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+                                        && importedDoc.getDecryptedFields().get(datasourceStorage.getName()) != null) {
 
                                     DecryptedSensitiveFields decryptedFields =
-                                            importedDoc.getDecryptedFields().get(datasource.getName());
+                                            importedDoc.getDecryptedFields().get(datasourceStorage.getName());
 
-                                    updateAuthenticationDTO(datasource, decryptedFields);
+                                    updateAuthenticationDTO(datasourceStorage, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspace, permissionProvider);
+                                return createUniqueDatasourceIfNotPresent(
+                                        existingDatasourceFlux,
+                                        datasourceStorage,
+                                        workspace,
+                                        environmentId,
+                                        permissionProvider
+                                        );
                             });
                 })
                 .collectMap(Datasource::getName, Datasource::getId)
@@ -2113,19 +2139,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This will check if the datasource is already present in the workspace and create a new one if unable to find one
      *
      * @param existingDatasourceFlux already present datasource in the workspace
-     * @param datasource             which will be checked against existing datasources
+     * @param datasourceStorage      which will be checked against existing datasources
      * @param workspace            workspace where duplicate datasource should be checked
      * @return already present or brand new datasource depending upon the equality check
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
-                                                                Datasource datasource,
+                                                                DatasourceStorage datasourceStorage,
                                                                 Workspace workspace,
+                                                                String environmentId,
                                                                 ImportApplicationPermissionProvider permissionProvider) {
         /*
             1. If same datasource is present return
             2. If unable to find the datasource create a new datasource with unique name and return
          */
-        final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
+        final DatasourceConfiguration datasourceConfig = datasourceStorage.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
             copyNestedNonNullProperties(
@@ -2136,56 +2163,59 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         return existingDatasourceFlux
                 // For git import exclude datasource configuration
-                .filter(ds -> ds.getName().equals(datasource.getName()) && datasource.getPluginId().equals(ds.getPluginId()))
+                .filter(ds -> ds.getName().equals(datasourceStorage.getName()) && datasourceStorage.getPluginId().equals(ds.getPluginId()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     // check if user has permission to create datasource
                     if(!permissionProvider.canCreateDatasource(workspace)) {
-                        log.error("Unauthorized to create datasource: {} in workspace: {}", datasource.getName(), workspace.getName());
-                        return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName()));
+                        log.error("Unauthorized to create datasource: {} in workspace: {}", datasourceStorage.getName(), workspace.getName());
+                        return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceStorage.getName()));
                     }
 
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
                         datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
-                    datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
+                    datasourceStorage.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
+                    datasourceStorage.setEnvironmentId(environmentId);
+
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasource.getName(), workspace.getId(), Optional.empty())
+                            .findByNameAndWorkspaceId(datasourceStorage.getName(), workspace.getId(), Optional.empty())
                             .flatMap(duplicateNameDatasource ->
-                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspace.getId()
+                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspace.getId())
                             )
-                            .map(suffix -> {
-                                datasource.setName(datasource.getName() + suffix);
-                                return datasource;
+                            .map(dsName -> {
+                                datasourceStorage.setName(datasourceStorage.getName() + dsName);
+                                return new Datasource(datasourceStorage);
                             })
-                            .then(datasourceService.createWithoutPermissions(datasource)));
+                            .switchIfEmpty(Mono.just(new Datasource(datasourceStorage)))
+                            .flatMap(datasourceService::createWithoutPermissions);
                 }));
     }
 
     /**
-     * Here we will be rehydrating the sensitive fields like password, secrets etc. in datasource while importing the application
+     * Here we will be rehydrating the sensitive fields like password, secrets etc. in datasourceStorage while importing the application
      *
-     * @param datasource      for which sensitive fields should be rehydrated
-     * @param decryptedFields sensitive fields
-     * @return updated datasource with rehydrated sensitive fields
+     * @param datasourceStorage for which sensitive fields should be rehydrated
+     * @param decryptedFields   sensitive fields
+     * @return updated datasourceStorage with rehydrated sensitive fields
      */
-    private Datasource updateAuthenticationDTO(Datasource datasource, DecryptedSensitiveFields decryptedFields) {
+    private DatasourceStorage updateAuthenticationDTO(DatasourceStorage datasourceStorage, DecryptedSensitiveFields decryptedFields) {
 
-        final DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
+        final DatasourceConfiguration dsConfig = datasourceStorage.getDatasourceConfiguration();
         String authType = decryptedFields.getAuthType();
         if (dsConfig == null || authType == null) {
-            return datasource;
+            return datasourceStorage;
         }
 
         if (StringUtils.equals(authType, DBAuth.class.getName())) {
             final DBAuth dbAuth = decryptedFields.getDbAuth();
             dbAuth.setPassword(decryptedFields.getPassword());
-            datasource.getDatasourceConfiguration().setAuthentication(dbAuth);
+            datasourceStorage.getDatasourceConfiguration().setAuthentication(dbAuth);
         } else if (StringUtils.equals(authType, BasicAuth.class.getName())) {
             final BasicAuth basicAuth = decryptedFields.getBasicAuth();
             basicAuth.setPassword(decryptedFields.getPassword());
-            datasource.getDatasourceConfiguration().setAuthentication(basicAuth);
+            datasourceStorage.getDatasourceConfiguration().setAuthentication(basicAuth);
         } else if (StringUtils.equals(authType, OAuth2.class.getName())) {
             OAuth2 auth2 = decryptedFields.getOpenAuth2();
             AuthenticationResponse authResponse = new AuthenticationResponse();
@@ -2195,13 +2225,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             authResponse.setTokenResponse(decryptedFields.getTokenResponse());
             authResponse.setExpiresAt(Instant.now());
             auth2.setAuthenticationResponse(authResponse);
-            datasource.getDatasourceConfiguration().setAuthentication(auth2);
+            datasourceStorage.getDatasourceConfiguration().setAuthentication(auth2);
         } else if (StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
             BearerTokenAuth auth = new BearerTokenAuth();
             auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
-            datasource.getDatasourceConfiguration().setAuthentication(auth);
+            datasourceStorage.getDatasourceConfiguration().setAuthentication(auth);
         }
-        return datasource;
+        return datasourceStorage;
     }
 
     private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson, boolean appendToApp) {
@@ -2213,14 +2243,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
-     * This will be used to dehydrate sensitive fields from the datasource while exporting the application
+     * This will be used to dehydrate sensitive fields from the datasourceStorage while exporting the application
      *
-     * @param datasource entity from which sensitive fields need to be dehydrated
+     * @param datasourceStorage entity from which sensitive fields need to be dehydrated
      * @return sensitive fields which then will be deserialized and exported in JSON file
      */
-    private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
-        final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
-                ? null : datasource.getDatasourceConfiguration().getAuthentication();
+    private DecryptedSensitiveFields getDecryptedFields(DatasourceStorage datasourceStorage) {
+        final AuthenticationDTO authentication = datasourceStorage.getDatasourceConfiguration() == null
+                ? null : datasourceStorage.getDatasourceConfiguration().getAuthentication();
 
         if (authentication != null) {
             DecryptedSensitiveFields dsDecryptedFields =
@@ -2251,8 +2281,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
-        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, Optional.empty()).collectList();
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, Optional.empty(), Optional.empty())
+        Mono<List<Datasource>> listMono = datasourceService
+                .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
+                .collectList();
+        return newActionService.findAllByApplicationIdAndViewMode(
+                        applicationId,
+                        false,
+                        Optional.empty(),
+                        Optional.empty())
                 .collectList()
                 .zipWith(listMono)
                 .flatMap(objects -> {
@@ -2269,12 +2305,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     @Override
-    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application) {
+    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId,
+                                                              String workspaceId,
+                                                              Application application) {
         return findDatasourceByApplicationId(applicationId, workspaceId)
-                .map(datasources -> {
+                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId))
+                .map(tuple2 -> {
+                    List<Datasource> datasources = tuple2.getT1();
+                    String environmentId = tuple2.getT2();
                     ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                     applicationImportDTO.setApplication(application);
-                    Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured()));
+                    Boolean isUnConfiguredDatasource = datasources.stream()
+                            .anyMatch(datasource -> {
+                                DatasourceStorageDTO datasourceStorageDTO =
+                                        datasource.getDatasourceStorages().get(environmentId);
+                                return Boolean.FALSE.equals(datasourceStorageDTO.getIsConfigured());
+                            });
                     if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
                         applicationImportDTO.setIsPartialImport(true);
                         applicationImportDTO.setUnConfiguredDatasourceList(datasources);

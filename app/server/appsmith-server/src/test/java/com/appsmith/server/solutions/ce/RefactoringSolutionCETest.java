@@ -177,7 +177,7 @@ class RefactoringSolutionCETest {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
@@ -437,7 +437,7 @@ class RefactoringSolutionCETest {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ beforeNameChange.data }}");
 
@@ -487,7 +487,7 @@ class RefactoringSolutionCETest {
         dsl.put("widgetId", "firstWidgetId");
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ duplicateName.data }}");
 
