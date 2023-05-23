@@ -3,6 +3,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
+  getDatasources,
   getJSCollections,
   getPlugins,
 } from "selectors/entitiesSelector";
@@ -19,6 +20,9 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { AppState } from "@appsmith/reducers";
+import { PluginType } from "entities/Action";
+import type { StoredDatasource } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
 
 export type NavigationData = {
   name: string;
@@ -28,6 +32,10 @@ export type NavigationData = {
   navigable: boolean;
   children: EntityNavigationData;
   key?: string;
+  pluginName?: string;
+  isMock?: boolean;
+  datasourceId?: string;
+  actionType?: string;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
@@ -38,6 +46,7 @@ export const getEntitiesForNavigation = createSelector(
   getWidgets,
   getCurrentPageId,
   getDataTree,
+  getDatasources,
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -46,6 +55,7 @@ export const getEntitiesForNavigation = createSelector(
     widgets,
     pageId,
     dataTree: DataTree,
+    datasources: Datasource[],
     entityName: string | undefined,
   ) => {
     // data tree retriggers this
@@ -56,6 +66,10 @@ export const getEntitiesForNavigation = createSelector(
     actions.forEach((action) => {
       const plugin = plugins.find(
         (plugin) => plugin.id === action.config.pluginId,
+      );
+      const datasourceId = (action.config?.datasource as StoredDatasource)?.id;
+      const datasource = datasources.find(
+        (datasource) => datasource.id === datasourceId,
       );
       const config = getActionConfig(action.config.pluginType);
       if (!config) return;
@@ -70,6 +84,12 @@ export const getEntitiesForNavigation = createSelector(
           plugin,
         ),
         children: {},
+        // Adding below data as it is required for analytical events
+        pluginName: plugin?.name,
+        datasourceId: datasource?.id,
+        isMock: datasource?.isMock,
+        actionType:
+          action.config.pluginType === PluginType.DB ? "Query" : "API",
       });
     });
 

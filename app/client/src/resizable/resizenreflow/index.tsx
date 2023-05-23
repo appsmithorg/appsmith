@@ -1,10 +1,6 @@
 import { computeRowCols } from "components/editorComponents/ResizableUtils";
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
-import {
-  GridDefaults,
-  WIDGET_PADDING,
-  WidgetHeightLimits,
-} from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Spring } from "react-spring";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
@@ -400,6 +396,7 @@ export function ReflowResizable(props: ResizableProps) {
       props.showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
   }, [props.className, pointerEvents, props.showResizeBoundary]);
+
   return (
     <Spring
       config={{
@@ -409,33 +406,23 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       from={{
         width: props.componentWidth,
-        height: props.fixedHeight
-          ? Math.min(
-              (props.maxDynamicHeight ||
-                WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
-                GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              props.componentHeight,
-            )
-          : "auto",
-        maxHeight:
-          (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        height: props.autoHeight
+          ? "auto"
+          : Math.min(props.maxHeightInPx, props.componentHeight),
+        maxHeight: props.maxHeightInPx,
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
         width: widgetWidth,
-        height: props.fixedHeight
-          ? Math.min(
-              (props.maxDynamicHeight ||
-                WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
-                GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              widgetHeight,
-            )
-          : "auto",
+        // If height is automatically set, use `auto`, widgetHeight is not considered
+        // other wise, limit the height based on the max.
+        // We could also use the isVerticalDisabled flag here, but that would mean that
+        // the auto height with limits will stop working correctly
+        height: props.autoHeight
+          ? "auto"
+          : Math.min(props.maxHeightInPx, widgetHeight),
 
-        maxHeight:
-          (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        maxHeight: props.maxHeightInPx,
         transform: `translate3d(${
           (newDimensions.reflectPosition ? newDimensions.x : 0) -
           RESIZE_BORDER_BUFFER / 2

@@ -11,6 +11,10 @@ export const createNavData = (general: {
   children: EntityNavigationData;
   key?: string;
   url: string | undefined;
+  pluginName?: string;
+  datasourceId?: string;
+  isMock?: boolean;
+  actionType?: string;
 }): NavigationData => {
   return {
     name: general.name,
@@ -20,5 +24,9 @@ export const createNavData = (general: {
     key: general.key,
     url: general.url,
     navigable: !!general.url,
+    pluginName: general.pluginName,
+    datasourceId: general.datasourceId,
+    isMock: general.isMock,
+    actionType: general.actionType,
   };
 };

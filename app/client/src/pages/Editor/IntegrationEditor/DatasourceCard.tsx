@@ -49,6 +49,8 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { MenuWrapper } from "components/utils/formComponents";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -73,11 +75,6 @@ const DatasourceCardMainBody = styled.div`
 
 const StyledMenu = styled(Menu)`
   flex: 0;
-`;
-
-const MenuWrapper = styled.div`
-  display: flex;
-  margin: 8px 0px;
 `;
 
 const DatasourceImage = styled.img`
@@ -226,6 +223,11 @@ function DatasourceCard(props: DatasourceCardProps) {
         }),
       );
     }
+    AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+      datasourceId: datasource?.id,
+      pluginName: plugin?.name,
+      entryPoint: DatasourceEditEntryPoints.DATASOURCE_CARD_EDIT,
+    });
   }, [datasource.id, plugin]);
 
   const routeToGeneratePage = () => {
@@ -314,7 +316,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
                 }
                 eventFrom="active-datasources"
-                plugin={plugin}
+                pluginType={plugin.type}
               />
             )}
             {(canDeleteDatasource || canEditDatasource) && (
