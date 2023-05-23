@@ -1,14 +1,13 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import { map, get, isArray } from "lodash";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 
 const Key = styled.div`
-  color: ${Colors.DOVE_GRAY};
+  color: var(--ads-v2-color-fg-muted);
   font-size: 14px;
   display: inline-block;
 `;
@@ -16,6 +15,7 @@ const Key = styled.div`
 const Value = styled.div`
   font-size: 14px;
   font-weight: 500;
+  color: var(--ads-v2-color-fg);
   display: inline-block;
   margin-left: 5px;
 `;
@@ -28,7 +28,7 @@ const ValueWrapper = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  &:not(:first-child) {
+  &:first-child {
     margin-top: 9px;
   }
 `;
@@ -129,6 +129,7 @@ export default class RenderDatasourceInformation extends React.Component<{
               if (
                 !value &&
                 !!viewMode &&
+                !!section.hidden &&
                 "comparison" in section.hidden &&
                 section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
               ) {
