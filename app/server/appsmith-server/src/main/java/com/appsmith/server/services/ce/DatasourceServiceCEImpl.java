@@ -190,6 +190,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .map(datasourceStorageDTO -> {
                                 DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
                                 datasourceStorage.prepareTransientFields(datasource1);
+                                String trueEnvironmentId = getTrueEnvironmentId(datasourceStorageDTO.getEnvironmentId());
+                                datasourceStorage.setEnvironmentId(getTrueEnvironmentId(trueEnvironmentId));
                                 return datasourceStorage;
                             })
                             .flatMap(datasourceStorage -> {
@@ -269,7 +271,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             // This is meant to be an update for storage
             return datasourceMono
                     .flatMap(dbDatasource -> datasourceStorageService
-                            .updateByDatasourceAndEnvironmentId(datasource, environmentId, isUserRefreshedUpdate)
+                            .updateByDatasourceAndEnvironmentId(datasource, getTrueEnvironmentId(environmentId), isUserRefreshedUpdate)
                             .map(datasourceStorage -> {
                                 datasource.getDatasourceStorages()
                                         .put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceStorage));
