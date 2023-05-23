@@ -47,7 +47,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.get(".t--edit-datasource").click({ force: true });
 
       // delete datasource
-      dataSources.DeleteDSDirectly();
+      dataSources.DeleteDSDirectly(200);
     });
 });
 
@@ -98,8 +98,10 @@ Cypress.Commands.add(
     // const databaseName = shouldAddTrailingSpaces
     //   ? datasourceFormData["mongo-databaseName"] + "  "
     //   : datasourceFormData["mongo-databaseName"];
-    cy.get(datasourceEditor["host"]).type(hostAddress);
-    cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor["host"]).clear().type(hostAddress);
+    cy.get(datasourceEditor.port)
+      .clear()
+      .type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
