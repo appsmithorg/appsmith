@@ -20,14 +20,13 @@ export const CheckboxGroup = forwardRef(
     const { children, className, orientation = "vertical" } = props;
     const domRef = useDOMRef(ref);
     const state = useCheckboxGroupState(props);
-    const { errorMessageProps, groupProps, labelProps } = useCheckboxGroup(
-      props,
-      state,
-    );
+    const { descriptionProps, errorMessageProps, groupProps, labelProps } =
+      useCheckboxGroup(props, state);
 
     return (
       <Field
         {...props}
+        descriptionProps={descriptionProps}
         errorMessageProps={errorMessageProps}
         includeNecessityIndicatorInAccessibilityName
         labelProps={labelProps}
