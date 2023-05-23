@@ -27,11 +27,7 @@
         "isCanvas": true,
         "displayName": "Container",
         "iconSVG": "/static/media/icon.1977dca3.svg",
-        "searchTags": [
-          "div",
-          "parent",
-          "group"
-        ],
+        "searchTags": ["div", "parent", "group"],
         "topRow": 55,
         "bottomRow": 130,
         "parentRowSpace": 10,
@@ -74,12 +70,9 @@
                 "widgetName": "IconButton1Copy",
                 "onClick": "{{navigateTo('https://github.com/appsmithorg/TestSmith/issues/1937', {})}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 0,
                 "bottomRow": 6,
                 "type": "ICON_BUTTON_WIDGET",
@@ -203,10 +196,7 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 18,
                 "bottomRow": 23,
                 "parentRowSpace": 10,
@@ -253,10 +243,7 @@
                 "dynamicPropertyPathList": [],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 13,
                 "bottomRow": 18,
                 "parentRowSpace": 10,
@@ -307,10 +294,7 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 8,
                 "bottomRow": 13,
                 "parentRowSpace": 10,
@@ -393,10 +377,7 @@
                 "widgetName": "Text7",
                 "displayName": "Text",
                 "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
-                "searchTags": [
-                  "typography",
-                  "paragraph"
-                ],
+                "searchTags": ["typography", "paragraph"],
                 "topRow": 26,
                 "bottomRow": 30,
                 "parentRowSpace": 10,
@@ -502,9 +483,7 @@
                 ],
                 "displayName": "DatePicker",
                 "iconSVG": "/static/media/icon.300e5ab8e2e1c26c7a0bad06116842b7.svg",
-                "searchTags": [
-                  "calendar"
-                ],
+                "searchTags": ["calendar"],
                 "topRow": 49,
                 "bottomRow": 53,
                 "shortcuts": false,
@@ -561,9 +540,7 @@
                 ],
                 "displayName": "Phone Input",
                 "iconSVG": "/static/media/icon.108789d7165de30306435ab3c24e6cad.svg",
-                "searchTags": [
-                  "call"
-                ],
+                "searchTags": ["call"],
                 "topRow": 54,
                 "bottomRow": 58,
                 "parentRowSpace": 10,
@@ -624,9 +601,7 @@
                 ],
                 "displayName": "Phone Input",
                 "iconSVG": "/static/media/icon.108789d7165de30306435ab3c24e6cad.svg",
-                "searchTags": [
-                  "call"
-                ],
+                "searchTags": ["call"],
                 "topRow": 59,
                 "bottomRow": 63,
                 "parentRowSpace": 10,
@@ -679,9 +654,7 @@
                 "widgetName": "RadioGroup1",
                 "displayName": "Radio Group",
                 "iconSVG": "/static/media/icon.ba2b2ee006e51a5c681d7964d7777481.svg",
-                "searchTags": [
-                  "choice"
-                ],
+                "searchTags": ["choice"],
                 "topRow": 64,
                 "bottomRow": 72,
                 "parentRowSpace": 10,
@@ -732,12 +705,7 @@
                 "widgetName": "Input1",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 30,
                 "bottomRow": 34,
                 "parentRowSpace": 10,
@@ -788,12 +756,7 @@
                 "widgetName": "Input2",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "topRow": 35,
                 "bottomRow": 39,
                 "parentRowSpace": 10,
@@ -960,12 +923,7 @@
                 "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
                 "widgetName": "Table1",
                 "defaultPageSize": 0,
-                "columnOrder": [
-                  "userId",
-                  "id",
-                  "title",
-                  "body"
-                ],
+                "columnOrder": ["userId", "id", "title", "body"],
                 "isVisibleDownload": true,
                 "dynamicPropertyPathList": [],
                 "displayName": "Table",
@@ -1370,12 +1328,9 @@
                 "widgetName": "IconButton1",
                 "onClick": "{{navigateTo('https://github.com/appsmithorg/TestSmith/issues/1752', {})}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
+                "searchTags": ["click", "submit"],
                 "topRow": 0,
                 "bottomRow": 6,
                 "type": "ICON_BUTTON_WIDGET",

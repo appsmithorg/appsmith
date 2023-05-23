@@ -755,7 +755,7 @@ export const updateMenuItemsSource = (
         propertiesToUpdate.push({
           propertyPath: `${baseProperty}.configureMenuItems`,
           propertyValue: {
-            label: "Configure Menu Items",
+            label: "Configure menu items",
             id: "config",
             config: {
               id: "config",

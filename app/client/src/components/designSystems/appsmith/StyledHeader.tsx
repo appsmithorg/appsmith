@@ -8,7 +8,6 @@ export default styled.header`
   height: ${(props) => props.theme.headerHeight};
   padding: 0px 30px;
   padding-left: 24px;
-  box-shadow: 0px 0px 3px #ccc;
-  background: #fff;
+  background: var(--ads-v2-color-bg);
   font-size: ${(props) => props.theme.fontSizes[1]}px;
 `;
