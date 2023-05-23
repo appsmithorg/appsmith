@@ -103,6 +103,4 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
-
-    Mono<Boolean> isPermissionPresentForCurrentUser(NewAction obj, String permission);
 }
