@@ -669,6 +669,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
+                    if (!StringUtils.isEmpty(applicationId) && jsonFile.getExportedApplication() != null) {
+                        // Remove the application name from JSON file as updating the application name is not supported
+                        // via JSON import. This is to avoid name conflict during the import flow within the workspace
+                        jsonFile.getExportedApplication().setName(null);
+                        jsonFile.getExportedApplication().setSlug(null);
+                    }
+
                     return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, branchName)
                             .onErrorResume(error -> {
                                 if (error instanceof AppsmithException) {

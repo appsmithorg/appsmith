@@ -38,6 +38,7 @@ export const getPersistentAppStore = (appId: string, branch?: string) => {
 };
 
 export const TOOLTIP_HOVER_ON_DELAY = 1000;
+export const TOOLTIP_HOVER_ON_DELAY_IN_S = 1;
 
 export const MOBILE_MAX_WIDTH = 767;
 export const TABLET_MIN_WIDTH = 768;

@@ -37,6 +37,7 @@ export class LightModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
+      // bg
       bg: this.bg.toString({ format: "hex" }),
       bgAccent: this.bgAccent.toString({ format: "hex" }),
       bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
@@ -45,10 +46,14 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
+      bgAssistive: this.bgAssistive.toString({ format: "hex" }),
+      // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
+      fgOnAssistive: this.fgOnAssistive.toString({ format: "hex" }),
+      // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
       bdNeutralHover: this.bdNeutralHover.toString({ format: "hex" }),
@@ -206,6 +211,10 @@ export class LightModeTheme implements ColorModeTheme {
     return this.bgAccentSubtle.darken(0.01);
   }
 
+  private get bgAssistive() {
+    return this.fg.clone();
+  }
+
   /*
    * Foreground colors
    */
@@ -269,6 +278,10 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get fgNegative() {
     return "#d91921";
+  }
+
+  private get fgOnAssistive() {
+    return this.bg.clone();
   }
 
   /*

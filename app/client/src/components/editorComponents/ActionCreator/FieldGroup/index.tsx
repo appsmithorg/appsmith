@@ -13,7 +13,7 @@ function FieldGroup(props: FieldGroupProps) {
   const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
     {
       id: "page-name",
-      text: "Page Name",
+      text: "Page name",
       action: () => {
         setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
       },

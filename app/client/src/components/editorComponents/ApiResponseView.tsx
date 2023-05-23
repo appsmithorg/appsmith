@@ -1,5 +1,5 @@
-import type { RefObject, PropsWithChildren } from "react";
-import React, { useRef, useCallback } from "react";
+import type { PropsWithChildren, RefObject } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
@@ -12,7 +12,6 @@ import type { APIEditorRouteParams } from "constants/routes";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
@@ -23,30 +22,18 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
-  ACTION_EXECUTION_MESSAGE,
   DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
+import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import {
-  Button,
-  Callout,
-  Category,
-  Classes,
-  Icon,
-  IconSize,
-  Size,
-  TAB_MIN_HEIGHT,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
+import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
+import { Button, Callout, SegmentedControl } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -54,7 +41,6 @@ import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonAp
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
-import ActionAPI from "api/ActionAPI";
 import {
   getDebuggerSelectedTab,
   getResponsePaneHeight,
@@ -73,6 +59,9 @@ import {
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
+import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
+import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
+import { CloseDebugger } from "./Debugger/DebuggerTabs";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -80,21 +69,29 @@ type TextStyleProps = {
 export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-
-  .react-tabs__tab-panel {
-    overflow: hidden;
+  background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
+  .CodeMirror-code {
+    font-size: 12px;
   }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
   ${BaseText} {
-    color: #768896;
+    color: var(--ads-v2-color-fg);
     margin-left: ${(props) => props.theme.spaces[9]}px;
+  }
+
+  & [type="p3"] {
+    color: var(--ads-v2-color-fg-muted);
+  }
+
+  & [type="h5"] {
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -103,7 +100,8 @@ const ResponseMetaWrapper = styled.div`
   display: flex;
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 3}px;
+  z-index: 6;
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -111,36 +109,32 @@ const ResponseTabWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
+  &.t--headers-tab {
+    padding-left: var(--ads-v2-spaces-7);
+    padding-right: var(--ads-v2-spaces-7);
+  }
 `;
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
-
   &&& {
-    ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
+    ul.ads-v2-tabs__list {
+      margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
 
   & {
-    .react-tabs__tab-panel {
+    .ads-v2-tabs__list {
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
+    }
+  }
+
+  & {
+    .ads-v2-tabs__panel {
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
-`;
-
-export const SectionDivider = styled.div`
-  height: 1px;
-  width: 100%;
-  background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
 
 const Flex = styled.div`
@@ -161,7 +155,7 @@ const NoResponseContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   .${Classes.ICON} {
-    margin-right: 0px;
+    margin-right: 0;
     svg {
       width: 150px;
       height: 150px;
@@ -171,32 +165,6 @@ const NoResponseContainer = styled.div`
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
   }
-`;
-
-const FailedMessage = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 5px;
-
-  .api-debugcta {
-    margin-top: 0px;
-    height: 26px;
-  }
-`;
-
-const StyledCallout = styled(Callout)`
-  .${Classes.TEXT} {
-    line-height: normal;
-    font-size: 12px;
-  }
-  .${Classes.ICON} {
-    width: 16px;
-  }
-`;
-
-export const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 8px;
 `;
 
 const HelpSection = styled.div`
@@ -210,22 +178,6 @@ const ResponseBodyContainer = styled.div`
   display: grid;
 `;
 
-export const CancelRequestButton = styled(Button)`
-  margin-top: 10px;
-`;
-
-export const LoadingOverlayContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: transparent;
-  position: relative;
-  z-index: 20;
-  width: 100%;
-  height: 100%;
-  margin-top: 5px;
-`;
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -269,8 +221,8 @@ export const EMPTY_RESPONSE: ActionResponse = {
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2")
-      ? props.theme.colors.primaryOld
-      : props.theme.colors.debugger.floatingButton.errorCount};
+      ? "var(--ads-v2-color-fg-success)"
+      : "var(--ads-v2-color-fg-error)"};
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -295,10 +247,9 @@ export const ResponseTabErrorContainer = styled.div`
   flex-direction: column;
   padding: 8px 16px;
   gap: 8px;
-  max-height: 100%;
-  overflow: auto;
-  background: #fff8f8;
-  box-shadow: 0px 1px 0px #ffecec;
+  height: fit-content;
+  background: var(--ads-v2-color-bg-error);
+  border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 
 export const ResponseTabErrorContent = styled.div`
@@ -348,9 +299,34 @@ export const responseTabComponent = (
   }[responseType];
 };
 
-export const handleCancelActionExecution = () => {
-  ActionAPI.abortActionExecutionTokenSource.cancel();
-};
+const StyledText = styled(Text)`
+  &&&& {
+    margin-top: 0;
+  }
+`;
+
+interface NoResponseProps {
+  isButtonDisabled: boolean | undefined;
+  isQueryRunning: boolean;
+  onRunClick: () => void;
+}
+export const NoResponse = (props: NoResponseProps) => (
+  <NoResponseContainer>
+    <img alt="no-response-yet" src={NoResponseSVG} />
+    <div className="flex gap-2 items-center mt-4">
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_FIRST_HALF()}</StyledText>
+      <Button
+        isDisabled={props.isButtonDisabled}
+        isLoading={props.isQueryRunning}
+        onClick={props.onRunClick}
+        size="sm"
+      >
+        Run
+      </Button>
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_LAST_HALF()}</StyledText>
+    </div>
+  </NoResponseContainer>
+);
 
 function ApiResponseView(props: Props) {
   const {
@@ -435,6 +411,31 @@ function ApiResponseView(props: Props) {
     }
   }
 
+  const responseTabs =
+    filteredResponseDataTypes &&
+    filteredResponseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(
+          dataType.key,
+          response?.body,
+          responsePaneHeight,
+        ),
+      };
+    });
+
+  const segmentedControlOptions =
+    responseTabs &&
+    responseTabs.map((item) => {
+      return { value: item.key, label: item.title };
+    });
+
+  const [selectedControl, setSelectedControl] = useState(
+    segmentedControlOptions[0]?.value,
+  );
+
   const selectedTabIndex =
     filteredResponseDataTypes &&
     filteredResponseDataTypes.findIndex(
@@ -459,20 +460,6 @@ function ApiResponseView(props: Props) {
     dispatch(setResponsePaneHeight(height));
   }, []);
 
-  const responseTabs =
-    filteredResponseDataTypes &&
-    filteredResponseDataTypes.map((dataType, index) => {
-      return {
-        index: index,
-        key: dataType.key,
-        title: dataType.title,
-        panelComponent: responseTabComponent(
-          dataType.key,
-          response?.body,
-          responsePaneHeight,
-        ),
-      };
-    });
   // get request timestamp formatted to human readable format.
   const responseState = getUpdateTimestamp(response.request);
   // action source for analytics.
@@ -490,7 +477,9 @@ function ApiResponseView(props: Props) {
           {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
-                <Callout fill key={i} text={msg} variant={Variant.warning} />
+                <Callout key={i} kind="warning">
+                  {msg}
+                </Callout>
               ))}
             </HelpSection>
           )}
@@ -532,22 +521,11 @@ function ApiResponseView(props: Props) {
           ) : (
             <ResponseDataContainer>
               {isEmpty(response.statusCode) ? (
-                <NoResponseContainer>
-                  <Icon name="no-response" />
-                  <Text type={TextType.P1}>
-                    {EMPTY_RESPONSE_FIRST_HALF()}
-                    <InlineButton
-                      disabled={disabled}
-                      isLoading={isRunning}
-                      onClick={onRunClick}
-                      size={Size.medium}
-                      tag="button"
-                      text="Run"
-                      type="button"
-                    />
-                    {EMPTY_RESPONSE_LAST_HALF()}
-                  </Text>
-                </NoResponseContainer>
+                <NoResponse
+                  isButtonDisabled={disabled}
+                  isQueryRunning={isRunning}
+                  onRunClick={onRunClick}
+                />
               ) : (
                 <ResponseBodyContainer>
                   {isString(response?.body) && isHtml(response?.body) ? (
@@ -561,12 +539,24 @@ function ApiResponseView(props: Props) {
                   ) : responseTabs &&
                     responseTabs.length > 0 &&
                     selectedTabIndex !== -1 ? (
-                    <EntityBottomTabs
-                      onSelect={onResponseTabSelect}
-                      responseViewer
-                      selectedTabKey={responseDisplayFormat.value}
-                      tabs={responseTabs}
-                    />
+                    <SegmentedControlContainer>
+                      <SegmentedControl
+                        data-testid="t--response-tab-segmented-control"
+                        defaultValue={segmentedControlOptions[0]?.value}
+                        isFullWidth={false}
+                        onChange={(value) => {
+                          setSelectedControl(value);
+                          onResponseTabSelect(value);
+                        }}
+                        options={segmentedControlOptions}
+                        value={selectedControl}
+                      />
+                      {responseTabComponent(
+                        selectedControl || segmentedControlOptions[0]?.value,
+                        response?.body,
+                        responsePaneHeight,
+                      )}
+                    </SegmentedControlContainer>
                   ) : null}
                 </ResponseBodyContainer>
               )}
@@ -579,39 +569,29 @@ function ApiResponseView(props: Props) {
       key: "headers",
       title: "Headers",
       panelComponent: (
-        <ResponseTabWrapper>
+        <ResponseTabWrapper className="t--headers-tab">
           {hasFailed && !isRunning && (
-            <StyledCallout
-              fill
-              label={
-                <FailedMessage>
-                  <DebugButton
-                    className="api-debugcta"
-                    onClick={onDebugClick}
-                  />
-                </FailedMessage>
-              }
-              text={createMessage(CHECK_REQUEST_BODY)}
-              variant={Variant.danger}
-            />
+            <Callout
+              kind="error"
+              links={[
+                {
+                  children: "Debug",
+                  endIcon: "bug",
+                  onClick: () => onDebugClick,
+                  to: "",
+                },
+              ]}
+            >
+              {createMessage(CHECK_REQUEST_BODY)}
+            </Callout>
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
-              <NoResponseContainer>
-                <Icon name="no-response" />
-                <Text type={TextType.P1}>
-                  {EMPTY_RESPONSE_FIRST_HALF()}
-                  <InlineButton
-                    isLoading={isRunning}
-                    onClick={onRunClick}
-                    size={Size.medium}
-                    tag="button"
-                    text="Run"
-                    type="button"
-                  />
-                  {EMPTY_RESPONSE_LAST_HALF()}
-                </Text>
-              </NoResponseContainer>
+              <NoResponse
+                isButtonDisabled={disabled}
+                isQueryRunning={isRunning}
+                onRunClick={onRunClick}
+              />
             ) : (
               <ReadOnlyEditor
                 folding
@@ -660,29 +640,8 @@ function ApiResponseView(props: Props) {
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      <SectionDivider />
       {isRunning && (
-        <>
-          <LoadingOverlayScreen theme={props.theme} />
-          <LoadingOverlayContainer>
-            <div>
-              <Text textAlign={"center"} type={TextType.P1}>
-                {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
-              </Text>
-              <CancelRequestButton
-                category={Category.secondary}
-                className={`t--cancel-action-button`}
-                onClick={() => {
-                  handleCancelActionExecution();
-                }}
-                size={Size.medium}
-                tag="button"
-                text="Cancel Request"
-                type="button"
-              />
-            </div>
-          </LoadingOverlayContainer>
-        </>
+        <ActionExecutionInProgressView actionType="API" theme={props.theme} />
       )}
       <TabbedViewWrapper>
         {response.statusCode && (
@@ -733,11 +692,13 @@ function ApiResponseView(props: Props) {
           selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
-        <Icon
+        <CloseDebugger
           className="close-debugger t--close-debugger"
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={onClose}
-          size={IconSize.XL}
+          size="md"
+          startIcon="close-modal"
         />
       </TabbedViewWrapper>
     </ResponseContainer>

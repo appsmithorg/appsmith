@@ -1,5 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import { Colors } from "constants/Colors";
+import { Icon } from "design-system";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
@@ -7,13 +7,7 @@ import { createPortal } from "react-dom";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
-// import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
-import { importSvg } from "design-system-old";
-
-const DragHandleIcon = importSvg(
-  () => import("assets/icons/ads/app-icons/draghandler.svg"),
-);
 
 export type PopperProps = {
   boundaryParent?: Element | PopperJS.Boundary;
@@ -56,7 +50,6 @@ const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   position: absolute;
   border-radius: ${(props) => props.borderRadius || "0"};
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
-  // overflow: hidden;
 
   &&&:hover .drag-handle-block {
     display: flex;
@@ -71,14 +64,14 @@ const DragHandleBlock = styled.div`
   width: 43px;
   height: 28px;
   z-index: 3;
-  background-color: ${Colors.GRAY_50};
+  background-color: var(--ads-v2-color-bg);
+  border-radius: var(--ads-v2-border-radius);
   position: relative;
   top: -15px;
   pointer-events: auto;
-  display: none;
 
-  svg {
-    transform: rotate(90deg);
+  :hover {
+    background-color: var(--ads-v2-color-bg-subtle);
   }
 `;
 
@@ -145,7 +138,7 @@ export default (props: PopperProps) => {
           }
         }}
       >
-        <DragHandleIcon />
+        <Icon name="drag-handle" size="lg" />
       </DragHandleBlock>
     );
   };
