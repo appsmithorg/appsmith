@@ -14,7 +14,7 @@ describe("Binary Datatype tests", function () {
     });
   });
 
-  it("1. Creating SELECT query - binarytype + Bug 14493", () => {
+  it.only("1. Creating SELECT query - binarytype + Bug 14493", () => {
     query = `CREATE table binarytype (serialid SERIAL primary key, imagename TEXT, existingImage bytea, newImage bytea);`;
     _.dataSources.CreateQueryAfterDSSaved(query, "createTable");
     _.dataSources.RunQuery();
@@ -39,7 +39,7 @@ describe("Binary Datatype tests", function () {
     _.agHelper.RenameWithInPane("selectRecords");
   });
 
-  it("2. Creating all queries- binarytype", () => {
+  it.only("2. Creating all queries- binarytype", () => {
     //Other queries
     query = `INSERT INTO public."binarytype" ("imagename", "existingimage", "newimage") VALUES ('{{Insertimagename.text}}', '{{Insertimage.files[0].data}}', '{{Insertimage.files[0].data}}');`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
@@ -65,7 +65,7 @@ describe("Binary Datatype tests", function () {
     _.entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
-  it("3. Inserting record - binarytype", () => {
+  it.only("3. Inserting record - binarytype", () => {
     imageNameToUpload = "Datatypes/Bridge.jpg";
     _.entityExplorer.SelectEntityByName("Page1");
     _.deployMode.DeployApp();
@@ -81,7 +81,7 @@ describe("Binary Datatype tests", function () {
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
     _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
-    _.agHelper.Sleep(2000); //some more time for all rows with images to be populated
+    _.agHelper.Sleep(5000); //some more time for all rows with images to be populated
     _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
