@@ -14,8 +14,6 @@ describe("extractExpressionAtPositionWholeDoc", () => {
   let result: string | undefined;
 
   it("handles MemberExpressions", async () => {
-    let result;
-
     // nested properties
     scriptIdentifier.updateScript("Api1.data[0].id");
 
@@ -71,7 +69,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(16);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBe(undefined);
@@ -82,44 +80,39 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(19);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBe(undefined);
   });
 
   it("handles ExpressionStatements", async () => {
-    let result;
     // simple statement
     scriptIdentifier.updateScript("Api1");
     // Ap'i'1
     result = await scriptIdentifier.extractExpressionAtPosition(2);
     expect(result).toBe("Api1");
-    // function call
-    scriptIdentifier.updateScript(`storeValue("abc", 123)`);
-    // st'o'reValue("abc", 123) - functionality not supported now
-    try {
-      result = undefined;
-      result = await scriptIdentifier.extractExpressionAtPosition(2);
-    } catch (e) {
-      expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
-      );
-    }
-    expect(result).toBe(undefined);
-    // storeValue("a'b'c", 123)
-    try {
-      result = undefined;
-      result = await scriptIdentifier.extractExpressionAtPosition(13);
-    } catch (e) {
-      expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
-      );
-    }
+    // // function call
+    // scriptIdentifier.updateScript(`storeValue("abc", 123)`);
+    // // st'o'reValue("abc", 123) - functionality not supported now
+    // try {
+    //   result = undefined;
+    //   result = await scriptIdentifier.extractExpressionAtPosition(2);
+    // } catch (e) {
+    //   expect(e).toBe(
+    //     "PeekOverlayExpressionIdentifier - No expression found at position",
+    //   );
+    // }
     // expect(result).toBe(undefined);
-    // scriptIdentifier.updateScript(`moment().format("dddd")`);
-    // result = await scriptIdentifier.extractExpressionAtPosition(0);
-    // expect(result).toBe("moment");
+    // // storeValue("a'b'c", 123)
+    // try {
+    //   result = undefined;
+    //   result = await scriptIdentifier.extractExpressionAtPosition(13);
+    // } catch (e) {
+    //   expect(e).toBe(
+    //     "PeekOverlayExpressionIdentifier - No expression found at position",
+    //   );
+    // }
   });
 
   it("handles BinaryExpressions", async () => {
@@ -137,7 +130,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(27);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBeUndefined();
@@ -148,7 +141,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(40);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBeUndefined();
@@ -159,7 +152,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(43);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBeUndefined();
@@ -170,7 +163,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(48);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBeUndefined();
@@ -181,7 +174,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(51);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBeUndefined();
@@ -194,7 +187,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(1);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
 
@@ -208,7 +201,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(31);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
 
@@ -218,7 +211,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(44);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
 
@@ -228,7 +221,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(61);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
 
@@ -238,13 +231,12 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await scriptIdentifier.extractExpressionAtPosition(69);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
   });
 
   it("handles JsObject cases", async () => {
-    let result;
     jsObjectIdentifier.updateScript(JsObjectWithThisKeyword);
 
     // this keyword cases
@@ -274,15 +266,15 @@ describe("extractExpressionAtPositionWholeDoc", () => {
 
     // await keyword cases
     // resetWidget
-    try {
-      result = undefined;
-      result = await jsObjectIdentifier.extractExpressionAtPosition(255);
-    } catch (e) {
-      expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
-      );
-    }
-    expect(result).toBeUndefined();
+    // try {
+    //   result = undefined;
+    //   result = await jsObjectIdentifier.extractExpressionAtPosition(255);
+    // } catch (e) {
+    //   expect(e).toBe(
+    //     "PeekOverlayExpressionIdentifier - No expression found at position",
+    //   );
+    // }
+    // expect(result).toBeUndefined();
 
     // "Switch1"
     try {
@@ -290,7 +282,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
       result = await jsObjectIdentifier.extractExpressionAtPosition(266);
     } catch (e) {
       expect(e).toBe(
-        "PeekOverlayExpressionIdentifier - No node/expression found",
+        "PeekOverlayExpressionIdentifier - No expression found at position",
       );
     }
     expect(result).toBeUndefined();
@@ -302,6 +294,25 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     // run
     result = await jsObjectIdentifier.extractExpressionAtPosition(292);
     expect(result).toBe("Api1.run");
+  });
+
+  it("test cases", async () => {
+    // member expression
+    result = undefined;
+    scriptIdentifier.updateScript(`moment().format("dddd")`);
+    result = await scriptIdentifier.extractExpressionAtPosition(0);
+    expect(result).toBe("moment");
+
+    // expression statements
+    result = undefined;
+    scriptIdentifier.updateScript(`storeValue("abc", Api1)`);
+    result = await scriptIdentifier.extractExpressionAtPosition(18);
+    expect(result).toBe("Api1");
+
+    result = undefined;
+    scriptIdentifier.updateScript(`storeValue("abc", Api1.run)`);
+    result = await scriptIdentifier.extractExpressionAtPosition(18);
+    expect(result).toBe("Api1");
   });
 });
 

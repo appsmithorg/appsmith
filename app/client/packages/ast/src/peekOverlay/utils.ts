@@ -1,6 +1,7 @@
 import type { Node } from "acorn";
 import type {
   BinaryExpressionNode,
+  CallExpressionNode,
   ConditionalExpressionNode,
   ExpressionStatement,
   IdentifierNode,
@@ -33,6 +34,10 @@ export const getExpressionStringAtPos = (
     return getExpressionAtPosFromMemberExpression(node, pos, options);
   } else if (isExpressionStatementNode(node)) {
     return getExpressionAtPosFromExpressionStatement(node, pos, options);
+  } else if (isCallExpressionNode(node)) {
+    return getExpressionAtPosFromCallExpression(node, pos, options);
+  } else if (isIdentifierNode(node)) {
+    return escodegen.generate(node);
   }
 };
 
@@ -49,6 +54,8 @@ const getExpressionAtPosFromMemberExpression = (
   if (pos <= objectNode.end) {
     if (isMemberExpressionNode(objectNode)) {
       return getExpressionAtPosFromMemberExpression(objectNode, pos, options);
+    } else if (isCallExpressionNode(objectNode)) {
+      return getExpressionAtPosFromCallExpression(objectNode, pos, options);
     }
     return escodegen.generate(objectNode);
   }
@@ -88,9 +95,30 @@ const getExpressionAtPosFromExpressionStatement = (
       pos,
       options,
     );
-  } else if (!isCallExpressionNode(expressionNode)) {
+  } else if (isCallExpressionNode(expressionNode)) {
+    return getExpressionAtPosFromCallExpression(expressionNode, pos, options);
+  } else {
     // remove ; from expression statement
     return stringRemoveLastCharacter(escodegen.generate(node));
+  }
+};
+
+const getExpressionAtPosFromCallExpression = (
+  node: CallExpressionNode,
+  pos: number,
+  options?: PeekOverlayExpressionIdentifierOptions,
+): string | undefined => {
+  if (isPositionWithinNode(node.callee, pos)) {
+    console.log(node.callee);
+    return getExpressionStringAtPos(node.callee, pos, options);
+  } else if (node.arguments.length > 0) {
+    const argumentNode = node.arguments.find((node) =>
+      isPositionWithinNode(node, pos),
+    );
+    if (argumentNode) {
+      console.log(argumentNode);
+      return getExpressionStringAtPos(argumentNode, pos, options);
+    }
   }
 };
 

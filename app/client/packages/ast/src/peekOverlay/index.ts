@@ -48,13 +48,11 @@ export class PeekOverlayExpressionIdentifier {
       simple(this.parsedScript, {
         MemberExpression(node: Node) {
           if (!nodeFound && isPositionWithinNode(node, pos)) {
-            console.log("ast - member expression found", node);
             nodeFound = node;
           }
         },
         ExpressionStatement(node: Node) {
           if (!nodeFound && isPositionWithinNode(node, pos)) {
-            console.log("ast - expression statement found", node);
             nodeFound = node;
           }
         },
@@ -65,9 +63,15 @@ export class PeekOverlayExpressionIdentifier {
           pos,
           this.options,
         );
-        expressionFound && resolve(expressionFound);
+        if (expressionFound) {
+          resolve(expressionFound);
+        } else {
+          reject(
+            "PeekOverlayExpressionIdentifier - No expression found at position",
+          );
+        }
       }
-      reject("PeekOverlayExpressionIdentifier - No node/expression found");
+      reject("PeekOverlayExpressionIdentifier - No node found");
     });
   }
 }
