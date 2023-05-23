@@ -8,6 +8,8 @@ import { useParams } from "react-router";
 import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Text } from "design-system";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -91,6 +93,16 @@ export function Categories({
   currentSubCategory?: string;
   showSubCategory?: boolean;
 }) {
+  const dispatch = useDispatch();
+
+  const onClickHandler = (category: string) => {
+    if (category === "general") {
+      dispatch({
+        type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
+      });
+    }
+  };
+
   return (
     <CategoryList className="t--settings-category-list">
       {categories?.map((config) => {
@@ -105,6 +117,7 @@ export function Categories({
               className={`t--settings-category-${config.slug} ${
                 active ? "active" : ""
               }`}
+              onClick={() => onClickHandler(config.slug)}
               to={
                 !parentCategory
                   ? adminSettingsCategoryUrl({ category: config.slug })
