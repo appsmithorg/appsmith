@@ -1,5 +1,6 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,25 +27,25 @@ public class DatasourceContextIdentifierCE {
             return true;
         }
 
-        if (!(obj instanceof DatasourceContextIdentifierCE)) {
+        if (!(obj instanceof DatasourceContextIdentifier keyObj)) {
             return false;
         }
 
-        DatasourceContextIdentifierCE keyObj = (DatasourceContextIdentifierCE)  obj;
-        boolean areBothEnvironmentIdSameOrNull = hasLength(this.getEnvironmentId()) ?
-                this.getEnvironmentId().equals(keyObj.getEnvironmentId()) : !hasLength(keyObj.getEnvironmentId());
-
         // if datasourceId is null for either of the objects then the keys can't be equal
         return hasLength(this.getDatasourceId())
-                && this.getDatasourceId().equals(keyObj.getDatasourceId()) &&
-                areBothEnvironmentIdSameOrNull;
+                && this.getDatasourceId().equals(keyObj.getDatasourceId())
+                && isEnvironmentIdEqual(keyObj.getEnvironmentId());
+    }
+
+    protected boolean isEnvironmentIdEqual(String otherEnvironmentId) {
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = 0;
         result = hasLength(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
-        result = hasLength(this.getDatasourceId()) ? result*31 + this.getDatasourceId().hashCode() : result;
+        result = hasLength(this.getDatasourceId()) ? result * 31 + this.getDatasourceId().hashCode() : result;
         return result;
     }
 

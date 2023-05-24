@@ -43,13 +43,6 @@ import {
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import { BannerMessage, IconSize } from "design-system-old";
-import { Colors } from "constants/Colors";
-import {
-  createMessage,
-  SNAPSHOT_BANNER_MESSAGE,
-  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-} from "@appsmith/constants/messages";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -226,26 +219,7 @@ function WidgetsEditor() {
                 >
                   {shouldShowSnapShotBanner && (
                     <div className="absolute top-0 z-1 w-full">
-                      <BannerMessage
-                        backgroundColor={Colors.WARNING_ORANGE}
-                        ctaChildren={<SnapShotBannerCTA />}
-                        fontWeight="400"
-                        icon="warning-line"
-                        iconColor={Colors.WARNING_SOLID}
-                        iconFlexPosition="start"
-                        iconSize={IconSize.XXXXL}
-                        intentLine
-                        message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
-                        messageHeader={
-                          readableSnapShotDetails
-                            ? createMessage(
-                                SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-                                readableSnapShotDetails.timeTillExpiration,
-                              )
-                            : ""
-                        }
-                        textColor={Colors.GRAY_800}
-                      />
+                      <SnapShotBannerCTA />
                     </div>
                   )}
                   <CanvasContainer

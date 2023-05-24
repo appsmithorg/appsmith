@@ -1,19 +1,11 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.datatypes.ClientDataType;
-import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.dtos.ParamProperty;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -41,45 +33,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.codec.ByteBufferDecoder;
-import org.springframework.core.codec.StringDecoder;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.DecoderHttpMessageReader;
-import org.springframework.http.codec.FormHttpMessageReader;
-import org.springframework.http.codec.HttpMessageReader;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.multipart.DefaultPartHttpMessageReader;
-import org.springframework.http.codec.multipart.MultipartHttpMessageReader;
-import org.springframework.http.codec.multipart.Part;
-import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.reactive.function.BodyExtractor;
-import org.springframework.web.reactive.function.BodyExtractors;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 
 
 @ExtendWith(SpringExtension.class)

@@ -1,6 +1,5 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { Toaster } from "design-system-old";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -40,6 +39,7 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { toast } from "design-system";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import {
@@ -351,7 +351,7 @@ export function* getUpdateDslAfterCreatingChild(
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
-    Toaster.clear();
+    toast.dismiss();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { newWidgetId, type, widgetId } = addChildAction.payload;
 

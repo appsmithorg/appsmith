@@ -1,16 +1,22 @@
-import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { toast } from "design-system";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
+import {
+  setDebuggerSelectedTab,
+  showDebugger,
+} from "../../actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
+import store from "store";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -59,8 +65,6 @@ export class ActionValidationError extends TriggerFailureError {
 export const logActionExecutionError = (
   errorMessage: string,
   isExecuteJSFunc = true,
-  source?: TriggerSource,
-  triggerPropertyName?: string,
 ) => {
   //Commenting as per decision taken for the error hanlding epic to not show the trigger errors in the debugger.
   // if (triggerPropertyName) {
@@ -86,16 +90,25 @@ export const logActionExecutionError = (
   //     },
   //   ]);
   // }
+
+  function onDebugClick() {
+    const appMode = getAppMode(store.getState());
+    if (appMode === "PUBLISHED") return null;
+
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "TOAST",
+    });
+    store.dispatch(showDebugger(true));
+    store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  }
+
   isExecuteJSFunc &&
-    Toaster.show({
-      text: errorMessage,
-      variant: Variant.danger,
-      showDebugButton: !!triggerPropertyName && {
-        component: DebugButton,
-        componentProps: {
-          className: "t--toast-debug-button",
-          source: "TOAST",
-        },
+    toast.show(errorMessage, {
+      kind: "error",
+      action: {
+        text: "debug",
+        effect: () => onDebugClick(),
+        className: "t--toast-debug-button",
       },
     });
 };
