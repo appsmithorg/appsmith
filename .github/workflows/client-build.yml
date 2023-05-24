@@ -166,7 +166,7 @@ jobs:
             
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
