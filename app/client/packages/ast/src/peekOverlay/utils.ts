@@ -28,10 +28,16 @@ export const getExpressionStringAtPos = (
   node: Node,
   pos: number,
   options?: PeekOverlayExpressionIdentifierOptions,
+  replaceThisExpression = true,
 ): string | undefined => {
   if (!isPositionWithinNode(node, pos)) return;
   if (isMemberExpressionNode(node)) {
-    return getExpressionAtPosFromMemberExpression(node, pos, options);
+    return getExpressionAtPosFromMemberExpression(
+      node,
+      pos,
+      options,
+      replaceThisExpression,
+    );
   } else if (isExpressionStatementNode(node)) {
     return getExpressionAtPosFromExpressionStatement(node, pos, options);
   } else if (isCallExpressionNode(node)) {
@@ -62,13 +68,18 @@ const getExpressionAtPosFromMemberExpression = (
   if (isCallExpressionNode(objectNode)) return;
   // position is within the object node
   if (pos <= objectNode.end) {
-    return getExpressionStringAtPos(objectNode, pos, options);
+    return getExpressionStringAtPos(objectNode, pos, options, false);
   }
   // position is within the property node
   else {
     const propertyNode = node.property;
     if (isMemberExpressionNode(propertyNode)) {
-      return getExpressionAtPosFromMemberExpression(propertyNode, pos);
+      return getExpressionAtPosFromMemberExpression(
+        propertyNode,
+        pos,
+        options,
+        false,
+      );
     }
     // generate string for the whole path
     return escodegen.generate(node);
