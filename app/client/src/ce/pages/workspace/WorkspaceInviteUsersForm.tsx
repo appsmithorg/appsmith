@@ -180,6 +180,9 @@ export const WorkspaceText = styled.div`
 export const CustomRoleRampTooltip = styled(Tooltip)`
   pointer-events: auto;
 `;
+export const RampLink = styled(Link)`
+  display: inline !important;
+`;
 
 const validateFormValues = (values: {
   users: string;
@@ -260,12 +263,17 @@ function InviteUserText() {
 
 export function CustomRolesRamp() {
   const rampText = (
-    <span>
+    <Text color="var(--ads-v2-color-white)" kind="action-m">
       {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
-      <Link kind="primary" target="_blank" to={RAMP_LINK_TO}>
+      <RampLink
+        className="inline"
+        kind="primary"
+        target="_blank"
+        to={RAMP_LINK_TO}
+      >
         {createMessage(BUSINESS_EDITION_TEXT)}
-      </Link>
-    </span>
+      </RampLink>
+    </Text>
   );
   return (
     <CustomRoleRampTooltip content={rampText} placement="right">
