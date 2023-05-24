@@ -144,12 +144,12 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     _.deployMode.DeployApp();
     for (let dialog = 1; dialog <= 3; dialog++) {
-      _.agHelper.ClickButton("Yes");
+      _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(500);
     }
     _.deployMode.NavigateBacktoEditor();
     for (let dialog = 1; dialog <= 3; dialog++) {
-      _.agHelper.ClickButton("Yes");
+      _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(500);
     }
   });
@@ -223,7 +223,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody("JSObject1." + jsMethod),
     );
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.Sleep(1000);
 
     shouldCheckImport && _.homePage.AssertNCloseImport();
@@ -232,11 +232,11 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody("JSObject1." + jsMethod),
     );
-    _.agHelper.ClickButton("Yes");
+    _.jsEditor.ConfirmationClick("Yes");
     if (faliureMsg) _.agHelper.ValidateToastMessage(faliureMsg);
     else _.agHelper.Sleep(3000);
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.Sleep(2000);
   }
 

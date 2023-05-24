@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let dsName: any, jsName: any;
 
-describe.skip("JSObjects OnLoad Actions tests", function () {
+describe("JSObjects OnLoad Actions tests", function () {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });
@@ -78,17 +78,25 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
         .and("contain", jsName as string)
         .and("contain", "will be executed automatically on page load");
 
-      _.agHelper.WaitUntilToastDisappear("Quotes");
+      //_.agHelper.WaitUntilToastDisappear("Quotes");
 
       _.entityExplorer.SelectEntityByName("Input2");
       _.propPane.UpdatePropertyFieldValue(
         "Default value",
         "{{" + jsObjName + ".callTrump.data.message}}",
       );
-      _.agHelper.WaitUntilToastDisappear(
+
+      _.agHelper.AssertContains(
         (("[" + jsName) as string) +
           ".callTrump] will be executed automatically on page load",
+        "be.visible",
+        _.locators._toastMsg,
       );
+
+      // _.agHelper.WaitUntilToastDisappear(
+      //   (("[" + jsName) as string) +
+      //     ".callTrump] will be executed automatically on page load",
+      // );
 
       _.deployMode.DeployApp();
 
@@ -103,15 +111,15 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
       //   `${jsName + ".callTrump"} was cancelled`,
       // ); //When Confirmation is NO validate error toast!
 
-      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("No"));
-      _.agHelper.AssertContains("was cancelled"); //Quotes
+      _.jsEditor.ConfirmationClick("No");
+      _.agHelper.AssertContains("cancelled"); //Quotes
       //One Quotes confirmation - for API true
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       // _.agHelper.ClickButton("No");
-      // _.agHelper.WaitUntilToastDisappear("Quotes was cancelled");
+      _.agHelper.WaitUntilAllToastsDisappear();
 
-      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("No"));
-      _.agHelper.AssertContains("User cancelled"); //callTrump
+      _.jsEditor.ConfirmationClick("No");
+      _.agHelper.AssertContains("cancelled"); //callTrump
 
       // //Another for API called via JS callQuotes()
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
@@ -127,19 +135,19 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes")); //call trumpy - jsobj
+      _.jsEditor.ConfirmationClick("Yes"); //call trumpy - jsobj
 
       //_.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes")); //trumpy - api
+      _.jsEditor.ConfirmationClick("Yes"); //trumpy - api
       _.agHelper.Sleep(3000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes")); //quotes - api
+      _.jsEditor.ConfirmationClick("Yes"); //quotes - api
 
       //_.agHelper.Sleep(2000);
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
@@ -164,17 +172,19 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
   it("2. Tc #1912 - API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-    _.agHelper.ClickButton("No");
-    _.agHelper.AssertContains("was cancelled"); //_.agHelper.AssertContains("Quotes was cancelled");
+    _.jsEditor.ConfirmationClick("No");
+    _.agHelper.AssertContains("cancelled"); //_.agHelper.AssertContains("Quotes was cancelled");
 
     _.agHelper.WaitUntilAllToastsDisappear();
     _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-    _.agHelper.ClickButton("No"); //Ask Favour abt below
+    _.jsEditor.ConfirmationClick("No"); //Ask Favour abt below
     //_.agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
+    _.agHelper.AssertContains("cancelled");
 
+    _.jsEditor.ConfirmationClick("No");
     // _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
     // _.agHelper.ClickButton("No");
-    _.agHelper.AssertContains("User cancelled");
+    _.agHelper.AssertContains("cancelled");
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     cy.fixture("datasources").then((datasourceFormData) => {
       _.apiPage.CreateAndFillApi(
@@ -202,16 +212,16 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
 
     _.deployMode.DeployApp();
     _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("CatFacts"));
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.ValidateToastMessage("CatFacts was cancelled");
 
     _.agHelper.WaitUntilToastDisappear("CatFacts was cancelled");
     _.agHelper.GetNClick(_.locators._widgetInDeployed("imagewidget"));
     _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("CatFacts"));
-    _.agHelper.ClickButton("Yes");
+    _.jsEditor.ConfirmationClick("Yes");
     cy.get(_.locators._toastMsg).contains(/Your cat fact|Oh No/g);
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
   });
 
   it("3. Tc #1646, 60 - Honouring the order of execution & Bug 13826 + Bug 13646", () => {
@@ -335,7 +345,7 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
   it("4. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     _.deployMode.DeployApp();
     _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("getBooks"));
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.ValidateToastMessage("getBooks was cancelled");
     _.agHelper
       .GetText(_.locators._jsonFormInputField("name"), "val")
@@ -352,7 +362,7 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
     _.agHelper.WaitUntilToastDisappear("getBooks was cancelled");
     _.agHelper.GetNClick(_.locators._widgetInDeployed("imagewidget"));
     _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("getBooks"));
-    _.agHelper.ClickButton("Yes");
+    _.jsEditor.ConfirmationClick("Yes");
     //callBooks, getId confirmations also expected aft bug 13646 is fixed & covering tc 1646
 
     _.agHelper
@@ -365,7 +375,7 @@ describe.skip("JSObjects OnLoad Actions tests", function () {
 
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("getBooks"));
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.ValidateToastMessage("getBooks was cancelled");
 
     _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");

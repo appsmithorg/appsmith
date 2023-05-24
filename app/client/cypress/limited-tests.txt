@@ -1,1 +1,4 @@
-cypress/e2e/**/**/*
+cypress/e2e/Regression/ServerSide/OnLoadTests/JsOnLoad2_Spec.ts
+cypress/e2e/Regression/ServerSide/OnLoadTests/JsOnLoad3_Spec.ts
+cypress/e2e/Regression/ServerSide/JsFunctionExecution/JSFunctionExecution_spec.ts
+
