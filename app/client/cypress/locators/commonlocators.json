@@ -228,6 +228,7 @@
   "refreshApp": "button:contains('Refresh the app')",
   "autoConversionDialog": "span:contains('Use snapshot')",
   "useSnapshot": "button:contains('Use snapshot')",
+  "useSnapshotBanner": "span:contains('Use snapshot')",
   "discardSnapshot": "span:contains('Discard snapshot')",
   "desktopOption": "//span[@data-value = 'DESKTOP']",
   "mobileOption": "//span[@data-value = 'MOBILE']",

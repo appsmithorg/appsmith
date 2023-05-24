@@ -1,19 +1,13 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const autoLayout = ObjectsRegistry.AutoLayout;
 let theight;
 let twidth;
 
 describe("Validating Mobile View related usecases for Autoscroll", function () {
   it("1. Capture the height/width of autofill widgets in webview", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+    autoLayout.convertToAutoLayoutAndVerify();
+
     cy.dragAndDropToCanvas("listwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 620, y: 820 });
     for (let i = 0; i < 10; i++) {

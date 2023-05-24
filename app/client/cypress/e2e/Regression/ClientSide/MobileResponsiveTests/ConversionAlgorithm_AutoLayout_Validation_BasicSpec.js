@@ -1,5 +1,10 @@
 const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
+const widgets = require("../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const autoLayout = ObjectsRegistry.AutoLayout,
+  home = ObjectsRegistry.HomePage,
+  ee = ObjectsRegistry.EntityExplorer;
 let testHeight;
 
 describe("Auto conversion algorithm usecases for Autolayout", function () {
@@ -25,17 +30,9 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 cy.log(bheight);
                 cy.log(dheight);
                 cy.wait(3000);
-                cy.get(commonlocators.autoConvert).click({ force: true });
-                cy.wait(2000);
-                cy.get(commonlocators.convert).click({ force: true });
-                cy.wait(2000);
-                cy.get(commonlocators.refreshApp).click({ force: true });
-                cy.wait(2000);
-                cy.wait("@updateLayout").should(
-                  "have.nested.property",
-                  "response.body.responseMeta.status",
-                  200,
-                );
+
+                autoLayout.convertToAutoLayoutAndVerify();
+
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
                   .then((a1height) => {
@@ -48,23 +45,9 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             expect(aheight).to.not.equal(a1height);
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
-                            cy.get(commonlocators.autoConversionDialog).click({
-                              force: true,
-                            });
-                            cy.wait(5000);
-                            cy.get(commonlocators.useSnapshot).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.get(commonlocators.refreshApp).click({
-                              force: true,
-                            });
-                            cy.wait("@updateLayout").should(
-                              "have.nested.property",
-                              "response.body.responseMeta.status",
-                              200,
-                            );
-                            cy.wait(2000);
+
+                            autoLayout.useSnapshotFromBanner();
+
                             cy.get(".t--widget-audiorecorderwidget")
                               .invoke("css", "height")
                               .then((raheight) => {
@@ -89,5 +72,115 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
               });
           });
       });
+  });
+
+  it("2. Validate input type widgets have ", function () {
+    home.NavigateToHome();
+    home.CreateNewApplication();
+
+    ee.DragDropWidgetNVerify("inputwidgetv2", 300, 50);
+    ee.DragDropWidgetNVerify("currencyinputwidget", 300, 200);
+    ee.DragDropWidgetNVerify("multiselectwidgetv2", 300, 350);
+
+    cy.get(".t--widget-inputwidgetv2")
+      .invoke("css", "height")
+      .then((aheight) => {
+        cy.get(".t--widget-currencyinputwidget")
+          .invoke("css", "height")
+          .then((bheight) => {
+            cy.get(".t--widget-multiselectwidgetv2")
+              .invoke("css", "height")
+              .then((dheight) => {
+                cy.log(aheight);
+                cy.log(bheight);
+                cy.log(dheight);
+                cy.wait(3000);
+
+                autoLayout.convertToAutoLayoutAndVerify();
+
+                cy.get(".t--widget-inputwidgetv2")
+                  .invoke("css", "height")
+                  .then((a1height) => {
+                    cy.get(".t--widget-currencyinputwidget")
+                      .invoke("css", "height")
+                      .then((b1height) => {
+                        cy.get(".t--widget-multiselectwidgetv2")
+                          .invoke("css", "height")
+                          .then((d1height) => {
+                            expect(aheight).to.not.equal(a1height);
+                            expect(bheight).to.not.equal(b1height);
+                            expect(dheight).to.not.equal(d1height);
+
+                            autoLayout.useSnapshotFromBanner();
+
+                            cy.get(".t--widget-inputwidgetv2")
+                              .invoke("css", "height")
+                              .then((raheight) => {
+                                cy.get(".t--widget-currencyinputwidget")
+                                  .invoke("css", "height")
+                                  .then((rbheight) => {
+                                    cy.get(".t--widget-multiselectwidgetv2")
+                                      .invoke("css", "height")
+                                      .then((rdheight) => {
+                                        expect(a1height).to.not.equal(raheight);
+                                        expect(b1height).to.not.equal(rbheight);
+                                        expect(d1height).to.not.equal(rdheight);
+                                        expect(aheight).to.equal(raheight);
+                                        expect(bheight).to.equal(rbheight);
+                                        expect(dheight).to.equal(rdheight);
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+          });
+      });
+  });
+
+  it("3. All the Canvas type widgets should convert to Auto layout post conversion", () => {
+    home.NavigateToHome();
+    home.CreateNewApplication();
+
+    const canvasTypeWidgets = [
+      "containerwidget",
+      "formwidget",
+      "listwidgetv2",
+      "tabswidget",
+    ];
+
+    let x = 300,
+      y = 50;
+    canvasTypeWidgets.forEach((canvasWidget, index) => {
+      ee.DragDropWidgetNVerify(canvasWidget, x, y);
+
+      if (index % 2 === 0) {
+        x += 400;
+      } else {
+        x = 300;
+        y += 400;
+      }
+    });
+    ee.DragDropWidgetNVerify("modalwidget");
+    cy.get(widgets.modalCloseButton).click({ force: true });
+
+    autoLayout.convertToAutoLayoutAndVerify();
+
+    canvasTypeWidgets.forEach((canvasWidget) => {
+      autoLayout.verifyCurrentWidgetIsAutolayout(canvasWidget);
+    });
+    ee.SelectEntityByName("Modal1", "Widgets");
+    autoLayout.verifyCurrentWidgetIsAutolayout("modalwidget");
+    cy.get(widgets.modalCloseButton).click({ force: true });
+
+    autoLayout.convertToFixedLayoutAndVerify("DESKTOP");
+
+    canvasTypeWidgets.forEach((canvasWidget) => {
+      autoLayout.verifyCurrentWidgetIsFixedlayout(canvasWidget);
+    });
+    ee.SelectEntityByName("Modal1", "Widgets");
+    autoLayout.verifyCurrentWidgetIsFixedlayout("modalwidget");
+    cy.get(widgets.modalCloseButton).click({ force: true });
   });
 });

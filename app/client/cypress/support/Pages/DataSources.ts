@@ -236,7 +236,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 0);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.Sleep(500);
+    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
       `div[role="listbox"] p[kind="span"]:contains("public.users")`,

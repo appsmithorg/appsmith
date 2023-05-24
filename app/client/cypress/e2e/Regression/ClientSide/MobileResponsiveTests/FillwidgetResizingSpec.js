@@ -1,18 +1,12 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const autoLayout = ObjectsRegistry.AutoLayout;
 let theight;
 let twidth;
 
 describe("Validating Mobile Views for Fill Widget", function () {
   it("Validate change with height width for fill widget - Input widget", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
+    autoLayout.convertToAutoLayoutAndVerify();
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
     cy.PublishtheApp();
