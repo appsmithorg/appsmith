@@ -144,6 +144,16 @@ Cypress.Commands.add("createModalWithButton", (ModalName, property) => {
   cy.testCodeMirror(ModalName);
 });
 
+Cypress.Commands.add("navigateOnClick", (PageName, property) => {
+  ObjectsRegistry.PropertyPane.AddAction(property);
+  cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Navigate to")).click();
+  cy.get(".t--open-dropdown-Select-page").click();
+  cy.wait(2000);
+  cy.xpath("//a/div[text()='Page1']").click({ force: true });
+  cy.wait(3000);
+  cy.assertPageSave();
+});
+
 Cypress.Commands.add("createModal", (ModalName, property) => {
   ObjectsRegistry.PropertyPane.AddAction(property);
   cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();
