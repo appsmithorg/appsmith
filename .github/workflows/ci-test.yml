@@ -93,13 +93,6 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-
-      - name: Restore the previous failed combine result
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        run: |
-            cd ~/combined_failed_spec_ci
-            echo "files inside combined_failed_spec_ci"
-            ls
             
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
