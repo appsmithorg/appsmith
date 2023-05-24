@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_ADMINISTRATOR_TEXT;
@@ -106,6 +107,11 @@ public class EmailSolutionCEImpl implements EmailSolutionCE {
                                 updatedParams
                         ).thenReturn(updatedParams)
                 );
+    }
+
+    @Override
+    public Mono<User> sendInviteUserAuditLogEvent(User currentUser, List<User> invitedUserList, String instanceId, String instanceName) {
+        return Mono.just(currentUser);
     }
 
     @Override

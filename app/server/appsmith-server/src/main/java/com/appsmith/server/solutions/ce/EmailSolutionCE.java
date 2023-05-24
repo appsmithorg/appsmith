@@ -4,6 +4,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 public interface EmailSolutionCE {
@@ -13,4 +14,5 @@ public interface EmailSolutionCE {
     Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin);
 
     Mono<Map<String, String>> sendForgetPasswordEmail(String email, String resetUrl, String originHeader);
+    Mono<User> sendInviteUserAuditLogEvent(User currentUser, List<User> invitedUserList, String instanceId, String instanceName);
 }

@@ -1,6 +1,8 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -11,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -30,6 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 @Slf4j
 public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementServiceCE {
@@ -43,6 +47,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final EmailSender emailSender;
     private final PermissionGroupPermission permissionGroupPermission;
     private final EmailSolution emailSolution;
+    private final CommonConfig commonConfig;
+    private final ConfigService configService;
 
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
@@ -53,7 +59,9 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                 UserService userService,
                                                 EmailSender emailSender,
                                                 PermissionGroupPermission permissionGroupPermission,
-                                                EmailSolution emailSolution) {
+                                                EmailSolution emailSolution,
+                                                CommonConfig commonConfig,
+                                                ConfigService configService) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -64,6 +72,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.emailSender = emailSender;
         this.permissionGroupPermission = permissionGroupPermission;
         this.emailSolution = emailSolution;
+        this.commonConfig = commonConfig;
+        this.configService = configService;
     }
 
     /**
@@ -101,6 +111,11 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         }
 
         Map<String, Object> eventData = new HashMap<>();
+        List<User> newUsersList = new ArrayList<>();
+
+        Mono<Long> sendInviteUsersToApplicationEvent = Mono.just(1L);
+        Mono<String> instanceIdMono = configService.getInstanceId();
+        Mono<String> instanceNameMono = Mono.just(defaultIfEmpty(commonConfig.getInstanceName(), Appsmith.APPSMITH));
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
@@ -145,9 +160,12 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                     .thenReturn(existingUser)
                             )
                             .switchIfEmpty(userService.createNewUser(username, originHeader, permissionGroup.getName())
-                                    .flatMap(createdUser -> emailSolution.sendInviteUserToWorkspaceEmail(originHeader,
-                                                    workspace, currentUser, permissionGroup.getName(), createdUser, true)
-                                            .thenReturn(createdUser)
+                                    .flatMap(createdUser -> {
+                                        newUsersList.add(createdUser);
+                                        return emailSolution.sendInviteUserToWorkspaceEmail(originHeader,
+                                                        workspace, currentUser, permissionGroup.getName(), createdUser, true)
+                                                .thenReturn(createdUser);
+                                        }
                                     )
                             );
                 })
@@ -161,6 +179,18 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     List<User> users = tuple.getT2();
                     return permissionGroupService.bulkAssignToUserAndSendEvent(permissionGroup, users);
                 }).cache();
+
+        sendInviteUsersToApplicationEvent = Mono.zip(currentUserMono, instanceIdMono, instanceNameMono)
+                .flatMap(tuple -> {
+                    User currentUser = tuple.getT1();
+                    String instanceId = tuple.getT2();
+                    String instanceName = tuple.getT3();
+                    if(!CollectionUtils.isEmpty(newUsersList)) {
+                        return emailSolution.sendInviteUserAuditLogEvent(currentUser, newUsersList, instanceId, instanceName);
+                    }
+                    return Mono.just(currentUser);
+                })
+                .thenReturn(1L);
 
         // Send analytics event
         Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
