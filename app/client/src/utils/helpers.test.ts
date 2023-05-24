@@ -580,6 +580,7 @@ describe("isNameValid()", () => {
       "clearTimeout",
       "parseInt",
       "eval",
+      "performance",
     ];
     // Some window object methods and properties names should be valid entity names since evaluation is done
     // in the worker thread, and some of the window methods and properties are not available there.

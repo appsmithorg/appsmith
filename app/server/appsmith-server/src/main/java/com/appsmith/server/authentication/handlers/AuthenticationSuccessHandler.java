@@ -9,7 +9,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
 
-    public AuthenticationSuccessHandler(ExamplesWorkspaceCloner examplesWorkspaceCloner,
+    public AuthenticationSuccessHandler(ForkExamplesWorkspace examplesWorkspaceCloner,
                                         RedirectHelper redirectHelper,
                                         SessionUserService sessionUserService,
                                         AnalyticsService analyticsService,

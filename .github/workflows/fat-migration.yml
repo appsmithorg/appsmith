@@ -149,7 +149,7 @@ jobs:
           cd app/client
           yarn install \
           --cwd cypress \
-          --modules-folder ../node_modules
+          --modules-folder node_modules
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'

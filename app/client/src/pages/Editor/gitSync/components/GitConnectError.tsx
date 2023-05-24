@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
   getConnectingErrorDocUrl,
@@ -22,6 +22,7 @@ export default function GitConnectError({
   onClose?: () => void;
   onDisplay?: () => void;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const error = useSelector(getGitConnectError);
   const connectingErrorDocumentUrl = useSelector(getConnectingErrorDocUrl);
   const titleMessage = error?.errorType
@@ -32,6 +33,9 @@ export default function GitConnectError({
     if (error && onDisplay) {
       onDisplay();
     }
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView();
+    }
   }, [error]);
 
   const learnMoreClickHandler = (e: React.MouseEvent) => {
@@ -40,7 +44,7 @@ export default function GitConnectError({
   };
 
   return error ? (
-    <Container>
+    <Container ref={containerRef}>
       <Callout
         className="t--git-connection-error error"
         isClosable

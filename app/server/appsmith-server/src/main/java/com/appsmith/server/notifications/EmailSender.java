@@ -97,7 +97,7 @@ public class EmailSender {
             if (emailConfig.getMailFrom() != null) {
                 helper.setFrom(emailConfig.getMailFrom());
             }
-            if(StringUtils.hasLength(replyTo)) {
+            if (StringUtils.hasLength(replyTo)) {
                 helper.setReplyTo(replyTo);
             } else if (REPLY_TO != null) {
                 helper.setReplyTo(REPLY_TO);

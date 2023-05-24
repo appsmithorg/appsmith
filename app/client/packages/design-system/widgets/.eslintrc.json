@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "../../../../.eslintrc.base.json",
-    "plugin:storybook/recommended"
-  ],
+  "extends": ["../../../.eslintrc.base.json", "plugin:storybook/recommended"],
   "overrides": [
     {
       "files": ["**/*.stories.*"],
