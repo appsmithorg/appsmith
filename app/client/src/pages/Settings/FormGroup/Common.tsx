@@ -1,36 +1,22 @@
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import {
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { Icon, Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { Colors } from "constants/Colors";
 
 type FieldHelperProps = {
   setting: Setting;
   children: React.ReactNode;
   className?: string;
+  isToggle?: boolean;
 };
 
-const StyledIcon = styled(Icon)`
-  width: 20px;
-`;
-
 export const StyledFormGroup = styled.div`
-  width: 40rem;
+  width: 30rem;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   &.t--admin-settings-dropdown {
     div {
       width: 100%;
-      &:hover {
-        &:hover {
-          background-color: ${(props) => props.theme.colors.textInput.hover.bg};
-        }
-      }
     }
   }
   & svg:hover {
@@ -40,49 +26,61 @@ export const StyledFormGroup = styled.div`
   }
 `;
 
-export const StyledLabel = styled.label`
-  margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  display: inline-block;
-  ${getTypographyByKey("h5")}
-  color: ${(props) => props.theme.colors.textInput.normal.text};
+export const StyledLabel = styled.div`
+  margin-bottom: 4px;
 `;
 
-export const StyledSubtext = styled.p`
+export const StyledSubtext = styled(Text)`
   font-size: 12px;
-  color: ${Colors.GRAY};
+  color: var(--ads-v2-color-fg-muted);
+  margin-top: 4px;
 `;
 
-export const StyledAsterisk = styled.span`
-  color: ${Colors.ERROR_RED};
+export const StyledAsterisk = styled(Text)`
+  color: var(--ads-v2-color-fg-error);
   margin-left: 2px;
+  font-weight: 500;
 `;
 
 export function FormGroup({ children, className, setting }: FieldHelperProps) {
   return (
     <StyledFormGroup
-      className={className}
+      className={`${className}`}
       data-testid="admin-settings-form-group"
     >
-      {setting.label && (
-        <StyledLabel data-testid="admin-settings-form-group-label">
-          {createMessage(() => setting.label || "")}
-        </StyledLabel>
-      )}
-      {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
-      {setting.helpText && (
-        <Tooltip content={createMessage(() => setting.helpText || "")}>
-          <StyledIcon
-            data-testid="admin-settings-form-group-helptext"
-            fillColor="#fff"
-            name="help"
-            size={IconSize.XXS}
-          />
-        </Tooltip>
-      )}
+      <StyledLabel>
+        {setting.label && (
+          <Text
+            className="admin-settings-form-group-label"
+            color="var(--ads-v2-color-fg)"
+            data-testid="admin-settings-form-group-label"
+            kind="body-m"
+            renderAs="label"
+          >
+            {createMessage(() => setting.label || "")}
+          </Text>
+        )}
+        {setting.isRequired && (
+          <StyledAsterisk renderAs="span">*</StyledAsterisk>
+        )}
+        {setting.helpText && (
+          <Tooltip content={createMessage(() => setting.helpText || "")}>
+            <Icon
+              color="white"
+              data-testid="admin-settings-form-group-helptext"
+              name="help"
+              size="sm"
+            />
+          </Tooltip>
+        )}
+      </StyledLabel>
       {children}
       {setting.subText && (
-        <StyledSubtext data-testid="admin-settings-form-group-subtext">
-          * {createMessage(() => setting.subText || "")}
+        <StyledSubtext
+          data-testid="admin-settings-form-group-subtext"
+          renderAs="p"
+        >
+          {createMessage(() => setting.subText || "")}
         </StyledSubtext>
       )}
     </StyledFormGroup>

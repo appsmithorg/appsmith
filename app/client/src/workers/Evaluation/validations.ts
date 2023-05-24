@@ -12,7 +12,6 @@ import _, {
   isString,
   toString,
   uniq,
-  __,
 } from "lodash";
 
 import moment from "moment";

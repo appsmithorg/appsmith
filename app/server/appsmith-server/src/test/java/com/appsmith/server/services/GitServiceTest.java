@@ -8,6 +8,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
@@ -105,73 +107,55 @@ import static org.mockito.ArgumentMatchers.eq;
 @DirtiesContext
 public class GitServiceTest {
 
-    @Autowired
-    GitService gitService;
-
-    @Autowired
-    Gson gson;
-
-    @Autowired
-    WorkspaceService workspaceService;
-
-    @Autowired
-    WorkspaceRepository workspaceRepository;
-
-    @Autowired
-    ApplicationPageService applicationPageService;
-
-    @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
-    LayoutCollectionService layoutCollectionService;
-
-    @Autowired
-    LayoutActionService layoutActionService;
-
-    @Autowired
-    NewPageService newPageService;
-
-    @Autowired
-    NewActionService newActionService;
-
-    @Autowired
-    ActionCollectionService actionCollectionService;
-
-    @Autowired
-    PluginRepository pluginRepository;
-
-    @Autowired
-    DatasourceService datasourceService;
-
-    @Autowired
-    private ThemeService themeService;
-
-    @Autowired
-    UserService userService;
-
-    @MockBean
-    GitExecutor gitExecutor;
-
-    @MockBean
-    GitFileUtils gitFileUtils;
-
-    @MockBean
-    GitCloudServicesUtils gitCloudServicesUtils;
-
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
-
-    private static String workspaceId;
-    private static Application gitConnectedApplication = new Application();
     private static final String DEFAULT_GIT_PROFILE = "default";
     private static final String DEFAULT_BRANCH = "defaultBranchName";
-    private static Boolean isSetupDone = false;
-    private static GitProfile testUserProfile = new GitProfile();
-    private static String filePath = "test_assets/ImportExportServiceTest/valid-application-without-action-collection.json";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
             "with git to use version control service";
+    private static String workspaceId;
+    private static String defaultEnvironmentId;
+    private static Application gitConnectedApplication = new Application();
+    private static Boolean isSetupDone = false;
+    private static final GitProfile testUserProfile = new GitProfile();
+    private static final String filePath = "test_assets/ImportExportServiceTest/valid-application-without-action-collection.json";
+    @Autowired
+    GitService gitService;
+    @Autowired
+    Gson gson;
+    @Autowired
+    WorkspaceService workspaceService;
+    @Autowired
+    WorkspaceRepository workspaceRepository;
+    @Autowired
+    ApplicationPageService applicationPageService;
+    @Autowired
+    ApplicationService applicationService;
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+    @Autowired
+    LayoutActionService layoutActionService;
+    @Autowired
+    NewPageService newPageService;
+    @Autowired
+    NewActionService newActionService;
+    @Autowired
+    ActionCollectionService actionCollectionService;
+    @Autowired
+    PluginRepository pluginRepository;
+    @Autowired
+    DatasourceService datasourceService;
+    @Autowired
+    UserService userService;
+    @MockBean
+    GitExecutor gitExecutor;
+    @MockBean
+    GitFileUtils gitFileUtils;
+    @MockBean
+    GitCloudServicesUtils gitCloudServicesUtils;
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+    @Autowired
+    private ThemeService themeService;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -185,6 +169,7 @@ public class GitServiceTest {
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
                 Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
+                defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
             }
         }
 
@@ -1012,7 +997,7 @@ public class GitServiceTest {
                     JSONObject testWidget = new JSONObject();
                     testWidget.put("widgetName", "firstWidget");
                     JSONArray temp = new JSONArray();
-                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    temp.add(new JSONObject(Map.of("key", "testField")));
                     testWidget.put("dynamicBindingPathList", temp);
                     testWidget.put("testField", "{{ onPageLoadAction.data }}");
                     children.add(testWidget);
@@ -1999,7 +1984,7 @@ public class GitServiceTest {
                     JSONObject testWidget = new JSONObject();
                     testWidget.put("widgetName", "firstWidget");
                     JSONArray temp = new JSONArray();
-                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    temp.add(new JSONObject(Map.of("key", "testField")));
                     testWidget.put("dynamicBindingPathList", temp);
                     testWidget.put("testField", "{{ onPageLoadAction.data }}");
                     children.add(testWidget);
@@ -2159,7 +2144,7 @@ public class GitServiceTest {
         gitAuth.setPrivateKey("privatekey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setName("Test App" + UUID.randomUUID());
         testApplication.setWorkspaceId(workspaceId);
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
@@ -2200,7 +2185,7 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
-    private void mockitoSetUp(GitBranchDTO createGitBranchDTO) throws GitAPIException, IOException{
+    private void mockitoSetUp(GitBranchDTO createGitBranchDTO) throws GitAPIException, IOException {
         Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
         Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
@@ -2242,18 +2227,18 @@ public class GitServiceTest {
         gitAuth.setPrivateKey("privatekey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setName("Test App" + UUID.randomUUID());
         testApplication.setWorkspaceId(workspaceId);
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
                 .flatMap(application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
                 .flatMap(application -> gitService.createBranch(
-                                        application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
-                                        .then(applicationService.findByBranchNameAndDefaultApplicationId(
-                                                createGitBranchDTO.getBranchName(),
-                                                application.getId(),
-                                                READ_APPLICATIONS
-                                        ))
+                                application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
+                        .then(applicationService.findByBranchNameAndDefaultApplicationId(
+                                createGitBranchDTO.getBranchName(),
+                                application.getId(),
+                                READ_APPLICATIONS
+                        ))
 
 
                 )
@@ -2265,7 +2250,7 @@ public class GitServiceTest {
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
                     return Mono.just(branchedApplication);
                 })
-                .flatMap(branchedApplication->
+                .flatMap(branchedApplication ->
                         applicationService.update(
                                 branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
                                 branchedApplication, branchedApplication.getGitApplicationMetadata().getBranchName()
@@ -2311,7 +2296,7 @@ public class GitServiceTest {
         gitAuth.setPrivateKey("privatekey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setName("Test App" + UUID.randomUUID());
         testApplication.setWorkspaceId(workspaceId);
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
@@ -2362,7 +2347,7 @@ public class GitServiceTest {
         gitAuth.setPrivateKey("privatekey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setName("Test App" + UUID.randomUUID());
         testApplication.setWorkspaceId(workspaceId);
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
@@ -2374,7 +2359,7 @@ public class GitServiceTest {
                                 Mono.just(application))
 
                 )
-                .flatMap(applicationTuple->{
+                .flatMap(applicationTuple -> {
                     Application branchedApplication = applicationTuple.getT1();
                     Application application = applicationTuple.getT2();
                     String srcBranchName = application.getGitApplicationMetadata().getBranchName();
@@ -2387,7 +2372,7 @@ public class GitServiceTest {
                             applicationService.saveAppNavigationLogo(srcBranchName, defaultApplicationId, filepart).cache()
                     );
                 })
-                .flatMap(appTuple->{
+                .flatMap(appTuple -> {
                     Application branchedApplication = appTuple.getT1();
                     Application application = appTuple.getT2();
 
@@ -2427,7 +2412,7 @@ public class GitServiceTest {
         gitAuth.setPrivateKey("privatekey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setName("Test App" + UUID.randomUUID());
         testApplication.setWorkspaceId(workspaceId);
 
         Mono<Tuple2<PageDTO, PageDTO>> createBranchMono = applicationPageService.createApplication(testApplication)
@@ -2439,7 +2424,7 @@ public class GitServiceTest {
                                 Mono.just(application))
 
                 )
-                .flatMap(applicationTuple->{
+                .flatMap(applicationTuple -> {
                     Application branchedApplication = applicationTuple.getT1();
                     Application application = applicationTuple.getT2();
                     String srcBranchName = application.getGitApplicationMetadata().getBranchName();
@@ -2861,6 +2846,7 @@ public class GitServiceTest {
         final String testWorkspaceId = workspaceService.create(workspace)
                 .map(Workspace::getId)
                 .block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(testWorkspaceId).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2874,6 +2860,11 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2908,6 +2899,7 @@ public class GitServiceTest {
         final String testWorkspaceId = workspaceService.create(workspace)
                 .map(Workspace::getId)
                 .block();
+        String environmentId = workspaceService.getDefaultEnvironmentId(testWorkspaceId).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2921,6 +2913,11 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+        
         datasourceService.create(datasource).block();
 
         Mockito
@@ -2980,6 +2977,11 @@ public class GitServiceTest {
         datasource.setName("db-auth-1");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(workspaceId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3300,7 +3302,7 @@ public class GitServiceTest {
         // Both the request to execute completely without the file lock error from jgit.
         StepVerifier
                 .create(Mono.zip(commitMonoReq1, commitMonoReq2))
-                .assertNext(tuple ->{
+                .assertNext(tuple -> {
                     assertThat(tuple.getT1()).contains("committed successfully");
                     assertThat(tuple.getT2()).contains("committed successfully");
                 })

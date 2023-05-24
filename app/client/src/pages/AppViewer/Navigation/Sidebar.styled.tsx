@@ -1,6 +1,5 @@
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import {
   getMenuContainerBackgroundColor,
@@ -23,7 +22,7 @@ export const StyledSidebar = styled.div<{
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid ${Colors.GRAY_300};
+  border-right: 1px solid var(--ads-v2-color-border);
 
   ${({ isMinimal }) => {
     const width = isMinimal ? SIDEBAR_WIDTH.MINIMAL : SIDEBAR_WIDTH.REGULAR;

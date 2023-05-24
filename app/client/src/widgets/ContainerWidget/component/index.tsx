@@ -24,6 +24,7 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   overflow: hidden;
+  outline: none;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
 
   ${(props) =>

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import ProfileImage from "pages/common/ProfileImage";
 import UserApi from "@appsmith/api/UserApi";
 import styled from "styled-components";
@@ -12,7 +12,7 @@ import {
 } from "actions/appCollabActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
-import { Colors } from "constants/Colors";
+import { Tooltip } from "design-system";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -28,9 +28,9 @@ const UserImageContainer = styled.div`
 
   .profile-image {
     margin-right: -6px;
-    border: 1px solid ${Colors.WHITE};
+    border: 1px solid var(--ads-v2-color-white);
     span {
-      color: ${Colors.GRAY_700};
+      color: var(--ads-v2-color-fg);
       font-weight: normal;
       ${getTypographyByKey("btnSmall")};
     }
@@ -72,9 +72,9 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
-    <UserImageContainer className="app-realtume-editors">
+    <UserImageContainer className="app-realtime-editors">
       {realtimeAppEditors.slice(0, 3).map((el) => (
-        <TooltipComponent
+        <Tooltip
           content={
             <>
               <span style={{ margin: "0 0 8px 0", display: "block" }}>
@@ -83,7 +83,6 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
               <b>Editing</b>
             </>
           }
-          hoverOpenDelay={100}
           key={el.email}
         >
           <ProfileImage
@@ -91,7 +90,7 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
             source={`/api/${UserApi.photoURL}/${el.email}`}
             userName={el.name || el.email}
           />
-        </TooltipComponent>
+        </Tooltip>
       ))}
       {realtimeAppEditors.length > 3 ? (
         <ProfileImage

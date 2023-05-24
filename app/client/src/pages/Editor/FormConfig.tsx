@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   FormLabel,
   FormInputHelperText,
@@ -12,7 +11,6 @@ import {
   FormSubtitleText,
   FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
-import { FormIcons } from "icons/FormIcons";
 import type { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
@@ -25,11 +23,12 @@ import {
 } from "utils/editorContextUtils";
 import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import { setFocusableInputField } from "actions/editorContextActions";
+import { Icon, Tooltip } from "design-system";
 
 const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
-  margin-right: 16px;
+  margin-right: 5px;
 
   & .t--js-toggle {
     margin-bottom: 0px;
@@ -38,6 +37,11 @@ const FlexWrapper = styled.div`
 
 const LabelWrapper = styled.div`
   display: flex;
+  .label-icon-wrapper {
+    &.help {
+      cursor: help;
+    }
+  }
 `;
 
 const LabelIconWrapper = styled.span`
@@ -45,7 +49,7 @@ const LabelIconWrapper = styled.span`
 `;
 
 const RequiredFieldWrapper = styled.span`
-  color: var(--appsmith-color-red-500);
+  color: var(--ads-v2-color-fg-error);
 `;
 
 // TODO: replace condition with props.config.dataType === "TOGGLE"
@@ -63,7 +67,7 @@ interface FormConfigProps extends FormControlProps {
   changesViewType: boolean;
 }
 
-// top contains label, subtitle, urltext, tooltip, dispaly type
+// top contains label, subtitle, urltext, tooltip, display type
 // bottom contains the info and error text
 // props.children will render the form element
 export default function FormConfig(props: FormConfigProps) {
@@ -197,11 +201,13 @@ function renderFormConfigTop(props: {
                 <LabelWrapper>
                   <Tooltip
                     content={tooltipText as string}
-                    disabled={!tooltipText}
-                    hoverOpenDelay={200}
-                    underline={!!tooltipText}
+                    isDisabled={!tooltipText}
                   >
-                    <p className="label-icon-wrapper">{label}</p>
+                    <p
+                      className={`label-icon-wrapper ${tooltipText && "help"}`}
+                    >
+                      {label}
+                    </p>
                   </Tooltip>
                   <LabelIconWrapper>
                     {isRequired && (
@@ -211,10 +217,10 @@ function renderFormConfigTop(props: {
                     )}
                     {encrypted && (
                       <FormEncrytedSection>
-                        <FormIcons.LOCK_ICON
-                          height={12}
-                          keepColors
-                          width={12}
+                        <Icon
+                          color="var(--ads-v2-color-fg-success)"
+                          name="lock-2-line"
+                          size="sm"
                         />
                         <FormSubtitleText config={props.config}>
                           Encrypted

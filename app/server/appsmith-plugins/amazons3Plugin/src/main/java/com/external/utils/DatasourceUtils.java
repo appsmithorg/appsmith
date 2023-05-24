@@ -145,7 +145,7 @@ public class DatasourceUtils {
          * reliably used for these S3 service providers. For these service providers, the region information is
          * chained in the endpoint URL. Hence, the endpoint URL is used to extract the exact object storage region.
          *
-         * Apart from the listed S3 services - AWS, Upcloud, Wasabi, Dream Objects and Digital Ocean Spaces, any other
+         * Apart from the listed S3 services - AWS, Upcloud, Wasabi, Dream Objects and Digital Ocean spaces, any other
          * service provider falls in the category `other` and there is no special handling defined for it since we
          * cannot assume any information about them beforehand. For this S3 service provider type region must be
          * explicitly provided.

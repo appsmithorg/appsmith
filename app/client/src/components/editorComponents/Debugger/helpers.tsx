@@ -25,11 +25,11 @@ const BlankStateWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: ${(props) => props.theme.colors.debugger.blankState.color};
+  color: var(--ads-v2-color-fg);
   ${getTypographyByKey("p1")}
 
   .debugger-shortcut {
-    color: ${(props) => props.theme.colors.debugger.blankState.shortcut};
+    color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h5")}
   }
 `;

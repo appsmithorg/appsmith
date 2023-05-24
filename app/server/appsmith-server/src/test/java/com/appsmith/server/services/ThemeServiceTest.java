@@ -65,24 +65,17 @@ public class ThemeServiceTest {
 
     @Autowired
     UserService userService;
-
+    Workspace workspace;
     @Autowired
     private ThemeService themeService;
-
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
-
     @Autowired
     private UserWorkspaceService userWorkspaceService;
-
     @Autowired
     private ThemeRepository themeRepository;
-
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
-
-    Workspace workspace;
-
 
     @BeforeEach
     @WithUserDetails(value = "api_user")

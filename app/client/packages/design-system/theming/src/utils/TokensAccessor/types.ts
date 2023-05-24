@@ -50,5 +50,7 @@ export interface ColorModeTheme {
     bdNeutralHover: string;
     bdNegative: string;
     bdNegativeHover: string;
+    fgOnAssistive: string;
+    bgAssistive: string;
   };
 }

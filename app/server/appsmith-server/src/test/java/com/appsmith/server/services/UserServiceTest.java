@@ -443,7 +443,7 @@ public class UserServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException
                                 &&
-                        throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
+                                throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
                 )
                 .verify();
     }
