@@ -31,20 +31,20 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
 
     @Execution
     public void defaultWorkspaceIdMigration() {
-        Query defaultWorkspaceIdExistsQuery = query(where(
-                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
-        UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
-                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
-        UpdateDefinition addWorkspaceAsDomainType = AggregationUpdate.update()
-                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .toValue(Workspace.class.getSimpleName());
-        UpdateDefinition makeWorkspaceIdNull = AggregationUpdate.update()
-                .set(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
-                        .toValue(null);
-
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, copyWorkspaceIdToDomainId, PermissionGroup.class);
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainType, PermissionGroup.class);
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, makeWorkspaceIdNull, PermissionGroup.class);
+//        Query defaultWorkspaceIdExistsQuery = query(where(
+//                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
+//        UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
+//                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
+//                .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
+//        UpdateDefinition addWorkspaceAsDomainType = AggregationUpdate.update()
+//                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
+//                .toValue(Workspace.class.getSimpleName());
+//        UpdateDefinition makeWorkspaceIdNull = AggregationUpdate.update()
+//                .set(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
+//                        .toValue(null);
+//
+//        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, copyWorkspaceIdToDomainId, PermissionGroup.class);
+//        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainType, PermissionGroup.class);
+//        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, makeWorkspaceIdNull, PermissionGroup.class);
     }
 }
