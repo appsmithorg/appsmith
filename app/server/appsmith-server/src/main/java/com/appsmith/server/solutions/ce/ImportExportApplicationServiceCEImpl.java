@@ -856,7 +856,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Mono.just(new ArrayList<Datasource>());
                 })
-                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId))
+                .zipWhen(datasourceList -> workspaceService.getDefaultEnvironmentId(workspaceId))
                 .flatMapMany(tuple2 -> {
                     List<Datasource> existingDatasources = tuple2.getT1();
                     String environmentId = tuple2.getT2();

@@ -85,7 +85,7 @@ class ActionExecutionSolutionCEImplTest {
     ObjectMapper objectMapper;
     @MockBean
     NewActionRepository repository;
-    @MockBean
+    @SpyBean
     DatasourceService datasourceService;
     @MockBean
     PluginService pluginService;
@@ -173,7 +173,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(Flux.empty(), null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
+                .executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -198,7 +199,8 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(partsFlux, null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         StepVerifier
                 .create(actionExecutionResultMono)
