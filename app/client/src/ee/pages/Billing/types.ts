@@ -29,6 +29,7 @@ export type CTAButtonProps = CTAButtonType & ButtonProps;
 export enum LICENSE_ORIGIN {
   SELF_SERVE = "SELF_SERVE",
   ENTERPRISE = "ENTERPRISE",
+  AIRGAPPED = "AIR_GAP",
 }
 
 export enum LICENSE_TYPE {

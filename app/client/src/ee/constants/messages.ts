@@ -180,7 +180,9 @@ export const ALREADY_UPGRADED = () => `Already upgraded?`;
 export const PAYMENT_FAILED = () => `Your last payment has failed.`;
 export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
   `your payment methods to continue using Appsmith, else all your instances will shut down in ${count} ${suffix}.`;
-
+export const ENTERPRISE = () => `Enterprise`;
+export const SELF_SERVE = () => `Business`;
+export const AIRGAPPED = () => `Airgapped`;
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
 

@@ -3,30 +3,31 @@ import { useDispatch, useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
-  ACTIVE,
   ADMIN_BILLING_SETTINGS_TITLE,
   BILLING_AND_USAGE,
   createMessage,
   LICENSE_EXPIRY_DATE,
   PASTE_LICENSE_KEY,
   PORTAL,
-  TRIAL,
   UPDATE,
   UPDATE_LICENSE,
   LICENSE_KEY,
+  SELF_SERVE,
+  ENTERPRISE,
+  AIRGAPPED,
 } from "@appsmith/constants/messages";
 import { BillingPageHeader } from "./Header";
 import { BillingPageWrapper, FlexWrapper, StyledImage } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
 import { getDateString } from "@appsmith/utils/billingUtils";
 import type { BillingDashboardCard, CTAButtonType } from "./types";
-import { StatusBadge, Status } from "./StatusBadge";
+import { LICENSE_ORIGIN } from "./types";
 import {
   getLicenseKey,
   isTrialLicense,
-  getLicenseStatus,
   isLicenseModalOpen,
   getExpiry,
+  getLicenseOrigin,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 import { showLicenseModal } from "@appsmith/actions/tenantActions";
@@ -39,6 +40,7 @@ import {
   ModalContent,
   ModalBody,
   Text,
+  Tag,
 } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -53,9 +55,10 @@ const CtaConfig: CTAButtonType = {
   text: createMessage(PORTAL),
 };
 
-const statusTextMap: Partial<Record<Status, string>> = {
-  [Status.ACTIVE]: createMessage(ACTIVE),
-  [Status.TRIAL]: createMessage(TRIAL),
+const getLicenseOriginText = (licenseOrigin: string) => {
+  if (licenseOrigin === LICENSE_ORIGIN.SELF_SERVE) return SELF_SERVE;
+  else if (licenseOrigin === LICENSE_ORIGIN.ENTERPRISE) return ENTERPRISE;
+  else return AIRGAPPED;
 };
 
 export function Billing() {
@@ -63,7 +66,7 @@ export function Billing() {
   const isTrial = useSelector(isTrialLicense);
   const expiry = useSelector(getExpiry);
   const expiryDate = getDateString(expiry * 1000);
-  const licenseStatus = useSelector(getLicenseStatus);
+  const licenseOrigin = useSelector(getLicenseOrigin);
 
   const isOpen = useSelector(isLicenseModalOpen);
   const dispatch = useDispatch();
@@ -109,7 +112,9 @@ export function Billing() {
           >
             {createMessage(LICENSE_KEY)}
           </Text>
-          <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
+          <Tag data-testid="t--status-text" isClosable={false} size="md">
+            {createMessage(getLicenseOriginText(licenseOrigin))}
+          </Tag>
         </FlexWrapper>
       ),
       content: (

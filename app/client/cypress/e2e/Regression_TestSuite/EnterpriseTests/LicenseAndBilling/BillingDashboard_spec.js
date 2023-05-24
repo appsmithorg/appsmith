@@ -20,6 +20,24 @@ describe("License and Billing dashboard", function () {
       cy.get(".header-text").should("have.text", "License & billing");
     });
   });
+  it("1. Go to admin settings and click on License & Billing tab", function () {
+    // Mock license key and license origin from API
+    cy.interceptLicenseApi({
+      licenseOrigin: "ENTERPRISE",
+    });
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
+    cy.url().should("contain", "/settings/general");
+    // click license and billing tab
+    cy.get(LicenseLocators.billingDashboardTab).click();
+    cy.url().should("contain", "/settings/billing");
+    cy.wait(2000);
+    cy.get(LicenseLocators.billingHeader).within(() => {
+      cy.get(".header-text").should("have.text", "License & billing");
+    });
+  });
   it(
     "excludeForAirgap",
     "2. should have two cards - Billing and usage, License key",
@@ -64,76 +82,141 @@ describe("License and Billing dashboard", function () {
         });
     },
   );
-  it("excludeForAirgap", "3. License key card - ACTIVE license", function () {
-    // Mock license key and license origin from API
-    cy.interceptLicenseApi({
-      licenseOrigin: "SELF_SERVE",
-      licenseKey: "VALIxxxxxxxxx KEY",
-    });
-    cy.reload();
-    cy.wait(2000);
-    cy.get(LicenseLocators.dashboardCard)
-      .eq(1)
-      .within(() => {
-        cy.get(LicenseLocators.dashboardCardTitle).should(
-          "have.text",
-          "License key",
-        );
-        cy.get(LicenseLocators.statusText)
-          .should("have.text", "Active")
-          .should("have.css", "color", "rgb(76, 86, 100)");
-        cy.get(LicenseLocators.statusText).should(
-          "have.css",
-          "background-color",
-          "rgb(241, 245, 249)",
-        );
-        cy.get(LicenseLocators.licenseKeyText).should(
-          "have.text",
-          "VALIxxxxxxxxx KEY",
-        );
-        cy.get(LicenseLocators.licenseExpirationDate).should("not.exist");
-        cy.get(".update-license-btn").should("have.text", "Update");
-        cy.get(".update-license-btn").click();
+  it(
+    "excludeForAirgap",
+    "3. License key card - ACTIVE license - Business",
+    function () {
+      // Mock license key and license origin from API
+      cy.interceptLicenseApi({
+        licenseOrigin: "SELF_SERVE",
+        licenseKey: "VALIxxxxxxxxx KEY",
       });
-
-    cy.wait(2000);
-    cy.get(AppNavigation.modal).should("be.visible");
-
-    cy.get(AppNavigation.modal).within(() => {
-      cy.get(AppNavigation.modalHeader).within(() => {
-        cy.xpath(LicenseLocators.licenseModalHeader).should(
-          "have.text",
-          "Update license",
-        );
-      });
-      cy.get(".license-form").within(() => {
-        cy.get(LicenseLocators.licenseFormInput).should(
-          "have.attr",
-          "placeholder",
-          "Paste your license key here",
-        );
-        cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
-      });
-      cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
-      cy.get(LicenseLocators.activeInstanceBtn).click();
+      cy.reload();
       cy.wait(2000);
-      cy.request({
-        method: "PUT",
-        url: "/api/v1/tenants/license",
-        body: { key: "INVALID-LICENSE-KEY" },
-        failOnStatusCode: false,
-      })
-        .its("status")
-        .should("equal", 400);
-    });
-    cy.get(AppNavigation.modalClose).click();
-    cy.wait(2000);
-    cy.get(AppNavigation.modal).should("not.exist");
-  });
+      cy.get(LicenseLocators.dashboardCard)
+        .eq(1)
+        .within(() => {
+          cy.get(LicenseLocators.dashboardCardTitle).should(
+            "have.text",
+            "License key",
+          );
+          cy.get(LicenseLocators.statusText)
+            .find("span")
+            .should("have.text", "Business");
+          cy.get(LicenseLocators.licenseKeyText).should(
+            "have.text",
+            "VALIxxxxxxxxx KEY",
+          );
+          cy.get(LicenseLocators.licenseExpirationDate).should("not.exist");
+          cy.get(".update-license-btn").should("have.text", "Update");
+          cy.get(".update-license-btn").click();
+        });
+
+      cy.wait(2000);
+      cy.get(AppNavigation.modal).should("be.visible");
+
+      cy.get(AppNavigation.modal).within(() => {
+        cy.get(AppNavigation.modalHeader).within(() => {
+          cy.xpath(LicenseLocators.licenseModalHeader).should(
+            "have.text",
+            "Update license",
+          );
+        });
+        cy.get(".license-form").within(() => {
+          cy.get(LicenseLocators.licenseFormInput).should(
+            "have.attr",
+            "placeholder",
+            "Paste your license key here",
+          );
+          cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
+        });
+        cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
+        cy.get(LicenseLocators.activeInstanceBtn).click();
+        cy.wait(2000);
+        cy.request({
+          method: "PUT",
+          url: "/api/v1/tenants/license",
+          body: { key: "INVALID-LICENSE-KEY" },
+          failOnStatusCode: false,
+        })
+          .its("status")
+          .should("equal", 400);
+      });
+      cy.get(AppNavigation.modalClose).click();
+      cy.wait(2000);
+      cy.get(AppNavigation.modal).should("not.exist");
+    },
+  );
+  it(
+    "excludeForAirgap",
+    "3. License key card - ACTIVE license - Enterprise",
+    function () {
+      // Mock license key and license origin from API
+      cy.interceptLicenseApi({
+        licenseOrigin: "ENTERPRISE",
+        licenseKey: "VALIxxxxxxxxx KEY",
+      });
+      cy.reload();
+      cy.wait(2000);
+      cy.get(LicenseLocators.dashboardCard)
+        .eq(1)
+        .within(() => {
+          cy.get(LicenseLocators.dashboardCardTitle).should(
+            "have.text",
+            "License key",
+          );
+          cy.get(LicenseLocators.statusText)
+            .find("span")
+            .should("have.text", "Enterprise");
+          cy.get(LicenseLocators.licenseKeyText).should(
+            "have.text",
+            "VALIxxxxxxxxx KEY",
+          );
+          cy.get(LicenseLocators.licenseExpirationDate).should("not.exist");
+          cy.get(".update-license-btn").should("have.text", "Update");
+          cy.get(".update-license-btn").click();
+        });
+
+      cy.wait(2000);
+      cy.get(AppNavigation.modal).should("be.visible");
+
+      cy.get(AppNavigation.modal).within(() => {
+        cy.get(AppNavigation.modalHeader).within(() => {
+          cy.xpath(LicenseLocators.licenseModalHeader).should(
+            "have.text",
+            "Update license",
+          );
+        });
+        cy.get(".license-form").within(() => {
+          cy.get(LicenseLocators.licenseFormInput).should(
+            "have.attr",
+            "placeholder",
+            "Paste your license key here",
+          );
+          cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
+        });
+        cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
+        cy.get(LicenseLocators.activeInstanceBtn).click();
+        cy.wait(2000);
+        cy.request({
+          method: "PUT",
+          url: "/api/v1/tenants/license",
+          body: { key: "INVALID-LICENSE-KEY" },
+          failOnStatusCode: false,
+        })
+          .its("status")
+          .should("equal", 400);
+      });
+      cy.get(AppNavigation.modalClose).click();
+      cy.wait(2000);
+      cy.get(AppNavigation.modal).should("not.exist");
+    },
+  );
   it("excludeForAirgap", "4.License key card - TRIAL license", function () {
     const expiry =
       (new Date("25 Feb 2023").getTime() + 2 * 24 * 60 * 60 * 1000) / 1000;
     cy.interceptLicenseApi({
+      licenseOrigin: "SELF_SERVE",
       licenseStatus: "ACTIVE",
       licenseType: "TRIAL",
       expiry,
@@ -148,13 +231,8 @@ describe("License and Billing dashboard", function () {
           "License key",
         );
         cy.get(LicenseLocators.statusText)
-          .should("have.text", "Trial")
-          .should("have.css", "color", "rgb(76, 86, 100)");
-        cy.get(LicenseLocators.statusText).should(
-          "have.css",
-          "background-color",
-          "rgb(241, 245, 249)",
-        );
+          .find("span")
+          .should("have.text", "Business");
         cy.get(LicenseLocators.licenseExpirationDate).should("be.visible");
         cy.getDateString(expiry * 1000).then((date) => {
           cy.get(LicenseLocators.licenseExpirationDate).should(
@@ -168,6 +246,7 @@ describe("License and Billing dashboard", function () {
     const expiry =
       (new Date("25 Feb 2023").getTime() + 2 * 24 * 60 * 60 * 1000) / 1000;
     cy.interceptLicenseApi({
+      licenseOrigin: "AIR_GAP",
       licenseStatus: "ACTIVE",
       licenseType: "TRIAL",
       expiry,
@@ -182,13 +261,8 @@ describe("License and Billing dashboard", function () {
           "License key",
         );
         cy.get(LicenseLocators.statusText)
-          .should("have.text", "Trial")
-          .should("have.css", "color", "rgb(76, 86, 100)");
-        cy.get(LicenseLocators.statusText).should(
-          "have.css",
-          "background-color",
-          "rgb(241, 245, 249)",
-        );
+          .find("span")
+          .should("have.text", "Airgapped");
         cy.get(LicenseLocators.licenseExpirationDate).should("be.visible");
         cy.getDateString(expiry * 1000).then((date) => {
           cy.get(LicenseLocators.licenseExpirationDate).should(

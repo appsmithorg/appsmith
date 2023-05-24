@@ -12,19 +12,12 @@ import {
 import { AclFactory, OthersFactory } from "./config";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { Category } from "./config/types";
-import {
-  getLicenseOrigin,
-  getTenantPermissions,
-} from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import {
-  ADMIN_BILLING_SETTINGS_TITLE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { LICENSE_ORIGIN } from "../Billing/types";
+
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 function getAclCategory() {
@@ -46,8 +39,6 @@ export default function LeftPane() {
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
-  const isEnterpriseLicense =
-    useSelector(getLicenseOrigin) === LICENSE_ORIGIN.ENTERPRISE;
   const tenantPermissions = useSelector(getTenantPermissions);
   const isAuditLogsEnabled = isPermitted(
     tenantPermissions,
@@ -75,12 +66,6 @@ export default function LeftPane() {
 
   const filteredOthersCategories = othersCategories
     ?.map((category) => {
-      if (
-        category.title === createMessage(ADMIN_BILLING_SETTINGS_TITLE) &&
-        isEnterpriseLicense
-      ) {
-        return null;
-      }
       return category;
     })
     .filter(Boolean) as Category[];
