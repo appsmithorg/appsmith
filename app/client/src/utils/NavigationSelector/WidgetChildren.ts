@@ -1,5 +1,9 @@
 import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  WidgetEntity,
+} from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isFunction } from "lodash";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -12,12 +16,15 @@ export const getWidgetChildrenNavData = (
   widget: FlattenedWidgetProps,
   dataTree: DataTree,
   pageId: string,
+  configTree: ConfigTree,
 ) => {
   const peekData: Record<string, unknown> = {};
   const childNavData: EntityNavigationData = {};
   const dataTreeWidget: WidgetEntity = dataTree[
     widget.widgetName
   ] as WidgetEntity;
+  const widgetConfig = configTree[widget.widgetName];
+
   if (widget.type === "FORM_WIDGET") {
     const children: EntityNavigationData = {};
     const formChildren: EntityNavigationData = {};
@@ -65,7 +72,12 @@ export const getWidgetChildrenNavData = (
       widgetProps.forEach((prop) => {
         const data = dataTreeWidget[prop];
 
-        if (prop.startsWith("set")) {
+        let setterNames: string[] = [];
+
+        if (widgetConfig.__setters) {
+          setterNames = Object.keys(widgetConfig.__setters);
+        }
+        if (setterNames.includes(prop)) {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           peekData[prop] = function () {}; // tern inference required here
         } else {
