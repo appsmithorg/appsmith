@@ -195,4 +195,6 @@ export class CommonLocators {
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _selectByValue = (value: string) =>
+    `//button[contains(@class, 't--open-dropdown-${value}')]`;
 }

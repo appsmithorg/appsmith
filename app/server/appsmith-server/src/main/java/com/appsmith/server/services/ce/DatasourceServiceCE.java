@@ -82,8 +82,8 @@ public interface DatasourceServiceCE {
     Mono<DatasourceDTO> convertToDatasourceDTO(Datasource datasource);
 
     // TODO: Remove the following snippet after client side API changes
-    Datasource convertToDatasource(DatasourceDTO datasourceDTO, String environmentId);
+    Mono<Datasource> convertToDatasource(DatasourceDTO datasourceDTO, String environmentId);
 
     // TODO: Remove the following snippet after client side API changes
-    String getTrueEnvironmentId(String environmentId);
+    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
 }

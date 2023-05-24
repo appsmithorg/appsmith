@@ -931,12 +931,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     } else {
                         existingDatasourceMono = Mono.just(new ArrayList<>());
                     }
-                    return Mono.zip(existingDatasourceMono, Mono.just(workspace), workspaceService.getDefaultEnvironmentId(workspaceId));
+                    return Mono.zip(existingDatasourceMono, Mono.just(workspace));
                 })
+                .zipWhen(objects -> workspaceService.getDefaultEnvironmentId(workspaceId))
                 .flatMapMany(objects -> {
-                    List<Datasource> existingDatasources = objects.getT1();
-                    Workspace workspace = objects.getT2();
-                    String environmentId = objects.getT3();
+                    List<Datasource> existingDatasources = objects.getT1().getT1();
+                    Workspace workspace = objects.getT1().getT2();
+                    String environmentId = objects.getT2();
                     if (CollectionUtils.isEmpty(importedDatasourceList)) {
                         return Mono.empty();
                     }

@@ -429,4 +429,8 @@ export class PropertyPane {
       "be.disabled",
     );
   }
+
+  public AssertSelectValue(value: string) {
+    this.agHelper.AssertElementExist(this.locator._selectByValue(value));
+  }
 }

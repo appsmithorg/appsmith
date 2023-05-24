@@ -11,8 +11,9 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -25,14 +26,14 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
+import com.external.plugins.utils.MssqlDatasourceUtils;
+import com.external.plugins.utils.MssqlExecuteUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -47,16 +48,13 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,10 +66,12 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.external.plugins.utils.MssqlDatasourceUtils.getConnectionFromConnectionPool;
+import static com.external.plugins.utils.MssqlDatasourceUtils.logHikariCPStatus;
+import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -79,8 +79,6 @@ import static java.lang.Boolean.TRUE;
 public class MssqlPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-
-    private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     private static final int VALIDITY_CHECK_TIMEOUT = 5;
 
@@ -102,7 +100,7 @@ public class MssqlPlugin extends BasePlugin {
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        public static final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
@@ -212,14 +210,9 @@ public class MssqlPlugin extends BasePlugin {
                             log.error("Error checking validity of MsSQL connection.", error);
                         }
 
-                        HikariPoolMXBean poolProxy = hikariDSConnection.getHikariPoolMXBean();
-
-                        int idleConnections = poolProxy.getIdleConnections();
-                        int activeConnections = poolProxy.getActiveConnections();
-                        int totalConnections = poolProxy.getTotalConnections();
-                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug("Before executing MsSQL query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
-                                query, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+                        // Log HikariCP status
+                        logHikariCPStatus(MessageFormat.format("Before executing Mssql query [{0}]", query),
+                                hikariDSConnection);;
 
                         try {
                             if (FALSE.equals(preparedStatement)) {
@@ -247,92 +240,18 @@ public class MssqlPlugin extends BasePlugin {
                                 resultSet = preparedQuery.getResultSet();
                             }
 
-                            if (!isResultSet) {
-                                Object updateCount = FALSE.equals(preparedStatement) ?
-                                        ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
-                                        ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
-
-                                rowsList.add(Map.of("affectedRows", updateCount));
-                            } else {
-                                ResultSetMetaData metaData = resultSet.getMetaData();
-                                int colCount = metaData.getColumnCount();
-                                columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
-
-                                while (resultSet.next()) {
-                                    // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                                    Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                                    for (int i = 1; i <= colCount; i++) {
-                                        Object value;
-                                        final String typeName = metaData.getColumnTypeName(i);
-
-                                        if (resultSet.getObject(i) == null) {
-                                            value = null;
-
-                                        } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                            value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
-
-                                        } else if ("timestamp".equalsIgnoreCase(typeName)) {
-                                            value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                                    LocalDateTime.of(
-                                                            resultSet.getDate(i).toLocalDate(),
-                                                            resultSet.getTime(i).toLocalTime()
-                                                    )
-                                            ) + "Z";
-
-                                        } else if ("timestamptz".equalsIgnoreCase(typeName)) {
-                                            value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                                    resultSet.getObject(i, OffsetDateTime.class)
-                                            );
-
-                                        } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
-                                            value = resultSet.getString(i);
-
-                                        } else if ("interval".equalsIgnoreCase(typeName)) {
-                                            value = resultSet.getObject(i).toString();
-
-                                        } else {
-                                            value = resultSet.getObject(i);
-
-                                        }
-
-                                        row.put(metaData.getColumnName(i), value);
-                                    }
-
-                                    rowsList.add(row);
-                                }
-
-                            }
+                            MssqlExecuteUtils.populateRowsAndColumns(rowsList, columnsList, resultSet, isResultSet, preparedStatement,
+                                    statement, preparedQuery);
 
                         } catch (SQLException e) {
                             return Mono.error(new AppsmithPluginException(MssqlPluginError.QUERY_EXECUTION_FAILED, MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(), "SQLSTATE: "+ e.getSQLState()));
 
                         } finally {
-                            sqlConnectionFromPool.close();
-                            if (resultSet != null) {
-                                try {
-                                    resultSet.close();
-                                } catch (SQLException e) {
-                                    log.warn("Error closing MsSQL ResultSet", e);
-                                }
-                            }
+                            // Log HikariCP status
+                            logHikariCPStatus(MessageFormat.format("After executing Mssql query [{0}]", query),
+                                    hikariDSConnection);
 
-                            if (statement != null) {
-                                try {
-                                    statement.close();
-                                } catch (SQLException e) {
-                                    log.warn("Error closing MsSQL Statement", e);
-                                }
-                            }
-
-                            if (preparedQuery != null) {
-                                try {
-                                    preparedQuery.close();
-                                } catch (SQLException e) {
-                                    log.warn("Error closing MsSQL Statement", e);
-                                }
-                            }
-
+                            closeConnectionPostExecution(resultSet, statement, preparedQuery, sqlConnectionFromPool);
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -434,6 +353,12 @@ public class MssqlPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
             return Mono.error(new AppsmithPluginException(MssqlPluginError.QUERY_EXECUTION_FAILED, MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, "Unsupported Operation"));
+        }
+
+        @Override
+        public Mono<DatasourceStructure> getStructure(
+                HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
+            return MssqlDatasourceUtils.getStructure(connection, datasourceConfiguration);
         }
 
         @Override
@@ -630,24 +555,5 @@ public class MssqlPlugin extends BasePlugin {
                         "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
                                 " Appsmith customer support to resolve this.");
         }
-    }
-
-    /**
-     * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
-     * In case a connection is not available in the pool, SQL Exception is thrown
-     *
-     * @param hikariDSConnectionPool
-     * @return SQL Connection
-     */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
-
-        if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
-            log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
-
-        Connection sqlDataSourceConnection = hikariDSConnectionPool.getConnection();
-
-        return sqlDataSourceConnection;
     }
 }
