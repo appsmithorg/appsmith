@@ -7,7 +7,6 @@ export default defineConfig({
   pageLoadTimeout: 30000,
   videoUploadOnPasses: false,
   videoCompression: false,
-  video: false,
   numTestsKeptInMemory: 10,
   reporterOptions: {
     reportDir: "results",
