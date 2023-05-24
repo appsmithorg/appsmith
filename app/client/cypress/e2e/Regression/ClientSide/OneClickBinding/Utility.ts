@@ -15,8 +15,7 @@ export function ChooseAndAssertForm(source, selectedSource, table, column) {
     200,
   );
 
-  cy.wait(500);
-
+  _.agHelper.Sleep(500);
   _.agHelper.AssertElementExist(".t--one-click-binding-connect-data");
 
   _.agHelper.AssertElementEnabledDisabled(".t--one-click-binding-connect-data");

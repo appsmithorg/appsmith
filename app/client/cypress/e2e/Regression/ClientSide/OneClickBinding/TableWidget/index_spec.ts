@@ -5,9 +5,7 @@ describe("Table widget one click binding feature", () => {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2");
     _.agHelper.AssertElementExist(".t--cypress-table-overlay-header");
     _.agHelper.AssertElementExist(".t--cypress-table-overlay-connectdata");
-  });
-
-  it("2. should check that tableData one click property control", () => {
+    // should check that tableData one click property control"
     _.propPane.openWidgetPropertyPane("tablewidgetv2");
     _.agHelper.AssertElementExist(".t--one-click-binding-datasource-selector");
   });

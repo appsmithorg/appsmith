@@ -19,7 +19,7 @@ describe("One click binding control", () => {
       ".t--one-click-binding-datasource-selector--other-actions",
     );
 
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
 
     _.dataSources.CreateMockDB("Users");
 
@@ -27,9 +27,9 @@ describe("One click binding control", () => {
 
     _.dataSources.CreateQueryAfterDSSaved();
 
-    _.entityExplorer.NavigateToSwitcher("widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
 
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
 
     _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
 
@@ -122,13 +122,13 @@ describe("One click binding control", () => {
 
     ChooseAndAssertForm("New from Users", "Users", "public.users", "gender");
 
-    _.propPane.MoveToTab("STYLE");
+    _.propPane.MoveToTab("Style");
 
-    _.propPane.MoveToTab("CONTENT");
+    _.propPane.MoveToTab("Content");
 
     ChooseAndAssertForm("New from sample Movies", "movies", "movies", "status");
 
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
 
     _.agHelper.GetNClick("#entity-add_new_datasource");
 
@@ -148,7 +148,7 @@ describe("One click binding control", () => {
 
     _.dataSources.SaveDatasource();
 
-    _.entityExplorer.NavigateToSwitcher("widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
 
     _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
 

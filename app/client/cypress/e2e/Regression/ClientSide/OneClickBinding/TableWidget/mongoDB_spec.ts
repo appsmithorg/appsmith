@@ -6,7 +6,7 @@ describe("one click binding mongodb datasource", function () {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 400);
   });
 
-  it("test connect datasource", () => {
+  it("1. test connect datasource", () => {
     //#region bind to mongoDB datasource
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
@@ -20,7 +20,7 @@ describe("one click binding mongodb datasource", function () {
 
     _.agHelper.GetNClick(".t--one-click-binding-connect-data");
     cy.wait("@postExecute");
-    cy.wait(2000);
+    _.agHelper.Sleep(2000);
     //#endregion
 
     //#region validate search through table is working
@@ -30,7 +30,7 @@ describe("one click binding mongodb datasource", function () {
       ".t--widget-tablewidgetv2 .t--search-input input",
       rowWithAValidText,
     );
-    (cy as any).wait(1000);
+    _.agHelper.Sleep();
     // check if the table rows are present for the given search entry
     _.agHelper.GetNAssertContains(
       '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
@@ -46,13 +46,13 @@ describe("one click binding mongodb datasource", function () {
     const enteredSomeValue = "123" + someUUID;
 
     (cy as any).enterTableCellValue(someColumnIndex, 0, enteredSomeValue);
-    (cy as any).wait(1000);
+    _.agHelper.Sleep();
 
     (cy as any).saveTableCellValue(someColumnIndex, 0);
     //commit that update
     (cy as any).saveTableRow(12, 0);
 
-    (cy as any).wait(1000);
+    _.agHelper.Sleep();
 
     // check if the updated value is present
     (cy as any).readTableV2data(0, someColumnIndex).then((cellData: any) => {
@@ -80,14 +80,14 @@ describe("one click binding mongodb datasource", function () {
       "Save row",
     );
 
-    (cy as any).wait(5000);
+    _.agHelper.Sleep(5000);
 
     //search the table for a row having the text used to create a new row
     _.agHelper.TypeText(
       ".t--widget-tablewidgetv2 .t--search-input input",
       someText,
     );
-    (cy as any).wait(1000);
+    _.agHelper.Sleep();
 
     //check if that row is present
     _.agHelper.GetNAssertContains(
