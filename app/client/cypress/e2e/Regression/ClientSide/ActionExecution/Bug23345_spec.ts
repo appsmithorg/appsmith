@@ -1,20 +1,16 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Delete No Action card without any error", () => {
   it("1. Bug 23345", () => {
-    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
 
-    propPane.AddAction("onClick");
+    _.propPane.AddAction("onClick");
 
-    agHelper.AssertElementVisible(propPane._actionCardByTitle("No action"));
+    _.agHelper.AssertElementVisible(_.propPane._actionCardByTitle("No action"));
 
-    agHelper.GetNClick(propPane._actionSelectorDelete);
+    _.agHelper.GetNClick(_.propPane._actionSelectorDelete);
 
-    agHelper.AssertElementAbsence(propPane._actionCardByTitle("No action"));
+    _.agHelper.AssertElementAbsence(_.propPane._actionCardByTitle("No action"));
   });
 });
