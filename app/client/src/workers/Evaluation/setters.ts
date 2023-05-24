@@ -30,6 +30,12 @@ export function applySetterMethod(
   const overriddenProperties: string[] = [];
   const evalMetaUpdates: EvalMetaUpdates = [];
 
+  if (value === undefined) {
+    const error = new Error("undefined value");
+    error.name = entityName + "." + setterMethodName + " failed";
+    throw error;
+  }
+
   const { validationPaths } = entityConfig;
 
   if (validationPaths) {
@@ -37,7 +43,7 @@ export function applySetterMethod(
     const { isValid, messages } = validate(
       validationConfig,
       value,
-      {},
+      entity as Record<string, unknown>,
       propertyPath,
     );
     if (!isValid) {
