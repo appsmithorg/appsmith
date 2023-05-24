@@ -376,29 +376,6 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Boolean isPermissionPresentInPolicies(Set<Policy> policies, String permission, String username) {
-
-        if (policies == null || policies.isEmpty()) {
-            return false;
-        }
-
-        Optional<Policy> requestedPermissionPolicyOptional = policies.stream().filter(policy -> {
-            if (policy.getPermission().equals(permission)) {
-                Set<String> users = policy.getUsers();
-                if (users.contains(username)) {
-                    return true;
-                }
-            }
-            return false;
-        }).findFirst();
-
-        if (requestedPermissionPolicyOptional.isPresent()) {
-            return true;
-        }
-
-        return false;
-    }
-
     public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
         if (CollectionUtils.isNotEmpty(policies) && permission != null) {
             final String permissionString = permission.getValue();
