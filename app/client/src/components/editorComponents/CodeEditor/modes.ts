@@ -51,6 +51,7 @@ export const MULTIPLEXING_MODE_CONFIGS: MultiplexingModeConfigs = {
         close: BINDING_CLOSE,
       },
       {
+        // https://github.com/appsmithorg/appsmith/issues/16702
         open: '"{{',
         close: '}}"',
       },
