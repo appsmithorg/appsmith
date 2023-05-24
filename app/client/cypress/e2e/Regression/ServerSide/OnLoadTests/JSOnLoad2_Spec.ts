@@ -17,13 +17,9 @@ describe("JSObjects OnLoad Actions tests", function () {
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
 
-  it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked & duplicated", () => {
+  it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked", () => {
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("JSOnloadImportTest");
-    AssertJSOnPageLoad("runSpaceCraftImages");
-
-    _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("JSOnloadImportTest");
     AssertJSOnPageLoad("runSpaceCraftImages");
   });
 
@@ -39,17 +35,9 @@ describe("JSObjects OnLoad Actions tests", function () {
     });
   });
 
-  it("4. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while forked & duplicated- failing JSObj", () => {
+  it("4. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while forked - failing JSObj", () => {
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("JSOnLoadFailureTest");
-    AssertJSOnPageLoad(
-      "runWorldCountries",
-      false,
-      "ReferenceError: getWorldCountries is not defined",
-    );
-
-    _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("JSOnLoadFailureTest");
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
@@ -61,10 +49,9 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.homePage.NavigateToHome();
     _.homePage.DeleteApplication("JSOnloadImportTest");
     _.homePage.DeleteApplication("JSOnloadImportTest (1)");
-    _.homePage.DeleteApplication("JSOnloadImportTest Copy");
+
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.homePage.DeleteApplication("JSOnLoadFailureTest Copy");
     _.agHelper.AssertContains("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });

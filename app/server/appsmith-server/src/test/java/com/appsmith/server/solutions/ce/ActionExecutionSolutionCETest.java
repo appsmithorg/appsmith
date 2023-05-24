@@ -20,7 +20,6 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -250,11 +249,12 @@ public class ActionExecutionSolutionCETest {
 
     }
 
-    private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
-                                        ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
+    private void executeAndAssertAction(ExecuteActionDTO executeActionDTO,
+                                        ActionExecutionResult mockResult,
+                                        List<ParsedDataType> expectedReturnDataTypes) {
 
         List<WidgetSuggestionDTO> expectedWidgets = mockResult.getSuggestedWidgets();
-        Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
+        Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, mockResult);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -270,12 +270,14 @@ public class ActionExecutionSolutionCETest {
                 .verifyComplete();
     }
 
-    private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
+    private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO,
+                                                      ActionExecutionResult mockResult) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
         return actionExecutionResultMono;
     }
 
@@ -367,7 +369,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -401,7 +403,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -432,7 +434,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
@@ -692,7 +694,7 @@ public class ActionExecutionSolutionCETest {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, null);
+                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
                 });
 
 
@@ -741,7 +743,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.TABLE), new ParsedDataType(DisplayDataType.JSON)
                         , new ParsedDataType(DisplayDataType.RAW)));
     }
@@ -786,7 +788,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.JSON), new ParsedDataType(DisplayDataType.RAW)));
     }
 
@@ -831,7 +833,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
@@ -866,7 +868,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, new ArrayList<>());
+        executeAndAssertAction(executeActionDTO, mockResult, new ArrayList<>());
     }
 
     @Test
@@ -938,7 +940,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1051,7 +1053,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1156,7 +1158,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1216,7 +1218,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1257,7 +1259,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1301,7 +1303,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1341,7 +1343,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1383,7 +1385,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1454,7 +1456,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1505,7 +1507,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1567,7 +1569,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1613,7 +1615,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1658,7 +1660,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1707,7 +1709,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
@@ -1755,7 +1757,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
@@ -1792,7 +1794,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
 
     }
@@ -1828,14 +1830,15 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, defaultEnvironmentId));
+        Datasource datasource1 = datasourceService.convertToDatasource(mockDatasource, defaultEnvironmentId).block();
+        action.setDatasource(datasource1);
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+        executeAndAssertAction(executeActionDTO, mockResult,
                 List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 }
