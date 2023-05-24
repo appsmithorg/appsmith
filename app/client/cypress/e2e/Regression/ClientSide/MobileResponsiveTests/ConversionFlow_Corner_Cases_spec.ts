@@ -23,14 +23,15 @@ describe("Handle Cases while conversion", () => {
     autoLayout.useSnapshotFromBanner();
 
     ee.verifyIsCurrentPage("Page2");
+
+    ee.SelectEntityByName("Page1", "Pages");
+
+    cy.wait(1000);
+
+    cy.Deletepage("Page2");
   });
 
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
-    home.NavigateToHome();
-    home.CreateNewApplication();
-
-    cy.dragAndDropToCanvas("containerwidget", { x: 100, y: 200 });
-
     autoLayout.convertToAutoLayoutAndVerify();
 
     cy.CreatePage();

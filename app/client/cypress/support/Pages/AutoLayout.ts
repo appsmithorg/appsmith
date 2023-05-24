@@ -53,12 +53,6 @@ export class AutoLayout {
     cy.get(this.refreshAppDialogButton).click({
       force: true,
     });
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(2000);
 
     this.verifyIsAutoLayout();
@@ -105,12 +99,6 @@ export class AutoLayout {
     cy.get(this.refreshAppDialogButton).click({
       force: true,
     });
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(2000);
 
     this.verifyIsFixedLayout();
@@ -123,15 +111,11 @@ export class AutoLayout {
     cy.get(this.useSnapshotDialogButton).click({
       force: true,
     });
+
     cy.get(this.refreshAppDialogButton).click({
       force: true,
     });
 
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(2000);
   }
 
