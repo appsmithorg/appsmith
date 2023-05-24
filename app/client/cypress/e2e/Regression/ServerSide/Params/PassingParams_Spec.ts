@@ -1,4 +1,3 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let jsName: any, dsName: any;
@@ -6,7 +5,7 @@ let jsName: any, dsName: any;
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 500);
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.SELECT, 700, 700);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 700, 700);
     _.propPane.UpdatePropertyFieldValue(
       "Options",
       `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,
@@ -17,7 +16,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     );
     _.entityExplorer.SelectEntityByName("Select1");
     _.agHelper.RenameWidget("Select1", "selRecordFilter");
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
     _.entityExplorer.NavigateToSwitcher("Explorer");
   });
 

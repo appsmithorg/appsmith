@@ -47,7 +47,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.get(".t--edit-datasource").click({ force: true });
 
       // delete datasource
-      dataSources.DeleteDSDirectly();
+      dataSources.DeleteDSDirectly(200);
     });
 });
 
@@ -74,11 +74,9 @@ Cypress.Commands.add("testDatasource", (expectedRes = true) => {
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click({ force: true });
-  cy.wait("@saveDatasource")
-    .then((xhr) => {
-      cy.log(JSON.stringify(xhr.response.body));
-    })
-    .should("have.nested.property", "response.body.responseMeta.status", 201);
+  cy.wait("@saveDatasource").then((xhr) => {
+    expect(xhr.status).to.equal(201);
+  });
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
@@ -98,8 +96,10 @@ Cypress.Commands.add(
     // const databaseName = shouldAddTrailingSpaces
     //   ? datasourceFormData["mongo-databaseName"] + "  "
     //   : datasourceFormData["mongo-databaseName"];
-    cy.get(datasourceEditor["host"]).type(hostAddress);
-    cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor["host"]).clear().type(hostAddress);
+    cy.get(datasourceEditor.port)
+      .clear()
+      .type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
