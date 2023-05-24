@@ -352,7 +352,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   {pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                      name="double-arrow-left"
+                      name="menu-fold"
                       onClick={onPin}
                       size="md"
                     />
@@ -360,7 +360,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   {!pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                      name="double-arrow-right"
+                      name="menu-unfold"
                       onClick={onPin}
                       size="md"
                     />
