@@ -66,7 +66,7 @@ describe("FilePicker Widget Functionality", function () {
     cy.wait(200);
     cy.get("button.uppy-Dashboard-Item-action--remove").click();
     cy.get("button.uppy-Dashboard-browse").click();
-    cy.xpath(commonlocators.filePickerInput)
+    cy.get(commonlocators.filePickerInput)
       .first()
       .selectFile("cypress/fixtures/testFile2.mov", {
         force: true,

@@ -10,7 +10,7 @@ describe("FilePicker Widget Functionality with different file types", function (
   it("1. Check file upload of type jpeg", function () {
     _.entityExplorer.SelectEntityByName("FilePicker1");
 
-    const fixturePath = "cypress/fixtures/AAAFlowerVase.json";
+    const fixturePath = "cypress/fixtures/AAAFlowerVase.jpeg";
     cy.get(commonlocators.filepickerv2).click();
     cy.get(commonlocators.filePickerInput).first().selectFile(fixturePath, {
       force: true,
@@ -28,7 +28,7 @@ describe("FilePicker Widget Functionality with different file types", function (
     cy.get("button.uppy-Dashboard-browse").should("be.visible");
     cy.get(commonlocators.filePickerInput)
       .first()
-      .selectFile("cypress/fixtures/appsmithlogo.json", {
+      .selectFile("cypress/fixtures/appsmithlogo.png", {
         force: true,
       });
     cy.get(commonlocators.filePickerUploadButton).click();

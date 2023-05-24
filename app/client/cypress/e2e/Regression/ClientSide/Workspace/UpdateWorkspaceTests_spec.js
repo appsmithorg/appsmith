@@ -69,7 +69,7 @@ describe("Update Workspace", function () {
 
   it("3. Upload logo / delete logo and validate", function () {
     const fixturePath = "cypress/fixtures/appsmithlogo.png";
-    cy.xpath(commonlocators.filePickerInput).first().selectFile(fixturePath, {
+    cy.xpath(homePage.uploadLogo).first().selectFile(fixturePath, {
       force: true,
     });
     cy.wait("@updateLogo").should(

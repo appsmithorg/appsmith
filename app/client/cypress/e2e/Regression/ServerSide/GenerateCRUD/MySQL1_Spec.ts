@@ -166,9 +166,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     _.agHelper.ValidateNetworkStatus("@getActions", 200);
     _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
+    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
 
     //Validating loaded table
@@ -305,9 +304,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     _.agHelper.AssertContains("Successfully generated a page");
     //_.agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
+    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
     _.table.WaitUntilTableLoad();
 

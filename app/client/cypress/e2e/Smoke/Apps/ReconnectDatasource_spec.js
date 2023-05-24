@@ -21,7 +21,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
         cy.get(homePage.workspaceImportAppModal).should("be.visible");
         cy.xpath(homePage.uploadLogo)
           .first()
-          .selectFile("cypress/fixtures/one_postgres.jpeg", {
+          .selectFile("cypress/fixtures/one_postgres.json", {
             force: true,
           });
         cy.wait("@importNewApplication").then((interception) => {
