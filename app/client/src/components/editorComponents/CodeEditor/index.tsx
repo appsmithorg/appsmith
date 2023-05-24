@@ -152,6 +152,8 @@ import {
 import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
+import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
+import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -281,6 +283,7 @@ class CodeEditor extends Component<Props, State> {
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   currentLineNumber: number | null = null;
   AIEnabled = false;
+  private multiplexConfig?: MultiplexingModeConfig;
 
   constructor(props: Props) {
     super(props);
@@ -307,6 +310,7 @@ class CodeEditor extends Component<Props, State> {
           },
       props.input.value,
     );
+    this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
   }
 
   componentDidMount(): void {
@@ -651,53 +655,92 @@ class CodeEditor extends Component<Props, State> {
     setTimeout(delayedWork, 0);
   };
 
+  isPeekableElement = (element: Element) => {
+    if (
+      !element.classList.contains("cm-m-javascript") ||
+      element.classList.contains("binding-brackets")
+    )
+      return false;
+    if (
+      // global variables and functions
+      // JsObject1, storeValue()
+      element.classList.contains("cm-variable") ||
+      // properties and function calls
+      // JsObject.myFun(), Api1.data
+      element.classList.contains("cm-property") ||
+      // array indices - [0]
+      element.classList.contains("cm-number") ||
+      // string accessor - ["x"]
+      element.classList.contains("cm-string")
+    ) {
+      return true;
+    } else if (element.classList.contains("cm-keyword")) {
+      // this keyword for jsObjects
+      if (this.props.isJSObject && element.innerHTML === "this") {
+        return true;
+      }
+    }
+  };
+
+  getBindingSnippetAtPos = (
+    multiPlexConfig: MultiplexingModeConfig,
+    pos: number,
+  ) => {
+    return multiPlexConfig.innerModes.map((innerMode) => {
+      const doc = this.editor.getValue();
+      const openPos =
+        doc.lastIndexOf(innerMode.open, pos) + innerMode.open.length;
+      const closePos = doc.indexOf(innerMode.close, pos);
+      return {
+        value: doc.slice(openPos, closePos),
+        offset: openPos,
+      };
+    });
+  };
+
   handleMouseOver = (event: MouseEvent) => {
     const tokenElement = event.target;
     if (
       tokenElement instanceof Element &&
-      tokenElement.classList.contains("cm-m-javascript")
+      this.isPeekableElement(tokenElement)
     ) {
       const tokenPos = this.editor.coordsChar({
         left: event.clientX,
         top: event.clientY,
       });
-      const hoverChIndex = this.editor.indexFromPos(tokenPos);
+      let hoverChIndex = this.editor.indexFromPos(tokenPos);
 
-      if (!this.peekOverlayExpressionIdentifier.hasParsedScript()) {
-        this.peekOverlayExpressionIdentifier.updateScript(
-          this.editor.getValue(),
-        );
+      if (
+        !this.peekOverlayExpressionIdentifier.hasParsedScript() ||
+        this.multiplexConfig
+      ) {
+        if (this.multiplexConfig) {
+          const bindingSnippetsByInnerMode = this.getBindingSnippetAtPos(
+            this.multiplexConfig,
+            hoverChIndex,
+          );
+          for (const snippet of bindingSnippetsByInnerMode) {
+            if (snippet.value) {
+              this.peekOverlayExpressionIdentifier.updateScript(snippet.value);
+              hoverChIndex -= snippet.offset;
+              break;
+            }
+          }
+        } else {
+          this.peekOverlayExpressionIdentifier.updateScript(
+            this.editor.getValue(),
+          );
+        }
       }
 
       this.peekOverlayExpressionIdentifier
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
-          if (lineExpression) {
-            const paths = _.toPath(lineExpression);
-            if (
-              // global variables and functions
-              // JsObject1, storeValue()
-              tokenElement.classList.contains("cm-variable") ||
-              // properties and function calls
-              // JsObject.myFun(), Api1.data
-              tokenElement.classList.contains("cm-property") ||
-              // array indices - [0]
-              tokenElement.classList.contains("cm-number") ||
-              // string accessor - ["x"]
-              tokenElement.classList.contains("cm-string")
-            ) {
-              this.showPeekOverlay(lineExpression, paths, tokenElement);
-            } else if (tokenElement.classList.contains("cm-keyword")) {
-              // this keyword for jsObjects
-              if (this.props.isJSObject && tokenElement.innerHTML === "this") {
-                this.showPeekOverlay(lineExpression, paths, tokenElement);
-              }
-            } else {
-              this.hidePeekOverlay();
-            }
-          }
+          const paths = _.toPath(lineExpression);
+          this.showPeekOverlay(lineExpression, paths, tokenElement);
         })
         .catch((e) => {
+          this.hidePeekOverlay();
           debug(e);
         });
     } else {

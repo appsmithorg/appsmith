@@ -68,6 +68,7 @@ const getExpressionAtPosFromMemberExpression = (
     if (isMemberExpressionNode(propertyNode)) {
       return getExpressionAtPosFromMemberExpression(propertyNode, pos);
     }
+    // generate string for the whole path
     return escodegen.generate(node);
   }
 };
