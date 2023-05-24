@@ -190,7 +190,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: app/client/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
