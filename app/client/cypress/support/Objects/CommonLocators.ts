@@ -1,6 +1,7 @@
 export class CommonLocators {
   _body = "body";
   _canvasViewport = "#canvas-viewport";
+  _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".ads-v2-spinner";
@@ -117,7 +118,9 @@ export class CommonLocators {
     fieldName +
     "']/ancestor::div[contains(@class, 't--property-control-" +
     fieldName.replace(/ +/g, "").toLowerCase() +
-    "')]";
+    "')] | //label[text()='" +
+    fieldName +
+    "']/following-sibling::div";
   _existingFieldValueByName = (fieldName: string) =>
     this._existingFieldTextByName(fieldName) +
     "//div[contains(@class,'CodeMirror-code')]";
@@ -201,6 +204,8 @@ export class CommonLocators {
   _refreshApp = "button:contains('Refresh the app')";
 
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _popUpCloseBtn = (popupname: string) =>
+    `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
 }

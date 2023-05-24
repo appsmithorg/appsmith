@@ -24,7 +24,10 @@ describe("Git import flow ", function () {
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
-    cy.xpath(homePage.uploadLogo).attachFile("gitImport.json");
+    cy.xpath(homePage.uploadLogo).selectFile(
+      "cypress/fixtures/gitImport.json",
+      { force: true },
+    );
     cy.wait(4000);
     cy.wait("@importNewApplication").then((interception) => {
       cy.log(interception.response.body.data);

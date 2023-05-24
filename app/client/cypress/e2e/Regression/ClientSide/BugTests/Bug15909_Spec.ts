@@ -1,9 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { WIDGET } from "../../../../locators/WidgetLocators";
 
 describe("JS Function Execution", function () {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
   });
   it("1. Shows js function data as part of autocompletion hints", function () {
     _.entityExplorer.NavigateToSwitcher("Explorer");
