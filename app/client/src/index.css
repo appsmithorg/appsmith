@@ -246,6 +246,3 @@ div.bp3-popover-arrow {
 .reconnect-datasource-modal {
   z-index: 9 !important;
 }
-.picker-dialog-bg {
-  pointer-events: auto !important;
-}

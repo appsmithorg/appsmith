@@ -378,23 +378,43 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
-  const handleClose = useCallback(
-    (open: boolean) => {
-      const element: HTMLElement | null =
-        document.querySelector(".picker-dialog-bg");
-      if (!!element && !open) {
-        return;
+  const handleClose = (e: any) => {
+    // Some magic code to handle the scenario where the reconnect modal and google sheets
+    // file picker are both open.
+    // Check if the overlay of the modal was clicked
+    function isOverlayClicked(classList: DOMTokenList) {
+      return classList.contains("reconnect-datasource-modal");
+    }
+    // Check if the close button of the modal was clicked
+    function isCloseButtonClicked(e: HTMLDivElement) {
+      const dialogCloseButton = document.querySelector(
+        ".ads-v2-modal__content-header-close-button",
+      );
+      if (dialogCloseButton) {
+        return dialogCloseButton.contains(e);
       }
+      return false;
+    }
 
-      localStorage.setItem("importedAppPendingInfo", "null");
-      dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-      dispatch(setWorkspaceIdForImport(""));
-      dispatch(setPageIdForImport(""));
-      dispatch(resetDatasourceConfigForImportFetchedFlag());
-      setSelectedDatasourceId("");
-    },
-    [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen],
-  );
+    let shouldClose = false;
+    if (e) {
+      shouldClose = isOverlayClicked(e.target.classList);
+      shouldClose = shouldClose || isCloseButtonClicked(e.target);
+      // If either the close button or the overlay was clicked close the modal
+      if (shouldClose) {
+        onClose();
+      }
+    }
+  };
+
+  const onClose = () => {
+    localStorage.setItem("importedAppPendingInfo", "null");
+    dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
+    dispatch(setWorkspaceIdForImport(""));
+    dispatch(setPageIdForImport(""));
+    dispatch(resetDatasourceConfigForImportFetchedFlag());
+    setSelectedDatasourceId("");
+  };
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
     setIsTesting(false);
