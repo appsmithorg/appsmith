@@ -322,27 +322,19 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnURLWithCurlyBracket() {
-        setup();
-        // Set up the application & page for which this import curl action would be added
-        Application app = new Application();
-        app.setName("curlTest Incorrect Command");
-        String urlWithCurlyBrackets = "curl -X GET https://mock-api.appsmith.com/{id}/users?name=test";
+        String curlCommandWithUrlContainingCurlyBrackets = "curl -X GET https://mock-api.appsmith.com/{id}/users?name=test";
+        ActionDTO actionDTO = curlImporterService.curlToAction(curlCommandWithUrlContainingCurlyBrackets);
 
-        Application application = applicationPageService.createApplication(app, workspaceId).block();
-        assert application != null;
-        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+        assertThat(actionDTO).isNotNull();
+        assertThat(actionDTO.getDatasource()).isNotNull();
+        assertThat(actionDTO.getDatasource().getDatasourceConfiguration()).isNotNull();
+        assertThat(actionDTO.getDatasource().getDatasourceConfiguration().getUrl())
+                .isEqualTo("https://mock-api.appsmith.com");
 
-        assert page != null;
-        Mono<ActionDTO> action = curlImporterService.importAction(urlWithCurlyBrackets, page.getId(), "actionName", workspaceId, null);
-
-        StepVerifier
-                .create(action)
-                .assertNext(actionDTO -> {
-                    assertThat(actionDTO.getDatasource().getDatasourceConfiguration().getUrl()).isNotNull();
-                    assertThat(actionDTO.getDatasource().getDatasourceConfiguration().getUrl()).isNotEmpty();
-                    assertThat(actionDTO.getActionConfiguration().getQueryParameters()).isNotEmpty();
-                })
-                .verifyComplete();
+        final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+        assertThat(actionConfiguration.getPath()).isEqualTo("/{id}/users");
+        assertThat(actionConfiguration.getQueryParameters().size()).isEqualTo(1);
+        assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.GET);
     }
 
     @Test

@@ -489,7 +489,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         return null;
     }
 
-    private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException,IndexOutOfBoundsException {
+    private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException, IndexOutOfBoundsException {
         // If the URL appears to not have a protocol set, prepend the `https` protocol.
         if (!token.matches("\\w+://.*")) {
             token = "http://" + token;
