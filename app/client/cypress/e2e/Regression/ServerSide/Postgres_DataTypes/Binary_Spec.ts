@@ -79,9 +79,9 @@ describe("Binary Datatype tests", function () {
     _.agHelper.ClickButton("Insert");
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //for the update row to appear at last
+    _.agHelper.AssertElementAbsence(_.locators._spinner, 10000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
-    _.agHelper.Sleep(5000); //some more time for all rows with images to be populated
+    _.agHelper.Sleep(3000); //some more time for all rows with images to be populated
     _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
