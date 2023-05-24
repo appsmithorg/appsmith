@@ -1830,7 +1830,8 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, defaultEnvironmentId));
+        Datasource datasource1 = datasourceService.convertToDatasource(mockDatasource, defaultEnvironmentId).block();
+        action.setDatasource(datasource1);
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
