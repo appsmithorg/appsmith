@@ -3972,7 +3972,6 @@ public class ImportExportApplicationServiceTests {
         3. Name and slug will not be updated by the incoming changes from the json file
          */
 
-        //Create application connected to git
         Application testApplication = new Application();
         final String appName = UUID.randomUUID().toString();
         testApplication.setName(appName);
@@ -3993,6 +3992,35 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application1.getSlug()).isEqualTo(appName);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void mergeApplicationJsonWithApplication_WhenNoPermissionToCreatePage_Fails() {
+        Application testApplication = new Application();
+        final String appName = UUID.randomUUID().toString();
+        testApplication.setName(appName);
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+
+        Mono<ApplicationImportDTO> applicationImportDTOMono = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    // remove page create permission from this application for current user
+                    application.getPolicies().removeIf(
+                            policy -> policy.getPermission().equals(applicationPermission.getPageCreatePermission().getValue())
+                    );
+                    return applicationRepository.save(application);
+                }).flatMap(application -> {
+                    FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+                    return importExportApplicationService
+                            .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId());
+                });
+
+        StepVerifier
+                .create(applicationImportDTOMono)
+                .expectError(AppsmithException.class)
+                .verify();
     }
 
 }
