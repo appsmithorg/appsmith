@@ -174,11 +174,14 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 branchName,
                                 executeActionDTO.getActionId(),
                                 actionPermission.getExecutePermission())
-                        .map(branchedAction -> {
+                        .flatMap(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
-                            return executeActionDTO;
+                            return Mono.just(executeActionDTO)
+                                    .zipWith(datasourceService.getTrueEnvironmentId(
+                                            branchedAction.getWorkspaceId(),
+                                            environmentId));
                         }))
-                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, datasourceService.getTrueEnvironmentId(environmentId))) // getTrue is temporary call
+                .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
