@@ -427,6 +427,8 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
+
+  // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
   public InviteUserToWorkspaceFromApp(
     email: string,
     role: string,

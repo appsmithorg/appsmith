@@ -114,7 +114,7 @@ describe("Fork application across workspaces", function () {
     _.embedSettings.ToggleMarkForkable();
 
     _.inviteModal.OpenShareModal();
-    _.homePage.InviteUserToWorkspaceFromApp(
+    _.homePage.InviteUserToApplication(
       Cypress.env("TESTUSERNAME1"),
       "App Viewer",
       false,
