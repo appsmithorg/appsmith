@@ -139,7 +139,7 @@
   "toastActionText": ".ads-v2-toast .ads-v2-toast__body .ads-v2-text",
   "defaultColName": "[data-rbd-draggable-id='customColumn1'] input",
   "defaultColNameV2": "[data-rbd-draggable-id='customColumn1'] input[type='text']",
-  "selectWidget": ".t--open-dropdown-Select-Widget",
+  "selectWidget": ".t--open-dropdown-Select-widget",
   "switchWidget": ".t--widget-switchwidget",
   "toastMsg": ".ads-v2-toast .ads-v2-toast__body .ads-v2-text",
   "deleteToast": "div[class = 'undo-section'] span[type='h6']",

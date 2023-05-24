@@ -72,4 +72,12 @@ describe("Category Slider spec", () => {
       expect($label).to.eq("sm");
     });
   });
+
+  it("does not crash if an invalid mark option is passed", function () {
+    cy.get(".t--property-control-options .t--js-toggle").first().click();
+    cy.updateCodeInput(".t--property-control-options", "[[]]");
+    cy.get(".t--widget-categorysliderwidget")
+      .contains("Oops, Something went wrong.")
+      .should("not.exist");
+  });
 });
