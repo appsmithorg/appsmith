@@ -45,11 +45,12 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
-        String trueEnvironmentId = datasourceService.getTrueEnvironmentId(environmentId);
         return datasourceService.findById(datasourceId, datasourcePermission.getExecutePermission())
-                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
-                        datasource1,
-                        trueEnvironmentId))
+                .zipWhen(datasource -> datasourceService
+                        .getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId))
+                .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
+                        tuple2.getT1(),
+                        tuple2.getT2()))
                 .flatMap(datasourceStorage -> getStructure(datasourceStorage, ignoreCache))
                 .onErrorMap(
                         IllegalArgumentException.class,
@@ -130,7 +131,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
                 })
                 .onErrorResume(error -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED, datasourceStorage,
-                        getAnalyticsPropertiesForTestEventStatus(datasourceStorage,false, error)).then(Mono.error(error)))
+                        getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false, error)).then(Mono.error(error)))
                 .flatMap(structure -> analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
                                 datasourceStorage, getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
                         .then(datasourceStorage.getDatasourceId() == null

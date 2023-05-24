@@ -85,7 +85,7 @@ class ActionExecutionSolutionCEImplTest {
     ObjectMapper objectMapper;
     @MockBean
     NewActionRepository repository;
-    @MockBean
+    @SpyBean
     DatasourceService datasourceService;
     @MockBean
     PluginService pluginService;
