@@ -127,19 +127,19 @@ describe("JSObjects OnLoad Actions tests", function () {
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true); //call trumpy - jsobj
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes"), 0, true); //call trumpy - jsobj
 
       //_.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true); //trumpy - api
-      _.agHelper.Sleep(2000);
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes"), 0, true); //trumpy - api
+      _.agHelper.Sleep(3000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.GetNClick(_.locators._confirmationdialogbtn("Yes"), 0, true); //quotes - api
+      _.agHelper.GetNClick(_.jsEditor._confirmationModalBtns("Yes"), 0, true); //quotes - api
 
       //_.agHelper.Sleep(2000);
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
