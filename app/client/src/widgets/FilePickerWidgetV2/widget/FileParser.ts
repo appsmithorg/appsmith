@@ -1,7 +1,14 @@
 import Papa from "papaparse";
 import FileDataTypes from "../constants";
 import log from "loglevel";
-import Excel from "exceljs";
+import * as XLSX from "xlsx";
+
+interface ExcelSheetData {
+  name: string;
+  data: unknown[];
+}
+
+type CSVRowData = Record<any, any>; // key represents column name, value represents cell value
 
 function parseFileData(
   data: Blob,
@@ -61,10 +68,10 @@ function parseArrayTypeFile(
   filetype: string,
   extension: string,
   dynamicTyping = false,
-): Promise<any[]> {
+): Promise<unknown> {
   return new Promise((resolve) => {
     (async () => {
-      let result: any = [];
+      let result: unknown = [];
 
       if (filetype.indexOf("csv") > -1) {
         result = await parseCSVBlob(data, dynamicTyping);
@@ -77,19 +84,17 @@ function parseArrayTypeFile(
         result = parseJSONFile(data);
       } else if (filetype.indexOf("text/tab-separated-values") > -1) {
         result = await parseCSVBlob(data, dynamicTyping);
-      } else {
-        result = [];
       }
       resolve(result);
     })();
   });
 }
 
-function parseJSONFile(data: Blob): Promise<any> {
+function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      let result: any = {};
+      let result: Record<string, unknown> = {};
       try {
         result = JSON.parse(reader.result as string);
       } finally {
@@ -100,60 +105,53 @@ function parseJSONFile(data: Blob): Promise<any> {
   });
 }
 
-function parseXLSFile(data: Blob): Promise<any[]> {
+function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const workbook = new Excel.Workbook();
-      const results: any = [];
-      workbook.xlsx
-        .load(reader.result as ArrayBuffer)
-        .then(() => {
-          workbook.eachSheet((sheet) => {
-            const sheetData: Record<string, any> = {};
-            sheetData["sheetName"] = sheet.name;
-            sheetData["data"] = [];
-            sheet.eachRow((row) => {
-              const rowData: any[] = [];
-              row.eachCell((cell) => {
-                if (cell.value?.hasOwnProperty("result")) {
-                  rowData.push(cell.result);
-                } else {
-                  rowData.push(cell.value);
-                }
-              });
-              sheetData["data"].push(rowData);
-            });
-            results.push(sheetData);
+      const sheetsData: ExcelSheetData[] = [];
+      const workbook = XLSX.read(reader.result as ArrayBuffer, {
+        type: "array",
+      });
+
+      workbook.SheetNames.forEach((sheetName) => {
+        const sheetData: ExcelSheetData = { name: "", data: [] };
+        try {
+          const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+            header: 1,
           });
-          resolve(results);
-        })
-        .catch(() => {
-          resolve([]);
-        });
+          sheetData["name"] = sheetName;
+          sheetData["data"] = data;
+          sheetsData.push(sheetData);
+        } finally {
+        }
+      });
+      resolve(sheetsData);
     };
     reader.readAsArrayBuffer(data);
   });
 }
 
-function parseCSVBlob(data: Blob, dynamicTyping = false): Promise<any[]> {
+function parseCSVBlob(
+  data: Blob,
+  dynamicTyping = false,
+): Promise<CSVRowData[]> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
+      let result: CSVRowData[] = [];
       try {
-        const result = parseCSVString(reader.result as string, dynamicTyping);
+        result = parseCSVString(reader.result as string, dynamicTyping);
+      } finally {
         resolve(result);
-      } catch (error) {
-        // TODO: show error alert here
-        resolve([]);
       }
     };
     reader.readAsText(data);
   });
 }
 
-function parseCSVString(data: string, dynamicTyping = false): any[] {
-  const result: Record<string, string>[] = [];
+function parseCSVString(data: string, dynamicTyping = false): CSVRowData[] {
+  const result: CSVRowData[] = [];
   const errors: Papa.ParseError[] = [];
 
   function chunk(results: Papa.ParseStepResult<any>) {

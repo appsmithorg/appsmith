@@ -29,11 +29,11 @@ import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import parseFileData from "./FileParsing";
+import parseFileData from "./FileParser";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLSX(X), JSON, TSV)";
 
-const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app. Read more`;
+const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -682,31 +682,34 @@ class FilePickerWidget extends BaseWidget<
 
       const fileCount = this.props.selectedFiles?.length || 0;
       const fileReaderPromises = files.map(async (file, index) => {
-        let data: any;
-
-        if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
-          data = await parseFileData(
-            file.data,
-            this.props.fileDataType,
-            file.type || "",
-            file.extension,
-            this.props.dynamicTyping,
-          );
-        } else {
-          data = createBlobUrl(file.data, this.props.fileDataType);
-        }
-
         return new Promise((resolve) => {
-          const newFile = {
-            type: file.type,
-            id: file.id,
-            data: data,
-            meta: file.meta,
-            name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-            size: file.size,
-            dataFormat: this.props.fileDataType,
+          const parseFile = async () => {
+            let data: any;
+            if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
+              data = await parseFileData(
+                file.data,
+                this.props.fileDataType,
+                file.type || "",
+                file.extension,
+                this.props.dynamicTyping,
+              );
+            } else {
+              data = createBlobUrl(file.data, this.props.fileDataType);
+            }
+            return data;
           };
-          resolve(newFile);
+          parseFile().then((data) => {
+            const newFile = {
+              type: file.type,
+              id: file.id,
+              data: data,
+              meta: file.meta,
+              name: file.meta ? file.meta.name : `File-${index + fileCount}`,
+              size: file.size,
+              dataFormat: this.props.fileDataType,
+            };
+            resolve(newFile);
+          });
         });
       });
 
