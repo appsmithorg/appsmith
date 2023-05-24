@@ -5,6 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let ag = ObjectsRegistry.AggregateHelper;
+let ee = ObjectsRegistry.EntityExplorer;
 
 let datasourceName;
 
@@ -23,7 +24,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
-    cy.get("#switcher--widgets").click();
+    ee.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
