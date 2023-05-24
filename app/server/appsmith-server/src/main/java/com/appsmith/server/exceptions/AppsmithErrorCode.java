@@ -66,6 +66,7 @@ public enum AppsmithErrorCode {
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
     INVALID_CRUD_PAGE_REQUEST("AE-CRD-4039", "Invalid crud page request"),
+    EMPTY_CURL_INPUT_STATEMENT("AE-CRL-4054", "Invalid CURL input statement"),
     INVALID_CURL_COMMAND("AE-CRL-4029", "Invalid curl command"),
     INVALID_CURL_METHOD("AE-CRL-4032", "Invalid curl method"),
     INVALID_CURL_HEADER("AE-CRL-4036", "Invalid curl header"),

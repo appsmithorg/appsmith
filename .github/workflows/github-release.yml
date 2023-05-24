@@ -157,7 +157,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: app/rts
+        working-directory: app/client/packages/rts
 
     runs-on: ubuntu-latest
 
@@ -172,6 +172,23 @@ jobs:
         with:
           node-version: "16.14.0"
 
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --immutable
+
       - name: Build
         run: |
           echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
@@ -180,7 +197,6 @@ jobs:
       # Tar the bundles to speed up the upload & download process
       - name: Tar the rts bundles
         run: |
-          ls -al dist/node_modules/@shared/ast
           tar -cvf rts-dist.tar dist
 
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
@@ -188,7 +204,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: rts-dist
-          path: app/rts/rts-dist.tar
+          path: app/client/packages/rts/rts-dist.tar
 
   package:
     needs: [prelude, client-build, server-build, rts-build]
@@ -209,7 +225,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: client-build
-          path: app/client/build
+          path: app/client
+
+      - name: Untar the client folder
+        run: |
+          mkdir -p app/client/build
+          tar -xvf app/client/build.tar -C app/client/build
+          echo "Cleaning up the client build"
+          rm app/client/build.tar
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
@@ -221,13 +244,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: rts-dist
-          path: app/rts/dist
+          path: app/client/packages/rts/dist
 
       - name: Untar the rts folder
         run: |
-          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          tar -xvf app/client/packages/rts/dist/rts-dist.tar -C app/client/packages/rts/
           echo "Cleaning up the tar files"
-          rm app/rts/dist/rts-dist.tar
+          rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Login to DockerHub
         uses: docker/login-action@v1

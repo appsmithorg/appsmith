@@ -1,32 +1,29 @@
-import { Colors } from "constants/Colors";
-import {
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
-import type { Datasource } from "entities/Datasource";
-import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import React from "react";
+import { Text, TextType } from "design-system-old";
+import { Icon, Tooltip } from "design-system";
+import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
 
 const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   height: 64px;
   width: 100%;
-  padding: 10px 18px;
+  padding: 10px 12px;
   margin-bottom: 10px;
   cursor: pointer;
   opacity: ${(props) => (props.disabled ? 0.4 : 1)};
-  &.active,
+  border-radius: var(--ads-v2-border-radius);
+  &.active {
+    background-color: var(--ads-v2-color-bg-muted);
+  }
   &:hover {
-    background-color: ${Colors.GEYSER_LIGHT};
+    background-color: var(--ads-v2-color-bg-subtle);
   }
   img {
-    width: 24pxx;
-    height: 22.5px;
+    width: 24px;
+    height: 24px;
   }
 `;
 
@@ -41,10 +38,11 @@ const DsTitle = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[1]}px;
   .t--ds-list-title {
-    max-width: 120px;
+    max-width: 160px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-right: 4px;
   }
   .cs-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
@@ -70,21 +68,24 @@ function ListItemWrapper(props: {
         <DsTitle>
           <Text
             className="t--ds-list-title"
-            color={Colors.GRAY_800}
+            color="var(--ads-v2-color-fg-emphasis)"
             type={TextType.H4}
           >
             {ds.name}
           </Text>
-          <TooltipComponent content={ds.name} position="left">
+          <Tooltip content={ds.name} placement="left">
             <Icon
-              className="t--ds-list-icon"
-              fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+              color={
+                ds.isConfigured
+                  ? "var(--ads-v2-color-fg-success)"
+                  : "var(--ads-v2-color-fg-error)"
+              }
               name={ds.isConfigured ? "oval-check" : "info"}
-              size={IconSize.MEDIUM}
+              size="md"
             />
-          </TooltipComponent>
+          </Tooltip>
         </DsTitle>
-        <Text color={Colors.GRAY_700} type={TextType.H5}>
+        <Text color="var(--ads-v2-color-fg)" type={TextType.H5}>
           {plugin.name}
         </Text>
       </ListLabels>

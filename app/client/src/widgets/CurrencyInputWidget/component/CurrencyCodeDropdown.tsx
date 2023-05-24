@@ -2,8 +2,8 @@ import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import type { CurrencyOptionProps } from "constants/Currency";
 import { CurrencyTypeOptions } from "constants/Currency";
-import type { DropdownOption } from "design-system-old";
-import { Dropdown, Icon, IconSize } from "design-system-old";
+import type { DropdownOption } from "@design-system/widgets-old";
+import { Dropdown, Icon, IconSize } from "@design-system/widgets-old";
 import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
@@ -172,12 +172,12 @@ export const CurrencyDropdownOptions = getCurrencyOptions();
 
 export const getDefaultCurrency = () => {
   return {
-    code: "US",
-    currency: "USD",
-    currency_name: "US Dollar",
-    label: "United States",
-    phone: "1",
-    symbol_native: "$",
+    code: "IN",
+    currency: "INR",
+    currency_name: "Indian Rupee",
+    label: "India",
+    phone: "91",
+    symbol_native: "₹",
   };
 };
 

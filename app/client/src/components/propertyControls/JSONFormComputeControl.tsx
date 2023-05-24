@@ -26,14 +26,21 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
+
+  > .code-wrapper {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: var(--ads-v2-color-fg);
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 // Auxiliary function for processArray, which returns the value for an object field
@@ -126,6 +133,7 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -138,9 +146,12 @@ export function InputText(props: {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current form using <CurlyBraces>{"{{"}</CurlyBraces>
-            sourceData.fieldName
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            Access the current form using{" "}
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              sourceData.fieldName
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}

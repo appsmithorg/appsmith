@@ -28,13 +28,11 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { Text, FontWeight, TextType } from "design-system-old";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -53,6 +51,8 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { Text } from "design-system";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 
@@ -83,11 +83,11 @@ const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
   align-items: center;
-  height: 35px;
+  height: 36px;
   .t--datasource-editor {
-    background-color: ${Colors.WHITE};
+    background-color: var(--ads-v2-color-bg);
     .cm-s-duotone-light.CodeMirror {
-      background: ${Colors.WHITE};
+      background: var(--ads-v2-color-bg);
     }
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
@@ -96,43 +96,6 @@ const DatasourceContainer = styled.div`
 
   .t--store-as-datasource {
     margin-left: 10px;
-  }
-`;
-
-const CustomToolTip = styled.span<{ width?: number }>`
-  visibility: hidden;
-  text-align: left;
-  padding: 10px 12px;
-  border-radius: 0px;
-  background-color: ${Colors.CODE_GRAY};
-  color: ${Colors.ALABASTER_ALT};
-  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
-
-  position: absolute;
-  z-index: 1000;
-  bottom: 125%;
-  left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
-  margin-left: -60px;
-
-  opacity: 0;
-  transition: opacity 0.01s 1s ease-in;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    height: 14px;
-    width: 14px;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: ${Colors.CODE_GRAY} transparent transparent transparent;
-  }
-
-  &.highlighter {
-    visibility: visible;
-    opacity: 1;
   }
 `;
 
@@ -170,6 +133,48 @@ const italicInfoStyles = {
   flexShrink: 0,
   fontStyle: "italic",
 };
+
+const StyledTooltip = styled.span<{ width?: number }>`
+  visibility: hidden;
+  text-align: left;
+  background-color: var(--ads-v2-color-bg-emphasis-max);
+  border-radius: var(--ads-v2-border-radius);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.1);
+  color: var(--ads-v2-color-fg-on-emphasis-max);
+  font-family: var(--ads-v2-font-family);
+  min-height: unset;
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+
+  position: absolute;
+  z-index: 100000;
+  max-width: 300px;
+  bottom: 125%;
+  left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
+  margin-left: -60px;
+
+  opacity: 0;
+  transition: opacity 0.01s 1s ease-in;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    height: 10px;
+    width: 10px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--ads-v2-color-bg-emphasis-max) transparent transparent
+      transparent;
+  }
+
+  &.highlighter {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
 
 //Avoiding styled components since ReactDOM.render cannot directly work with it
 function CustomHint(props: { datasource: Datasource }) {
@@ -297,7 +302,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         editorInstance.lineCount() === 1 &&
         datasource &&
         "id" in datasource &&
-        datasource.id
+        datasource.id &&
+        datasource.id !== TEMP_DATASOURCE_ID
       ) {
         const end = get(datasource, "datasourceConfiguration.url", "").length;
         editorInstance.markText(
@@ -385,8 +391,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
         evaluatedPath = extractApiUrlPath(evaluatedPath);
       }
-      const evaluatedQueryParameters = entity.config.queryParameters
-        ?.filter((p: KeyValuePair) => p.key)
+      const evaluatedQueryParameters = entity?.config?.queryParameters
+        ?.filter((p: KeyValuePair) => !!p?.key)
         .map(
           (p: KeyValuePair, i: number) =>
             `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
@@ -502,27 +508,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           focusElementName={`${this.props.actionName}.url`}
         />
         {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
-          <CustomToolTip
+          <StyledTooltip
             id="custom-tooltip"
             width={this.state.highlightedElementWidth}
           >
-            <Text
-              color={Colors.ALABASTER_ALT}
-              style={{ fontSize: "10px", display: "block", fontWeight: 600 }}
-              type={TextType.SIDE_HEAD}
-              weight={FontWeight.BOLD}
-            >
-              Datasource
-            </Text>{" "}
-            <Text
-              color={Colors.ALABASTER_ALT}
-              style={{ display: "block" }}
-              type={TextType.P3}
-            >
-              {" "}
-              {datasource?.name}{" "}
+            <Text color="var(--ads-v2-color-fg-on-emphasis-max)" kind="body-s">
+              {`Datasource ${datasource?.name}`}
             </Text>
-          </CustomToolTip>
+          </StyledTooltip>
         )}
         {displayValue && (
           <StoreAsDatasource
