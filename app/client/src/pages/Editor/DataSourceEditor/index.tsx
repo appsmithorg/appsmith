@@ -565,7 +565,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      deleteTempDSFromDraft,
       formData,
       isDeleting,
       isInsideReconnectModal,
@@ -624,7 +623,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               <DatasourceAuth
                 datasource={datasource as Datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
-                deleteTempDSFromDraft={deleteTempDSFromDraft}
                 formData={formData}
                 getSanitizedFormData={memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
