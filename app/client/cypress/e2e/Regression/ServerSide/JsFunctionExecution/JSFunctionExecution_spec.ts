@@ -373,7 +373,7 @@ describe("JS Function Execution", function () {
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //_.agHelper.AssertElementPresence(_.jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
+      _.agHelper.ClickButton("Yes");
       _.agHelper.Sleep();
     }
     // Switch to settings tab and assert order
