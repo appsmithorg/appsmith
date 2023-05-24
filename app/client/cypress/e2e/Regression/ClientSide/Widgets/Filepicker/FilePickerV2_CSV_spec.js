@@ -50,7 +50,7 @@ describe("File picker widget v2", () => {
     ).should("not.be.checked");
     cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
 
-    // Test for XLS file
+    // Test for XLSX file
     cy.get(commonlocators.filePickerInput)
       .first()
       .attachFile("TestSpreadsheet.xlsx");
@@ -61,6 +61,18 @@ describe("File picker widget v2", () => {
     });
     cy.readTableV2dataPublish("0", "1").then((tabData) => {
       expect(tabData).contains("Column A");
+    });
+    cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
+
+    // Test for XLS file
+    cy.get(commonlocators.filePickerInput).first().attachFile("SampleXLS.xls");
+    cy.wait(3000);
+
+    cy.readTableV2dataPublish("0", "0").then((tabData) => {
+      expect(tabData).to.be.equal("Sheet1");
+    });
+    cy.readTableV2dataPublish("0", "1").then((tabData) => {
+      expect(tabData).contains("Dulce");
     });
     cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
 
