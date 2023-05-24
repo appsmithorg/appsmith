@@ -16,18 +16,15 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
   if (React.isValidElement(children)) {
-    return (
-      <div
-        {...context.getReferenceProps({
-          ref,
-          ...rest,
-          ...children.props,
-          "data-tooltip-trigger": "",
-          "data-state": context.open ? "open" : "closed",
-        })}
-      >
-        {children}
-      </div>
+    return React.cloneElement(
+      children,
+      context.getReferenceProps({
+        ref,
+        ...rest,
+        ...children.props,
+        "data-state": context.open ? "open" : "closed",
+        visuallyDisabled: children.props.isDisabled ? true : undefined,
+      }),
     );
   }
 

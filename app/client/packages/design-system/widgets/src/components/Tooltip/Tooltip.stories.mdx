@@ -75,7 +75,9 @@ If the trigger is disabled, the tooltip will not be displayed.
   <Story name="Tooltip disabled">
     <Tooltip>
       <TooltipTrigger>
-        <Button isDisabled>My trigger</Button>
+        <Button isDisabled onPress={() => alert("hello")}>
+          My trigger
+        </Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </Tooltip>
