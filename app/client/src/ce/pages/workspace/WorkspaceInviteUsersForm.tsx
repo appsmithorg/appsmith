@@ -25,6 +25,7 @@ import {
   INVITE_USER_RAMP_TEXT,
   CUSTOM_ROLES_RAMP_TEXT,
   BUSINESS_TEXT,
+  CUSTOM_ROLE_DISABLED_OPTION_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -181,7 +182,7 @@ export const CustomRoleRampTooltip = styled(Tooltip)`
   pointer-events: auto;
 `;
 export const RampLink = styled(Link)`
-  display: inline !important;
+  display: inline;
 `;
 
 const validateFormValues = (values: {
@@ -287,8 +288,7 @@ export function CustomRolesRamp() {
           </Tag>
         </div>
         <Text kind="body-s">
-          Can access specific applications or only certain pages and queries
-          within an application
+          {createMessage(CUSTOM_ROLE_DISABLED_OPTION_TEXT)}
         </Text>
       </div>
     </CustomRoleRampTooltip>
