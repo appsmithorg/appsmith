@@ -46,13 +46,13 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
-      bgAssistive: this.bgAssistive,
+      bgAssistive: this.bgAssistive.toString({ format: "hex" }),
       // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
-      fgOnAssistive: this.fgOnAssistive,
+      fgOnAssistive: this.fgOnAssistive.toString({ format: "hex" }),
       // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
@@ -235,7 +235,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) >= -60) {
+    if (this.bg.contrastAPCA(this.seedColor) <= 60) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.25;
         color.oklch.c = 0;
@@ -251,29 +251,24 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get fgOnAccent() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) <= -60) {
-      if (this.seedIsAchromatic) {
-        color.oklch.l = 0.985;
-        color.oklch.c = 0;
-        return color;
-      }
-
-      color.oklch.l = 0.985;
-      color.oklch.c = 0.016;
-      return color;
-    }
+    const tint = this.seedColor.clone();
+    const shade = this.seedColor.clone();
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
-      color.oklch.c = 0;
-      return color;
+      tint.oklch.c = 0;
+      shade.oklch.c = 0;
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
-    return color;
+    tint.oklch.l = 0.96;
+    shade.oklch.l = 0.23;
+
+    if (
+      -this.bgAccent.contrastAPCA(tint) >= this.bgAccent.contrastAPCA(shade)
+    ) {
+      return tint;
+    }
+
+    return shade;
   }
 
   private get fgNegative() {
@@ -290,7 +285,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bdAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) >= -25) {
+    if (this.bg.contrastAPCA(this.seedColor) <= 25) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.15;
         color.oklch.c = 0;

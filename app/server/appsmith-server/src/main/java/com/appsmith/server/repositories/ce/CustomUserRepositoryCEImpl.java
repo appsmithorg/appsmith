@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -68,6 +67,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     /**
      * Fetch minmal information from *a* user document in the database, limit to two documents, filter anonymousUser
      * If no documents left return true otherwise return false.
+     *
      * @return Boolean, indicated where there exists at least one user in the system or not.
      */
     @Override
