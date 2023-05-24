@@ -4004,6 +4004,36 @@ public class ImportExportApplicationServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
 
+        Mono<Application> applicationImportDTOMono = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    // remove page create permission from this application for current user
+                    application.getPolicies().removeIf(
+                            policy -> policy.getPermission().equals(applicationPermission.getPageCreatePermission().getValue())
+                    );
+                    return applicationRepository.save(application);
+                }).flatMap(application -> {
+                    FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+                    return importExportApplicationService.extractApplicationJson(filePart).flatMap(applicationJson ->
+                        importExportApplicationService.mergeApplicationJsonWithApplication(workspaceId, application.getId(), null, applicationJson, null)
+                    );
+                });
+
+        StepVerifier
+                .create(applicationImportDTOMono)
+                .expectError(AppsmithException.class)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateNonGitConnectedApplication_WhenNoPermissionToCreatePage_Fails() {
+        Application testApplication = new Application();
+        final String appName = UUID.randomUUID().toString();
+        testApplication.setName(appName);
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+
         Mono<ApplicationImportDTO> applicationImportDTOMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     // remove page create permission from this application for current user
