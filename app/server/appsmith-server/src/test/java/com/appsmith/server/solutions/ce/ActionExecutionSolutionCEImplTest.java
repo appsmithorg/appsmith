@@ -261,7 +261,8 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -312,7 +313,8 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
