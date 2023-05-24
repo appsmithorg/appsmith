@@ -87,6 +87,7 @@ export function JSFunctionRun({
                 content={option.label}
                 // Here, 18 is the maximum charecter length because the width of this menu does not change
                 isDisabled={(option.label?.length || 0) < 18}
+                placement="right"
               >
                 <OptionLabelWrapper>
                   <OptionLabel renderAs="p">{option.label}</OptionLabel>
