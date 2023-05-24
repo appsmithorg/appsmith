@@ -1,6 +1,5 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -17,7 +16,7 @@ describe("Table Widget", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 300 });
-    ObjectsRegistry.PropertyPane.ToggleJsMode("Table data");
+    _.propPane.ToggleJsMode("Table data");
     cy.wait(1000);
     cy.wait("@updateLayout");
     cy.get(".t--property-control-tabledata").then(($el) => {

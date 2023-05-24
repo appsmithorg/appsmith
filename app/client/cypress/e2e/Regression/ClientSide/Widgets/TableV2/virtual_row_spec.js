@@ -1,12 +1,11 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-const PropertyPane = ObjectsRegistry.PropertyPane;
 const totalRows = 100;
 
 describe("Table Widget Virtualized Row", function () {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });
-    PropertyPane.ToggleJsMode("Table data");
+    _.propPane.ToggleJsMode("Table data");
     const row = {
       step: "#3",
       task: "Bind the query using => fetch_users.data",
@@ -19,9 +18,9 @@ describe("Table Widget Virtualized Row", function () {
       step: i,
     }));
 
-    PropertyPane.UpdatePropertyFieldValue("Table data", JSON.stringify(rows));
-    PropertyPane.ToggleOnOrOff("Server side pagination", "On");
-    PropertyPane.ToggleOnOrOff("Show pagination", "Off");
+    _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(rows));
+    _.propPane.ToggleOnOrOff("Server side pagination", "On");
+    _.propPane.ToggleOnOrOff("Show pagination", "Off");
   });
 
   it("1. should check that row is getting rendered", () => {
@@ -46,7 +45,7 @@ describe("Table Widget Virtualized Row", function () {
   it("3. should check that virtual rows feature is turned off when cell wrapping is enabled", () => {
     cy.editColumn("step");
     cy.wait(500);
-    PropertyPane.ToggleOnOrOff("Cell wrapping", "On");
+    _.propPane.ToggleOnOrOff("Cell wrapping", "On");
     cy.get(".tr[data-rowindex]").should("have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
@@ -62,12 +61,12 @@ describe("Table Widget Virtualized Row", function () {
   });
 
   it("4. should check that virtual rows feature is turned off when server side pagination is disabled", () => {
-    PropertyPane.ToggleOnOrOff("Cell wrapping", "Off");
-    PropertyPane.NavigateBackToPropertyPane();
+    _.propPane.ToggleOnOrOff("Cell wrapping", "Off");
+    _.propPane.NavigateBackToPropertyPane();
     cy.wait(500);
-    PropertyPane.ToggleOnOrOff("Show pagination", "On");
+    _.propPane.ToggleOnOrOff("Show pagination", "On");
     cy.wait(500);
-    PropertyPane.ToggleOnOrOff("Server side pagination", "Off");
+    _.propPane.ToggleOnOrOff("Server side pagination", "Off");
     cy.get(".tr[data-rowindex]").should("have.length", 5);
     cy.get(".t--virtual-row").should("not.exist");
   });

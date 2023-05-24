@@ -555,12 +555,12 @@ export class Table {
   }
 
   public AddSampleTableData() {
-    ObjectsRegistry.PropertyPane.ToggleJsMode("Table data");
-    ObjectsRegistry.PropertyPane.UpdatePropertyFieldValue(
+    this.propPane.ToggleJsMode("Table data");
+    this.propPane.UpdatePropertyFieldValue(
       "Table data",
       JSON.stringify(sampleTableData),
       true,
     );
-    ObjectsRegistry.Table.ChangeColumnType("action", "Button", "v2");
+    this.ChangeColumnType("action", "Button", "v2");
   }
 }

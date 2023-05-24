@@ -1,4 +1,4 @@
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");
 import widgetsJson from "../../../../../../locators/Widgets.json";
@@ -37,7 +37,7 @@ describe("Checkbox column type funtionality test", () => {
       x: 150,
       y: 300,
     });
-    ObjectsRegistry.PropertyPane.ToggleJsMode("Table data");
+    _.propPane.ToggleJsMode("Table data");
     cy.openPropertyPane("tablewidgetv2");
     propPane.RemoveText("tabledata");
     propPane.UpdatePropertyFieldValue("Table data", tableData);

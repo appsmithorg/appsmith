@@ -6,17 +6,16 @@ import {
   TABLE_DATA_DYNAMIC,
   TABLE_DATA_STATIC,
 } from "../../../../../support/Constants";
-import * as helper from "../../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("1. Check frozen common and/or custom columns retain position on query change", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });
-
     cy.wait(2000);
     cy.openPropertyPane(WIDGET.TABLE);
-    helper.propPane.ToggleJsMode("Table data");
+    _.propPane.ToggleJsMode("Table data");
     cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
   });
 

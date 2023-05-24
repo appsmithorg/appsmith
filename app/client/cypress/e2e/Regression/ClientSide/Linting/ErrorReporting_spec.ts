@@ -12,7 +12,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 describe("Lint error reporting", () => {
   before(() => {
     ee.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
-    ObjectsRegistry.Table.AddSampleTableData();
+    table.AddSampleTableData();
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
     ee.NavigateToSwitcher("Explorer");
   });
