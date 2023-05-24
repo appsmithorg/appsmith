@@ -9,7 +9,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -367,6 +367,33 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       text.length > 50000
     );
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setText: {
+          path: "text",
+          type: "text",
+        },
+        setTextColor: {
+          path: "textColor",
+          type: "string",
+        },
+      },
+    };
+  }
 
   getPageView() {
     const disableLink: boolean = this.props.disableLink

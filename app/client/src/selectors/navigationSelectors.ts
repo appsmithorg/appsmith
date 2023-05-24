@@ -1,5 +1,6 @@
 import type {
   DataTree,
+  ConfigTree,
   AppsmithEntity,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -28,6 +29,7 @@ import type { AppState } from "@appsmith/reducers";
 import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
+import { getConfigTree } from "./dataTreeSelectors";
 
 export type NavigationData = {
   name: string;
@@ -53,6 +55,7 @@ export const getEntitiesForNavigation = createSelector(
   getWidgets,
   getCurrentPageId,
   getDataTree,
+  getConfigTree,
   getDatasources,
   (_: any, entityName: string | undefined) => entityName,
   (
@@ -62,6 +65,7 @@ export const getEntitiesForNavigation = createSelector(
     widgets,
     pageId,
     dataTree: DataTree,
+    configTree: ConfigTree,
     datasources: Datasource[],
     entityName: string | undefined,
   ) => {
@@ -120,7 +124,12 @@ export const getEntitiesForNavigation = createSelector(
 
     Object.values(widgets).forEach((widget) => {
       // dataTree to get entityDefinitions, for url (can use getWidgetByName?) and peekData
-      const result = getWidgetChildrenNavData(widget, dataTree, pageId);
+      const result = getWidgetChildrenNavData(
+        widget,
+        dataTree,
+        pageId,
+        configTree,
+      );
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
