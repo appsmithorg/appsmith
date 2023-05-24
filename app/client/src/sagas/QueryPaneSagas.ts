@@ -499,6 +499,9 @@ function* createNewQueryForDatasourceSaga(
       actionType: pluginType === PluginType.DB ? "Query" : "API",
       from: action.payload.from,
       dataSource: datasource.name,
+      datasourceId: datasourceId,
+      pluginName: plugin?.name,
+      isMock: !!datasource?.isMock,
     },
     actionConfiguration:
       plugin?.type === PluginType.API ? defaultApiActionConfig : {},

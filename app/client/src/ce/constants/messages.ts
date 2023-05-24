@@ -188,7 +188,6 @@ export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
-export const DUPLICATING_APPLICATION = () => `Duplicating application...`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -1557,6 +1556,12 @@ export const IN_APP_EMBED_SETTING = {
   allowEmbeddingLabel: () => "Embedding enabled",
   allowEmbeddingTooltip: () =>
     "This app can be embedded in all domains, including malicious ones",
+  forkApplicationConfirmation: {
+    title: () => "Allow developers to fork this app to their workspace?",
+    body: () => "Forking allows developers to copy your app to their workspace",
+    cancel: () => "CANCEL",
+    confirm: () => "ALLOW FORKING",
+  },
   copy: () => "Copy",
   copied: () => "Copied",
   limitEmbeddingLabel: () => "Embedding restricted",
@@ -1574,6 +1579,10 @@ export const IN_APP_EMBED_SETTING = {
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
+  forkContentHeader: () => "Fork",
+  forkLabel: () => "Make application forkable",
+  forkLabelTooltip: () =>
+    "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
   upgradeHeadingForInviteModal: () =>
@@ -1614,6 +1623,7 @@ export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
+export const TEST_BUTTON_TEXT = () => "Test Configuration";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
