@@ -195,7 +195,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div<{ isError: boolean }>`
-  overflow-y: auto;
+  overflow-y: clip;
   display: grid;
   height: ${(props) => (props.isError ? "" : "100%")};
 
