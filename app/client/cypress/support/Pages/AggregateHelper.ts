@@ -1066,10 +1066,10 @@ export class AggregateHelper {
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true) {
-    cy.fixture(fixtureName).as("selectFileFixture");
+    //cy.fixture(fixtureName).as("selectFileFixture");//giving issue, hence using directly as below
     cy.get(this.locator._uploadFiles)
       .eq(0)
-      .selectFile("@selectFileFixture", { force: true })
+      .selectFile("cypress/fixtures/" + fixtureName, { force: true })
       .wait(3000);
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
