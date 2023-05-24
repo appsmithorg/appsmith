@@ -94,9 +94,12 @@ jobs:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
 
-      - run: |
-          cd ~/combined_failed_spec_ci
-          ls
+      - name: Restore the previous failed combine result
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: |
+            cd ~/combined_failed_spec_ci
+            echo "files inside combined_failed_spec_ci"
+            ls
             
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
@@ -186,16 +189,16 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
+        working-directory : app/client
         run: |
-          cd app/client
           yarn install --immutable
 
       - name: Setting up the cypress tests
