@@ -78,7 +78,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
@@ -108,7 +108,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);

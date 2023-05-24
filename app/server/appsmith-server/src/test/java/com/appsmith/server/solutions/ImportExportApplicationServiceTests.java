@@ -3799,7 +3799,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void extractFileAndUpdateNonGitConnectedApplication_addNewPageAfterImport_addedPageRemoved() {
+    public void extractFileAndUpdateApplication_addNewPageAfterImport_addedPageRemoved() {
 
         /*
         1. Import application
@@ -3863,7 +3863,7 @@ public class ImportExportApplicationServiceTests {
         // Import the same application again to find if the added page is deleted
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication -> applicationService.save(importedApplication))
-                .flatMap(savedApplication -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, savedApplication.getId()))
+                .flatMap(savedApplication -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart, savedApplication.getId()))
                 .map(ApplicationImportDTO::getApplication);
 
         StepVerifier
@@ -3915,7 +3915,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importExportApplicationService
-                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId());
+                .extractFileAndSaveApplication(workspaceId, filePart, application.getId());
 
         StepVerifier
                 .create(resultMono)
@@ -3982,7 +3982,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importExportApplicationService
-                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId());
+                .extractFileAndSaveApplication(workspaceId, filePart, application.getId());
 
         StepVerifier
                 .create(resultMono)
@@ -4044,7 +4044,7 @@ public class ImportExportApplicationServiceTests {
                 }).flatMap(application -> {
                     FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
                     return importExportApplicationService
-                            .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId());
+                            .extractFileAndSaveApplication(workspaceId, filePart, application.getId());
                 });
 
         StepVerifier

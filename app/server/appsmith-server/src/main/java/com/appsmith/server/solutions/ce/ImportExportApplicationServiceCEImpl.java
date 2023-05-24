@@ -605,6 +605,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
+    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
+        return extractFileAndSaveApplication(workspaceId, filePart, null);
+    }
+
     /**
      * This function will take the Json filepart and saves the application in workspace
      *
@@ -612,14 +616,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param filePart    Json file which contains the entire application object
      * @return saved application in DB
      */
-    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
+    @Override
+    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart, String applicationId) {
         // workspace id must be present and valid
         if(StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         Mono<ApplicationImportDTO> importedApplicationMono = extractApplicationJson(filePart)
-                .flatMap(applicationJson -> importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson))
+                .flatMap(applicationJson -> {
+                    if(StringUtils.isEmpty(applicationId)){
+                        return importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson);
+                    } else {
+                        return updateNonGitConnectedAppFromJson(workspaceId, applicationId, applicationJson);
+                    }
+                })
                 .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         return Mono.create(sink -> importedApplicationMono
@@ -655,12 +666,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * of applicationId field
      *
      * @param workspaceId   Workspace to which the application needs to be hydrated
-     * @param filePart      Json file which contains the entire application object
+     * @param applicationJson      Json file which contains the entire application object
      * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
      * @return saved application in DB
      */
-    @Override
-    public Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId, Part filePart, String applicationId) {
+    private Mono<Application> updateNonGitConnectedAppFromJson(String workspaceId, String applicationId, ApplicationJson applicationJson) {
         /*
             1. Verify if application is connected to git, in case if it's connected throw exception asking user to
             update app via git ops like pull, merge etc.
@@ -682,46 +692,45 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
         }
 
-        Mono<ApplicationImportDTO> importedApplicationMono = isConnectedToGitMono
+        Mono<Application> importedApplicationMono = isConnectedToGitMono
                 .flatMap(isConnectedToGit -> {
                     if (isConnectedToGit) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
-                    }
-                    return extractApplicationJson(filePart);
-                })
-                .zipWith(permissionGroupRepository.getCurrentUserPermissionGroups())
-                .flatMap(objects -> {
-                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                            .workspacePermission(workspacePermission.getReadPermission())
-                            .editDatasourcePermission(datasourcePermission.getEditPermission())
-                            .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
-                            .applicationPermission(applicationPermission.getEditPermission())
-                            .editPagePermission(pagePermission.getEditPermission())
-                            .editActionPermission(actionPermission.getEditPermission())
-                            .editActionCollectionPermission(actionPermission.getEditPermission())
-                            .createActionPermission(pagePermission.getActionCreatePermission())
-                            .createPagePermission(applicationPermission.getPageCreatePermission())
-                            .createActionCollectionPermission(pagePermission.getActionCreatePermission())
-                            .userPermissionGroups(objects.getT2())
-                            .build();
-                    ApplicationJson jsonFile = objects.getT1();
-                    if (!StringUtils.isEmpty(applicationId) && jsonFile.getExportedApplication() != null) {
-                        // Remove the application name from JSON file as updating the application name is not supported
-                        // via JSON import. This is to avoid name conflict during the import flow within the workspace
-                        jsonFile.getExportedApplication().setName(null);
-                        jsonFile.getExportedApplication().setSlug(null);
-                    }
+                    } else {
+                        return permissionGroupRepository.getCurrentUserPermissionGroups()
+                                .flatMap(permissionGroups -> {
+                                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
+                                            .workspacePermission(workspacePermission.getReadPermission())
+                                            .editDatasourcePermission(datasourcePermission.getEditPermission())
+                                            .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
+                                            .applicationPermission(applicationPermission.getEditPermission())
+                                            .editPagePermission(pagePermission.getEditPermission())
+                                            .editActionPermission(actionPermission.getEditPermission())
+                                            .editActionCollectionPermission(actionPermission.getEditPermission())
+                                            .createActionPermission(pagePermission.getActionCreatePermission())
+                                            .createPagePermission(applicationPermission.getPageCreatePermission())
+                                            .createActionCollectionPermission(pagePermission.getActionCreatePermission())
+                                            .userPermissionGroups(permissionGroups)
+                                            .build();
 
-                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, null, false, permissionProvider)
-                            .onErrorResume(error -> {
-                                if (error instanceof AppsmithException) {
-                                    return Mono.error(error);
-                                }
-                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
-                            });
-                })
-                // Add un-configured datasource to the list to response
-                .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+                                    if (!StringUtils.isEmpty(applicationId) && applicationJson.getExportedApplication() != null) {
+                                        // Remove the application name from JSON file as updating the application name is not supported
+                                        // via JSON import. This is to avoid name conflict during the import flow within the workspace
+                                        applicationJson.getExportedApplication().setName(null);
+                                        applicationJson.getExportedApplication().setSlug(null);
+                                    }
+
+                                    return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, null, false, permissionProvider)
+                                            .onErrorResume(error -> {
+                                                if (error instanceof AppsmithException) {
+                                                    return Mono.error(error);
+                                                }
+                                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
+                                            });
+                                });
+                    }
+                });
+
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())

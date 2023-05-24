@@ -242,11 +242,10 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
                                                                              @PathVariable String workspaceId,
-                                                                             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId,
-                                                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, file, applicationId))
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
