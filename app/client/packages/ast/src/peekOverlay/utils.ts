@@ -58,6 +58,8 @@ const getExpressionAtPosFromMemberExpression = (
   if (replaceThisExpression && options?.thisExpressionReplacement) {
     node = replaceThisinMemberExpression(node, options);
   }
+  // stop if objectNode is a function call -> needs evaluation
+  if (isCallExpressionNode(objectNode)) return;
   // position is within the object node
   if (pos <= objectNode.end) {
     return getExpressionStringAtPos(objectNode, pos, options);
@@ -93,9 +95,11 @@ const getExpressionAtPosFromCallExpression = (
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
   let selectedNode: Node | undefined;
-  if (isPositionWithinNode(node.callee, pos)) {
-    selectedNode = node.callee;
-  } else if (node.arguments.length > 0) {
+  // function call -> needs evaluation
+  // if (isPositionWithinNode(node.callee, pos)) {
+  //   selectedNode = node.callee;
+  // }
+  if (node.arguments.length > 0) {
     const argumentNode = node.arguments.find((node) =>
       isPositionWithinNode(node, pos),
     );

@@ -57,6 +57,7 @@ export class PeekOverlayExpressionIdentifier {
           }
         },
       });
+
       if (nodeFound) {
         const expressionFound = getExpressionStringAtPos(
           nodeFound,
