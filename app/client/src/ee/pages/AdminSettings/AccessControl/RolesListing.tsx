@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import type { MenuItemProps } from "design-system-old";
-import { HighlightText, Icon, Spinner } from "design-system-old";
+import { HighlightText } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {
@@ -38,7 +37,7 @@ import {
   getRoles,
   getSelectedRole,
 } from "@appsmith/selectors/aclSelectors";
-import type { RoleProps } from "./types";
+import type { MenuItemProps, RoleProps } from "./types";
 import { ListingType } from "./types";
 import {
   isPermitted,
@@ -47,11 +46,13 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { LoaderContainer } from "pages/Settings/components";
+import { Icon, Spinner } from "design-system";
 
 const CellContainer = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  color: var(--ads-v2-color-fg);
 `;
 
 const CrossedEditIcon = styled(Icon)`
@@ -63,7 +64,7 @@ const CrossedEditIcon = styled(Icon)`
     height: 100%;
     left: 4px;
     top: -4px;
-    border-bottom: 1.5px solid var(--ads-color-black-600);
+    border-bottom: 1px solid var(--ads-v2-color-border-emphasis-plus);
     transform: rotate(45deg);
   }
 `;
@@ -141,20 +142,26 @@ export function RolesListing() {
             <CellContainer>
               <HighlightText highlight={searchValue} text={data.name} />
               {data.autoCreated && (
-                <MoreInfoPill data-testid="t--appsmith-badge">
+                <MoreInfoPill
+                  data-testid="t--appsmith-badge"
+                  isClosable={false}
+                >
                   {createMessage(DEFAULT_ROLES_PILL)}
                 </MoreInfoPill>
               )}
-              <MoreInfoPill data-testid="t--appsmith-permission-icon">
+              <MoreInfoPill
+                data-testid="t--appsmith-permission-icon"
+                isClosable={false}
+              >
                 {isPermitted(
                   data?.userPermissions,
                   PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
                 ) ? (
-                  <Icon data-testid="t--edit-icon" name="edit-underline" />
+                  <Icon data-testid="t--edit-icon" name="pencil-line" />
                 ) : (
                   <CrossedEditIcon
                     data-testid="t--crossed-edit-icon"
-                    name="edit-underline"
+                    name="pencil-line"
                   />
                 )}
               </MoreInfoPill>
@@ -168,7 +175,7 @@ export function RolesListing() {
   const listMenuItems: MenuItemProps[] = [
     {
       className: "edit-menu-item",
-      icon: "edit-underline",
+      icon: "pencil-line",
       onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/roles/${key}`);
       },
@@ -178,7 +185,7 @@ export function RolesListing() {
     {
       label: "delete",
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
@@ -251,7 +258,7 @@ export function RolesListing() {
           />
         ) : (
           <LoaderContainer>
-            <Spinner />
+            <Spinner size="lg" />
           </LoaderContainer>
         )
       ) : (

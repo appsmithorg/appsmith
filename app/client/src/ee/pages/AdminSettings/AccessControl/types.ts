@@ -1,5 +1,6 @@
-import type { MenuItemProps } from "design-system-old";
+import type { IconNames } from "design-system";
 import type { DebouncedFunc } from "lodash";
+import type { ReactNode } from "react";
 
 export type BaseAclProps = { id: string; name: string };
 
@@ -90,7 +91,7 @@ export type Permissions = {
 export type ListingProps = {
   data: any[];
   columns: any[];
-  listMenuItems: MenuItemProps[];
+  listMenuItems: any[];
   keyAccessor: string;
   isLoading: boolean;
   emptyState?: JSX.Element;
@@ -102,7 +103,7 @@ export type PageHeaderProps = {
   searchPlaceholder: string;
   onButtonClick?: () => void;
   onSearch?: DebouncedFunc<(search: string) => void>;
-  pageMenuItems: MenuItemProps[];
+  pageMenuItems: any[];
   title?: string;
   isHeaderEditable?: boolean;
   isEditingTitle?: boolean;
@@ -146,6 +147,22 @@ export type UpdateRoleData = {
   id: string;
   name: string;
   permissions: number[];
+};
+
+export type TabProps = {
+  key: string;
+  title: string;
+  count?: number;
+  panelComponent?: JSX.Element;
+};
+
+export type MenuItemProps = {
+  icon?: IconNames;
+  className?: string;
+  onSelect?: (e: React.MouseEvent, ...rest: any) => void;
+  text: string;
+  label?: ReactNode;
+  href?: string;
 };
 
 export enum ListingType {

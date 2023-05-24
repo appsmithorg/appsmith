@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
-import { PopoverPosition, Position } from "@blueprintjs/core";
-import type { MenuItemProps } from "design-system-old";
-import {
-  Button,
-  IconSize,
-  MenuItem,
-  Icon,
-  Menu,
-  SearchVariant,
-  TooltipComponent,
-} from "design-system-old";
 import {
   HeaderWrapper,
   SettingsHeader,
@@ -22,14 +11,22 @@ import { AclFactory } from "../config";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { HelpPopoverStyle, StyledSearchInput } from "./components";
+import { StyledSearchInput } from "./components";
 import {
   ARE_YOU_SURE,
   createMessage,
   ENTER_ENTITY_DESC,
   ENTER_ENTITY_NAME,
 } from "@appsmith/constants/messages";
-import type { PageHeaderProps } from "./types";
+import type { MenuItemProps, PageHeaderProps } from "./types";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tooltip,
+} from "design-system";
 
 const Container = styled.div<{
   isHeaderEditable?: boolean;
@@ -47,20 +44,10 @@ const Container = styled.div<{
   h2 {
     text-transform: unset;
   }
-
-  .actions-icon {
-    color: var(--appsmith-color-black-400);
-
-    &:hover {
-      color: var(--appsmith-color-black-700);
-    }
-  }
 `;
 
 const StyledButton = styled(Button)`
-  flex: 1 0 auto;
-  margin: 0 12px 0 0;
-  min-width: 88px;
+  margin-right: 8px;
 `;
 
 const StyledSettingsHeader = styled(SettingsHeader)`
@@ -74,44 +61,26 @@ const StyledSettingsHeader = styled(SettingsHeader)`
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
-
-  &.settings-header {
-    span.bp3-popover-target {
-      width: auto;
-
-      > * {
-        max-width: 100%;
-        flex-grow: unset;
-        width: auto;
-
-        > * {
-          width: 100%;
-          .bp3-editable-text-content {
-            display: block;
-          }
-        }
-      }
-    }
-  }
 `;
 
 const StyledSettingsSubHeader = styled(SettingsSubHeader)`
   width: 90%;
-  margin: 5px 0 5px 5px;
+  cursor: pointer;
 
   &.settings-sub-header {
     .bp3-editable-text {
-      padding: 0;
+      height: auto !important;
 
       &.bp3-editable-text-editing {
         padding: 5px;
         width: 100%;
-        height: 100% !important;
+        height: auto !important;
       }
     }
 
     .bp3-editable-text-content {
       white-space: break-spaces;
+      height: auto !important;
     }
   }
 `;
@@ -168,9 +137,11 @@ export function PageHeader(props: PageHeaderProps) {
     menuItem: MenuItemProps,
   ) => {
     if (menuItem.label === "delete") {
-      setShowOptions(true);
-      setShowConfirmationText(true);
-      showConfirmationText && menuItem?.onSelect?.(e, "delete");
+      setTimeout(() => {
+        setShowOptions(true);
+        setShowConfirmationText(true);
+        showConfirmationText && menuItem?.onSelect?.(e, "delete");
+      }, 0);
     } else if (menuItem.label === "rename") {
       setIsEditingTitle(true);
       setShowOptions(false);
@@ -185,19 +156,20 @@ export function PageHeader(props: PageHeaderProps) {
   };
 
   return (
-    <Container isHeaderEditable={isHeaderEditable}>
+    <Container alignItems="center" isHeaderEditable={isHeaderEditable}>
       <HeaderWrapper margin={`0px`}>
         {isHeaderEditable && onEditTitle ? (
           <StyledSettingsHeader
             className="settings-header"
+            color="var(--ads-v2-color-fg-emphasis-plus)"
             data-testid="t--page-title"
+            kind="heading-l"
+            renderAs="h2"
           >
-            <TooltipComponent
-              boundary="viewport"
+            <Tooltip
               content={title ?? pageTitle}
-              disabled={(title ?? pageTitle).length < 40}
-              maxWidth="400px"
-              position={PopoverPosition.BOTTOM_LEFT}
+              isDisabled={(title ?? pageTitle).length < 40}
+              placement="bottomLeft"
             >
               <EditableText
                 className="t--editable-title"
@@ -205,33 +177,39 @@ export function PageHeader(props: PageHeaderProps) {
                 editInteractionKind={EditInteractionKind.SINGLE}
                 isEditingDefault={isEditingTitle}
                 isInvalid={(name) => !name || name.trim().length === 0}
-                onBlur={() => setIsEditingTitle(false)}
+                onBlur={() => {
+                  setIsEditingTitle(false);
+                }}
                 onTextChanged={(name) => onEditTitle?.(name)}
                 placeholder={createMessage(ENTER_ENTITY_NAME)}
                 type="text"
               />
-            </TooltipComponent>
+            </Tooltip>
           </StyledSettingsHeader>
         ) : (
-          <TooltipComponent
-            boundary="viewport"
+          <Tooltip
             content={title ?? pageTitle}
-            disabled={(title ?? pageTitle).length < 48}
-            maxWidth="400px"
-            position={PopoverPosition.BOTTOM_LEFT}
+            isDisabled={(title ?? pageTitle).length < 48}
+            placement="bottomLeft"
           >
             <StyledSettingsHeader
               className="not-editable settings-header"
+              color="var(--ads-v2-color-fg-emphasis-plus)"
               data-testid="t--page-title"
+              kind="heading-l"
+              renderAs="h1"
             >
               {title ?? pageTitle}
             </StyledSettingsHeader>
-          </TooltipComponent>
+          </Tooltip>
         )}
         {isHeaderEditable && onEditDesc && (description || isEditingDesc) ? (
           <StyledSettingsSubHeader
             className="settings-sub-header"
+            color="var(--ads-v2-color-fg-emphasis)"
             data-testid="t--page-description"
+            kind="body-m"
+            renderAs="h2"
           >
             <EditableText
               className="t--editable-description"
@@ -253,78 +231,77 @@ export function PageHeader(props: PageHeaderProps) {
           description && (
             <StyledSettingsSubHeader
               className="not-editable settings-sub-header"
+              color="var(--ads-v2-color-fg-emphasis)"
               data-testid="t--page-description"
+              kind="body-m"
+              renderAs="span"
             >
               {description}
             </StyledSettingsSubHeader>
           )
         )}
       </HeaderWrapper>
-      <Container alignItems="center">
+      <Container alignItems="center" className="container-comp">
         {onSearch && (
           <StyledSearchInput
             className="acl-search-input"
             data-testid={"t--acl-search-input"}
-            defaultValue={searchValue.toLowerCase()}
             onChange={handleSearch}
             placeholder={searchPlaceholder}
-            variant={SearchVariant.BACKGROUND}
-            width={"376px"}
+            size="md"
+            value={searchValue.toLowerCase()}
           />
         )}
         {buttonText && (
           <StyledButton
             data-testid={"t--acl-page-header-input"}
-            disabled={disableButton}
-            height="36"
+            isDisabled={disableButton}
             onClick={props.onButtonClick}
-            tag="button"
-            text={buttonText}
-          />
+            size="md"
+          >
+            {buttonText}
+          </StyledButton>
         )}
         {pageMenuItems && pageMenuItems.length > 0 && (
           <Menu
-            canEscapeKeyClose
-            canOutsideClickClose
-            className="t--menu-actions-icon"
-            isOpen={showOptions}
-            menuItemWrapperWidth={"auto"}
-            onClose={() => setShowOptions(false)}
-            onClosing={() => {
-              setShowConfirmationText(false);
-              setShowOptions(false);
+            onOpenChange={(open: boolean) => {
+              if (showOptions) {
+                setShowOptions(open);
+                showConfirmationText && setShowConfirmationText(false);
+              }
             }}
-            onOpening={() => setShowOptions(true)}
-            position={Position.BOTTOM_RIGHT}
-            target={
-              <Icon
+            open={showOptions}
+          >
+            <MenuTrigger>
+              <Button
                 className="actions-icon"
                 data-testid="t--page-header-actions"
-                name="more-2-fill"
+                isIconButton
+                kind="tertiary"
                 onClick={() => setShowOptions(!showOptions)}
-                size={IconSize.XXL}
+                size="md"
+                startIcon="more-2-fill"
               />
-            }
-          >
-            <HelpPopoverStyle />
-            {pageMenuItems.map((menuItem) => (
-              <MenuItem
-                className={menuItem.className}
-                icon={menuItem.icon}
-                key={menuItem.text}
-                onSelect={(e: React.MouseEvent) => {
-                  onOptionSelect(e, menuItem);
-                }}
-                text={
-                  showConfirmationText && menuItem.label === "delete"
+            </MenuTrigger>
+            <MenuContent align="end">
+              {pageMenuItems.map((menuItem) => (
+                <MenuItem
+                  className={`${menuItem.className} ${
+                    menuItem.label === "delete" ? "error-menuitem" : ""
+                  }`}
+                  data-testid={`t--${menuItem.className}`}
+                  key={menuItem.text}
+                  onClick={(e: React.MouseEvent) => {
+                    onOptionSelect(e, menuItem);
+                  }}
+                  startIcon={menuItem.icon}
+                >
+                  {showConfirmationText && menuItem.label === "delete"
                     ? createMessage(ARE_YOU_SURE)
-                    : menuItem.text
-                }
-                {...(showConfirmationText && menuItem.label === "delete"
-                  ? { type: "warning" }
-                  : {})}
-              />
-            ))}
+                    : menuItem.text}
+                </MenuItem>
+              ))}
+            </MenuContent>
           </Menu>
         )}
       </Container>

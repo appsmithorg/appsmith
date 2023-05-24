@@ -18,7 +18,7 @@ Cypress.Commands.add("validateLicense", () => {
     cy.get(LicenseLocators.licenseFormInput).should(
       "have.attr",
       "placeholder",
-      "Add Key",
+      "Add key",
     );
     cy.get(LicenseLocators.activeInstanceBtn).should("be.disabled");
   });
@@ -31,7 +31,7 @@ Cypress.Commands.add("validateLicense", () => {
       );
       cy.get(LicenseLocators.getTrialLicenseBtn).should(
         "have.text",
-        "VISIT CUSTOMER PORTAL",
+        "Visit customer portal",
       );
     });
   } else {

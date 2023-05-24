@@ -1,12 +1,16 @@
 import type { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOptionProps } from "../types";
 
 export function payloadToQueryParams(
   payload: AuditLogsFiltersReduxState & { cursor: string },
 ) {
   const temp = {
-    events: payload.selectedEvents.map((event: DropdownOption) => event.value),
-    emails: payload.selectedEmails.map((event: DropdownOption) => event.value),
+    events: payload.selectedEvents.map(
+      (event: DropdownOptionProps) => event.value,
+    ),
+    emails: payload.selectedEmails.map(
+      (event: DropdownOptionProps) => event.value,
+    ),
     resourceId: payload.resourceId,
     sortOrder: payload.dateSortOrder === "DESC" ? 0 : 1,
     startDate: payload.startDate,

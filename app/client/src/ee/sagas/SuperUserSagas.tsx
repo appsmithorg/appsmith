@@ -9,7 +9,7 @@ import {
 } from "ce/sagas/SuperUserSagas";
 import type { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
 import UserApi from "@appsmith/api/UserApi";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -32,9 +32,8 @@ export function* FetchSamlMetadataSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      Toaster.show({
-        text: "Successfully Saved",
-        variant: Variant.success,
+      toast.show("Successfully saved", {
+        kind: "success",
       });
       yield put({
         type: ReduxActionTypes.FETCH_SAML_METADATA_SUCCESS,

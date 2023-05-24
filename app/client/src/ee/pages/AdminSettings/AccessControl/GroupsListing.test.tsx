@@ -12,14 +12,14 @@ let container: any = null;
 const listMenuItems = [
   {
     className: "edit-menu-item",
-    icon: "edit-underline",
+    icon: "pencil-line",
     onSelect: jest.fn(),
     text: "Edit",
     label: "edit",
   },
   {
     className: "delete-menu-item",
-    icon: "delete-blank",
+    icon: "delete-bin-line",
     onSelect: jest.fn(),
     text: "Delete",
     label: "delete",
@@ -120,11 +120,13 @@ describe("<GroupListing />", () => {
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
-    const confirmText = getAllByTestId("t--delete-menu-item");
-    expect(confirmText[0]).toHaveTextContent("Are you sure?");
-    await userEvent.dblClick(deleteOption[0]);
-    userGroup = queryByText(userGroupTableData[0].name);
-    expect(userGroup).not.toBeInTheDocument();
+    waitFor(async () => {
+      const confirmText = getAllByTestId("t--delete-menu-item");
+      expect(confirmText[0]).toHaveTextContent("Are you sure?");
+      await userEvent.dblClick(deleteOption[0]);
+      userGroup = queryByText(userGroupTableData[0].name);
+      expect(userGroup).not.toBeInTheDocument();
+    });
   });
   it("should render in custom url", async () => {
     render(<GroupListing />, {

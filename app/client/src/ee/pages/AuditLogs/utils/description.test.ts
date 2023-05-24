@@ -62,7 +62,7 @@ describe("audit-logs/utils/description", function () {
             subDescription: "in (No page)",
           },
           hasDescriptiveIcon: true,
-          icon: ["delete", "#E32525"],
+          icon: ["delete", "var(--ads-v2-color-fg-error)"],
         },
         {
           description: {
@@ -150,7 +150,7 @@ describe("audit-logs/utils/description", function () {
             subDescription: "in Untitled workspace 3",
           },
           hasDescriptiveIcon: true,
-          icon: ["delete", "#E32525"],
+          icon: ["delete", "var(--ads-v2-color-fg-error)"],
         },
         {
           description: {
@@ -161,7 +161,7 @@ describe("audit-logs/utils/description", function () {
             subDescription: "in RenamedApplication",
           },
           hasDescriptiveIcon: true,
-          icon: ["delete", "#E32525"],
+          icon: ["delete", "var(--ads-v2-color-fg-error)"],
         },
         {
           description: {

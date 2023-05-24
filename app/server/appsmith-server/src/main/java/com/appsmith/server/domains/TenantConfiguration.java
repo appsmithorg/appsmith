@@ -24,6 +24,12 @@ public class TenantConfiguration extends TenantConfigurationCE {
     // use this constant as identifier (name field) in Asset document to save default whiteLabelLogo while creating new tenant
     public final static String APPSMITH_DEFAULT_LOGO = "appsmith_default_logo";
 
+    public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-no-margin.png";
+    public static final String DEFAULT_APPSMITH_FEVICON = "https://assets.appsmith.com/appsmith-favicon-orange.ico";
+    public static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
+    public static final String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
+    public static final String DEFAULT_FONT_COLOR = "#FFFFFF";
+
     @JsonProperty("APPSMITH_BRAND_ENABLE")
     String whiteLabelEnable;
 
@@ -43,11 +49,11 @@ public class TenantConfiguration extends TenantConfigurationCE {
     public final static String ASSET_PREFIX = "asset:";
 
     public String getBrandLogoUrl() {
-        return assetToUrl(whiteLabelLogo, UserServiceImpl.DEFAULT_APPSMITH_LOGO);
+        return assetToUrl(whiteLabelLogo, DEFAULT_APPSMITH_LOGO);
     }
 
     public String getBrandFaviconUrl() {
-        return assetToUrl(whiteLabelFavicon, "https://assets.appsmith.com/appsmith-favicon-orange.ico");
+        return assetToUrl(whiteLabelFavicon, DEFAULT_APPSMITH_FEVICON);
     }
 
     @JsonIgnore
@@ -67,11 +73,9 @@ public class TenantConfiguration extends TenantConfigurationCE {
     }
 
     public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
-        if (tenantConfiguration.isWhitelabelEnabled()) {
-            this.whiteLabelLogo = tenantConfiguration.getWhiteLabelLogo();
-            this.whiteLabelFavicon = tenantConfiguration.getWhiteLabelFavicon();
-            this.brandColors = tenantConfiguration.getBrandColors();
-        }
+        this.whiteLabelLogo = tenantConfiguration.getWhiteLabelLogo();
+        this.whiteLabelFavicon = tenantConfiguration.getWhiteLabelFavicon();
+        this.brandColors = tenantConfiguration.getBrandColors();
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense() && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());
         this.license = isLicenseExist ? tenantConfiguration.getLicense() : null;

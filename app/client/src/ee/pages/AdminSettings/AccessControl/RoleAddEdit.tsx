@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import type { MenuItemProps } from "design-system-old";
 import { useHistory, useParams } from "react-router";
 import { PageHeader } from "./PageHeader";
 import { debounce } from "lodash";
@@ -11,7 +10,7 @@ import {
   ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import type { RoleEditProps } from "./types";
+import type { MenuItemProps, RoleEditProps } from "./types";
 import { updateRoleName } from "@appsmith/actions/aclActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getRolePermissions } from "@appsmith/selectors/aclSelectors";
@@ -90,25 +89,25 @@ export function RoleAddEdit(props: RoleEditProps) {
     canManageRole &&
       isNotDefaultUserRole && {
         className: "rename-menu-item",
-        icon: "edit-underline",
+        icon: "pencil-line",
         text: createMessage(ACL_RENAME),
         label: "rename",
       },
     canManageRole &&
       isNotDefaultUserRole && {
         className: "rename-desc-menu-item",
-        icon: "edit-underline",
+        icon: "pencil-line",
         text: createMessage(ACL_EDIT_DESC),
         label: "rename-desc",
       },
     canDeleteRole && {
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: () => onDeleteHandler(),
       text: createMessage(ACL_DELETE),
       label: "delete",
     },
-  ].filter(Boolean);
+  ].filter(Boolean) as MenuItemProps[];
 
   return (
     <div

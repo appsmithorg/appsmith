@@ -4,21 +4,29 @@ import {
   StyledAuditLogsHeading as Heading,
 } from "../styled-components/header";
 import { refreshAuditLogsInit } from "@appsmith/actions/auditLogsAction";
-import type { MenuItemProps } from "design-system-old";
-import { Button, Menu, Icon, IconSize, MenuItem } from "design-system-old";
-import { Position } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAuditLogsSearchFilters,
   selectAuditLogsIsLoading,
 } from "@appsmith/selectors/auditLogsSelectors";
 import { StyledHeaderRightContainer as RightSide } from "../styled-components/container";
-import { createMessage } from "design-system-old/build/constants/messages";
-import { AUDIT_LOGS, REFRESH } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  AUDIT_LOGS,
+  REFRESH,
+} from "@appsmith/constants/messages";
 import { downloadDocumentFromURL } from "@appsmith/pages/AuditLogs/utils/downloadDocumentFromURL";
 import { downloadAuditLogAPIRoute } from "@appsmith/constants/ApiConstants";
 import { payloadToQueryParams as AuditLogFiltersPayload } from "@appsmith/pages/AuditLogs/utils/payloadToQueryParams";
 import { convertObjectToQueryParams } from "utils/URLUtils";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "design-system";
+import type { MenuItemProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 /**
  * AuditLogsHeader contains the heading, refresh button and more menu for AuditLogs feature
@@ -42,7 +50,7 @@ export function AuditLogsHeader() {
     e: React.MouseEvent<Element, MouseEvent>,
     menuItem: MenuItemProps,
   ) => {
-    menuItem?.onSelect();
+    menuItem?.onSelect?.(e);
     setShowOptions(false);
   };
 
@@ -58,56 +66,59 @@ export function AuditLogsHeader() {
 
   return (
     <Header data-testid="t--audit-logs-header">
-      <Heading data-testid="t--audit-logs-header-heading">
+      <Heading
+        color="var(--ads-v2-color-fg-emphasis-plus)"
+        data-testid="t--audit-logs-header-heading"
+        kind="heading-l"
+        renderAs="h1"
+      >
         {createMessage(AUDIT_LOGS)}
       </Heading>
       <RightSide data-testid="t--audit-logs-header-right-side">
         <Button
           aria-disabled={isLoading}
-          category="tertiary"
           data-testid="t--audit-logs-header-refresh-button"
-          disabled={isLoading}
-          icon={"refresh"}
-          iconPosition={"left"}
+          isDisabled={isLoading}
+          kind="secondary"
           onClick={handleRefreshButtonClick}
-          text={createMessage(REFRESH)}
+          startIcon={"refresh"}
           type={"reset"}
-        />
+        >
+          {createMessage(REFRESH)}
+        </Button>
 
         <Menu
-          canEscapeKeyClose
-          canOutsideClickClose
-          className="t--menu-actions-icon"
-          isOpen={showOptions}
-          menuItemWrapperWidth={"auto"}
-          onClose={() => setShowOptions(false)}
-          onClosing={() => {
-            setShowOptions(false);
+          onOpenChange={(open: boolean) => {
+            setShowOptions(open);
           }}
-          onOpening={() => setShowOptions(true)}
-          position={Position.BOTTOM_RIGHT}
-          target={
-            <Icon
+          open={showOptions}
+        >
+          <MenuTrigger>
+            <Button
               className="actions-icon"
               data-testid="t--page-header-actions"
-              name="more-2-fill"
+              isIconButton
+              kind="tertiary"
               onClick={() => setShowOptions(!showOptions)}
-              size={IconSize.XXL}
+              size="sm"
+              startIcon="more-2-fill"
             />
-          }
-        >
-          {pageMenuItems &&
-            pageMenuItems.map((menuItem) => (
-              <MenuItem
-                className={menuItem.className}
-                icon={menuItem.icon}
-                key={menuItem.text}
-                onSelect={(e: React.MouseEvent) => {
-                  onOptionSelect(e, menuItem);
-                }}
-                text={menuItem.text}
-              />
-            ))}
+          </MenuTrigger>
+          <MenuContent align="end">
+            {pageMenuItems &&
+              pageMenuItems.map((menuItem) => (
+                <MenuItem
+                  className={menuItem.className}
+                  key={menuItem.text}
+                  onClick={(e: React.MouseEvent) => {
+                    onOptionSelect(e, menuItem);
+                  }}
+                  startIcon={menuItem.icon}
+                >
+                  {menuItem.text}
+                </MenuItem>
+              ))}
+          </MenuContent>
         </Menu>
       </RightSide>
     </Header>

@@ -38,6 +38,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_PRIMARY_COLOR;
+
 @Slf4j
 @Service
 public class UserServiceImpl extends UserServiceCEImpl implements UserService {
@@ -48,10 +53,6 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final CommonConfig commonConfig;
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
-    public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-full.png";
-    private static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
-    private static final String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
-    private static final String DEFAULT_FONT_COLOR = "#FFFFFF";
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,

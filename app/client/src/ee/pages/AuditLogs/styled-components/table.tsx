@@ -1,3 +1,4 @@
+import { Text } from "design-system";
 import styled from "styled-components";
 
 export const StyledAuditLogsTableHead = styled.div`
@@ -5,7 +6,7 @@ export const StyledAuditLogsTableHead = styled.div`
   gap: 8px;
   padding: 0 16px;
   height: 40px;
-  background-color: rgb(248, 248, 248);
+  background-color: var(--ads-v2-color-bg-subtle);
   align-items: center;
   position: sticky;
   top: 41px;
@@ -31,7 +32,7 @@ export const StyledEventDescriptionColumnContainer = styled.div`
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
-  color: #393939;
+  color: var(--ads-v2-color-fg);
 `;
 export const StyledDescriptionRow = styled(
   StyledEventDescriptionColumnContainer,
@@ -41,14 +42,17 @@ export const StyledDescriptionRow = styled(
 export const StyledDescriptionContainer = styled.div`
   display: flex;
   flex-direction: column;
+  color: var(--ads-v2-color-fg);
 `;
-export const StyledMainDescription = styled.div`
-  span {
+export const StyledMainDescription = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+  // TODO: just need to make the text bold, not increase font-size.
+  .action-type {
     font-weight: 600;
   }
 `;
-export const StyledSubDescription = styled.div`
-  color: #939393;
+export const StyledSubDescription = styled(Text)`
+  color: var(--ads-v2-color-fg-muted);
 `;
 
 export const StyledUserColumnContainer = styled.div`
@@ -59,16 +63,16 @@ export const StyledUserColumnContainer = styled.div`
   gap: 8px;
   margin-right: 20px;
   min-width: 250px;
+  color: var(--ads-v2-color-fg);
   .event-user {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 200px;
-    color: #575757;
-    font-size: 13px;
+    color: var(--ads-v2-color-fg-emphasis);
+
     &.name {
-      font-weight: 500;
-      font-size: 14px;
+      color: var(--ads-v2-color-fg-emphasis-plus);
     }
   }
 `;
@@ -85,13 +89,15 @@ export const StyledDateColumnContainer = styled.div`
   & .column-header,
   .audit-logs-table-head & {
     cursor: pointer;
+    color: var(--ads-v2-color-fg);
   }
 `;
 export const StyledDateInfoContainer = styled.div`
   width: 20%;
   min-width: 200px;
-  color: #393939;
+  color: var(--ads-v2-color-fg);
+
   .time {
-    color: #939393;
+    color: var(--ads-v2-color-fg-muted);
   }
 `;

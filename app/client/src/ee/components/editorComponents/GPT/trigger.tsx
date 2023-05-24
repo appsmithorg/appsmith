@@ -8,13 +8,8 @@ import { useLocation } from "react-router";
 import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { selectIsAIWindowOpen } from "./utils";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import { Colors } from "constants/Colors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
-import { importRemixIcon } from "design-system-old";
-
-const MagicIcon = importRemixIcon(
-  () => import("remixicon-react/MagicLineIcon"),
-);
+import { Icon } from "design-system";
 
 export const askAIEnabled = true;
 export const APPSMITH_AI = "AI";
@@ -56,7 +51,7 @@ export function GPTTrigger() {
       })}
       onClick={toggleWindow}
     >
-      <MagicIcon color={Colors.SCORPION} size={16} />
+      <Icon name="enterprise" size="md" />
       <span className="text-xs">Ask AI</span>
     </div>
   );

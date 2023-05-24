@@ -48,7 +48,7 @@ import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 
 export function* fetchAllAppUsersSaga(
   action: ReduxAction<FetchAllAppUsersRequest>,
@@ -155,12 +155,6 @@ export function* inviteUsersToApplicationSaga(
     yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
-    yield put({
-      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
-      payload: {
-        error,
-      },
-    });
   }
 }
 
@@ -188,12 +182,14 @@ export function* deleteApplicationUserSaga(
           },
         });
       }
-      Toaster.show({
-        text: `${
+      toast.show(
+        `${
           response.data?.username || response.data?.name
         } has been removed successfully`,
-        variant: Variant.success,
-      });
+        {
+          kind: "success",
+        },
+      );
     }
   } catch (error) {
     yield put({

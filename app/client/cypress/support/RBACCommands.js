@@ -227,9 +227,9 @@ Cypress.Commands.add("AssignRoleToUser", (Role, userEmail) => {
   cy.get(RBAC.noUsersContent).should("not.exist");
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
-  cy.xpath(RBAC.selectFromDropdownInviteModal).click();
-  cy.get(`[data-cy="t--dropdown-option-${Role}"]`).first().click();
-  cy.get(".bp3-heading").click();
+  cy.get(RBAC.selectFromDropdownInviteModal).click();
+  cy.get(`[label="${Role}"]`).first().click();
+  cy.get(".ads-v2-modal__content-header h3").click();
   cy.get(RBAC.inviteButton).click();
   cy.wait("@associateRoles").should(
     "have.nested.property",
@@ -253,9 +253,9 @@ Cypress.Commands.add("AssignGroupToUser", (Group, userEmail) => {
   cy.get(RBAC.noUsersContent).should("not.exist");
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
-  cy.xpath(RBAC.selectFromDropdownInviteModal).click();
-  cy.get(`[data-cy="t--dropdown-option-${Group}"]`).first().click();
-  cy.get(".bp3-heading").click();
+  cy.get(RBAC.selectFromDropdownInviteModal).click();
+  cy.get(`[label="${Group}"]`).first().click();
+  cy.get(".ads-v2-modal__content-header h3").click();
   cy.get(RBAC.inviteButton).click();
   cy.wait("@mockPostInvite").should(
     "have.nested.property",
@@ -536,7 +536,7 @@ Cypress.Commands.add(
     cy.get(RBAC.contextMenu).click();
     cy.xpath("//span[text()='Rename']").click();
     cy.get(RBAC.editName).type(PermissionGroupName);
-    cy.xpath("//span[text()='Users']").click();
+    cy.get(RBAC.usersTabinGroup).click();
   },
 );
 
@@ -813,7 +813,7 @@ Cypress.Commands.add(
       .click({ force: true });
     agHelper.Sleep(500);
     cy.xpath(
-      "//div[contains(@class, 'label-container')]//span[1][text()='" +
+      "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
         role +
         "']",
     ).click({ force: true });
@@ -841,11 +841,11 @@ Cypress.Commands.add("InviteGroupToApplication", (groupName, role) => {
     .click({ force: true });
   agHelper.Sleep(500);
   cy.xpath(
-    "//div[contains(@class, 'label-container')]//span[1][text()='" +
+    "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
       role +
       "']",
   ).click({ force: true });
-  agHelper.ClickButton("Invite");
+  agHelper.GetNClick(".t--invite-user-btn");
   cy.wait("@mockPostAppInvite")
     .its("request.headers")
     .should("have.property", "origin", "Cypress");

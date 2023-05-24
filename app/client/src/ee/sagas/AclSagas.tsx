@@ -20,7 +20,7 @@ import type { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/type
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import {
   createMessage,
   ACL_DELETED_SUCCESS,
@@ -71,9 +71,8 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
           id: action.payload.id,
         },
       });
-      Toaster.show({
-        text: "User deleted successfully",
-        variant: Variant.success,
+      toast.show("User deleted successfully", {
+        kind: "success",
       });
     } else {
       yield put({
@@ -210,6 +209,9 @@ export function* updateGroupsInUserSaga(
           },
         },
       });
+      toast.show(`Groups ${createMessage(SUCCESSFULLY_SAVED).toLowerCase()}`, {
+        kind: "success",
+      });
     } else {
       yield put({
         type: ReduxActionErrorTypes.UPDATE_GROUPS_IN_USER_ERROR,
@@ -247,6 +249,9 @@ export function* updateRolesInUserSaga(
             tab: "roles",
           },
         },
+      });
+      toast.show(`Roles ${createMessage(SUCCESSFULLY_SAVED).toLowerCase()}`, {
+        kind: "success",
       });
     } else {
       yield put({
@@ -401,9 +406,8 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.DELETE_ACL_GROUP_SUCCESS,
         payload: response.data,
       });
-      Toaster.show({
-        text: createMessage(ACL_DELETED_SUCCESS),
-        variant: Variant.success,
+      toast.show(createMessage(ACL_DELETED_SUCCESS), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -490,9 +494,8 @@ export function* updateRolesInGroupSaga(
           updatePayload: action.payload,
         },
       });
-      Toaster.show({
-        text: createMessage(SUCCESSFULLY_SAVED),
-        variant: Variant.success,
+      toast.show(createMessage(SUCCESSFULLY_SAVED), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -643,9 +646,8 @@ export function* updateRoleSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS,
         payload: response.data,
       });
-      Toaster.show({
-        text: createMessage(SUCCESSFULLY_SAVED),
-        variant: Variant.success,
+      toast.show(createMessage(SUCCESSFULLY_SAVED), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -700,9 +702,8 @@ export function* deleteAclRoleSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.DELETE_ACL_ROLE_SUCCESS,
         payload: response.data,
       });
-      Toaster.show({
-        text: createMessage(ACL_DELETED_SUCCESS),
-        variant: Variant.success,
+      toast.show(createMessage(ACL_DELETED_SUCCESS), {
+        kind: "success",
       });
     } else {
       yield put({

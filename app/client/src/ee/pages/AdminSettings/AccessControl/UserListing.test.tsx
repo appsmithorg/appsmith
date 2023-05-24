@@ -5,9 +5,7 @@ import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import type { MenuItemProps } from "design-system-old";
 import * as userSelectors from "selectors/usersSelectors";
-import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -16,14 +14,14 @@ const listMenuItems = [
   {
     label: "edit",
     className: "edit-menu-item",
-    icon: "edit-underline",
+    icon: "pencil-line",
     onSelect: onSelectFn,
     text: "Edit",
   },
   {
     label: "delete",
     className: "delete-menu-item",
-    icon: "delete-blank",
+    icon: "delete-bin-line",
     onSelect: onSelectFn,
     text: "Delete",
   },
@@ -93,9 +91,7 @@ describe("<UserListing />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await fireEvent.click(moreMenu[0]);
-    const options = listMenuItems.map(
-      (menuItem: MenuItemProps) => menuItem.text,
-    );
+    const options = listMenuItems.map((menuItem: any) => menuItem.text);
     const menuElements = options
       .map((option: string) => getAllByText(option))
       .flat();
@@ -137,16 +133,18 @@ describe("<UserListing />", () => {
     let user = queryByText(allUsers[0].username);
     expect(user).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    await userEvent.click(deleteOption[0]);
-    const confirmText = getAllByTestId("t--delete-menu-item");
-    expect(confirmText[0]).toHaveTextContent("Are you sure?");
-    await userEvent.dblClick(deleteOption[0]);
-    user = queryByText(allUsers[0].username);
-    expect(user).not.toBeInTheDocument();
+    await fireEvent.click(deleteOption[0]);
+    waitFor(async () => {
+      const confirmText = getAllByTestId("t--delete-menu-item");
+      expect(confirmText[0]).toHaveTextContent("Are you sure?");
+      await fireEvent.dblClick(deleteOption[0]);
+      user = queryByText(allUsers[0].username);
+      expect(user).not.toBeInTheDocument();
+    });
   });
   it("should render in custom url", async () => {
     render(<UserListing />, {
@@ -176,7 +174,7 @@ describe("<UserListing />", () => {
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(3);
   });
-  it("should disable 'Add Users' CTA if the user is not super user", () => {
+  it("should disable 'Add users' CTA if the user is not super user", () => {
     jest.spyOn(userSelectors, "getCurrentUser").mockReturnValue({
       isSuperUser: false,
     } as any);

@@ -20,8 +20,6 @@ public class Environment extends BaseDomain {
 
     Boolean isDefault;
 
-    String colorCode;
-
     public Environment(String workspaceId, String name) {
         this.setWorkspaceId(workspaceId);
         this.setName(name);

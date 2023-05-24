@@ -8,7 +8,6 @@ import {
   markAuditLogOpen as markOpen,
   setEmailJsonFilter as setEmail,
 } from "@appsmith/actions/auditLogsAction";
-import { Icon, IconSize } from "design-system-old";
 import { iconisedDescription } from "../utils/description";
 import {
   StyledDateColumnContainer as Date,
@@ -26,8 +25,9 @@ import { reduxToUI } from "../utils/reduxToUI";
 import { StyledAuditLogsTableRowContainer as Row } from "../styled-components/container";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { toUserEmail } from "../utils/toDropdownOption";
-import ProfileImage from "../../../../pages/common/ProfileImage";
 import { ellipsis } from "../utils/ellipsis";
+import { Icon, Text } from "design-system";
+import { AvatarComponent } from "pages/common/AvatarComponent";
 
 interface AuditLogsTableRow {
   className: string;
@@ -98,9 +98,8 @@ export default function AuditLogsTableRow({
         >
           <DescriptionRow>
             <Icon
-              keepColors
               name={"right-arrow-2"}
-              size={IconSize.XL}
+              size="md"
               style={{
                 display: "inline-block",
                 marginRight: "12px",
@@ -113,9 +112,9 @@ export default function AuditLogsTableRow({
 
             {hasDescriptiveIcon ? (
               <Icon
-                fillColor={iconFillColor}
+                color={iconFillColor}
                 name={iconName}
-                size={IconSize.XL}
+                size="md"
                 style={{
                   display: "inline-block",
                   marginRight: "12px",
@@ -127,30 +126,41 @@ export default function AuditLogsTableRow({
             <Description>
               <MainDescription data-testid="t--audit-logs-table-row-description-content">
                 {description.mainDescription.resourceType}{" "}
-                <span>{description.mainDescription.actionType}</span>
+                <Text className="action-type">
+                  {description.mainDescription.actionType}
+                </Text>
               </MainDescription>
-              <SubDescription>
-                <div>{description.subDescription}</div>
+              <SubDescription renderAs="p">
+                {description.subDescription}
               </SubDescription>
             </Description>
           </DescriptionRow>
         </DescriptionContainer>
         <User onClick={handleEmailClick}>
-          <ProfileImage
-            size={34}
+          <AvatarComponent
+            label="audit-logs-user-avatar"
+            size="md"
             userName={log?.user?.name || log?.user?.email || "No Name"}
           />
           <ProfileData>
             {log?.user?.id && log?.user?.name && (
-              <div className="event-user name">{ellipsis(log?.user?.name)}</div>
+              <Text className="event-user name" kind="body-m" renderAs="p">
+                {ellipsis(log?.user?.name)}
+              </Text>
             )}
-            <div className="event-user">{ellipsis(log?.user?.email)}</div>
+            <Text className="event-user" kind="body-s" renderAs="p">
+              {ellipsis(log?.user?.email)}
+            </Text>
           </ProfileData>
         </User>
         <Date>
           <DateInfoContainer>
-            <div>{logDate || ""}</div>
-            <div className="time">{logTime || ""}</div>
+            <Text kind="body-m" renderAs="p">
+              {logDate || ""}
+            </Text>
+            <Text className="time" kind="body-m" renderAs="p">
+              {logTime || ""}
+            </Text>
           </DateInfoContainer>
         </Date>
       </Row>

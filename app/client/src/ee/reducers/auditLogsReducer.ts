@@ -1,8 +1,10 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import type { DropdownOption } from "design-system-old";
-import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
+import type {
+  AuditLogType,
+  DropdownOptionProps,
+} from "@appsmith/pages/AuditLogs/types";
 import union from "lodash/union";
 import { unionWith, uniqWith } from "lodash";
 import { AUDIT_LOGS_PAGE_SIZE } from "@appsmith/pages/AuditLogs/config/audit-logs-config";
@@ -48,11 +50,11 @@ export interface AuditLogsFiltersReduxState
   /**
    * selectedEmails are the values that users dropdown filter uses.
    */
-  selectedEmails: DropdownOption[];
+  selectedEmails: DropdownOptionProps[];
   /**
    * selectedEvents are the event values that events dropdown filter uses.
    */
-  selectedEvents: DropdownOption[];
+  selectedEvents: DropdownOptionProps[];
   /**
    * resourceId {string} is the id from the resource object in {AuditLogType[]}
    */
@@ -71,22 +73,22 @@ export interface AuditLogsEmailsReduxStore {
   /**
    * emails {DropdownOption[]} is the emails data from /filers api and modified to DropdownOption
    */
-  emails: DropdownOption[];
+  emails: DropdownOptionProps[];
 }
 
 const initialEmailsState: AuditLogsEmailsReduxStore = {
-  emails: [] as DropdownOption[],
+  emails: [] as DropdownOptionProps[],
 };
 
 export interface AuditLogsEventsReduxStore {
   /**
    * events {DropdownOption[]} is the events data from /filers api and modified to DropdownOption
    */
-  events: DropdownOption[];
+  events: DropdownOptionProps[];
 }
 
 const initialEventsState: AuditLogsEventsReduxStore = {
-  events: [] as DropdownOption[],
+  events: [] as DropdownOptionProps[],
 };
 
 export interface AuditLogsReduxState
@@ -260,7 +262,7 @@ const handlers = {
   }),
   [ReduxActionTypes.SET_ONLY_EMAIL_JSON_FILTER]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ email: DropdownOption }>,
+    action: ReduxAction<{ email: DropdownOptionProps }>,
   ) => ({
     ...state,
     searchFilters: {
@@ -271,25 +273,25 @@ const handlers = {
   }),
   [ReduxActionTypes.ADD_EMAIL_JSON_FILTER]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ email: DropdownOption }>,
+    action: ReduxAction<{ email: DropdownOptionProps }>,
   ) => ({
     ...state,
     selectedEmails: uniqWith(
       [...state.searchFilters.selectedEmails, action.payload.email],
-      (a, b) => a.id === b.id,
+      (a, b) => a.key === b.key,
     ),
     searchFilters: {
       ...state.searchFilters,
       selectedEmails: uniqWith(
         [...state.searchFilters.selectedEmails, action.payload.email],
-        (a, b) => a.id === b.id,
+        (a, b) => a.key === b.key,
       ),
     },
     dirty: true,
   }),
   [ReduxActionTypes.SET_ONLY_EVENT_JSON_FILTER]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ event: DropdownOption }>,
+    action: ReduxAction<{ event: DropdownOptionProps }>,
   ) => ({
     ...state,
     searchFilters: {
@@ -300,27 +302,29 @@ const handlers = {
   }),
   [ReduxActionTypes.ADD_EVENT_JSON_FILTER]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ event: DropdownOption }>,
-  ) => ({
-    ...state,
-    selectedEvents: uniqWith(
-      [...state.searchFilters.selectedEvents, action.payload.event],
-      (a, b) => a.id === b.id,
-    ),
-    searchFilters: {
-      ...state.searchFilters,
+    action: ReduxAction<{ event: DropdownOptionProps }>,
+  ) => {
+    return {
+      ...state,
       selectedEvents: uniqWith(
         [...state.searchFilters.selectedEvents, action.payload.event],
-        (a, b) => a.id === b.id,
+        (a, b) => a.key === b.key,
       ),
-    },
-    dirty: true,
-  }),
+      searchFilters: {
+        ...state.searchFilters,
+        selectedEvents: uniqWith(
+          [...state.searchFilters.selectedEvents, action.payload.event],
+          (a, b) => a.key === b.key,
+        ),
+      },
+      dirty: true,
+    };
+  },
   [ReduxActionTypes.SET_AUDIT_LOGS_ON_URL_LOAD_FILTERS]: (
     state: AuditLogsReduxState,
     action: ReduxAction<{
-      emails: DropdownOption[];
-      events: DropdownOption[];
+      emails: DropdownOptionProps[];
+      events: DropdownOptionProps[];
       startDate: number;
       endDate: number;
       resourceId: string;
@@ -385,7 +389,7 @@ const handlers = {
   }),
   [ReduxActionTypes.REPLACE_AUDIT_LOGS_SELECTED_EMAILS]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ emails: DropdownOption[] }>,
+    action: ReduxAction<{ emails: DropdownOptionProps[] }>,
   ) => ({
     ...state,
     searchFilters: {
@@ -397,7 +401,7 @@ const handlers = {
   }),
   [ReduxActionTypes.REPLACE_AUDIT_LOGS_SELECTED_EVENTS]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ events: DropdownOption[] }>,
+    action: ReduxAction<{ events: DropdownOptionProps[] }>,
   ) => ({
     ...state,
     searchFilters: {

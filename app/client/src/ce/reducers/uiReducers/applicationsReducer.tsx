@@ -23,7 +23,7 @@ import type {
 import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
@@ -172,7 +172,7 @@ export const handlers = {
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<AppIconName>,
+    action: ReduxAction<IconNames>,
   ) => ({
     ...state,
     currentApplication: {
@@ -567,6 +567,18 @@ export const handlers = {
       currentApplication: {
         ...state.currentApplication,
         embedSetting: action.payload,
+      },
+    };
+  },
+  [ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        forkingEnabled: action.payload,
       },
     };
   },

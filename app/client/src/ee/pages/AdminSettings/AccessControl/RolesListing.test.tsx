@@ -3,10 +3,9 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
-import type { MenuItemProps } from "design-system-old";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import type { RoleProps } from "./types";
+import type { MenuItemProps, RoleProps } from "./types";
 import userEvent from "@testing-library/user-event";
 
 let container: any = null;
@@ -14,14 +13,14 @@ let container: any = null;
 const listMenuItems: MenuItemProps[] = [
   {
     className: "edit-menu-item",
-    icon: "edit-underline",
+    icon: "pencil-line",
     onSelect: jest.fn(),
     text: "Edit",
     label: "edit",
   },
   {
     className: "delete-menu-item",
-    icon: "delete-blank",
+    icon: "delete-bin-line",
     onSelect: jest.fn(),
     text: "Delete",
     label: "delete",
@@ -125,9 +124,7 @@ describe("<RoleListing />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await fireEvent.click(moreMenu[0]);
-    const options = listMenuItems.map(
-      (menuItem: MenuItemProps) => menuItem.text,
-    );
+    const options = listMenuItems.map((menuItem: any) => menuItem.text);
     const menuElements = options
       .map((option: string) => getAllByText(option))
       .flat();
@@ -174,11 +171,13 @@ describe("<RoleListing />", () => {
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
-    const confirmText = getAllByTestId("t--delete-menu-item");
-    expect(confirmText[0]).toHaveTextContent("Are you sure?");
-    await userEvent.dblClick(deleteOption[0]);
-    role = queryByText(rolesTableData[0].name);
-    expect(role).not.toBeInTheDocument();
+    waitFor(async () => {
+      const confirmText = getAllByTestId("t--delete-menu-item");
+      expect(confirmText[0]).toHaveTextContent("Are you sure?");
+      await userEvent.dblClick(deleteOption[0]);
+      role = queryByText(rolesTableData[0].name);
+      expect(role).not.toBeInTheDocument();
+    });
   });
   it("should render in custom url", async () => {
     render(<RolesListing />, {

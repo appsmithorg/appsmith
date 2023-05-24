@@ -1,3 +1,5 @@
+import type { SelectOptionProps } from "design-system";
+
 export type UserLogType = {
   id: string;
   email: string;
@@ -116,3 +118,5 @@ export type DescriptionDataType = {
   userName: string;
   userEmail: string;
 };
+
+export type DropdownOptionProps = Partial<SelectOptionProps>;

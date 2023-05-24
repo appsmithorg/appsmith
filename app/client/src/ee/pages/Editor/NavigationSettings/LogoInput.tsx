@@ -1,23 +1,24 @@
 export * from "ce/pages/Editor/NavigationSettings/LogoInput";
 import React, { useEffect, useState } from "react";
-import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { TextType, Text, TooltipComponent, importSvg } from "design-system-old";
+import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
+import { TextType, Text, importSvg } from "design-system-old";
 import {
   createMessage,
   APP_NAVIGATION_SETTING,
 } from "@appsmith/constants/messages";
-import type { UpdateSetting } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
+import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { logoImageValidation } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
+import { logoImageValidation } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "@appsmith/selectors/applicationSelectors";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { Button, Tooltip } from "design-system";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -81,27 +82,22 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
 
         {navigationSetting?.logoAssetId?.length ? (
           <>
-            <TooltipComponent
-              content="Logo is different from the brand logo set."
-              openOnTargetFocus={false}
-            >
+            <Tooltip content="Logo is different from the brand logo set.">
               <div className="ml-2 w-2 h-2 rounded-full bg-primary-500" />
-            </TooltipComponent>
+            </Tooltip>
 
-            <button
-              className="flex items-center justify-center text-center h-7 w-7 ml-auto"
-              disabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
-              onClick={() => handleDelete()}
-            >
-              <TooltipComponent
-                boundary="viewport"
-                content="Reset logo"
-                openOnTargetFocus={false}
-                position="top-right"
+            <Tooltip content="Reset logo" placement="topRight">
+              <Button
+                className="flex items-center justify-center text-center h-7 w-7 ml-auto"
+                isDisabled={
+                  isUploadingNavigationLogo || isDeletingNavigationLogo
+                }
+                kind="tertiary"
+                onClick={() => handleDelete()}
               >
-                <ResetIcon className="w-5 h-5" />
-              </TooltipComponent>
-            </button>
+                <ResetIcon className="w-5 h-5 cursor-pointer" />
+              </Button>
+            </Tooltip>
           </>
         ) : (
           ""

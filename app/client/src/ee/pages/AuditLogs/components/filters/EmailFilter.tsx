@@ -1,6 +1,4 @@
 import React from "react";
-import type { DropdownOption } from "design-system-old";
-import { Dropdown } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAuditLogsData,
@@ -11,18 +9,18 @@ import {
   replaceAuditLogsEmails,
   setEmailJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
-import {
-  AUDIT_LOGS_FILTER_HEIGHT,
-  AUDIT_LOGS_FILTER_WIDTH,
-} from "../../config/audit-logs-config";
 import { toUserEmail } from "@appsmith/pages/AuditLogs/utils/toDropdownOption";
-import { LabelRenderer } from "./LabelRenderer";
 import { StyledFilterContainer as Container } from "@appsmith/pages/AuditLogs/styled-components/container";
 import { useGoToTop } from "@appsmith/pages/AuditLogs/hooks/useGoToTop";
 import { StyledLabel as Label } from "@appsmith/pages/AuditLogs/styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system-old/build/constants/messages";
-import { USERS_LABEL, USERS_PLACEHOLDER } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  USERS_LABEL,
+  USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
+import { Select, Option } from "design-system";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 /**
  * EmailFilter generates a label, dropdown component that is connected to redux store.
@@ -46,7 +44,7 @@ export default function EmailFilter(): JSX.Element {
    * @param value {string}
    * @param dropdownOption {DropdownOption}
    */
-  function handleSelection(value?: string, dropdownOption?: DropdownOption) {
+  function handleSelection(value?: string, dropdownOption?: DefaultOptionType) {
     /**
      * @param {boolean} adding true if an unchecked option is selected/clicked-on.
      */
@@ -78,34 +76,33 @@ export default function EmailFilter(): JSX.Element {
     });
   }
 
-  function removeSelectedOption(value: string, option: DropdownOption) {
+  function removeSelectedOption(value: string, option: DefaultOptionType) {
     handleSelection(value, option);
   }
 
   return (
     <Container data-testid="t--audit-logs-email-filter-container">
-      <Label>{createMessage(USERS_LABEL)}</Label>
-      <Dropdown
-        boundary="viewport"
-        className="audit-logs-filter audit-logs-filter-dropdown audit-logs-email-filter-dropdown"
-        data-testid="t--audit-logs-email-filter"
-        defaultIcon="downArrow"
-        dropdownMaxHeight={"500px"}
-        enableSearch
-        height={AUDIT_LOGS_FILTER_HEIGHT}
+      <Label renderAs="label">{createMessage(USERS_LABEL)}</Label>
+      <Select
+        className="audit-logs-filter audit-logs-filter-dropdown audit-logs-event-filter-dropdown"
+        data-testid="t--audit-logs-event-type-filter"
         isMultiSelect
-        labelRenderer={LabelRenderer}
+        maxTagTextLength={selectedEmails.length === 1 ? 20 : 5}
+        onDeselect={removeSelectedOption}
         onSelect={handleSelection}
-        optionWidth={AUDIT_LOGS_FILTER_WIDTH}
-        options={emails}
         placeholder={createMessage(USERS_PLACEHOLDER)}
-        removeSelectedOption={removeSelectedOption}
-        searchAutoFocus
-        selected={selectedEmails}
-        showEmptyOptions
-        showLabelOnly
-        width={AUDIT_LOGS_FILTER_WIDTH}
-      />
+        showSearch
+        size="md"
+        value={selectedEmails}
+        virtual={false}
+      >
+        {emails.length > 0 &&
+          emails.map((obj) => (
+            <Option key={obj.key} value={obj.value}>
+              {obj.label}
+            </Option>
+          ))}
+      </Select>
     </Container>
   );
 }

@@ -8,7 +8,7 @@
   "getTrialLicenseLabel": "[data-testid=t--get-license-key-label]",
   "getTrialLicenseBtn": "[data-testid=t--customer-portal-cta]",
   "billingDashboardTab": ".t--settings-category-billing",
-  "billingHeader":"[data-testid=t--billing-header]",
+  "billingHeader": "[data-testid=t--billing-header]",
   "dashboardCard": "[data-testid=t--dashboard-card]",
   "dashboardCardTitle": "[data-testid=t--card-title]",
   "statusText": "[data-testid=t--status-text]",
@@ -17,12 +17,15 @@
   "licenseExpirationDate": "[data-testid=t--license-expiry]",
   "upgradeLeftPane": ".business-plan-menu-option",
   "warningBannerMainText": "[data-testid=t--trial-expiry-warning]",
-  "warningBannerUpgradeBtn": "[data-testid=t--trial-expiry-upgrade-btn]",
+  "warningBannerUpgradeBtn": ".upgrade-link",
   "warninngBannerContinueText": "[data-testid=t--trial-expiry-continue-using-features]",
   "nonAdminWarningBanner": "[data-testid=t--non-admin-trial-expiry-warning]",
   "alreadyUpgraded": "[data-testid=t--already-upgraded]",
-  "licenseRefreshBtn": "[data-testid=t--license-refresh-btn]",
+  "licenseRefreshBtn": ".refresh-link",
   "warningBanner": ".trial-warning-banner",
   "welcomeBanner": "[data-testid=t--welcome-banner]",
-  "wrapperBanner": ".wrapper-banner"
+  "wrapperBanner": ".wrapper-banner",
+  "signOutBtn": ".t--sign-out",
+  "portalBtn": ".portal-btn",
+  "licenseModalHeader": "//h3[@kind=\"heading-m\"]"
 }

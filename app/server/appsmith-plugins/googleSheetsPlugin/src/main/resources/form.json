@@ -4,7 +4,7 @@
       "sectionName": "General",
       "children": [
         {
-          "label": "Authentication Type",
+          "label": "Authentication type",
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
@@ -12,7 +12,7 @@
           "initialValue": "oAuth2"
         },
         {
-          "label": "Grant Type",
+          "label": "Grant type",
           "configProperty": "datasourceConfiguration.authentication.grantType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
@@ -36,19 +36,19 @@
           "controlType": "DROP_DOWN",
           "options": [
             {
-              "label": "Read / Write / Delete | Selected Google Sheets",
+              "label": "Read / Write / Delete | Selected google sheets",
               "value": "https://www.googleapis.com/auth/drive.file"
             },
             {
-              "label": "Read / Write / Delete | All Google Sheets",
+              "label": "Read / Write / Delete | All google sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
             },
             {
-              "label": "Read / Write | All Google Sheets",
+              "label": "Read / Write | All google sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
             },
             {
-              "label": "Read | All Google Sheets",
+              "label": "Read | All google sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],

@@ -1,4 +1,4 @@
-name: Build client server without running tests
+name: Build client server without running Unit tests
 
 on:
   # This workflow can be triggered manually from the GitHub Actions page
@@ -13,13 +13,14 @@ jobs:
       pr: 0
       skip-tests: "true"
 
-  client-build:
-    name: client-build
+  client-build-airgap:
+    name: client-build-airgap
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
       pr: 0
       skip-tests: "true"
+      airgap-enabled: "true"
 
   rts-build:
     name: rts-build
@@ -27,9 +28,39 @@ jobs:
     secrets: inherit
     with:
       pr: 0
-  
+
+  build-docker-image-airgap:
+    needs: [client-build-airgap, server-build, rts-build]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image-airgap
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
+  ci-test-limited-airgap:
+    needs: [build-docker-image-airgap]
+    # Only run if the build step is successful
+    if: success()
+    name: ci-test-limited-airgap
+    uses: ./.github/workflows/ci-test-limited.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: "true"
+      
   build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -39,7 +70,7 @@ jobs:
       pr: 0
 
   ci-test-limited:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test-limited

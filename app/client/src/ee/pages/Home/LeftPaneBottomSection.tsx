@@ -3,10 +3,9 @@ import {
   Wrapper,
   LeftPaneVersionData,
 } from "ce/pages/Home/LeftPaneBottomSection";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { MenuItem } from "design-system-old";
 import {
   ADMIN_SETTINGS,
@@ -71,6 +70,8 @@ function LeftPaneBottomSection() {
   const isTrial = useSelector(isTrialLicense);
   const isAdmin = useSelector(isAdminUser);
   const isAirgappedInstance = isAirgapped();
+  const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
+    useState(false);
 
   return (
     <StyledWrapper>
@@ -101,17 +102,13 @@ function LeftPaneBottomSection() {
       {!isAirgappedInstance && (
         <>
           <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
             icon="discord"
             onSelect={() => {
               window.open("https://discord.gg/rBTTVJp", "_blank");
             }}
-            text={"Join our Discord"}
+            text={"Join our discord"}
           />
           <MenuItem
-            containerClassName={
-              isFetchingApplications ? BlueprintClasses.SKELETON : ""
-            }
             icon="book"
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
@@ -120,11 +117,7 @@ function LeftPaneBottomSection() {
           />
           {!!onboardingWorkspaces.length && (
             <MenuItem
-              containerClassName={
-                isFetchingApplications
-                  ? BlueprintClasses.SKELETON
-                  : "t--welcome-tour"
-              }
+              containerClassName={"t--welcome-tour"}
               icon="guide"
               onSelect={() => {
                 AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
@@ -133,7 +126,19 @@ function LeftPaneBottomSection() {
               text={createMessage(WELCOME_TOUR)}
             />
           )}
-          <ProductUpdatesModal />
+          <MenuItem
+            containerClassName={"t--product-updates-btn"}
+            data-testid="t--product-updates-btn"
+            icon="updates"
+            onSelect={() => {
+              setIsProductUpdatesModalOpen(true);
+            }}
+            text="What's new?"
+          />
+          <ProductUpdatesModal
+            isOpen={isProductUpdatesModalOpen}
+            onClose={() => setIsProductUpdatesModalOpen(false)}
+          />
         </>
       )}
       <LeftPaneVersionData>

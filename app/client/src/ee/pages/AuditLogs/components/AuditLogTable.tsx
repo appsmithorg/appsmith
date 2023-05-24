@@ -5,7 +5,6 @@ import NoAuditLogs from "./NoAuditLogs";
 import useIntersectionObserver from "../hooks/useIntersectionObserver";
 import type { AuditLogType } from "../types";
 import { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
-import { Icon, IconSize } from "design-system-old";
 import { StyledAuditLogsTableContainer as Table } from "../styled-components/container";
 import {
   StyledAuditLogsTableHead as THead,
@@ -25,12 +24,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useGoToTop } from "../hooks/useGoToTop";
 import { AUDIT_LOGS_PAGE_SIZE } from "../config/audit-logs-config";
-import { createMessage } from "design-system-old/build/constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import {
   DATE_LABEL,
   EVENT_DESCRIPTION_LABEL,
   USER_LABEL,
 } from "@appsmith/constants/messages";
+import { Icon } from "design-system";
 
 export function AuditLogTable() {
   const { hasMore, isLoading, logs } = useSelector(selectData);
@@ -105,9 +105,8 @@ export function AuditLogTable() {
           <span className="column-header">{createMessage(DATE_LABEL)}</span>
           <Icon
             name="down-arrow-2"
-            size={IconSize.LARGE}
+            size="md"
             style={{
-              color: `#b3b3b3`,
               transform: `rotateZ(${
                 dateSortOrder === DATE_SORT_ORDER.DESC ? "0deg" : "180deg"
               })`,

@@ -1,6 +1,5 @@
 export * from "ce/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import type { AppState } from "@appsmith/reducers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
@@ -71,21 +70,6 @@ export const shouldShowLicenseBanner = (state: AppState) => {
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {
   return state.tenant.tenantConfiguration?.license?.invalidLicenseKeyError;
-};
-
-export const getLicenseStatus = (state: AppState) => {
-  const isLicenseValid = isValidLicense(state);
-  const isTrial = isTrialLicense(state);
-
-  if (isLicenseValid) {
-    if (isTrial) {
-      return Status.TRIAL;
-    } else {
-      return Status.ACTIVE;
-    }
-  } else {
-    return Status.INACTIVE;
-  }
 };
 
 export const isAdminUser = (state: AppState) =>
