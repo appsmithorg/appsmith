@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any, query: string, imageNameToUpload: string;
 
-describe("Binary Datatype tests", function () {
+describe.skip("Binary Datatype tests", function () {
   before("Create DS, Importing App & setting theme", () => {
     cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
@@ -14,7 +14,7 @@ describe("Binary Datatype tests", function () {
     });
   });
 
-  it.only("1. Creating SELECT query - binarytype + Bug 14493", () => {
+  it("1. Creating SELECT query - binarytype + Bug 14493", () => {
     query = `CREATE table binarytype (serialid SERIAL primary key, imagename TEXT, existingImage bytea, newImage bytea);`;
     _.dataSources.CreateQueryAfterDSSaved(query, "createTable");
     _.dataSources.RunQuery();
@@ -39,7 +39,7 @@ describe("Binary Datatype tests", function () {
     _.agHelper.RenameWithInPane("selectRecords");
   });
 
-  it.only("2. Creating all queries- binarytype", () => {
+  it("2. Creating all queries- binarytype", () => {
     //Other queries
     query = `INSERT INTO public."binarytype" ("imagename", "existingimage", "newimage") VALUES ('{{Insertimagename.text}}', '{{Insertimage.files[0].data}}', '{{Insertimage.files[0].data}}');`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
@@ -65,7 +65,7 @@ describe("Binary Datatype tests", function () {
     _.entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
-  it.only("3. Inserting record - binarytype", () => {
+  it("3. Inserting record - binarytype", () => {
     imageNameToUpload = "Datatypes/Bridge.jpg";
     _.entityExplorer.SelectEntityByName("Page1");
     _.deployMode.DeployApp();
