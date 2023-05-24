@@ -9611,7 +9611,7 @@ __metadata:
     cypress-xpath: ^1.4.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.10-alpha.1"
+    design-system: "npm:@appsmithorg/design-system@2.1.10-alpha.2"
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.7"
     diff: ^5.0.0
     dotenv: ^8.1.0
@@ -13793,9 +13793,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.10-alpha.1":
-  version: 2.1.10-alpha.1
-  resolution: "@appsmithorg/design-system@npm:2.1.10-alpha.1"
+"design-system@npm:@appsmithorg/design-system@2.1.10-alpha.2":
+  version: 2.1.10-alpha.2
+  resolution: "@appsmithorg/design-system@npm:2.1.10-alpha.2"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -13820,7 +13820,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: 2175b00404ada890c46f173c11a3b5b0274a8afaea4b1ba7d72997ff6883aeda48e6b65d6a8eb1459752949c551734e80afb30dcd9522e9496a0d3e996fc87bd
+  checksum: 99efaec85814b249d4b0d78652d6ae8e0657da54fa68d068fd5f860bc15601bad63032324d9ada69d27914e2cbac31805bcfaf8eb0728fd9c51e4c01171fcf07
   languageName: node
   linkType: hard
 
