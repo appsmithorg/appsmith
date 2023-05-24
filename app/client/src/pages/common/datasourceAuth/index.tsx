@@ -38,7 +38,6 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { Colors } from "constants/Colors";
 
 interface Props {
   datasource: Datasource;
@@ -100,7 +99,8 @@ const SaveButtonContainer = styled.div<{
   padding-right: 20px;
   flex: 1 1 10%;
   border-top: ${(props) =>
-    props.isInsideReconnectModal ? "none" : `1px solid ${Colors.ALTO}`};
+    props.isInsideReconnectModal ? "none" : "1px solid"};
+  border-color: var(--ads-v2-color-border);
   align-items: center;
 `;
 
