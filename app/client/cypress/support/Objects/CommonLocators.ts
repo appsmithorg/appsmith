@@ -183,6 +183,7 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-testid='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
+  _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
@@ -194,4 +195,6 @@ export class CommonLocators {
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _selectByValue = (value: string) =>
+    `//button[contains(@class, 't--open-dropdown-${value}')]`;
 }
