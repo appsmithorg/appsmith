@@ -99,9 +99,6 @@ export interface DeleteApplicationRequest {
   applicationId: string;
 }
 
-export interface DuplicateApplicationRequest {
-  applicationId: string;
-}
 export interface ForkApplicationRequest {
   applicationId: string;
   workspaceId: string;
@@ -327,12 +324,6 @@ export class ApplicationApi extends Api {
     request: DeleteApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.delete(ApplicationApi.baseURL + "/" + request.applicationId);
-  }
-
-  static duplicateApplication(
-    request: DuplicateApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/clone/" + request.applicationId);
   }
 
   static forkApplication(
