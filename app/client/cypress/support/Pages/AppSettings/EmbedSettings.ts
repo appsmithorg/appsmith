@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import HomePage from "../../../locators/HomePage";
+
 export class EmbedSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private appSettings = ObjectsRegistry.AppSettings;
@@ -61,5 +63,23 @@ export class EmbedSettings {
         this.agHelper.ValidateNetworkStatus("@updateApplication");
       }
     });
+  }
+
+  public enablePublicAccessViaShareSettings(enable = true) {
+    this.OpenEmbedSettings();
+    const input = this.agHelper.GetElement(
+      HomePage.enablePublicAccessSettingsPage,
+    );
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== enable.toString()) {
+        this.agHelper.GetNClick(HomePage.enablePublicAccessSettingsPage);
+        cy.wait("@changeAccess").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+      }
+    });
+    cy.wait(5000);
   }
 }
