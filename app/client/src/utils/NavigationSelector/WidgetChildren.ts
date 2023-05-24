@@ -61,9 +61,17 @@ export const getWidgetChildrenNavData = (
       const widgetProps = Object.keys(config).filter(
         (k) => k.indexOf("!") === -1,
       );
+
       widgetProps.forEach((prop) => {
         const data = dataTreeWidget[prop];
-        peekData[prop] = data;
+
+        if (prop.startsWith("set")) {
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          peekData[prop] = function () {}; // tern inference required here
+        } else {
+          peekData[prop] = data;
+        }
+
         childNavData[prop] = createNavData({
           id: `${widget.widgetName}.${prop}`,
           name: `${widget.widgetName}.${prop}`,
