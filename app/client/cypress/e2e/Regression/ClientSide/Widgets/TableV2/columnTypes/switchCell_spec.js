@@ -37,7 +37,7 @@ describe("Switch column type funtionality test", () => {
       x: 150,
       y: 300,
     });
-    ObjectsRegistry.PropertyPane.ToggleJsMode("Table Data");
+    ObjectsRegistry.PropertyPane.ToggleJsMode("Table data");
     cy.openPropertyPane("tablewidgetv2");
     propPane.RemoveText("tabledata");
     propPane.UpdatePropertyFieldValue("Table data", tableData);

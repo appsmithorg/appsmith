@@ -16,7 +16,7 @@ describe("1. Check frozen common and/or custom columns retain position on query 
 
     cy.wait(2000);
     cy.openPropertyPane(WIDGET.TABLE);
-    helper.propPane.ToggleJsMode("Table Data");
+    helper.propPane.ToggleJsMode("Table data");
     cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
   });
 

@@ -36,8 +36,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
 
     // Step 3: Add binding to the tableData property
     _.propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
-    _.propPane.ToggleJsMode("Table Data");
-    _.propPane.UpdatePropertyFieldValue("Table Data", "{{getCustomers.data}}");
+    _.propPane.ToggleJsMode("Table data");
+    _.propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness

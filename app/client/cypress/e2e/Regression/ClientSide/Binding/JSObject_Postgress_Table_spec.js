@@ -38,7 +38,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       _.jsEditor.CreateJSObject("return Query1.data;");
       cy.CheckAndUnfoldEntityItem("Widgets");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
-      ObjectsRegistry.PropertyPane.ToggleJsMode("Table Data");
+      ObjectsRegistry.PropertyPane.ToggleJsMode("Table data");
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabData) => {

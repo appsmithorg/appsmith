@@ -6,7 +6,7 @@ const totalRows = 100;
 describe("Table Widget Virtualized Row", function () {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });
-    PropertyPane.ToggleJsMode("Table Data");
+    PropertyPane.ToggleJsMode("Table data");
     const row = {
       step: "#3",
       task: "Bind the query using => fetch_users.data",

@@ -94,11 +94,11 @@ describe("One click binding control", () => {
       ".t--one-click-binding-datasource-selector--other-action:contains('Insert Binding')",
     );
 
-    _.propPane.ValidatePropertyFieldValue("Table Data", "{{}}");
+    _.propPane.ValidatePropertyFieldValue("Table data", "{{}}");
 
-    _.propPane.UpdatePropertyFieldValue("Table Data", "");
+    _.propPane.UpdatePropertyFieldValue("Table data", "");
 
-    _.propPane.ToggleJsMode("Table Data");
+    _.propPane.ToggleJsMode("Table data");
 
     _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
 
@@ -112,13 +112,13 @@ describe("One click binding control", () => {
       ".rc-select-selection-item:contains('Query1')",
     );
 
-    _.propPane.ToggleJsMode("Table Data");
+    _.propPane.ToggleJsMode("Table data");
 
-    _.propPane.ValidatePropertyFieldValue("Table Data", "{{Query1.data}}");
+    _.propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
-    _.propPane.UpdatePropertyFieldValue("Table Data", "");
+    _.propPane.UpdatePropertyFieldValue("Table data", "");
 
-    _.propPane.ToggleJsMode("Table Data");
+    _.propPane.ToggleJsMode("Table data");
 
     ChooseAndAssertForm("New from Users", "Users", "public.users", "gender");
 
