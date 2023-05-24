@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { WIDGET } from "../../../../locators/WidgetLocators";
 
 let repoName: any;
 describe("Git Bugs", function () {
@@ -38,9 +37,9 @@ describe("Git Bugs", function () {
 
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     _.entityExplorer.AddNewPage();
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
     _.propPane.EnterJSContext(
       "onClick",
       "{{navigateTo('Page2', {testQP: 'Yes'}, 'SAME_WINDOW')}}",
