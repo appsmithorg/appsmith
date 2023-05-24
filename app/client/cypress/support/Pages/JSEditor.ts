@@ -84,6 +84,7 @@ export class JSEditor {
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
   _funcDropdown = ".t--formActionButtons .function-select-dropdown";
+  _funcDropdownValue = `${this._funcDropdown} p`;
   _funcDropdownOptions = ".rc-virtual-list .rc-select-item-option p";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
@@ -213,6 +214,16 @@ export class JSEditor {
     this.agHelper.Sleep(2000); //Settling time for edited js code
     toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify code");
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
+  }
+
+  public ClearJSObj() {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
+      .type("{backspace}", { force: true });
+    this.agHelper.Sleep(2000); //Settling time for edited js code
+    this.agHelper.AssertAutoSave();
   }
 
   public RunJSObj() {
@@ -357,6 +368,10 @@ export class JSEditor {
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
     this.agHelper.GetNClickByContains(this._funcDropdownOptions, funName);
+  }
+
+  public AssertSelectedFunction(funName: string) {
+    cy.get(this._funcDropdownValue).contains(funName).should("exist");
   }
 
   //#endregion

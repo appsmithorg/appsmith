@@ -22,7 +22,7 @@ public interface AnalyticsServiceCE {
 
     Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties, boolean hashUserId);
 
-    <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties);
+    <T> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties);
 
     <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object);
 

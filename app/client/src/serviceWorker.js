@@ -27,9 +27,9 @@ const regexMap = {
 };
 
 /* eslint-disable no-restricted-globals */
-const toPrecache = self.__WB_MANIFEST.filter(
-  (file) => !file.url.includes("index.html"),
-);
+// Note: if you need to filter out some files from precaching,
+// do that in craco.build.config.js → workbox webpack plugin options
+const toPrecache = self.__WB_MANIFEST;
 precacheAndRoute(toPrecache);
 
 self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
