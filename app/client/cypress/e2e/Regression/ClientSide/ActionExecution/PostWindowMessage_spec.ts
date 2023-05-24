@@ -44,7 +44,7 @@ describe("Post window message", () => {
     propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp(locator._spanButton("Submit"));
-
+    agHelper.AssertElementVisible("#iframe-Iframe1");
     cy.get("#iframe-Iframe1").then((element) => {
       element.contents().find("body").find("#iframe-button").click();
     });
