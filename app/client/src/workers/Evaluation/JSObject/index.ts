@@ -87,8 +87,9 @@ export function saveResolvedFunctionsAndJSUpdates(
 ) {
   jsPropertiesState.delete(entityName);
   const correctFormat = regex.test(entity.body);
+  const isEmptyBody = entity.body.trim() === "";
 
-  if (correctFormat) {
+  if (correctFormat || isEmptyBody) {
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
@@ -188,7 +189,9 @@ export function saveResolvedFunctionsAndJSUpdates(
     } catch (e) {
       //if we need to push error as popup in case
     }
-  } else {
+  }
+
+  if (!correctFormat) {
     const errors = {
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {
@@ -199,6 +202,7 @@ export function saveResolvedFunctionsAndJSUpdates(
     };
     dataTreeEvalRef.errors.push(errors);
   }
+
   return jsUpdates;
 }
 
@@ -339,7 +343,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
         value,
         `${jsObjectName}.${variableName}`,
       );
-      /* 
+      /*
       JSobject variable values are picked from evalProps until the unevalValue is not modified.
       Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
       */

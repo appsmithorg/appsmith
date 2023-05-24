@@ -35,8 +35,6 @@ export const getApplicationSearchKeyword = (state: AppState) =>
 export const getAppMode = (state: AppState) => state.entities.app.mode;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
-export const getIsDuplicatingApplication = (state: AppState) =>
-  state.ui.applications.duplicatingApplication;
 export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
 export const getIsErroredSavingAppName = (state: AppState) =>

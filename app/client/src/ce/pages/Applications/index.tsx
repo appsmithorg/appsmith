@@ -22,7 +22,6 @@ import {
   getCreateApplicationError,
   getIsCreatingApplication,
   getIsDeletingApplication,
-  getIsDuplicatingApplication,
   getIsFetchingApplications,
   getIsSavingWorkspaceInfo,
   getUserApplicationsWorkspaces,
@@ -61,7 +60,6 @@ import {
   MenuTrigger,
 } from "design-system";
 import {
-  duplicateApplication,
   setShowAppInviteUsersDialog,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
@@ -556,10 +554,6 @@ export function ApplicationsSection(props: any) {
     urlBuilder.resetURLParams();
   }, []);
 
-  const duplicateApplicationDispatch = (applicationId: string) => {
-    dispatch(duplicateApplication(applicationId));
-  };
-
   const [
     selectedWorkspaceIdForImportApplication,
     setSelectedWorkspaceIdForImportApplication,
@@ -921,7 +915,6 @@ export function ApplicationsSection(props: any) {
                     <ApplicationCard
                       application={application}
                       delete={deleteApplication}
-                      duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
                       isMobile={isMobile}
                       key={application.id}
@@ -987,7 +980,6 @@ export interface ApplicationProps {
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
-  duplicatingApplication: boolean;
   getAllApplication: () => void;
   userWorkspaces: any;
   currentUser?: User;
@@ -1058,7 +1050,6 @@ const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  duplicatingApplication: getIsDuplicatingApplication(state),
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),

@@ -30,7 +30,8 @@ public class ArangoDBErrorMessages {
             "'Database name' fields is missing. Please edit the 'Username', 'Password' and " +
             "'Database name' fields to provide authentication info.";
 
-    public static final String DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG = "Could not find host address. Please edit the 'Host address' field to provide the desired endpoint.";
+    public static final String DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG = "Could not find host address. Please edit " +
+            "the 'Host Address' and/or the 'Port' field to provide the desired endpoint.";
 
     public static final String DS_CA_CERT_NOT_FOUND_ERROR_MSG = "Could not find CA certificate. Please provide a CA certificate.";
 

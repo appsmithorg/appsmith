@@ -52,8 +52,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
     _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication(appname);
-    _.agHelper.WaitUntilAllToastsDisappear();
+    _.homePage.ForkApplication(appname);
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");

@@ -27,6 +27,7 @@ import type {
   ConfigTree,
   WidgetEntityConfig,
   DataTreeEntityConfig,
+  UnEvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import type {
   ActionEntity,
@@ -144,7 +145,7 @@ export default class DataTreeEvaluator {
   unParsedEvalTree: DataTree = {};
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
-  oldUnEvalTree: DataTree = {};
+  oldUnEvalTree: UnEvalTree = {};
   oldConfigTree: ConfigTree = {};
   errors: EvalError[] = [];
   logs: unknown[] = [];
@@ -615,7 +616,7 @@ export default class DataTreeEvaluator {
   }
 
   setupTree(
-    localUnEvalTree: DataTree,
+    localUnEvalTree: UnEvalTree,
     updatedValuePaths: string[][],
     extraParams: {
       totalUpdateTreeSetupStartTime?: any;

@@ -32,6 +32,8 @@ import Debugger, {
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -518,9 +520,14 @@ class IntegrationsHomeScreen extends React.Component<
           dataSources={dataSources}
           history={this.props.history}
           location={location}
-          onCreateNew={() =>
-            this.onSelectPrimaryMenu(PRIMARY_MENU_IDS.CREATE_NEW)
-          }
+          onCreateNew={() => {
+            this.onSelectPrimaryMenu(PRIMARY_MENU_IDS.CREATE_NEW);
+            // Event for datasource creation click
+            const entryPoint = DatasourceCreateEntryPoints.ACTIVE_DATASOURCE;
+            AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+              entryPoint,
+            });
+          }}
           pageId={pageId}
         />
       );
