@@ -512,7 +512,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             actionConfiguration.setQueryParameters(queryParameters);
         }
 
-        queryParameters.addAll(getParams(token));
+        queryParameters.addAll(getQueryParams(token));
 
         // Set the URL without the query params & the path.
         action.getDatasource().getDatasourceConfiguration().setUrl(base);
@@ -527,14 +527,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         }
         return "";
     }
- 
-    private List<Property> getParams(String path) throws IndexOutOfBoundsException{
-        List<Property> paramsList = new ArrayList<>();
+
+    private List<Property> getQueryParams(String path) throws IndexOutOfBoundsException{
+        List<Property> queryParamList = new ArrayList<>();
         String[] paramsArray = path.split("\\?")[1].split("&");
-        for(String param : Arrays.asList(paramsArray)){
-            String[] paramMap = param.split("=");
-            paramsList.add(new Property(paramMap[0],paramMap[1]));
+        for(String queryParam : Arrays.asList(paramsArray)){
+            String[] paramMap = queryParam.split("=");
+            queryParamList.add(new Property(paramMap[0],paramMap[1]));
         }
-        return paramsList;
+        return queryParamList;
     }
 }
