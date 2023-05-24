@@ -149,7 +149,10 @@ import {
   APPSMITH_AI,
   askAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
-import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import {
+  getAllDatasourceTableKeys,
+  selectInstalledLibraries,
+} from "selectors/entitiesSelector";
 import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
@@ -724,6 +727,12 @@ class CodeEditor extends Component<Props, State> {
     return chIndex;
   };
 
+  isPathLibrary = (paths: string[]) => {
+    return !!this.props.installedLibraries.find((installedLib) =>
+      installedLib.accessor.find((accessor) => accessor === paths[0]),
+    );
+  };
+
   handleMouseOver = (event: MouseEvent) => {
     const tokenElement = event.target;
     if (
@@ -742,7 +751,11 @@ class CodeEditor extends Component<Props, State> {
         .extractExpressionAtPosition(chIndex)
         .then((lineExpression: string) => {
           const paths = _.toPath(lineExpression);
-          this.showPeekOverlay(lineExpression, paths, tokenElement);
+          if (!this.isPathLibrary(paths)) {
+            this.showPeekOverlay(lineExpression, paths, tokenElement);
+          } else {
+            this.hidePeekOverlay();
+          }
         })
         .catch((e) => {
           this.hidePeekOverlay();
@@ -1639,6 +1652,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   ),
   featureFlags: selectFeatureFlags(state),
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
+  installedLibraries: selectInstalledLibraries(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
