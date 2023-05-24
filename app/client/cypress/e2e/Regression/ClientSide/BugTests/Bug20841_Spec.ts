@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { WIDGET } from "../../../../locators/WidgetLocators";
 
 describe("Evaluations causing error when page is cloned", function () {
   it("1. Bug: 20841: JSObjects | Sync methods | Not run consistently when Page is cloned", function () {
@@ -8,7 +7,11 @@ describe("Evaluations causing error when page is cloned", function () {
           return "Default text";
         },
     }`;
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.INPUT_V2, 200, 600);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      200,
+      600,
+    );
     _.entityExplorer.NavigateToSwitcher("Explorer");
     _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,

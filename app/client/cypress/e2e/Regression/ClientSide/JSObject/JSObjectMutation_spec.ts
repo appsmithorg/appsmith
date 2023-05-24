@@ -1,4 +1,4 @@
-import { WIDGET, getWidgetSelector } from "../../../../locators/WidgetLocators";
+import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("JSObject testing", () => {
@@ -13,7 +13,7 @@ describe("JSObject testing", () => {
     _.agHelper.ClickButton("ADD");
     _.agHelper.ClickButton("ADD");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).to.equal("4");
       });
@@ -22,7 +22,7 @@ describe("JSObject testing", () => {
     _.agHelper.ClickButton("SUB");
     _.agHelper.ClickButton("SUB");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).to.equal("2");
       });
@@ -37,7 +37,7 @@ describe("JSObject testing", () => {
     _.agHelper.ClickButton("ADD");
 
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).contains("[  0,  1,  2]");
       });
@@ -47,7 +47,7 @@ describe("JSObject testing", () => {
     _.agHelper.SelectDropDown("OBJECT");
     _.agHelper.ClickButton("ADD");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).contains('{  "a": {    "b": 1  }}');
       });
@@ -59,7 +59,7 @@ describe("JSObject testing", () => {
     _.agHelper.ClickButton("ADD");
     _.agHelper.ClickButton("ADD");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).contains('[  [    "a",    1  ]]');
       });
@@ -67,7 +67,7 @@ describe("JSObject testing", () => {
     _.agHelper.ClickButton("SUB");
     _.agHelper.ClickButton("SUB");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).contains("[]");
       });
@@ -78,14 +78,14 @@ describe("JSObject testing", () => {
 
     _.agHelper.ClickButton("ADD");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).contains("[  0]");
       });
 
     _.agHelper.ClickButton("SUB");
     _.agHelper
-      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .GetText(`${getWidgetSelector(_.draggableWidgets.TEXT)} span`)
       .then(($label) => {
         expect($label).contains("[]");
       });

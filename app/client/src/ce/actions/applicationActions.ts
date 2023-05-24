@@ -92,6 +92,15 @@ export const updateCurrentApplicationEmbedSetting = (
   };
 };
 
+export const updateCurrentApplicationForkingEnabled = (
+  forkingEnabled: boolean,
+) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE,
+    payload: forkingEnabled,
+  };
+};
+
 export const updateApplicationNavigationSettingAction = (
   navigationSetting: NavigationSetting,
 ) => {
@@ -132,15 +141,6 @@ export const deleteApplicationNavigationLogoSuccessAction = () => {
 export const publishApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-    payload: {
-      applicationId,
-    },
-  };
-};
-
-export const duplicateApplication = (applicationId: string) => {
-  return {
-    type: ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
     payload: {
       applicationId,
     },
