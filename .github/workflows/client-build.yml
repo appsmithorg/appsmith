@@ -164,7 +164,7 @@ jobs:
             REACT_APP_VERSION_EDITION="Community" \
             yarn build
             
-      # Restoring the cache manually instead
+      # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache@v3
         with:
