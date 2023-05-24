@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Field } from "redux-form";
 import { DropdownWrapper, FormBodyWrapper, withDropdown } from "./common";
@@ -25,6 +25,7 @@ import { FormGroup } from "design-system-old";
 import { Button, Checkbox } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -62,6 +63,13 @@ export default function DetailsForm(
 
   const isFirstPage = useMemo(() => formState === 0, [formState]);
 
+  useEffect(() => {
+    const setTelemetryVisibleFalse = async () => {
+      await setFirstTimeUserOnboardingTelemetryCalloutVisibility(false);
+    };
+    setTelemetryVisibleFalse();
+  }, []);
+
   return (
     <DetailsFormWrapper ref={ref}>
       <StyledTabIndicatorWrapper>
@@ -69,7 +77,7 @@ export default function DetailsForm(
         <StyledTabIndicator isFirstPage={isFirstPage} />
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
-        <div className={isFirstPage ? "block" : "none"}>
+        <div className={isFirstPage ? "block" : "hidden"}>
           <div className="flex flex-row justify-between w-100">
             <StyledFormGroup className="!w-52 t--welcome-form-first-name">
               <FormTextField

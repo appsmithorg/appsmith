@@ -1087,7 +1087,7 @@ export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FIRST_NAME = () => "First name";
 export const WELCOME_FORM_LAST_NAME = () => "Last name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email";
-export const WELCOME_FORM_CREATE_PASSWORD = () => "Create password";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Enter password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify password";
 export const WELCOME_FORM_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
