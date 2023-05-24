@@ -16,21 +16,10 @@ type ButtonRefObject = React.RefObject<HTMLButtonElement>;
 export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
   const { autoFocus, children, className, isDisabled, visuallyDisabled } =
     props;
-  let computedProps = props;
-  // Note: this is a workaround for making button more accessible
-  if (visuallyDisabled) {
-    computedProps = {
-      ...props,
-      isDisabled: false,
-      onPress: undefined,
-    };
-  }
-  const { buttonProps, isPressed } = useButton(
-    computedProps,
-    ref as ButtonRefObject,
-  );
+  props = useVisuallyDisabled(props);
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
+  const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
 
   return (
     <button
@@ -48,3 +37,28 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
     </button>
   );
 });
+
+/**
+ * This hook is used to disable all click/press events on a button
+ * when the button is visually disabled
+ *
+ * @param props
+ * @returns
+ */
+const useVisuallyDisabled = (props: ButtonProps) => {
+  let computedProps = props;
+
+  if (props.visuallyDisabled) {
+    computedProps = {
+      ...props,
+      isDisabled: false,
+      // disabling click/press events
+      onPress: undefined,
+      onPressStart: undefined,
+      onPressEnd: undefined,
+      onPressChange: undefined,
+    };
+  }
+
+  return computedProps;
+};
