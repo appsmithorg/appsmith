@@ -200,4 +200,6 @@ export class CommonLocators {
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
   _popUpCloseBtn = (popupname: string) =>
     `//*[text()='${popupname}']/following-sibling::button`;
+  _selectByValue = (value: string) =>
+    `//button[contains(@class, 't--open-dropdown-${value}')]`;
 }
