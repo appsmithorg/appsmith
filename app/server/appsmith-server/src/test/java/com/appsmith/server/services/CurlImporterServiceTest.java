@@ -321,6 +321,32 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testImportActionOnURLWithCurlyBracket() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+        String urlWithCurlyBrackets = "curl -X GET https://mock-api.appsmith.com/{id}/users?name=test";
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction(urlWithCurlyBrackets, page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .assertNext(actionDTO -> {
+                    assertThat(actionDTO.getDatasource().getDatasourceConfiguration().getUrl()).isNotNull();
+                    assertThat(actionDTO.getDatasource().getDatasourceConfiguration().getUrl()).isNotEmpty();
+                    assertThat(actionDTO.getActionConfiguration().getQueryParameters()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
         setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
