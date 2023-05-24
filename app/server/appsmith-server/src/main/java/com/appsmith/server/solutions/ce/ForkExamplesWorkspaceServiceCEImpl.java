@@ -226,7 +226,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     // newly forked app
                     application.setForkWithConfiguration(null);
                     application.setExportWithConfiguration(null);
-                    application.setForkingEnabled(false);
+                    application.setForkingEnabled(null);
 
                     final String defaultPageId = application.getPages()
                             .stream()
