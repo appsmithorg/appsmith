@@ -476,7 +476,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               <DatasourceAuth
                 datasource={datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
-                deleteTempDSFromDraft={deleteTempDSFromDraft}
                 formData={formData}
                 getSanitizedFormData={_.memoize(this.getSanitizedData)}
                 isInsideReconnectModal={isInsideReconnectModal}

@@ -18,7 +18,7 @@ import {
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useParams, useLocation } from "react-router";
+import { useParams, useLocation, useHistory } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
@@ -37,13 +37,15 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { integrationEditorURL } from "RouteBuilder";
+import { getQueryParams } from "utils/URLUtils";
+import type { AppsmithLocationState } from "utils/history";
 
 interface Props {
   datasource: Datasource;
   formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
-  deleteTempDSFromDraft: () => void;
   isInvalid: boolean;
   pageId?: string;
   viewMode?: boolean;
@@ -119,7 +121,6 @@ function DatasourceAuth({
     DatasourceButtonTypeEnum.CANCEL,
     DatasourceButtonTypeEnum.SAVE,
   ],
-  deleteTempDSFromDraft,
   formData,
   getSanitizedFormData,
   isInvalid,
@@ -156,6 +157,7 @@ function DatasourceAuth({
   const dispatch = useDispatch();
   const location = useLocation();
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+  const history = useHistory<AppsmithLocationState>();
 
   const pageId = (pageIdQuery || pageIdProp) as string;
 
@@ -321,8 +323,14 @@ function DatasourceAuth({
           key={buttonType}
           kind="tertiary"
           onClick={() => {
-            if (createMode) deleteTempDSFromDraft();
-            else dispatch(setDatasourceViewMode(true));
+            if (createMode) {
+              const URL = integrationEditorURL({
+                pageId,
+                selectedTab: INTEGRATION_TABS.NEW,
+                params: getQueryParams(),
+              });
+              history.push(URL);
+            } else dispatch(setDatasourceViewMode(true));
           }}
           size="md"
         >
