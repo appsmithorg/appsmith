@@ -90,8 +90,18 @@ describe("Dynamic Height Width validation", function () {
           });
       });
   });
+  it("2. Validates checkbox bounding box is the same as the space it occupies", function () {
+    cy.get(".t--widget-checkboxwidget")
+      .invoke("css", "height")
+      .then((newcheckboxheight) => {
+        expect("40px").to.equal(newcheckboxheight);
+      });
+    cy.get(".t--widget-checkboxwidget .resize-wrapper")
+      .invoke("css", "height")
+      .then((resizeHeight) => expect("36px").to.equal(resizeHeight));
+  });
 
-  it("2. Validate container with auto height and child widgets with fixed height", function () {
+  it("3. Validate container with auto height and child widgets with fixed height", function () {
     cy.addDsl(cdsl);
     cy.wait(3000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");

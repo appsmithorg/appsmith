@@ -363,7 +363,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     WidgetHeightLimits.MAX_HEIGHT_IN_ROWS *
     GridDefaults.DEFAULT_GRID_ROW_HEIGHT; // Maximum possible height
   // If the widget has auto height with limits, we need to respect the set limits.
-  if (isAutoHeightEnabledForWidgetWithLimits(props)) {
+  if (isAutoHeightEnabledForWidgetWithLimits(props) && !props.isCanvas) {
     maxHeightInPx =
       (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -372,7 +372,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Is auto height enabled for widget (without limits)
   const autoHeight =
     isAutoHeightEnabledForWidget(props) &&
-    !isAutoHeightEnabledForWidgetWithLimits(props);
+    !isAutoHeightEnabledForWidgetWithLimits(props) &&
+    // We want to enable auto height for container like widgets only, other widgets will need to respect the provided height
+    props.isCanvas;
 
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);
