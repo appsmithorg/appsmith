@@ -698,6 +698,32 @@ class CodeEditor extends Component<Props, State> {
     });
   };
 
+  updateScriptForPeekOverlay = (chIndex: number) => {
+    if (
+      !this.peekOverlayExpressionIdentifier.hasParsedScript() ||
+      this.multiplexConfig
+    ) {
+      if (this.multiplexConfig) {
+        const bindingSnippetsByInnerMode = this.getBindingSnippetAtPos(
+          this.multiplexConfig,
+          chIndex,
+        );
+        for (const snippet of bindingSnippetsByInnerMode) {
+          if (snippet.value) {
+            this.peekOverlayExpressionIdentifier.updateScript(snippet.value);
+            chIndex -= snippet.offset;
+            break;
+          }
+        }
+      } else {
+        this.peekOverlayExpressionIdentifier.updateScript(
+          this.editor.getValue(),
+        );
+      }
+    }
+    return chIndex;
+  };
+
   handleMouseOver = (event: MouseEvent) => {
     const tokenElement = event.target;
     if (
@@ -708,33 +734,12 @@ class CodeEditor extends Component<Props, State> {
         left: event.clientX,
         top: event.clientY,
       });
-      let hoverChIndex = this.editor.indexFromPos(tokenPos);
-
-      if (
-        !this.peekOverlayExpressionIdentifier.hasParsedScript() ||
-        this.multiplexConfig
-      ) {
-        if (this.multiplexConfig) {
-          const bindingSnippetsByInnerMode = this.getBindingSnippetAtPos(
-            this.multiplexConfig,
-            hoverChIndex,
-          );
-          for (const snippet of bindingSnippetsByInnerMode) {
-            if (snippet.value) {
-              this.peekOverlayExpressionIdentifier.updateScript(snippet.value);
-              hoverChIndex -= snippet.offset;
-              break;
-            }
-          }
-        } else {
-          this.peekOverlayExpressionIdentifier.updateScript(
-            this.editor.getValue(),
-          );
-        }
-      }
+      const chIndex = this.updateScriptForPeekOverlay(
+        this.editor.indexFromPos(tokenPos),
+      );
 
       this.peekOverlayExpressionIdentifier
-        .extractExpressionAtPosition(hoverChIndex)
+        .extractExpressionAtPosition(chIndex)
         .then((lineExpression: string) => {
           const paths = _.toPath(lineExpression);
           this.showPeekOverlay(lineExpression, paths, tokenElement);
