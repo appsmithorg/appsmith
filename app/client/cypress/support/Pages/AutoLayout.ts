@@ -112,6 +112,8 @@ export class AutoLayout {
       force: true,
     });
 
+    cy.wait(2000);
+
     cy.get(this.refreshAppDialogButton).click({
       force: true,
     });

@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import template from "../../../../locators/TemplatesLocators.json";
+import widgetLocators from "../../../../locators/Widgets.json";
 
 const templatePageWithNullBindings = require("../../../../fixtures/templatePageWithNullbindings.json");
 const conversionDslWithDynamicBindings = require("../../../../fixtures/conversionDslWithDynamicBindings.json");
@@ -60,6 +62,25 @@ describe("Handle Cases while conversion", () => {
     home.CreateNewApplication();
 
     cy.addDsl(conversionDslWithDynamicBindings);
+
+    autoLayout.convertToAutoLayoutAndVerify();
+    autoLayout.useSnapshotFromBanner();
+  });
+
+  it("5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load", () => {
+    ee.AddNewPage("Add page from template");
+    cy.get(template.templateDialogBox).should("be.visible");
+    cy.xpath("//h1[text()='Marketing Dashboard']").click();
+    cy.wait(10000); // for templates page to load fully
+    cy.get(template.selectCheckbox).first().click();
+    cy.wait(1000);
+    cy.get(template.selectCheckbox).eq(1).click();
+    cy.get(template.templateViewForkButton).click();
+    cy.wait(5000);
+    cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
+      "contain",
+      "template added successfully",
+    );
 
     autoLayout.convertToAutoLayoutAndVerify();
   });
