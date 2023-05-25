@@ -57,11 +57,11 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
 
   it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
     cy.NavigateToHome();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(reconnectDatasourceLocators.Modal).length) {
-        cy.get(_.dataSources._skiptoApplicationBtn).click();
-      }
-    });
+    // cy.get("body").then(($ele) => {
+    //   if ($ele.find(reconnectDatasourceLocators.Modal).length) {
+    //     cy.get(_.dataSources._skiptoApplicationBtn).click();
+    //   }
+    // });
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
@@ -74,7 +74,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       .wait(500)
       .click();
     cy.get(templateLocators.dialogForkButton).should("be.visible");
-    cy.get(templateLocators.dialogForkButton).click({ force: true });
+    cy.get(templateLocators.dialogForkButton).click();
     cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
     cy.get(reconnectDatasourceLocators.DatasourceList)
       .find(reconnectDatasourceLocators.ListItemIcon)
