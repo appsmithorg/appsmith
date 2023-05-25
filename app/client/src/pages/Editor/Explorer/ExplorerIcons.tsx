@@ -294,7 +294,7 @@ export function JsFileIconV2(
       noBorder={noBorder}
       width={width + "px"}
     >
-      <EntityIcon.textIcon fontSize={height * 3.05}>JS</EntityIcon.textIcon>
+      <Icon name="js-yellow" size="md" />
     </EntityIcon>
   );
 }
