@@ -169,7 +169,6 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  /* padding: 16px 30px; */
   ${thinScrollbar};
   height: 100%;
 `;
@@ -177,7 +176,7 @@ const SettingsWrapper = styled.div`
 const ResultsCount = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 1}px;
+  top: 9px;
   color: var(--ads-v2-color-fg);
 `;
 
