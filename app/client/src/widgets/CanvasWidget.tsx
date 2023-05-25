@@ -229,6 +229,7 @@ export const CONFIG = {
     default: CanvasWidget.getDefaultPropertiesMap(),
     meta: CanvasWidget.getMetaPropertiesMap(),
     config: CanvasWidget.getPropertyPaneConfig(),
+    autocompleteDefinitions: CanvasWidget.getAutocompleteDefinitions(),
   },
 };
 
