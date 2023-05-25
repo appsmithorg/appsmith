@@ -71,14 +71,16 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
     <Tooltip
       content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
     >
-      <StyledToggleButton
-        data-testid={`t--${props.configProperty}-JS`}
-        icon="js-toggle-v2"
-        isDisabled={!!configPropertyPathJsonValue}
-        isSelected={viewType === ViewTypes.JSON}
-        onClick={handleViewTypeSwitch}
-        size="sm"
-      />
+      <span>
+        <StyledToggleButton
+          data-testid={`t--${props.configProperty}-JS`}
+          icon="js-toggle-v2"
+          isDisabled={!!configPropertyPathJsonValue}
+          isSelected={viewType === ViewTypes.JSON}
+          onClick={handleViewTypeSwitch}
+          size="sm"
+        />
+      </span>
     </Tooltip>
   );
 }
