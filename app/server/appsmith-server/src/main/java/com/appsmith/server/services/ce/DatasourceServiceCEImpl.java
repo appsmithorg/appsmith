@@ -714,7 +714,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     .flatMap(datasource1 -> getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId));
         } else {
             if (!StringUtils.hasText(environmentId)) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, FieldName.DATASOURCE, "Please provide valid metadata for datasource object"));
             }
 
             trueEnvironmentIdMono = Mono.just(environmentId);
