@@ -76,7 +76,9 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input | //label[text()='" +
+    ddTitle +
+    "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
@@ -105,6 +107,8 @@ export class DataSources {
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
+    option +
+    "'] | //a[contains(@class, 'single-select')]//div[text()='" +
     option +
     "']";
   _queryTableResponse =
@@ -763,6 +767,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
+      .scrollIntoView()
       .within(() => {
         cy.get(this._createQuery).click({ force: true });
       });
@@ -793,9 +798,10 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      this.agHelper.GetNClick(this._dropdownTitle(ddTitle));
       //cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
       //to expand the dropdown
+      //this.agHelper.GetNClick(this._queryOption(newValue))
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
   }
