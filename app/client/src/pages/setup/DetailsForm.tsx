@@ -44,8 +44,8 @@ const StyledTabIndicator = styled.div<{ isFirstPage?: boolean }>`
   margin: 0 6px 0 0;
   background-color: ${(props) =>
     props.isFirstPage
-      ? `var(--ads-color-black-300);`
-      : `var(--ads-color-brand);`};
+      ? `var(--ads-v2-color-bg-emphasis);`
+      : `var(--ads-v2-color-bg-brand);`};
 `;
 
 const StyledFormGroup = styled(FormGroup)`
