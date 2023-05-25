@@ -705,14 +705,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
 
-
-        Mono<String> trueEnvironmentIdMono = Mono.just(environmentId);
+        Mono<String> trueEnvironmentIdMono;
 
         if (StringUtils.hasText(datasource.getWorkspaceId())) {
             trueEnvironmentIdMono = getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId);
         } else if (StringUtils.hasText(datasource.getId())) {
-            trueEnvironmentIdMono = findById(datasourceDTO.getId(), datasourcePermission.getReadPermission())
+            trueEnvironmentIdMono = findById(datasource.getId(), datasourcePermission.getReadPermission())
                     .flatMap(datasource1 -> getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId));
+        } else {
+            if (!StringUtils.hasText(environmentId)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            }
+
+            trueEnvironmentIdMono = Mono.just(environmentId);
         }
 
         return trueEnvironmentIdMono
