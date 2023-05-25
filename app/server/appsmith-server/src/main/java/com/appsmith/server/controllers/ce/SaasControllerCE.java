@@ -45,7 +45,8 @@ public class SaasControllerCE {
                         pageId,
                         branchName,
                         serverWebExchange.getRequest(),
-                        importForGit)
+                        importForGit,
+                        Boolean.TRUE)
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 
@@ -57,7 +58,7 @@ public class SaasControllerCE {
                                                                ServerWebExchange serverWebExchange) {
 
         log.debug("Received callback for an OAuth2 authorization request");
-        return authenticationService.getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken)
+        return authenticationService.getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken, Boolean.TRUE)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 
