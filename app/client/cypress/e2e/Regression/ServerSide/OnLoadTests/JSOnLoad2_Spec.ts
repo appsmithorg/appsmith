@@ -143,12 +143,12 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
 
     _.deployMode.DeployApp();
-    for (let dialog = 1; dialog <= 3; dialog++) {
+    for (let dialog = 1; dialog <= 5; dialog++) {
       _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(500);
     }
     _.deployMode.NavigateBacktoEditor();
-    for (let dialog = 1; dialog <= 3; dialog++) {
+    for (let dialog = 1; dialog <= 5; dialog++) {
       _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(500);
     }
