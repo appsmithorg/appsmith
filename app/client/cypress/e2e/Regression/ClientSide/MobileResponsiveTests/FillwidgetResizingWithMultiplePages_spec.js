@@ -1,11 +1,23 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-
-let theight;
-let twidth;
-
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const deployMode = ObjectsRegistry.DeployMode;
+let currentUrl;
 describe("Validating Mobile Views for Fill Widget", function () {
-  it("Validate change with height width for fill widget - Input widget", function () {
+
+  it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
+    cy.get(appNavigationLocators.appSettingsButton).click();
+    cy.get(appNavigationLocators.navigationSettingsTab).click();
+    cy.get(
+      appNavigationLocators.navigationSettings.orientationOptions.side,
+    ).click({
+      force: true,
+    });
+    cy.get(appNavigationLocators.navigationMenuItem)
+      .contains("Page1")
+      .click({ force: true });
+  });
+  it("2. Validate change with height width for fill widget - Input widget", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
@@ -17,7 +29,10 @@ describe("Validating Mobile Views for Fill Widget", function () {
     });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
-    cy.wait(5000);
+    cy.wait(1000);
+    cy.url().then(url => {
+    currentUrl = url;
+    });
     for(let i=0;i<25;i++)
     {
     cy.CreatePage();
@@ -25,53 +40,26 @@ describe("Validating Mobile Views for Fill Widget", function () {
     }
     cy.dragAndDropToCanvas("buttonwidget", { x: 10, y: 20 });
     cy.navigateOnClick("Page1","onClick");
-    cy.wait(15000);
-    //cy.get("button:contains('Submit')").click({force: true});
     cy.PublishtheApp();
-    cy.wait(5000);
+    cy.wait(2000);
     cy.get("button:contains('Submit')").click({force: true});
     cy.get(appNavigationLocators.navigationMenuItem)
-      .contains("Page1").should("have.class", "is-active");
-    /*
-    cy.PublishtheApp();
-    cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
-    cy.get(".t--widget-inputwidgetv2").last().should("be.visible");
-    cy.get(".t--widget-inputwidgetv2")
-      .invoke("css", "height")
-      .then((newheight) => {
-        theight = newheight;
-      });
-    cy.get(".t--widget-inputwidgetv2")
-      .invoke("css", "width")
-      .then((newwidth) => {
-        twidth = newwidth;
-      });
-      */
-  });
-  /*
-  //Added viewports of iphone14 and samsung galaxy s22 for testing purpose
-  let phones = ["iphone-4", "samsung-s10", [390, 844], [360, 780]];
-  phones.forEach((phone, index) => {
-    it(`${
-      index + 2
-    }. ${phone} port execution for fill widget - input widget`, function () {
-      if (Cypress._.isArray(phone)) {
-        cy.viewport(phone[0], phone[1]);
-      } else {
-        cy.viewport(phone);
-      }
-      cy.wait(2000);
-      cy.get(".t--widget-inputwidgetv2")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(theight).to.equal(newheight);
-        });
-      cy.get(".t--widget-inputwidgetv2")
-        .invoke("css", "width")
-        .then((newwidth) => {
-          expect(twidth).to.not.equal(newwidth);
-        });
-    });
-  });
-  */
+      .contains("Page1")
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .should("have.class", "is-active");
+    deployMode.NavigateBacktoEditor();
+  })
+  it("3. Navigate to widget url and validate", () => {
+    cy.visit(currentUrl);
+    cy.wait(1000);
+    cy.get(".t--draggable-inputwidgetv2").first().should("exist");
+    cy.get(".t--draggable-inputwidgetv2").last().should("exist");
+    cy.get('.t--draggable-inputwidgetv2')
+    .should('have.attr', 'data-testid')
+    .and('equal', 't--selected');
+    })
 });

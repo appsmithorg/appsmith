@@ -31,6 +31,7 @@ describe("Modal Widget Functionality", function () {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
     cy.dragAndDropToCanvas("buttonwidget", { x: 20, y: 30 });
+    //_.propPane.createModal("Modal1","onClick");
     cy.createModalWithButton("Modal1", "onClick");
     cy.xpath("//button/span[contains(text(),'Close')]").click({
       force: true,
