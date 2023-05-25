@@ -30,6 +30,7 @@ import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import type { Plugin } from "api/PluginApi";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
@@ -75,6 +76,7 @@ interface StateProps extends JSONtoFormProps {
   canDeleteDatasource?: boolean;
   canCreateDatasourceActions?: boolean;
   isSaving: boolean;
+  isTesting: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
   isNewDatasource: boolean;
@@ -349,6 +351,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       isDeleting,
       isInsideReconnectModal,
       isSaving,
+      isTesting,
       pageId,
       plugin,
       pluginImage,
@@ -399,7 +402,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             isDeleting={isDeleting}
             isNewDatasource={createFlow}
             isPluginAuthorized={isPluginAuthorized || false}
-            isSaving={isSaving}
             pluginImage={pluginImage}
             pluginName={plugin?.name || ""}
             pluginType={plugin?.type || ""}
@@ -479,7 +481,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 getSanitizedFormData={_.memoize(this.getSanitizedData)}
                 isInsideReconnectModal={isInsideReconnectModal}
                 isInvalid={validate(this.props.requiredFields, formData)}
+                isSaving={isSaving}
+                isTesting={isTesting}
                 pageId={pageId}
+                pluginName={plugin?.name || ""}
+                pluginPackageName={pluginPackageName}
+                pluginType={plugin?.type as PluginType}
                 scopeValue={scopeValue}
                 shouldDisplayAuthMessage={!isGoogleSheetPlugin}
                 triggerSave={this.props.isDatasourceBeingSavedFromPopup}
@@ -573,6 +580,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     documentationLink: documentationLinks[pluginId],
     isSaving: datasources.loading,
     isDeleting: !!datasource?.isDeleting,
+    isTesting: datasources.isTesting,
     formData: formData,
     formConfig,
     viewMode: viewMode ?? !props.isInsideReconnectModal,
