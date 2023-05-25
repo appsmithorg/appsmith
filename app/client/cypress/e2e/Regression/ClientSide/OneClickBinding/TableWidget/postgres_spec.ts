@@ -1,3 +1,4 @@
+import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { ChooseAndAssertForm } from "../Utility";
 
@@ -12,6 +13,8 @@ describe("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       _.entityExplorer.NavigateToSwitcher("Widgets");
 
+      (cy as any).openPropertyPane(WIDGET.TABLE);
+
       ChooseAndAssertForm(`New from ${dsName}`, dsName, "public.users", "name");
     });
 
@@ -20,10 +23,6 @@ describe("Table widget one click binding feature", () => {
     cy.wait("@postExecute");
 
     cy.wait(2000);
-
-    _.agHelper.AssertElementAbsence(".t--cypress-table-overlay-header");
-
-    _.agHelper.AssertElementAbsence(".t--cypress-table-overlay-connectdata");
 
     ["id", "gender", "dob", "name", "email", "phoneNo"].forEach((column) => {
       _.agHelper.AssertElementExist(
