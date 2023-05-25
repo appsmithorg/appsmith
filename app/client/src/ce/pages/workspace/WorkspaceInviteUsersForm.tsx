@@ -35,8 +35,6 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
-import { Tag } from "design-system";
-import { Link } from "design-system";
 import {
   Avatar,
   Button,
@@ -47,6 +45,8 @@ import {
   Option,
   Tooltip,
   toast,
+  Tag,
+  Link,
 } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
