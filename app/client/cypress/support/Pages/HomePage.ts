@@ -84,7 +84,6 @@ export class HomePage {
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//button[@aria-haspopup='menu']";
   private _forkApp = '[data-testid="t--fork-app"]';
-  private _duplicateApp = '[data-testid="t--duplicate"]';
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
@@ -426,10 +425,18 @@ export class HomePage {
     else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
-    cy.xpath(this._uploadFile).attachFile(fixtureJson);
+    cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
+      force: true,
+    });
     this.agHelper.Sleep(3500);
   }
-  public InviteUserToWorkspaceFromApp(email: string, role: string) {
+
+  // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
+  public InviteUserToWorkspaceFromApp(
+    email: string,
+    role: string,
+    validate = true,
+  ) {
     const successMessage =
       CURRENT_REPO === REPO.CE
         ? "The user has been invited successfully"
@@ -448,7 +455,9 @@ export class HomePage {
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
     // cy.contains(email, { matchCase: false });
-    cy.contains(successMessage);
+    if (validate) {
+      cy.contains(successMessage);
+    }
   }
 
   public InviteUserToApplicationFromApp(email: string, role: string) {
@@ -503,12 +512,6 @@ export class HomePage {
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
     this.agHelper.ClickButton("Fork");
-  }
-
-  public DuplicateApplication(appliName: string) {
-    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
-    this.agHelper.GetNClick(this._duplicateApp);
-    this.agHelper.AssertContains("Duplicating application...");
   }
 
   public DeleteApplication(appliName: string) {

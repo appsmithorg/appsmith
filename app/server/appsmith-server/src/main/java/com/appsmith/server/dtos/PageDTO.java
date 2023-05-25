@@ -1,12 +1,11 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
