@@ -19,6 +19,7 @@ public interface CreateDBTablePageSolutionCE {
                                                     CRUDPageResourceDTO pageResourceDTO,
                                                     String environmentId, String branchName);
 
+    // TODO Remove this interface, once the client handles environmentId changes
     Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
                                                     CRUDPageResourceDTO pageResourceDTO,
                                                     String environmentId, String branchName, Boolean isTrueEnvironmentRequired);

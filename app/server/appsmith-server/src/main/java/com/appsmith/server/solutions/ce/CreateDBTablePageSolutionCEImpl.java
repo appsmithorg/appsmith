@@ -148,8 +148,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             .create();
 
     public Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
-                                                    CRUDPageResourceDTO pageResourceDTO,
-                                                    String environmentId, String branchName, Boolean isTrueEnvironmentIdRequired) {
+                                                           CRUDPageResourceDTO pageResourceDTO,
+                                                           String environmentId, String branchName, Boolean isTrueEnvironmentIdRequired) {
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
             return datasourceService.findById(pageResourceDTO.getDatasourceId())
                     .map(Datasource::getWorkspaceId)

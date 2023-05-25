@@ -10,7 +10,6 @@ import {
   createApplicationSaga,
   setDefaultApplicationPageSaga,
   deleteApplicationSaga,
-  duplicateApplicationSaga,
   importApplicationSaga,
   fetchReleases,
   initDatasourceConnectionDuringImport,
@@ -251,10 +250,6 @@ export default function* applicationSagas() {
       setDefaultApplicationPageSaga,
     ),
     takeLatest(ReduxActionTypes.DELETE_APPLICATION_INIT, deleteApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
-      duplicateApplicationSaga,
-    ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
     takeLatest(
       ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,

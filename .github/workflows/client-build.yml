@@ -106,8 +106,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
@@ -175,6 +175,15 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
+            
+      # Saving the cache to use it in subsequent runs
+      - name: Save Yarn cache
+        uses: actions/cache/save@v3
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
       # We may not need the client_build_dir env variable.
       - name: Set the client build path env vars
