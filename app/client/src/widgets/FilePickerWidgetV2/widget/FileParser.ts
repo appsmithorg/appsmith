@@ -16,7 +16,7 @@ function parseFileData(
   fileType: string,
   extension: string,
   dynamicTyping = false,
-): Promise<any> {
+): Promise<unknown> {
   switch (type) {
     case FileDataTypes.Base64: {
       return parseBase64Blob(data);

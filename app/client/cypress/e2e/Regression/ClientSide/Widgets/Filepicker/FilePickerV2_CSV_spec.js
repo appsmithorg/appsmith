@@ -35,6 +35,8 @@ describe("File picker widget v2", () => {
       .selectFile("cypress/fixtures/Test_csv.csv", {
         force: true,
       });
+
+    // wait for file to get uploaded
     cy.wait(3000);
 
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
@@ -53,7 +55,9 @@ describe("File picker widget v2", () => {
     // Test for XLSX file
     cy.get(commonlocators.filePickerInput)
       .first()
-      .attachFile("TestSpreadsheet.xlsx");
+      .selectFile("cypress/fixtures/TestSpreadsheet.xlsx", { force: true });
+
+    // wait for file to get uploaded
     cy.wait(3000);
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
@@ -65,7 +69,11 @@ describe("File picker widget v2", () => {
     cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
 
     // Test for XLS file
-    cy.get(commonlocators.filePickerInput).first().attachFile("SampleXLS.xls");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/SampleXLS.xls", { force: true });
+
+    // wait for file to get uploaded
     cy.wait(3000);
 
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
@@ -79,16 +87,24 @@ describe("File picker widget v2", () => {
     // Test for JSON File
     cy.get(commonlocators.filePickerInput)
       .first()
-      .attachFile("largeJSONData.json");
+      .selectFile("cypress/fixtures/largeJSONData.json", { force: true });
+
+    // wait for file to get uploaded
     cy.wait(3000);
+
     cy.readTableV2dataPublish("0", "2").then((tabData) => {
       expect(tabData).to.contain("sunt aut facere");
     });
     cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
 
     // Test for TSV File
-    cy.get(commonlocators.filePickerInput).first().attachFile("Sample.tsv");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/Sample.tsv", { force: true });
+
+    // wait for file to get uploaded
     cy.wait(3000);
+
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.be.equal("CONST");
     });
@@ -102,7 +118,9 @@ describe("File picker widget v2", () => {
     // Test for Base64
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Base64");
-    cy.get(commonlocators.filePickerInput).first().attachFile("testdata.json");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/testdata.json", { force: true });
     cy.get(".t--widget-textwidget").should(
       "contain",
       "data:application/json;base64",
@@ -111,14 +129,18 @@ describe("File picker widget v2", () => {
 
     // Test for Text file
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Text");
-    cy.get(commonlocators.filePickerInput).first().attachFile("testdata.json");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/testdata.json", { force: true });
     cy.get(".t--widget-textwidget").should("contain", "baseUrl");
     cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
     cy.wait(3000);
     cy.get(".t--widget-textwidget").should("have.text", "");
 
     cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Binary");
-    cy.get(commonlocators.filePickerInput).first().attachFile("testdata.json");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/testdata.json", { force: true });
     cy.get(".t--widget-textwidget").should("contain", "baseUrl");
     cy.get(".uppy-Dashboard-Item-action--remove").click({ force: true });
   });

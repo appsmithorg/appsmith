@@ -683,8 +683,8 @@ class FilePickerWidget extends BaseWidget<
       const fileCount = this.props.selectedFiles?.length || 0;
       const fileReaderPromises = files.map(async (file, index) => {
         return new Promise((resolve) => {
-          const parseFile = async () => {
-            let data: any;
+          (async () => {
+            let data: unknown;
             if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
               data = await parseFileData(
                 file.data,
@@ -696,9 +696,7 @@ class FilePickerWidget extends BaseWidget<
             } else {
               data = createBlobUrl(file.data, this.props.fileDataType);
             }
-            return data;
-          };
-          parseFile().then((data) => {
+
             const newFile = {
               type: file.type,
               id: file.id,
@@ -709,7 +707,7 @@ class FilePickerWidget extends BaseWidget<
               dataFormat: this.props.fileDataType,
             };
             resolve(newFile);
-          });
+          })();
         });
       });
 

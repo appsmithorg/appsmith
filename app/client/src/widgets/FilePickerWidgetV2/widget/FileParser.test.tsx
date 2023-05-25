@@ -48,13 +48,13 @@ describe("File parser formats differenty file types correctly", () => {
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
 
-    const result = await parseFileData(
+    const result = (await parseFileData(
       blob,
       FileDataTypes.Array,
       "application/json",
       "json",
       false,
-    );
+    )) as Record<string, unknown>;
     expect(result["APPURL"]).toStrictEqual(
       "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb",
     );
@@ -119,7 +119,7 @@ describe("File parser formats differenty file types correctly", () => {
     expect(result).toStrictEqual(expectedResult);
   });
 
-  it.only("parses xls file correctly", async () => {
+  it("parses xls file correctly", async () => {
     const fixturePath = path.resolve(
       __dirname,
       "../../../../cypress/fixtures/SampleXLS.xls",
@@ -127,13 +127,13 @@ describe("File parser formats differenty file types correctly", () => {
     const fileData = fs.readFileSync(fixturePath);
     const blob = new Blob([fileData]);
 
-    const result = await parseFileData(
+    const result = (await parseFileData(
       blob,
       FileDataTypes.Array,
       "",
       "xls",
       false,
-    );
+    )) as Record<string, Record<string, unknown>[]>[];
     const expectedFirstRow = [
       1,
       "Dulce",
