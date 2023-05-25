@@ -524,7 +524,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
-  const viewMode = isDatasourceInViewMode(state);
+  let viewMode = isDatasourceInViewMode(state);
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
@@ -575,6 +575,12 @@ const mapStateToProps = (state: AppState, props: any) => {
   const documentationLinks = getPluginDocumentationLinks(state);
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
+
+  const params: string = location.search;
+  const viewModeFromURLParams = new URLSearchParams(params).get("viewMode");
+  if (!!viewModeFromURLParams && viewModeFromURLParams?.length > 0) {
+    viewMode = viewModeFromURLParams === "true";
+  }
 
   return {
     datasource,
