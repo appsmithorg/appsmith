@@ -19,7 +19,7 @@ import { Button, Icon } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: start;
   gap: 4px;
 `;
 
