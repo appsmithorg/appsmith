@@ -75,7 +75,10 @@ export const extractGeoLocation = (
  * Hence we're creating a new object with same structure which can be passed to the worker thread
  */
 function sanitizeGeolocationError(error: GeolocationPositionError) {
-  return error.message;
+  return {
+    code: error.code,
+    message: error.message,
+  };
 }
 
 function* successCallbackHandler(listenerId?: string) {
@@ -117,7 +120,7 @@ export function* getCurrentLocationSaga(action: TGetGeoLocationDescription) {
     logActionExecutionError((error as Error).message, true);
     if (error instanceof GeolocationPositionError) {
       const sanitizedError = sanitizeGeolocationError(error);
-      throw new GeoLocationError(sanitizedError, [sanitizedError]);
+      throw new GeoLocationError(sanitizedError.message, [sanitizedError]);
     }
   }
 }

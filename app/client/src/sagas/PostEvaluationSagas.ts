@@ -321,10 +321,12 @@ export function* evalErrorHandler(
   });
 }
 
-export function* dynamicTriggerErrorHandler(errors: EvaluationError[]) {
+export function* dynamicTriggerErrorHandler(errors: any[]) {
   if (errors.length > 0) {
     for (const error of errors) {
-      logActionExecutionError(error.errorMessage.message, true);
+      const errorMessage =
+        error.errorMessage.message.message || error.errorMessage.message;
+      logActionExecutionError(errorMessage, true);
     }
   }
 }
