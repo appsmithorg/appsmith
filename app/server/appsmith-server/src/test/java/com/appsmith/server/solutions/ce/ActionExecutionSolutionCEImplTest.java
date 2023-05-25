@@ -205,7 +205,7 @@ class ActionExecutionSolutionCEImplTest {
         StepVerifier
                 .create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("executeActionDTO")))
+                        e.getMessage().equals(AppsmithError.GENERIC_REQUEST_BODY_PARSE_ERROR.getMessage()))
                 .verify();
     }
 
@@ -407,5 +407,4 @@ class ActionExecutionSolutionCEImplTest {
                 })
                 .verifyComplete();
     }
-
 }
