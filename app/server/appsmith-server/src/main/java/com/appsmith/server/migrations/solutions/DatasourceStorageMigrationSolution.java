@@ -43,7 +43,8 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
              log.debug("No default environment id found for the given workspace id : {}", workspaceId);
         }
 
-        return wsIdToEnvIdMap.get(workspaceId);
+        // the default value has been placed so that incase of failures we to environmentId as unused_env
+        return wsIdToEnvIdMap.getOrDefault(workspaceId, FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
     public static Criteria nonDeletedDefaultEnvironmentCriteria() {
