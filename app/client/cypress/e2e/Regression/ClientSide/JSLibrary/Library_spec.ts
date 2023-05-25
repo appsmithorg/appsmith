@@ -1,5 +1,4 @@
 import HomePage from "../../../../locators/HomePage";
-import { WIDGET } from "../../../../locators/WidgetLocators";
 import { jsEditor } from "../../../../support/Objects/ObjectsCore";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -13,7 +12,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   });
 
   it("2. Checks for naming collision", () => {
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
     _.entityExplorer.NavigateToSwitcher("Explorer");
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     _.entityExplorer.ExpandCollapseEntity("Libraries");
@@ -48,14 +47,15 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
   });
 
-  it("4. Checks installation in exported/duplicated app", () => {
+  it("4. Checks installation in exported/forked app", () => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("library_export.json");
     _.agHelper.AssertContains("true");
 
-    //Checks installation in duplicated app
+    //Checks installation in forked app
     _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("Library_export");
+    _.homePage.ForkApplication("Library_export");
+
     _.agHelper.AssertContains("true");
 
     //Deploy app and check installation

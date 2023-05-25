@@ -100,7 +100,7 @@ export class JSEditor {
   _confirmationModalBtns = (text: string) =>
     "//div[@data-testid='t--query-run-confirmation-modal']//span[text()='" +
     text +
-    "']/ancestor::button[@type='button']";
+    "']";
   //#endregion
 
   //#region constants
@@ -372,6 +372,24 @@ export class JSEditor {
 
   public AssertSelectedFunction(funName: string) {
     cy.get(this._funcDropdownValue).contains(funName).should("exist");
+  }
+
+  public ConfirmationClick(type: "Yes" | "No") {
+    //this.agHelper.GetNClick(this._confirmationModalBtns(type), 0, true);
+    this.agHelper
+      .GetElement(this._confirmationModalBtns(type))
+      .eq(0)
+      .scrollIntoView()
+      .then(($element: any) => {
+        cy.get($element).trigger("click", {
+          force: true,
+        });
+      });
+
+    if (type == "Yes")
+      this.agHelper.AssertElementAbsence(
+        this.locator._specificToast("canceled"),
+      ); //Asserting NO is not clicked
   }
 
   //#endregion

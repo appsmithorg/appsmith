@@ -306,7 +306,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
                     } catch (IOException e) {
                         log.error("Error in deserializing ExecuteActionDTO", e);
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EXECUTE_ACTION_DTO));
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_REQUEST_BODY_PARSE_ERROR));
                     }
                 })
                 .flatMap(executeActionDTO -> {
