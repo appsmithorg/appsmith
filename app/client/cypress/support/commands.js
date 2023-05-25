@@ -563,11 +563,11 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
-  cy.server();
-  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
+  cy.get(commonlocators.canvas).should("be.visible");
   cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
