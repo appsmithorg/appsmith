@@ -1,3 +1,4 @@
+import { WIDGET } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export const agHelper = ObjectsRegistry.AggregateHelper;
@@ -24,3 +25,5 @@ export const peekOverlay = ObjectsRegistry.PeekOverlay;
 export const installer = ObjectsRegistry.LibraryInstaller;
 export const onboarding = ObjectsRegistry.Onboarding;
 export const autoLayout = ObjectsRegistry.AutoLayout;
+export const draggableWidgets = WIDGET;
+export const fakerHelper = ObjectsRegistry.FakerHelper;

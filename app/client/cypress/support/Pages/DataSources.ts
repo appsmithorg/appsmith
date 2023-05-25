@@ -76,7 +76,9 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input | //label[text()='" +
+    ddTitle +
+    "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
@@ -99,9 +101,14 @@ export class DataSources {
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
+  _contextMenuDatasource = "span[name='comment-context-menu']";
+  _contextMenuDSReviewPage = "span[name='context-menu']";
+  _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
+    option +
+    "'] | //a[contains(@class, 'single-select')]//div[text()='" +
     option +
     "']";
   _queryTableResponse =
@@ -195,7 +202,7 @@ export class DataSources {
   private _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
-  public _deleteDatasourceButton = ".t--delete-datasource";
+  public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
   _nestedWhereClauseKey = (index: number) =>
     ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
@@ -678,43 +685,44 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public ValidateDSDeletion(expectedRes = 200) {
+  public DeleteDatasouceFromWinthinDS(
+    datasourceName: string,
+    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+  ) {
+    this.NavigateToActiveTab();
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    this.agHelper.Sleep(); //for the Datasource page to open
+    this.DeleteDSDirectly(expectedRes);
+  }
+
+  public DeleteDSDirectly(
+    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+  ) {
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
+    cy.get(this._contextMenuDSReviewPage).click({ force: true });
+    this.agHelper.GetNClick(this._contextMenuDelete);
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
+    this.ValidateDSDeletion(expectedRes);
+  }
+  public ValidateDSDeletion(expectedRes: number | number[] = 200) {
     let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
     if (toValidateRes) {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+      this.agHelper.ValidateNetworkStatus(
+        "@deleteDatasource",
+        expectedRes as number,
+      );
     } else {
       cy.wait("@deleteDatasource").should((response: any) => {
         expect(response.status).to.be.oneOf([200, 409]);
       });
     }
-  }
-
-  public DeleteDatasouceFromWinthinDS(
-    datasourceName: string,
-    expectedRes = 200 || 409 || [200 | 409],
-  ) {
-    this.ClickActiveTabDSContextMenu(datasourceName);
-
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Edit"),
-      0,
-      false,
-      200,
-    );
-    this.agHelper.Sleep(); //for the Datasource page to open
-    //this.agHelper.ClickButton("Delete");
-    this.agHelper.GetNClick(this._deleteDatasourceButton, 0, false, 200); //Delete
-    this.agHelper.GetNClick(this._deleteDatasourceButton, 0, false, 200); //Are you sure?
-    this.ValidateDSDeletion(expectedRes);
-  }
-
-  public DeleteDSDirectly(expectedRes = 200) {
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
-    this.ValidateDSDeletion(expectedRes);
   }
 
   public NavigateToActiveTab() {
@@ -759,6 +767,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
+      .scrollIntoView()
       .within(() => {
         cy.get(this._createQuery).click({ force: true });
       });
@@ -789,9 +798,10 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      this.agHelper.GetNClick(this._dropdownTitle(ddTitle));
       //cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
       //to expand the dropdown
+      //this.agHelper.GetNClick(this._queryOption(newValue))
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
   }

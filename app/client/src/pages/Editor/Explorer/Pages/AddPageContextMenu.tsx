@@ -16,7 +16,6 @@ import {
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Menu,
@@ -54,7 +53,6 @@ function AddPageContextMenu({
   const [show, setShow] = useState(openMenu);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
-  const featureFlags = useSelector(selectFeatureFlags);
   const isAutoLayout = useSelector(getIsAutoLayout);
   const isAirgappedInstance = isAirgapped();
 
@@ -76,11 +74,7 @@ function AddPageContextMenu({
       },
     ];
 
-    if (
-      featureFlags.TEMPLATES_PHASE_2 &&
-      !isAutoLayout &&
-      !isAirgappedInstance
-    ) {
+    if (!isAutoLayout && !isAirgappedInstance) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: "layout-2-line",
@@ -91,7 +85,7 @@ function AddPageContextMenu({
     }
 
     return items;
-  }, [featureFlags, pageId]);
+  }, [pageId]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {

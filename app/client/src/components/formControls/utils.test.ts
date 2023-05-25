@@ -289,13 +289,13 @@ describe("caculateIsHidden test", () => {
       path: "name",
       comparison: "EQUALS",
       value: "Name",
-      flagValue: "APP_TEMPLATE",
+      flagValue: "TEST_FLAG",
     };
     const hiddenFalsy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
       value: "Different Name",
-      flagValue: "APP_TEMPLATE",
+      flagValue: "TEST_FLAG",
     };
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();

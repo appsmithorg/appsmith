@@ -1,10 +1,10 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -15,7 +15,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
-
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -84,8 +83,8 @@ public class ActionControllerCE {
     @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
                                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
-        return actionExecutionSolution.executeAction(partFlux, branchName, environmentName)
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        return actionExecutionSolution.executeAction(partFlux, branchName, environmentId)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

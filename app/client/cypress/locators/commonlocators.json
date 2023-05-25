@@ -101,7 +101,7 @@
   "chooseAction": ".single-select",
   "chooseMsgType": ".t--open-dropdown-Select-type",
   "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action",
-  "chooseWidget": ".t--open-dropdown-Select-Widget",
+  "chooseWidget": ".t--open-dropdown-Select-widget",
   "onClick": ".t--property-control-onclick .t--open-dropdown-Select-Action",
   "changeZoomlevel": ".t--property-control-maxzoomlevel input",
   "selectedZoomlevel": ".t--property-control-maxzoomlevel .rc-select-selection-item span",

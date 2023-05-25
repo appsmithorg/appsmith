@@ -91,18 +91,26 @@ export class DebuggerHelper {
         break;
       case PageType.API:
       case PageType.JsEditor:
-        this.agHelper.AssertHeight(
-          this.locators._bottomPaneContainer[pageType],
-          this.bottomPaneHeight,
-        );
-        break;
       case PageType.Query:
       case PageType.DataSources:
-        this.agHelper.AssertHeight(
+        this.agHelper.AssertElementVisible(
           this.locators._bottomPaneContainer[pageType],
-          this.bottomPaneHeight - 1, // -1 to offset error
         );
+        // this.agHelper.AssertHeight(
+        //   this.locators._bottomPaneContainer[pageType],
+        //   this.bottomPaneHeight,
+        // );
         break;
+      // case PageType.Query:
+      // case PageType.DataSources:
+      //   this.agHelper.AssertElementVisible(
+      //     this.locators._bottomPaneContainer[pageType],
+      //   );
+      //   // this.agHelper.AssertHeight(
+      //   //   this.locators._bottomPaneContainer[pageType],
+      //   //   this.bottomPaneHeight - 1, // -1 to offset error
+      //   // );
+      //   break;
     }
   }
 

@@ -66,7 +66,7 @@ function BranchButton() {
           <span
             ref={labelTarget}
             style={{
-              width: "82px",
+              maxWidth: "82px",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
