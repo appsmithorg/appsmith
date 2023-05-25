@@ -448,6 +448,8 @@ export class PropertyPane {
   }
 
   public DeleteWidget() {
-    ObjectsRegistry.AggregateHelper.GetNClick("button.t--delete-widget");
+    ObjectsRegistry.AggregateHelper.GetNClick(
+      `[data-testid="t--delete-widget"]`,
+    );
   }
 }

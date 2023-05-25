@@ -33,6 +33,8 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.AssertElementExist(".t--widget-tablewidgetv2 .show-page-items");
 
+    (cy as any).makeColumnEditable("id");
+
     _.agHelper.GetNClick(".t--add-new-row", 0, true);
 
     (cy as any).enterTableCellValue(0, 0, "1");

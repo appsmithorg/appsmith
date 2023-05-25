@@ -80,9 +80,9 @@ describe("One click binding control", () => {
       ".t--one-click-binding-datasource-selector--other-action:contains('Insert Snippet')",
     );
 
-    _.agHelper.AssertElementExist(".t--global-search-modal");
+    _.agHelper.AssertElementExist(`[data-testid="t--global-search-modal"]`);
 
-    _.agHelper.GetNClick(".bp3-overlay-enter-done", 0, true);
+    _.agHelper.TypeText(".t--global-search-input", "{esc}", 0, true);
 
     _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
 
