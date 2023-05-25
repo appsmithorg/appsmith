@@ -363,7 +363,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     WidgetHeightLimits.MAX_HEIGHT_IN_ROWS *
     GridDefaults.DEFAULT_GRID_ROW_HEIGHT; // Maximum possible height
   // If the widget has auto height with limits, we need to respect the set limits.
-  if (isAutoHeightEnabledForWidgetWithLimits(props) && !props.isCanvas) {
+  if (isAutoHeightEnabledForWidgetWithLimits(props)) {
     maxHeightInPx =
       (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
