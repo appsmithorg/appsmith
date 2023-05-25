@@ -239,6 +239,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                       DatasourceDTO datasourceDTO,
                                       String environmentId,
                                       Boolean isUserRefreshedUpdate) {
+        datasourceDTO.setId(id); // This is for payload without datasourceId & workspaceId
         return convertToDatasource(datasourceDTO, environmentId)
                 .flatMap(datasource -> updateByEnvironmentId(id, datasource, environmentId, isUserRefreshedUpdate))
                 .flatMap(datasource -> convertToDatasourceDTO(datasource));
@@ -705,10 +706,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasource.setDatasourceStorages(storages);
 
 
-        return getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId)
+        Mono<String> trueEnvironmentIdMono = Mono.just(environmentId);
+
+        if (StringUtils.hasText(datasource.getWorkspaceId())) {
+            trueEnvironmentIdMono = getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId);
+        } else if (StringUtils.hasText(datasource.getId())) {
+            trueEnvironmentIdMono = findById(datasourceDTO.getId(), datasourcePermission.getReadPermission())
+                    .flatMap(datasource1 -> getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId));
+        }
+
+        return trueEnvironmentIdMono
                 .map(trueEnvironmentId -> {
                     if (datasourceDTO.getDatasourceConfiguration() != null) {
-                        storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceDTO, environmentId));
+                        storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceDTO, trueEnvironmentId));
                     }
 
                     return datasource;
