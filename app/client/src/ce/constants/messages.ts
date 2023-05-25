@@ -188,7 +188,6 @@ export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
-export const DUPLICATING_APPLICATION = () => `Duplicating application...`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -1557,6 +1556,12 @@ export const IN_APP_EMBED_SETTING = {
   allowEmbeddingLabel: () => "Embedding enabled",
   allowEmbeddingTooltip: () =>
     "This app can be embedded in all domains, including malicious ones",
+  forkApplicationConfirmation: {
+    title: () => "Allow developers to fork this app to their workspace?",
+    body: () => "Forking allows developers to copy your app to their workspace",
+    cancel: () => "CANCEL",
+    confirm: () => "ALLOW FORKING",
+  },
   copy: () => "Copy",
   copied: () => "Copied",
   limitEmbeddingLabel: () => "Embedding restricted",
@@ -1574,6 +1579,10 @@ export const IN_APP_EMBED_SETTING = {
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
+  forkContentHeader: () => "Fork",
+  forkLabel: () => "Make application forkable",
+  forkLabelTooltip: () =>
+    "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
   upgradeHeadingForInviteModal: () =>
