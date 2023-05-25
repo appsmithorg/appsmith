@@ -71,7 +71,7 @@ public class PageControllerCE {
                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to create crud-page in application {}, branchName {}", resource.getApplicationId(), branchName);
-        return createDBTablePageSolution.createPageFromDBTable(null, resource, environmentId, branchName)
+        return createDBTablePageSolution.createPageFromDBTable(null, resource, environmentId, branchName, Boolean.TRUE)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -83,7 +83,7 @@ public class PageControllerCE {
                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
-        return createDBTablePageSolution.createPageFromDBTable(defaultPageId, resource, environmentId, branchName)
+        return createDBTablePageSolution.createPageFromDBTable(defaultPageId, resource, environmentId, branchName, Boolean.TRUE)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
