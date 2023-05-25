@@ -767,6 +767,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
+      .scrollIntoView()
       .within(() => {
         cy.get(this._createQuery).click({ force: true });
       });
