@@ -289,7 +289,10 @@ export class EntityExplorer {
     cy.get(dropTargetId ? dropTargetId : this.locator._dropHere)
       .first()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+    this.agHelper.Sleep(200);
+    cy.get(dropTargetId ? dropTargetId : this.locator._dropHere)
+      .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
