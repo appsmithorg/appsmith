@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { WIDGET } from "../../../../locators/WidgetLocators";
+import { draggableWidgets } from "../../../../support/Objects/ObjectsCore";
 
 const {
   AggregateHelper: agHelper,
@@ -11,8 +11,8 @@ const {
 
 describe("Post window message", () => {
   it("1. Posts message to an iframe within Appsmith", () => {
-    ee.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
-    ee.DragDropWidgetNVerify(WIDGET.IFRAME, 200, 300);
+    ee.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+    ee.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);
 
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Post message");
@@ -43,8 +43,8 @@ describe("Post window message", () => {
     );
     propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
-    deployMode.DeployApp();
-
+    deployMode.DeployApp(locator._spanButton("Submit"));
+    agHelper.AssertElementVisible("#iframe-Iframe1");
     cy.get("#iframe-Iframe1").then((element) => {
       element.contents().find("body").find("#iframe-button").click();
     });

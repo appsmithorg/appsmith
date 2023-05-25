@@ -38,7 +38,7 @@ public class GitCloudServicesUtils {
             }
         }).flatMap(key -> {
             // check the cache for the repo limit
-            if(Boolean.FALSE.equals(isClearCache) && gitLimitCache.containsKey(key)) {
+            if (Boolean.FALSE.equals(isClearCache) && gitLimitCache.containsKey(key)) {
                 return Mono.just(gitLimitCache.get(key).getRepoLimit());
             }
             // Call the cloud service API

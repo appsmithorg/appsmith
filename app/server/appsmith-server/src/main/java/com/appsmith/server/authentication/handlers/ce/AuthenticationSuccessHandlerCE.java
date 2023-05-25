@@ -16,7 +16,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
+    private final ForkExamplesWorkspace examplesWorkspaceCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
@@ -66,7 +66,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      * In the process, the client browser will also set the session ID in the cookie against the server's API domain.
      *
      * @param webFilterExchange WebFilterExchange instance for the current request.
-     * @param authentication Authentication object, needs to have a non-null principal object.
+     * @param authentication    Authentication object, needs to have a non-null principal object.
      * @return Publishes empty, that completes after handler tasks are finished.
      */
     @Override
@@ -126,7 +126,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
                             }
                             return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
-                });
+                        });
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
@@ -140,7 +140,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                             return pair.getT2();
                         })
                         .flatMap(defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
-                );
+                        );
             } else {
                 redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
             }
@@ -178,7 +178,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         FieldName.MODE_OF_LOGIN, modeOfLogin
                                 )
                         ));
-                        monos.add(examplesWorkspaceCloner.cloneExamplesWorkspace());
+                        monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
                     }
 
                     monos.add(analyticsService.sendObjectEvent(
@@ -229,7 +229,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         }
 
         return applicationMono
-                .flatMap(application1 ->applicationPageService.createApplication(application1));
+                .flatMap(application1 -> applicationPageService.createApplication(application1));
     }
 
     /**
