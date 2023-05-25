@@ -16,20 +16,20 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ce.NewActionServiceCE;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -85,7 +85,7 @@ class ActionExecutionSolutionCEImplTest {
     ObjectMapper objectMapper;
     @MockBean
     NewActionRepository repository;
-    @MockBean
+    @SpyBean
     DatasourceService datasourceService;
     @MockBean
     PluginService pluginService;
@@ -105,6 +105,10 @@ class ActionExecutionSolutionCEImplTest {
     DatasourcePermission datasourcePermission;
     @MockBean
     AnalyticsService analyticsService;
+    @MockBean
+    DatasourceStorageService datasourceStorageService;
+    @MockBean
+    DatasourceStorageTransferSolution datasourceStorageTransferSolution;
 
     private BodyExtractor.Context context;
 
@@ -113,22 +117,23 @@ class ActionExecutionSolutionCEImplTest {
     @BeforeEach
     public void beforeEach() {
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
-                 newActionService,
-                 actionPermission,
-                 observationRegistry,
-                 objectMapper,
-                 repository,
-                 datasourceService,
-                 pluginService,
-                 datasourceContextService,
-                 pluginExecutorHelper,
-                 newPageService,
-                 applicationService,
-                 sessionUserService,
-                 authenticationValidator,
-                 datasourcePermission,
-                 analyticsService
-        );
+                newActionService,
+                actionPermission,
+                observationRegistry,
+                objectMapper,
+                repository,
+                datasourceService,
+                pluginService,
+                datasourceContextService,
+                pluginExecutorHelper,
+                newPageService,
+                applicationService,
+                sessionUserService,
+                authenticationValidator,
+                datasourcePermission,
+                analyticsService,
+                datasourceStorageService,
+                datasourceStorageTransferSolution);
 
         ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
@@ -256,7 +261,8 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -265,6 +271,7 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -307,7 +314,8 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -316,6 +324,7 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 

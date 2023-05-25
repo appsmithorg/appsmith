@@ -22,6 +22,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import lombok.extern.slf4j.Slf4j;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -30,7 +31,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

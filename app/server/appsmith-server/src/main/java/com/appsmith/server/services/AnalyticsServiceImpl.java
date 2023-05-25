@@ -37,7 +37,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
     }
 
     @Override
-    public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> properties) {
+    public <T> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> properties) {
         return auditLogService.logEvent(event, object, properties)
                 .flatMap(auditLog -> {
                     // Client generated events need not be sent to analytics

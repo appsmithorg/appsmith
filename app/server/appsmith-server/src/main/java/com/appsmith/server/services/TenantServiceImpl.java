@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
+import jakarta.validation.Validator;
 import org.pf4j.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -19,8 +20,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import java.util.Map;
 

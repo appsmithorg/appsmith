@@ -10,11 +10,16 @@ import type FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
 // Saga to handle fetching the environment configs
-function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
+function* FetchEnvironmentsInitSaga(
+  action: ReduxAction<{ workspaceId?: string } | undefined>,
+) {
+  const workspaceId: string = action.payload?.workspaceId
+    ? action.payload?.workspaceId
+    : yield select(getCurrentWorkspaceId);
   try {
     const response: ApiResponse = yield call(
       EnvironmentApi.fetchEnvironmentConfigs,
-      action.payload,
+      workspaceId,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -44,7 +49,7 @@ function* fetchWorkspaceIdandInitSaga() {
   // Only fetch if the feature flag allows it
   if (featureFlags.DATASOURCE_ENVIRONMENTS) {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
-    yield put(fetchingEnvironmentConfigs(workspaceId));
+    yield put(fetchingEnvironmentConfigs({ workspaceId }));
   }
 }
 

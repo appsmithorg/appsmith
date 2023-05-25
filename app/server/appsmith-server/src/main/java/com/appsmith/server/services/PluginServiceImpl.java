@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ce.PluginServiceCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;

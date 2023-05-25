@@ -4,10 +4,11 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.CustomDatasourceRepository;
-import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.VariableReplacementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -23,17 +24,16 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class DatasourceServiceTest {
+public class DatasourceStorageServiceTest {
 
     @Autowired
-    DatasourceService datasourceService;
+    DatasourceStorageService datasourceStorageService;
 
     @MockBean
     VariableReplacementService variableReplacementService;
@@ -64,15 +64,16 @@ public class DatasourceServiceTest {
         Mockito.when(customDatasourceRepository.findById(Mockito.anyString(), Mockito.any(AclPermission.class)))
                 .thenReturn(Mono.just(testDatasource));
 
-        Mono<Datasource> renderedDatasourceMono = datasourceService.getValidDatasourceFromActionMono(testActionDTO, EXECUTE_DATASOURCES);
+        Mono<DatasourceStorage> renderedDatasourceStorageMono = datasourceStorageService
+                .findByDatasourceAndEnvironmentIdForExecution(testDatasource, null);
 
-        StepVerifier.create(renderedDatasourceMono)
-                .assertNext(datasource -> {
-                    assertThat(datasource).isNotNull();
-                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
-                    assertThat(datasource.getDatasourceConfiguration().getHeaders()).isNotEmpty();
-                    assertThat(datasource.getDatasourceConfiguration().getHeaders().get(0).getKey()).isEqualTo(testHeaderKey);
-                    assertThat(datasource.getDatasourceConfiguration().getHeaders().get(0).getValue()).isEqualTo(renderedValue);
+        StepVerifier.create(renderedDatasourceStorageMono)
+                .assertNext(datasourceStorage -> {
+                    assertThat(datasourceStorage).isNotNull();
+                    assertThat(datasourceStorage.getDatasourceConfiguration()).isNotNull();
+                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders()).isNotEmpty();
+                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders().get(0).getKey()).isEqualTo(testHeaderKey);
+                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders().get(0).getValue()).isEqualTo(renderedValue);
                 })
                 .verifyComplete();
     }

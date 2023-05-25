@@ -70,9 +70,7 @@ public class UserSignupTest {
     }
 
     private String createRandomString(int length) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Z".repeat(Math.max(0, length)));
-        return builder.toString();
+        return "Z".repeat(Math.max(0, length));
     }
 
     @Test

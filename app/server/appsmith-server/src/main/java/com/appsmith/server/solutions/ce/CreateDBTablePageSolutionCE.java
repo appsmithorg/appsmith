@@ -9,12 +9,18 @@ public interface CreateDBTablePageSolutionCE {
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
      * templateColumns with the datasource under consideration
-     * @param defaultPageId for which the template page needs to be replicated
+     *
+     * @param defaultPageId   for which the template page needs to be replicated
      * @param pageResourceDTO
+     * @param environmentId
      * @return generated pageDTO from the template resource
      */
     Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
                                                     CRUDPageResourceDTO pageResourceDTO,
-                                                    String branchName);
+                                                    String environmentId, String branchName);
+
+    Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
+                                                    CRUDPageResourceDTO pageResourceDTO,
+                                                    String environmentId, String branchName, Boolean isTrueEnvironmentRequired);
 
 }

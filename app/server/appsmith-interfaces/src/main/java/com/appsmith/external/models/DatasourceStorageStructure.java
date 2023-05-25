@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-public class DatasourceConfigurationStructure extends BaseDomain {
+public class DatasourceStorageStructure extends BaseDomain {
     @JsonView(Views.Public.class)
     private String datasourceId;
 
