@@ -98,6 +98,8 @@ function* syncApiParamsSaga(
   PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
     const params = parseUrlForQueryParams(value);
+    // before updating the query parameters make sure the path field changes have been successfully updated first
+    yield take(ReduxActionTypes.BATCH_UPDATES_SUCCESS);
     yield put(
       autofill(
         API_EDITOR_FORM_NAME,
