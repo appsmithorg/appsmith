@@ -16,7 +16,6 @@ public class FieldName extends FieldNameCE {
     public static final String QUERY = "query";
     public static final String ENVIRONMENT_VARIABLE = "environmentVariable";
     public static final String ENVIRONMENT_VARIABLE_ID = "environmentVariableId";
-    public static final String ENVIRONMENT_ID = "environmentId";
     public static final String ENVIRONMENT = "environment";
     public static final String LOGGED_IN = "logged_in";
     public static final String LOGGED_OUT = "logged_out";

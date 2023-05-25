@@ -271,6 +271,7 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -323,6 +324,7 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 

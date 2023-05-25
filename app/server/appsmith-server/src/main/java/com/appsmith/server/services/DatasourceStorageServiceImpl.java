@@ -6,7 +6,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -24,6 +23,8 @@ import reactor.core.publisher.Mono;
 public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl implements DatasourceStorageService {
     private final VariableReplacementService variableReplacementService;
     private final EnvironmentService environmentService;
+
+
 
     public DatasourceStorageServiceImpl(DatasourceStorageRepository repository,
                                         DatasourceStorageTransferSolution datasourceStorageTransferSolution,
@@ -60,8 +61,8 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
 
     @Override
     public Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage) {
-        Mono<Environment> environmentMono = environmentService
-                .findById(datasourceStorage.getEnvironmentId(), AclPermission.EXECUTE_ENVIRONMENTS);
+
+        Mono<Environment> environmentMono = environmentService.findById(datasourceStorage.getEnvironmentId());
         return environmentMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT,
                         datasourceStorage.getEnvironmentId())))

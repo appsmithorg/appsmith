@@ -20,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -124,6 +125,12 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 .filter(Environment::getIsDefault)
                 .next()
                 .map(Environment::getId);
+    }
+
+    @Override
+    public Flux<Environment> getDefaultEnvironment(String workspaceId) {
+        return environmentService.findByWorkspaceId(workspaceId)
+                .filter(Environment::getIsDefault);
     }
 
     @Override

@@ -19,4 +19,8 @@ public interface CreateDBTablePageSolutionCE {
                                                     CRUDPageResourceDTO pageResourceDTO,
                                                     String environmentId, String branchName);
 
+    Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
+                                                    CRUDPageResourceDTO pageResourceDTO,
+                                                    String environmentId, String branchName, Boolean isTrueEnvironmentRequired);
+
 }
