@@ -10,7 +10,6 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 import {
   API_STATUS_CODES,
-  DEFAULT_ENV_NAME,
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "@appsmith/constants/ApiConstants";
@@ -27,6 +26,10 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  getDefaultEnvironemntId,
+  getEnvironmentIdByName,
+} from "@appsmith/selectors/environmentSelector";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -94,10 +97,21 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 
   // Add header for environment name
   let activeEnv = getQueryParamsObject().environment;
-  if (activeEnv === undefined || activeEnv === null || activeEnv === "")
-    activeEnv = DEFAULT_ENV_NAME;
+  // If no environment is specified in the URL
+  // then get default environment from redux store as per isDefault flag.
+  if (activeEnv === undefined || activeEnv === null || activeEnv === "") {
+    activeEnv = getDefaultEnvironemntId(store.getState());
+  }
+  // else fetch environment id for the environment name.
+  else {
+    activeEnv = getEnvironmentIdByName(store.getState(), activeEnv);
+  }
+  // If no environment is specified in the URL and no default environment is set.
+  if (activeEnv === undefined || activeEnv === null || activeEnv === "") {
+    activeEnv = "environmentId";
+  }
   if (activeEnv.length > 0 && config.headers) {
-    config.headers.environmentName = activeEnv;
+    config.headers.environmentId = activeEnv;
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();

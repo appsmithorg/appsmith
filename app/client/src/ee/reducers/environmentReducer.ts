@@ -14,6 +14,7 @@ export interface EnvironmentType {
   id: string;
   name: string;
   environmentVariablesList: EnvironmentVariable[];
+  isDefault: boolean;
 }
 
 // Type for the environment state in redux

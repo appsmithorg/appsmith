@@ -24,7 +24,6 @@ import {
   getIsCreatingApplication,
   getCreateApplicationError,
   getIsDeletingApplication,
-  getIsDuplicatingApplication,
   getUserApplicationsWorkspacesList,
   getApplicationSearchKeyword,
 } from "@appsmith/selectors/applicationSelectors";
@@ -98,7 +97,6 @@ const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  duplicatingApplication: getIsDuplicatingApplication(state),
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),

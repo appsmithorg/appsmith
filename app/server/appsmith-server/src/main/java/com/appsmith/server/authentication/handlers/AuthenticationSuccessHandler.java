@@ -13,7 +13,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
     @Value("${enable.single.session.per.user:false}")
     private Boolean isSingleSessionPerUserEnabled;
 
-    public AuthenticationSuccessHandler(ExamplesWorkspaceCloner examplesWorkspaceCloner,
+    public AuthenticationSuccessHandler(ForkExamplesWorkspace forkExamplesWorkspace,
                                         RedirectHelper redirectHelper,
                                         SessionUserService sessionUserService,
                                         AnalyticsService analyticsService,
@@ -49,7 +49,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         WorkspacePermission workspacePermission,
                                         TenantService tenantService) {
 
-        super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
+        super(forkExamplesWorkspace, redirectHelper, sessionUserService, analyticsService, userDataService,
                 userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission);
         this.tenantService = tenantService;
         this.sessionUserService = sessionUserService;

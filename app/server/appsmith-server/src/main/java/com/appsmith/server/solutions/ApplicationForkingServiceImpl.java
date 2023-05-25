@@ -5,7 +5,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -14,9 +13,9 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ce.ApplicationForkingServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,10 +40,11 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
     private final ActionPermission actionPermission;
     private final WorkspacePermission workspacePermission;
 
+    private final WorkspaceService workspaceService;
+
     public ApplicationForkingServiceImpl(ApplicationService applicationService,
                                          WorkspaceService workspaceService,
-                                         ExamplesWorkspaceCloner examplesWorkspaceCloner,
-                                         PolicyUtils policyUtils,
+                                         ForkExamplesWorkspace examplesWorkspaceCloner,
                                          SessionUserService sessionUserService,
                                          AnalyticsService analyticsService,
                                          ResponseUtils responseUtils,
@@ -59,8 +59,8 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                                          ActionPermission actionPermission,
                                          ImportExportApplicationService importExportApplicationService) {
 
-        super(applicationService, workspaceService, examplesWorkspaceCloner, policyUtils, sessionUserService,
-                analyticsService, responseUtils, workspacePermission, applicationPermission, importExportApplicationService);
+        super(applicationService, workspaceService, examplesWorkspaceCloner, sessionUserService, analyticsService,
+                responseUtils, workspacePermission, applicationPermission, importExportApplicationService);
 
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
@@ -73,6 +73,20 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
         this.workspacePermission = workspacePermission;
+        this.workspaceService = workspaceService;
+    }
+
+    @Override
+    public Mono<Application> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId, String targetWorkspaceId, String environmentId) {
+        Mono<String> fromEnvironmentIdMono = applicationService.findById(srcApplicationId)
+                .map(Application::getWorkspaceId)
+                .flatMap(workspaceService::getDefaultEnvironmentId);
+
+        return fromEnvironmentIdMono
+                .flatMap(fromEnvironmentId -> super.forkApplicationToWorkspaceWithEnvironment(
+                        srcApplicationId,
+                        targetWorkspaceId,
+                        fromEnvironmentId));
     }
 
     @Override

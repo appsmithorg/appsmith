@@ -34,6 +34,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
     /**
      * To create a usage pulse
+     *
      * @param usagePulseDTO UsagePulseDTO
      * @return Mono of UsagePulse
      */
@@ -72,8 +73,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
                         }
                         usagePulse.setIsAnonymousUser(true);
                         usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
-                    }
-                    else {
+                    } else {
                         usagePulse.setIsAnonymousUser(false);
                         if (StringUtils.isEmpty(user.getHashedEmail())) {
                             String hashedEmail = DigestUtils.sha256Hex(user.getEmail());
@@ -98,6 +98,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
     /**
      * To save usagePulse to the database
+     *
      * @param usagePulse UsagePulse
      * @return Mono of UsagePulse
      */

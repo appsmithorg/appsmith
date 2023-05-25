@@ -5,10 +5,13 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -19,12 +22,10 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -319,8 +320,8 @@ public class GitServiceWithRBACTest {
     private <I> Mono<I> runAs(Mono<I> input, User user) {
         log.info("Running as user: {}", user.getEmail());
         return input.contextWrite((ctx) -> {
-                SecurityContext securityContext = new SecurityContextImpl(new UsernamePasswordAuthenticationToken(user, "password", user.getAuthorities()));
-                return ctx.put(SecurityContext.class, Mono.just(securityContext));
+            SecurityContext securityContext = new SecurityContextImpl(new UsernamePasswordAuthenticationToken(user, "password", user.getAuthorities()));
+            return ctx.put(SecurityContext.class, Mono.just(securityContext));
         });
     }
 
@@ -373,7 +374,7 @@ public class GitServiceWithRBACTest {
         newUser.setPassword("testpassword");
         newUser = userService.create(newUser).block();
         final User user = newUser;
-        
+
         // Create permission group
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for testUpdatePermissionOnEachResourceTypeInMasterBranch_thenItIsAppliedAcrossBranches");
@@ -399,12 +400,12 @@ public class GitServiceWithRBACTest {
                 ),
                 List.of(),
                 Application.class).block();
-        
+
         permissionGroup = permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         // do following as new user
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        
+
         Mono<Application> applicationMono = runAs(gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl"), user);
 
         StepVerifier
@@ -475,7 +476,7 @@ public class GitServiceWithRBACTest {
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for testUpdatePermissionOnEachResourceTypeInMasterBranch_thenItIsAppliedAcrossBranches");
         permissionGroup = permissionGroupService.create(permissionGroup).block();
-        
+
         permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         // do following as new user
@@ -486,8 +487,8 @@ public class GitServiceWithRBACTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application1.getId()));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application1.getId()));
                 })
                 .verify();
     }
@@ -566,92 +567,92 @@ public class GitServiceWithRBACTest {
                 ),
                 List.of(),
                 Application.class).block();
-        
+
         Mono<Application> applicationMono = applicationService.findById(testApplication.getId())
-        .flatMap(application -> {
-            // Update the defaultIds for resources to mock merge action from other branch
-            application.getPages().forEach(page -> page.setDefaultPageId(page.getId() + "randomId"));
-            return Mono.zip(
-                    applicationService.save(application),
-                    pluginRepository.findByPackageName("installed-plugin"),
-                    newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
-            );
-        })
-        .flatMap(tuple -> {
+                .flatMap(application -> {
+                    // Update the defaultIds for resources to mock merge action from other branch
+                    application.getPages().forEach(page -> page.setDefaultPageId(page.getId() + "randomId"));
+                    return Mono.zip(
+                            applicationService.save(application),
+                            pluginRepository.findByPackageName("installed-plugin"),
+                            newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
+                    );
+                })
+                .flatMap(tuple -> {
 
-            Application application = tuple.getT1();
-            PageDTO testPage = tuple.getT3();
+                    Application application = tuple.getT1();
+                    PageDTO testPage = tuple.getT3();
 
-            // Save action
-            Datasource datasource = new Datasource();
-            datasource.setName("Default Database");
-            datasource.setWorkspaceId(application.getWorkspaceId());
-            datasource.setPluginId(tuple.getT2().getId());
-            datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+                    // Save action
+                    Datasource datasource = new Datasource();
+                    datasource.setName("Default Database");
+                    datasource.setWorkspaceId(application.getWorkspaceId());
+                    datasource.setPluginId(tuple.getT2().getId());
+                    datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
-            ActionDTO action = new ActionDTO();
-            action.setName("onPageLoadAction");
-            action.setPageId(application.getPages().get(0).getId());
-            action.setExecuteOnLoad(true);
-            ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setHttpMethod(HttpMethod.GET);
-            action.setActionConfiguration(actionConfiguration);
-            action.setDatasource(datasource);
+                    ActionDTO action = new ActionDTO();
+                    action.setName("onPageLoadAction");
+                    action.setPageId(application.getPages().get(0).getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
 
-            DefaultResources branchedResources = new DefaultResources();
-            branchedResources.setActionId("branchedActionId");
-            branchedResources.setApplicationId("branchedAppId");
-            branchedResources.setPageId("branchedPageId");
-            branchedResources.setCollectionId("branchedCollectionId");
-            branchedResources.setBranchName("testBranch");
-            action.setDefaultResources(branchedResources);
+                    DefaultResources branchedResources = new DefaultResources();
+                    branchedResources.setActionId("branchedActionId");
+                    branchedResources.setApplicationId("branchedAppId");
+                    branchedResources.setPageId("branchedPageId");
+                    branchedResources.setCollectionId("branchedCollectionId");
+                    branchedResources.setBranchName("testBranch");
+                    action.setDefaultResources(branchedResources);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            JSONObject parentDsl = null;
-            try {
-                parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
-                }));
-            } catch (JsonProcessingException e) {
-                log.debug(String.valueOf(e));
-            }
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject parentDsl = null;
+                    try {
+                        parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+                        }));
+                    } catch (JsonProcessingException e) {
+                        log.debug(String.valueOf(e));
+                    }
 
-            ArrayList children = (ArrayList) parentDsl.get("children");
-            JSONObject testWidget = new JSONObject();
-            testWidget.put("widgetName", "firstWidget");
-            JSONArray temp = new JSONArray();
-            temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-            testWidget.put("dynamicBindingPathList", temp);
-            testWidget.put("testField", "{{ onPageLoadAction.data }}");
-            children.add(testWidget);
+                    ArrayList children = (ArrayList) parentDsl.get("children");
+                    JSONObject testWidget = new JSONObject();
+                    testWidget.put("widgetName", "firstWidget");
+                    JSONArray temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    testWidget.put("dynamicBindingPathList", temp);
+                    testWidget.put("testField", "{{ onPageLoadAction.data }}");
+                    children.add(testWidget);
 
-            Layout layout = testPage.getLayouts().get(0);
-            layout.setDsl(parentDsl);
+                    Layout layout = testPage.getLayouts().get(0);
+                    layout.setDsl(parentDsl);
 
-            // Save actionCollection
-            ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-            actionCollectionDTO.setName("testCollection1");
-            actionCollectionDTO.setPageId(application.getPages().get(0).getId());
-            actionCollectionDTO.setApplicationId(application.getId());
-            actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
-            actionCollectionDTO.setPluginId(datasource.getPluginId());
-            actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-            actionCollectionDTO.setBody("collectionBody");
-            ActionDTO action1 = new ActionDTO();
-            action1.setName("testAction1");
-            action1.setActionConfiguration(new ActionConfiguration());
-            action1.getActionConfiguration().setBody("mockBody");
-            actionCollectionDTO.setActions(List.of(action1));
-            actionCollectionDTO.setPluginType(PluginType.JS);
-            actionCollectionDTO.setDefaultResources(branchedResources);
-            actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("testCollection1");
+                    actionCollectionDTO.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO.setApplicationId(application.getId());
+                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    actionCollectionDTO.setBody("collectionBody");
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("testAction1");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody("mockBody");
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+                    actionCollectionDTO.setDefaultResources(branchedResources);
+                    actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
 
-            return Mono.zip(
-                            layoutActionService.createSingleAction(action, Boolean.TRUE)
-                                    .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
-                            layoutCollectionService.createCollection(actionCollectionDTO)
-                    )
-                    .map(tuple2 -> application);
-        });
+                    return Mono.zip(
+                                    layoutActionService.createSingleAction(action, Boolean.TRUE)
+                                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
+                                    layoutCollectionService.createCollection(actionCollectionDTO)
+                            )
+                            .map(tuple2 -> application);
+                });
 
         Mono<Application> resultMono = applicationMono
                 .flatMap(application -> runAs(gitService.detachRemote(application.getId()), user));
@@ -727,7 +728,7 @@ public class GitServiceWithRBACTest {
                     });
 
                 })
-                .verifyComplete();         
+                .verifyComplete();
     }
 
     @Test
@@ -785,92 +786,92 @@ public class GitServiceWithRBACTest {
         permissionGroup = permissionGroupService.create(permissionGroup).block();
 
         permissionGroupService.assignToUser(permissionGroup, newUser).block();
-        
+
         Mono<Application> applicationMono = applicationService.findById(testApplication.getId())
-        .flatMap(application -> {
-            // Update the defaultIds for resources to mock merge action from other branch
-            application.getPages().forEach(page -> page.setDefaultPageId(page.getId() + "randomId"));
-            return Mono.zip(
-                    applicationService.save(application),
-                    pluginRepository.findByPackageName("installed-plugin"),
-                    newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
-            );
-        })
-        .flatMap(tuple -> {
+                .flatMap(application -> {
+                    // Update the defaultIds for resources to mock merge action from other branch
+                    application.getPages().forEach(page -> page.setDefaultPageId(page.getId() + "randomId"));
+                    return Mono.zip(
+                            applicationService.save(application),
+                            pluginRepository.findByPackageName("installed-plugin"),
+                            newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
+                    );
+                })
+                .flatMap(tuple -> {
 
-            Application application = tuple.getT1();
-            PageDTO testPage = tuple.getT3();
+                    Application application = tuple.getT1();
+                    PageDTO testPage = tuple.getT3();
 
-            // Save action
-            Datasource datasource = new Datasource();
-            datasource.setName("Default Database");
-            datasource.setWorkspaceId(application.getWorkspaceId());
-            datasource.setPluginId(tuple.getT2().getId());
-            datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+                    // Save action
+                    Datasource datasource = new Datasource();
+                    datasource.setName("Default Database");
+                    datasource.setWorkspaceId(application.getWorkspaceId());
+                    datasource.setPluginId(tuple.getT2().getId());
+                    datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
-            ActionDTO action = new ActionDTO();
-            action.setName("onPageLoadAction");
-            action.setPageId(application.getPages().get(0).getId());
-            action.setExecuteOnLoad(true);
-            ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setHttpMethod(HttpMethod.GET);
-            action.setActionConfiguration(actionConfiguration);
-            action.setDatasource(datasource);
+                    ActionDTO action = new ActionDTO();
+                    action.setName("onPageLoadAction");
+                    action.setPageId(application.getPages().get(0).getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
 
-            DefaultResources branchedResources = new DefaultResources();
-            branchedResources.setActionId("branchedActionId");
-            branchedResources.setApplicationId("branchedAppId");
-            branchedResources.setPageId("branchedPageId");
-            branchedResources.setCollectionId("branchedCollectionId");
-            branchedResources.setBranchName("testBranch");
-            action.setDefaultResources(branchedResources);
+                    DefaultResources branchedResources = new DefaultResources();
+                    branchedResources.setActionId("branchedActionId");
+                    branchedResources.setApplicationId("branchedAppId");
+                    branchedResources.setPageId("branchedPageId");
+                    branchedResources.setCollectionId("branchedCollectionId");
+                    branchedResources.setBranchName("testBranch");
+                    action.setDefaultResources(branchedResources);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            JSONObject parentDsl = null;
-            try {
-                parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
-                }));
-            } catch (JsonProcessingException e) {
-                log.debug(String.valueOf(e));
-            }
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject parentDsl = null;
+                    try {
+                        parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+                        }));
+                    } catch (JsonProcessingException e) {
+                        log.debug(String.valueOf(e));
+                    }
 
-            ArrayList children = (ArrayList) parentDsl.get("children");
-            JSONObject testWidget = new JSONObject();
-            testWidget.put("widgetName", "firstWidget");
-            JSONArray temp = new JSONArray();
-            temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-            testWidget.put("dynamicBindingPathList", temp);
-            testWidget.put("testField", "{{ onPageLoadAction.data }}");
-            children.add(testWidget);
+                    ArrayList children = (ArrayList) parentDsl.get("children");
+                    JSONObject testWidget = new JSONObject();
+                    testWidget.put("widgetName", "firstWidget");
+                    JSONArray temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    testWidget.put("dynamicBindingPathList", temp);
+                    testWidget.put("testField", "{{ onPageLoadAction.data }}");
+                    children.add(testWidget);
 
-            Layout layout = testPage.getLayouts().get(0);
-            layout.setDsl(parentDsl);
+                    Layout layout = testPage.getLayouts().get(0);
+                    layout.setDsl(parentDsl);
 
-            // Save actionCollection
-            ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-            actionCollectionDTO.setName("testCollection1");
-            actionCollectionDTO.setPageId(application.getPages().get(0).getId());
-            actionCollectionDTO.setApplicationId(application.getId());
-            actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
-            actionCollectionDTO.setPluginId(datasource.getPluginId());
-            actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-            actionCollectionDTO.setBody("collectionBody");
-            ActionDTO action1 = new ActionDTO();
-            action1.setName("testAction1");
-            action1.setActionConfiguration(new ActionConfiguration());
-            action1.getActionConfiguration().setBody("mockBody");
-            actionCollectionDTO.setActions(List.of(action1));
-            actionCollectionDTO.setPluginType(PluginType.JS);
-            actionCollectionDTO.setDefaultResources(branchedResources);
-            actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("testCollection1");
+                    actionCollectionDTO.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO.setApplicationId(application.getId());
+                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    actionCollectionDTO.setBody("collectionBody");
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("testAction1");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody("mockBody");
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+                    actionCollectionDTO.setDefaultResources(branchedResources);
+                    actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
 
-            return Mono.zip(
-                            layoutActionService.createSingleAction(action, Boolean.TRUE)
-                                    .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
-                            layoutCollectionService.createCollection(actionCollectionDTO)
-                    )
-                    .map(tuple2 -> application);
-        });
+                    return Mono.zip(
+                                    layoutActionService.createSingleAction(action, Boolean.TRUE)
+                                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
+                                    layoutCollectionService.createCollection(actionCollectionDTO)
+                            )
+                            .map(tuple2 -> application);
+                });
 
         Mono<Application> resultMono = applicationMono
                 .flatMap(application -> runAs(gitService.detachRemote(application.getId()), user));
@@ -878,16 +879,18 @@ public class GitServiceWithRBACTest {
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", applicationId));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", applicationId));
                 })
-                .verify();        
+                .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void pullChanges_withCRUDOnApplication_pullSuccess() throws IOException, GitAPIException {
-        Application application = createApplicationConnectedToGit("pullChanges_withCRUDOnApplication_pullSuccess", "upstreamChangesInRemote");
+        Application application = createApplicationConnectedToGit(
+                "pullChanges_withCRUDOnApplication_pullSuccess",
+                "upstreamChangesInRemote");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMergeAble(true);
@@ -952,7 +955,19 @@ public class GitServiceWithRBACTest {
                 List.of(),
                 Application.class).block();
 
-        Mono<GitPullDTO> applicationMono = runAs(gitService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName()), user);
+        // Give crud permissions to environment
+        genericDatabaseOperation.updatePolicies(
+                gitConnectedApplication.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.EXECUTE_ENVIRONMENTS),
+                List.of(),
+                Environment.class).block();
+
+        Mono<GitPullDTO> applicationMono = runAs(
+                gitService.pullApplication(
+                        application.getId(),
+                        application.getGitApplicationMetadata().getBranchName()),
+                user);
 
         StepVerifier
                 .create(applicationMono)
@@ -1016,8 +1031,8 @@ public class GitServiceWithRBACTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application.getId()));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application.getId()));
                 })
                 .verify();
     }
@@ -1145,7 +1160,6 @@ public class GitServiceWithRBACTest {
         Theme persistedThemeForBranchedAppPostUpdatePolicy = themeRepository.findById(persistedThemeForBranchedApp.getId()).block();
 
 
-
         gitApplicationPostUpdatePolicy.getPolicies().forEach(policy -> {
             if (policy.getPermission().equals(AclPermission.EXPORT_APPLICATIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(finalPermissionGroup.getId());
@@ -1233,7 +1247,7 @@ public class GitServiceWithRBACTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void checkoutRemoteBranch_withCRUDOnApplication_newApplicationCreated() throws GitAPIException, IOException {
+    public void checkoutRemoteBranch_withCRUDOnApplication_newApplicationCreated() {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
 
@@ -1245,55 +1259,82 @@ public class GitServiceWithRBACTest {
         gitBranchDTO.setBranchName("origin/branchInLocal");
         branchList.add(gitBranchDTO);
 
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean(),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("testBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()))
                 .thenReturn(Mono.just(branchList));
 
-		String username = UUID.randomUUID().toString() + "@test.com";
+        String username = UUID.randomUUID() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				workspaceId,
-				permissionGroup.getId(),
-				List.of(AclPermission.READ_WORKSPACES
-				),
-				List.of(),
-				Workspace.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                workspaceId,
+                permissionGroup.getId(),
+                List.of(AclPermission.READ_WORKSPACES
+                ),
+                List.of(),
+                Workspace.class).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				gitConnectedApplication.getId(),
-				permissionGroup.getId(),
-				List.of(AclPermission.APPLICATION_CREATE_PAGES,
-						AclPermission.DELETE_APPLICATIONS,
-						AclPermission.READ_APPLICATIONS,
-						AclPermission.MANAGE_APPLICATIONS
-				),
-				List.of(),
-				Application.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                gitConnectedApplication.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.APPLICATION_CREATE_PAGES,
+                        AclPermission.DELETE_APPLICATIONS,
+                        AclPermission.READ_APPLICATIONS,
+                        AclPermission.MANAGE_APPLICATIONS
+                ),
+                List.of(),
+                Application.class).block();
 
-        Mono<Application> applicationMono = runAs(gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal"), user)
-                .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
+        // Give crud permissions to environment
+        genericDatabaseOperation.updatePolicies(
+                gitConnectedApplication.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.EXECUTE_ENVIRONMENTS),
+                List.of(),
+                Environment.class).block();
+
+        Mono<Application> applicationMono = runAs(
+                gitService.checkoutBranch(
+                        gitConnectedApplication.getId(),
+                        "origin/branchNotInLocal"), user)
+                .flatMap(application1 -> applicationService
+                        .findByBranchNameAndDefaultApplicationId(
+                                "branchNotInLocal",
+                                gitConnectedApplication.getId(),
+                                READ_APPLICATIONS));
 
         StepVerifier
                 .create(applicationMono)
@@ -1304,7 +1345,7 @@ public class GitServiceWithRBACTest {
                 .verifyComplete();
     }
 
-	@Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void checkoutRemoteBranch_withNoPermissions_throwException() throws GitAPIException, IOException {
 
@@ -1327,22 +1368,22 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(branchList));
 
-		String username = UUID.randomUUID().toString() + "@test.com";
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<Application> applicationMono = runAs(gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal"), user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
@@ -1350,13 +1391,13 @@ public class GitServiceWithRBACTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(error -> {
-					return error instanceof AppsmithException
-					&& error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", gitConnectedApplication.getId()));
-			})
-			.verify();
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", gitConnectedApplication.getId()));
+                })
+                .verify();
     }
 
-	@Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_withCreateOnWorkspace_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -1369,34 +1410,34 @@ public class GitServiceWithRBACTest {
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-		
-		String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				workspaceId,
-				permissionGroup.getId(),
-				List.of(AclPermission.WORKSPACE_CREATE_APPLICATION, AclPermission.READ_WORKSPACES
-				),
-				List.of(),
-				Workspace.class).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
-                                GitAuth gitAuth = runAs(gitService.generateSSHKey(null), user).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                workspaceId,
+                permissionGroup.getId(),
+                List.of(AclPermission.WORKSPACE_CREATE_APPLICATION, AclPermission.READ_WORKSPACES
+                ),
+                List.of(),
+                Workspace.class).block();
+
+        GitAuth gitAuth = runAs(gitService.generateSSHKey(null), user).block();
 
         Mono<ApplicationImportDTO> applicationMono = runAs(gitService.importApplicationFromGit(workspaceId, gitConnectDTO), user);
 
@@ -1416,7 +1457,7 @@ public class GitServiceWithRBACTest {
                 .verifyComplete();
     }
 
-	@Test
+    @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_withNoPermissions_throwException() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -1430,36 +1471,36 @@ public class GitServiceWithRBACTest {
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-		
-		String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<ApplicationImportDTO> applicationMono = runAs(gitService.importApplicationFromGit(workspaceId, gitConnectDTO), user);
 
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("workspace", workspaceId));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("workspace", workspaceId));
                 })
                 .verify();
     }
 
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteBranch_withCRUDOnApplication_Success() throws IOException, GitAPIException {
@@ -1469,43 +1510,43 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-                String username = UUID.randomUUID().toString() + "@test.com";
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				workspaceId,
-				permissionGroup.getId(),
-				List.of(AclPermission.READ_WORKSPACES
-				),
-				List.of(),
-				Workspace.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                workspaceId,
+                permissionGroup.getId(),
+                List.of(AclPermission.READ_WORKSPACES
+                ),
+                List.of(),
+                Workspace.class).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				application.getId(),
-				permissionGroup.getId(),
-				List.of(AclPermission.APPLICATION_CREATE_PAGES,
-						AclPermission.DELETE_APPLICATIONS,
-						AclPermission.READ_APPLICATIONS,
-						AclPermission.MANAGE_APPLICATIONS
-				),
-				List.of(),
-				Application.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                application.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.APPLICATION_CREATE_PAGES,
+                        AclPermission.DELETE_APPLICATIONS,
+                        AclPermission.READ_APPLICATIONS,
+                        AclPermission.MANAGE_APPLICATIONS
+                ),
+                List.of(),
+                Application.class).block();
 
         Mono<Application> applicationMono = runAs(gitService.deleteBranch(application.getId(), "master"), user);
 
@@ -1527,30 +1568,30 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-                String username = UUID.randomUUID().toString() + "@test.com";
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<Application> applicationMono = runAs(gitService.deleteBranch(application.getId(), "master"), user);
 
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application.getId()));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", application.getId()));
                 })
                 .verify();
     }
@@ -1600,41 +1641,41 @@ public class GitServiceWithRBACTest {
 
         String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				workspaceId,
-				permissionGroup.getId(),
-				List.of(AclPermission.READ_WORKSPACES
-				),
-				List.of(),
-				Workspace.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                workspaceId,
+                permissionGroup.getId(),
+                List.of(AclPermission.READ_WORKSPACES
+                ),
+                List.of(),
+                Workspace.class).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				testApplication.getId(),
-				permissionGroup.getId(),
-				List.of(AclPermission.APPLICATION_CREATE_PAGES,
-						AclPermission.DELETE_APPLICATIONS,
-						AclPermission.READ_APPLICATIONS,
-						AclPermission.MANAGE_APPLICATIONS
-				),
-				List.of(),
-				Application.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                testApplication.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.APPLICATION_CREATE_PAGES,
+                        AclPermission.DELETE_APPLICATIONS,
+                        AclPermission.READ_APPLICATIONS,
+                        AclPermission.MANAGE_APPLICATIONS
+                ),
+                List.of(),
+                Application.class).block();
 
         Mono<Application> createBranchMono = Mono.just(testApplication)
                 .flatMap(application ->
@@ -1713,7 +1754,6 @@ public class GitServiceWithRBACTest {
                                 .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
                 );
 
-                
 
         StepVerifier
                 .create(createBranchMono.zipWhen(application -> Mono.zip(
@@ -1846,20 +1886,20 @@ public class GitServiceWithRBACTest {
 
         String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<Application> createBranchMono = Mono.just(testApplication)
                 .flatMap(application ->
@@ -1938,7 +1978,6 @@ public class GitServiceWithRBACTest {
                                 .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
                 );
 
-                
 
         StepVerifier
                 .create(createBranchMono.zipWhen(application -> Mono.zip(
@@ -1948,8 +1987,8 @@ public class GitServiceWithRBACTest {
                         applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
                 )))
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("application", finalApplication.getId() + ",defaultBranchName"));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("application", finalApplication.getId() + ",defaultBranchName"));
                 })
                 .verify();
     }
@@ -1967,43 +2006,43 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("sample response for commit"));
 
-                String username = UUID.randomUUID().toString() + "@test.com";
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-				workspaceId,
-				permissionGroup.getId(),
-				List.of(AclPermission.READ_WORKSPACES
-				),
-				List.of(),
-				Workspace.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                workspaceId,
+                permissionGroup.getId(),
+                List.of(AclPermission.READ_WORKSPACES
+                ),
+                List.of(),
+                Workspace.class).block();
 
-		// Give crud permissions to app
-		genericDatabaseOperation.updatePolicies(
-                        gitConnectedApplication.getId(),
-				permissionGroup.getId(),
-				List.of(AclPermission.APPLICATION_CREATE_PAGES,
-						AclPermission.DELETE_APPLICATIONS,
-						AclPermission.READ_APPLICATIONS,
-						AclPermission.MANAGE_APPLICATIONS
-				),
-				List.of(),
-				Application.class).block();
+        // Give crud permissions to app
+        genericDatabaseOperation.updatePolicies(
+                gitConnectedApplication.getId(),
+                permissionGroup.getId(),
+                List.of(AclPermission.APPLICATION_CREATE_PAGES,
+                        AclPermission.DELETE_APPLICATIONS,
+                        AclPermission.READ_APPLICATIONS,
+                        AclPermission.MANAGE_APPLICATIONS
+                ),
+                List.of(),
+                Application.class).block();
 
         Mono<String> commitMono = runAs(gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH), user);
 
@@ -2028,30 +2067,30 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("sample response for commit"));
 
-                String username = UUID.randomUUID().toString() + "@test.com";
+        String username = UUID.randomUUID().toString() + "@test.com";
 
-		// create user
-		User newUser = new User();
-		newUser.setEmail(username);
-		newUser.setName("other-user");
-		newUser.setPassword("testpassword");
-		newUser = userService.create(newUser).block();
-		final User user = newUser;
+        // create user
+        User newUser = new User();
+        newUser.setEmail(username);
+        newUser.setName("other-user");
+        newUser.setPassword("testpassword");
+        newUser = userService.create(newUser).block();
+        final User user = newUser;
 
-		// Create permission group
-		PermissionGroup permissionGroup = new PermissionGroup();
-		permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
-		permissionGroup = permissionGroupService.create(permissionGroup).block();
+        // Create permission group
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for pullChanges_withCRUDOnApplication_throwError");
+        permissionGroup = permissionGroupService.create(permissionGroup).block();
 
-		permissionGroupService.assignToUser(permissionGroup, newUser).block();
+        permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<String> commitMono = runAs(gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH), user);
 
         StepVerifier
                 .create(commitMono)
                 .expectErrorMatches(error -> {
-                        return error instanceof AppsmithException
-                        && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", gitConnectedApplication.getId()));
+                    return error instanceof AppsmithException
+                            && error.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("applicationId", gitConnectedApplication.getId()));
                 })
                 .verify();
     }

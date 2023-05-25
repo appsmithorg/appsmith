@@ -17,6 +17,7 @@ public interface EnvironmentService extends EnvironmentServiceCE {
     Flux<Environment> findByWorkspaceId(String workspaceId);
 
     Mono<Environment> findById(String id, AclPermission aclPermission);
+    Mono<Environment> findById(String id);
 
     Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId);
 

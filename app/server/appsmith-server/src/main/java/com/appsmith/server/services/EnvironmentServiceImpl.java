@@ -77,6 +77,11 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     }
 
     @Override
+    public Mono<Environment> findById(String environmentId) {
+        return repository.findById(environmentId);
+    }
+
+    @Override
     public Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId) {
 
         return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
@@ -97,7 +102,8 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
         return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
                 .flatMapMany(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
-                        return Flux.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                        return workspaceService.getDefaultEnvironment(workspaceId)
+                                .map(EnvironmentDTO::createEnvironmentDTO);
                     }
 
                     // This method will be used only for executing environments
@@ -142,7 +148,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                     // TODO: change the exception to a more appropriate one, once we have appropriate error code in EE
 
                     if (!StringUtils.hasLength(environmentId)) {
-                        return Mono.error(new AppsmithException(INVALID_PARAMETER,  ENVIRONMENT_ID));
+                        return Mono.error(new AppsmithException(INVALID_PARAMETER, ENVIRONMENT_ID));
                     }
 
                     // TODO: change the exception to a more appropriate one, once we have appropriate error code in EE

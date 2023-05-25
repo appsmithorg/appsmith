@@ -256,8 +256,7 @@ describe("Create Permission flow ", function () {
     cy.wait(2000);
     cy.get(homePage.searchInput).clear().type(appName);
     // verify duplication of app
-    homePage1.DuplicateApplication(appName);
-    agHelper.WaitUntilAllToastsDisappear();
+    homePage1.ForkApplication(appName);
   });
   it("3. Create Permission : Workspace level, verify user can import an application", function () {
     // verify user should be able to import an app

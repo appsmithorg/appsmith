@@ -1,11 +1,9 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.AppsmithDomain;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -17,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -25,6 +24,7 @@ import reactor.core.scheduler.Scheduler;
 public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements DatasourceService {
 
     private final VariableReplacementService variableReplacementService;
+    private final WorkspaceService workspaceService;
 
     public DatasourceServiceImpl(Scheduler scheduler,
                                  Validator validator,
@@ -51,19 +51,14 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 workspacePermission, datasourceStorageService);
 
         this.variableReplacementService = variableReplacementService;
+        this.workspaceService = workspaceService;
     }
 
     @Override
-    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
-        return super.getValidDatasourceFromActionMono(actionDTO, aclPermission)
-                .flatMap(datasource1 -> {
-                    Mono<AppsmithDomain> datasourceConfigurationMono = this.variableReplacementService
-                            .replaceAll(datasource1.getDatasourceConfiguration());
-                    return datasourceConfigurationMono.flatMap(
-                            configuration -> {
-                                datasource1.setDatasourceConfiguration((DatasourceConfiguration) configuration);
-                                return Mono.just(datasource1);
-                            });
-                });
+    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
+        if (!StringUtils.hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+        return workspaceService.getDefaultEnvironmentId(workspaceId);
     }
 }

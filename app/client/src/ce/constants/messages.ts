@@ -188,7 +188,6 @@ export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
-export const DUPLICATING_APPLICATION = () => `Duplicating application...`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -1000,6 +999,9 @@ export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
   "Not sure where to start? Take the welcome tour";
 
+export const ONBOARDING_TELEMETRY_POPUP = () =>
+  "We only collect usage data to make Appsmith better for everyone. Visit admin settings to toggle this off.";
+
 //Introduction modal
 export const HOW_APPSMITH_WORKS = () =>
   "Here’s a quick overview of how Appsmith works. ";
@@ -1063,9 +1065,8 @@ export const USE_SNIPPET = () => "Snippet";
 export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
-export const WELCOME_HEADER = () => "Welcome!";
-export const WELCOME_BODY = () =>
-  "Let us setup your account so you can make awesome applications!";
+export const WELCOME_HEADER = () => "Almost there";
+export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1082,10 +1083,11 @@ export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
 export const ACTION_EXECUTION_CANCEL = () => "Cancel request";
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
-export const WELCOME_FORM_FULL_NAME = () => "Full Name";
-export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
-export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
-export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
+export const WELCOME_FORM_FIRST_NAME = () => "First name";
+export const WELCOME_FORM_LAST_NAME = () => "Last name";
+export const WELCOME_FORM_EMAIL_ID = () => "Email";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Enter password";
+export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify password";
 export const WELCOME_FORM_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
 export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>

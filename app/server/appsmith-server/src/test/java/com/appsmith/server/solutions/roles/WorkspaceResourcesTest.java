@@ -5,6 +5,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -70,6 +72,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -215,6 +218,13 @@ public class WorkspaceResourcesTest {
         toCreate.setWorkspaceId(createdWorkspace.getId());
         restApiPlugin = pluginService.findByPackageName("restapi-plugin").block();
         toCreate.setPluginId(restApiPlugin.getId());
+
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace.getId()).block();
+        DatasourceStorage datasourceStorage = new DatasourceStorage(toCreate, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        toCreate.setDatasourceStorages(storages);
+
         createdDatasource = datasourceService.create(toCreate).block();
 
         PageDTO pageDTOWithoutActions1 = new PageDTO();
@@ -550,6 +560,11 @@ public class WorkspaceResourcesTest {
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource.setWorkspaceId(createdWorkspace1.getId());
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace1.getId()).block();
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
         Datasource createdDatasource1 = datasourceService.create(datasource).block();
 
         CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
@@ -1497,6 +1512,11 @@ public class WorkspaceResourcesTest {
         Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        String environmentId = workspaceService.getDefaultEnvironmentId(createdWorkspace1.getId()).block();
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
         Datasource createdDatasource = datasourceService.create(datasource).block();
 
 
