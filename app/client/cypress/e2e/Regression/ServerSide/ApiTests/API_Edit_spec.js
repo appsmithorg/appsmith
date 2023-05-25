@@ -1,7 +1,7 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   before(() => {
@@ -25,15 +25,10 @@ describe("API Panel Test Functionality", function () {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name:contains('FirstAPI')").should("be.visible");
-    cy.hoverAndClick("FirstAPI");
-    cy.selectAction("Edit name");
-    //cy.RenameEntity(tabname);
-    cy.get(explorer.editEntity).last().type("SecondAPI", { force: true });
-    cy.DeleteAPI();
-    cy.wait(2000);
-    cy.get(".t--entity-name:contains('SecondAPI')").should("not.exist");
+    _.entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
+    _.entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
+    _.agHelper.ActionContextMenuWithInPane("Delete");
+    _.entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
   });
 
   it("2. Should update loading state after cancellation of confirmation for run query", function () {

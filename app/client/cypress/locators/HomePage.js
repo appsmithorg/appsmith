@@ -10,7 +10,6 @@ export default {
   publishCrossButton: "span[icon='small-cross']",
   homePageID: "//div[@id='root']",
   appMoreIcon: ".t--application-card .ads-v2-button__content",
-  duplicateApp: "[data-testid=t--duplicate]",
   forkAppFromMenu: "[data-testid=t--fork-app]",
   exportAppFromMenu: "[data-testid=t--export-app]",
   forkAppWorkspaceButton: ".t--fork-app-to-workspace-button",

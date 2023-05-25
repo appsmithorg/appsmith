@@ -173,7 +173,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(Flux.empty(), null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
+                .executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -198,12 +199,13 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(partsFlux, null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         StepVerifier
                 .create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("executeActionDTO")))
+                        e.getMessage().equals(AppsmithError.GENERIC_REQUEST_BODY_PARSE_ERROR.getMessage()))
                 .verify();
     }
 
@@ -409,5 +411,4 @@ class ActionExecutionSolutionCEImplTest {
                 })
                 .verifyComplete();
     }
-
 }

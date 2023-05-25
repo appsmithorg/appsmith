@@ -68,7 +68,11 @@ describe("Branding", () => {
     );
 
     // branding logo
-    cy.get(locators.AdmingSettingsLogoInput).attachFile("appsmithlogo.png");
+    cy.get(locators.AdmingSettingsLogoInput).selectFile(
+      "cypress/fixtures/appsmithlogo.png",
+      { force: true },
+    );
+
     cy.wait(1000);
     cy.get(locators.AdmingSettingsLogoInputImage).should("be.visible");
     cy.get(locators.BrandingLogo)
@@ -80,7 +84,10 @@ describe("Branding", () => {
       });
 
     // branding favicon
-    cy.get(locators.AdmingSettingsFaviconInput).attachFile("appsmithlogo.png");
+    cy.get(locators.AdmingSettingsFaviconInput).selectFile(
+      "cypress/fixtures/appsmithlogo.png",
+      { force: true },
+    );
     cy.wait(1000);
     cy.get(locators.AdmingSettingsFaviconInputImage).should("be.visible");
     cy.get(locators.BrandingFavicon)
@@ -92,14 +99,20 @@ describe("Branding", () => {
       });
 
     // validations - logo
-    cy.get(locators.AdmingSettingsLogoInput).attachFile("testFile.mov");
+    cy.get(locators.AdmingSettingsLogoInput).selectFile(
+      "cypress/fixtures/testFile.mov",
+      { force: true },
+    );
     cy.wait(1000);
     cy.get(commonlocators.toastMsg).contains(
       Cypress.env("MESSAGES").ADMIN_BRANDING_LOGO_FORMAT_ERROR(),
     );
 
     // validations - favicon
-    cy.get(locators.AdmingSettingsFaviconInput).attachFile("testFile.mov");
+    cy.get(locators.AdmingSettingsFaviconInput).selectFile(
+      "cypress/fixtures/testFile.mov",
+      { force: true },
+    );
     cy.wait(1000);
     cy.get(commonlocators.toastMsg).contains(
       Cypress.env("MESSAGES").ADMIN_BRANDING_FAVICON_FORMAT_ERROR(),

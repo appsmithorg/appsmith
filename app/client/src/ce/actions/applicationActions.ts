@@ -147,15 +147,6 @@ export const publishApplication = (applicationId: string) => {
   };
 };
 
-export const duplicateApplication = (applicationId: string) => {
-  return {
-    type: ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
-    payload: {
-      applicationId,
-    },
-  };
-};
-
 export const importApplication = (appDetails: ImportApplicationRequest) => {
   return {
     type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
