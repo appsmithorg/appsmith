@@ -21,7 +21,11 @@ describe("File picker widget v2", () => {
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Upload a new file
     cy.get(widgetsPage.filepickerwidgetv2).click();
-    cy.get(commonlocators.filePickerInput).first().attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/testFile.mov", {
+        force: true,
+      });
     cy.get(commonlocators.filePickerUploadButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);

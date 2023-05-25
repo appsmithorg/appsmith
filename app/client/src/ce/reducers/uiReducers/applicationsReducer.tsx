@@ -38,7 +38,6 @@ export const initialState: ApplicationsReduxState = {
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
-  duplicatingApplication: false,
   userWorkspaces: [],
   isSavingWorkspaceInfo: false,
   importingApplication: false,
@@ -375,26 +374,6 @@ export const handlers = {
       searchKeyword: action.payload.keyword,
     };
   },
-  [ReduxActionTypes.DUPLICATE_APPLICATION_INIT]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, duplicatingApplication: true };
-  },
-  [ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<ApplicationPayload>,
-  ) => {
-    return {
-      ...state,
-      duplicatingApplication: false,
-      applicationList: [...state.applicationList, action.payload],
-    };
-  },
-  [ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, duplicatingApplication: false };
-  },
   [ReduxActionTypes.UPDATE_APPLICATION]: (
     state: ApplicationsReduxState,
     action: ReduxAction<UpdateApplicationRequest>,
@@ -570,6 +549,18 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        forkingEnabled: action.payload,
+      },
+    };
+  },
   [ReduxActionTypes.UPDATE_NAVIGATION_SETTING]: (
     state: ApplicationsReduxState,
     action: ReduxAction<NavigationSetting>,
@@ -688,7 +679,6 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
-  duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;

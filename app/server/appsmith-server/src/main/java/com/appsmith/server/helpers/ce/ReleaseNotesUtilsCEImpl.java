@@ -58,7 +58,8 @@ public class ReleaseNotesUtilsCEImpl implements ReleaseNotesUtilsCE {
                         .get()
                         .exchange()
                 )
-                .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {}))
+                .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {
+                }))
                 .map(result -> result.getData().getNodes())
                 .map(nodes -> {
                     releaseNodesCache.clear();
