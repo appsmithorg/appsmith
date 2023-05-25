@@ -41,6 +41,7 @@ import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers
 import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { Colors } from "constants/Colors";
 import { getAppsmithConfigs } from "ce/configs";
+import { PluginPackageName } from "entities/Action";
 const { intercomAppID } = getAppsmithConfigs();
 
 interface Props {
@@ -197,7 +198,11 @@ function DatasourceAuth({
 
           // Triggering intercom here, to understand what exact
           // problem user is facing while creating google sheets datasource
-          if (intercomAppID && window.Intercom) {
+          if (
+            intercomAppID &&
+            window.Intercom &&
+            pluginPackageName === PluginPackageName.GOOGLE_SHEETS
+          ) {
             window.Intercom(
               "showNewMessage",
               createMessage(DATASOURCE_INTERCOM_TEXT),
