@@ -74,7 +74,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       .wait(500)
       .click();
     cy.get(templateLocators.dialogForkButton).should("be.visible");
-    cy.get(templateLocators.dialogForkButton).click();
+    cy.get(templateLocators.dialogForkButton).click({ force: true });
     cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
     cy.get(reconnectDatasourceLocators.DatasourceList)
       .find(reconnectDatasourceLocators.ListItemIcon)
