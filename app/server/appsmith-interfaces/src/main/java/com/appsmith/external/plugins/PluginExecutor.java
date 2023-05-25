@@ -14,6 +14,11 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import io.micrometer.observation.ObservationRegistry;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -22,10 +27,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
@@ -53,7 +54,32 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return Connection object
      */
-    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+//    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+
+    default Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        Properties properties = new Properties();
+        return Mono.fromCallable(() -> addAuthParamsToConnectionConfig(datasourceConfiguration, properties))
+                .map(properties1 -> addPluginSpecificProperties(datasourceConfiguration, properties1))
+                .flatMap(properties1 -> createConnectionClient(datasourceConfiguration, properties1))
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage();
+                    throw new RuntimeException(errorMessage);
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    default Mono<C> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return this.datasourceCreate(datasourceConfiguration);
+    }
+
+    default Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
+
+    default Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
 
     /**
      * This function is used to bring down/destroy the connection to the data source.

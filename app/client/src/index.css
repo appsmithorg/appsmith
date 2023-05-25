@@ -96,7 +96,7 @@ add-action.disabled span {
   min-width: 0;
 }
 
-/** 
+/**
   action selector block styles
 **/
 .bp3-submenu.bp3-popover > .bp3-popover-content {
@@ -241,4 +241,8 @@ div.bp3-popover-arrow {
 
 .react-datepicker__children-container {
   margin-top: -10px !important;
+}
+
+.reconnect-datasource-modal {
+  z-index: 9 !important;
 }
