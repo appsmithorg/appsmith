@@ -135,6 +135,7 @@ import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -469,9 +470,13 @@ function* redirectAuthorizationCodeSaga(
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
+  const branchName: string | undefined = yield select(getCurrentGitBranch);
 
   if (pluginType === PluginType.API) {
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+    window.location.href =
+      `/api/v1/datasources/${datasourceId}/pages/${pageId}/code` + !!branchName
+        ? `?branch=` + branchName
+        : ``;
   } else {
     try {
       // Get an "appsmith token" from the server

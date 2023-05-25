@@ -15,10 +15,11 @@ public interface AuthenticationServiceCE {
      *
      * @param datasourceId required to validate the details in the request and populate redirect url
      * @param pageId       Required to populate redirect url
+     * @param branchName
      * @param httpRequest  Used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
-    Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest);
+    Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, String branchName, ServerHttpRequest httpRequest);
 
     /**
      * This is the method that handles callback for generic OAuth2. We will be retrieving and storing token information here

@@ -74,7 +74,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService
-                .getAuthorizationCodeURLForGenericOauth2("invalidId", "irrelevantPageId", null);
+                .getAuthorizationCodeURLForGenericOauth2("invalidId", "irrelevantPageId", null, null);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -108,7 +108,7 @@ public class AuthenticationServiceTest {
         }).flatMap(datasourceService::create).cache();
 
         Mono<String> authorizationCodeUrlMono = datasourceMono.map(BaseDomain::getId)
-                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, "irrelevantPageId", null));
+                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, "irrelevantPageId", null, null));
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -171,7 +171,7 @@ public class AuthenticationServiceTest {
 
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
-        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId1, pageDto.getId(), httpRequest);
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId1, pageDto.getId(), null, httpRequest);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -181,6 +181,73 @@ public class AuthenticationServiceTest {
                             "&response_type=code" +
                             "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize" +
                             "&state=" + String.join(",", pageDto.getId(), datasourceId1, "https://mock.origin.com") +
+                            "&scope=Scope\\d%20Scope\\d" +
+                            "&key=value"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAuthorizationCodeURL_validDatasourceAndBranchName() {
+        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
+        mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
+
+        MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
+
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Another Test Workspace");
+        testWorkspace = workspaceService.create(testWorkspace).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("PageServiceTest TestApp");
+
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
+        Application application = applicationPageService.createApplication(newApp, workspaceId).block();
+
+        testPage.setApplicationId(application.getId());
+
+        PageDTO pageDto = applicationPageService.createPage(testPage).block();
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        // install plugin
+        pluginMono.flatMap(plugin -> {
+            return pluginService.installPlugin(PluginWorkspaceDTO.builder().pluginId(plugin.getId()).workspaceId(workspaceId).status(WorkspacePluginStatus.FREE).build());
+        }).block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Valid datasource for OAuth2");
+        datasource.setWorkspaceId(workspaceId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setClientId("ClientId");
+        authenticationDTO.setClientSecret("ClientSecret");
+        authenticationDTO.setAuthorizationUrl("AuthorizationURL");
+        authenticationDTO.setAccessTokenUrl("AccessTokenURL");
+        authenticationDTO.setScope(Set.of("Scope1", "Scope2"));
+        authenticationDTO.setCustomAuthenticationParameters(Set.of(new Property("key", "value")));
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create).cache();
+
+        final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
+
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId1, pageDto.getId(), "testBranch", httpRequest);
+
+        StepVerifier
+                .create(authorizationCodeUrlMono)
+                .assertNext(url -> {
+                    assertThat(url).matches(Pattern.compile("AuthorizationURL" +
+                            "\\?client_id=ClientId" +
+                            "&response_type=code" +
+                            "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize" +
+                            "&state=" + String.join(",", pageDto.getId(), datasourceId1, "https://mock.origin.com", "testBranch") +
                             "&scope=Scope\\d%20Scope\\d" +
                             "&key=value"));
                 })

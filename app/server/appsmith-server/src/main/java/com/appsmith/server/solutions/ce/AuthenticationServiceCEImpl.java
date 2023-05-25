@@ -100,10 +100,11 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      *
      * @param datasourceId required to validate the details in the request and populate redirect url
      * @param pageId       Required to populate redirect url
+     * @param branchName
      * @param httpRequest  Used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
-    public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
+    public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, String branchName, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
         return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
@@ -112,6 +113,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap((datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
+                    final String state = StringUtils.hasText(branchName)
+                            ? String.join(",", pageId, datasourceId, redirectUri, branchName)
+                            : String.join(",", pageId, datasourceId, redirectUri);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                             .fromUriString(oAuth2.getAuthorizationUrl())
@@ -119,7 +123,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             .queryParam(RESPONSE_TYPE, CODE)
                             .queryParam(REDIRECT_URI, redirectUri + Url.DATASOURCE_URL + "/authorize")
                             // The state is used internally to calculate the redirect url when returning control to the client
-                            .queryParam(STATE, String.join(",", pageId, datasourceId, redirectUri));
+                            .queryParam(STATE, state);
                     // Adding optional scope parameter
                     if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder
@@ -173,7 +177,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         return Mono.justOrEmpty(state)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(localState -> {
-                    if (localState.split(",").length != 3) {
+                    if (localState.split(",").length < 3) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
                         return Mono.just(localState.split(",")[1]);
@@ -287,12 +291,13 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String pageId = splitState[0];
         final String datasourceId = splitState[1];
         final String redirectOrigin = splitState[2];
+        final String branchName = splitState.length == 4? splitState[3] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
         }
         final String responseStatus = response;
-        return newPageService.getById(pageId)
+        return newPageService.findByIdAndBranchName(pageId, branchName)
                 .map(newPage -> redirectOrigin + Entity.SLASH +
                         Entity.APPLICATIONS + Entity.SLASH +
                         newPage.getApplicationId() + Entity.SLASH +
@@ -302,7 +307,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         Entity.DATASOURCE + Entity.SLASH +
                         datasourceId +
                         "?response_status=" + responseStatus +
-                        "&view_mode=true")
+                        "&view_mode=true" +
+                        (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(
                         redirectOrigin + Entity.SLASH +
                                 Entity.APPLICATIONS +
