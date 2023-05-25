@@ -106,7 +106,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       // _.agHelper.AssertElementVisible(
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
-      // _.agHelper.ClickButton("No");
+      // _.jsEditor.ConfirmationClick("No");
       // _.agHelper.WaitUntilToastDisappear(
       //   `${jsName + ".callTrump"} was cancelled`,
       // ); //When Confirmation is NO validate error toast!
@@ -115,7 +115,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       _.agHelper.AssertContains("cancelled"); //Quotes
       //One Quotes confirmation - for API true
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
-      // _.agHelper.ClickButton("No");
+      // _.jsEditor.ConfirmationClick("No");
       _.agHelper.WaitUntilAllToastsDisappear();
 
       _.jsEditor.ConfirmationClick("No");
@@ -123,7 +123,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       // //Another for API called via JS callQuotes()
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
-      //_.agHelper.ClickButton("No");
+      // _.jsEditor.ConfirmationClick("No");
       //_.agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
       _.agHelper.AssertElementAbsence(
@@ -183,7 +183,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     _.jsEditor.ConfirmationClick("No");
     // _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-    // _.agHelper.ClickButton("No");
+    // _.jsEditor.ConfirmationClick("No");
     _.agHelper.AssertContains("cancelled");
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     cy.fixture("datasources").then((datasourceFormData) => {
@@ -357,7 +357,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // Uncomment below aft Bug 13826 is fixed & add for Yes also!
     // _.agHelper.SelectDropDown("Akron");
     // _.agHelper.AssertElementPresence(_.jsEditor._dialogBody("getCountry"));
-    // _.agHelper.ClickButton("No");
+    // _.jsEditor.ConfirmationClick("No");
 
     _.agHelper.WaitUntilToastDisappear("getBooks was cancelled");
     _.agHelper.GetNClick(_.locators._widgetInDeployed("imagewidget"));
