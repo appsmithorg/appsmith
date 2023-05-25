@@ -64,22 +64,4 @@ export class EmbedSettings {
       }
     });
   }
-
-  public enablePublicAccessViaShareSettings(enable = true) {
-    this.OpenEmbedSettings();
-    const input = this.agHelper.GetElement(
-      HomePage.enablePublicAccessSettingsPage,
-    );
-    input.invoke("attr", "checked").then((value) => {
-      if (value !== enable.toString()) {
-        this.agHelper.GetNClick(HomePage.enablePublicAccessSettingsPage);
-        cy.wait("@changeAccess").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-      }
-    });
-    cy.wait(5000);
-  }
 }
