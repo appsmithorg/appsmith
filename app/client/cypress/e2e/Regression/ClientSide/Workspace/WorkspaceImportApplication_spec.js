@@ -40,7 +40,11 @@ describe("Workspace Import Application", function () {
             cy.get(homePage.workspaceImportAppOption).click({ force: true });
 
             cy.get(homePage.workspaceImportAppModal).should("be.visible");
-            cy.xpath(homePage.uploadLogo).attachFile("exported-app.json");
+            cy.xpath(homePage.uploadLogo)
+              .first()
+              .selectFile("cypress/fixtures/exported-app.json", {
+                force: true,
+              });
 
             cy.wait("@importNewApplication").then((interception) => {
               const importedApp = interception.response.body.data.application;

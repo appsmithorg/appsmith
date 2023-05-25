@@ -33,7 +33,7 @@ export const CheckboxGroup = forwardRef(
         ref={domRef}
         wrapperClassName={className}
       >
-        <div {...groupProps} data-field-group data-orientation={orientation}>
+        <div {...groupProps} data-field-group="" data-orientation={orientation}>
           <CheckboxGroupContext.Provider value={state}>
             {children}
           </CheckboxGroupContext.Provider>

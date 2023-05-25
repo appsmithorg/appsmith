@@ -37,7 +37,7 @@ type TreeDropdownProps = {
 };
 
 const StyledMenuSubContent = styled(MenuSubContent)`
-  max-height: 200px;
+  max-height: 350px;
 `;
 
 export default function TreeDropdown(props: TreeDropdownProps) {
