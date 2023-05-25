@@ -1,4 +1,4 @@
-name: Build client server without running Unit tests
+name: Run Cypress without running Unit tests
 
 on:
   # This workflow can be triggered manually from the GitHub Actions page
