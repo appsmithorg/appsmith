@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.migrations.solutions.ce.DatasourceStorageMigrationSolutionCE;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -16,13 +17,15 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
+@Slf4j
 @NoArgsConstructor
 public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrationSolutionCE {
 
     @Override
     public Map<String, String> getDefaultEnvironmentsMap(MongoTemplate mongoTemplate) {
         Query defaultEnvironmentQuery = new Query().addCriteria(nonDeletedDefaultEnvironmentCriteria());
-        defaultEnvironmentQuery.fields().include(fieldName(QEnvironment.environment.id),
+        defaultEnvironmentQuery.fields().include(
+                fieldName(QEnvironment.environment.id),
                 fieldName(QEnvironment.environment.workspaceId));
 
         final Query performanceOptimizedUpdateQuery = CompatibilityUtils
@@ -36,8 +39,11 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
     @Override
     public String getEnvironmentIdForDatasource(Map<String, String> wsIdToEnvIdMap,
                                                 String workspaceId) {
-        return wsIdToEnvIdMap.get(workspaceId); // in case if it returns null what should be the action?
+        if (!wsIdToEnvIdMap.containsKey(workspaceId)) {
+             log.debug("No default environment id found for the given workspace id : {}", workspaceId);
+        }
 
+        return wsIdToEnvIdMap.get(workspaceId);
     }
 
     public static Criteria nonDeletedDefaultEnvironmentCriteria() {
