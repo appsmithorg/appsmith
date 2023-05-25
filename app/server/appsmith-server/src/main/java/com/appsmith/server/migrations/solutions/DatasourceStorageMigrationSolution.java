@@ -50,7 +50,7 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
                         where(FieldName.DELETED_AT).is(null)
                 ),
                 where(fieldName(QEnvironment.environment.workspaceId)).exists(true),
-                where(fieldName(QEnvironment.environment.workspaceId)).not().is(null),
+                where(fieldName(QEnvironment.environment.workspaceId)).ne(null),
                 where(fieldName(QEnvironment.environment.isDefault)).is(true)
         );
     }
