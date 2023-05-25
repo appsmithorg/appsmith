@@ -163,6 +163,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
       }
     });
     ee.DragDropWidgetNVerify("modalwidget");
+    cy.wait(1000);
     cy.get(widgets.modalCloseButton).click({ force: true });
 
     autoLayout.convertToAutoLayoutAndVerify();
@@ -172,6 +173,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     });
     ee.SelectEntityByName("Modal1", "Widgets");
     autoLayout.verifyCurrentWidgetIsAutolayout("modalwidget");
+    cy.wait(1000);
     cy.get(widgets.modalCloseButton).click({ force: true });
 
     autoLayout.convertToFixedLayoutAndVerify("DESKTOP");
@@ -181,6 +183,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     });
     ee.SelectEntityByName("Modal1", "Widgets");
     autoLayout.verifyCurrentWidgetIsFixedlayout("modalwidget");
+    cy.wait(1000);
     cy.get(widgets.modalCloseButton).click({ force: true });
   });
 });

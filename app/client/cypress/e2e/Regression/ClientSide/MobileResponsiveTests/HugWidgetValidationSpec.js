@@ -4,7 +4,7 @@ const autoLayout = ObjectsRegistry.AutoLayout;
 
 describe("Validating Mobile Views for Hug Widget", function () {
   it("1. Validate change with height width for hug widget - image widget", function () {
-    autoLayout.convertToAutoLayoutAndVerify();
+    autoLayout.convertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });
     cy.PublishtheApp();
     cy.get(".t--widget-imagewidget").first().should("be.visible");

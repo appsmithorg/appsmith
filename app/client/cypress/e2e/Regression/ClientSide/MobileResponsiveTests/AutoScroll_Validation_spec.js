@@ -6,7 +6,7 @@ let twidth;
 
 describe("Validating Mobile View related usecases for Autoscroll", function () {
   it("1. Capture the height/width of autofill widgets in webview", function () {
-    autoLayout.convertToAutoLayoutAndVerify();
+    autoLayout.convertToAutoLayoutAndVerify(false);
 
     cy.dragAndDropToCanvas("listwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 620, y: 820 });

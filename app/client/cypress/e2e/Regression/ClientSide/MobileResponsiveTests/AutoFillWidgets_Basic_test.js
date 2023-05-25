@@ -37,7 +37,7 @@ let width = {
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
   it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
-    autoLayout.convertToAutoLayoutAndVerify();
+    autoLayout.convertToAutoLayoutAndVerify(false);
 
     cy.dragAndDropToCanvas("switchwidget", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("currencyinputwidget", { x: 110, y: 210 });

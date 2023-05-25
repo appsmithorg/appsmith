@@ -19,7 +19,7 @@ describe("Add widget - Postgress DataSource", function () {
     cy.get(".t--close-editor span:contains('Back')").click({ force: true });
     cy.get(".t--back-button span:contains('Back')").click({ force: true });
 
-    autoLayout.convertToAutoLayoutAndVerify();
+    autoLayout.convertToAutoLayoutAndVerify(false);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.wait(500);
