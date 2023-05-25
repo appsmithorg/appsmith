@@ -128,6 +128,7 @@ function* BindWidgetToDatasource(
       createDefaultActionPayload,
       pageId,
       datasourceId,
+      "ONE_CLICK_BINDING",
     );
 
     const queryNameMap: Record<string, string> = {};

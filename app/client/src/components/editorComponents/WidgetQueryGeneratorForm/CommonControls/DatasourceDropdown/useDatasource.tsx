@@ -33,6 +33,7 @@ import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindi
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 export function useDatasource() {
   const {
@@ -258,6 +259,12 @@ export function useDatasource() {
             widgetType: widget.type,
             propertyName: propertyName,
             selectedAction: "Connect New Datasource",
+          });
+
+          const entryPoint = DatasourceCreateEntryPoints.ONE_CLICK_BINDING;
+
+          AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+            entryPoint,
           });
         },
       },

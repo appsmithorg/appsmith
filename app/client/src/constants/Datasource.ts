@@ -17,6 +17,7 @@ export const DatasourceCreateEntryPoints = {
   CODE_EDITOR_SLASH_COMMAND: "CODE_EDITOR_SLASH_COMMAND",
   OMNIBAR: "OMNIBAR",
   SUBMENU: "SUBMENU",
+  ONE_CLICK_BINDING: "ONE_CLICK_BINDING",
 };
 
 export const DatasourceEditEntryPoints = {
