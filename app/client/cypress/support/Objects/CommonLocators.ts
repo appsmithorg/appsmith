@@ -1,5 +1,6 @@
 export class CommonLocators {
   _body = "body";
+  _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".ads-v2-spinner";
@@ -116,7 +117,9 @@ export class CommonLocators {
     fieldName +
     "']/ancestor::div[contains(@class, 't--property-control-" +
     fieldName.replace(/ +/g, "").toLowerCase() +
-    "')]";
+    "')] | //label[text()='" +
+    fieldName +
+    "']/following-sibling::div";
   _existingFieldValueByName = (fieldName: string) =>
     this._existingFieldTextByName(fieldName) +
     "//div[contains(@class,'CodeMirror-code')]";
@@ -183,6 +186,7 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-testid='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
+  _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
@@ -194,4 +198,8 @@ export class CommonLocators {
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _popUpCloseBtn = (popupname: string) =>
+    `//*[text()='${popupname}']/following-sibling::button`;
+  _selectByValue = (value: string) =>
+    `//button[contains(@class, 't--open-dropdown-${value}')]`;
 }

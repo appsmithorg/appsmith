@@ -11,7 +11,11 @@ describe("File Picker Widget V2 Functionality", function () {
   it("Check if the uploaded data does not reset when tab switch in the TabsWidget", () => {
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2).click();
-    cy.get(commonlocators.filePickerInput).first().attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/testFile.mov", {
+        force: true,
+      });
     cy.get(commonlocators.filePickerUploadButton).click();
     cy.get(widgetsPage.filepickerwidgetv2).should(
       "contain",

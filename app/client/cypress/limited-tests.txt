@@ -1,1 +1,1 @@
-cypress/e2e/Regression/ClientSide/AutoLayoutEditor/SuggestedWidgets_spec.ts
+cypress/e2e/**/**/*
