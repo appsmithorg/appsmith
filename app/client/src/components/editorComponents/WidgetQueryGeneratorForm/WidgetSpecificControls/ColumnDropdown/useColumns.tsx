@@ -38,9 +38,14 @@ export function useColumns(alias: string) {
     getGsheetsColumns(config.sheet + "_" + config.table),
   );
 
-  const primaryColumn = useSelector(
+  let primaryColumn = useSelector(
     getDatasourceTablePrimaryColumn(config.datasource, config.table),
   );
+
+  // TODO(Balaji): Abstraction leak. remove when backend sends this data
+  if (!primaryColumn && config.datasourcePluginName === "MongoDB") {
+    primaryColumn = "_id";
+  }
 
   const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
     getPluginPackageFromDatasourceId(state, config.datasource),
