@@ -78,7 +78,7 @@ export const datasourceIcon = (
   />
 );
 
-export const datasourceTableIcon = <Icon name="layout-left-2-line" size="md" />;
+export const datasourceTableIcon = <Icon name="layout-5-line" size="md" />;
 
 export const primaryKeyIcon = <Icon name="key-2-line" size="md" />;
 
