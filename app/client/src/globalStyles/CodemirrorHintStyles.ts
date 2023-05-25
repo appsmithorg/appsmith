@@ -87,7 +87,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         display: flex;
         align-items: center;
         > div {
-          padding: 0 2px;
           img {
             height: 14px;
             width: 14px;
