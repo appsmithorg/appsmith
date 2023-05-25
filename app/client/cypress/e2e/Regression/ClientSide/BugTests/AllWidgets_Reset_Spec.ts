@@ -424,15 +424,11 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.fixture("defaultMetaDsl").then((val: any) => {
         _.agHelper.AddDsl(val);
       });
-<<<<<<< HEAD
       _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
-=======
-      ee.DragDropWidgetNVerify(widgetSelector, 300, 100);
 
       if (testConfig.setupWidget) {
         testConfig.setupWidget();
       }
->>>>>>> abaa0b72b7 (fix all cypress failure)
     });
 
     it("2. Bind Button on click  and Text widget content", () => {
