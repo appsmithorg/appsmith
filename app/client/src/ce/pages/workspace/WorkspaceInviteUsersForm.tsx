@@ -241,14 +241,18 @@ const validate = (values: any) => {
   return errors;
 };
 
-function InviteUserText() {
+function InviteUserText({
+  isApplicationInvite,
+}: {
+  isApplicationInvite: boolean;
+}) {
   return (
     <Text
       color="var(--ads-v2-color-fg)"
       data-testid="helper-message"
       kind="action-m"
     >
-      {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) ? (
+      {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) && isApplicationInvite ? (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
           <Link kind="primary" target="_blank" to={RAMP_LINK_TO}>
@@ -524,7 +528,7 @@ function WorkspaceInviteUsersForm(props: any) {
         <div className="flex gap-2 mt-2 items-start">
           <Icon className="mt-1" name="user-3-line" size="md" />
           <WorkspaceText>
-            <InviteUserText />
+            <InviteUserText isApplicationInvite={isApplicationInvite} />
           </WorkspaceText>
         </div>
         {isLoading ? (
