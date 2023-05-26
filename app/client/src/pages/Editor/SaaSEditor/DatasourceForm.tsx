@@ -427,9 +427,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       datasource={datasource}
                       description={googleSheetsInfoMessage}
                       pageId={pageId}
-                      style={{
-                        marginTop: "16px",
-                      }}
                     />
                   ) : null}
                   {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
