@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ce.NewPageServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -26,9 +27,10 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
                               UserDataService userDataService,
                               ResponseUtils responseUtils,
                               ApplicationPermission applicationPermission,
-                              PagePermission pagePermission) {
+                              PagePermission pagePermission,
+                              ApplicationSnapshotRepository applicationSnapshotRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                applicationService, userDataService, responseUtils, applicationPermission, pagePermission);
+                applicationService, userDataService, responseUtils, applicationPermission, pagePermission, applicationSnapshotRepository);
     }
 }

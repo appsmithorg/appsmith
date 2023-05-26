@@ -256,6 +256,12 @@ function* forkTemplateToApplicationSaga(
           return call(fetchPageDSLSaga, pageId);
         }),
       );
+
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+        payload: pageDSLs,
+      });
+
       yield put({
         type: ReduxActionTypes.UPDATE_PAGE_LIST,
         payload: pageDSLs,

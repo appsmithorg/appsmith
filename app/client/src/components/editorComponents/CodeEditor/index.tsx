@@ -60,16 +60,12 @@ import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
   IconContainer,
+  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
-  PEEKABLE_ATTRIBUTE,
-  PEEKABLE_CH_END,
-  PEEKABLE_CH_START,
-  PEEKABLE_LINE,
-  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import {
   bindingHint,
@@ -153,7 +149,14 @@ import {
   APPSMITH_AI,
   askAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
-import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import {
+  getAllDatasourceTableKeys,
+  selectInstalledLibraries,
+} from "selectors/entitiesSelector";
+import { debug } from "loglevel";
+import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
+import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
+import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -229,6 +232,7 @@ export type EditorProps = EditorStyleProps &
     isReadOnly?: boolean;
     isRawView?: boolean;
     isJSObject?: boolean;
+    jsObjectName?: string;
     containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
@@ -253,7 +257,7 @@ type State = {
   ctrlPressed: boolean;
   peekOverlayProps:
     | (PeekOverlayStateProps & {
-        marker?: CodeMirror.TextMarker;
+        tokenElement: Element;
       })
     | undefined;
   isDynamic: boolean;
@@ -278,9 +282,11 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
+  private peekOverlayExpressionIdentifier: PeekOverlayExpressionIdentifier;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   currentLineNumber: number | null = null;
   AIEnabled = false;
+  private multiplexConfig?: MultiplexingModeConfig;
 
   constructor(props: Props) {
     super(props);
@@ -296,6 +302,18 @@ class CodeEditor extends Component<Props, State> {
       showAIWindow: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+    this.peekOverlayExpressionIdentifier = new PeekOverlayExpressionIdentifier(
+      props.isJSObject
+        ? {
+            sourceType: SourceType.module,
+            thisExpressionReplacement: props.jsObjectName,
+          }
+        : {
+            sourceType: SourceType.script,
+          },
+      props.input.value,
+    );
+    this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
   }
 
   componentDidMount(): void {
@@ -577,48 +595,40 @@ class CodeEditor extends Component<Props, State> {
   };
 
   showPeekOverlay = (
-    peekableAttribute: string,
+    expression: string,
+    paths: string[],
     tokenElement: Element,
-    tokenElementPosition: DOMRect,
-    dataToShow: unknown,
   ) => {
-    const line = tokenElement.getAttribute(PEEKABLE_LINE),
-      chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
-      chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
-
-    this.state.peekOverlayProps?.marker?.clear();
-    let marker: CodeMirror.TextMarker | undefined;
-    if (line && chStart && chEnd) {
-      marker = this.editor.markText(
-        { ch: Number(chStart), line: Number(line) },
-        { ch: Number(chEnd), line: Number(line) },
-        {
-          className: PEEK_STYLE_PERSIST_CLASS,
-        },
-      );
+    const tokenElementPosition = tokenElement.getBoundingClientRect();
+    if (this.state.peekOverlayProps) {
+      if (tokenElement === this.state.peekOverlayProps.tokenElement) return;
+      this.hidePeekOverlay();
     }
-
+    tokenElement.classList.add(PEEK_STYLE_PERSIST_CLASS);
     this.setState({
       peekOverlayProps: {
-        name: peekableAttribute,
+        objectName: paths[0],
+        propertyPath: paths.slice(1),
         position: tokenElementPosition,
+        tokenElement,
         textWidth: tokenElementPosition.width,
-        marker,
-        data: dataToShow,
-        dataType: typeof dataToShow,
       },
     });
 
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
-      property: peekableAttribute,
+      property: expression,
     });
   };
 
   hidePeekOverlay = () => {
-    this.state.peekOverlayProps?.marker?.clear();
-    this.setState({
-      peekOverlayProps: undefined,
-    });
+    if (this.state.peekOverlayProps) {
+      this.state.peekOverlayProps.tokenElement.classList.remove(
+        PEEK_STYLE_PERSIST_CLASS,
+      );
+      this.setState({
+        peekOverlayProps: undefined,
+      });
+    }
   };
 
   debounceHandleMouseOver = debounce(
@@ -648,36 +658,109 @@ class CodeEditor extends Component<Props, State> {
     setTimeout(delayedWork, 0);
   };
 
-  handleMouseOver = (event: MouseEvent) => {
+  isPeekableElement = (element: Element) => {
     if (
-      event.target instanceof Element &&
-      event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
+      !element.classList.contains("cm-m-javascript") ||
+      element.classList.contains("binding-brackets")
+    )
+      return false;
+    if (
+      // global variables and functions
+      // JsObject1, storeValue()
+      element.classList.contains("cm-variable") ||
+      // properties and function calls
+      // JsObject.myFun(), Api1.data
+      element.classList.contains("cm-property") ||
+      // array indices - [0]
+      element.classList.contains("cm-number") ||
+      // string accessor - ["x"]
+      element.classList.contains("cm-string")
     ) {
-      const tokenElement = event.target;
-      const tokenElementPosition = tokenElement.getBoundingClientRect();
-      const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-      if (peekableAttribute) {
-        // don't retrigger if hovering over the same token
-        if (
-          this.state.peekOverlayProps?.name === peekableAttribute &&
-          this.state.peekOverlayProps?.position.top ===
-            tokenElementPosition.top &&
-          this.state.peekOverlayProps?.position.left ===
-            tokenElementPosition.left
-        ) {
-          return;
-        }
-        const paths = peekableAttribute.split(".");
-        if (paths.length) {
-          paths.splice(1, 0, "peekData");
-          this.showPeekOverlay(
-            peekableAttribute,
-            tokenElement,
-            tokenElementPosition,
-            _.get(this.props.entitiesForNavigation, paths),
-          );
-        }
+      return true;
+    } else if (element.classList.contains("cm-keyword")) {
+      // this keyword for jsObjects
+      if (this.props.isJSObject && element.innerHTML === "this") {
+        return true;
       }
+    }
+  };
+
+  getBindingSnippetAtPos = (
+    multiPlexConfig: MultiplexingModeConfig,
+    pos: number,
+  ) => {
+    return multiPlexConfig.innerModes.map((innerMode) => {
+      const doc = this.editor.getValue();
+      const openPos =
+        doc.lastIndexOf(innerMode.open, pos) + innerMode.open.length;
+      const closePos = doc.indexOf(innerMode.close, pos);
+      return {
+        value: doc.slice(openPos, closePos),
+        offset: openPos,
+      };
+    });
+  };
+
+  updateScriptForPeekOverlay = (chIndex: number) => {
+    if (
+      !this.peekOverlayExpressionIdentifier.hasParsedScript() ||
+      this.multiplexConfig
+    ) {
+      if (this.multiplexConfig) {
+        const bindingSnippetsByInnerMode = this.getBindingSnippetAtPos(
+          this.multiplexConfig,
+          chIndex,
+        );
+        for (const snippet of bindingSnippetsByInnerMode) {
+          if (snippet.value) {
+            this.peekOverlayExpressionIdentifier.updateScript(snippet.value);
+            chIndex -= snippet.offset;
+            break;
+          }
+        }
+      } else {
+        this.peekOverlayExpressionIdentifier.updateScript(
+          this.editor.getValue(),
+        );
+      }
+    }
+    return chIndex;
+  };
+
+  isPathLibrary = (paths: string[]) => {
+    return !!this.props.installedLibraries.find((installedLib) =>
+      installedLib.accessor.find((accessor) => accessor === paths[0]),
+    );
+  };
+
+  handleMouseOver = (event: MouseEvent) => {
+    const tokenElement = event.target;
+    if (
+      tokenElement instanceof Element &&
+      this.isPeekableElement(tokenElement)
+    ) {
+      const tokenPos = this.editor.coordsChar({
+        left: event.clientX,
+        top: event.clientY,
+      });
+      const chIndex = this.updateScriptForPeekOverlay(
+        this.editor.indexFromPos(tokenPos),
+      );
+
+      this.peekOverlayExpressionIdentifier
+        .extractExpressionAtPosition(chIndex)
+        .then((lineExpression: string) => {
+          const paths = _.toPath(lineExpression);
+          if (!this.isPathLibrary(paths)) {
+            this.showPeekOverlay(lineExpression, paths, tokenElement);
+          } else {
+            this.hidePeekOverlay();
+          }
+        })
+        .catch((e) => {
+          this.hidePeekOverlay();
+          debug(e);
+        });
     } else {
       this.hidePeekOverlay();
     }
@@ -1086,6 +1169,8 @@ class CodeEditor extends Component<Props, State> {
         changeObj.to,
       );
     }
+
+    this.peekOverlayExpressionIdentifier.clearScript();
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
@@ -1410,25 +1495,26 @@ class CodeEditor extends Component<Props, State> {
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       >
-        <div className="flex absolute gap-1 top-[6px] right-[12px] z-1 justify-center">
+        <div className="flex absolute gap-1 top-[6px] right-[6px] z-4 justify-center">
           <Button
             className={classNames(
-              "h-5 !w-5 !p-0 ai-trigger invisible",
+              "ai-trigger invisible",
               this.state.isFocused && "!visible",
               !showAIButton && "!hidden",
             )}
-            kind="secondary"
+            kind="tertiary"
             onClick={(e) => {
               e.stopPropagation();
               this.setState({ showAIWindow: true });
             }}
+            size="sm"
             tabIndex={-1}
           >
             AI
           </Button>
           <Button
             className={classNames(
-              "h-5 !w-5 !p-0 commands-button invisible",
+              "commands-button invisible",
               !showSlashCommandButton && "!hidden",
             )}
             kind="tertiary"
@@ -1567,6 +1653,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   ),
   featureFlags: selectFeatureFlags(state),
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
+  installedLibraries: selectInstalledLibraries(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
