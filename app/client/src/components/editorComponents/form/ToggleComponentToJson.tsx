@@ -70,6 +70,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
   return (
     <Tooltip
       content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
+      isDisabled={!configPropertyPathJsonValue}
     >
       <span>
         <StyledToggleButton
