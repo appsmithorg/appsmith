@@ -245,22 +245,6 @@ const QueryWrapper = styled.div`
   &&& .CodeMirror-gutters {
     background: var(--ads-v2-color-bg-subtle);
   }
-
-  &&&& :hover {
-    border: none !important;
-  }
-
-  &&&& :focus {
-    border: none !important;
-  }
-
-  &&&& :focus-visible {
-    border: none !important;
-  }
-
-  &&&& :focus-within {
-    border: none !important;
-  }
 `;
 
 export default QueryWrapper;
