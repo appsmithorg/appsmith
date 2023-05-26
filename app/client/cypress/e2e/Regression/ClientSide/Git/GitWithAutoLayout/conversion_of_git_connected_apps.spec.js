@@ -30,7 +30,7 @@ describe("Git sync:", function () {
     });
   });
 
-  it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
+  it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     cy.dragAndDropToCanvas("containerwidget", { x: 100, y: 200 });
 
     cy.CreatePage();
@@ -40,20 +40,6 @@ describe("Git sync:", function () {
       201,
     );
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
-
-    _.autoLayout.useSnapshotFromBanner();
-
-    _.entityExplorer.verifyIsCurrentPage("Page2");
-
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
-
-    cy.wait(1000);
-
-    cy.Deletepage("Page2");
-  });
-
-  it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     _.autoLayout.convertToAutoLayoutAndVerify();
 
     cy.CreatePage();
@@ -66,6 +52,20 @@ describe("Git sync:", function () {
     _.autoLayout.useSnapshotFromBanner();
 
     _.entityExplorer.verifyIsCurrentPage("Page1");
+  });
+
+  it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
+    _.autoLayout.convertToAutoLayoutAndVerify();
+
+    _.autoLayout.useSnapshotFromBanner();
+
+    _.entityExplorer.verifyIsCurrentPage("Page2");
+
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+
+    cy.wait(1000);
+
+    cy.Deletepage("Page2");
   });
 
   it("3. Switch to parentBranch and when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
