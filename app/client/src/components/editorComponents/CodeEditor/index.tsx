@@ -848,6 +848,16 @@ class CodeEditor extends Component<Props, State> {
               }
 
               if (navigationData.url) {
+                if (navigationData.type === ENTITY_TYPE.ACTION) {
+                  AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+                    actionId: navigationData?.id,
+                    datasourceId: navigationData?.datasourceId,
+                    pluginName: navigationData?.pluginName,
+                    actionType: navigationData?.actionType,
+                    isMock: !!navigationData?.isMock,
+                    from: NavigationMethod.CommandClick,
+                  });
+                }
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
@@ -1400,25 +1410,26 @@ class CodeEditor extends Component<Props, State> {
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       >
-        <div className="flex absolute gap-1 top-[6px] right-[12px] z-1 justify-center">
+        <div className="flex absolute gap-1 top-[6px] right-[6px] z-4 justify-center">
           <Button
             className={classNames(
-              "h-5 !w-5 !p-0 ai-trigger invisible",
+              "ai-trigger invisible",
               this.state.isFocused && "!visible",
               !showAIButton && "!hidden",
             )}
-            kind="secondary"
+            kind="tertiary"
             onClick={(e) => {
               e.stopPropagation();
               this.setState({ showAIWindow: true });
             }}
+            size="sm"
             tabIndex={-1}
           >
             AI
           </Button>
           <Button
             className={classNames(
-              "h-5 !w-5 !p-0 commands-button invisible",
+              "commands-button invisible",
               !showSlashCommandButton && "!hidden",
             )}
             kind="tertiary"

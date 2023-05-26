@@ -18,38 +18,37 @@ describe("Update a user's display picture", function () {
   it("1. Update a user's picture with valid file", function () {
     _.agHelper.GetNClick(_.locators._ds_imageSelector);
     _.agHelper.GetElement(_.locators._ds_uppy_fileInput).as("fileInput");
-
-    cy.fixture("Files/valid-image.jpeg").then((fileContent) => {
-      _.agHelper.GetElement("@fileInput").attachFile({
-        fileContent: fileContent.toString(),
+    _.agHelper.GetElement("@fileInput").eq(0).selectFile(
+      {
+        contents: "cypress/fixtures/Files/valid-image.jpeg",
         fileName: "valid-image.jpeg",
         mimeType: "image/jpeg",
-        encoding: "base64",
-      });
+      },
+      { force: true },
+    );
 
-      _.agHelper.GetNClick(_.locators._ds_uppy_crop_confirm);
-      _.agHelper.GetNClick(_.locators._ds_uppy_upload_btn);
-      // API is finished even before wait begins
-      // cy.wait("@savePhoto");
-      _.agHelper.AssertElementExist(".image-view img");
-    });
+    _.agHelper.GetNClick(_.locators._ds_uppy_crop_confirm);
+    _.agHelper.GetNClick(_.locators._ds_uppy_upload_btn);
+    // API is finished even before wait begins
+    // cy.wait("@savePhoto");
+    _.agHelper.AssertElementExist(".image-view img");
   });
 
   it("2. Invalid file throws error", function () {
     _.agHelper.GetNClick(_.locators._ds_imageSelector);
     _.agHelper.GetElement(_.locators._ds_uppy_fileInput).as("fileInput");
 
-    cy.fixture("Files/invalid-image.png").then((fileContent) => {
-      _.agHelper.GetElement("@fileInput").attachFile({
-        fileContent: fileContent.toString(),
+    _.agHelper.GetElement("@fileInput").eq(0).selectFile(
+      {
+        contents: "cypress/fixtures/Files/invalid-image.png",
         fileName: "invalid-image.png",
         mimeType: "image/png",
-        encoding: "base64",
-      });
+      },
+      { force: true },
+    );
 
-      _.agHelper.ValidateToastMessage(
-        "File content doesn't seem to be an image. Please verify.",
-      );
-    });
+    _.agHelper.ValidateToastMessage(
+      "File content doesn't seem to be an image. Please verify.",
+    );
   });
 });
