@@ -30,7 +30,6 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { selectFeatureFlags } from "./usersSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   EVAL_ERROR_PATH,
@@ -758,30 +757,25 @@ export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
   selectDatasourceIdToNameMap,
-  selectFeatureFlags,
-  (actions, jsActions, datasourceIdToNameMap, featureFlags) => {
-    const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
-    const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
-      (acc, file) => {
-        let group = "";
-        if (file.config.pluginType === PluginType.JS) {
-          group = "JS Objects";
-        } else if (file.config.pluginType === PluginType.API) {
-          group = isEmbeddedRestDatasource(file.config.datasource)
-            ? "APIs"
-            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-        } else {
-          group = datasourceIdToNameMap[file.config.datasource.id];
-        }
-        acc = acc.concat({
-          type: file.config.pluginType,
-          entity: file,
-          group,
-        });
-        return acc;
-      },
-      [] as Array<ExplorerFileEntity>,
-    );
+  (actions, jsActions, datasourceIdToNameMap) => {
+    const files = [...actions, ...jsActions].reduce((acc, file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      acc = acc.concat({
+        type: file.config.pluginType,
+        entity: file,
+        group,
+      });
+      return acc;
+    }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
       (file) => file.group?.toLowerCase(),
