@@ -4,9 +4,11 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
+import io.mongock.api.annotations.ChangeUnit;
+import io.mongock.api.annotations.Execution;
+import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,7 +29,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  * to a new collection. The datasource will cease to have configurations after this point
  */
 @Slf4j
-//@ChangeUnit(order = "012", id = "migrate-configurations-to-data-storage", author = " ")
+@ChangeUnit(order = "012", id = "migrate-configurations-to-data-storage", author = " ")
 public class Migration012TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
@@ -39,12 +41,12 @@ public class Migration012TransferToDatasourceStorage {
         this.mongoTemplate = mongoTemplate;
     }
 
-    //    @RollbackExecution
+    @RollbackExecution
     public void rollbackExecution() {
         // We're handling rollbacks using marker fields, so we don't need to implement this
     }
 
-    //    @Execution
+    @Execution
     public void executeMigration() {
         // First fetch all datasource ids and workspace ids for datasources that
         // do not have `hasDatasourceStorage` value set as true
