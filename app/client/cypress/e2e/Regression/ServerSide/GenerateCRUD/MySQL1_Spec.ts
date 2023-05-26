@@ -53,6 +53,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       dsName = $dsName;
       _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
     });
+    _.agHelper.WaitUntilAllToastsDisappear();
   });
 
   it("2. Create new app and Generate CRUD page using a new datasource", () => {
@@ -166,9 +167,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     _.agHelper.ValidateNetworkStatus("@getActions", 200);
     _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
+    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
 
     //Validating loaded table
@@ -244,9 +244,9 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
   });
 
-  it.skip("7. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {
-    //To script aft bug fix!
-  });
+  // it.skip("7. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {
+  //   //To script aft bug fix!
+  // });
 
   it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
     _.deployMode.NavigateBacktoEditor();
@@ -290,9 +290,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("11. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-    _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Customers page & queries still active
-  });
+  after(
+    "Verify Deletion of the datasource when Pages/Actions associated are not removed yet",
+    () => {
+      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Customers page & queries still active
+    },
+  );
 
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
@@ -305,9 +308,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     _.agHelper.AssertContains("Successfully generated a page");
     //_.agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
+    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
     _.table.WaitUntilTableLoad();
 

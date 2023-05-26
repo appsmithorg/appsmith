@@ -56,7 +56,10 @@ describe("Fork application across workspaces", function () {
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("forkNonSignedInUser.json");
+    cy.xpath(homePage.uploadLogo).selectFile(
+      "cypress/fixtures/forkNonSignedInUser.json",
+      { force: true },
+    );
     cy.wait("@importNewApplication").then((interception) => {
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
@@ -65,7 +68,7 @@ describe("Fork application across workspaces", function () {
         });
         cy.wait(2000);
       }
-
+      cy.get("#sidebar").should("be.visible");
       cy.PublishtheApp();
       _.agHelper.Sleep(2000);
       cy.get("button:contains('Share')").first().click({ force: true });
@@ -99,8 +102,36 @@ describe("Fork application across workspaces", function () {
           cy.wait(10000);
           cy.get(applicationLocators.forkButton).first().click({ force: true });
           cy.get(homePage.forkAppWorkspaceButton).should("be.visible");
+          _.agHelper.GetNClick(_.locators._dialogCloseButton);
+          cy.LogOut();
+          cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+          _.homePage.CreateNewApplication();
         });
       });
+    });
+  });
+
+  it("Mark application as forkable", () => {
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToEmbedSettings();
+    _.embedSettings.ToggleMarkForkable();
+
+    _.inviteModal.OpenShareModal();
+    _.homePage.InviteUserToApplication(
+      Cypress.env("TESTUSERNAME1"),
+      "App Viewer",
+      false,
+    );
+    _.inviteModal.CloseModal();
+
+    _.deployMode.DeployApp();
+    cy.url().then((url) => {
+      forkableAppUrl = url;
+      cy.LogOut();
+      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+      cy.visit(forkableAppUrl);
+
+      _.agHelper.AssertElementVisible(applicationLocators.forkButton);
     });
   });
 });

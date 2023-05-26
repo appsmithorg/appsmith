@@ -453,7 +453,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formConfig,
       formData,
       formName,
-      history,
       isFormDirty,
       isInsideReconnectModal,
       isSaving,
@@ -491,29 +490,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           {this.renderSaveDisacardModal()}
         </>
       );
-    }
-    // for saas form
-    if (pluginType === "SAAS") {
-      // todo check if we can remove the flag here
-      if (isInsideReconnectModal) {
-        return (
-          <DatasourceSaasForm
-            datasourceId={datasourceId}
-            hiddenHeader
-            isInsideReconnectModal={isInsideReconnectModal}
-            pageId={pageId}
-            pluginPackageName={pluginPackageName}
-          />
-        );
-      }
-      history.push(
-        saasEditorDatasourceIdURL({
-          pageId,
-          pluginPackageName,
-          datasourceId,
-        }),
-      );
-      return null;
     }
 
     // Default to DB Editor Form
@@ -566,14 +542,17 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       formData,
+      history,
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
       isPluginAuthorized,
       isSaving,
+      pageId,
       pluginId,
       pluginImage,
       pluginName,
+      pluginPackageName,
       pluginType,
       setDatasourceViewMode,
       showDebugger,
@@ -583,6 +562,30 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
+    }
+
+    // for saas form
+    if (pluginType === "SAAS") {
+      // todo check if we can remove the flag here
+      if (isInsideReconnectModal) {
+        return (
+          <DatasourceSaasForm
+            datasourceId={datasourceId}
+            hiddenHeader
+            isInsideReconnectModal={isInsideReconnectModal}
+            pageId={pageId}
+            pluginPackageName={pluginPackageName}
+          />
+        );
+      }
+      history.push(
+        saasEditorDatasourceIdURL({
+          pageId,
+          pluginPackageName,
+          datasourceId,
+        }),
+      );
+      return null;
     }
 
     return (

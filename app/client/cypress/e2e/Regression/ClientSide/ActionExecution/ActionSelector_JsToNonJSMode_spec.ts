@@ -21,6 +21,9 @@ describe("JS to non-JS mode in Action Selector", () => {
       _.propPane._actionCard,
       "GETExecute a queryApi1.run",
     );
+    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
+    _.agHelper.Sleep(200);
+    _.propPane.AssertSelectValue("Api1.run");
   });
 
   it("3. should show Api fields when an Api with then/catch is entered", () => {
