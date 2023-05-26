@@ -150,7 +150,7 @@ function* initiateActionTriggerExecution(
     }
   } catch (e) {
     if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
-      logActionExecutionError(e.message, true);
+      yield call(logActionExecutionError, e.message, true);
     }
     // handle errors here
     if (event.callback) {

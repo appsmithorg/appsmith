@@ -428,7 +428,7 @@ function* executeAsyncJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      logActionExecutionError(e.message, isExecuteJSFunc);
+      yield call(logActionExecutionError, e.message, isExecuteJSFunc);
     }
     response = { errors: [e], result: undefined };
   }
@@ -457,7 +457,7 @@ export function* executeJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      logActionExecutionError(e.message);
+      yield call(logActionExecutionError, e.message);
     }
     response = { errors: [e], result: undefined };
   }
