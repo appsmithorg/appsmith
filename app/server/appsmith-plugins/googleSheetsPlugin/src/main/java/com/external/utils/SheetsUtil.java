@@ -34,6 +34,7 @@ public class SheetsUtil {
     public static Set<String> getUserAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
         OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         if (!isEmpty(datasourceConfiguration.getProperties())
+                && datasourceConfiguration.getProperties().size() > 1
                 && datasourceConfiguration.getProperties().get(USER_AUTHORIZED_SHEET_IDS_INDEX) != null
                 && datasourceConfiguration.getProperties().get(USER_AUTHORIZED_SHEET_IDS_INDEX).getValue() != null
                 && oAuth2.getScope() != null

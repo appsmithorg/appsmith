@@ -200,7 +200,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson))
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
+                .flatMap(application -> importExportApplicationService
+                        .getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
@@ -224,13 +225,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates() {
-        return userDataService.getForCurrentUser().flatMap(userData -> {
-            List<String> templateIds = userData.getRecentlyUsedTemplateIds();
-            if (!CollectionUtils.isEmpty(templateIds)) {
-                return getActiveTemplates(templateIds);
-            }
-            return Mono.empty();
-        });
+        return userDataService.getForCurrentUser()
+                .flatMap(userData -> {
+                    List<String> templateIds = userData.getRecentlyUsedTemplateIds();
+                    if (!CollectionUtils.isEmpty(templateIds)) {
+                        return getActiveTemplates(templateIds);
+                    }
+                    return Mono.empty();
+                });
     }
 
     @Override
@@ -274,7 +276,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                                                                    String branchName,
                                                                    List<String> pagesToImport) {
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
-                .flatMap(applicationJson ->{
+                .flatMap(applicationJson -> {
                     if (branchName != null) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                                 .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));

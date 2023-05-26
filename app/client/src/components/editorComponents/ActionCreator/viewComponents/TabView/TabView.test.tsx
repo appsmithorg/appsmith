@@ -9,7 +9,7 @@ describe("Tab View component", () => {
     label: "Type",
     activeObj: {
       id: "page-name",
-      text: "Page Name",
+      text: "Page name",
       action: () => {
         return 1;
       },
@@ -17,7 +17,7 @@ describe("Tab View component", () => {
     switches: [
       {
         id: "page-name",
-        text: "Page Name",
+        text: "Page name",
         action: () => {
           return 1;
         },

@@ -1,8 +1,7 @@
 import React from "react";
-import MenuIcon from "remixicon-react/MenuFillIcon";
-import CloseIcon from "remixicon-react/CloseFillIcon";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
+import { Icon } from "design-system";
 
 type MobileNavToggleProps = {
   isMenuOpen: boolean;
@@ -20,14 +19,18 @@ const MobileNavToggle = (props: MobileNavToggleProps) => {
       onClick={() => setMenuOpen(!isMenuOpen)}
     >
       {isMenuOpen ? (
-        <CloseIcon
+        <Icon
           className="w-5 h-5"
           color={getMenuItemTextColor(primaryColor, navColorStyle, true)}
+          name="close-x"
+          size="lg"
         />
       ) : (
-        <MenuIcon
+        <Icon
           className="w-5 h-5"
           color={getMenuItemTextColor(primaryColor, navColorStyle, true)}
+          name="hamburger"
+          size="lg"
         />
       )}
     </div>

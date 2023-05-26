@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
 import type { SearchBoxProvided } from "react-instantsearch-core";
-import { getTypographyByKey, Icon } from "design-system-old";
 import type { AppState } from "@appsmith/reducers";
 import {
   createMessage,
@@ -15,59 +14,59 @@ import {
 } from "@appsmith/constants/messages";
 import type { SearchCategory } from "./utils";
 import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
-import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
-import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
+import { Button, Icon } from "design-system";
 
 const Container = styled.div`
-  background: #ffffff;
+  background: var(--ads-v2-color-bg);
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  top: 0;
+  padding: 24px 24px 15px 24px;
+  border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 0;
   & input {
-    ${getTypographyByKey("p1")}
+    font-size: 14px;
+    line-height: 19px;
     background: transparent;
-    color: ${(props) => props.theme.colors.globalSearch.searchInputText};
+    color: var(--ads-v2-color-fg);
     border: none;
     padding: ${(props) => `${props.theme.spaces[4]}px 0`};
     flex: 1;
+    margin-left: 10px;
   }
 `;
 
 const InputContainer = styled.div`
   display: flex;
   align-items: center;
-  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
+  background: var(--ads-v2-color-bg);
   padding: ${(props) => `0 ${props.theme.spaces[4]}px`};
-  border: 1px solid var(--appsmith-input-focus-border-color);
-  .t--global-clear-input:hover {
-    svg > path {
-      fill: #4b4848;
-    }
-  }
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   &:hover,
   &:active,
   &:focus {
-    border-color: var(--appsmith-input-focus-border-color);
+    border-color: var(--ads-v2-color-border-emphasis);
   }
 `;
 
 const CategoryDisplay = styled.div`
-  color: ${(props) => props.theme.colors.globalSearch.activeCategory};
-  background: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+  color: var(--ads-v2-color-fg);
+  border-radius: var(--ads-v2-border-radius);
+  background: var(--ads-v2-color-bg-subtle);
   height: 27px;
-  padding: ${(props) => `${props.theme.spaces[3]}px`};
+  padding: var(--ads-v2-spaces-3);
   display: flex;
   align-items: center;
-  border: 1px solid
-    ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
-  margin-right: ${(props) => props.theme.spaces[4]}px;
-  ${getTypographyByKey("categoryBtn")}
+  margin-right: var(--ads-v2-spaces-3);
+
   svg {
     cursor: pointer;
-    margin-left: ${(props) => `${props.theme.spaces[4]}px`};
-    path {
-      fill: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
-    }
+    margin-left: var(--ads-v2-spaces-3);
     transition: 0.2s all ease;
     &:hover {
-      transform: scale(1.2);
+      fill: var(--ads-v2-color-bg-muted);
     }
   }
 `;
@@ -131,12 +130,14 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   return (
     <Container>
       <InputContainer>
-        {isMenu(category) && <SearchIcon style={{ marginRight: "10px" }} />}
+        {isMenu(category) && <Icon name="search" size="md" />}
         {category.title && (
           <CategoryDisplay className="t--global-search-category">
             {category.id}
-            <CloseIcon
+            <Icon
+              name="close"
               onClick={() => setCategory({ id: SEARCH_CATEGORY_ID.INIT })}
+              size="md"
             />
           </CategoryDisplay>
         )}
@@ -155,10 +156,13 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           value={query}
         />
         {query && (
-          <Icon
+          <Button
             className="t--global-clear-input"
-            name="close"
+            isIconButton
+            kind="tertiary"
             onClick={() => updateSearchQuery("")}
+            size="sm"
+            startIcon="close"
           />
         )}
       </InputContainer>

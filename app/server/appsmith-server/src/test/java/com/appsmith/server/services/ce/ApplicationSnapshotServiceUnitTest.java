@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -31,6 +32,7 @@ import java.util.Random;
 
 import static java.util.Arrays.copyOfRange;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -120,9 +122,9 @@ public class ApplicationSnapshotServiceUnitTest {
         int chunkSize = jsonStringBytes.length / 3;
 
         List<ApplicationSnapshot> snapshots = List.of(
-                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize*2, jsonStringBytes.length), 3),
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize * 2, jsonStringBytes.length), 3),
                 createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, 0, chunkSize), 1),
-                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize*2), 2)
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize * 2), 2)
         );
 
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
@@ -144,7 +146,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .verifyComplete();
     }
 
-    private ApplicationSnapshot createSnapshot(String applicationId, byte [] data, int chunkOrder) {
+    private ApplicationSnapshot createSnapshot(String applicationId, byte[] data, int chunkOrder) {
         ApplicationSnapshot applicationSnapshot = new ApplicationSnapshot();
         applicationSnapshot.setApplicationId(applicationId);
         applicationSnapshot.setData(data);

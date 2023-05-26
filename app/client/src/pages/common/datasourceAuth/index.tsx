@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getEntities,
-  getPluginNameFromId,
-  getPluginTypeFromDatasourceId,
-  getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
-import {
   testDatasource,
-  deleteDatasource,
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
@@ -22,41 +14,46 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
-  CONFIRM_CONTEXT_DELETING,
+  CANCEL,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
-} from "@appsmith/constants/messages";
-import { Category, Toaster, Variant } from "design-system-old";
-import {
-  CONTEXT_DELETE,
-  CONFIRM_CONTEXT_DELETE,
+  SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+  SAVE_BUTTON_TEXT,
+  TEST_BUTTON_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
-import { debounce } from "lodash";
+import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
-import {
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { Colors } from "constants/Colors";
+import type { PluginType } from "entities/Action";
 
 interface Props {
   datasource: Datasource;
   formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
+  deleteTempDSFromDraft: () => void;
   isInvalid: boolean;
   pageId?: string;
+  viewMode?: boolean;
   shouldRender?: boolean;
+  isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
+  pluginType: PluginType;
+  pluginName: string;
+  pluginPackageName: string;
+  isSaving: boolean;
+  isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
-  datasourceDeleteTrigger: () => void;
+  scopeValue?: string;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -67,9 +64,9 @@ export enum AuthorizationStatus {
 }
 
 export enum DatasourceButtonTypeEnum {
-  DELETE = "DELETE",
   SAVE = "SAVE",
   TEST = "TEST",
+  CANCEL = "CANCEL",
   SAVE_AND_AUTHORIZE = "SAVE_AND_AUTHORIZE",
 }
 
@@ -77,31 +74,38 @@ export const DatasourceButtonType: Record<
   keyof typeof DatasourceButtonTypeEnum,
   string
 > = {
-  DELETE: "DELETE",
   SAVE: "SAVE",
   TEST: "TEST",
+  CANCEL: "CANCEL",
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
-  &&&& {
-    height: 32px;
-    width: ${(props) => (props.fluidWidth ? "" : "87px")};
+export const ActionButton = styled(Button)<{
+  floatLeft: boolean;
+}>`
+  &&& {
+    // Pulling button to the left if floatLeft is set as true
+    margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
+    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
   }
 `;
 
-const SaveButtonContainer = styled.div`
-  margin-top: 24px;
+const SaveButtonContainer = styled.div<{
+  isInsideReconnectModal?: boolean;
+}>`
   display: flex;
   justify-content: flex-end;
   gap: 9px;
   padding-right: 20px;
+  flex: 1 1 10%;
+  border-top: ${(props) =>
+    props.isInsideReconnectModal ? "none" : `1px solid ${Colors.ALTO}`};
+  align-items: center;
 `;
 
 const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
-  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
@@ -110,38 +114,39 @@ const StyledAuthMessage = styled.div`
 
 function DatasourceAuth({
   datasource,
-  datasourceButtonConfiguration = ["DELETE", "SAVE"],
-  datasourceDeleteTrigger,
+  datasourceButtonConfiguration = [
+    DatasourceButtonTypeEnum.CANCEL,
+    DatasourceButtonTypeEnum.SAVE,
+  ],
+  deleteTempDSFromDraft,
   formData,
   getSanitizedFormData,
   isInvalid,
   pageId: pageIdProp,
-  shouldRender,
+  pluginType,
+  pluginName,
+  pluginPackageName,
+  isSaving,
+  isTesting,
+  viewMode,
   shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
+  scopeValue,
+  isInsideReconnectModal,
 }: Props) {
+  const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
     formData && "authType" in formData
       ? formData?.authType
       : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId, isDeleting, pluginId } = datasource;
+  const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
-  const pluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, pluginId),
-  );
-  const pluginPackageName = useSelector((state: AppState) =>
-    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
-  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
   const canManageDatasource = hasManageDatasourcePermission(
-    datasourcePermissions,
-  );
-
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
     datasourcePermissions,
   );
 
@@ -151,16 +156,9 @@ function DatasourceAuth({
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
 
   const pageId = (pageIdQuery || pageIdProp) as string;
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const dsName = datasource?.name;
   const orgId = datasource?.workspaceId;
-
-  useEffect(() => {
-    if (confirmDelete) {
-      delayConfirmDeleteToFalse();
-    }
-  }, [confirmDelete]);
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -171,25 +169,27 @@ function DatasourceAuth({
       const status = search.get("response_status");
       const queryIsImport = search.get("importForGit");
       const queryDatasourceId = search.get("datasourceId");
+      const showFilePicker = search.get(SHOW_FILE_PICKER_KEY);
       const shouldNotify =
-        !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
+        !queryIsImport ||
+        (queryIsImport &&
+          queryDatasourceId === datasourceId &&
+          !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const variant = Variant.danger;
-
+        const oauthReason = status;
+        AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
+          dsName,
+          oauthReason,
+          orgId,
+          pluginName,
+        });
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
-          Toaster.show({ text: display_message || message, variant });
-          const oAuthStatus = status;
-          AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
-            dsName,
-            oAuthStatus,
-            orgId,
-            pluginName,
-          });
+          toast.show(display_message || message, { kind: "error" });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
@@ -201,20 +201,6 @@ function DatasourceAuth({
       }
     }
   }, [authType]);
-
-  // selectors
-  const {
-    datasources: { isTesting, loading: isSaving },
-  } = useSelector(getEntities);
-
-  const delayConfirmDeleteToFalse = debounce(
-    () => setConfirmDelete(false),
-    2200,
-  );
-
-  const pluginType = useSelector((state: AppState) =>
-    getPluginTypeFromDatasourceId(state, datasourceId),
-  );
 
   useEffect(() => {
     if (triggerSave) {
@@ -232,17 +218,13 @@ function DatasourceAuth({
 
   // Button Operations for respective buttons.
 
-  // Handles datasource deletion
-  const handleDatasourceDelete = () => {
-    dispatch(deleteDatasource({ id: datasourceId }));
-    datasourceDeleteTrigger();
-  };
-
   // Handles datasource testing
   const handleDatasourceTest = () => {
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      datasourceId: datasourceId,
+      pluginName: pluginName,
     });
     dispatch(testDatasource(getSanitizedFormData()));
   };
@@ -261,9 +243,14 @@ function DatasourceAuth({
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
-      dispatch(setDatasourceViewMode(true));
-      // we dont need to redirect it to active ds list instead ds would be shown in view only mode
-      dispatch(updateDatasource(getSanitizedFormData()));
+      dispatch(
+        updateDatasource(
+          getSanitizedFormData(),
+          undefined,
+          undefined,
+          isInsideReconnectModal,
+        ),
+      );
     }
   };
 
@@ -280,7 +267,6 @@ function DatasourceAuth({
         ),
       );
     } else {
-      dispatch(setDatasourceViewMode(true));
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
@@ -290,81 +276,70 @@ function DatasourceAuth({
         ),
       );
     }
+    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
+      dsName,
+      orgId,
+      pluginName,
+      scopeValue,
+    });
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
 
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
-      [DatasourceButtonType.DELETE]: (
-        <ActionButton
-          category={Category.primary}
-          className="t--delete-datasource"
-          disabled={createMode || !canDeleteDatasource}
-          isLoading={isDeleting}
-          key={buttonType}
-          onClick={() => {
-            if (!isDeleting) {
-              confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
-            }
-          }}
-          size="medium"
-          tag="button"
-          text={
-            isDeleting
-              ? createMessage(CONFIRM_CONTEXT_DELETING)
-              : confirmDelete
-              ? createMessage(CONFIRM_CONTEXT_DELETE)
-              : createMessage(CONTEXT_DELETE)
-          }
-          variant={Variant.danger}
-        />
-      ),
       [DatasourceButtonType.TEST]: (
         <ActionButton
-          category={Category.secondary}
           className="t--test-datasource"
+          floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
+          kind="secondary"
           onClick={handleDatasourceTest}
-          size="medium"
-          tag="button"
-          text="Test"
-          variant={Variant.success}
-        />
+          size="md"
+        >
+          {createMessage(TEST_BUTTON_TEXT)}
+        </ActionButton>
+      ),
+      [DatasourceButtonType.CANCEL]: (
+        <Button
+          className="t--cancel-edit-datasource"
+          key={buttonType}
+          kind="tertiary"
+          onClick={() => {
+            if (createMode) deleteTempDSFromDraft();
+            else dispatch(setDatasourceViewMode(true));
+          }}
+          size="md"
+        >
+          {createMessage(CANCEL)}
+        </Button>
       ),
       [DatasourceButtonType.SAVE]: (
-        <ActionButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={
+          isDisabled={
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
-          filled
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save"
-          variant={Variant.success}
-        />
+          size="md"
+        >
+          {createMessage(SAVE_BUTTON_TEXT)}
+        </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
-        <StyledButton
-          category={Category.primary}
+        <Button
           className="t--save-datasource"
-          disabled={isInvalid || (!createMode && !canManageDatasource)}
-          filled
-          fluidWidth
+          isDisabled={isInvalid || (!createMode && !canManageDatasource)}
           isLoading={isSaving}
           key={buttonType}
           onClick={handleOauthDatasourceSave}
-          size="medium"
-          tag="button"
-          text="Save and Authorize"
-          variant={Variant.success}
-        />
+          size="md"
+        >
+          {createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
+        </Button>
       ),
     }[buttonType];
   };
@@ -377,7 +352,7 @@ function DatasourceAuth({
           <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
         )}
       {shouldRender && (
-        <SaveButtonContainer>
+        <SaveButtonContainer isInsideReconnectModal={isInsideReconnectModal}>
           {datasourceButtonConfiguration?.map((btnConfig) =>
             datasourceButtonsComponentMap(btnConfig),
           )}

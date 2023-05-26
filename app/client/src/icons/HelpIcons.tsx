@@ -2,14 +2,28 @@ import type { JSXElementConstructor } from "react";
 import React from "react";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import { ReactComponent as UpdatesIcon } from "assets/icons/help/updates.svg";
 import { Icon } from "@blueprintjs/core";
-import GithubIcon from "remixicon-react/GithubFillIcon";
-import DocumentIcon from "remixicon-react/FileTextFillIcon";
-import HelpIcon from "remixicon-react/QuestionMarkIcon";
-import DiscordIcon from "remixicon-react/DiscordFillIcon";
-import OpenLinkIcon from "remixicon-react/ShareBoxLineIcon";
-import FileCopyLineIcon from "remixicon-react/FileCopyLineIcon";
+import { importRemixIcon, importSvg } from "design-system-old";
+
+const UpdatesIcon = importSvg(() => import("assets/icons/help/updates.svg"));
+const GithubIcon = importRemixIcon(
+  () => import("remixicon-react/GithubFillIcon"),
+);
+const DocumentIcon = importRemixIcon(
+  () => import("remixicon-react/FileTextFillIcon"),
+);
+const HelpIcon = importRemixIcon(
+  () => import("remixicon-react/QuestionMarkIcon"),
+);
+const DiscordIcon = importRemixIcon(
+  () => import("remixicon-react/DiscordFillIcon"),
+);
+const OpenLinkIcon = importRemixIcon(
+  () => import("remixicon-react/ShareBoxLineIcon"),
+);
+const FileCopyLineIcon = importRemixIcon(
+  () => import("remixicon-react/FileCopyLineIcon"),
+);
 
 /* eslint-disable react/display-name */
 

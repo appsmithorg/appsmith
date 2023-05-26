@@ -69,6 +69,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Slf4j
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
 
@@ -86,6 +87,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final UserRepository userRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final static Integer MAX_RETRIES = 5;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -216,14 +218,49 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         throw new UnsupportedOperationException("Please use `ApplicationPageService.createApplication` to create an application.");
     }
 
-    @Override
-    public Mono<Application> createDefault(Application application) {
+    /**
+     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
+     * if the error is because of a name clash.
+     *
+     * @param application Application to create.
+     * @param name        Name of the application, to which numbered suffixes will be appended.
+     * @param suffix      Suffix used for appending, recursion artifact. Usually set to 0.
+     * @return A Mono that yields the created application.
+     */
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
         application.setSlug(TextUtils.makeSlug(application.getName()));
         application.setLastEditedAt(Instant.now());
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application);
+        return super.create(application)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
+                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                        if (suffix > MAX_RETRIES) {
+                            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
+                        } else {
+                            // The duplicate key error is because of the `name` field.
+                            return createSuffixedApplication(application, name, suffix + 1);
+                        }
+                    }
+                    throw error;
+                });
+    }
+
+    /**
+     * A public method which creates a default application by calling createSuffixedApplication which will retry with
+     * incremental suffix if there is name clash.
+     *
+     * @param application Application to create.
+     * @return A Mono that yields the created application.
+     */
+    @Override
+    public Mono<Application> createDefaultApplication(Application application) {
+        return createSuffixedApplication(application, application.getName(), 0);
     }
 
     @Override
@@ -302,7 +339,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                      */
                     if (application.getUnpublishedApplicationDetail() != null) {
                         ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
-                        if (branchedApplication.getUnpublishedApplicationDetail() == null){
+                        if (branchedApplication.getUnpublishedApplicationDetail() == null) {
                             branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                         }
                         Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
@@ -315,7 +352,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         }
 
                         Application.AppPositioning requestAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null){
+                        if (requestAppPositioning != null) {
                             presetApplicationDetail.setAppPositioning(requestAppPositioning);
                         }
 
@@ -828,7 +865,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId){
+    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
                     branchedApplication.setUnpublishedApplicationDetail(ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail(), new ApplicationDetail()));

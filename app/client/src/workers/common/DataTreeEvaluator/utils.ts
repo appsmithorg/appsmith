@@ -4,6 +4,10 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  EXECUTION_PARAM_REFERENCE_REGEX,
+  THIS_DOT_PARAMS_KEY,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   ConfigTree,
   DataTreeEntity,
@@ -52,4 +56,8 @@ export function addRootcauseToAsyncInvocationErrors(
     }
   }
   return updatedErrors;
+}
+
+export function replaceThisDotParams(code: string) {
+  return code.replace(EXECUTION_PARAM_REFERENCE_REGEX, THIS_DOT_PARAMS_KEY);
 }

@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { APPLICATION_TITLE_MAX_WIDTH } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import { StyledApplicationName } from "./ApplicationName.styled";
 import { isEllipsisActive } from "utils/helpers";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 type ApplicationNameProps = {
@@ -12,10 +11,18 @@ type ApplicationNameProps = {
   navStyle: NavigationSetting["navStyle"];
   primaryColor: string;
   forSidebar?: boolean;
+  fontWeight?: "regular" | "bold";
 };
 
 const ApplicationName = (props: ApplicationNameProps) => {
-  const { appName, forSidebar, navColorStyle, navStyle, primaryColor } = props;
+  const {
+    appName,
+    fontWeight,
+    forSidebar,
+    navColorStyle,
+    navStyle,
+    primaryColor,
+  } = props;
   const applicationNameRef = useRef<HTMLDivElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const isMobile = useIsMobileDevice();
@@ -27,21 +34,14 @@ const ApplicationName = (props: ApplicationNameProps) => {
   }, [applicationNameRef, appName]);
 
   return (
-    <TooltipComponent
-      boundary="viewport"
-      content={appName}
-      disabled={!ellipsisActive}
-      maxWidth={`${APPLICATION_TITLE_MAX_WIDTH}px`}
-      modifiers={{
-        preventOverflow: {
-          enabled: true,
-          boundariesElement: "viewport",
-        },
-      }}
-      position="bottom"
+    <Tooltip
+      content={appName || ""}
+      isDisabled={!ellipsisActive}
+      placement="bottom"
     >
       <StyledApplicationName
         className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap t--app-viewer-application-name"
+        fontWeight={fontWeight || "bold"}
         forSidebar={forSidebar}
         isMobile={isMobile}
         navColorStyle={navColorStyle}
@@ -51,7 +51,7 @@ const ApplicationName = (props: ApplicationNameProps) => {
       >
         {appName}
       </StyledApplicationName>
-    </TooltipComponent>
+    </Tooltip>
   );
 };
 

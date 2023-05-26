@@ -97,6 +97,10 @@ const StyledButton = styled(Button)<{
         color: ${styles.color} !important;
       }
 
+      svg path {
+        fill: ${styles.color} !important;
+      }
+
       &:hover,
       &:active, 
       &:focus {
@@ -104,6 +108,10 @@ const StyledButton = styled(Button)<{
 
         span {
           color: ${styles.color} !important;
+        }
+
+        svg path {
+          fill: ${styles.color} !important;
         }
       }
     `;

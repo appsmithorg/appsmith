@@ -29,8 +29,8 @@ public interface ImportExportApplicationServiceCE {
     /**
      * This function will take the Json filepart and saves the application in workspace
      *
-     * @param workspaceId    workspace to which the application needs to be hydrated
-     * @param filePart Json file which contains the entire application object
+     * @param workspaceId workspace to which the application needs to be hydrated
+     * @param filePart    Json file which contains the entire application object
      * @return saved application in DB
      */
     Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart);
@@ -44,14 +44,10 @@ public interface ImportExportApplicationServiceCE {
      * @param branchName    If application is connected to git update the branched app
      * @return saved application in DB
      */
-    default Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
+    Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
                                                                                       Part filePart,
                                                                                       String applicationId,
-                                                                                      String branchName) {
-
-        // Returning empty mono for ImportExportServiceV2 as this method is not needed for git execution
-        return Mono.empty();
-    }
+                                                                                      String branchName);
 
     Mono<Application> mergeApplicationJsonWithApplication(String workspaceId,
                                                           String applicationId,
@@ -63,7 +59,7 @@ public interface ImportExportApplicationServiceCE {
      * This function will save the application to workspace from the application resource
      *
      * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
+     * @param importedDoc application resource which contains necessary information to save the application
      * @return saved application in DB
      */
     Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc);
@@ -71,9 +67,9 @@ public interface ImportExportApplicationServiceCE {
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
-     * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
-     * @param applicationId  application which needs to be saved with the updated resources
+     * @param workspaceId   workspace to which application is going to be stored
+     * @param importedDoc   application resource which contains necessary information to save the application
+     * @param applicationId application which needs to be saved with the updated resources
      * @return Updated application
      */
     Mono<Application> importApplicationInWorkspace(String workspaceId,

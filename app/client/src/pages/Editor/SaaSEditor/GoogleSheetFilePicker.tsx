@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
+import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
 
 interface Props {
   datasourceId: string;
@@ -47,9 +48,17 @@ function GoogleSheetFilePicker({
     if (pickerVisible) {
       const element: HTMLElement | null =
         document.querySelector(".picker-dialog-bg");
+      const elements: NodeListOf<HTMLElement> =
+        document.querySelectorAll(".picker-dialog");
+      // When the reconnect modal the ads modal disables pointer events everywhere else.
+      // To enable selection from the google sheets picker we set pointer events auto to it.
       if (!!element) {
         element.style.opacity = "1";
+        element.style.pointerEvents = "auto";
       }
+      elements.forEach((element) => {
+        element.style.pointerEvents = "auto";
+      });
     }
   }, [pickerVisible]);
 
@@ -80,6 +89,17 @@ function GoogleSheetFilePicker({
     }
   }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
 
+  // This is added in useEffect instead of file picker callback,
+  // because in case when browser has blocked third party cookies
+  // The file picker needs to be displayed with allow cookies option
+  // hence as soon as file picker is visible we should remove the overlay
+  // Ref: https://github.com/appsmithorg/appsmith/issues/22753
+  useEffect(() => {
+    if (!!pickerVisible) {
+      removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+    }
+  }, [pickerVisible]);
+
   // This triggers google's picker object from google apis script to create file picker and display it
   // It takes google sheet token and project id as inputs
   const createPicker = async (accessToken: string, projectID: string) => {
@@ -98,12 +118,7 @@ function GoogleSheetFilePicker({
   };
 
   const pickerCallback = async (data: any) => {
-    if (data.action === FilePickerActionStatus.LOADED) {
-      // Remove document body overlay as soon as file picker is loaded
-      // As we are adding overlay for file picker background div
-      const className = "overlay";
-      removeClassFromDocumentBody(className);
-    } else if (
+    if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
     ) {

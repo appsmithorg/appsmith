@@ -168,6 +168,75 @@ describe("test PositionUtils methods", () => {
           .fillWidgetLength,
       ).toEqual(24);
     });
+    it("should assign 64 columns to each fill widget on mobile viewport", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 16,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 16,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 48,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.End,
+          topRow: 0,
+          bottomRow: 7,
+          type: "",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const { fillWidgetLength, info } = extractAlignmentInfo(
+        widgets,
+        layer,
+        true,
+        64,
+        1,
+        true,
+      );
+      expect(fillWidgetLength).toEqual(64);
+      expect(info[0].columns).toEqual(128);
+    });
     it("should allocate columns for fill widgets that match min widths if enough space is unavailable", () => {
       const widgets = {
         "1": {
