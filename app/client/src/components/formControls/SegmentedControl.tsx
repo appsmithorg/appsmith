@@ -14,7 +14,7 @@ import type { Action } from "entities/Action";
 import type { SelectOptionProps } from "design-system";
 import { SegmentedControl } from "design-system";
 
-const DropdownSelect = styled.div<{
+const SegmentedControlWrapper = styled.div<{
   width: string;
 }>`
   /* font-size: 14px; */
@@ -32,7 +32,7 @@ class SegementedControl extends BaseControl<Props> {
     };
 
     return (
-      <DropdownSelect
+      <SegmentedControlWrapper
         className={`t--${this?.props?.configProperty}`}
         data-testid={this.props.configProperty}
         style={styles}
@@ -43,7 +43,7 @@ class SegementedControl extends BaseControl<Props> {
           name={this.props.configProperty}
           props={{ ...this.props, width: styles.width }}
         />
-      </DropdownSelect>
+      </SegmentedControlWrapper>
     );
   }
 
