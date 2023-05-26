@@ -37,7 +37,6 @@ export default function BottomBar(props: { className?: string }) {
         <SwitchEnvironment />
         <QuickGitActions />
       </Wrapper>
-      <QuickGitActions />
       <Wrapper>
         <ManualUpgrades showTooltip>
           <Button
