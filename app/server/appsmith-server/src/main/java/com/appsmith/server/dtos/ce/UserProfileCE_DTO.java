@@ -41,8 +41,6 @@ public class UserProfileCE_DTO {
 
     String photoId;
 
-    String role;
-
     String useCase;
 
     boolean enableTelemetry = false;
