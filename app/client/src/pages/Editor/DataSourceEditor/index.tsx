@@ -75,6 +75,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
+import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 
@@ -548,6 +549,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isNewDatasource,
       isPluginAuthorized,
       isSaving,
+      isTesting,
       pageId,
       pluginId,
       pluginImage,
@@ -606,7 +608,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
             isPluginAuthorized={isPluginAuthorized}
-            isSaving={isSaving}
             pluginImage={pluginImage}
             pluginName={pluginName}
             pluginType={pluginType}
@@ -631,6 +632,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 isFormDirty={this.props.isFormDirty}
                 isInsideReconnectModal={isInsideReconnectModal}
                 isInvalid={this.validateForm()}
+                isSaving={isSaving}
+                isTesting={isTesting}
+                pluginName={pluginName}
+                pluginPackageName={pluginPackageName}
+                pluginType={pluginType as PluginType}
                 triggerSave={triggerSave}
                 viewMode={viewMode}
               />
