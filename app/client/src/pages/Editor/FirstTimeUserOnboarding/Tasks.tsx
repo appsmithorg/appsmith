@@ -21,7 +21,7 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -33,13 +33,25 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserOnboardingModal } from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
-import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import AnonymousDataPopup from "./AnonymousDataPopup";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getFirstTimeUserOnboardingModal,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
+  setFirstTimeUserOnboardingTelemetryCalloutVisibility,
+} from "utils/storage";
+import { ANONYMOUS_DATA_POPOP_TIMEOUT } from "./constants";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import IntroductionModal from "./IntroductionModal";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -91,6 +103,12 @@ const getOnboardingQueryImg = () => `${ASSETS_CDN_URL}/onboarding-query.svg`;
 const getOnboardingWidgetImg = () => `${ASSETS_CDN_URL}/onboarding-widget.svg`;
 
 export default function OnboardingTasks() {
+  const [isAnonymousDataPopupOpen, setisAnonymousDataPopupOpen] =
+    useState(false);
+
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   let content;
@@ -98,7 +116,44 @@ export default function OnboardingTasks() {
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser);
+  const isAdmin = user?.isSuperUser || false;
+  const isOnboardingCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const showModal = useSelector(getFirstTimeUserOnboardingModal);
+
+  const hideAnonymousDataPopup = () => {
+    setisAnonymousDataPopupOpen(false);
+    setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+  };
+
+  const showShowAnonymousDataPopup = async () => {
+    const shouldPopupShow =
+      !isAirgapped() &&
+      isFirstTimeUserOnboardingEnabled &&
+      isAdmin &&
+      !isOnboardingCompleted;
+    if (shouldPopupShow) {
+      const isAnonymousDataPopupAlreadyOpen =
+        await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
+      //true if the modal was already shown else show the modal and set to already shown, also hide the modal after 10 secs
+      if (isAnonymousDataPopupAlreadyOpen) {
+        setisAnonymousDataPopupOpen(false);
+      } else {
+        setisAnonymousDataPopupOpen(true);
+        setTimeout(() => {
+          hideAnonymousDataPopup();
+        }, ANONYMOUS_DATA_POPOP_TIMEOUT);
+        await setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+      }
+    } else {
+      setisAnonymousDataPopupOpen(shouldPopupShow);
+    }
+  };
+
+  useEffect(() => {
+    showShowAnonymousDataPopup();
+  }, []);
+
   if (!datasources.length && !actions.length) {
     content = (
       <CenteredContainer>
@@ -128,6 +183,11 @@ export default function OnboardingTasks() {
                   selectedTab: INTEGRATION_TABS.NEW,
                 }),
               );
+              // Event for datasource creation click
+              const entryPoint = DatasourceCreateEntryPoints.ONBOARDING;
+              AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+                entryPoint,
+              });
             }}
             size="md"
             startIcon="plus"
@@ -266,7 +326,10 @@ export default function OnboardingTasks() {
   return (
     <Wrapper data-testid="onboarding-tasks-wrapper">
       {content}
-      {showModal && (
+      {isAnonymousDataPopupOpen && (
+        <AnonymousDataPopup onCloseCallout={hideAnonymousDataPopup} />
+      )}
+      {!isAdmin && showModal && (
         <IntroductionModal
           close={() => {
             dispatch({

@@ -1,17 +1,9 @@
 import testdata from "../../../../fixtures/testdata.json";
 import commonlocators from "../../../../locators/commonlocators.json";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane,
-  table = ObjectsRegistry.Table,
-  locator = ObjectsRegistry.CommonLocators;
-
-import { WIDGET } from "../../../../locators/WidgetLocators";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetsToTest = {
-  [WIDGET.MULTISELECT]: {
+  [_.draggableWidgets.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
@@ -19,7 +11,7 @@ const widgetsToTest = {
       chooseColMultiSelectAndReset();
     },
   },
-  [WIDGET.TAB]: {
+  [_.draggableWidgets.TAB]: {
     widgetName: "Tab",
     widgetPrefixName: "Tabs1",
     textBindingValue: testdata.tabBindingValue,
@@ -27,7 +19,7 @@ const widgetsToTest = {
       selectTabAndReset();
     },
   },
-  [WIDGET.TABLE]: {
+  [_.draggableWidgets.TABLE]: {
     widgetName: "Table",
     widgetPrefixName: "Table1",
     textBindingValue: testdata.tableBindingValue,
@@ -35,7 +27,7 @@ const widgetsToTest = {
       selectTableAndReset();
     },
   },
-  [WIDGET.SWITCHGROUP]: {
+  [_.draggableWidgets.SWITCHGROUP]: {
     widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
     textBindingValue: testdata.switchGroupBindingValue,
@@ -43,7 +35,7 @@ const widgetsToTest = {
       selectSwitchGroupAndReset();
     },
   },
-  [WIDGET.SWITCH]: {
+  [_.draggableWidgets.SWITCH]: {
     widgetName: "Switch",
     widgetPrefixName: "Switch1",
     textBindingValue: testdata.switchBindingValue,
@@ -51,7 +43,7 @@ const widgetsToTest = {
       selectSwitchAndReset();
     },
   },
-  [WIDGET.SELECT]: {
+  [_.draggableWidgets.SELECT]: {
     widgetName: "Select",
     widgetPrefixName: "Select1",
     textBindingValue: testdata.selectBindingValue,
@@ -59,7 +51,7 @@ const widgetsToTest = {
       selectAndReset();
     },
   },
-  [WIDGET.CURRENCY_INPUT]: {
+  [_.draggableWidgets.CURRENCY_INPUT]: {
     widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
@@ -67,7 +59,7 @@ const widgetsToTest = {
       selectCurrencyInputAndReset();
     },
   },
-  [WIDGET.MULTITREESELECT]: {
+  [_.draggableWidgets.MULTITREESELECT]: {
     widgetName: "MultiTreeSelect",
     widgetPrefixName: "MultiTreeSelect1",
     textBindingValue: testdata.multitreeselectBindingValue,
@@ -75,7 +67,7 @@ const widgetsToTest = {
       multiTreeSelectAndReset();
     },
   },
-  [WIDGET.RADIO_GROUP]: {
+  [_.draggableWidgets.RADIO_GROUP]: {
     widgetName: "RadioGroup",
     widgetPrefixName: "RadioGroup1",
     textBindingValue: testdata.radiogroupselectBindingValue,
@@ -83,7 +75,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-  // [WIDGET.LIST]: {//Open bug hence commenting List widget #16578, #14727
+  // [_.draggableWidgets.LIST]: {//Open bug hence commenting List widget #16578, #14727
   //   widgetName: "List",
   //   widgetPrefixName: "List1",
   //   textBindingValue: testdata.listBindingValue,
@@ -91,7 +83,7 @@ const widgetsToTest = {
   //     listwidgetAndReset();
   //   },
   // },
-  [WIDGET.RATING]: {
+  [_.draggableWidgets.RATING]: {
     widgetName: "Rating",
     widgetPrefixName: "Rating1",
     textBindingValue: testdata.ratingBindingValue,
@@ -99,7 +91,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-  [WIDGET.CHECKBOXGROUP]: {
+  [_.draggableWidgets.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
     textBindingValue: testdata.checkboxGroupBindingValue,
@@ -107,7 +99,7 @@ const widgetsToTest = {
       checkboxGroupAndReset();
     },
   },
-  [WIDGET.CHECKBOX]: {
+  [_.draggableWidgets.CHECKBOX]: {
     widgetName: "Checkbox",
     widgetPrefixName: "Checkbox1",
     textBindingValue: testdata.checkboxBindingValue,
@@ -116,7 +108,7 @@ const widgetsToTest = {
     },
   },
   /*Open bug # 14692 - hence commenting
-  [WIDGET.AUDIO]: {
+  [_.draggableWidgets.AUDIO]: {
     widgetName: "Audio",
     widgetPrefixName: "Audio1",
     textBindingValue: testdata.audioBindingValue,
@@ -124,7 +116,7 @@ const widgetsToTest = {
       audioWidgetAndReset();
     },
   },
-  [WIDGET.AUDIORECORDER]: {
+  [_.draggableWidgets.AUDIORECORDER]: {
     widgetName: "AudioRecorder",
     widgetPrefixName: "AudioRecorder1",
     textBindingValue: testdata.audioRecorderBindingValue,
@@ -133,7 +125,7 @@ const widgetsToTest = {
     },
   },
   */
-  [WIDGET.PHONEINPUT]: {
+  [_.draggableWidgets.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
     textBindingValue: testdata.phoneBindingValue,
@@ -141,7 +133,7 @@ const widgetsToTest = {
       phoneInputWidgetAndReset();
     },
   },
-  [WIDGET.FILEPICKER]: {
+  [_.draggableWidgets.FILEPICKER]: {
     widgetName: "FilePicker",
     widgetPrefixName: "FilePicker1",
     textBindingValue: testdata.fileBindingValue,
@@ -157,14 +149,14 @@ function chooseColMultiSelectAndReset() {
     force: true,
   });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "BLUE",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "BLUE",
     "not.have.text",
   );
@@ -173,29 +165,29 @@ function chooseColMultiSelectAndReset() {
 function selectTabAndReset() {
   cy.get(".t--tabid-tab2").click({ force: true });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "Tab 2",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "Tab 2",
     "not.have.text",
   );
 }
 
 function selectTableAndReset() {
-  table.SelectTableRow(1, 0, true, "v2");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.table.SelectTableRow(1, 0, true, "v2");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "#2",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "#1",
     "contain.text",
   );
@@ -203,14 +195,14 @@ function selectTableAndReset() {
 
 function selectSwitchGroupAndReset() {
   cy.get(".bp3-control-indicator").last().click({ force: true });
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "RED",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "RED",
     "not.have.text",
   );
@@ -219,7 +211,7 @@ function selectSwitchGroupAndReset() {
 function selectSwitchAndReset() {
   cy.get(".bp3-control-indicator").last().click({ force: true });
   cy.get(".t--switch-widget-active").should("not.exist");
-  agHelper.ClickButton("Submit");
+  _.agHelper.ClickButton("Submit");
   cy.get(".t--switch-widget-active").should("be.visible");
 }
 
@@ -227,14 +219,14 @@ function selectAndReset() {
   cy.get(".select-button").click({ force: true });
   cy.get(".menu-item-text").contains("Blue").click({ force: true });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "BLUE",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "BLUE",
     "not.have.text",
   );
@@ -243,14 +235,14 @@ function selectAndReset() {
 function selectCurrencyInputAndReset() {
   cy.get(".bp3-input").click({ force: true }).type("123");
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "123",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "123",
     "not.have.text",
   );
@@ -262,14 +254,14 @@ function multiTreeSelectAndReset() {
     force: true,
   });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "RED",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "GREEN",
     "contain.text",
   );
@@ -278,31 +270,31 @@ function multiTreeSelectAndReset() {
 function radiogroupAndReset() {
   cy.get("input").last().click({ force: true });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "N",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "Y",
     "contain.text",
   );
 }
 
 function listwidgetAndReset() {
-  agHelper.Sleep();
-  agHelper.GetNClick(".t--widget-containerwidget", 1, true, 2000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.Sleep();
+  _.agHelper.GetNClick(".t--widget-containerwidget", 1, true, 2000);
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "002",
     "contain.text",
     6,
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "001",
     "contain.text",
     6,
@@ -312,14 +304,14 @@ function listwidgetAndReset() {
 function ratingwidgetAndReset() {
   cy.get(".bp3-icon-star svg").last().click({ force: true });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "3",
     "not.have.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "3",
     "contain.text",
   );
@@ -332,14 +324,14 @@ function checkboxGroupAndReset() {
     .should("be.visible")
     .click({ force: true });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "RED",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "RED",
     "not.have.text",
   );
@@ -348,14 +340,14 @@ function checkboxGroupAndReset() {
 function checkboxAndReset() {
   cy.get("input").last().click({ force: true });
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "false",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "true",
     "contain.text",
   );
@@ -365,42 +357,42 @@ function audioWidgetAndReset() {
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "false");
   });
-  agHelper.ClickButton("Submit");
+  _.agHelper.ClickButton("Submit");
 }
 
 function audioRecorderWidgetAndReset() {
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "true");
   });
-  agHelper.ClickButton("Submit");
+  _.agHelper.ClickButton("Submit");
 }
 
 function phoneInputWidgetAndReset() {
   cy.get(".bp3-input").type("1234");
   cy.wait(1000);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "1234",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "1234",
     "not.have.text",
   );
 }
 
 function filePickerWidgetAndReset() {
-  agHelper.UploadFile("testFile.mov", false);
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.UploadFile("testFile.mov", false);
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "true",
     "contain.text",
   );
-  agHelper.ClickButton("Submit");
-  agHelper.GetNAssertElementText(
-    locator._textWidgetInDeployed,
+  _.agHelper.ClickButton("Submit");
+  _.agHelper.GetNAssertElementText(
+    _.locators._textWidgetInDeployed,
     "false",
     "contain.text",
   );
@@ -409,43 +401,46 @@ function filePickerWidgetAndReset() {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset assertWidgetReset`, () => {
     beforeEach(() => {
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
     });
 
     afterEach(() => {
-      agHelper.SaveLocalStorageCache();
+      _.agHelper.SaveLocalStorageCache();
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
       cy.fixture("defaultMetaDsl").then((val: any) => {
-        agHelper.AddDsl(val);
+        _.agHelper.AddDsl(val);
       });
-      ee.DragDropWidgetNVerify(widgetSelector, 300, 100);
+      _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
     });
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      ee.SelectEntityByName("Button1", "Widgets");
-      propPane.EnterJSContext(
+      _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+      _.propPane.EnterJSContext(
         "onClick",
         `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("Reset Success!"))}}`,
       );
       // Bind to stored value above
-      ee.SelectEntityByName("Text1");
-      propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
+      _.entityExplorer.SelectEntityByName("Text1");
+      _.propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
     });
 
     it("3. Publish the app and check the reset assertWidgetReset", () => {
       // Set onClick assertWidgetReset, storing value
-      deployMode.DeployApp();
+      _.deployMode.DeployApp();
       testConfig.assertWidgetReset();
-      agHelper.AssertContains("Reset Success!");
+      _.agHelper.AssertContains("Reset Success!");
     });
 
     it(`4. Delete ${testConfig.widgetName} the widgets on canvas`, () => {
-      deployMode.NavigateBacktoEditor();
-      ee.SelectEntityByName(`${testConfig.widgetPrefixName}`, "Widgets");
-      agHelper.PressDelete();
+      _.deployMode.NavigateBacktoEditor();
+      _.entityExplorer.SelectEntityByName(
+        `${testConfig.widgetPrefixName}`,
+        "Widgets",
+      );
+      _.agHelper.PressDelete();
     });
   });
 });
