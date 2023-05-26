@@ -467,7 +467,10 @@ export const handlers = {
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
     state: ApplicationsReduxState,
-  ) => ({ ...state, currentApplication: null }),
+  ) => ({
+    ...state,
+    currentApplication: null,
+  }),
   [ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL]: (
     state: ApplicationsReduxState,
     action: ReduxAction<boolean>,
