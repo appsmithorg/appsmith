@@ -30,6 +30,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
+import { Callout } from "design-system";
 import {
   Avatar,
   Button,
@@ -151,7 +152,7 @@ export const ManageUsersContainer = styled.div`
 export const ErrorTextContainer = styled.div`
   display: flex;
   margin-top: 4px;
-  gap: 8px;
+  gap: 4px;
 
   > p {
     color: var(--ads-v2-color-fg-error);
@@ -403,16 +404,21 @@ function WorkspaceInviteUsersForm(props: any) {
               placeholder={placeholder || "Enter email address(es)"}
               type="email"
             />
-            {((submitFailed && error) || emailError) && (
+            {emailError && (
               <ErrorTextContainer>
-                <Icon name="alert-line" size="md" />
-                <Text renderAs="p">{error || emailError}</Text>
+                <Icon name="alert-line" size="sm" />
+                <Text kind="body-s" renderAs="p">
+                  {emailError}
+                </Text>
               </ErrorTextContainer>
             )}
           </div>
           <div style={{ width: "40%" }}>
             <Select
               data-testid="t--invite-role-input"
+              getPopupContainer={(triggerNode) =>
+                triggerNode.parentNode.parentNode
+              }
               isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
               listHeight={400}
@@ -511,6 +517,9 @@ function WorkspaceInviteUsersForm(props: any) {
             )}
           </>
         )}
+        <ErrorBox message={submitFailed}>
+          {submitFailed && error && <Callout kind="error">{error}</Callout>}
+        </ErrorBox>
         {canManage && !disableManageUsers && (
           <ManageUsersContainer>
             <ManageUsers

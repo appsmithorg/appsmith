@@ -138,7 +138,7 @@ export function* inviteUsersToApplicationSaga(
         roleType: data.roleType,
       },
     );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);

@@ -47,7 +47,7 @@ const CheckboxWrapper = styled.div`
   &.hover-state {
     .design-system-checkbox {
       span {
-        opacity: 0.4;
+        border: 1px solid var(--ads-v2-color-border-emphasis-plus);
       }
     }
   }
