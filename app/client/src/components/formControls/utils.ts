@@ -194,7 +194,7 @@ export const caculateIsHidden = (
       comparison = hiddenConfig.comparison;
     }
 
-    let flagValue: keyof FeatureFlags = "APP_TEMPLATE";
+    let flagValue: keyof FeatureFlags = "TEST_FLAG";
     if ("flagValue" in hiddenConfig) {
       flagValue = hiddenConfig.flagValue;
     }
