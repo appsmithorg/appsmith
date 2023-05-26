@@ -1,5 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { ChooseAndAssertForm } from "./Utility";
+import locator from "../../../../locators/OneClickBindingLocator";
+import CommonLocators from "../../../../locators/commonlocators.json";
+import DatasourceEditor from "../../../../locators/DatasourcesEditor.json";
 
 describe("One click binding control", () => {
   before(() => {
@@ -7,21 +10,15 @@ describe("One click binding control", () => {
   });
 
   it("1.should check the datasource selector and the form", () => {
-    _.agHelper.AssertElementExist(".t--one-click-binding-datasource-selector");
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
-    _.agHelper.AssertElementAbsence(
-      ".t--one-click-binding-datasource-selector--bind-to-query",
-    );
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--generate-a-query",
-    );
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--other-actions",
-    );
+    _.agHelper.AssertElementExist(locator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
+    _.agHelper.AssertElementAbsence(locator.datasourceQueryBindHeaderSelector);
+    _.agHelper.AssertElementExist(locator.datasourceGenerateAQuerySelector);
+    _.agHelper.AssertElementExist(locator.datasourceOtherActionsSelector);
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateMockDB("Users");
+    _.dataSources.CreateMockDB("users");
 
     cy.wait(500);
 
@@ -31,68 +28,49 @@ describe("One click binding control", () => {
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
+
+    _.agHelper.AssertElementExist(locator.datasourceQueryBindHeaderSelector);
+
+    _.agHelper.AssertElementLength(locator.datasourceQuerySelector, 1);
+
+    _.agHelper.AssertElementExist(locator.datasourceGenerateAQuerySelector);
+
+    _.agHelper.AssertElementExist(locator.datasourceSelector());
+
+    _.agHelper.AssertElementExist(locator.datasourceOtherActionsSelector);
+
+    _.agHelper.AssertElementExist(locator.otherActionSelector());
 
     _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--bind-to-query",
+      locator.otherActionSelector("Connect New Datasource"),
     );
 
-    _.agHelper.AssertElementLength(
-      ".t--one-click-binding-datasource-selector--query",
-      1,
-    );
+    _.agHelper.GetNClick(locator.otherActionSelector("Connect New Datasource"));
+
+    _.agHelper.AssertElementExist(locator.datasourcePage);
+
+    _.agHelper.GetNClick(locator.backButton);
+
+    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--generate-a-query",
+      locator.otherActionSelector("Insert Snippet"),
     );
+
+    _.agHelper.GetNClick(locator.otherActionSelector("Insert Snippet"));
+
+    _.agHelper.AssertElementExist(CommonLocators.globalSearchModal);
+
+    _.agHelper.TypeText(CommonLocators.globalSearchInput, "{esc}", 0, true);
+
+    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--datasource",
+      locator.otherActionSelector("Insert Binding"),
     );
 
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--other-actions",
-    );
-
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--other-action",
-    );
-
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--other-action:contains('Connect New Datasource')",
-    );
-
-    _.agHelper.GetNClick(
-      ".t--one-click-binding-datasource-selector--other-action:contains('Connect New Datasource')",
-    );
-
-    _.agHelper.AssertElementExist(".t--integrationsHomePage");
-
-    _.agHelper.GetNClick(".t--back-button");
-
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
-
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--other-action:contains('Insert Snippet')",
-    );
-
-    _.agHelper.GetNClick(
-      ".t--one-click-binding-datasource-selector--other-action:contains('Insert Snippet')",
-    );
-
-    _.agHelper.AssertElementExist(`[data-testid="t--global-search-modal"]`);
-
-    _.agHelper.TypeText(".t--global-search-input", "{esc}", 0, true);
-
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
-
-    _.agHelper.AssertElementExist(
-      ".t--one-click-binding-datasource-selector--other-action:contains('Insert Binding')",
-    );
-
-    _.agHelper.GetNClick(
-      ".t--one-click-binding-datasource-selector--other-action:contains('Insert Binding')",
-    );
+    _.agHelper.GetNClick(locator.otherActionSelector("Insert Binding"));
 
     _.propPane.ValidatePropertyFieldValue("Table data", "{{}}");
 
@@ -100,17 +78,15 @@ describe("One click binding control", () => {
 
     _.propPane.ToggleJsMode("Table data");
 
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementAbsence(
-      ".t--one-click-binding-datasource-selector .rc-select-selection-item:contains('Query1')",
+      locator.datasourceDropdownOptionSelector("Query1"),
     );
 
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector--query", 0);
+    _.agHelper.GetNClick(locator.datasourceQuerySelector, 0);
 
-    _.agHelper.AssertElementExist(
-      ".rc-select-selection-item:contains('Query1')",
-    );
+    _.agHelper.AssertElementExist(locator.dropdownOptionSelector("Query1"));
 
     _.propPane.ToggleJsMode("Table data");
 
@@ -120,13 +96,13 @@ describe("One click binding control", () => {
 
     _.propPane.ToggleJsMode("Table data");
 
-    ChooseAndAssertForm("New from Users", "Users", "public.users", "gender");
+    ChooseAndAssertForm("New from users", "Users", "public.users", "gender");
 
     _.propPane.MoveToTab("Style");
 
     _.propPane.MoveToTab("Content");
 
-    ChooseAndAssertForm("New from sample Movies", "movies", "movies", "status");
+    ChooseAndAssertForm("New from sample movies", "movies", "movies", "status");
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
@@ -134,7 +110,10 @@ describe("One click binding control", () => {
 
     _.agHelper.GetNClick(".t--plugin-name:contains('MongoDB')");
 
-    _.agHelper.TypeText(".t--edit-datasource-name input", "myinvalidds");
+    _.agHelper.TypeText(
+      DatasourceEditor.datasourceTitleInputLocator,
+      "myinvalidds",
+    );
 
     _.agHelper.TypeText(
       `[name="datasourceConfiguration.endpoints[0].host"]`,
@@ -150,16 +129,16 @@ describe("One click binding control", () => {
 
     _.entityExplorer.NavigateToSwitcher("Widgets");
 
-    _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
-    _.agHelper.GetNClick(
-      `.t--one-click-binding-datasource-selector--datasource:contains(myinvalidds)`,
-    );
+    _.agHelper.GetNClick(locator.datasourceSelector("myinvalidds"));
 
     cy.wait("@getDatasourceStructure", { timeout: 20000 });
 
     _.agHelper.AssertElementExist(
-      ".t--one-click-binding-table-selector--error:contains(Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.)",
+      locator.tableError(
+        "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",
+      ),
     );
   });
 });

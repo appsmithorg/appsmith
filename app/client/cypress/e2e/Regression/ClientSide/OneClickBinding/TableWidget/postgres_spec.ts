@@ -1,10 +1,11 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { ChooseAndAssertForm } from "../Utility";
+import locators from "../../../../../locators/OneClickBindingLocator";
 
 describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
-    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 400);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
@@ -18,25 +19,23 @@ describe("Table widget one click binding feature", () => {
       ChooseAndAssertForm(`New from ${dsName}`, dsName, "public.users", "name");
     });
 
-    _.agHelper.GetNClick(".t--one-click-binding-connect-data");
+    _.agHelper.GetNClick(locators.connectData);
 
     cy.wait("@postExecute");
 
     cy.wait(2000);
 
     ["id", "gender", "dob", "name", "email", "phoneNo"].forEach((column) => {
-      _.agHelper.AssertElementExist(
-        `.t--widget-tablewidgetv2 .thead .th:contains(${column})`,
-      );
+      _.agHelper.AssertElementExist(_.table._headerCell(column));
     });
 
-    _.agHelper.AssertElementExist(".t--widget-tablewidgetv2 .show-page-items");
+    _.agHelper.AssertElementExist(_.table._showPageItemsCount);
 
     (cy as any).makeColumnEditable("id");
 
-    _.agHelper.GetNClick(".t--add-new-row", 0, true);
+    _.agHelper.GetNClick(_.table._addNewRow, 0, true);
 
-    (cy as any).enterTableCellValue(0, 0, "1");
+    (cy as any).enterTableCellValue(0, 0, "2");
 
     (cy as any).enterTableCellValue(1, 0, "cypress@appsmith");
 
@@ -48,15 +47,13 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(".DayPicker-Day", 0, true);
 
-    _.agHelper.GetNClick(".t--save-new-row", 0, true);
+    _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
-    _.agHelper.TypeText(".t--search-input input", "cypress@appsmith");
+    _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
 
     cy.wait("@postExecute");
 
-    _.agHelper.AssertElementExist(
-      ".t--table-text-cell:contains('cypress@appsmith')",
-    );
+    _.agHelper.AssertElementExist(_.table._bodyCell("cypress@appsmith"));
 
     (cy as any).wait(1000);
 
@@ -74,28 +71,24 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).wait(500);
 
-    _.agHelper.ClearTextField(".t--search-input input");
+    _.agHelper.ClearTextField(_.table._searchInput);
 
-    _.agHelper.TypeText(".t--search-input input", "automation@appsmith");
-
-    cy.wait("@postExecute");
-
-    (cy as any).wait(500);
-
-    _.agHelper.AssertElementExist(
-      ".t--table-text-cell:contains('automation@appsmith')",
-    );
-
-    _.agHelper.ClearTextField(".t--search-input input");
-
-    _.agHelper.TypeText(".t--search-input input", "cypress@appsmith");
+    _.agHelper.TypeText(_.table._searchInput, "automation@appsmith");
 
     cy.wait("@postExecute");
 
     (cy as any).wait(500);
 
-    _.agHelper.AssertElementAbsence(
-      ".t--table-text-cell:contains('cypress@appsmith')",
-    );
+    _.agHelper.AssertElementExist(_.table._bodyCell("automation@appsmith"));
+
+    _.agHelper.ClearTextField(_.table._searchInput);
+
+    _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
+
+    cy.wait("@postExecute");
+
+    (cy as any).wait(500);
+
+    _.agHelper.AssertElementAbsence(_.table._bodyCell("cypress@appsmith"));
   });
 });

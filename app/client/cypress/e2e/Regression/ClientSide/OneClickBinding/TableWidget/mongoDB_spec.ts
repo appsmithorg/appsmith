@@ -1,9 +1,11 @@
+import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { ChooseAndAssertForm } from "../Utility";
+import locators from "../../../../../locators/OneClickBindingLocator";
 
 describe("one click binding mongodb datasource", function () {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 400);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
   });
 
   it("1. test connect datasource", () => {
@@ -15,21 +17,22 @@ describe("one click binding mongodb datasource", function () {
     cy.get("@dsName").then((dsName) => {
       _.entityExplorer.NavigateToSwitcher("Widgets");
 
+      (cy as any).openPropertyPane(WIDGET.TABLE);
+
       ChooseAndAssertForm(`New from ${dsName}`, dsName, "netflix", "creator");
     });
 
-    _.agHelper.GetNClick(".t--one-click-binding-connect-data");
+    _.agHelper.GetNClick(locators.connectData);
+
     cy.wait("@postExecute");
+
     _.agHelper.Sleep(2000);
     //#endregion
 
     //#region validate search through table is working
     const rowWithAValidText = "Mike Flanagan";
     //enter a search text
-    _.agHelper.TypeText(
-      ".t--widget-tablewidgetv2 .t--search-input input",
-      rowWithAValidText,
-    );
+    _.agHelper.TypeText(_.table._searchInput, rowWithAValidText);
     _.agHelper.Sleep();
     // check if the table rows are present for the given search entry
     _.agHelper.GetNAssertContains(
@@ -66,8 +69,8 @@ describe("one click binding mongodb datasource", function () {
     // cy.get(".t--widget-tablewidgetv2 .t--search-input input").clear();
 
     //lets create a new row and check to see the insert operation is working
-    _.agHelper.GetNClick(".t--add-new-row");
-    _.agHelper.AssertElementExist(".new-row");
+    _.agHelper.GetNClick(_.table._addNewRow);
+    _.agHelper.AssertElementExist(_.table._newRow);
 
     const someText = "new row " + Cypress._.random(0, 1e6);
     const searchColumnIndex = 3;
@@ -75,18 +78,12 @@ describe("one click binding mongodb datasource", function () {
 
     (cy as any).saveTableCellValue(searchColumnIndex, 0);
     // save a row with some random text
-    _.agHelper.GetNClickByContains(
-      ".t--widget-tablewidgetv2 button",
-      "Save row",
-    );
+    _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
     _.agHelper.Sleep(5000);
 
     //search the table for a row having the text used to create a new row
-    _.agHelper.TypeText(
-      ".t--widget-tablewidgetv2 .t--search-input input",
-      someText,
-    );
+    _.agHelper.TypeText(_.table._searchInput, someText);
     _.agHelper.Sleep();
 
     //check if that row is present
