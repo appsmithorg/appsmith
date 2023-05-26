@@ -7,6 +7,10 @@ import type { AriaButtonProps as SpectrumAriaBaseButtonProps } from "@react-type
 
 export interface ButtonProps extends SpectrumAriaBaseButtonProps {
   className?: string;
+  /**
+   * If true, the button will be disabled visually and functionally.
+   * Note: Visually disabled button can be focused.
+   */
   visuallyDisabled?: boolean;
 }
 
@@ -57,6 +61,9 @@ const useVisuallyDisabled = (props: ButtonProps) => {
       onPressStart: undefined,
       onPressEnd: undefined,
       onPressChange: undefined,
+      onPressUp: undefined,
+      onKeyDown: undefined,
+      onKeyUp: undefined,
     };
   }
 
