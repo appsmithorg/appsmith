@@ -38,6 +38,7 @@ import type { EvaluationDependencyState } from "reducers/evaluationReducers/depe
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import type { OnboardingState } from "reducers/uiReducers/onBoardingReducer";
 import type { GlobalSearchReduxState } from "reducers/uiReducers/globalSearchReducer";
+import type { ActionSelectorReduxState } from "reducers/uiReducers/actionSelectorReducer";
 import type { ReleasesState } from "reducers/uiReducers/releasesReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { WebsocketReducerState } from "reducers/uiReducers/websocketReducer";
@@ -68,12 +69,13 @@ import type { EditorContextState } from "reducers/uiReducers/editorContextReduce
 import type { LibraryState } from "reducers/uiReducers/libraryReducer";
 import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
-import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import type { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -135,6 +137,8 @@ export interface AppState {
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
     multiPaneConfig: MultiPaneReduxState;
+    layoutConversion: layoutConversionReduxState;
+    actionSelector: ActionSelectorReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
@@ -159,7 +163,7 @@ export interface AppState {
     triggers: TriggerValuesEvaluationState;
   };
   linting: {
-    errors: LintErrors;
+    errors: LintErrorsStore;
   };
   form: {
     [key: string]: any;

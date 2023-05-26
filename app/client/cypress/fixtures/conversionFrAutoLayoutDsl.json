@@ -1,0 +1,226 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 630,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 77,
+    "minHeight": 1292,
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "iconColor": "white",
+        "isDisabled": false,
+        "widgetName": "AudioRecorder1",
+        "version": 1,
+        "animateLoading": true,
+        "responsiveBehavior": "fill",
+        "minWidth": 450,
+        "searchTags": ["sound recorder", "voice recorder"],
+        "type": "AUDIO_RECORDER_WIDGET",
+        "hideCard": false,
+        "isDeprecated": false,
+        "displayName": "Audio Recorder",
+        "key": "9yt8nrb5so",
+        "iconSVG": "/static/media/icon.3cb03cd8ed8464c5725a5d89a8fa563f.svg",
+        "widgetId": "b21qr7ssks",
+        "renderMode": "CANVAS",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none",
+        "isLoading": false,
+        "parentColumnSpace": 10.03125,
+        "parentRowSpace": 10,
+        "leftColumn": 21,
+        "rightColumn": 37,
+        "topRow": 0,
+        "bottomRow": 7,
+        "mobileLeftColumn": 21,
+        "mobileRightColumn": 37,
+        "mobileTopRow": 0,
+        "mobileBottomRow": 7,
+        "parentId": "0",
+        "dynamicBindingPathList": [
+          {
+            "key": "accentColor"
+          },
+          {
+            "key": "borderRadius"
+          }
+        ]
+      },
+      {
+        "isVisible": true,
+        "widgetName": "ButtonGroup1",
+        "orientation": "horizontal",
+        "buttonVariant": "PRIMARY",
+        "version": 1,
+        "animateLoading": true,
+        "responsiveBehavior": "fill",
+        "minWidth": 450,
+        "groupButtons": {
+          "groupButton1": {
+            "label": "Favorite",
+            "iconName": "heart",
+            "id": "groupButton1",
+            "widgetId": "",
+            "buttonType": "SIMPLE",
+            "placement": "CENTER",
+            "isVisible": true,
+            "isDisabled": false,
+            "index": 0,
+            "menuItems": {},
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          },
+          "groupButton2": {
+            "label": "Add",
+            "iconName": "add",
+            "id": "groupButton2",
+            "buttonType": "SIMPLE",
+            "placement": "CENTER",
+            "widgetId": "",
+            "isVisible": true,
+            "isDisabled": false,
+            "index": 1,
+            "menuItems": {},
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          },
+          "groupButton3": {
+            "label": "More",
+            "iconName": "more",
+            "id": "groupButton3",
+            "buttonType": "MENU",
+            "placement": "CENTER",
+            "widgetId": "",
+            "isVisible": true,
+            "isDisabled": false,
+            "index": 2,
+            "menuItems": {
+              "menuItem1": {
+                "label": "First Option",
+                "backgroundColor": "#FFFFFF",
+                "id": "menuItem1",
+                "widgetId": "",
+                "onClick": "",
+                "isVisible": true,
+                "isDisabled": false,
+                "index": 0
+              },
+              "menuItem2": {
+                "label": "Second Option",
+                "backgroundColor": "#FFFFFF",
+                "id": "menuItem2",
+                "widgetId": "",
+                "onClick": "",
+                "isVisible": true,
+                "isDisabled": false,
+                "index": 1
+              },
+              "menuItem3": {
+                "label": "Delete",
+                "iconName": "trash",
+                "iconColor": "#FFFFFF",
+                "iconAlign": "right",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#DD4B34",
+                "id": "menuItem3",
+                "widgetId": "",
+                "onClick": "",
+                "isVisible": true,
+                "isDisabled": false,
+                "index": 2
+              }
+            },
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          }
+        },
+        "searchTags": ["click", "submit"],
+        "type": "BUTTON_GROUP_WIDGET",
+        "hideCard": false,
+        "isDeprecated": false,
+        "displayName": "Button Group",
+        "key": "oh54arumga",
+        "iconSVG": "/static/media/icon.d6773218cfb61dcfa5f460d43371e30d.svg",
+        "isCanvas": false,
+        "widgetId": "z2mcx90q5k",
+        "renderMode": "CANVAS",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none",
+        "childStylesheet": {
+          "button": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          }
+        },
+        "isLoading": false,
+        "parentColumnSpace": 10.03125,
+        "parentRowSpace": 10,
+        "leftColumn": 3,
+        "rightColumn": 27,
+        "topRow": 16,
+        "bottomRow": 20,
+        "mobileLeftColumn": 3,
+        "mobileRightColumn": 27,
+        "mobileTopRow": 16,
+        "mobileBottomRow": 20,
+        "parentId": "0",
+        "dynamicBindingPathList": [
+          {
+            "key": "borderRadius"
+          },
+          {
+            "key": "groupButtons.groupButton1.buttonColor"
+          },
+          {
+            "key": "groupButtons.groupButton2.buttonColor"
+          },
+          {
+            "key": "groupButtons.groupButton3.buttonColor"
+          }
+        ]
+      },
+      {
+        "isVisible": true,
+        "widgetName": "DocumentViewer1",
+        "docUrl": "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf",
+        "version": 1,
+        "animateLoading": true,
+        "searchTags": ["pdf"],
+        "type": "DOCUMENT_VIEWER_WIDGET",
+        "hideCard": false,
+        "isDeprecated": false,
+        "displayName": "Document Viewer",
+        "key": "8xc3qg4ku2",
+        "iconSVG": "/static/media/icon.09fcd36be84f09ed7312b2ed6a307b27.svg",
+        "isCanvas": false,
+        "widgetId": "ir2uzdlhv5",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "parentColumnSpace": 10.03125,
+        "parentRowSpace": 10,
+        "leftColumn": 20,
+        "rightColumn": 44,
+        "topRow": 23,
+        "bottomRow": 63,
+        "mobileLeftColumn": 20,
+        "mobileRightColumn": 44,
+        "mobileTopRow": 23,
+        "mobileBottomRow": 63,
+        "parentId": "0",
+        "dynamicBindingPathList": []
+      }
+    ]
+  }
+}

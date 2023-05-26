@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -249,7 +250,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

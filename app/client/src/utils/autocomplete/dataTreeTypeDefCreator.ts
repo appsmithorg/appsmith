@@ -1,6 +1,6 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { uniqueId, get, isFunction, isObject } from "lodash";
+import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import type { Def } from "tern";
@@ -17,6 +17,7 @@ export type ExtraDef = Record<string, Def | string>;
 
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
+import WidgetFactory from "utils/WidgetFactory";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -26,7 +27,6 @@ import type { Variable } from "entities/JSCollection";
 // or DATA_TREE.ACTION.ACTION.Api1
 export const dataTreeTypeDefCreator = (
   dataTree: DataTree,
-  isJSEditorEnabled: boolean,
   jsData: Record<string, unknown> = {},
   configTree: ConfigTree,
 ): { def: Def; entityInfo: Map<string, DataTreeDefEntityInformation> } => {
@@ -41,12 +41,14 @@ export const dataTreeTypeDefCreator = (
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
-      if (widgetType in entityDefinitions) {
-        const definition = get(entityDefinitions, widgetType);
-        if (isFunction(definition)) {
-          def[entityName] = definition(entity, extraDefsToDefine);
+      const autocompleteDefinitions =
+        WidgetFactory.getAutocompleteDefinitions(widgetType);
+
+      if (autocompleteDefinitions) {
+        if (isFunction(autocompleteDefinitions)) {
+          def[entityName] = autocompleteDefinitions(entity, extraDefsToDefine);
         } else {
-          def[entityName] = definition;
+          def[entityName] = autocompleteDefinitions;
         }
         flattenDef(def, entityName);
         entityMap.set(entityName, {
@@ -67,7 +69,7 @@ export const dataTreeTypeDefCreator = (
         type: ENTITY_TYPE.APPSMITH,
         subType: ENTITY_TYPE.APPSMITH,
       });
-    } else if (isJSAction(entity) && isJSEditorEnabled) {
+    } else if (isJSAction(entity)) {
       const entityConfig = configTree[entityName] as JSActionEntityConfig;
       const metaObj = entityConfig.meta;
       const jsPropertiesDef: Def = {};

@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -66,16 +65,16 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     Map<String, GitProfile> gitProfiles;
 
-    // JWT tokens
-    @JsonView(Views.Internal.class)
-    String accessToken;
-
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
 
     // list of template ids that were recently forked by the user
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedTemplateIds;
+
+    // Status of user's consent on sharing email for Intercom communications
+    @JsonView(Views.Internal.class)
+    private boolean isIntercomConsentGiven;
 
     @JsonView(Views.Public.class)
     public GitProfile getGitProfileByKey(String key) {
@@ -89,7 +88,7 @@ public class UserData extends BaseDomain {
     }
 
     @JsonView(Views.Public.class)
-    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile){
+    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile) {
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
             return Map.of(key, gitProfile);
         }

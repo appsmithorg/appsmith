@@ -38,6 +38,7 @@ export const getPersistentAppStore = (appId: string, branch?: string) => {
 };
 
 export const TOOLTIP_HOVER_ON_DELAY = 1000;
+export const TOOLTIP_HOVER_ON_DELAY_IN_S = 1;
 
 export const MOBILE_MAX_WIDTH = 767;
 export const TABLET_MIN_WIDTH = 768;
@@ -68,6 +69,7 @@ export const NAVIGATION_SETTINGS = {
     LIGHT: "light",
     THEME: "theme",
   },
+  LOGO_ASSET_ID: "",
   LOGO_CONFIGURATION: {
     LOGO_AND_APPLICATION_TITLE: "logoAndApplicationTitle",
     LOGO_ONLY: "logoOnly",
@@ -84,6 +86,7 @@ export type NavigationSetting = {
   position: (typeof NAVIGATION_SETTINGS.POSITION)[keyof typeof NAVIGATION_SETTINGS.POSITION];
   itemStyle: (typeof NAVIGATION_SETTINGS.ITEM_STYLE)[keyof typeof NAVIGATION_SETTINGS.ITEM_STYLE];
   colorStyle: (typeof NAVIGATION_SETTINGS.COLOR_STYLE)[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
+  logoAssetId: string;
   logoConfiguration: (typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION)[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
 };
 
@@ -100,6 +103,7 @@ export const keysOfNavigationSetting = {
   position: "position",
   itemStyle: "itemStyle",
   colorStyle: "colorStyle",
+  logoAssetId: "logoAssetId",
   logoConfiguration: "logoConfiguration",
 };
 
@@ -111,6 +115,7 @@ export const defaultNavigationSetting = {
   position: NAVIGATION_SETTINGS.POSITION.STATIC,
   itemStyle: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
   colorStyle: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+  logoAssetId: NAVIGATION_SETTINGS.LOGO_ASSET_ID,
   logoConfiguration:
     NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
 };
@@ -120,7 +125,7 @@ export const SIDEBAR_WIDTH = {
   MINIMAL: 66,
 };
 
-export const APPLICATION_TITLE_MAX_WIDTH = 224;
+export const APPLICATION_TITLE_MAX_WIDTH = 192;
 export const APPLICATION_TITLE_MAX_WIDTH_MOBILE = 150;
 //all values are in milliseconds
 export const REQUEST_IDLE_CALLBACK_TIMEOUT = {

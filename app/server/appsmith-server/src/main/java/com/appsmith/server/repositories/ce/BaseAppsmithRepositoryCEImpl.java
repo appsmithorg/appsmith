@@ -14,7 +14,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -38,9 +37,9 @@ import java.util.Set;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -531,18 +530,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return Mono.just(obj);
     }
 
-    @Deprecated
-    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
-    }
-
-    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
-        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
-    }
-
     /**
      * 1. Get all the user groups associated with the user
      * 2. Get all the permission groups associated with anonymous user
@@ -551,7 +538,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      * @param user
      * @return
      */
-
     protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
 
         Mono<User> userMono = Mono.just(user);
@@ -605,5 +591,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                             .matching(query)
                             .one();
                 });
+    }
+
+
+    public static Query getQuery(List<Criteria> criteria) {
+        Query query = new Query();
+        criteria.forEach(query::addCriteria);
+        return query;
+    }
+
+        /*
+    Db query methods
+     */
+
+    public Mono<T> queryOne(List<Criteria> criteria) {
+        return mongoOperations.findOne(getQuery(criteria), genericDomain);
+    }
+
+    public Flux<T> queryMany(List<Criteria> criteria) {
+        return mongoOperations.find(getQuery(criteria), genericDomain);
     }
 }

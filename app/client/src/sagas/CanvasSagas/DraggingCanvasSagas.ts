@@ -13,7 +13,6 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import type { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
@@ -24,23 +23,25 @@ import type {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidget, getWidgets } from "sagas/selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
 import {
+  getCanvasWidth,
   getCurrentAppPositioningType,
+  getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { toast } from "design-system";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -343,13 +344,17 @@ function* moveWidgetsSaga(
        * If previous parent is an auto layout container,
        * then update the flex layers.
        */
-      const isMobile: boolean = yield select(getIsMobile);
+      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
         canvasId,
         true,
         isMobile,
+        mainCanvasWidth,
+        metaProps,
       );
     }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
@@ -406,7 +411,7 @@ function* moveWidgetsSaga(
 }
 
 function moveWidget(widgetMoveParams: WidgetMoveParams) {
-  Toaster.clear();
+  toast.dismiss();
   const {
     allWidgets,
     bottomRow,

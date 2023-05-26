@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import type { noop } from "lodash";
 
-import { Toaster, Variant } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -16,12 +15,13 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { toast } from "design-system";
 import type { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
@@ -61,9 +61,8 @@ export const GetNavigationMenuData = ({
       });
       history.push(APPLICATIONS_URL);
     } else {
-      Toaster.show({
-        text: "Error while deleting Application",
-        variant: Variant.danger,
+      toast.show("Error while deleting Application", {
+        kind: "error",
       });
     }
   };
@@ -81,7 +80,7 @@ export const GetNavigationMenuData = ({
       isVisible: true,
     },
     {
-      text: "Edit Name",
+      text: "Edit name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,
@@ -119,14 +118,14 @@ export const GetNavigationMenuData = ({
       isVisible: true,
       children: [
         {
-          text: "Community Forum",
+          text: "Community forum",
           onClick: () => openExternalLink("https://community.appsmith.com/"),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
         },
         {
-          text: "Discord Channel",
+          text: "Discord channel",
           onClick: () => openExternalLink("https://discord.gg/rBTTVJp"),
           type: MenuTypes.MENU,
           isVisible: true,
@@ -150,14 +149,14 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
-      text: "Export Application",
+      text: "Export application",
       onClick: () =>
         applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },
     hasDeleteApplicationPermission(currentApplication?.userPermissions) && {
-      text: "Delete Application",
+      text: "Delete application",
       confirmText: "Are you sure?",
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,

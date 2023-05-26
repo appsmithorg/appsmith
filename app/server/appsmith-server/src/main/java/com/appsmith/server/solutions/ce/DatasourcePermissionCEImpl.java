@@ -2,7 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 
-public class DatasourcePermissionCEImpl implements DatasourcePermissionCE {
+public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getReadPermission() {
         return AclPermission.READ_DATASOURCES;

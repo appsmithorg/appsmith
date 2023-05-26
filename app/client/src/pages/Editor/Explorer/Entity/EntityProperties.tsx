@@ -17,12 +17,14 @@ import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityClassNames } from ".";
+import { Button } from "design-system";
+import WidgetFactory from "utils/WidgetFactory";
 
-const CloseIcon = ControlIcons.CLOSE_CONTROL;
+// const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
@@ -33,6 +35,7 @@ const EntityInfoContainer = styled.div`
   max-width: 400px;
   max-height: ${BindingContainerMaxHeight}px;
   overflow-y: hidden;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const selectEntityInfo = (state: AppState) => state.ui.explorer.entityInfo;
@@ -52,7 +55,7 @@ export function EntityProperties() {
     );
   });
   const widgetEntity = useSelector((state: AppState) => {
-    const pageWidgets = state.ui.pageWidgets[pageId];
+    const pageWidgets = state.ui.pageWidgets[pageId]?.dsl;
     if (pageWidgets) {
       return pageWidgets[entityId];
     }
@@ -189,7 +192,7 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = entityDefinitions[type];
+      config = WidgetFactory.getAutocompleteDefinitions(type);
       if (!config) {
         return null;
       }
@@ -211,21 +214,23 @@ export function EntityProperties() {
   return (
     <EntityInfoContainer
       className={classNames({
-        "absolute bp3-popover overflow-y-auto overflow-x-hidden bg-white pb-4 flex flex-col justify-center z-10 delay-150 transition-all":
+        "absolute bp3-popover overflow-y-auto overflow-x-hidden bg-white pb-2 flex flex-col justify-center z-10 delay-150 transition-all":
           true,
         "-left-100": !show,
+        [EntityClassNames.CONTEXT_MENU_CONTENT]: true,
       })}
       ref={ref}
     >
       <div className="h-auto overflow-y-auto overflow-x-hidden relative">
-        <div className="sticky top-0 text-sm px-3 bg-white z-5 pt-4 pb-1 font-medium flex flex-row items-center justify-between w-[100%]">
-          BINDINGS
-          <CloseIcon
+        <div className="sticky top-0 text-sm px-3 z-5 pt-2 pb-1 font-medium flex flex-row items-center justify-between w-[100%]">
+          Bindings
+          <Button
             className="t--entity-property-close"
-            color="black"
-            height={18}
+            isIconButton
+            kind="tertiary"
             onClick={closeContainer}
-            width={18}
+            size="sm"
+            startIcon="close-control"
           />
         </div>
         {entityProperties.map((entityProperty: any) => (

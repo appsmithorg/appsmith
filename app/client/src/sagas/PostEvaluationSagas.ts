@@ -25,7 +25,6 @@ import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -38,14 +37,13 @@ import {
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import { toast } from "design-system";
 import type { ActionEntityConfig } from "entities/DataTree/types";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
@@ -239,9 +237,8 @@ export function* evalErrorHandler(
         if (error.context) {
           // Add more info about node for the toast
           const { dependencyMap, diffs, entityType, node } = error.context;
-          Toaster.show({
-            text: `${error.message} Node was: ${node}`,
-            variant: Variant.danger,
+          toast.show(`${error.message} Node was: ${node}`, {
+            kind: "error",
           });
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
@@ -271,9 +268,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
-        Toaster.show({
-          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
-          variant: Variant.danger,
+        toast.show(createMessage(ERROR_EVAL_ERROR_GENERIC), {
+          kind: "error",
         });
         break;
       }
@@ -286,17 +282,23 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
-        Sentry.captureException(new Error(error.message), {
-          extra: {
-            request: error.context,
-          },
-        });
+        /*
+         * https://github.com/appsmithorg/appsmith/issues/2654
+         * This code is being commented out to prevent these errors from going to Sentry
+         * till we come up with a more definitive solution to prevent this error
+         * Proposed solution - adding lint errors to editor to prevent these from happening
+         * */
+
+        // Sentry.captureException(new Error(error.message), {
+        //   extra: {
+        //     request: error.context,
+        //   },
+        // });
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        Toaster.show({
-          text: `${error.message} at: ${error.context?.entity.name}`,
-          variant: Variant.danger,
+        toast.show(`${error.message} at: ${error.context?.entity.name}`, {
+          kind: "error",
         });
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,
@@ -323,6 +325,7 @@ export function* logSuccessfulBindings(
   isCreateFirstTree: boolean,
   isNewWidgetAdded: boolean,
   configTree: ConfigTree,
+  undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -341,6 +344,10 @@ export function* logSuccessfulBindings(
       | ActionEntityConfig;
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
+      let isUndefined = false;
+
+      isUndefined = get(undefinedEvalValuesMap, evaluatedPath) || false;
+
       const entityType = isAction(entity)
         ? entityConfig.pluginType
         : entity.type;
@@ -375,14 +382,6 @@ export function* logSuccessfulBindings(
       const hasErrors = errors.length > 0;
       if (!hasErrors) {
         if (!isCreateFirstTree) {
-          // we only aim to log binding success which were added by user
-          // for first evaluation, bindings are not added by user hence skipping it.
-          AnalyticsUtil.logEvent("BINDING_SUCCESS", {
-            unevalValue,
-            entityType,
-            propertyPath,
-          });
-
           /**Log the binding only if it doesn't already exist */
           if (
             !successfulBindingPaths[evaluatedPath] ||
@@ -393,9 +392,11 @@ export function* logSuccessfulBindings(
               unevalValue,
               entityType,
               propertyPath,
+              isUndefined,
             });
           }
         }
+
         successfulBindingPaths[evaluatedPath] = unevalValue;
       } else {
         /**Remove the binding from the map so that in case it is added again, we log it*/
@@ -450,10 +451,8 @@ export function* updateTernDefinitions(
     dataTree,
     configTree,
   );
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
     dataTreeForAutocomplete,
-    !!featureFlags.JS_EDITOR,
     jsData,
     configTree,
   );

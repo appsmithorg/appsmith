@@ -13,22 +13,26 @@ import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import { JSToString, stringToJS } from "./utils";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
+
+  > .code-wrapper {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: var(--ads-v2-color-fg);
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 export function InputText(props: {
@@ -54,7 +58,8 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -67,9 +72,12 @@ export function InputText(props: {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentRow.columnName
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            Access the current cell using{" "}
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              currentRow.columnName
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}

@@ -128,3 +128,22 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
 
 export const hideDebuggerIconSelector = () =>
   matchDatasourcePath(window.location.pathname);
+
+// get selected tab in debugger.
+export const getDebuggerSelectedTab = (state: AppState) =>
+  state.ui.debugger.context.selectedDebuggerTab;
+
+export const getResponsePaneHeight = (state: AppState) =>
+  state.ui.debugger.context.responseTabHeight;
+
+export const getErrorCount = (state: AppState) =>
+  state.ui.debugger.context.errorCount;
+
+export const getScrollPosition = (state: AppState) =>
+  state.ui.debugger.context.scrollPosition;
+
+export const getDebuggerContext = (state: AppState) =>
+  state.ui.debugger.context;
+
+export const showDebuggerFlag = (state: AppState) =>
+  state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;

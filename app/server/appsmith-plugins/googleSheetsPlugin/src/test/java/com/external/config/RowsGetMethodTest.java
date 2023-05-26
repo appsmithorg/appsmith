@@ -22,7 +22,7 @@ public class RowsGetMethodTest {
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         try {
-            rowsGetMethod.transformExecutionResponse(null, null);
+            rowsGetMethod.transformExecutionResponse(null, null, null);
         } catch (AppsmithPluginException e) {
             assertTrue(ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG.equalsIgnoreCase(e.getMessage()));
         }
@@ -39,7 +39,7 @@ public class RowsGetMethodTest {
         assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
-        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -59,7 +59,7 @@ public class RowsGetMethodTest {
         assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
-        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -79,7 +79,7 @@ public class RowsGetMethodTest {
         assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
-        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -104,7 +104,7 @@ public class RowsGetMethodTest {
         assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
-        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray() && result.size() == 8);
@@ -131,7 +131,7 @@ public class RowsGetMethodTest {
         assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
-        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -159,7 +159,7 @@ public class RowsGetMethodTest {
         assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
-        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build(), null);
 
         assertNotNull(result);
         assertTrue(result.isArray());

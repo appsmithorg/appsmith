@@ -4,7 +4,11 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import type { Datasource } from "entities/Datasource";
+import type {
+  AuthenticationStatus,
+  Datasource,
+  FilePickerActionStatus,
+} from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
@@ -36,10 +40,15 @@ export const updateDatasource = (
   payload: Datasource,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
-): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
+  isInsideReconnectModal?: boolean,
+): ReduxActionWithCallbacks<
+  Datasource & { isInsideReconnectModal: boolean },
+  unknown,
+  unknown
+> => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload,
+    payload: { ...payload, isInsideReconnectModal: !!isInsideReconnectModal },
     onSuccess,
     onError,
   };
@@ -105,6 +114,34 @@ export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
     },
   };
 };
+
+export const fetchGheetSpreadsheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+  payload,
+});
+
+export const fetchGheetSheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+  sheetUrl: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SHEETS,
+  payload,
+});
+
+export const fetchGheetColumns = (payload: {
+  datasourceId: string;
+  pluginId: string;
+  sheetName: string;
+  sheetUrl: string;
+  headerIndex: number;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_COLUMNS,
+  payload,
+});
 
 export const expandDatasourceEntity = (id: string) => {
   return {
@@ -370,12 +407,43 @@ export const initializeDatasourceFormDefaults = (pluginType: string) => {
 // is used for handling file picker callback, when user selects files/cancels the selection
 // this callback action will be triggered
 export const filePickerCallbackAction = (data: {
-  action: string;
+  action: FilePickerActionStatus;
   datasourceId: string;
+  fileIds: Array<string>;
 }) => {
   return {
     type: ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
     payload: data,
+  };
+};
+
+// This action triggers google sheet file picker to load on blank page
+export const loadFilePickerAction = () => {
+  return {
+    type: ReduxActionTypes.LOAD_FILE_PICKER_ACTION,
+  };
+};
+
+// updates google sheet datasource auth state, in case of selected sheets
+export const updateDatasourceAuthState = (
+  datasource: Datasource,
+  authStatus: AuthenticationStatus,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
+    payload: {
+      datasource: datasource,
+      authStatus: authStatus,
+    },
+  };
+};
+
+export const datasourceDiscardAction = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
+    payload: {
+      pluginId: pluginId,
+    },
   };
 };
 

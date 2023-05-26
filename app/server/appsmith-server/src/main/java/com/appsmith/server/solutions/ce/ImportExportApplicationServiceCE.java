@@ -29,19 +29,37 @@ public interface ImportExportApplicationServiceCE {
     /**
      * This function will take the Json filepart and saves the application in workspace
      *
-     * @param workspaceId    workspace to which the application needs to be hydrated
-     * @param filePart Json file which contains the entire application object
+     * @param workspaceId workspace to which the application needs to be hydrated
+     * @param filePart    Json file which contains the entire application object
      * @return saved application in DB
      */
     Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart);
 
-    Mono<Application> mergeApplicationJsonWithApplication(String organizationId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport);
+    /**
+     * This function will take the Json filepart and saves the application in workspace
+     *
+     * @param workspaceId   Workspace to which the application needs to be hydrated
+     * @param filePart      Json file which contains the entire application object
+     * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
+     * @param branchName    If application is connected to git update the branched app
+     * @return saved application in DB
+     */
+    Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
+                                                                                      Part filePart,
+                                                                                      String applicationId,
+                                                                                      String branchName);
+
+    Mono<Application> mergeApplicationJsonWithApplication(String workspaceId,
+                                                          String applicationId,
+                                                          String branchName,
+                                                          ApplicationJson applicationJson,
+                                                          List<String> pagesToImport);
 
     /**
      * This function will save the application to workspace from the application resource
      *
      * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
+     * @param importedDoc application resource which contains necessary information to save the application
      * @return saved application in DB
      */
     Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc);
@@ -49,15 +67,15 @@ public interface ImportExportApplicationServiceCE {
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
-     * @param workspaceId workspace to which application is going to be stored
-     * @param importedDoc    application resource which contains necessary information to save the application
-     * @param applicationId  application which needs to be saved with the updated resources
+     * @param workspaceId   workspace to which application is going to be stored
+     * @param importedDoc   application resource which contains necessary information to save the application
+     * @param applicationId application which needs to be saved with the updated resources
      * @return Updated application
      */
     Mono<Application> importApplicationInWorkspace(String workspaceId,
-                                                      ApplicationJson importedDoc,
-                                                      String applicationId,
-                                                      String branchName);
+                                                   ApplicationJson importedDoc,
+                                                   String applicationId,
+                                                   String branchName);
 
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
 

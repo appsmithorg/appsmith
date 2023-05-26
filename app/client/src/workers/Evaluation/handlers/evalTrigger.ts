@@ -16,12 +16,14 @@ export default async function (request: EvalWorkerASyncRequest) {
     return { triggers: [], errors: [] };
   }
 
-  ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
+  ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
+
   const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
     dataTreeEvaluator.setupUpdateTree(
       unEvalTree.unEvalTree,
       unEvalTree.configTree,
     );
+
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
@@ -29,12 +31,10 @@ export default async function (request: EvalWorkerASyncRequest) {
     unEvalUpdates,
   );
   const evalTree = dataTreeEvaluator.evalTree;
-  const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     evalTree,
-    resolvedFunctions,
     callbackData,
     {
       globalContext,

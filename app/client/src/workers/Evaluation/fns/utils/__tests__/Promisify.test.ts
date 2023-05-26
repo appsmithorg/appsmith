@@ -12,7 +12,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: {},
-      resolvedFunctions: {},
     };
   },
 }));
@@ -32,7 +31,7 @@ describe("Tests for promisify util", () => {
   };
   const eventType = EventType.ON_PAGE_LOAD;
   beforeAll(() => {
-    ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
+    ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
   });
   it("Should dispatch payload return by descriptor", async () => {
     const metaDataSpy = jest.spyOn(ExecutionMetaData, "setExecutionMetaData");
@@ -48,6 +47,8 @@ describe("Tests for promisify util", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "TEST_TYPE",
           payload: { key: 123 },
@@ -57,6 +58,11 @@ describe("Tests for promisify util", () => {
       },
     });
     expect(metaDataSpy).toBeCalledTimes(1);
-    expect(metaDataSpy).toBeCalledWith(triggerMeta, eventType);
+    expect(metaDataSpy).toBeCalledWith({
+      triggerMeta,
+      eventType,
+      enableJSFnPostProcessors: true,
+      enableJSVarUpdateTracking: true,
+    });
   });
 });

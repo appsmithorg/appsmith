@@ -13,6 +13,18 @@ export enum AuthenticationStatus {
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE",
 }
+
+export enum FilePickerActionStatus {
+  CANCEL = "cancel",
+  PICKED = "picked",
+  LOADED = "loaded",
+}
+
+export enum ActionType {
+  AUTHORIZE = "authorize",
+  DOCUMENTATION = "picked",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -61,11 +73,13 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
+  type?: string;
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
   userPermissions?: string[];
   isDeleting?: boolean;
+  isMock?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (

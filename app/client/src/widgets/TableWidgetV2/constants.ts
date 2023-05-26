@@ -22,6 +22,12 @@ export type EditableCell = {
   inputValue: string;
 };
 
+export enum PaginationDirection {
+  INITIAL = "INITIAL",
+  PREVIOUS_PAGE = "PREVIOUS_PAGE",
+  NEXT_PAGE = "NEXT_PAGE",
+}
+
 export enum EditableCellActions {
   SAVE = "SAVE",
   DISCARD = "DISCARD",

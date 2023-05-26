@@ -1,6 +1,6 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
 import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 export default [
@@ -9,7 +9,7 @@ export default [
     children: [
       {
         propertyName: "scannerLayout",
-        label: "Scanner Layout",
+        label: "Scanner layout",
         controlType: "ICON_TABS",
         defaultValue: ScannerLayout.ALWAYS_ON,
         fullWidth: true,
@@ -17,14 +17,15 @@ export default [
           'Sets how the code scanner will look and behave. If set to "Always on", the scanner will be visible and scanning all the time. If set to "Click to Scan", the scanner will pop up inside a modal and start scanning when the user clicks on the button.',
         options: [
           {
-            label: "Always On",
+            label: "Always on",
             value: ScannerLayout.ALWAYS_ON,
           },
           {
-            label: "Click to Scan",
+            label: "Click to scan",
             value: ScannerLayout.CLICK_TO_SCAN,
           },
         ],
+        hidden: isAutoLayout,
         isJSConvertible: false,
         isBindProperty: false,
         isTriggerProperty: false,
@@ -70,7 +71,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,
@@ -94,13 +95,12 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("CODE_SCANNER_WIDGET"),
 
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a valid code is detected",
+        helpText: "when a valid code is detected",
         propertyName: "onCodeDetected",
         label: "onCodeDetected",
         controlType: "ACTION_SELECTOR",

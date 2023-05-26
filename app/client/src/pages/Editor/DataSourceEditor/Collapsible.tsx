@@ -1,21 +1,20 @@
 import React, { useCallback, useEffect } from "react";
-import { Collapse, Icon } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import type { IconName } from "design-system-old";
-import { Icon as AdsIcon, IconSize } from "design-system-old";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasourceCollapsibleState } from "selectors/ui";
 import { setDatasourceCollapsible } from "actions/datasourceActions";
 import isUndefined from "lodash/isUndefined";
+import { Divider } from "design-system";
+import { Icon } from "design-system";
 
 const SectionLabel = styled.div`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
   letter-spacing: -0.17px;
-  color: #4e5d78;
+  color: var(--ads-v2-color-fg);
   display: flex;
   .cs-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
@@ -27,16 +26,14 @@ const SectionContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 240px;
+  width: 270px;
   cursor: pointer;
-  margin-bottom: 5;
+  margin-bottom: 5px;
 `;
 
-const TopBorder = styled.div`
-  height: 1px;
-  background-color: ${Colors.ALTO};
+const TopBorder = styled(Divider)`
   margin-top: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 `;
 
 interface ComponentProps {
@@ -45,7 +42,7 @@ interface ComponentProps {
   defaultIsOpen?: boolean;
   // header icon props of collapse header
   headerIcon?: {
-    name: IconName;
+    name: string;
     color?: string;
   };
   showTopBorder?: boolean;
@@ -80,7 +77,10 @@ function Collapsible(props: Props) {
   }, [defaultIsOpen, isOpen]);
 
   return (
-    <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
+    <section
+      data-replay-id={`section-${title}`}
+      data-testid={`section-${title}`}
+    >
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
       {showSection && (
         <SectionContainer
@@ -89,18 +89,11 @@ function Collapsible(props: Props) {
         >
           <SectionLabel>
             {title}
-            {headerIcon && (
-              <AdsIcon
-                fillColor={headerIcon.color}
-                name={headerIcon.name}
-                size={IconSize.MEDIUM}
-              />
-            )}
+            {headerIcon && <Icon name={headerIcon.name} size="md" />}
           </SectionLabel>
           <Icon
-            icon={isOpen ? "chevron-up" : "chevron-down"}
-            iconSize={16}
-            style={{ color: "#2E3D49" }}
+            name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
+            size="md"
           />
         </SectionContainer>
       )}

@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { ICON_NAMES } from "widgets/MenuButtonWidget/constants";
 import {
   booleanForEachRowValidation,
@@ -83,7 +83,7 @@ export default {
       children: [
         {
           helpText:
-            "Triggers an action when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
+            "when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
           propertyName: "onClick",
           label: "onClick",
           controlType: "ACTION_SELECTOR",
@@ -127,13 +127,14 @@ export default {
             "Sets the icon alignment of a menu item. Can also be configured the using {{currentItem}} binding.",
           controlType: "ICON_TABS",
           defaultValue: "left",
+          fullWidth: false,
           options: [
             {
-              icon: "VERTICAL_LEFT",
+              startIcon: "skip-left-line",
               value: "left",
             },
             {
-              icon: "VERTICAL_RIGHT",
+              startIcon: "skip-right-line",
               value: "right",
             },
           ],

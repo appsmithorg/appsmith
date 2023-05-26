@@ -9,7 +9,7 @@ export default [
     children: [
       {
         propertyName: "menuVariant",
-        label: "Button Variant",
+        label: "Button variant",
         controlType: "DROP_DOWN",
         helpText: "Sets the variant of the menu button",
         options: [
@@ -78,15 +78,15 @@ export default [
         label: "Position",
         helpText: "Sets the icon alignment of the menu button",
         controlType: "ICON_TABS",
-        fullWidth: true,
         defaultValue: "left",
+        fullWidth: false,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],
@@ -142,7 +142,7 @@ export default [
       {
         propertyName: "menuColor",
         helpText: "Sets the style of the Menu button",
-        label: "Button Color",
+        label: "Button color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -152,11 +152,11 @@ export default [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
@@ -166,7 +166,7 @@ export default [
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",

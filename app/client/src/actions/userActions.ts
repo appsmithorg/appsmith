@@ -68,6 +68,10 @@ export const updateUserDetails = (payload: UpdateUserRequest) => ({
   payload,
 });
 
+export const updateIntercomConsent = () => ({
+  type: ReduxActionTypes.UPDATE_USER_INTERCOM_CONSENT,
+});
+
 export const updatePhoto = (payload: {
   file: File;
   callback?: (id: string) => void;

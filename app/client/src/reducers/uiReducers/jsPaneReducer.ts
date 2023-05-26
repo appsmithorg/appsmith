@@ -7,14 +7,18 @@ import {
 import type { JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
+export enum JSEditorTab {
+  CODE = "CODE",
+  SETTINGS = "SETTINGS",
+}
+
 export interface JsPaneReduxState {
   isCreating: boolean;
   isFetching: boolean;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
-  selectedConfigTabIndex: number;
-  selectedResponseTab: string;
+  selectedConfigTab: JSEditorTab;
   responseTabHeight: number;
 }
 
@@ -25,8 +29,7 @@ const initialState: JsPaneReduxState = {
   isDeleting: {},
   isDirty: {},
   responseTabHeight: ActionExecutionResizerHeight,
-  selectedConfigTabIndex: 0,
-  selectedResponseTab: "",
+  selectedConfigTab: JSEditorTab.CODE,
 };
 
 const jsPaneReducer = createReducer(initialState, {
@@ -173,32 +176,12 @@ const jsPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_JS_PANE_CONFIG_SELECTED_TAB]: (
     state: JsPaneReduxState,
-    action: ReduxAction<{ selectedTabIndex: number }>,
-  ) => {
-    const { selectedTabIndex } = action.payload;
-    return {
-      ...state,
-      selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_JS_PANE_RESPONSE_SELECTED_TAB]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
+    action: ReduxAction<{ selectedTab: JSEditorTab }>,
   ) => {
     const { selectedTab } = action.payload;
     return {
       ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
-  [ReduxActionTypes.SET_JS_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
+      selectedConfigTab: selectedTab,
     };
   },
 });

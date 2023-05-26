@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -106,5 +105,15 @@ public class Plugin extends BaseDomain {
     @Transient
     @JsonView(Views.Public.class)
     Map<String, String> templates;
+
+    // Field to distinguish if the plugin is supported in air-gap instance, by default all the plugins will be supported.
+    // One can opt out by adding this field in DB object. Generally SaaS plugins and DB which can't be self-hosted can
+    // be a candidate for opting out of air-gap
+    @JsonView(Views.Internal.class)
+    boolean isSupportedForAirGap = true;
+
+    // Config to set if the plugin has any dependency on cloud-services
+    @JsonView(Views.Internal.class)
+    Boolean isDependentOnCS;
 
 }

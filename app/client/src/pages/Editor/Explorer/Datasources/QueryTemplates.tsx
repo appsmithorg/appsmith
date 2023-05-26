@@ -1,6 +1,4 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "@appsmith/reducers";
@@ -10,32 +8,18 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { QueryAction } from "entities/Action";
-import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
-
-const Container = styled.div`
-  background-color: ${(props) => props.theme.colors.queryTemplate.bg};
-  color: ${(props) => props.theme.colors.textOnDarkBG};
-  min-width: 160px;
-  padding: 5px;
-`;
-
-const TemplateType = styled.div`
-  color: ${(props) => props.theme.colors.queryTemplate.color};
-  padding: 8px;
-  &:hover {
-    cursor: pointer;
-    background: ${Colors.Gallery};
-  }
-`;
+import { MenuItem } from "design-system";
+import type { Plugin } from "api/PluginApi";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
   datasourceId: string;
+  onSelect: () => void;
 };
 
 export function QueryTemplates(props: QueryTemplatesProps) {
@@ -45,6 +29,9 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
+  );
+  const plugin: Plugin | undefined = useSelector((state: AppState) =>
+    getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
   );
   const createQueryAction = useCallback(
     (template: QueryTemplate) => {
@@ -70,6 +57,8 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             actionType: "Query",
             from: "explorer-template",
             dataSource: dataSource?.name,
+            datasourceId: props.datasourceId,
+            pluginName: plugin?.name,
           },
           ...queryactionConfiguration,
         }),
@@ -92,19 +81,21 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   );
 
   return (
-    <Container>
+    <>
       {props.templates.map((template) => {
         return (
-          <TemplateType
-            className={Classes.POPOVER_DISMISS}
+          <MenuItem
             key={template.title}
-            onClick={() => createQueryAction(template)}
+            onSelect={() => {
+              createQueryAction(template);
+              props.onSelect();
+            }}
           >
             {template.title}
-          </TemplateType>
+          </MenuItem>
         );
       })}
-    </Container>
+    </>
   );
 }
 

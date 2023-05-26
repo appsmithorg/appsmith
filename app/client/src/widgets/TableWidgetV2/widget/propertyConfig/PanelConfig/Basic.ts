@@ -11,7 +11,7 @@ import {
 import { IconNames } from "@blueprintjs/icons";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 
@@ -81,7 +81,7 @@ export default {
     {
       propertyName: "menuItemsSource",
       helpText: "Sets the source for the menu items",
-      label: "Menu Items Source",
+      label: "Menu items source",
       controlType: "ICON_TABS",
       fullWidth: true,
       defaultValue: MenuItemsSource.STATIC,
@@ -118,7 +118,7 @@ export default {
     {
       helpText: "Takes in an array of items to display the menu items.",
       propertyName: "sourceData",
-      label: "Source Data",
+      label: "Source data",
       controlType: "TABLE_COMPUTE_VALUE",
       placeholderText: "{{Query1.data}}",
       isBindProperty: true,
@@ -153,10 +153,10 @@ export default {
       propertyName: "configureMenuItems",
       controlType: "OPEN_CONFIG_PANEL",
       buttonConfig: {
-        label: "Item Configuration",
+        label: "Configure",
         icon: "settings-2-line",
       },
-      label: "Configure Menu Items",
+      label: "Configure menu items",
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) =>
@@ -180,7 +180,7 @@ export default {
       helpText: "Menu items",
       propertyName: "menuItems",
       controlType: "MENU_ITEMS",
-      label: "Menu Items",
+      label: "Menu items",
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -216,7 +216,7 @@ export default {
                 dependencies: ["primaryColumns", "columnOrder"],
               },
               {
-                helpText: "Triggers an action when the menu item is clicked",
+                helpText: "when the menu item is clicked",
                 propertyName: "onClick",
                 label: "onClick",
                 controlType: "ACTION_SELECTOR",
@@ -287,13 +287,14 @@ export default {
                 helpText: "Sets the icon alignment of a menu item",
                 controlType: "ICON_TABS",
                 defaultValue: "left",
+                fullWidth: false,
                 options: [
                   {
-                    icon: "VERTICAL_LEFT",
+                    startIcon: "skip-left-line",
                     value: "left",
                   },
                   {
-                    icon: "VERTICAL_RIGHT",
+                    startIcon: "skip-right-line",
                     value: "right",
                   },
                 ],
@@ -362,7 +363,7 @@ export default {
       },
     },
     {
-      helpText: "Triggers an action when the button is clicked",
+      helpText: "when the button is clicked",
       propertyName: "onClick",
       label: "onClick",
       controlType: "ACTION_SELECTOR",

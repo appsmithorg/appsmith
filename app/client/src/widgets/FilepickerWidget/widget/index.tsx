@@ -17,6 +17,8 @@ import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -27,6 +29,17 @@ class FilePickerWidget extends BaseWidget<
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+      "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      files: "[$__file__$]",
+      isDisabled: "bool",
     };
   }
 
@@ -80,7 +93,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
-            label: "Allowed File Types",
+            label: "Allowed file types",
             controlType: "DROP_DOWN",
             isMultiSelect: true,
             placeholderText: "Select file types",
@@ -142,7 +155,7 @@ class FilePickerWidget extends BaseWidget<
           {
             helpText: "Set the format of the data read from the files",
             propertyName: "fileDataType",
-            label: "Data Format",
+            label: "Data format",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -193,7 +206,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -209,7 +222,7 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
+              "when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
             propertyName: "onFilesSelected",
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",

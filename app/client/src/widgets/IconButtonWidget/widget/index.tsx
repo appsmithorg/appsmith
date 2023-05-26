@@ -11,8 +11,9 @@ import { IconNames } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
 import type { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import IconButtonComponent from "../component";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -53,7 +54,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             },
           },
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",
@@ -98,7 +99,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -109,7 +110,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -120,7 +120,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "buttonVariant",
-            label: "Button Variant",
+            label: "Button variant",
             controlType: "ICON_TABS",
             defaultValue: ButtonVariantTypes.PRIMARY,
             fullWidth: true,
@@ -162,7 +162,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           {
             propertyName: "buttonColor",
             helpText: "Sets the style of the icon button",
-            label: "Button Color",
+            label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -177,11 +177,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -192,7 +192,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -250,6 +250,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         }
       />
     );
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Icon button widget is just an icon, along with all other button properties.",
+      "!url": "https://docs.appsmith.com/widget-reference/icon-button",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
   }
 
   static getWidgetType(): WidgetType {

@@ -1,14 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  createMessage,
   ACTION_OPERATION_DESCRIPTION,
+  createMessage,
   DOC_DESCRIPTION,
   NAV_DESCRIPTION,
   SNIPPET_DESCRIPTION,
 } from "@appsmith/constants/messages";
 import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
-import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -18,8 +17,8 @@ import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   CurlIconV2,
-  JsFileIconV2,
   GraphQLIconV2,
+  JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
@@ -28,7 +27,7 @@ import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
-import type { FocusEntity } from "navigation/FocusEntity";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -47,7 +46,7 @@ export enum SEARCH_CATEGORY_ID {
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
-  ACTION_OPERATION = "Create New",
+  ACTION_OPERATION = "Create new",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -156,19 +155,19 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     desc: createMessage(NAV_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: {
-    title: "Create New",
+    title: "Create new",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
     desc: createMessage(ACTION_OPERATION_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
-    title: "Use Snippets",
+    title: "Use snippets",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
-    title: "Search Documentation",
+    title: "Search documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
     desc: createMessage(DOC_DESCRIPTION),
@@ -317,18 +316,25 @@ export const attachKind = (source: any[], kind: string) => {
   }));
 };
 
-export const getEntityId = (entity: any) => {
+export const getEntityId = (entity: {
+  entityType: FocusEntity;
+  [key: string]: any;
+}) => {
   const { entityType } = entity;
   switch (entityType) {
-    case "page":
-      return entity.pageId;
-    case "datasource":
+    case FocusEntity.DATASOURCE:
       return entity.id;
-    case "widget":
-      return entity.widgetId;
-    case "action":
-    case "jsAction":
+    case FocusEntity.API:
+    case FocusEntity.QUERY:
+    case FocusEntity.JS_OBJECT:
       return entity.config?.id;
+    case FocusEntity.PROPERTY_PANE:
+      return entity.widgetId;
+    case FocusEntity.CANVAS:
+    case FocusEntity.PAGE:
+      return entity.pageId;
+    case FocusEntity.NONE:
+      break;
   }
 };
 
@@ -344,14 +350,14 @@ export type ActionOperation = {
 
 export const actionOperations: ActionOperation[] = [
   {
-    title: "New Blank API",
+    title: "New blank API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (pageId: string, location: EventLocation) =>
       createNewApiAction(pageId, location),
   },
   {
-    title: "New Blank GraphQL API",
+    title: "New blank GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -359,7 +365,7 @@ export const actionOperations: ActionOperation[] = [
       createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
   },
   {
-    title: "New JS Object",
+    title: "New JS object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),
@@ -367,7 +373,7 @@ export const actionOperations: ActionOperation[] = [
       createNewJSCollection(pageId, from),
   },
   {
-    title: "New cURL Import",
+    title: "New cURL import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,

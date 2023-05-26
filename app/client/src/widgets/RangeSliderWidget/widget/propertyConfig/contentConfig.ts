@@ -1,8 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { RangeSliderWidgetProps } from "..";
 import {
   endValueValidation,
@@ -20,7 +20,7 @@ export default [
       {
         propertyName: "min",
         helpText: "Sets the min value of the widget",
-        label: "Min. Value",
+        label: "Min. value",
         controlType: "INPUT_TEXT",
         placeholderText: "0",
         isBindProperty: true,
@@ -40,7 +40,7 @@ export default [
       {
         propertyName: "max",
         helpText: "Sets the max value of the widget",
-        label: "Max. Value",
+        label: "Max. value",
         controlType: "INPUT_TEXT",
         placeholderText: "100",
         isBindProperty: true,
@@ -60,7 +60,7 @@ export default [
       {
         propertyName: "step",
         helpText: "The amount by which the slider value should increase",
-        label: "Step Size",
+        label: "Step size",
         controlType: "INPUT_TEXT",
         placeholderText: "10",
         isBindProperty: true,
@@ -80,7 +80,7 @@ export default [
       {
         propertyName: "minRange",
         helpText: "Sets the min range of the widget",
-        label: "Min. Range",
+        label: "Min. range",
         controlType: "INPUT_TEXT",
         placeholderText: "10",
         isBindProperty: true,
@@ -100,7 +100,7 @@ export default [
       {
         propertyName: "defaultStartValue",
         helpText: "Sets the start value of the widget",
-        label: "Default Start Value",
+        label: "Default start value",
         controlType: "INPUT_TEXT",
         placeholderText: "Start Value:",
         isBindProperty: true,
@@ -120,7 +120,7 @@ export default [
       {
         propertyName: "defaultEndValue",
         helpText: "Sets the end value of the widget",
-        label: "Default End Value",
+        label: "Default end value",
         controlType: "INPUT_TEXT",
         placeholderText: "End Value:",
         isBindProperty: true,
@@ -158,6 +158,7 @@ export default [
         label: "Position",
         controlType: "ICON_TABS",
         fullWidth: true,
+        hidden: isAutoLayout,
         options: [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
@@ -172,13 +173,14 @@ export default [
         propertyName: "labelAlignment",
         label: "Alignment",
         controlType: "LABEL_ALIGNMENT_OPTIONS",
+        fullWidth: false,
         options: [
           {
-            icon: "LEFT_ALIGN",
+            startIcon: "align-left",
             value: Alignment.LEFT,
           },
           {
-            icon: "RIGHT_ALIGN",
+            startIcon: "align-right",
             value: Alignment.RIGHT,
           },
         ],
@@ -226,7 +228,7 @@ export default [
       {
         propertyName: "showMarksLabel",
         helpText: "Show the marks label below the slider",
-        label: "Show Marks",
+        label: "Show marks",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -296,7 +298,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,
@@ -317,12 +319,11 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("RANGE_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onStartValueChange",
         label: "onStartValueChange",
         controlType: "ACTION_SELECTOR",
@@ -331,7 +332,7 @@ export default [
         isTriggerProperty: true,
       },
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onEndValueChange",
         label: "onEndValueChange",
         controlType: "ACTION_SELECTOR",

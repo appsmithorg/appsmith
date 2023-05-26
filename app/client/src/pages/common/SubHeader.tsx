@@ -1,12 +1,17 @@
 import type { ReactNode } from "react";
-import React from "react";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { ControlGroup } from "@blueprintjs/core";
+import React, { useState } from "react";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import { Button, SearchInput, SearchVariant, Size } from "design-system-old";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalBody,
+  ModalHeader,
+  SearchInput,
+} from "design-system";
 import { useSelector } from "react-redux";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
@@ -17,26 +22,13 @@ const SubHeaderWrapper = styled.div<{
   width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
-  ${(props) =>
-    props.isBannerVisible
-      ? "margin-top: 96px"
-      : `margin-top: ${props.theme.spaces[11]}px`};
-  background: ${(props) => props.theme.colors.homepageBackground};
-  z-index: ${Indices.Layer9};
-  margin-left: ${(props) => props.theme.spaces[4]}px;
+  ${(props) => (props.isBannerVisible ? "margin-top: 96px" : "")};
+  background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
-  .bp3-control-group {
-    display: block;
-  }
-  && {
-    .bp3-input {
-      width: 40%;
-    }
-  }
 `;
 
 type SubHeaderProps = {
@@ -60,15 +52,13 @@ type SubHeaderProps = {
 };
 
 export function ApplicationsSubHeader(props: SubHeaderProps) {
+  const [showModal, setShowModal] = useState(false);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
   const query =
     props.search &&
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
-  const createTrigger = props.add && (
-    <Button size={Size.medium} text={props.add.title} />
-  );
 
   return (
     <SubHeaderWrapper
@@ -77,27 +67,29 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     >
       <SearchContainer>
         {props.search && (
-          <ControlGroup>
-            <SearchInput
-              border={isMobile}
-              cypressSelector={"t--application-search-input"}
-              defaultValue={props.search.defaultValue}
-              disabled={isFetchingApplications}
-              onChange={query || noop}
-              placeholder={props.search.placeholder}
-              variant={SearchVariant.BACKGROUND}
-              width={isMobile ? "100%" : "228px"}
-            />
-          </ControlGroup>
+          <SearchInput
+            data-testid="t--application-search-input"
+            defaultValue={props.search.defaultValue}
+            isDisabled={isFetchingApplications}
+            onChange={query || noop}
+            placeholder={props.search.placeholder}
+          />
         )}
       </SearchContainer>
 
       {props.add && (
-        <FormDialogComponent
-          Form={props.add.form}
-          title={props.add.title}
-          trigger={createTrigger}
-        />
+        <>
+          <Button size="md">{props.add.title}</Button>
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
+          >
+            <ModalContent style={{ width: "640px" }}>
+              <ModalHeader>{props.add.title}</ModalHeader>
+              <ModalBody>{props.add.form}</ModalBody>
+            </ModalContent>
+          </Modal>
+        </>
       )}
     </SubHeaderWrapper>
   );

@@ -10,6 +10,7 @@ import {
   getDerivedColumns,
   getHeaderClassNameOnDragDirection,
   getOriginalRowIndex,
+  getSelectOptions,
   getSelectRowIndex,
   getSelectRowIndices,
   getSourceDataAndCaluclateKeysForEventAutoComplete,
@@ -2070,7 +2071,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
                 },
               ],
               configureMenuItems: {
-                label: "Configure Menu Items",
+                label: "Configure menu items",
                 id: "config",
                 config: {
                   id: "config",
@@ -2151,7 +2152,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               sourceData: [],
               configureMenuItems: {
-                label: "Configure Menu Items",
+                label: "Configure menu items",
                 id: "config",
                 config: {
                   id: "config",
@@ -2225,7 +2226,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               menuItemsSource: "DYNAMIC",
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               configureMenuItems: {
-                label: "Configure Menu Items",
+                label: "Configure menu items",
                 id: "config",
                 config: {
                   id: "config",
@@ -2551,5 +2552,122 @@ describe("getHeaderClassNameOnDragDirection", () => {
     expect(getHeaderClassNameOnDragDirection(1, 2)).toEqual(
       "th header-reorder highlight-right",
     );
+  });
+});
+
+describe("getSelectOptions", () => {
+  it("Should return select options when user is not adding a new row", () => {
+    const columnProperties = {
+      allowSameOptionsInNewRow: true,
+      selectOptions: [
+        {
+          label: "male",
+          value: "male",
+        },
+        {
+          label: "female",
+          value: "female",
+        },
+      ],
+    };
+    expect(
+      getSelectOptions(false, 0, columnProperties as ColumnProperties),
+    ).toEqual([
+      {
+        label: "male",
+        value: "male",
+      },
+      {
+        label: "female",
+        value: "female",
+      },
+    ]);
+
+    // Check when select options are inside dynamic binding
+    const columnPropertiesDynamicSelectOptions = {
+      allowSameOptionsInNewRow: true,
+      selectOptions: [
+        [
+          {
+            label: "abc",
+            value: "abc",
+          },
+        ],
+        [
+          {
+            label: "efg",
+            value: "efg",
+          },
+        ],
+        [
+          {
+            label: "xyz",
+            value: "xyz",
+          },
+        ],
+      ],
+    };
+    expect(
+      getSelectOptions(
+        false,
+        0,
+        columnPropertiesDynamicSelectOptions as ColumnProperties,
+      ),
+    ).toEqual([
+      {
+        label: "abc",
+        value: "abc",
+      },
+    ]);
+  });
+
+  it("Should return select options while adding a new row and when 'Same options in new row' option is turned on", () => {
+    const columnProperties = {
+      allowSameOptionsInNewRow: true,
+      selectOptions: [
+        {
+          label: "male",
+          value: "male",
+        },
+        {
+          label: "female",
+          value: "female",
+        },
+      ],
+    };
+
+    expect(
+      getSelectOptions(true, -1, columnProperties as ColumnProperties),
+    ).toEqual([
+      {
+        label: "male",
+        value: "male",
+      },
+      {
+        label: "female",
+        value: "female",
+      },
+    ]);
+  });
+
+  it("Should return new row options", () => {
+    const columnProperties = {
+      allowSameOptionsInNewRow: false,
+      newRowSelectOptions: [
+        {
+          label: "abc",
+          value: "abc",
+        },
+      ],
+    };
+
+    expect(
+      getSelectOptions(true, -1, columnProperties as ColumnProperties),
+    ).toEqual([
+      {
+        label: "abc",
+        value: "abc",
+      },
+    ]);
   });
 });

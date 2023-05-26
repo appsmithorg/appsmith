@@ -1,9 +1,9 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,7 +29,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable {
+public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 
@@ -80,23 +80,30 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
-    // This field will be used to store the default/root resource IDs for branched resources generated for git
-    // connected applications and will be used to connect resources across the branches
-    @JsonView(Views.Internal.class)
-    DefaultResources defaultResources;
-
     // This field will only be used for git related functionality to sync the action object across different instances.
+    // This field will be deprecated once we move to the new git sync implementation.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Internal.class)
+    @Deprecated
     String gitSyncId;
 
-    public void sanitiseToExportBaseObject() {
-        this.setDefaultResources(null);
+    @Deprecated
+    public void sanitiseToExportDBObject() {
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
         this.setUserPermissions(null);
         this.setPolicies(null);
         this.setCreatedBy(null);
         this.setModifiedBy(null);
+    }
+
+    public void makePristine() {
+        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
+        // updating an existing document). If it contains any policies, they are also reset.
+        this.setId(null);
+        this.setUpdatedAt(null);
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
+        }
     }
 }

@@ -5,7 +5,7 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -71,8 +72,9 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
+            = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
             DECRYPTED_FIELDS, EDIT_MODE_THEME, CUSTOM_JS_LIB_LIST);
+
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
@@ -419,7 +421,7 @@ public class GitFileUtils {
                 // With the file version v4 we have split the actions and metadata separately into two files
                 // So we need to set the body to the unpublished action
                 String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
-                if (actionBody != null && (actionBody.containsKey(keyName))) {
+                if (actionBody != null && (actionBody.containsKey(keyName)) && !StringUtils.isEmpty(actionBody.get(keyName))) {
                     // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
                     // deserialized separately unlike the body which is stored as string in the db.
                     if (newAction.getPluginType().toString().equals("REMOTE")) {
@@ -449,7 +451,7 @@ public class GitFileUtils {
                 // Set the js object body to the unpublished collection
                 // Since file version v3 we are splitting the js object code and metadata separately
                 String keyName = actionCollection.getUnpublishedCollection().getName() + actionCollection.getUnpublishedCollection().getPageId();
-                if (actionCollectionBody!= null && actionCollectionBody.containsKey(keyName)) {
+                if (actionCollectionBody != null && actionCollectionBody.containsKey(keyName)) {
                     actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
                 }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
@@ -461,7 +463,7 @@ public class GitFileUtils {
         }
 
         // Extract datasources
-        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), DatasourceStorage.class));
 
         return applicationJson;
     }

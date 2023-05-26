@@ -50,7 +50,6 @@ import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { Toaster, Variant } from "design-system-old";
 import type { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
 import {
@@ -84,6 +83,7 @@ import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationR
 import { validateResponse } from "./ErrorSagas";
 import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
@@ -253,6 +253,15 @@ function* formValueChangeSaga(
       return;
     }
 
+    // get datasource configuration based on datasource id
+    // pass it to run form evaluations method
+    // This is required for google sheets, as we need to modify query
+    // state based on datasource config
+    const datasource: Datasource | undefined = yield select(
+      getDatasource,
+      values.datasource.id,
+    );
+
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
     const postEvalActions =
@@ -265,6 +274,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
+              datasource?.datasourceConfiguration,
             ),
           ]
         : [];
@@ -409,9 +419,8 @@ function* handleNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, ""), {
+      kind: "error",
     });
 
     Sentry.captureException(
@@ -490,6 +499,9 @@ function* createNewQueryForDatasourceSaga(
       actionType: pluginType === PluginType.DB ? "Query" : "API",
       from: action.payload.from,
       dataSource: datasource.name,
+      datasourceId: datasourceId,
+      pluginName: plugin?.name,
+      isMock: !!datasource?.isMock,
     },
     actionConfiguration:
       plugin?.type === PluginType.API ? defaultApiActionConfig : {},

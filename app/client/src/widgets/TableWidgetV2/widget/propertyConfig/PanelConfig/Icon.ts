@@ -36,14 +36,14 @@ export default {
       helpText: "Sets the icon alignment of the menu button",
       controlType: "ICON_TABS",
       defaultValue: "left",
-      fullWidth: true,
+      fullWidth: false,
       options: [
         {
-          icon: "VERTICAL_LEFT",
+          startIcon: "skip-left-line",
           value: "left",
         },
         {
-          icon: "VERTICAL_RIGHT",
+          startIcon: "skip-right-line",
           value: "right",
         },
       ],

@@ -127,8 +127,9 @@ export const useRenderBlocksOnCanvas = (
     scrollParent: Element | null,
     highlight?: HighlightInfo | undefined,
     isMainContainer?: boolean,
-    parentOffsetTop?: number,
-    useAutoLayout?: boolean,
+    parentOffsetTop = 0,
+    useAutoLayout = false,
+    totalScrollTop = 0,
   ) => {
     let isCurrUpdatingRows = isUpdatingRows;
     const modifiedRectanglesToDraw = modifyDrawingRectangles(
@@ -165,13 +166,20 @@ export const useRenderBlocksOnCanvas = (
         canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
         canvasCtx.setLineDash([]);
         const { height, posX, posY, width } = highlight;
-        let val = 0;
-        if (scrollParent?.scrollTop)
-          val = isMainContainer
-            ? scrollParent.scrollTop
-            : parentOffsetTop && scrollParent.scrollTop > parentOffsetTop
-            ? scrollParent.scrollTop - parentOffsetTop
+        const isWidgetScrolling =
+          scrollParent?.className.includes("appsmith_widget_");
+        let val =
+          isMainContainer || isWidgetScrolling
+            ? scrollParent?.scrollTop || 0
             : 0;
+        if (
+          !isMainContainer &&
+          totalScrollTop &&
+          parentOffsetTop &&
+          totalScrollTop > parentOffsetTop
+        )
+          val += totalScrollTop - parentOffsetTop;
+
         // roundRect is not currently supported in firefox.
         if (canvasCtx.roundRect)
           canvasCtx.roundRect(posX, posY - val, width, height, 4);

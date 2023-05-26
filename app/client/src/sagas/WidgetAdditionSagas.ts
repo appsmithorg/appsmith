@@ -1,6 +1,5 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { Toaster } from "design-system-old";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -40,8 +39,16 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { toast } from "design-system";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -74,6 +81,8 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -103,11 +112,9 @@ function* getChildWidgetProps(
   }
 
   const isAutoLayout = isStack(widgets, parent);
-  if (
-    isAutoLayout &&
-    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
-  )
-    columns = 64;
+  const isFillWidget =
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+  if (isAutoLayout && isFillWidget) columns = 64;
 
   const widgetProps = {
     ...restDefaultConfig,
@@ -119,6 +126,17 @@ function* getChildWidgetProps(
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
   };
+
+  const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+    widgetProps,
+    mainCanvasWidth,
+  );
+
+  // If the width of new widget is less than min width, set the width to min width
+  if (minWidth && columns * parentColumnSpace < minWidth) {
+    columns = minWidth / parentColumnSpace;
+  }
+
   const widget = generateWidgetProps(
     parent,
     type,
@@ -130,6 +148,24 @@ function* getChildWidgetProps(
     widgetProps,
     restDefaultConfig.version,
   );
+
+  let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(type);
+  if (isFunction(disableResizeHandles)) {
+    disableResizeHandles = disableResizeHandles(widget);
+  }
+
+  if (isAutoLayout) {
+    // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      }
+    }
+  }
 
   widget.widgetId = newWidgetId;
   /**
@@ -315,7 +351,7 @@ export function* getUpdateDslAfterCreatingChild(
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
-    Toaster.clear();
+    toast.dismiss();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { newWidgetId, type, widgetId } = addChildAction.payload;
 
@@ -420,9 +456,10 @@ function* addNewTabChildSaga(
     label: newTabLabel,
     widgetId: newTabWidgetId,
   });
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
-    newTabProps,
+    isAutoLayout ? { ...newTabProps, topRow: 0 } : newTabProps,
   );
   updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));

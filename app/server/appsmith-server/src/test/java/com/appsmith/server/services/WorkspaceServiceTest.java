@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -12,11 +14,12 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -28,6 +31,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +44,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -56,6 +64,7 @@ import reactor.util.function.Tuple6;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +86,7 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -86,55 +96,40 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class WorkspaceServiceTest {
 
+    private static final String origin = "http://appsmith-local.test";
     @Autowired
     WorkspaceService workspaceService;
-
     @Autowired
     UserWorkspaceService userWorkspaceService;
-
     @Autowired
     WorkspaceRepository workspaceRepository;
-
     @Autowired
     ApplicationPageService applicationPageService;
-
     @Autowired
     ApplicationService applicationService;
-
     @Autowired
     UserService userService;
-
     @Autowired
     DatasourceService datasourceService;
-
     @Autowired
     DatasourceRepository datasourceRepository;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     RoleGraph roleGraph;
-
+    @Autowired
+    MongoTemplate mongoTemplate;
+    Workspace workspace;
     @Autowired
     private AssetRepository assetRepository;
-
-
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
-
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
-
     @Autowired
     private PluginService pluginService;
-
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
-    Workspace workspace;
-
-    private static String origin = "http://appsmith-local.test";
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -543,7 +538,7 @@ public class WorkspaceServiceTest {
                 .build();
 
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
-        for (String validEmail: validEmails) {
+        for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
@@ -611,7 +606,7 @@ public class WorkspaceServiceTest {
                 "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
                 "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
                 "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
-        for (String validWebsite: validWebsites) {
+        for (String validWebsite : validWebsites) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
@@ -964,12 +959,9 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Workspace workspace1 = workspaceService.create(workspace).block();
 
-        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+        Flux<PermissionGroup> permissionGroupFlux = permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups());
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
@@ -977,30 +969,31 @@ public class WorkspaceServiceTest {
                 .single();
 
         // Create an application for this workspace
-        Mono<Application> applicationMono = workspaceMono
-                .flatMap(workspace1 -> {
-                    Application application = new Application();
-                    application.setName("User Management Admin Test Application");
-                    return applicationPageService.createApplication(application, workspace1.getId());
-                });
+
+        Application application = new Application();
+        application.setName("User Management Admin Test Application");
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(application, workspace1.getId());
 
         // Create datasource for this workspace
-        Mono<Datasource> datasourceMono = workspaceMono
+        Mono<Datasource> datasourceMono = workspaceService.getDefaultEnvironmentId(workspace1.getId())
                 .zipWith(pluginService.findByPackageName("postgres-plugin"))
                 .flatMap(tuple2 -> {
-                    Workspace org = tuple2.getT1();
+                    String defaultEnvironmentId = tuple2.getT1();
                     Plugin plugin = tuple2.getT2();
                     Datasource datasource = new Datasource();
                     datasource.setName("test datasource");
-                    datasource.setWorkspaceId(org.getId());
+                    datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+                    HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });
 
-        Mono<Workspace> userAddedToWorkspaceMono = Mono.zip(workspaceMono, adminPermissionGroupMono)
-                .flatMap(tuple -> {
-                    Workspace workspace1 = tuple.getT1();
-                    PermissionGroup adminPermissionGroup = tuple.getT2();
+        Mono<Workspace> userAddedToWorkspaceMono = adminPermissionGroupMono
+                .flatMap(adminPermissionGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
@@ -1008,12 +1001,10 @@ public class WorkspaceServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
 
-                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
                 })
-                .flatMap(tuple -> {
-                    Workspace t2 = tuple.getT2();
-                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
-                });
+                .flatMap(tuple -> workspaceService
+                        .findById(workspace1.getId(), READ_WORKSPACES));
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
                         READ_APPLICATIONS)
@@ -1022,17 +1013,15 @@ public class WorkspaceServiceTest {
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
-        Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
-        );
+        Mono<Datasource> readDatasourceByNameMono = datasourceRepository
+                .findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")));
+
 
         Mono<User> userTestMono = userService.findByEmail("usertest@usertest.com");
         Mono<User> api_userMono = userService.findByEmail("api_user");
 
-        Mono<Tuple6<Application, Workspace, Datasource, List<PermissionGroup>, User, User>> testMono = workspaceMono
-                // create application and datasource
-                .then(Mono.zip(applicationMono, datasourceMono))
+        Mono<Tuple6<Application, Workspace, Datasource, List<PermissionGroup>, User, User>> testMono = Mono.zip(applicationMono, datasourceMono)
                 // Now add the user
                 .then(userAddedToWorkspaceMono)
                 // Read application, workspace and datasource now to confirm the policies.
@@ -1042,8 +1031,8 @@ public class WorkspaceServiceTest {
         StepVerifier
                 .create(testMono)
                 .assertNext(tuple -> {
-                    Application application = tuple.getT1();
-                    Workspace workspace1 = tuple.getT2();
+                    Application app = tuple.getT1();
+                    Workspace workspace2 = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     List<PermissionGroup> permissionGroups = tuple.getT4();
                     User userTest = tuple.getT5();
@@ -1064,7 +1053,7 @@ public class WorkspaceServiceTest {
                     // assert that both the user test and api_user have admin roles
                     assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(userTest.getId(), api_user.getId()));
 
-                    assertThat(workspace1).isNotNull();
+                    assertThat(workspace2).isNotNull();
 
                     // Now assert that the application and datasource have correct permissions in the policies
 
@@ -1075,8 +1064,8 @@ public class WorkspaceServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(application.getPolicies()).isNotEmpty();
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(app.getPolicies()).isNotEmpty();
+                    assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     /*
                      * Check for datasource permissions after the user addition
@@ -1521,7 +1510,7 @@ public class WorkspaceServiceTest {
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
         Mono<Workspace> deleteWorkspaceMono = workspaceService.archiveById(savedWorkspace.getId())
-                                .then(workspaceRepository.findById(savedWorkspace.getId()));
+                .then(workspaceRepository.findById(savedWorkspace.getId()));
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
         // as it doesn't expect an onNext signal at this point.
@@ -1624,5 +1613,37 @@ public class WorkspaceServiceTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testWorkspaceUpdate_checkAdditionalFieldsArePresentAfterUpdate() {
+        String testName = "testWorkspaceUpdate";
+        String additionalField = "testWorkspaceUpdate";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Update updateAddAdditionalField = new Update().set(additionalField, true);
+        Query queryWorkspace = new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
+        UpdateResult updateResult = mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
+
+        assertThat(updateResult.wasAcknowledged()).isTrue();
+        assertThat(updateResult.getMatchedCount()).isEqualTo(1);
+        assertThat(updateResult.getModifiedCount()).isEqualTo(1);
+
+        Criteria criteriaAdditionalField = new Criteria().andOperator(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()), Criteria.where(additionalField).exists(true));
+        Query queryWorkspaceWithAdditionalField = new Query(criteriaAdditionalField);
+
+        long countWorkspaceWithAdditionalField = mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
+        assertThat(countWorkspaceWithAdditionalField).isEqualTo(1);
+
+        Workspace updateWorkspace = new Workspace();
+        updateWorkspace.setName(testName + " updated");
+        Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
+        assertThat(updatedWorkspace.getName()).isEqualTo(testName + " updated");
+
+        long countWorkspaceWithAdditionalFieldAfterUpdate = mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
+        assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
     }
 }

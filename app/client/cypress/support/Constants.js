@@ -1,6 +1,6 @@
 export const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
-export const TABLE_DATA = `{{[
+export const TABLE_DATA_DYNAMIC = `{{[
     {
       "id": 2381224,
       "email": "michael.lawson@reqres.in",
@@ -93,3 +93,26 @@ export const TABLE_DATA = `{{[
       "orderAmount": 7.99
     }
   ]}}`;
+
+export const TABLE_DATA_STATIC = `
+[
+  {
+    "id": "#1",
+    "task": "Drop a table",
+    "status": "✅",
+    "action": ""
+  },
+  {
+    "id": "#2",
+    "task": "Create a query fetch_users with the Mock DB",
+    "status": "--",
+    "action": ""
+  },
+  {
+    "id": "#3",
+    "task": "Bind the query using => fetch_users.data",
+    "status": "--",
+    "action": ""
+  }
+]
+`;

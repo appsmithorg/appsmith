@@ -1,5 +1,5 @@
-import { updateApplication } from "actions/applicationActions";
-import type { UpdateApplicationPayload } from "api/ApplicationApi";
+import { updateApplication } from "@appsmith/actions/applicationActions";
+import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
@@ -7,7 +7,8 @@ import {
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "design-system-old";
-import { TextInput, IconSelector, Text, TextType } from "design-system-old";
+import { Input, Text } from "design-system";
+import { IconSelector } from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -15,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getIsSavingAppName,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
@@ -29,13 +30,21 @@ const IconSelectorWrapper = styled.div`
     .t--icon-not-selected {
       margin: 0;
     }
-    gap: 3px;
+    gap: 2px;
   }
-  .icon-selector::-webkit-scrollbar-thumb {
+
+  .t--icon-selected {
+    background-color: var(--ads-v2-color-bg-muted);
+    svg path {
+      fill: var(--ads-v2-color-fg);
+    }
+  }
+
+  .t--icon-not-selected {
     background-color: transparent;
-  }
-  .icon-selector::-webkit-scrollbar {
-    width: 0px;
+    svg path {
+      fill: var(--ads-v2-color-fg);
+    }
   }
 `;
 
@@ -71,9 +80,20 @@ function GeneralSettings() {
     [applicationName, application, applicationId],
   );
 
+  const onChange = (value: string) => {
+    if (!value || value.trim().length === 0) {
+      setIsAppNameValid(false);
+    } else {
+      if (!isSavingAppName) {
+        setIsAppNameValid(true);
+      }
+    }
+
+    setApplicationName(value);
+  };
+
   return (
     <>
-      <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text>
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
@@ -81,15 +101,17 @@ function GeneralSettings() {
         })}
       >
         {isSavingAppName && <TextLoaderIcon />}
-        <TextInput
+        <Input
           defaultValue={applicationName}
-          fill
-          id="t--general-settings-app-name"
-          // undefined sent implicitly - parameter "icon"
-          onBlur={() => updateAppSettings()}
-          onChange={(value: string) =>
-            !isSavingAppName && setApplicationName(value)
+          errorMessage={
+            isAppNameValid ? undefined : GENERAL_SETTINGS_NAME_EMPTY_MESSAGE()
           }
+          // undefined sent implicitly - parameter "icon"
+          id="t--general-settings-app-name"
+          isValid={isAppNameValid}
+          label={GENERAL_SETTINGS_APP_NAME_LABEL()}
+          onBlur={() => updateAppSettings()}
+          onChange={onChange}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               // undefined sent implicitly - parameter "icon"
@@ -97,26 +119,13 @@ function GeneralSettings() {
             }
           }}
           placeholder="App name"
-          type="input"
-          validator={(value: string) => {
-            let result: { isValid: boolean; message?: string } = {
-              isValid: true,
-            };
-            if (!value || value.trim().length === 0) {
-              setIsAppNameValid(false);
-              result = {
-                isValid: false,
-                message: GENERAL_SETTINGS_NAME_EMPTY_MESSAGE(),
-              };
-            }
-            setIsAppNameValid(result.isValid);
-            return result;
-          }}
+          size="md"
+          type="text"
           value={applicationName}
         />
       </div>
 
-      <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
+      <Text kind="action-m">{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
       <IconSelectorWrapper className="pt-1" id="t--general-settings-app-icon">
         <IconSelector
           className="icon-selector"

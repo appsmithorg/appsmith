@@ -1,25 +1,23 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
-import { Text, TextType } from "design-system-old";
-import { useHistory } from "react-router-dom";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { Colors } from "constants/Colors";
 import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { Link } from "design-system";
+import type { AppsmithLocationState } from "utils/history";
+import { NavigationMethod } from "utils/history";
+import { useHistory } from "react-router-dom";
 
-const Back = styled.span`
-  height: 30px;
+const Back = styled(Link)`
   display: flex;
   align-items: center;
-  cursor: pointer;
-  padding-left: 16px;
+  margin: var(--ads-v2-spaces-7) 0 0 var(--ads-v2-spaces-7);
 `;
 
 function BackButton() {
-  const history = useHistory();
+  const history = useHistory<AppsmithLocationState>();
   const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
@@ -32,17 +30,17 @@ function BackButton() {
       fromUrl: location.pathname,
       toUrl: redirectURL,
     });
-    history.push(redirectURL);
+    history.push(redirectURL, { invokedBy: NavigationMethod.ActionBackButton });
   };
+
   return (
-    <Back className="t--back-button" onClick={goBack}>
-      <Icon icon="chevron-left" iconSize={16} />
-      <Text
-        style={{ color: Colors.DIESEL, lineHeight: "14px" }}
-        type={TextType.P1}
-      >
-        Back
-      </Text>
+    <Back
+      className="t--back-button"
+      onClick={goBack}
+      startIcon="arrow-left-line"
+      target="_self"
+    >
+      Back
     </Back>
   );
 }

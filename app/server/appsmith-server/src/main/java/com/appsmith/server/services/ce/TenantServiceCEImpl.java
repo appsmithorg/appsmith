@@ -11,13 +11,12 @@ import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 
@@ -91,7 +90,18 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
                     config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("google");
+                    }
+
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("github");
+                    }
+
+                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
+
                     return tenant;
                 });
     }
+
 }

@@ -6,7 +6,7 @@ import layoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import { watchJSActionSagas } from "sagas/JSActionSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
-import applicationSagas from "../src/sagas/ApplicationSagas";
+import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import batchSagas from "../src/sagas/BatchSagas";
 import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";

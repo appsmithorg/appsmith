@@ -19,6 +19,8 @@ import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
 let pageidcopy = " ";
 
 const ee = ObjectsRegistry.EntityExplorer;
+const agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -72,9 +74,11 @@ Cypress.Commands.add("switchToPaginationTab", () => {
 });
 
 Cypress.Commands.add("selectDateFormat", (value) => {
-  cy.get(".t--property-control-dateformat .bp3-popover-target")
-    .last()
-    .click({ force: true });
+  cy.get(
+    ".t--property-control-dateformat .ads-v2-select > .rc-select-selector",
+  ).click({
+    force: true,
+  });
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
@@ -82,8 +86,11 @@ Cypress.Commands.add("selectDateFormat", (value) => {
 });
 
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
-  cy.get(element).last().click();
-  cy.get(".t--dropdown-option").children().contains(value).click();
+  cy.get(element).last().scrollIntoView().click({ force: true });
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("assertDateFormat", () => {
@@ -121,21 +128,19 @@ Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
 });
 
 Cypress.Commands.add("AddActionWithModal", () => {
-  cy.get(commonlocators.dropdownSelectButton).last().click();
-  cy.get(".single-select").contains("Open modal").click({ force: true });
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+  propPane.SelectPlatformFunction("onTabSelected", "Show modal");
+  agHelper.GetNClick(propPane._actionOpenDropdownSelectModal, 0, true);
+  cy.get(".t--create-modal-btn").click({ force: true });
 });
 
-Cypress.Commands.add("createModal", (ModalName) => {
-  cy.get(widgetsPage.actionSelect).first().click({ force: true });
-  cy.selectOnClickOption("Open modal");
+Cypress.Commands.add("createModal", (ModalName, property) => {
+  ObjectsRegistry.PropertyPane.AddAction(property);
+  cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.wait(2000);
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
-  //cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
   // cy.widgetText(
   //   ModalName,
@@ -153,9 +158,9 @@ Cypress.Commands.add("createModal", (ModalName) => {
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
-  cy.get(widgetsPage.textCenterAlign).click({ force: true });
+  cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
   cy.assertPageSave();
-  cy.get(".bp3-overlay-backdrop").click({ force: true });
+  cy.get(".bp3-overlay-backdrop").last().click({ force: true });
 });
 
 Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
@@ -166,7 +171,6 @@ Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
-  //cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
   // cy.widgetText(
   //   ModalName,
@@ -185,7 +189,7 @@ Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
-  cy.get(widgetsPage.textCenterAlign).click({ force: true });
+  cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
@@ -495,6 +499,16 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
   });
 });
 
+Cypress.Commands.add("testJsonTextClearMultiline", (endp) => {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type(`{${modifierKey}}{a}`, { force: true })
+    .type(`{${modifierKey}}{del}`, { force: true });
+});
+
 Cypress.Commands.add("getCodeInput", ($selector, value) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
@@ -548,10 +562,12 @@ Cypress.Commands.add(
       .first()
       .then((ins) => {
         const input = ins[0].CodeMirror;
-        expect(input.hasFocus()).to.be.true;
-        const editorCursor = input.getCursor();
-        expect(editorCursor.ch).to.equal(cursor.ch);
-        expect(editorCursor.line).to.equal(cursor.line);
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
       });
   },
 );
@@ -826,78 +842,43 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
 });
 
 Cypress.Commands.add("addAction", (value, property) => {
-  let dropdownSelect = commonlocators.dropdownSelectButton;
-  if (property)
-    dropdownSelect = `.t--property-control-${property} ${dropdownSelect}`;
-  cy.get(dropdownSelect).last().click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
+  cy.get(`.t--add-action-${property}`).click();
+  cy.get(`.single-select:contains('Show alert')`).click();
+
   cy.enterActionValue(value, property);
 });
 
-Cypress.Commands.add("addEvent", (value, selector) => {
-  cy.get(selector + " " + commonlocators.dropdownSelectButton)
-    .last()
-    .click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
-  cy.enterEventValue(value);
-});
+// Cypress.Commands.add("addSuccessMessage", (value) => {
+//   cy.get(commonlocators.chooseMsgType).last().click({ force: true });
+//   cy.get(commonlocators.chooseAction).children().contains("Success").click();
+//   cy.enterActionValue(value);
+// });
 
-Cypress.Commands.add("onTableAction", (value, value1, value2) => {
-  cy.get(commonlocators.dropdownSelectButton).eq(value).click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
-  cy.testJsontext(value1, value2);
-});
-
-Cypress.Commands.add("selectShowMsg", () => {
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
-});
-
-Cypress.Commands.add("addSuccessMessage", (value) => {
-  cy.get(commonlocators.chooseMsgType).last().click({ force: true });
-  cy.get(commonlocators.chooseAction).children().contains("Success").click();
-  cy.enterActionValue(value);
-});
-
-Cypress.Commands.add("selectResetWidget", () => {
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Reset widget")
-    .click();
+Cypress.Commands.add("selectResetWidget", (eventName) => {
+  cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
+  cy.get('.single-select:contains("Reset widget")').click({ force: true });
 });
 
 Cypress.Commands.add("selectWidgetForReset", (value) => {
-  cy.get(commonlocators.chooseWidget).last().click({ force: true });
-  cy.get(commonlocators.chooseAction).children().contains(value).click();
+  cy.get(widgetsPage.selectWidget).click({ force: true });
+  cy.get(`.single-select:contains(${value})`).click();
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooterPublish)
-    .contains("Today")
-    .click({ force: true });
+  cy.get(".react-datepicker .react-datepicker__day--today").click({
+    force: true,
+  });
   cy.assertPageSave();
 });
 
 Cypress.Commands.add("enterActionValue", (value, property) => {
   cy.EnableAllCodeEditors();
   let codeMirrorTextArea = ".CodeMirror textarea";
-  if (property)
-    codeMirrorTextArea = `.t--property-control-${property} ${codeMirrorTextArea}`;
+  if (property) codeMirrorTextArea = `${codeMirrorTextArea}`;
   cy.get(codeMirrorTextArea)
     .last()
     .focus()
-    .type("{ctrl}{shift}{downarrow}")
+    .type("{ctrl}{shift}{downarrow}", { force: true })
     .then(($cm) => {
       if ($cm.val() !== "") {
         cy.get(codeMirrorTextArea).last().clear({
@@ -1060,18 +1041,19 @@ Cypress.Commands.add("selectTxtSize", (text) => {
   cy.get(".t--dropdown-option").contains(text).click({ force: true });
 });
 
-Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
-  cy.get(widgetsPage.menubar)
-    .contains("Show Alert")
-    .click({ force: true })
-    .should("have.text", "Show Alert");
-
-  cy.get(alertcss).click({ force: true }).type("hello");
+Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
+  cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
+  cy.get('.single-select:contains("Show alert")').click({ force: true });
+  agHelper.EnterActionValue("Message", value);
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")
     .click({ force: true });
+  ObjectsRegistry.AggregateHelper.GetNClick(
+    ObjectsRegistry.PropertyPane._actionSelectorPopupClose,
+    0,
+    true,
+  );
 });
 
 Cypress.Commands.add("togglebar", (value) => {
@@ -1081,20 +1063,6 @@ Cypress.Commands.add("togglebarDisable", (value) => {
   cy.get(value).uncheck({ force: true }).should("not.checked");
 });
 
-Cypress.Commands.add(
-  "getAlert",
-  (alertcss, propertyControl = commonlocators.dropdownSelectButton) => {
-    cy.get(propertyControl).first().click({ force: true });
-    cy.get(widgetsPage.menubar).contains("Show message").click({ force: true });
-
-    cy.get(alertcss).click({ force: true }).type("hello");
-    cy.get(".t--open-dropdown-Select-type").click({ force: true });
-    cy.get(".bp3-popover-content .bp3-menu li")
-      .contains("Success")
-      .click({ force: true });
-  },
-);
-
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
@@ -1103,13 +1071,15 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
     .selectOnClickOption(QueryName);
 });
 
-Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
-  cy.get(commonlocators.dropdownSelectButton)
-    .first()
-    .click({ force: true })
-    .selectOnClickOption("Execute a query")
-    .selectOnClickOption(ApiName);
-});
+Cypress.Commands.add(
+  "addAPIFromLightningMenu",
+  (ApiName, eventName = "onClick") => {
+    ObjectsRegistry.PropertyPane.AddAction(eventName);
+    cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Execute a query"))
+      .click()
+      .selectOnClickOption(ApiName);
+  },
+);
 
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
@@ -1240,17 +1210,10 @@ Cypress.Commands.add("deleteWidget", () => {
 });
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {
-  // Command to change the chart type if the property pane of the chart widget is opened.
-  cy.get(viewWidgetsPage.chartType).last().click({ force: true });
-  cy.get(commonlocators.dropdownmenu)
-    .children()
-    .contains(typeOfChart)
-    .click({ force: true });
-
-  cy.get(viewWidgetsPage.chartType + " span.cs-text").should(
-    "have.text",
-    typeOfChart,
-  );
+  cy.selectDropdownValue(viewWidgetsPage.chartType, typeOfChart);
+  cy.get(
+    `${viewWidgetsPage.chartTypeText} .rc-select-selection-item span`,
+  ).should("have.text", typeOfChart);
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
@@ -1445,20 +1408,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EnableAllCodeEditors", () => {
-  cy.wait(2000);
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
-      let count = $body.get(commonlocators.codeEditorWrapper)?.length || 0;
-      while (count) {
-        $body
-          .get(commonlocators.codeEditorWrapper)
-          ?.eq(0)
-          .then(($el) => $el.click({ force: true }).wait(100));
-        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
-      }
-    }
+  cy.get(commonlocators.lazyCodeEditorFallback, { timeout: 60000 }).should(
+    "not.exist",
+  );
+  cy.get(commonlocators.lazyCodeEditorRendered).each(($el) => {
+    cy.wrap($el).find(".CodeMirror").should("exist");
   });
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("getTableCellHeight", (x, y) => {
@@ -1574,10 +1529,13 @@ Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
 });
 
 Cypress.Commands.add("changeLayoutHeight", (locator) => {
-  cy.get(".t--property-control-height .remixicon-icon")
+  cy.get(commonlocators.heightProperty)
+    .last()
     .scrollIntoView()
     .click({ force: true });
-  cy.get(locator).click({ force: true });
+  cy.get(commonlocators.heightPropertyOption)
+    .contains(locator)
+    .click({ force: true });
   cy.wait("@updateLayout").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1586,10 +1544,13 @@ Cypress.Commands.add("changeLayoutHeight", (locator) => {
 });
 
 Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
-  cy.get(".t--property-control-height .remixicon-icon")
+  cy.get(commonlocators.heightProperty)
+    .last()
     .scrollIntoView()
     .click({ force: true });
-  cy.get(locator).click({ force: true });
+  cy.get(commonlocators.heightPropertyOption)
+    .contains(locator)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("checkMinDefaultValue", (endp, value) => {
@@ -1625,11 +1586,25 @@ Cypress.Commands.add("freezeColumnFromDropdown", (columnName, direction) => {
   cy.wait(500);
 });
 
-Cypress.Commands.add("checkIfColumnIsFrozenViaCSS", (rowNum, coumnNum) => {
-  cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
-    cy.get(selector).should("have.css", "position", "sticky");
-  });
+Cypress.Commands.add("sortColumn", (columnName, direction) => {
+  cy.get(`[data-header=${columnName}] .header-menu .bp3-popover2-target`).click(
+    { force: true },
+  );
+  cy.get(".bp3-menu")
+    .contains(`Sort column ${direction}`)
+    .click({ force: true });
+
+  cy.wait(500);
 });
+
+Cypress.Commands.add(
+  "checkIfColumnIsFrozenViaCSS",
+  (rowNum, coumnNum, position = "sticky") => {
+    cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
+      cy.get(selector).should("have.css", "position", position);
+    });
+  },
+);
 
 Cypress.Commands.add(
   "checkColumnPosition",

@@ -36,8 +36,9 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId, AclPermission permission);
+    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(Set<String> names,
+                                                                                String pageId,
+                                                                                AclPermission permission);
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
@@ -48,5 +49,20 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<Long> countByDatasourceId(String datasourceId);
 
     Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+
+    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
+    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
+
+    Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+
+    Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+
+    Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
+
+    Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds,
+                                                                   Boolean viewMode,
+                                                                   AclPermission aclPermission,
+                                                                   Sort sort);
 
 }

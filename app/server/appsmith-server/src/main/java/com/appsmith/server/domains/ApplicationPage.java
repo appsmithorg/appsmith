@@ -1,14 +1,13 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
 
 @Getter
 @Setter
@@ -17,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 @EqualsAndHashCode
 public class ApplicationPage {
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String id;
 
     @JsonView(Views.Public.class)
@@ -35,7 +34,7 @@ public class ApplicationPage {
     @JsonView(Views.Internal.class)
     String defaultPageId;
 
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);
     }

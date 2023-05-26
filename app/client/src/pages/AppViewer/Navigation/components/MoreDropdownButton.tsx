@@ -4,7 +4,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import MenuText from "./MenuText";
 import classNames from "classnames";
 import {
@@ -13,7 +13,7 @@ import {
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
@@ -64,7 +64,7 @@ const MoreDropdownButton = ({
                 NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
             })}
             name="context-menu"
-            size="large"
+            size="md"
           />
         )}
 

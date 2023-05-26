@@ -17,11 +17,11 @@ import {
 } from "components/editorComponents/ResizeStyledComponents";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
@@ -140,6 +140,7 @@ export type ModalComponentProps = {
   background?: string;
   borderRadius?: string;
   settingsComponent?: ReactNode;
+  isAutoLayout: boolean;
 };
 
 /* eslint-disable react/display-name */
@@ -149,7 +150,6 @@ export default function ModalComponent(props: ModalComponentProps) {
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-  const resizeRef = React.useRef<HTMLDivElement>(null);
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -229,7 +229,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   const isVerticalResizeEnabled = useMemo(() => {
-    return !props.isDynamicHeightEnabled && enableResize;
+    return !props.isDynamicHeightEnabled && enableResize && !props.isAutoLayout;
   }, [props.isDynamicHeightEnabled, enableResize]);
 
   const getResizableContent = () => {
@@ -245,7 +245,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         isColliding={() => false}
         onStart={onResizeStart}
         onStop={onResizeStop}
-        ref={resizeRef}
         resizeDualSides
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
@@ -255,7 +254,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         <Wrapper
           $background={props.background}
           $borderRadius={props.borderRadius}
-          data-cy="modal-wrapper"
+          data-testid="modal-wrapper"
         >
           <Content
             $scroll={!!props.scrollContents}

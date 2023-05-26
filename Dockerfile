@@ -64,13 +64,15 @@ COPY ${PLUGIN_JARS} backend/plugins/
 COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
-COPY ./app/rts/package.json ./app/rts/dist rts/
+COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
 
 # Nginx, MongoDB and PostgreSQL data config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/mockdb_postgres.sql \
   ./deploy/docker/templates/users_postgres.sql \
+  ./deploy/docker/templates/appsmith_starting.html \
+  ./deploy/docker/templates/appsmith_initializing.html \
   templates/
 
 # Add bootstrapfile

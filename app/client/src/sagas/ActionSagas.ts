@@ -68,7 +68,6 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
-import { Toaster, Variant } from "design-system-old";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -120,6 +119,12 @@ import {
 } from "RouteBuilder";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { toast } from "design-system";
+import { getFormValues } from "redux-form";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -375,7 +380,7 @@ export function* updateActionSaga(
     );
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error, id: actionPayload.payload.id },
+      payload: { error, id: actionPayload.payload.id, show: false },
     });
   }
 }
@@ -488,11 +493,13 @@ function* moveActionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
+      toast.show(
         // @ts-expect-error: response is of type unknown
-        text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
-        variant: Variant.success,
-      });
+        createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
+        {
+          kind: "success",
+        },
+      );
     }
 
     AnalyticsUtil.logEvent("MOVE_API", {
@@ -505,9 +512,8 @@ function* moveActionSaga(
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
+      kind: "error",
     });
     yield put(
       moveActionError({
@@ -541,10 +547,12 @@ function* copyActionSaga(
       response.data.pageId,
     );
     if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
-        variant: Variant.success,
-      });
+      toast.show(
+        createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
+        {
+          kind: "success",
+        },
+      );
     }
 
     AnalyticsUtil.logEvent("DUPLICATE_API", {
@@ -571,9 +579,8 @@ function* copyActionSaga(
     yield put(copyActionSuccess(payload));
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_COPY_FAIL, actionName),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_COPY_FAIL, actionName), {
+      kind: "error",
     });
     yield put(copyActionError(action.payload));
   }
@@ -677,9 +684,8 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: api.config.name,
       },
     });
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
+      kind: "error",
     });
     log.error(e);
   }
@@ -697,12 +703,26 @@ export function* setActionPropertySaga(
     "actionConfiguration",
     "config",
   );
+
+  if (!actionObj) {
+    return;
+  }
+
+  // we use the formData to crosscheck, just in case value is not updated yet.
+  const formData: Action = yield select(
+    getFormValues(
+      actionObj?.pluginType === PluginType.API
+        ? API_EDITOR_FORM_NAME
+        : QUERY_EDITOR_FORM_NAME,
+    ),
+  );
+
   AppsmithConsole.info({
     logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
-      name: actionObj.name,
+      name: actionObj?.name,
       id: actionId,
       propertyPath: fieldToBeUpdated,
     },
@@ -719,6 +739,7 @@ export function* setActionPropertySaga(
     actionObj,
     value,
     propertyName,
+    formData,
   );
   yield all(
     Object.keys(effects).map((field) =>
@@ -957,6 +978,17 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${API.payload.name}.data}}`);
       break;
+    case SlashCommand.ASK_AI: {
+      const context = get(actionPayload, "payload.args", {});
+      yield put({
+        type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+        payload: {
+          show: true,
+          context,
+        },
+      });
+      break;
+    }
   }
 }
 

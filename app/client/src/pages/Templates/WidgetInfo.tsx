@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system-old";
+import { Text } from "design-system";
 import { IconWrapper } from "constants/IconConstants";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -25,11 +26,9 @@ function WidgetInfo({ widgetType }: WidgetInfoProps) {
   return (
     <Wrapper>
       <IconWrapper>
-        <img className="w-8 h-8" src={widgetInfo?.icon} />
+        <img className="w-5 h-5" src={getAssetUrl(widgetInfo?.icon)} />
       </IconWrapper>
-      <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-        {widgetInfo?.displayName}
-      </Text>
+      <Text kind="body-m">{widgetInfo?.displayName}</Text>
     </Wrapper>
   );
 }

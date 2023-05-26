@@ -1,22 +1,26 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
-import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
-import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
-import { Colors } from "constants/Colors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type FeatureFlags from "entities/FeatureFlags";
+import type { FieldEntityInformation } from "./EditorConfig";
+import { Icon } from "design-system";
+import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
+  ASK_AI = "ASK_AI",
 }
 
 const matchingCommands = (
@@ -82,23 +86,14 @@ const generateCreateNewCommand = ({
 });
 
 const iconsByType = {
-  [Shortcuts.BINDING]: (
-    <EntityIcon noBorder>
-      <Binding className="shortcut" />
-    </EntityIcon>
-  ),
+  [Shortcuts.BINDING]: <Icon className="shortcut" name="binding" />,
   [Shortcuts.PLUS]: (
-    <AddDatasourceIcon
-      className="add-datasource-icon"
-      color={Colors.DOVE_GRAY2}
-      size={18}
-    />
+    <Icon className="add-datasource-icon" name="add-box-line" size="md" />
   ),
   [Shortcuts.FUNCTION]: (
-    <EntityIcon noBorder>
-      <Snippet className="snippet-icon shortcut" />
-    </EntityIcon>
+    <Icon className="snippet-icon shortcut" name="snippet" />
   ),
+  [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" />,
 };
 
 function Command(props: { icon: any; name: string }) {
@@ -116,10 +111,11 @@ function Command(props: { icon: any; name: string }) {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
-  currentEntityType: string,
+  currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
     datasources,
+    enableAIAssistance,
     executeCommand,
     pluginIdToImageLocation,
     recentEntities,
@@ -128,23 +124,24 @@ export const generateQuickCommands = (
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
+    featureFlags: FeatureFlags;
+    enableAIAssistance: boolean;
   },
-  expectedType: string,
-  entityId: any,
-  propertyPath: any,
+  entityInfo: FieldEntityInformation,
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
+  const { entityId, expectedType = "string", propertyPath } = entityInfo || {};
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
+  const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New Binding",
+    displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
   const insertSnippet: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "Insert Snippet",
+    displayText: "Insert snippet",
     shortcut: Shortcuts.FUNCTION,
     action: () =>
       executeCommand({
@@ -159,16 +156,22 @@ export const generateQuickCommands = (
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "New Datasource",
-    action: () =>
+    displayText: "New datasource",
+    action: () => {
       executeCommand({
         actionType: SlashCommand.NEW_INTEGRATION,
         args: {},
-      }),
+      });
+      // Event for datasource creation click
+      const entryPoint = DatasourceCreateEntryPoints.CODE_EDITOR_SLASH_COMMAND;
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+        entryPoint,
+      });
+    },
     shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
+    const name = suggestion.entityName;
     return {
       text:
         suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -188,7 +191,9 @@ export const generateQuickCommands = (
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>
-              <img src={pluginIdToImageLocation[data.data.pluginId]} />
+              <img
+                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+              />
             </EntityIcon>
           );
         }
@@ -213,7 +218,9 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, self: any, data: any) => {
         const icon = (
           <EntityIcon>
-            <img src={pluginIdToImageLocation[data.data.pluginId]} />
+            <img
+              src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+            />
           </EntityIcon>
         );
         ReactDOM.render(
@@ -230,6 +237,18 @@ export const generateQuickCommands = (
     5,
   );
   const actionCommands = [newBinding, insertSnippet];
+
+  // Adding this hack in the interest of time.
+  // TODO: Refactor slash commands generation for easier code splitting
+  if (enableAIAssistance) {
+    const askGPT: CommandsCompletion = generateCreateNewCommand({
+      text: "",
+      displayText: APPSMITH_AI,
+      shortcut: Shortcuts.ASK_AI,
+      triggerCompletionsPostPick: true,
+    });
+    actionCommands.push(askGPT);
+  }
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),

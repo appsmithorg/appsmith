@@ -12,14 +12,18 @@ import type { LoDashStatic } from "lodash";
 import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -199,6 +203,34 @@ class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      filterText: {
+        "!type": "string",
+        "!doc": "The filter text for Server side filtering",
+      },
+      selectedOptionValues: {
+        "!type": "[string]",
+        "!doc": "The array of values selected in a multi select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      selectedOptionLabels: {
+        "!type": "[string]",
+        "!doc":
+          "The array of selected option labels in a multi select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      isDirty: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -250,7 +282,7 @@ class MultiSelectWidget extends BaseWidget<
           {
             helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Values",
+            label: "Default selected values",
             controlType: "SELECT_DEFAULT_VALUE_CONTROL",
             placeholderText: "[GREEN]",
             isBindProperty: true,
@@ -289,6 +321,7 @@ class MultiSelectWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -304,13 +337,14 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],
@@ -344,11 +378,11 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Search & Filters",
+        sectionName: "Search & filters",
         children: [
           {
             propertyName: "isFilterable",
-            label: "Allow Searching",
+            label: "Allow searching",
             helpText: "Makes the dropdown list filterable",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -359,7 +393,7 @@ class MultiSelectWidget extends BaseWidget<
           {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
+            label: "Server side filtering",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -440,7 +474,7 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -453,7 +487,7 @@ class MultiSelectWidget extends BaseWidget<
             helpText:
               "Controls the visibility of select all option in dropdown.",
             propertyName: "allowSelectAll",
-            label: "Allow Select All",
+            label: "Allow select all",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -462,12 +496,11 @@ class MultiSelectWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
@@ -476,7 +509,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown opens",
+            helpText: "when the dropdown opens",
             propertyName: "onDropdownOpen",
             label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
@@ -485,7 +518,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown closes",
+            helpText: "when the dropdown closes",
             propertyName: "onDropdownClose",
             label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
@@ -501,11 +534,11 @@ class MultiSelectWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -515,10 +548,11 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
@@ -563,11 +597,11 @@ class MultiSelectWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -579,11 +613,11 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -596,7 +630,7 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -607,7 +641,7 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "accentColor",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

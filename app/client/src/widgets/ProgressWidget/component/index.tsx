@@ -47,7 +47,7 @@ const renderProgress = (props: ProgressComponentProps) => {
     return (
       <DeterminateLinearProgress
         borderRadius={props.borderRadius}
-        data-cy={value}
+        data-testid={value}
         fillColor={fillColor}
         value={value}
       />
@@ -129,6 +129,7 @@ const ProgressContainer = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+  width: 100%;
 `;
 
 // Determinate Linear progress
@@ -189,7 +190,7 @@ function IndeterminateLinearProgress({
   return (
     <IndeterminateLinearProgressContainer borderRadius={borderRadius}>
       <IndeterminateLinearProgressValue
-        data-cy="indeterminate-linear-progress"
+        data-testid="indeterminate-linear-progress"
         fillColor={fillColor}
       />
     </IndeterminateLinearProgressContainer>
@@ -228,10 +229,10 @@ function LinearProgressWithSteps(props: ProgressComponentProps) {
       {[...Array(Number(steps))].map((_, index) => {
         const width = getProgressPosition(Number(value), stepSize, index);
         return (
-          <StepContainer data-cy="step" key={index}>
+          <StepContainer data-testid="step" key={index}>
             <DeterminateLinearProgress
               borderRadius={props.borderRadius}
-              data-cy={width}
+              data-testid={width}
               fillColor={props.fillColor}
               value={width}
               withSteps
@@ -328,7 +329,7 @@ function Separator(props: { turns: number }) {
 
   return (
     <SeparatorContainer turns={turns}>
-      <SeparatorOverlay data-cy="separator" />
+      <SeparatorOverlay data-testid="separator" />
     </SeparatorContainer>
   );
 }
@@ -387,7 +388,7 @@ function CircularProgress(props: ProgressComponentProps) {
 
   return (
     <SvgContainer
-      data-cy="circular"
+      data-testid="circular"
       variant={variant}
       viewBox={
         variant === ProgressVariant.INDETERMINATE
@@ -437,7 +438,7 @@ function CircularProgress(props: ProgressComponentProps) {
 
           {showResult && !isNaN(value) && (
             <Label
-              data-cy="circular-label"
+              data-testid="circular-label"
               x={VIEWBOX_CENTER_X}
               y={VIEWBOX_CENTER_Y}
             >

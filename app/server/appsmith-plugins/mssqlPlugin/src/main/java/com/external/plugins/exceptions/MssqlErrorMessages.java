@@ -1,6 +1,7 @@
 package com.external.plugins.exceptions;
 
 public class MssqlErrorMessages {
+
     private MssqlErrorMessages() {
         //Prevents instantiation
     }
@@ -13,6 +14,8 @@ public class MssqlErrorMessages {
 
     public static final String CONNECTION_POOL_CREATION_FAILED_ERROR_MSG = "Exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid. Please check your datasource configuration.";
 
+    public static final String GET_STRUCTURE_ERROR_MSG = "The Appsmith server has failed to fetch the structure of your schema.";
+
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.
@@ -20,7 +23,7 @@ public class MssqlErrorMessages {
      */
     public static final String DS_MISSING_ENDPOINT_ERROR_MSG = "Missing endpoint.";
 
-    public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing Connection Mode.";
+    public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing connection mode.";
 
     public static final String DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG = "Missing authentication details.";
 

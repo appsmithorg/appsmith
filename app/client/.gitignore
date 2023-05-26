@@ -2,8 +2,7 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
+.pnp.*
 
 # testing
 /coverage
@@ -11,7 +10,11 @@
 /stacks
 
 # production
-/build
+build
+dist
+# used to pack build artifacts in CI
+build.tar
+/build_airgap
 
 # misc
 .DS_Store
@@ -20,6 +23,7 @@
 .env.test.local
 .env.production.local
 .env*
+!.env.example
 
 npm-debug.log*
 yarn-debug.log*
@@ -53,3 +57,10 @@ TODO
 
 storybook-static
 stats.json
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

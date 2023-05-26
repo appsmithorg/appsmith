@@ -10,7 +10,7 @@ import type { ProviderViewerRouteParams } from "constants/routes";
 import {
   getProviderTemplates,
   getProvidersTemplatesLoadingState,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { ProviderTemplateArray } from "constants/providerConstants";
@@ -33,6 +33,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -56,7 +57,7 @@ const TemplateDetailPage = styled.div`
   font-size: 20px;
   padding: 20px;
 
-  .react-tabs__tab-list {
+  .ads-v2-tabs__list {
     border-bottom-color: transparent;
     color: #4e5d78;
     font-size: 14px;
@@ -318,13 +319,12 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             {" Back"}
           </span>
           <br />
-
           <ProviderInfo>
             {providerDetails.imageUrl ? (
               <img
                 alt="provider"
                 className="providerImage"
-                src={providerDetails.imageUrl}
+                src={getAssetUrl(providerDetails.imageUrl)}
               />
             ) : (
               <div>

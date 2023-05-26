@@ -68,7 +68,6 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Toaster, Variant } from "design-system-old";
 import {
   useFilteredActions,
   useFilteredFileOperations,
@@ -82,15 +81,14 @@ import {
   jsCollectionIdURL,
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  DatasourceCreateEntryPoints,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
+import { toast } from "design-system";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
-  width: ${({ category, query }) =>
-    isSnippet(category) ||
-    isDocumentation(category) ||
-    (isMenu(category) && query)
-      ? "785px"
-      : "500px"};
+  max-height: 530px;
   max-height: 530px;
   transition: height 0.1s ease, width 0.1s ease;
   height: ${(props) =>
@@ -99,19 +97,18 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     isNavigation(props.category)
       ? "auto"
       : "530px"};
-  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
-  padding: ${(props) => props.theme.spaces[5]}px;
   flex-direction: column;
   position: relative;
 
   & .main {
     display: flex;
     flex: 1;
-    margin-top: ${(props) => props.theme.spaces[4]}px;
-    overflow: hidden;
-    background-color: ${(props) =>
-      props.theme.colors.globalSearch.primaryBgColor};
+    margin-top: 50px;
+    &.main-snippet {
+      margin-top: 17px;
+      overflow: hidden;
+    }
   }
 
   ${algoliaHighlightTag},
@@ -125,7 +122,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
 
 const { algolia } = getAppsmithConfigs();
 
-const isModalOpenSelector = (state: AppState) =>
+export const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
@@ -267,15 +264,12 @@ function GlobalSearch() {
   const recentEntityIds = recentEntities
     .map((r) => getEntityId(r))
     .filter(Boolean);
-  const recentEntityIndex = useCallback(
-    (entity) => {
-      if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
-      const id =
-        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
-      return recentEntityIds.indexOf(id);
-    },
-    [recentEntities],
-  );
+  const recentEntityIndex = (entity: any) => {
+    if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
+    const id =
+      entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+    return recentEntityIds.indexOf(id);
+  };
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
@@ -478,9 +472,8 @@ function GlobalSearch() {
       const snippet = getSnippet(get(item, "body.snippet", ""), {});
       const title = get(item, "body.title", "");
       copy(snippet);
-      Toaster.show({
-        text: "Snippet copied to clipboard",
-        variant: Variant.success,
+      toast.show("Snippet copied to clipboard", {
+        kind: "success",
       });
       AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });
     }
@@ -507,8 +500,12 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.snippet]: (e: SelectEvent, item: any) =>
       handleSnippetClick(e, item),
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
-      if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
-      else if (item.redirect) item.redirect(currentPageId, "OMNIBAR");
+      if (item.action)
+        dispatch(
+          item.action(currentPageId, DatasourceCreateEntryPoints.OMNIBAR),
+        );
+      else if (item.redirect)
+        item.redirect(currentPageId, DatasourceCreateEntryPoints.OMNIBAR);
       dispatch(toggleShowGlobalSearchModal());
     },
   };
@@ -558,11 +555,25 @@ function GlobalSearch() {
     return activeItem ? getItemType(activeItem) : undefined;
   }, [activeItem]);
 
+  const ModalClass = isSnippet(category)
+    ? "modal-snippet"
+    : isDocumentation(category)
+    ? "modal-documentation"
+    : "";
+  const showSnippetRefinementsFilters =
+    isSnippet(category) &&
+    refinements &&
+    refinements.entities &&
+    refinements.entities.length;
   return (
     <ThemeProvider theme={lightTheme}>
       <SearchContext.Provider value={searchContext}>
         <GlobalSearchHotKeys {...hotKeyProps}>
-          <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
+          <SearchModal
+            className={ModalClass}
+            modalOpen={modalOpen}
+            toggleShow={toggleShow}
+          >
             <AlgoliaSearchWrapper
               category={category}
               query={query}
@@ -576,11 +587,12 @@ function GlobalSearch() {
                   setCategory={setCategory}
                   setQuery={setQuery}
                 />
-                {isSnippet(category) &&
-                  refinements &&
-                  refinements.entities &&
-                  refinements.entities.length && <SnippetRefinements />}
-                <div className="main">
+                {showSnippetRefinementsFilters && <SnippetRefinements />}
+                <div
+                  className={`main ${
+                    showSnippetRefinementsFilters && "main-snippet"
+                  }`}
+                >
                   {(isMenu(category) || isDocumentation(category)) && (
                     <Index indexName={algolia.indexName}>
                       <SetSearchResults

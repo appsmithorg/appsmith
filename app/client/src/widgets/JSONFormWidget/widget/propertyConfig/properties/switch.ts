@@ -48,7 +48,7 @@ const PROPERTIES = {
     ],
     events: [
       {
-        helpText: "Triggers an action when the switch state is changed",
+        helpText: "when the switch state is changed",
         propertyName: "onChange",
         label: "onChange",
         controlType: "ACTION_SELECTOR",

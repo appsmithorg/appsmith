@@ -41,16 +41,23 @@ import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { Toaster } from "design-system-old";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import { toast } from "design-system";
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
     const modalWidgetId = generateReactKey();
-    const props: WidgetAddChild = {
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const newWidget: WidgetAddChild = {
       widgetId: MAIN_CONTAINER_WIDGET_ID,
       widgetName: action.payload.modalName,
       type: WidgetTypes.MODAL_WIDGET,
@@ -63,10 +70,35 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       rows: 0,
       tabId: "",
     };
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: props,
-    });
+
+    if (isAutoLayout) {
+      const dropPayload = {
+        alignment: FlexLayerAlignment.Center,
+        index: 0,
+        isNewLayer: true,
+        layerIndex: 0,
+        rowIndex: 0,
+      };
+      newWidget.props = {
+        alignment: FlexLayerAlignment.Center,
+      };
+
+      yield put({
+        type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+        payload: {
+          dropPayload,
+          newWidget,
+          parentId: MAIN_CONTAINER_WIDGET_ID,
+          direction: LayoutDirection.Vertical,
+          addToBottom: true,
+        },
+      });
+    } else {
+      yield put({
+        type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+        payload: newWidget,
+      });
+    }
   } catch (error) {
     log.error(error);
     yield put({
@@ -204,12 +236,13 @@ export function* closeModalSaga(
 
 export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
   try {
-    Toaster.clear();
+    toast.dismiss();
     const start = performance.now();
     const { canvasWidgetId, height, widgetId, width } = resizeAction.payload;
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
 
     let widget = { ...stateWidget };
     const widgets = { ...stateWidgets };
@@ -240,7 +273,11 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
 
     log.debug("resize computations took", performance.now() - start, "ms");
     //TODO Identify the updated widgets and pass the values
-    yield put(updateAndSaveLayout(widgets));
+    if (isAutoLayout) {
+      yield call(recalculateAutoLayoutColumnsAndSave, widgets);
+    } else {
+      yield put(updateAndSaveLayout(widgets));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

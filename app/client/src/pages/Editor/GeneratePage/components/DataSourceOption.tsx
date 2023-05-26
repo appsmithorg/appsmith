@@ -1,15 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
 import type {
   DropdownOption,
   RenderDropdownOptionType,
 } from "design-system-old";
-import { Classes, Text, TextType, TooltipComponent } from "design-system-old";
-import { FormIcons } from "icons/FormIcons";
+import { Classes, Text, TextType } from "design-system-old";
 import _ from "lodash";
+import { Icon, Tooltip } from "design-system";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
 
@@ -22,9 +22,6 @@ const OptionWrapper = styled.div<{
   selected?: boolean;
   width?: string;
 }>`
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
-  ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
   align-items: center;
   user-select: none;
@@ -38,7 +35,9 @@ const OptionWrapper = styled.div<{
 
   .${Classes.TEXT} {
     color: ${(props) =>
-      props.disabled ? Colors.GRAY2 : props.theme.colors.propertyPane.label};
+      props.disabled
+        ? "var(--ads-v2-color-fg-muted)"
+        : "var(--ads-v2-color-fg)"};
   }
 
   .${Classes.ICON} {
@@ -49,53 +48,33 @@ const OptionWrapper = styled.div<{
       }
     }
   }
-
-  &:hover,
-  &.highlight-option {
-    background-color: ${Colors.GALLERY_1};
-
-    &&& svg {
-      rect {
-        fill: ${(props) => props.theme.colors.textOnDarkBG};
-      }
-    }
-
-    .${Classes.ICON} {
-      svg {
-        path {
-          fill: ${(props) => props.theme.colors.dropdown.hovered.icon};
-        }
-      }
-    }
-  }
 `;
 
 const CreateIconWrapper = styled.div`
   margin: 0px 8px 0px 0px;
   cursor: pointer;
+  height: 16px;
 `;
 
 const ImageWrapper = styled.div`
-  height: 20px;
+  height: 16px;
   width: auto;
   display: flex;
   align-items: center;
   margin: 0px 8px 0px 0px;
 `;
 
-const DatasourceImage = styled.img`
-  height: 20px;
-  width: auto;
+export const DatasourceImage = styled.img`
+  height: 16px;
+  width: 16px;
 `;
 
 interface DataSourceOptionType extends RenderDropdownOptionType {
-  cypressSelector: string;
+  dataTestid: string;
   optionWidth: string;
 }
-
 function DataSourceOption({
-  cypressSelector,
-  extraProps,
+  dataTestid,
   isHighlighted,
   isSelectedNode,
   option: dropdownOption,
@@ -103,13 +82,12 @@ function DataSourceOption({
   optionWidth,
 }: DataSourceOptionType) {
   const { label } = dropdownOption as DropdownOption;
-  const { routeToCreateNewDatasource = () => null } = extraProps;
   const pluginImages = useSelector(getPluginImages);
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === (dropdownOption as DropdownOption).id;
 
-  const isSupportedForTemplate = (dropdownOption as DropdownOption).data
-    .isSupportedForTemplate;
+  const isSupportedForTemplate = (dropdownOption as DropdownOption)?.data
+    ?.isSupportedForTemplate;
   const isNotSupportedDatasource =
     !isSupportedForTemplate && !isSelectedNode && !isConnectNewDataSourceBtn;
 
@@ -117,31 +95,26 @@ function DataSourceOption({
     ? ".t--connectNewDatasource-option"
     : isSelectedNode
     ? ""
-    : cypressSelector;
+    : dataTestid;
   return (
-    <TooltipComponent
+    <Tooltip
       content="Not supported for template generation"
-      disabled={
+      isDisabled={
         isSupportedForTemplate || isSelectedNode || isConnectNewDataSourceBtn
       }
-      styles={{
-        width: "100%",
-      }}
     >
       <OptionWrapper
         className={`t--dropdown-option ${
           isHighlighted ? "highlight-option" : ""
         }`}
-        data-cy={optionCypressSelector}
+        data-testid={optionCypressSelector}
         disabled={isNotSupportedDatasource}
         key={(dropdownOption as DropdownOption).id}
         onClick={() => {
           if (isNotSupportedDatasource) {
             return;
           }
-          if (isConnectNewDataSourceBtn) {
-            routeToCreateNewDatasource(dropdownOption);
-          } else if (optionClickHandler) {
+          if (optionClickHandler) {
             optionClickHandler(dropdownOption as DropdownOption);
           }
         }}
@@ -150,27 +123,25 @@ function DataSourceOption({
       >
         {isConnectNewDataSourceBtn ? (
           <CreateIconWrapper>
-            <FormIcons.CREATE_NEW_ICON
-              color={Colors.GRAY2}
-              height={20}
-              width={20}
-            />
+            <Icon name="plus" size="md" />
           </CreateIconWrapper>
-        ) : pluginImages[(dropdownOption as DropdownOption).data.pluginId] ? (
+        ) : pluginImages[(dropdownOption as DropdownOption)?.data?.pluginId] ? (
           <ImageWrapper>
             <DatasourceImage
               alt=""
               className="dataSourceImage"
-              src={
-                pluginImages[(dropdownOption as DropdownOption).data.pluginId]
-              }
+              src={getAssetUrl(
+                pluginImages[
+                  (dropdownOption as DropdownOption)?.data?.pluginId
+                ],
+              )}
             />
           </ImageWrapper>
         ) : null}
 
         <Text type={TextType.P1}>{label}</Text>
       </OptionWrapper>
-    </TooltipComponent>
+    </Tooltip>
   );
 }
 

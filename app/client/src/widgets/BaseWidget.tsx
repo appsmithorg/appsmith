@@ -24,6 +24,7 @@ import type {
   RenderMode,
   WidgetType,
 } from "constants/WidgetConstants";
+import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import {
   GridDefaults,
   RenderModes,
@@ -31,7 +32,7 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { get, memoize } from "lodash";
+import { get, isFunction, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -44,11 +45,11 @@ import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import type {
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
   LayoutDirection,
-  ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 import type {
   DataTreeEvaluationProps,
   EvaluationError,
@@ -62,9 +63,15 @@ import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
+import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
+import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
+import type { AutocompletionDefinitions } from "./constants";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 
 /***
  * BaseWidget
@@ -115,6 +122,10 @@ abstract class BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 
@@ -428,23 +439,24 @@ abstract class BaseWidget<
    * @param showControls
    */
   showWidgetName(content: ReactNode, showControls = false) {
-    return (
+    const { componentWidth } = this.getComponentDimensions();
+
+    return !this.props.disablePropertyPane ? (
       <>
-        {!this.props.disablePropertyPane && (
-          <WidgetNameComponent
-            errorCount={this.getErrorCount(
-              get(this.props, EVAL_ERROR_PATH, {}),
-            )}
-            parentId={this.props.parentId}
-            showControls={showControls}
-            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-            type={this.props.type}
-            widgetId={this.props.widgetId}
-            widgetName={this.props.widgetName}
-          />
-        )}
+        <WidgetNameComponent
+          errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+          parentId={this.props.parentId}
+          showControls={showControls}
+          topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+          type={this.props.type}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
+          widgetWidth={componentWidth}
+        />
         {content}
       </>
+    ) : (
+      content
     );
   }
 
@@ -556,16 +568,18 @@ abstract class BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <FlexComponent
+        alignment={this.props.alignment}
         componentHeight={componentHeight}
         componentWidth={componentWidth}
-        direction={this.props.direction}
+        direction={this.props.direction || LayoutDirection.Horizontal}
         flexVerticalAlignment={
-          this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
+          this.props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
         }
         focused={this.props.focused}
-        isMobile={this.props.isMobile}
+        isMobile={this.props.isMobile || false}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
+        renderMode={this.props.renderMode}
         responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         widgetId={this.props.widgetId}
@@ -576,6 +590,15 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
+  addWidgetComponentBoundary = (
+    content: ReactNode,
+    widgetProps: WidgetProps,
+  ) => (
+    <WidgetComponentBoundary widgetType={widgetProps.type}>
+      {content}
+    </WidgetComponentBoundary>
+  );
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -592,7 +615,7 @@ abstract class BaseWidget<
       return <Skeleton />;
     }
 
-    const content =
+    let content =
       renderMode === RenderModes.CANVAS
         ? this.getCanvasView()
         : this.getPageView();
@@ -602,6 +625,7 @@ abstract class BaseWidget<
     // Adding a check for the Modal Widget early
     // to avoid deselect Modal in its unmount effect.
     if (
+      !this.props.isFlexChild &&
       isAutoHeightEnabledForWidget(this.props) &&
       !this.props.isAutoGeneratedWidget && // To skip list widget's auto generated widgets
       !this.props.detachFromLayout // To skip Modal widget issue #18697
@@ -615,7 +639,58 @@ abstract class BaseWidget<
         </AutoHeightContainerWrapper>
       );
     }
+    if (this.props.isFlexChild && !this.props.detachFromLayout) {
+      const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+        this.props.type,
+      ).autoDimension;
+
+      const shouldObserveWidth = isFunction(autoDimensionConfig)
+        ? autoDimensionConfig(this.props).width
+        : autoDimensionConfig?.width;
+      const shouldObserveHeight = isFunction(autoDimensionConfig)
+        ? autoDimensionConfig(this.props).height
+        : autoDimensionConfig?.height;
+
+      if (!shouldObserveHeight && !shouldObserveWidth) return content;
+
+      const { componentHeight, componentWidth } = this.getComponentDimensions();
+
+      const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
+        this.props,
+        this.props.mainCanvasWidth || 0,
+      );
+
+      return (
+        <AutoLayoutDimensionObserver
+          height={componentHeight}
+          isFillWidget={
+            this.props.responsiveBehavior === ResponsiveBehavior.Fill
+          }
+          minHeight={minHeight ?? 0}
+          minWidth={minWidth ?? 0}
+          onDimensionUpdate={this.updateWidgetDimensions}
+          shouldObserveHeight={shouldObserveHeight || false}
+          shouldObserveWidth={shouldObserveWidth || false}
+          type={this.props.type}
+          width={componentWidth}
+        >
+          {content}
+        </AutoLayoutDimensionObserver>
+      );
+    }
+
+    content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
+  };
+
+  private updateWidgetDimensions = (width: number, height: number) => {
+    const { updateWidgetDimension } = this.context;
+    if (!updateWidgetDimension) return;
+    updateWidgetDimension(
+      this.props.widgetId,
+      width + 2 * FLEXBOX_PADDING,
+      height + 2 * FLEXBOX_PADDING,
+    );
   };
 
   private getWidgetView(): ReactNode {
@@ -625,7 +700,11 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
         if (!this.props.detachFromLayout) {
-          if (!this.props.resizeDisabled) content = this.makeResizable(content);
+          if (
+            !this.props.resizeDisabled &&
+            this.props.type !== "SKELETON_WIDGET"
+          )
+            content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
@@ -635,7 +714,7 @@ abstract class BaseWidget<
           } else {
             content = this.makePositioned(content);
           }
-          if (isAutoHeightEnabledForWidget(this.props, true)) {
+          if (isAutoHeightEnabledForWidgetWithLimits(this.props)) {
             content = this.addAutoHeightOverlay(content);
           }
         }
@@ -645,9 +724,9 @@ abstract class BaseWidget<
       // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
-        if (this.props.isFlexChild) content = this.makeFlex(content);
-        else if (!this.props.detachFromLayout) {
-          content = this.makePositioned(content);
+        if (!this.props.detachFromLayout) {
+          if (this.props.isFlexChild) content = this.makeFlex(content);
+          else content = this.makePositioned(content);
         }
         return content;
       default:
@@ -734,6 +813,7 @@ export interface WidgetBaseProps {
    * rather than the evaluated values in withWidgetProps HOC.
    *  */
   additionalStaticProps?: string[];
+  mainCanvasWidth?: number;
 }
 
 export type WidgetRowCols = {
@@ -766,6 +846,8 @@ export interface WidgetPositionProps extends WidgetRowCols {
   isMobile?: boolean;
   flexVerticalAlignment?: FlexVerticalAlignment;
   appPositioningType?: AppPositioningTypes;
+  widthInPercentage?: number; // Stores the widget's width set by the user
+  mobileWidthInPercentage?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {
@@ -803,6 +885,8 @@ export interface WidgetProps
 }
 
 export interface WidgetCardProps {
+  rows: number;
+  columns: number;
   type: WidgetType;
   key?: string;
   displayName: string;

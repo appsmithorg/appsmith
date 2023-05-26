@@ -166,7 +166,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                 .flatMap(tuple -> {
                     PermissionGroup permissionGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
-                    return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
+                    return permissionGroupService.bulkAssignToUserAndSendEvent(permissionGroup, users);
                 }).cache();
 
         // Send analytics event
@@ -177,9 +177,11 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     Map<String, Object> analyticsProperties = new HashMap<>();
                     long numberOfUsers = users.size();
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
-                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
+                    analyticsProperties.put(FieldName.NUMBER_OF_USERS_INVITED, numberOfUsers);
                     eventData.put(FieldName.USER_EMAILS, invitedUsers);
+                    Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.USER_EMAILS, invitedUsers);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+                    analyticsProperties.put(FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
 

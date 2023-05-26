@@ -15,8 +15,12 @@ import { DEFAULT_FILTER } from "../../../Constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import ActionItem from "../ActionItem";
+import { importSvg } from "design-system-old";
+
+const FilterIcon = importSvg(
+  () => import("assets/icons/control/filter-icon.svg"),
+);
 
 export interface DropdownOption {
   label: string;
@@ -105,5 +109,5 @@ function TableFilters(props: TableFilterProps) {
     </>
   );
 }
-
-export default TableFilters;
+const TableFiltersMemoised = React.memo(TableFilters);
+export default TableFiltersMemoised;

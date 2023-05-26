@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import { pick, reduce } from "lodash";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
   useTable,
@@ -157,6 +157,7 @@ export type HeaderComponentProps = {
   widgetId: string;
 };
 
+const emptyArr: any = [];
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
@@ -176,29 +177,19 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnWidthMap);
   };
-  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
-  const columnString = JSON.stringify(
-    pick(props, ["columns", "compactMode", "columnWidthMap"]),
-  );
-  const columns = React.useMemo(() => props.columns, [columnString]);
+  const { columns, data, multiRowSelection, toggleAllRowSelect } = props;
+
   const tableHeadercolumns = React.useMemo(
     () =>
-      props.columns.filter((column: ReactTableColumnProps) => {
+      columns.filter((column: ReactTableColumnProps) => {
         return column.alias !== "actions";
       }),
-    [columnString],
+    [columns],
   );
-  /*
-    For serverSidePaginationEnabled we are taking props.data.length as the page size.
-    As props.pageSize is being set by the visible number of rows in the table (without scrolling),
-    it will not give the correct count of records in the current page when query limit
-    is set higher/lower than the visible number of rows in the table
-  */
+
   const pageCount =
-    props.serverSidePaginationEnabled &&
-    props.totalRecordsCount &&
-    props.data.length
-      ? Math.ceil(props.totalRecordsCount / props.data.length)
+    props.serverSidePaginationEnabled && props.totalRecordsCount
+      ? Math.ceil(props.totalRecordsCount / props.pageSize)
       : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
@@ -212,7 +203,8 @@ export function Table(props: TableProps) {
     totalColumnsWidth,
   } = useTable(
     {
-      columns: columns,
+      //columns and data needs to be memoised as per useTable specs
+      columns,
       data,
       defaultColumn,
       initialState: {
@@ -234,6 +226,7 @@ export function Table(props: TableProps) {
   } else {
     // We are updating column size since the drag is complete when we are changing value of isResizing from true to false
     if (isResizingColumn.current) {
+      //clear timeout logic
       //update isResizingColumn in next event loop so that dragEnd event does not trigger click event.
       setTimeout(function () {
         isResizingColumn.current = false;
@@ -247,15 +240,18 @@ export function Table(props: TableProps) {
     startIndex = 0;
     endIndex = props.data.length;
   }
-  const subPage = page.slice(startIndex, endIndex);
-  const selectedRowIndices = props.selectedRowIndices || [];
+  const subPage = useMemo(
+    () => page.slice(startIndex, endIndex),
+    [page, startIndex, endIndex],
+  );
+  const selectedRowIndices = props.selectedRowIndices || emptyArr;
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollBarRef = useRef<SimpleBar | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
-    if (!props.multiRowSelection) return null;
+    if (!multiRowSelection) return null;
     const selectedRowCount = reduce(
       page,
       (count, row) => {
@@ -266,16 +262,17 @@ export function Table(props: TableProps) {
     const result =
       selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
     return result;
-  }, [selectedRowIndices, page]);
-  const handleAllRowSelectClick = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-  ) => {
-    // if all / some rows are selected we remove selection on click
-    // else select all rows
-    props.toggleAllRowSelect(!Boolean(rowSelectionState), page);
-    // loop over subPage rows and toggleRowSelected if required
-    e.stopPropagation();
-  };
+  }, [multiRowSelection, page, selectedRowIndices]);
+  const handleAllRowSelectClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      // if all / some rows are selected we remove selection on click
+      // else select all rows
+      toggleAllRowSelect(!Boolean(rowSelectionState), page);
+      // loop over subPage rows and toggleRowSelected if required
+      e.stopPropagation();
+    },
+    [page, rowSelectionState, toggleAllRowSelect],
+  );
   const isHeaderVisible =
     props.isVisibleSearch ||
     props.isVisibleFilters ||
@@ -362,7 +359,7 @@ export function Table(props: TableProps) {
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
-                disableAddNewRow={!!props.editableCell.column}
+                disableAddNewRow={!!props.editableCell?.column}
                 disabledAddNewRowSave={props.disabledAddNewRowSave}
                 filters={props.filters}
                 isAddRowInProgress={props.isAddRowInProgress}

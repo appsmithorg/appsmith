@@ -281,17 +281,9 @@ public class GraphQLPlugin extends BasePlugin {
                         client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                         objectMapper, hintMessages, errorResult, requestCaptureFilter
                     )
-                    .map(actionExecutionResult -> {
-                        if (! actionExecutionResult.getIsExecutionSuccess()) {
-                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED,
-                                                                                           GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
-                                                                                           actionExecutionResult.getBody(),
-                                                                                           actionExecutionResult.getStatusCode() ));
-                        }
-                        return actionExecutionResult;
-                    })
                     .onErrorResume(error -> {
-                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest, isBodySentWithApiRequest));
                         errorResult.setIsExecutionSuccess(false);
                         if (! (error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED, GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);

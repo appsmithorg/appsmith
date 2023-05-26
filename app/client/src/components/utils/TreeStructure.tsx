@@ -13,7 +13,7 @@ const TreeStructureWrapper = styled.div`
     margin-left: 9px;
     padding: 0;
     list-style: none;
-    color: #a9a7a7;
+    color: var(--ads-v2-color-fg);
     position: relative;
   }
 
@@ -30,15 +30,21 @@ const TreeStructureWrapper = styled.div`
     top: 0;
     bottom: 0;
     left: 0;
-    border-left: 2px solid;
+    border-left: 1px solid;
+    border-color: var(--ads-v2-color-border);
   }
 
   .tree li {
     margin: 0;
     padding-left: 6px;
     line-height: 18px;
-    padding-top: 8px;
+    margin-top: 8px;
     position: relative;
+  }
+
+  .tree li div {
+    position: relative;
+    z-index: 10;
   }
 
   .tree li:before {
@@ -46,17 +52,17 @@ const TreeStructureWrapper = styled.div`
     display: block;
     width: 9px;
     height: 0;
-    border-top: 2px solid;
-    margin-top: 36px;
+    border-top: 1px solid;
+    margin-top: 0px;
     position: absolute;
-    top: 18px;
+    top: 14px;
     left: 0;
+    border-color: var(--ads-v2-color-border);
   }
 
   .tree li:last-child:before {
-    background: #a9a7a7;
+    background: var(--ads-v2-color-bg);
     height: auto;
-    top: 18px;
     bottom: 0;
   }
 `;

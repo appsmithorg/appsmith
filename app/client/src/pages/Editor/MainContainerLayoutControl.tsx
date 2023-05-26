@@ -1,11 +1,8 @@
-import classNames from "classnames";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
+import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateApplicationLayout } from "actions/applicationActions";
-import { Colors } from "constants/Colors";
-import type { IconName } from "design-system-old";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import type {
   AppLayoutConfig,
   SupportedLayouts,
@@ -14,11 +11,18 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
+import { Icon, SegmentedControl, Tooltip } from "design-system";
+
+const StyledSegmentedControl = styled(SegmentedControl)`
+  > .ads-v2-segmented-control__segments-container {
+    flex: 1 1 0%;
+  }
+`;
 
 interface AppsmithLayoutConfigOption {
   name: string;
   type: SupportedLayouts;
-  icon?: IconName;
+  icon: string;
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {
@@ -27,7 +31,7 @@ export const AppsmithDefaultLayout: AppLayoutConfig = {
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   {
-    name: "Fluid Width",
+    name: "Fluid width",
     type: "FLUID",
     icon: "fluid",
   },
@@ -47,43 +51,43 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "tablet",
   },
   {
-    name: "Mobile Device",
+    name: "Mobile device",
     type: "MOBILE",
     icon: "mobile",
   },
 ];
 
+const options = AppsmithLayouts.map((layout, index) => ({
+  label: (
+    <Tooltip
+      content={layout.name}
+      key={layout.name}
+      mouseEnterDelay={0}
+      placement={
+        index === AppsmithLayouts.length - 1 ? "bottomRight" : "bottom"
+      }
+    >
+      <Icon name={layout.icon} size="md" />
+    </Tooltip>
+  ),
+  value: layout.type,
+}));
+
 export function MainContainerLayoutControl() {
   const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-
-  const buttonRefs: Array<HTMLButtonElement | null> = [];
-
-  /**
-   * return selected layout index. if there is no app
-   * layout, use the default one ( fluid )
-   */
-  const selectedIndex = useMemo(() => {
-    return AppsmithLayouts.findIndex(
-      (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
-    );
-  }, [appLayout]);
-
-  const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
-
   /**
    * updates the app layout
    *
    * @param layoutConfig
    */
   const updateAppLayout = useCallback(
-    (layoutConfig: AppLayoutConfig) => {
-      const { type } = layoutConfig;
-
+    (type: string) => {
       dispatch(
         updateApplicationLayout(appId || "", {
           appLayout: {
+            // @ts-expect-error: Type error
             type,
           },
         }),
@@ -92,66 +96,13 @@ export function MainContainerLayoutControl() {
     [dispatch, appLayout],
   );
 
-  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
-    if (!buttonRefs.length) return;
-
-    switch (event.key) {
-      case "ArrowRight":
-      case "Right":
-        const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
-        buttonRefs[rightIndex]?.focus();
-        setFocusedIndex(rightIndex);
-        break;
-      case "ArrowLeft":
-      case "Left":
-        const leftIndex = index === 0 ? buttonRefs.length - 1 : index - 1;
-        buttonRefs[leftIndex]?.focus();
-        setFocusedIndex(leftIndex);
-        break;
-    }
-  };
-
   return (
     <div className="pb-6 space-y-2 t--layout-control-wrapper">
-      <div
-        className="flex justify-around"
-        onBlur={() => setFocusedIndex(selectedIndex)}
-      >
-        {AppsmithLayouts.map((layoutOption: any, index: number) => {
-          return (
-            <TooltipComponent
-              className="flex-grow"
-              content={layoutOption.name}
-              key={layoutOption.name}
-              position={
-                index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
-              }
-            >
-              <button
-                className={classNames({
-                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200":
-                    true,
-                  "bg-white border-gray-300": selectedIndex === index,
-                  "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
-                })}
-                onClick={() => {
-                  updateAppLayout(layoutOption);
-                  setFocusedIndex(index);
-                }}
-                onKeyDown={(event) => handleKeyDown(event, index)}
-                ref={(input) => buttonRefs.push(input)}
-                tabIndex={index === focusedIndex ? 0 : -1}
-              >
-                <Icon
-                  fillColor={Colors.BLACK}
-                  name={layoutOption.icon}
-                  size={layoutOption.iconSize || IconSize.MEDIUM}
-                />
-              </button>
-            </TooltipComponent>
-          );
-        })}
-      </div>
+      <StyledSegmentedControl
+        defaultValue={appLayout.type}
+        onChange={updateAppLayout}
+        options={options}
+      />
     </div>
   );
 }

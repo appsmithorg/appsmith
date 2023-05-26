@@ -15,6 +15,7 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const { AggregateHelper } = ObjectsRegistry;
+const { PropertyPane } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -62,7 +63,7 @@ Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
 });
 
 Cypress.Commands.add("ClickGotIt", () => {
-  cy.get("span:contains('GOT IT')").click();
+  cy.get("span:contains('Got it')").click();
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
@@ -93,20 +94,19 @@ Cypress.Commands.add("runQuery", (expectedRes = true) => {
 
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery).last().click({ force: true }).wait(1000);
-  cy.get(".cs-spinner").should("not.exist");
+  cy.get(".ads-v2-spinner").should("not.exist");
 });
 
 Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
   cy.xpath(queryEditor.runQuery).last().click({ force: true });
 });
 
-Cypress.Commands.add("hoverAndClick", () => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .should("be.hidden")
-    .invoke("show")
-    .click({ force: true });
-  cy.xpath(apiwidget.popover).last().click({ force: true });
+Cypress.Commands.add("hoverAndClick", (entity) => {
+  cy.xpath(
+    "//div[text()='" +
+      entity +
+      "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]",
+  ).click({ force: true });
 });
 
 Cypress.Commands.add("hoverAndClickParticularIndex", (index) => {
@@ -144,19 +144,21 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.deleteQueryUsingContext();
 });
 
-Cypress.Commands.add("executeDbQuery", (queryName) => {
-  cy.get(widgetsPage.buttonOnClick)
-    .get(commonlocators.dropdownSelectButton)
-    .eq(0)
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains("Execute a query")
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains(queryName)
-    .click({ force: true });
+Cypress.Commands.add("executeDbQuery", (queryName, eventName) => {
+  PropertyPane.SelectPlatformFunction(eventName, "Execute a query");
+  cy.get(`.single-select:contains(${queryName})`).click({ force: true });
+  // cy.get(widgetsPage.buttonOnClick)
+  //   .get(commonlocators.dropdownSelectButton)
+  //   .eq(0)
+  //   .click({ force: true })
+  //   .get("ul.bp3-menu")
+  //   .children()
+  //   .contains("Execute a query")
+  //   .click({ force: true })
+  //   .get("ul.bp3-menu")
+  //   .children()
+  //   .contains(queryName)
+  //   .click({ force: true });
 });
 
 Cypress.Commands.add("CreateMockQuery", (queryName) => {
@@ -201,12 +203,12 @@ Cypress.Commands.add(
       .should("be.visible")
       .contains(option)
       .first()
-      .click();
+      .click({ force: true });
     cy.wait(2000);
   },
 );
 
-// targeting multiselect dropdowns, we target the data-cy value of the options
+// targeting multiselect dropdowns, we target the data-testid value of the options
 Cypress.Commands.add(
   "TargetMultiSelectDropdownAndSelectOptions",
   (dropdownIdentifier, options, isDynamic = false) => {
@@ -280,6 +282,6 @@ Cypress.Commands.add("NavigateToAction", (actionName) => {
 });
 Cypress.Commands.add("SelecJSFunctionAndRun", (functionName) => {
   cy.xpath("//span[@name='expand-more']").first().click();
-  cy.get(`[data-cy='t--dropdown-option-${functionName}']`).click();
+  cy.get(`[data-testid='t--dropdown-option-${functionName}']`).click();
   cy.get(jsEditorLocators.runButton).first().click();
 });

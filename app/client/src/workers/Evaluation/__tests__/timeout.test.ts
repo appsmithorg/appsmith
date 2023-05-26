@@ -111,7 +111,6 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
     self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree,
-      resolvedFunctions: {},
       isTriggerBased: true,
       context: {},
     });

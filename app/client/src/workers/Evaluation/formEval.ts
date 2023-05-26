@@ -14,6 +14,7 @@ import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DatasourceConfiguration } from "entities/Datasource";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -290,6 +291,8 @@ function evaluateDynamicValuesConfig(
 function evaluateFormConfigElements(
   actionConfiguration: ActionConfig,
   config: FormConfigEvalObject,
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  datasourceConfiguration?: DatasourceConfiguration,
 ) {
   const paths = Object.keys(config);
   if (paths.length > 0) {
@@ -310,6 +313,7 @@ function evaluate(
   currentEvalState: FormEvalOutput,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
+  datasourceConfiguration?: DatasourceConfiguration,
 ) {
   Object.keys(currentEvalState).forEach((key: string) => {
     try {
@@ -403,6 +407,7 @@ function evaluate(
                     currentEvalState[key]
                       .evaluateFormConfig as EvaluatedFormConfig
                   ).evaluateFormConfigObject,
+                  datasourceConfiguration,
                 );
             }
           });
@@ -420,6 +425,7 @@ function getFormEvaluation(
   currentEvalState: FormEvaluationState,
   actionDiffPath?: string,
   hasRouteChanged?: boolean,
+  datasourceConfiguration?: DatasourceConfiguration,
 ): FormEvaluationState {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
   if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
@@ -472,6 +478,7 @@ function getFormEvaluation(
         currentEvalState[formId],
         actionDiffPath,
         hasRouteChanged,
+        datasourceConfiguration,
       );
     } else {
       conditionToBeEvaluated = {
@@ -483,6 +490,7 @@ function getFormEvaluation(
         conditionToBeEvaluated,
         actionDiffPath,
         hasRouteChanged,
+        datasourceConfiguration,
       );
     }
 
@@ -534,8 +542,13 @@ export function setFormEvaluationSaga(
     // This is the initial evaluation state, evaluations can now be run on top of this
     return { [payload.formId]: finalEvalObj };
   } else {
-    const { actionConfiguration, actionDiffPath, formId, hasRouteChanged } =
-      payload;
+    const {
+      actionConfiguration,
+      actionDiffPath,
+      datasourceConfiguration,
+      formId,
+      hasRouteChanged,
+    } = payload;
     // In case the formData is not ready or the form is not of type UQI, return empty state
     if (!actionConfiguration || !actionConfiguration.formData) {
       return currentEvalState;
@@ -546,6 +559,7 @@ export function setFormEvaluationSaga(
         currentEvalState,
         actionDiffPath,
         hasRouteChanged,
+        datasourceConfiguration,
       );
     }
   }

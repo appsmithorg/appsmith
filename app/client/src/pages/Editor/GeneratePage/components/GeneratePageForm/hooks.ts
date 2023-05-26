@@ -11,8 +11,8 @@ import { useDispatch } from "react-redux";
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
     id: CONNECT_NEW_DATASOURCE_OPTION_ID,
-    label: "Connect New Datasource",
-    value: "Connect New Datasource",
+    label: "Connect new datasource",
+    value: CONNECT_NEW_DATASOURCE_OPTION_ID,
     data: {
       pluginId: "",
     },
@@ -20,9 +20,11 @@ export const FAKE_DATASOURCE_OPTION = {
 };
 
 export const useDatasourceOptions = ({
+  canCreateDatasource,
   datasources,
   generateCRUDSupportedPlugin,
 }: {
+  canCreateDatasource: boolean;
   datasources: Datasource[];
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
 }) => {
@@ -35,9 +37,11 @@ export const useDatasourceOptions = ({
     const unSupportedDatasourceOptions: DropdownOptions = [];
     const supportedDatasourceOptions: DropdownOptions = [];
     let newDataSourceOptions: DropdownOptions = [];
-    newDataSourceOptions.push(
-      FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
-    );
+    if (canCreateDatasource) {
+      newDataSourceOptions.push(
+        FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
+      );
+    }
     datasources.forEach(({ id, isValid, name, pluginId }) => {
       const datasourceObject = {
         id,

@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  // getCurrentWorkspace,
+  getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import type { RouteComponentProps } from "react-router";
+import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Table } from "design-system-old";
+import { HighlightText, Table } from "design-system-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -16,22 +17,13 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
-import {
-  Classes as AppClass,
-  Dropdown,
-  HighlightText,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import type { SelectOptionProps } from "design-system";
+import { Avatar, Button, Option, Select, Text } from "design-system";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
-import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { Colors } from "constants/Colors";
 import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
@@ -39,6 +31,12 @@ import {
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import { getInitials } from "utils/AppsmithUtils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -53,18 +51,17 @@ export const MembersWrapper = styled.div<{
 }>`
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
   table {
-    margin-top: 12px;
     table-layout: fixed;
 
     thead {
       z-index: 1;
       tr {
-        border-bottom: 1px solid #e8e8e8;
+        border-bottom: 1px solid var(--ads-v2-color-border);
         th {
           font-size: 14px;
           font-weight: 500;
           line-height: 1.5;
-          color: var(--appsmith-color-black-700);
+          color: var(--ads-v2-color-fg);
           padding: 8px 20px;
 
           &:last-child {
@@ -85,57 +82,19 @@ export const MembersWrapper = styled.div<{
           word-break: break-word;
           padding: 0 var(--ads-spaces-9);
           border-bottom: none;
-          line-height: 2.9;
+          height: 40px;
 
           &:first-child {
             text-align: left;
           }
 
-          .t--deleteUser {
-            justify-content: center;
-          }
-
-          .selected-item {
-            .cs-text {
-              width: auto;
-            }
-          }
-
-          .cs-text {
-            text-align: left;
-          }
-
-          .bp3-popover-target {
-            display: flex;
-
-            > * {
-              flex-grow: 0;
-            }
-
-            .t--user-status {
+          .ads-v2-select {
+            width: fit-content;
+            > .rc-select-selector {
               border: none;
-              padding: 0;
-              background: none;
-            }
 
-            .cs-text {
-              width: 100%;
-              margin-right: 10px;
-              color: var(--ads-text-color);
-            }
-          }
-
-          .bp3-overlay {
-            position: relative;
-
-            .bp3-transition-container {
-              transform: none !important;
-              top: 8px !important;
-
-              .bp3-popover-content {
-                > div {
-                  width: 340px;
-                }
+              > .rc-select-selection-item {
+                padding-left: 0;
               }
             }
           }
@@ -158,12 +117,12 @@ export const UserCard = styled(Card)`
   display: flex;
   flex-direction: column;
   box-shadow: none;
-  background-color: ${Colors.GREY_1};
-  border: 1px solid ${Colors.GREY_3};
-  border-radius: 0px;
+  background-color: var(--ads-v2-color-bg-subtle);
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   padding: ${(props) =>
     `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
-  width: 343px;
+  width: 100%;
   height: 201px;
   margin: auto;
   margin-bottom: ${(props) => props.theme.spaces[7] - 1}px;
@@ -171,46 +130,12 @@ export const UserCard = styled(Card)`
   justify-content: center;
   position: relative;
 
-  .avatar {
-    min-height: 71px;
-
-    .${AppClass.TEXT} {
-      margin: auto;
-    }
-  }
-
-  .${AppClass.TEXT} {
-    color: ${Colors.GREY_10};
-    margin-top: ${(props) => props.theme.spaces[1]}px;
-    &.user-name {
-      margin-top: ${(props) => props.theme.spaces[4]}px;
-    }
-    &.user-email {
-      color: ${Colors.GREY_7};
-    }
-    &.user-role {
-      margin-bottom: ${(props) => props.theme.spaces[3]}px;
-    }
-  }
-
   .approve-btn {
     padding: ${(props) =>
       `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
   }
   .delete-btn {
     position: absolute;
-  }
-
-  .t--user-status {
-    background: transparent;
-    border: 0px;
-    width: fit-content;
-    margin: auto;
-    .${AppClass.TEXT} {
-      width: fit-content;
-      margin-top: 0px;
-      color: ${Colors.GREY_10};
-    }
   }
 `;
 
@@ -220,36 +145,43 @@ export const EachUser = styled.div`
 
   .user-icons {
     margin-right: 8px;
-    cursor: initial;
+    flex-shrink: 0;
+  }
 
-    span {
-      color: var(--appsmith-color-black-0);
-    }
+  .user-group-icons {
+    width: 24px;
+    margin-right: 8px;
+    flex-shrink: 0;
   }
 `;
 
-export const DeleteIcon = styled(Icon)`
-  position: absolute;
+export const DeleteIcon = styled(Button)`
+  position: absolute !important;
   top: ${(props) => props.theme.spaces[9]}px;
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
-export const NoResultsText = styled.div`
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--appsmith-color-black-700);
+export const NoResultsText = styled(Text)`
+  color: var(--ads-v2-color-fg);
 `;
 
 export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
   display: flex;
+  height: 100%;
+  align-items: center;
 
-  ${({ isSubRow }) =>
-    isSubRow
-      ? `padding-left: 12px;`
-      : `> div {
-          margin-left: 8px;
-        }`}
+  ${({ isSubRow }) => (isSubRow ? `padding-left: 12px;` : ``)}
+
+  .ads-v2-icon {
+    margin: 0 4px 0 0;
+    position: relative;
+    left: -4px;
+  }
+`;
+
+export const StyledText = styled(Text)`
+  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3) var(--ads-v2-spaces-2)
+    0;
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -263,6 +195,7 @@ export default function MemberSettings(props: PageProps) {
   } = props;
 
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
@@ -311,9 +244,18 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  // const currentWorkspace = useSelector(getCurrentWorkspace).filter(
-  //   (el) => el.id === workspaceId,
-  // )[0];
+  const currentWorkspace = useSelector(getCurrentWorkspace).find(
+    (el) => el.id === workspaceId,
+  );
+
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
 
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
@@ -329,6 +271,15 @@ export default function MemberSettings(props: PageProps) {
       }
     }
   }, [allUsers]);
+
+  useEffect(() => {
+    if (
+      currentWorkspace &&
+      (!isMemberofTheWorkspace || !hasManageWorkspacePermissions)
+    ) {
+      history.replace(APPLICATIONS_URL);
+    }
+  }, [currentWorkspace, isMemberofTheWorkspace, hasManageWorkspacePermissions]);
 
   const membersData = useMemo(
     () =>
@@ -371,15 +322,16 @@ export default function MemberSettings(props: PageProps) {
         return (
           <EachUser>
             <>
-              <ProfileImage
+              <Avatar
                 className="user-icons"
-                size={20}
-                source={
+                firstLetter={getInitials(member.username)}
+                image={
                   member.photoId
                     ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                     : undefined
                 }
-                userName={member.username}
+                label={member.username}
+                size="sm"
               />
               <HighlightText highlight={searchValue} text={member.username} />
             </>
@@ -410,39 +362,58 @@ export default function MemberSettings(props: PageProps) {
         const roles = allRoles
           ? allRoles.map((role: any) => {
               return {
-                id: role.id,
+                key: role.id,
                 value: role.name?.split(" - ")[0],
-                label: role.description,
+                description: role.description,
               };
             })
           : [];
         const selectedRole = roles.find(
-          (role: { id: string; value: string; label: string }) =>
+          (role: { key: string; value: string; description: string }) =>
             role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
         if (data.username === currentUser?.username) {
-          return cellProps.cell.value?.split(" - ")[0];
+          return (
+            <StyledText renderAs="p">
+              {cellProps.cell.value?.split(" - ")[0]}
+            </StyledText>
+          );
         }
         return (
-          <Dropdown
-            boundary="viewport"
+          <Select
             className="t--user-status"
-            defaultIcon="downArrow"
-            dontUsePortal
-            height="31px"
+            dropdownMatchSelectWidth={false}
+            dropdownStyle={{ width: "400px" }}
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username === data.username
             }
+            listHeight={300}
             onSelect={(_value: string, option: any) => {
               dispatch(
-                changeWorkspaceUserRole(workspaceId, option.id, data.username),
+                changeWorkspaceUserRole(workspaceId, option.key, data.username),
               );
             }}
-            options={roles}
-            selected={selectedRole}
-          />
+            size="md"
+            value={selectedRole}
+          >
+            {roles.map((role: Partial<SelectOptionProps>) => (
+              <Option key={role.key} label={role.value} value={role.key}>
+                <div className="flex flex-col gap-1">
+                  <Text
+                    color="var(--ads-v2-color-fg-emphasis)"
+                    kind={role.description && "heading-xs"}
+                  >
+                    {role.value}
+                  </Text>
+                  {role.description && (
+                    <Text kind="body-s">{role.description}</Text>
+                  )}
+                </div>
+              </Option>
+            ))}
+          </Select>
         );
       },
     },
@@ -451,16 +422,15 @@ export default function MemberSettings(props: PageProps) {
       accessor: "actions",
       Cell: function DeleteCell(cellProps: any) {
         return (
-          <Icon
+          <Button
             className="t--deleteUser"
-            cypressSelector="t--deleteUser"
-            fillColor="#FF6786"
-            hoverFillColor="#FF6786"
+            data-testid="t--deleteUser"
+            isIconButton
             isLoading={
               deletingUserInfo &&
               deletingUserInfo.username === cellProps.cell.row.original.username
             }
-            name="trash-outline"
+            kind="error"
             onClick={() => {
               onConfirmMemberDeletion(
                 cellProps.cell.row.original.username,
@@ -468,7 +438,8 @@ export default function MemberSettings(props: PageProps) {
                 workspaceId,
               );
             }}
-            size={IconSize.LARGE}
+            size="sm"
+            startIcon="delete-bin-line"
           />
         );
       },
@@ -478,9 +449,9 @@ export default function MemberSettings(props: PageProps) {
   const roles = allRoles
     ? allRoles.map((role: any) => {
         return {
-          id: role.id,
+          key: role.id,
           value: role.name?.split(" - ")[0],
-          label: role.description,
+          description: role.description,
         };
       })
     : [];
@@ -499,7 +470,7 @@ export default function MemberSettings(props: PageProps) {
             data-testid="listing-table"
             isLoading={isFetchingAllUsers && isFetchingAllRoles}
             noDataComponent={
-              <NoResultsText>
+              <NoResultsText kind="heading-s">
                 {createMessage(NO_SEARCH_DATA_TEXT)}
               </NoResultsText>
             }
@@ -517,48 +488,76 @@ export default function MemberSettings(props: PageProps) {
               return (
                 <UserCard key={index}>
                   <>
-                    <ProfileImage
+                    <Avatar
                       className="avatar"
-                      size={71}
-                      source={
+                      firstLetter={getInitials(member.username)}
+                      image={
                         member.photoId
                           ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                           : undefined
                       }
-                      userName={member.username}
+                      label={member.username}
+                      size="sm"
                     />
                     <HighlightText
                       highlight={searchValue}
                       text={member.username}
                     />
-                    <Text className="user-email" type={TextType.P1}>
+                    <Text
+                      className="user-email"
+                      color="var(--ads-v2-color-fg-muted)"
+                      renderAs="p"
+                    >
                       {member.username}
                     </Text>
                   </>
                   {isOwner && (
-                    <Text className="user-role" type={TextType.P1}>
+                    <Text className="user-role" renderAs="p">
                       {member.permissionGroupName?.split(" - ")[0]}
                     </Text>
                   )}
+                  {!isOwner && !role && (
+                    <Text className="user-role" renderAs="p">
+                      No Access
+                    </Text>
+                  )}
                   {!isOwner && (
-                    <Dropdown
-                      boundary="viewport"
+                    <Select
                       className="t--user-status"
-                      defaultIcon="downArrow"
-                      height="31px"
-                      onSelect={(value: any, option: any) => {
-                        selectRole(option.id, member.username);
+                      isLoading={
+                        roleChangingUserInfo &&
+                        roleChangingUserInfo.username === member.username
+                      }
+                      onSelect={(_value: string, option: any) => {
+                        selectRole(option.key, member.username);
                       }}
-                      options={roles}
-                      selected={role}
-                    />
+                      size="md"
+                      value={role}
+                    >
+                      {roles.map((role: Partial<SelectOptionProps>) => (
+                        <Option
+                          key={role.key}
+                          label={role.value}
+                          value={role.key}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <Text
+                              color="var(--ads-v2-color-fg-emphasis)"
+                              kind={role.description && "heading-xs"}
+                            >
+                              {role.value}
+                            </Text>
+                            <Text kind="body-s">{role.description}</Text>
+                          </div>
+                        </Option>
+                      ))}
+                    </Select>
                   )}
                   <DeleteIcon
                     className="t--deleteUser"
-                    cypressSelector="t--deleteUser"
-                    fillColor={Colors.DANGER_SOLID}
-                    hoverFillColor={Colors.DANGER_SOLID_HOVER}
-                    name="trash-outline"
+                    data-testid="t--deleteUser"
+                    isIconButton
+                    kind="error"
                     onClick={() => {
                       onConfirmMemberDeletion(
                         member.username,
@@ -566,21 +565,23 @@ export default function MemberSettings(props: PageProps) {
                         workspaceId,
                       );
                     }}
-                    size={IconSize.LARGE}
+                    size="sm"
+                    startIcon="delete-bin-line"
                   />
                 </UserCard>
               );
             })}
           </UserCardContainer>
         )}
-        <DeleteConfirmationModal
-          isDeletingUser={isDeletingUser}
-          isOpen={showMemberDeletionConfirmation}
-          name={userToBeDeleted && userToBeDeleted.name}
-          onClose={onCloseConfirmationModal}
-          onConfirm={onDeleteMember}
-          username={userToBeDeleted && userToBeDeleted.username}
-        />
+        {userToBeDeleted && (
+          <DeleteConfirmationModal
+            isDeletingUser={isDeletingUser}
+            isOpen={showMemberDeletionConfirmation}
+            onClose={onCloseConfirmationModal}
+            onConfirm={onDeleteMember}
+            userToBeDeleted={userToBeDeleted}
+          />
+        )}
       </>
     </MembersWrapper>
   );

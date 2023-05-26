@@ -11,3 +11,5 @@ export function getBaseWidgetClassName(id?: string) {
 }
 
 export const POSITIONED_WIDGET = "positioned-widget";
+
+export const WIDGET_COMPONENT_BOUNDARY_CLASS = "widget-component-boundary";

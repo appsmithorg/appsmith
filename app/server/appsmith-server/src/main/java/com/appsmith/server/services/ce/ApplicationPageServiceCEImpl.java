@@ -5,13 +5,13 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -61,6 +61,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -336,7 +337,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         application1.setEditModeThemeId(themeId);
                         application1.setPublishedModeThemeId(themeId);
                         return themeId;
-                    }).then(applicationService.createDefault(application1));
+                    }).then(applicationService.createDefaultApplication(application1));
                 })
                 .flatMap(savedApplication -> {
 
@@ -702,13 +703,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+        // 1. Find valid application to clone, depending on branch
+        Mono<Application> applicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
                     if (StringUtils.isEmpty(branchName)
                             && !Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                            && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                            && !application.getGitApplicationMetadata().getBranchName()
+                            .equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
                                 application.getGitApplicationMetadata().getDefaultBranchName(),
                                 applicationId,
@@ -719,9 +723,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .cache();
 
-        // Find the name for the cloned application which wouldn't lead to duplicate key exception
+        // 2. Find the name for the cloned application which wouldn't lead to duplicate key exception
         Mono<String> newAppNameMono = applicationMono
-                .flatMap(application -> applicationService.findAllApplicationsByWorkspaceId(application.getWorkspaceId())
+                .flatMap(application -> applicationService
+                        // TODO: Convert this into a query that projects only application names
+                        .findAllApplicationsByWorkspaceId(application.getWorkspaceId())
                         .map(Application::getName)
                         .collect(Collectors.toSet())
                         .map(appNames -> {
@@ -740,6 +746,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
+
+                    // 3. Set up fields for copy of application
 
                     // Remove the git related data before cloning
                     sourceApplication.setGitApplicationMetadata(null);
@@ -763,10 +771,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .zipWith(userMono)
                             .flatMap(applicationUserTuple2 -> {
                                 Application application1 = applicationUserTuple2.getT1();
-                                application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
-                                return applicationService.createDefault(application1);
+                                // setting modified by to current user
+                                application1.setModifiedBy(applicationUserTuple2.getT2().getUsername());
+                                return applicationService.createDefaultApplication(application1);
                             })
-                            // Now fetch the pages of the source application, clone and add them to this new application
+                            // 4. Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
                                         String pageId = applicationPage.getId();
@@ -788,7 +797,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         return applicationService.save(savedApplication);
                                     })
                             )
-                            // duplicate the source application's themes if required i.e. if they were customized
+                            // 5. Duplicate the source application's themes if required i.e. if they were customized
                             .flatMap(application ->
                                     themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
                                             .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application))
@@ -802,6 +811,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
+                            // 6. Publish copy of application
                             .flatMap(application -> publish(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
@@ -1032,7 +1042,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .collectList()
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<List<NewAction>> publishedActionsListMono = newActionService
+        Mono<Map<PluginType, Collection<NewAction>>> publishedActionsListMono = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
                 .flatMap(newAction -> {
                     // If the action was deleted in edit mode, now this document can be safely archived
@@ -1045,7 +1055,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Mono.just(newAction);
                 })
                 .flatMap(newActionService::save)
-                .collectList()
+                .collectMultimap(newAction -> newAction.getPluginType())
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
@@ -1071,8 +1081,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         isPublishedManually));
     }
 
+    private int getActionCount(Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap, PluginType pluginType) {
+        if (pluginTypeCollectionMap.containsKey(pluginType)) {
+            return pluginTypeCollectionMap.get(pluginType).size();
+        }
+        return 0;
+    }
+
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
-                                                            Mono<List<NewAction>> publishedActionsFlux,
+                                                            Mono<Map<PluginType, Collection<NewAction>>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
                                                             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
                                                             String applicationId, boolean isPublishedManually) {
@@ -1088,7 +1105,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application application = objects.getT4();
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
-                    extraProperties.put("queryCount", objects.getT2().size());
+                    Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
+                    Integer dbQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.DB);
+                    Integer apiCount = getActionCount(pluginTypeCollectionMap, PluginType.API);
+                    Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
+                    Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
+                    Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
+
+                    extraProperties.put("dbQueryCount", dbQueryCount);
+                    extraProperties.put("apiCount", apiCount);
+                    extraProperties.put("jsFuncCount", jsFuncCount);
+                    extraProperties.put("saasQueryCount", saasQueryCount);
+                    extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("queryCount", (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount));
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
@@ -1175,18 +1204,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // which creates problem if we hit duplicate key exception
         return applicationMono
                 .flatMap(application1 ->
-                    this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
+                        this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
                 )
                 .switchIfEmpty(Mono.defer(() ->
-                    applicationWithPoliciesMono
-                            .zipWith(userMono)
-                            .flatMap(tuple -> {
-                                Application application1 = tuple.getT1();
-                                application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                                // We can't use create or createApplication method here as we are expecting update operation if the
-                                // _id is available with application object
-                                return applicationService.save(application);
-                            })
+                        applicationWithPoliciesMono
+                                .zipWith(userMono)
+                                .flatMap(tuple -> {
+                                    Application application1 = tuple.getT1();
+                                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                                    // We can't use create or createApplication method here as we are expecting update operation if the
+                                    // _id is available with application object
+                                    return applicationService.save(application);
+                                })
                 ));
     }
 

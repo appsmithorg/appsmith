@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -15,7 +16,6 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -143,12 +143,13 @@ public class Application extends BaseDomain {
      * As this property is modified by the framework when there is any change in domain,
      * a new property lastEditedAt has been added to track the edit actions from users.
      * This method exposes that property.
+     *
      * @return updated time as a string
      */
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     public String getLastUpdateTime() {
-        if(lastEditedAt != null) {
+        if (lastEditedAt != null) {
             return ISO_FORMATTER.format(lastEditedAt);
         }
         return null;
@@ -156,7 +157,7 @@ public class Application extends BaseDomain {
 
     @JsonView(Views.Public.class)
     public String getLastDeployedAt() {
-        if(lastDeployedAt != null) {
+        if (lastDeployedAt != null) {
             return ISO_FORMATTER.format(lastDeployedAt);
         }
         return null;
@@ -192,6 +193,10 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean exportWithConfiguration;
 
+    //forkWithConfiguration represents whether credentials are shared or not while forking an app
+    @JsonView(Views.Public.class)
+    Boolean forkWithConfiguration;
+
     @JsonView(Views.Internal.class)
     @Deprecated
     String defaultPermissionGroup;
@@ -210,18 +215,18 @@ public class Application extends BaseDomain {
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
         this.setUnpublishedApplicationDetail(new ApplicationDetail());
         this.setPublishedApplicationDetail(new ApplicationDetail());
-        if (application.getUnpublishedApplicationDetail() == null){
+        if (application.getUnpublishedApplicationDetail() == null) {
             application.setUnpublishedApplicationDetail(new ApplicationDetail());
         }
-        if (application.getPublishedApplicationDetail() == null){
+        if (application.getPublishedApplicationDetail() == null) {
             application.setPublishedApplicationDetail(new ApplicationDetail());
         }
-        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning().type);
+        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning().type);
         this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
-        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getPublishedApplicationDetail().getAppPositioning().type);
+        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null : new AppPositioning(application.getPublishedApplicationDetail().getAppPositioning().type);
         this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
-        this.getUnpublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
-        this.getPublishedApplicationDetail().setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
+        this.getUnpublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null : new NavigationSetting());
+        this.getPublishedApplicationDetail().setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null : new NavigationSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -237,6 +242,7 @@ public class Application extends BaseDomain {
         }
     }
 
+    @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
         this.setOrganizationId(null);
@@ -250,9 +256,11 @@ public class Application extends BaseDomain {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
+        this.setExportWithConfiguration(null);
+        this.setForkWithConfiguration(null);
+        super.sanitiseToExportDBObject();
     }
 
     public List<ApplicationPage> getPages() {

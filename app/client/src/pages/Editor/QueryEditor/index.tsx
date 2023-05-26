@@ -35,10 +35,7 @@ import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import {
-  changeQuery,
-  setQueryPaneResponsePaneHeight,
-} from "actions/queryPaneActions";
+import { changeQuery } from "actions/queryPaneActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -52,7 +49,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
-import { ActionExecutionResizerHeight } from "../APIEditor/constants";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -83,7 +80,6 @@ type ReduxDispatchProps = {
     propertyName: string,
     value: string,
   ) => void;
-  setQueryPaneResponsePaneHeight: (height: number) => void;
 };
 
 type ReduxStateProps = {
@@ -105,6 +101,7 @@ type ReduxStateProps = {
   actionId: string;
   actionObjectDiff?: any;
   isSaas: boolean;
+  datasourceId?: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -153,6 +150,12 @@ class QueryEditor extends React.Component<Props> {
 
   handleRunClick = () => {
     const { dataSources } = this.props;
+    const datasource = dataSources.find(
+      (datasource) => datasource.id === this.props.datasourceId,
+    );
+    const pluginName = this.props.plugins.find(
+      (plugin) => plugin.id === this.props.pluginId,
+    )?.name;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
       { actionId: this.props.actionId },
@@ -160,11 +163,11 @@ class QueryEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
+      pluginName: pluginName,
+      datasourceId: datasource?.id,
+      isMock: !!datasource?.isMock,
     });
     this.props.runAction(this.props.actionId);
-
-    // reset response pane height back to original
-    this.props.setQueryPaneResponsePaneHeight(ActionExecutionResizerHeight);
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -192,6 +195,11 @@ class QueryEditor extends React.Component<Props> {
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
+    // Event for datasource creation click
+    const entryPoint = DatasourceCreateEntryPoints.QUERY_EDITOR;
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+      entryPoint,
+    });
   };
 
   render() {
@@ -336,6 +344,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     uiComponent,
     applicationId: getCurrentApplicationId(state),
     actionObjectDiff,
+    datasourceId: action.datasource?.id,
   };
 };
 
@@ -366,9 +375,6 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     value: string,
   ) => {
     dispatch(setActionProperty({ actionId, propertyName, value }));
-  },
-  setQueryPaneResponsePaneHeight: (height) => {
-    dispatch(setQueryPaneResponsePaneHeight(height));
   },
 });
 

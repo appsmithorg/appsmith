@@ -56,7 +56,7 @@
       ]
     },
     {
-      "label": "Cell Range",
+      "label": "Cell range",
       "propertyName": "rows_get_cellRange",
       "tooltipText": "The Google Sheet notation of cells to filter (A1:B)",
       "subtitle": "Specify the google sheet range of cells",
@@ -158,7 +158,7 @@
           },
           "tooltipText": {
             "limit": "Bind to the pageSize property of your widget {{Table1.pageSize}}",
-            "offset": "Bind to the index of the first row to display {{(Table1.pageNo-1)*pageSize}}"
+            "offset": "Bind to the index of the first row to display {{(Table1.pageNo-1)*Table1.pageSize}}"
           }
         }
       ]

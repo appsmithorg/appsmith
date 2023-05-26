@@ -27,6 +27,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { GenerateTemplatePageRequest } from "api/PageApi";
 import type { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import * as Sentry from "@sentry/react";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -185,6 +186,24 @@ export const createPage = (
   };
 };
 
+export const createNewPageFromEntities = (
+  applicationId: string,
+  pageName: string,
+  blockNavigation?: boolean,
+) => {
+  AnalyticsUtil.logEvent("CREATE_PAGE", {
+    pageName,
+  });
+  return {
+    type: ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
+    payload: {
+      applicationId,
+      name: pageName,
+      blockNavigation,
+    },
+  };
+};
+
 /**
  * action to clone page
  *
@@ -220,6 +239,14 @@ export const clonePageSuccess = (
 };
 
 export const updatePage = (payload: UpdatePageRequest) => {
+  // Update page *needs* id to be there. We found certain scenarios
+  // where this was not happening and capturing the error to know gather
+  // more info: https://github.com/appsmithorg/appsmith/issues/16435
+  if (!payload.id) {
+    Sentry.captureException(
+      new Error("Attempting to update page without page id"),
+    );
+  }
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload,
@@ -282,10 +309,14 @@ export type MultipleWidgetDeletePayload = {
 export type WidgetResize = {
   widgetId: string;
   parentId: string;
-  leftColumn: number;
-  rightColumn: number;
-  topRow: number;
-  bottomRow: number;
+  leftColumn?: number;
+  rightColumn?: number;
+  topRow?: number;
+  bottomRow?: number;
+  mobileLeftColumn?: number;
+  mobileRightColumn?: number;
+  mobileTopRow?: number;
+  mobileBottomRow?: number;
   snapColumnSpace: number;
   snapRowSpace: number;
 };

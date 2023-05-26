@@ -1,7 +1,14 @@
 import type { Plugin } from "api/PluginApi";
-import { PluginPackageName } from "entities/Action";
+import {
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+  DATASOURCE_SAAS_FORM,
+} from "ce/constants/forms";
+import { diff } from "deep-diff";
+import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
+import { isArray } from "lodash";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -95,4 +102,58 @@ export function isDatasourceAuthorizedForQueryCreation(
   }
 
   return true;
+}
+
+/**
+ * Returns datasource property value from datasource?.datasourceConfiguration?.properties
+ * @param datasource Datasource
+ * @param propertyKey string
+ * @returns string | null
+ */
+export function getDatasourcePropertyValue(
+  datasource: Datasource,
+  propertyKey: string,
+): string | null {
+  if (!datasource) {
+    return null;
+  }
+
+  const properties = datasource?.datasourceConfiguration?.properties;
+  if (!!properties && properties.length > 0) {
+    const propertyObj = properties.find((prop) => prop.key === propertyKey);
+    if (!!propertyObj) {
+      return propertyObj.value;
+    }
+  }
+
+  return null;
+}
+
+export function getFormName(plugin: Plugin): string {
+  const pluginType = plugin?.type;
+  if (!!pluginType) {
+    switch (pluginType) {
+      case PluginType.DB:
+      case PluginType.REMOTE:
+        return DATASOURCE_DB_FORM;
+      case PluginType.SAAS:
+        return DATASOURCE_SAAS_FORM;
+      case PluginType.API:
+        return DATASOURCE_REST_API_FORM;
+    }
+  }
+  return DATASOURCE_DB_FORM;
+}
+
+export function getFormDiffPaths(initialValues: any, currentValues: any) {
+  const difference = diff(initialValues, currentValues);
+  const diffPaths: string[] = [];
+  if (!!difference) {
+    difference.forEach((diff) => {
+      if (!!diff.path && isArray(diff.path)) {
+        diffPaths.push(diff.path.join("."));
+      }
+    });
+  }
+  return diffPaths;
 }

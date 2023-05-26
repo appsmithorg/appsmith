@@ -112,6 +112,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 export interface StoredDatasource {
   id: string;
   pluginId?: string;
+  datasourceConfiguration?: { url?: string };
 }
 
 export interface BaseAction {
@@ -190,6 +191,7 @@ export enum SlashCommand {
   NEW_API,
   NEW_QUERY,
   NEW_INTEGRATION,
+  ASK_AI,
 }
 
 export type SlashCommandPayload = {

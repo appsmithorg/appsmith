@@ -33,13 +33,11 @@ public class PostgresErrorMessages {
 
     public static final String DS_INVALID_HOSTNAME_ERROR_MSG = "Host value cannot contain `/` or `:` characters. Found `%s`.";
 
-    public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing Connection Mode.";
+    public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing connection mode.";
 
     public static final String DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG = "Missing authentication details.";
 
     public static final String DS_MISSING_USERNAME_ERROR_MSG = "Missing username for authentication.";
-
-    public static final String DS_MISSING_PASSWORD_ERROR_MSG = "Missing password for authentication.";
 
     public static final String DS_MISSING_DATABASE_NAME_ERROR_MSG = "Missing database name.";
 

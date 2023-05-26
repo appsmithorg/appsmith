@@ -1,5 +1,4 @@
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import ExecutionMetaData from "./ExecutionMetaData";
 import { WorkerMessenger } from "./Messenger";
@@ -23,17 +22,8 @@ export function promisify<P extends ReadonlyArray<unknown>>(
       },
     });
     if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
-    const evalContext = createEvaluationContext({
-      dataTree: dataTreeEvaluator.evalTree,
-      resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
-      isTriggerBased: true,
-    });
-    Object.assign(self, evalContext);
     const { data, error } = response;
     if (error) {
       throw error;

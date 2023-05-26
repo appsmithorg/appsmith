@@ -39,7 +39,7 @@ export default {
         {
           propertyName: "onSave",
           label: "onSave",
-          helpText: "Triggers an action when the save button is clicked",
+          helpText: "when the save button is clicked",
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             const baseProperty = getBasePropertyPath(propertyPath);
@@ -109,7 +109,7 @@ export const saveButtonStyleConfig = {
       children: [
         {
           propertyName: "saveButtonColor",
-          label: "Button Color",
+          label: "Button color",
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           helpText: "Changes the color of the button",
           isJSConvertible: true,
@@ -129,7 +129,7 @@ export const saveButtonStyleConfig = {
         },
         {
           propertyName: "saveButtonVariant",
-          label: "Button Variant",
+          label: "Button variant",
           controlType: "ICON_TABS",
           fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
@@ -170,7 +170,7 @@ export const saveButtonStyleConfig = {
         },
         {
           propertyName: "saveBorderRadius",
-          label: "Border Radius",
+          label: "Border radius",
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText: "Rounds the corners of the save button's outer border edge",
@@ -216,15 +216,15 @@ export const saveButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the save button",
           controlType: "ICON_TABS",
-          fullWidth: true,
+          fullWidth: false,
           defaultValue: "left",
           options: [
             {
-              icon: "VERTICAL_LEFT",
+              startIcon: "skip-left-line",
               value: "left",
             },
             {
-              icon: "VERTICAL_RIGHT",
+              startIcon: "skip-right-line",
               value: "right",
             },
           ],

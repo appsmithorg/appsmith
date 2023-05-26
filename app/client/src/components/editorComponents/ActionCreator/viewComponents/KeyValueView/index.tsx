@@ -1,16 +1,18 @@
+import React from "react";
 import type { KeyValueViewProps } from "../../types";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
-import type { DropdownOption } from "../../../../constants";
-import React from "react";
+import type { SegmentedControlOption } from "design-system";
 
 export function KeyValueView(props: KeyValueViewProps) {
   return (
-    <ControlWrapper isAction key={props.label}>
+    <ControlWrapper className="key-value-view" isAction key={props.label}>
       <KeyValueComponent
-        addLabel={"Query Params"}
-        pairs={props.get(props.value, false) as DropdownOption[]}
-        updatePairs={(pageParams: DropdownOption[]) => props.set(pageParams)}
+        addLabel={"Query params"}
+        pairs={props.get(props.value, false) as SegmentedControlOption[]}
+        updatePairs={(pageParams: SegmentedControlOption[]) =>
+          props.set(pageParams)
+        }
       />
     </ControlWrapper>
   );

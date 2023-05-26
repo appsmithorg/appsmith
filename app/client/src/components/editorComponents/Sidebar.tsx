@@ -13,10 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  getFirstTimeUserOnboardingComplete,
-  getIsFirstTimeUserOnboardingEnabled,
-} from "selectors/onboardingSelectors";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
@@ -24,7 +21,7 @@ import {
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
@@ -34,6 +31,24 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { getEditingEntityName } from "selectors/entitiesSelector";
+import styled from "styled-components";
+
+const StyledResizer = styled.div<{ resizing: boolean }>`
+  ${(props) =>
+    props.resizing &&
+    `
+  & > div {
+    background-color: var(--ads-v2-color-outline);
+  }
+  `}
+  :hover {
+    & > div {
+      background-color: var(--ads-v2-color-bg-emphasis);
+    }
+  }
+`;
 
 type Props = {
   width: number;
@@ -64,9 +79,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     props.onDragEnd,
   );
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
-  const isFirstTimeUserOnboardingComplete = useSelector(
-    getFirstTimeUserOnboardingComplete,
-  );
+  const isEditingEntityName = useSelector(getEditingEntityName);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -79,7 +92,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
     };
-  }, [active, pinned, resizer.resizing]);
+  }, [active, pinned, resizer.resizing, isEditingEntityName]);
 
   /**
    * passing the event to touch move on mouse move
@@ -91,6 +104,21 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       touches: [{ clientX: event.clientX, clientY: event.clientY }],
     });
     onTouchMove(eventWithTouches);
+  };
+
+  /**
+   * Is a context menu of any of the explorer entities open
+   */
+  const isContextMenuOpen = () => {
+    const menus = document.getElementsByClassName(
+      EntityClassNames.CONTEXT_MENU_CONTENT,
+    );
+    const node = menus[0];
+    if (!document.body.contains(node)) {
+      return false;
+    }
+
+    return true;
   };
 
   /**
@@ -110,7 +138,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       if (active) {
         // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
         // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
-        if (currentX >= props.width + 20 && !resizer.resizing) {
+        if (
+          currentX >= props.width + 20 &&
+          !resizer.resizing &&
+          !isContextMenuOpen() &&
+          !isEditingEntityName
+        ) {
           dispatch(setExplorerActiveAction(false));
         }
       } else {
@@ -161,13 +194,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]:
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r ${tailwindLayers.entityExplorer}`]:
           true,
         relative: pinned && !isPreviewingApp,
         "-translate-x-full": (!pinned && !active) || isPreviewingApp,
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewingApp,
       })}
+      data-testid={active ? "sidebar-active" : "sidebar"}
       id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}
@@ -176,8 +210,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         ref={sidebarRef}
         style={{ width: props.width }}
       >
-        {(enableFirstTimeUserOnboarding ||
-          isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
+        {enableFirstTimeUserOnboarding && <OnboardingStatusbar />}
         {/* PagesContainer */}
         <Pages />
         {/* Popover that contains the bindings info */}
@@ -186,13 +219,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <Explorer />
       </div>
       {/* RESIZER */}
-      <div
+      <StyledResizer
         className={`absolute w-2 h-full -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
         onMouseDown={resizer.onMouseDown}
         onMouseEnter={onHoverResizer}
         onMouseLeave={onHoverEndResizer}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}
+        resizing={resizer.resizing}
         style={{
           left: resizerLeft,
           display: isPreviewingApp ? "none" : "initial",
@@ -200,25 +234,20 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         <div
           className={classNames({
-            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center":
+            "w-1 h-full bg-transparent transform transition flex items-center":
               true,
-            "bg-blue-500": resizer.resizing,
           })}
         >
-          <TooltipComponent
-            content={
-              <div className="flex items-center justify-between">
-                <span>Drag to resize</span>
-              </div>
-            }
-            hoverOpenDelay={200}
-            isOpen={tooltipIsOpen && !resizer.resizing}
-            position="right"
+          <Tooltip
+            content="Drag to resize"
+            mouseEnterDelay={0.2}
+            placement="right"
+            visible={tooltipIsOpen && !resizer.resizing}
           >
             <div />
-          </TooltipComponent>
+          </Tooltip>
         </div>
-      </div>
+      </StyledResizer>
     </div>
   );
 });
