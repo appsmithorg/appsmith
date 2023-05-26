@@ -215,7 +215,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         />
       )}
       <InputContainer
-        data-cy="checkbox-group-container"
+        data-testid="checkbox-group-container"
         inline={isInline}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}

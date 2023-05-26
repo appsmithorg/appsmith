@@ -16,7 +16,7 @@ export function SheetsDropdown() {
       <SelectWrapper className="space-y-2">
         <Label>{label}</Label>
         <Dropdown
-          cypressSelector="t--sheetName-dropdown"
+          data-testid="t--sheetName-dropdown"
           dropdownMaxHeight={"300px"}
           errorMsg={error}
           fillOptions

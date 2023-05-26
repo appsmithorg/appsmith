@@ -141,7 +141,7 @@ jobs:
       # Start rts
       - name: Start RTS Server
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: ./app/rts
+        working-directory: ./app/client/packages/rts
         run: |
           cp .env.example .env        
           ./start-server.sh &

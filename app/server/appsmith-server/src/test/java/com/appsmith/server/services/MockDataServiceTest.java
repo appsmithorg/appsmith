@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -153,6 +153,7 @@ public class MockDataServiceTest {
         mockDataSource.setPluginId(pluginMono.getId());
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -175,7 +176,7 @@ public class MockDataServiceTest {
                 .findFirst().get();
 
         StepVerifier
-                .create(mockDataService.createMockDataSet(mockDataSource))
+                .create(mockDataService.createMockDataSet(mockDataSource, environmentId))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
@@ -194,7 +195,7 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use mongo connection string URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                     Assertions.assertTrue(createdDatasource.getIsMock());
@@ -217,6 +218,7 @@ public class MockDataServiceTest {
         mockDataSource.setPluginId(pluginMono.getId());
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -239,7 +241,7 @@ public class MockDataServiceTest {
                 .findFirst().get();
 
         StepVerifier
-                .create(mockDataService.createMockDataSet(mockDataSource))
+                .create(mockDataService.createMockDataSet(mockDataSource, environmentId))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
@@ -275,6 +277,7 @@ public class MockDataServiceTest {
 
         Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
+        String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
 
@@ -284,8 +287,8 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<Datasource> datasourceMono = mockDataService.createMockDataSet(mockDataSource)
-                .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource));
+        Mono<DatasourceDTO> datasourceMono = mockDataService.createMockDataSet(mockDataSource, environmentId )
+                .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource, environmentId));
 
         List<PermissionGroup> permissionGroups = Mono.just(workspace)
                 .flatMapMany(savedWorkspace -> {
@@ -327,7 +330,7 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                     assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getValue()).isEqualTo("Yes");
-                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use mongo connection string URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
                 })

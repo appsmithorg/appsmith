@@ -456,7 +456,9 @@ export function getDynamicBindingsChangesSaga(
   const bindingField = field.replace("actionConfiguration.", "");
   // we listen to any viewType changes.
   const viewType = field.endsWith(".viewType");
-  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList
+    ? [...action.dynamicBindingPathList]
+    : [];
 
   if (field.endsWith(".jsonData") || field.endsWith(".componentData")) {
     return dynamicBindings;
@@ -510,7 +512,7 @@ export function getDynamicBindingsChangesSaga(
       dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
     }
     if (isDynamic && !fieldExists) {
-      dynamicBindings.push({ key: bindingField });
+      dynamicBindings = [...dynamicBindings, { key: bindingField }];
     }
   }
 

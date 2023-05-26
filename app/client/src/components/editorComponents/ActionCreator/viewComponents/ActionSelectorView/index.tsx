@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import type { TreeDropdownOption } from "design-system-old";
-import { TreeDropdown, TextInput } from "design-system-old";
+import { TreeDropdown } from "design-system-old";
+import { Input } from "design-system";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
-import { FieldType } from "../../constants";
+import { AppsmithFunction, FieldType } from "../../constants";
 import {
   flattenOptions,
   getCodeFromMoustache,
@@ -54,7 +55,10 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const valueWithoutMoustache = getCodeFromMoustache(value);
 
-  const selectedOption = getSelectedFieldFromValue(value, options);
+  const selectedOption = getSelectedFieldFromValue(
+    valueWithoutMoustache,
+    options,
+  );
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
@@ -112,7 +116,15 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
     <TreeDropdown
       className="right-8 action-selector-view"
       defaultOpen={isOpen}
-      defaultText={(action || "").toString()}
+      defaultText={
+        [
+          AppsmithFunction.integration,
+          AppsmithFunction.jsFunction,
+          "",
+        ].includes(actionType)
+          ? action
+          : actionType
+      }
       menuHeight={300}
       menuWidth={256}
       modifiers={{
@@ -130,10 +142,11 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       selectedValue={fieldConfig.getter(valueWithoutMoustache)}
       toggle={
         isOpen ? (
-          <TextInput
+          <Input
             autoFocus
             className="w-full"
             onChange={(val: string) => setSearchText(val)}
+            size="md"
             value={searchText}
           />
         ) : null
