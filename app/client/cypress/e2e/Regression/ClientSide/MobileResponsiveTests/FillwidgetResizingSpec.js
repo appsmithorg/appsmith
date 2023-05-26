@@ -1,12 +1,11 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const autoLayout = ObjectsRegistry.AutoLayout;
 let theight;
 let twidth;
 
 describe("Validating Mobile Views for Fill Widget", function () {
   it("Validate change with height width for fill widget - Input widget", function () {
-    autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.convertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
     cy.PublishtheApp();

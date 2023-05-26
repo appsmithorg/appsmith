@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const autoLayout = ObjectsRegistry.AutoLayout;
 let testHeight;
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
@@ -28,7 +27,7 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                 cy.log(dheight);
                 cy.wait(3000);
 
-                autoLayout.convertToAutoLayoutAndVerify();
+                _.autoLayout.convertToAutoLayoutAndVerify();
 
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
@@ -43,7 +42,9 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
 
-                            autoLayout.convertToFixedLayoutAndVerify("DESKTOP");
+                            _.autoLayout.convertToFixedLayoutAndVerify(
+                              "DESKTOP",
+                            );
 
                             cy.wait(15000);
                             cy.get(".t--widget-audiorecorderwidget")

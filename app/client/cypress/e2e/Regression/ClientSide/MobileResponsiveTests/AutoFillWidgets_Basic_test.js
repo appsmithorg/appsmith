@@ -1,6 +1,5 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const autoLayout = ObjectsRegistry.AutoLayout;
 let widgets = [
   "switchwidget",
   "currencyinputwidget",
@@ -37,7 +36,7 @@ let width = {
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
   it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
-    autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.convertToAutoLayoutAndVerify(false);
 
     cy.dragAndDropToCanvas("switchwidget", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("currencyinputwidget", { x: 110, y: 210 });

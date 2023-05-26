@@ -1,10 +1,8 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const autoLayout = ObjectsRegistry.AutoLayout;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating Mobile Views for Hug Widget", function () {
   it("1. Validate change with height width for hug widget - image widget", function () {
-    autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.convertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });
     cy.PublishtheApp();
     cy.get(".t--widget-imagewidget").first().should("be.visible");

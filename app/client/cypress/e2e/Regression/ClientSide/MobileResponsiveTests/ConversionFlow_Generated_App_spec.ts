@@ -1,17 +1,15 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const dataSources = ObjectsRegistry.DataSources,
-  autoLayout = ObjectsRegistry.AutoLayout;
 describe("Handle Conversion for Generated/Imported Pages", () => {
   it("1. make sure the Generated CRUD apps is converted and all the canvases are converted to auto layout", () => {
-    dataSources.GeneratePageWithMockDB();
+    _.dataSources.GeneratePageWithMockDB();
 
     //Converting generated CRUD app to Auto Layout and verify the canvases
-    autoLayout.convertToAutoLayoutAndVerify();
-    autoLayout.verifyCurrentWidgetIsAutolayout("containerwidget");
+    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.verifyCurrentWidgetIsAutolayout("containerwidget");
 
     //Add Generated CRUD from within the Auto Layout and verify the canvases
-    dataSources.GeneratePageWithMockDB();
-    autoLayout.verifyCurrentWidgetIsAutolayout("containerwidget");
+    _.dataSources.GeneratePageWithMockDB();
+    _.autoLayout.verifyCurrentWidgetIsAutolayout("containerwidget");
   });
 });

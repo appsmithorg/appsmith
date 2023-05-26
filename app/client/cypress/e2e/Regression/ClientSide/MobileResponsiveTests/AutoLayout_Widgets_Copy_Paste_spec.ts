@@ -1,14 +1,12 @@
 const dsl = require("../../../../fixtures/autoLayoutCopyPaste.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const autoLayout = ObjectsRegistry.AutoLayout;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Copy paste widget related tests for Auto layout", () => {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.convertToAutoLayoutAndVerify(false);
     cy.addDsl(dsl);
   });
 
@@ -26,7 +24,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     cy.get("body").type(`{${modifierKey}}{v}`);
 
     //verify button widget pastes inside the container, in layer index 3 and is center aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".t--widget-containerwidget",
       ".t--widget-buttonwidget",
       3,
@@ -57,7 +55,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     cy.get("body").type(`{${modifierKey}}{v}`);
 
     //verify button widget pastes inside selected the container, in layer index 4 and is end aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".t--widget-containerwidget",
       ".t--widget-buttonwidget",
       4,
@@ -90,7 +88,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     cy.get("body").type(`{${modifierKey}}{v}`);
 
     //verify button widget pastes in main canvas, in layer index 1 and is center aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".appsmith_widget_0",
       ".t--widget-buttonwidget",
       1,
@@ -136,28 +134,28 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //verify widgets paste in copied orientation,
     // button in layer index 2, end aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".appsmith_widget_0",
       ".t--widget-buttonwidget",
       2,
       "END",
     );
     // button in layer index 3, start aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".appsmith_widget_0",
       ".t--widget-buttonwidget",
       3,
       "START",
     );
     // icon button in layer index 3, center aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".appsmith_widget_0",
       ".t--widget-iconbuttonwidget",
       3,
       "CENTER",
     );
     // button in layer index 4, center aligned
-    autoLayout.verifyIfChildWidgetPositionInFlexContainer(
+    _.autoLayout.verifyIfChildWidgetPositionInFlexContainer(
       ".appsmith_widget_0",
       ".t--widget-buttonwidget",
       4,

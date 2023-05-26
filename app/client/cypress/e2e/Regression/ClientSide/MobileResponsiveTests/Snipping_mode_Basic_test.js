@@ -1,8 +1,6 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const autoLayout = ObjectsRegistry.AutoLayout;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
@@ -19,7 +17,7 @@ describe("Add widget - Postgress DataSource", function () {
     cy.get(".t--close-editor span:contains('Back')").click({ force: true });
     cy.get(".t--back-button span:contains('Back')").click({ force: true });
 
-    autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.convertToAutoLayoutAndVerify(false);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.wait(500);
