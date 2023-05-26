@@ -163,6 +163,10 @@ export class AggregateHelper {
     //this.ValidateNetworkStatus("@sucessSave", 200);
   }
 
+  public PopupClose(popUpName: string) {
+    this.GetNClick(this.locator._popUpCloseBtn(popUpName));
+  }
+
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
     cy.get(selector).within(() => {
       cy.get(this.locator._codeMirrorCode).should(
@@ -313,11 +317,15 @@ export class AggregateHelper {
   }
 
   public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
-    cy.wait(aliasName).should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      expectedStatus,
-    );
+    cy.wait(aliasName).then(($apiCall: any) => {
+      expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
+    });
+
+    // should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   expectedStatus,
+    // );
 
     //To improve below:
     // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
@@ -1058,7 +1066,11 @@ export class AggregateHelper {
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true) {
-    cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(2000);
+    //cy.fixture(fixtureName).as("selectFileFixture");//giving issue, hence using directly as below
+    cy.get(this.locator._uploadFiles)
+      .eq(0)
+      .selectFile("cypress/fixtures/" + fixtureName, { force: true })
+      .wait(3000);
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 

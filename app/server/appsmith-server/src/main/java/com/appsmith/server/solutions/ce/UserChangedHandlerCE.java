@@ -6,5 +6,6 @@ import com.appsmith.server.events.UserChangedEvent;
 
 public interface UserChangedHandlerCE {
     User publish(User user);
+
     void handle(UserChangedEvent event);
 }

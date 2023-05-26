@@ -11,11 +11,11 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 public interface ActionExecutionSolutionCE {
-    Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentName);
+    Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentId);
 
-    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName);
+    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentId);
 
-    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
+    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 

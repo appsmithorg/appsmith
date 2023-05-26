@@ -273,8 +273,12 @@ export default withRouter(
     };
     _.forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
+      const doNotUpdate =
+        setting.controlType === SettingTypes.CHECKBOX &&
+        !settingsConfig[name] &&
+        !fieldValue;
 
-      if (fieldValue !== settingsConfig[name]) {
+      if (fieldValue !== settingsConfig[name] && !doNotUpdate) {
         newProps.settings[name] = fieldValue;
       }
     });

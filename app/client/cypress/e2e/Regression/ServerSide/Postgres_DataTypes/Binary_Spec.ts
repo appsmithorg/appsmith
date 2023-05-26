@@ -14,7 +14,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("1. Creating table queries - binarytype + Bug 14493", () => {
+  it("1. Creating SELECT query - binarytype + Bug 14493", () => {
     query = `CREATE table binarytype (serialid SERIAL primary key, imagename TEXT, existingImage bytea, newImage bytea);`;
     _.dataSources.CreateQueryAfterDSSaved(query, "createTable");
     _.dataSources.RunQuery();
@@ -31,13 +31,15 @@ describe.skip("Binary Datatype tests", function () {
       "public.binarytype",
       "SELECT",
     );
-    _.agHelper.RenameWithInPane("selectRecords");
     _.dataSources.RunQuery();
     _.agHelper
       .GetText(_.dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     _.dataSources.EnterQuery(query);
+    _.agHelper.RenameWithInPane("selectRecords");
+  });
 
+  it("2. Creating all queries- binarytype", () => {
     //Other queries
     query = `INSERT INTO public."binarytype" ("imagename", "existingimage", "newimage") VALUES ('{{Insertimagename.text}}', '{{Insertimage.files[0].data}}', '{{Insertimage.files[0].data}}');`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
@@ -63,7 +65,7 @@ describe.skip("Binary Datatype tests", function () {
     _.entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
-  it("2. Inserting record - binarytype", () => {
+  it("3. Inserting record - binarytype", () => {
     imageNameToUpload = "Datatypes/Bridge.jpg";
     _.entityExplorer.SelectEntityByName("Page1");
     _.deployMode.DeployApp();
@@ -77,9 +79,9 @@ describe.skip("Binary Datatype tests", function () {
     _.agHelper.ClickButton("Insert");
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Assert that Insert did not fail
     _.agHelper.AssertElementVisible(_.locators._spanButton("Run InsertQuery"));
-    _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //for the update row to appear at last
+    _.agHelper.AssertElementAbsence(_.locators._spinner, 10000); //for the update row to appear at last
     _.table.WaitUntilTableLoad();
-    _.agHelper.Sleep(2000); //some more time for all rows with images to be populated
+    _.agHelper.Sleep(3000); //some more time for all rows with images to be populated
     _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -93,7 +95,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("3. Inserting another record - binarytype", () => {
+  it("4. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Georgia.jpeg";
 
     _.agHelper.ClickButton("Run InsertQuery");
@@ -121,7 +123,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("4. Inserting another record - binarytype", () => {
+  it("5. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Maine.jpeg";
 
     _.agHelper.ClickButton("Run InsertQuery");
@@ -149,7 +151,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("5. Updating record - binarytype", () => {
+  it("6. Updating record - binarytype", () => {
     imageNameToUpload = "Datatypes/NewJersey.jpeg";
 
     _.table.SelectTableRow(1);
@@ -178,7 +180,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("6. Deleting records - binarytype", () => {
+  it("7. Deleting records - binarytype", () => {
     //_.entityExplorer.SelectEntityByName("Page1");//commenting 2 lines since case 6th is skipped!
     //_.deployMode.DeployApp();
     _.table.WaitUntilTableLoad();
@@ -202,7 +204,7 @@ describe.skip("Binary Datatype tests", function () {
     _.table.WaitForTableEmpty();
   });
 
-  it("7. Inserting another record (to check serial column) - binarytype", () => {
+  it("8. Inserting another record (to check serial column) - binarytype", () => {
     imageNameToUpload = "Datatypes/Massachusetts.jpeg";
 
     _.agHelper.ClickButton("Run InsertQuery");
@@ -230,7 +232,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("8. Validating Binary (bytea) - escape, hex, base64 functions", () => {
+  it("9. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     _.deployMode.NavigateBacktoEditor();
     _.table.WaitUntilTableLoad();
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
@@ -281,7 +283,7 @@ describe.skip("Binary Datatype tests", function () {
     });
   });
 
-  it("9. Validating Binary (bytea) - escape, hex, base64 functions, conts", () => {
+  it("10. Validating Binary (bytea) - escape, hex, base64 functions, conts", () => {
     //Validating backslash
     query = `select encode('\\\\'::bytea, 'escape') as "backslash Escape1", encode('\\134'::bytea, 'escape') as "backslash Escape2", encode('\\\\'::bytea, 'hex') as "backslash Hex1", encode('\\134'::bytea, 'hex') as "backslash Hex2", encode('\\\\'::bytea, 'base64') as "backslash Base64";`;
     _.dataSources.EnterQuery(query);

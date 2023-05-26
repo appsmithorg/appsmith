@@ -48,9 +48,17 @@ function GoogleSheetFilePicker({
     if (pickerVisible) {
       const element: HTMLElement | null =
         document.querySelector(".picker-dialog-bg");
+      const elements: NodeListOf<HTMLElement> =
+        document.querySelectorAll(".picker-dialog");
+      // When the reconnect modal the ads modal disables pointer events everywhere else.
+      // To enable selection from the google sheets picker we set pointer events auto to it.
       if (!!element) {
         element.style.opacity = "1";
+        element.style.pointerEvents = "auto";
       }
+      elements.forEach((element) => {
+        element.style.pointerEvents = "auto";
+      });
     }
   }, [pickerVisible]);
 
