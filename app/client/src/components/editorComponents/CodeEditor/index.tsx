@@ -154,9 +154,12 @@ import {
   askAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
+
+const { cloudHosting } = getAppsmithConfigs();
 
 export type CodeEditorExpected = {
   type: string;
@@ -1371,10 +1374,13 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation = this.getEntityInformation();
 
     /**
-     * Decides if AI is enabled by looking at repo, feature flags and props
+     * Decides if AI is enabled by looking at repo, feature flags, props and environment
      */
     this.AIEnabled = Boolean(
-      askAIEnabled && this.props.featureFlags.ask_ai && this.props.AIAssisted,
+      askAIEnabled &&
+        this.props.featureFlags.ask_ai &&
+        this.props.AIAssisted &&
+        cloudHosting,
     );
 
     /**
