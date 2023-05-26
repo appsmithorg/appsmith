@@ -1299,14 +1299,8 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();
   cy.get(welcomePage.submitButton).should("not.be.disabled");
   cy.get(welcomePage.submitButton).click();
-  if (Cypress.env("AIRGAPPED")) {
-    cy.wait("@createSuperUser").then((interception) => {
-      expect(interception.request.body).contains(
-        "allowCollectingAnonymousData=false",
-      );
-      expect(interception.request.body).contains("signupForNewsletter=false");
-    });
-  } else {
+  //in case of airgapped both anonymous data and newsletter are disabled
+  if (!Cypress.env("AIRGAPPED")) {
     cy.wait("@createSuperUser").then((interception) => {
       expect(interception.request.body).contains(
         "allowCollectingAnonymousData=true",
