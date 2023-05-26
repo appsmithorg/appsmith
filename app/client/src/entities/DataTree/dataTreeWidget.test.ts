@@ -1,5 +1,8 @@
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import {
+  generateDataTreeWidget,
+  getSetterConfig,
+} from "entities/DataTree/dataTreeWidget";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -304,5 +307,191 @@ describe("generateDataTreeWidget", () => {
     const result = generateDataTreeWidget(widget, widgetMetaProps);
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
+  });
+
+  it("generates setterConfig with the dynamic data", () => {
+    // Input widget
+    const inputWidget: FlattenedWidgetProps = {
+      bottomRow: 0,
+      isLoading: false,
+      leftColumn: 0,
+      parentColumnSpace: 0,
+      parentRowSpace: 0,
+      renderMode: RenderModes.CANVAS,
+      rightColumn: 0,
+      topRow: 0,
+      type: "INPUT_WIDGET_V2",
+      version: 0,
+      widgetId: "123",
+      widgetName: "Input1",
+      defaultText: "",
+      deepObj: {
+        level1: {
+          value: 10,
+        },
+      },
+    };
+
+    const inputSetterConfig: Record<string, any> = {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultText",
+          type: "string",
+        },
+      },
+    };
+
+    const expectedInputData = {
+      __setters: {
+        setVisibility: {
+          path: "Input1.isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "Input1.isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "Input1.isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "Input1.defaultText",
+          type: "string",
+        },
+      },
+    };
+
+    const inputResult = getSetterConfig(inputSetterConfig, inputWidget);
+
+    expect(inputResult).toStrictEqual(expectedInputData);
+
+    //Json form widget
+
+    const jsonFormWidget: FlattenedWidgetProps = {
+      bottomRow: 0,
+      isLoading: false,
+      leftColumn: 0,
+      parentColumnSpace: 0,
+      parentRowSpace: 0,
+      renderMode: RenderModes.CANVAS,
+      rightColumn: 0,
+      topRow: 0,
+      type: "FORM_WIDGET",
+      version: 0,
+      widgetId: "123",
+      widgetName: "Form1",
+      defaultText: "",
+      deepObj: {
+        level1: {
+          value: 10,
+        },
+      },
+    };
+
+    const jsonFormSetterConfig: Record<string, any> = {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setData: {
+          path: "sourceData",
+          type: "object",
+        },
+      },
+    };
+
+    const expectedJsonFormData = {
+      __setters: {
+        setVisibility: {
+          path: "Form1.isVisible",
+          type: "boolean",
+        },
+        setData: {
+          path: "Form1.sourceData",
+          type: "object",
+        },
+      },
+    };
+
+    const jsonFormResult = getSetterConfig(
+      jsonFormSetterConfig,
+      jsonFormWidget,
+    );
+
+    expect(jsonFormResult).toStrictEqual(expectedJsonFormData);
+
+    // Table widget
+    const tableWidget: FlattenedWidgetProps = {
+      bottomRow: 0,
+      isLoading: false,
+      leftColumn: 0,
+      parentColumnSpace: 0,
+      parentRowSpace: 0,
+      renderMode: RenderModes.CANVAS,
+      rightColumn: 0,
+      topRow: 0,
+      type: "TABLE_WIDGET",
+      version: 0,
+      widgetId: "123",
+      widgetName: "Table1",
+      defaultText: "",
+      deepObj: {
+        level1: {
+          value: 10,
+        },
+      },
+    };
+
+    const tableSetterConfig: Record<string, any> = {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "string",
+        },
+        setSelectedRowIndex: {
+          path: "defaultSelectedRowIndex",
+          type: "number",
+        },
+        setData: {
+          path: "tableData",
+          type: "object",
+        },
+      },
+    };
+
+    const expectedTableData = {
+      __setters: {
+        setVisibility: {
+          path: "Table1.isVisible",
+          type: "string",
+        },
+        setSelectedRowIndex: {
+          path: "Table1.defaultSelectedRowIndex",
+          type: "number",
+        },
+        setData: {
+          path: "Table1.tableData",
+          type: "object",
+        },
+      },
+    };
+
+    const tableResult = getSetterConfig(tableSetterConfig, tableWidget);
+
+    expect(tableResult).toStrictEqual(expectedTableData);
   });
 });

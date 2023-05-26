@@ -59,7 +59,7 @@ import { error } from "loglevel";
       }
  */
 
-function getSetterConfig(
+export function getSetterConfig(
   setterConfig: Record<string, any>,
   widget: FlattenedWidgetProps,
 ) {
