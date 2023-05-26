@@ -49,6 +49,8 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
+    cy.wait("@postExecute");
+
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
 
     cy.wait("@postExecute");
@@ -63,9 +65,11 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).enterTableCellValue(1, 0, "automation@appsmith{enter}");
 
-    (cy as any).wait(500);
+    (cy as any).wait(1000);
 
     (cy as any).saveTableRow(12, 0);
+
+    cy.wait("@postExecute");
 
     cy.wait("@postExecute");
 
@@ -77,7 +81,7 @@ describe("Table widget one click binding feature", () => {
 
     cy.wait("@postExecute");
 
-    (cy as any).wait(500);
+    (cy as any).wait(2000);
 
     _.agHelper.AssertElementExist(_.table._bodyCell("automation@appsmith"));
 
@@ -87,7 +91,7 @@ describe("Table widget one click binding feature", () => {
 
     cy.wait("@postExecute");
 
-    (cy as any).wait(500);
+    (cy as any).wait(2000);
 
     _.agHelper.AssertElementAbsence(_.table._bodyCell("cypress@appsmith"));
   });
