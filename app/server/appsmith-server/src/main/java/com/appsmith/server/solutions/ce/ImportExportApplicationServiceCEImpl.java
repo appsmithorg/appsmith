@@ -776,7 +776,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return permissionGroupRepository.getCurrentUserPermissionGroups()
                 .flatMap(userPermissionGroups -> {
                     ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                            .workspacePermission(workspacePermission.getApplicationCreatePermission())
                             .applicationPermission(applicationPermission.getEditPermission())
                             .userPermissionGroups(userPermissionGroups)
                             .build();
