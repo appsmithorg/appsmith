@@ -150,7 +150,7 @@ function CreateNewBranch({
       </div>
 
       <SpinnerContainer isCreatingNewBranch={isCreatingNewBranch}>
-        <Spinner size="sm" />
+        <Spinner data-testid={"t--branch-creating-spinner"} size="sm" />
       </SpinnerContainer>
     </div>
   );

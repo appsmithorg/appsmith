@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -63,7 +62,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Deprecated
     @JsonView(Views.Public.class)
     private String currentOrganizationId;
-    
+
     @JsonView(Views.Public.class)
     private String currentWorkspaceId;
 
@@ -71,7 +70,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Deprecated
     @JsonView(Views.Public.class)
     private Set<String> organizationIds;
-    
+
     @JsonView(Views.Public.class)
     private Set<String> workspaceIds;
 
@@ -79,7 +78,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Deprecated
     @JsonView(Views.Public.class)
     private String examplesOrganizationId;
-    
+
     @JsonView(Views.Public.class)
     private String examplesWorkspaceId;
 
