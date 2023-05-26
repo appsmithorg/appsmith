@@ -30,6 +30,7 @@ import type { EntitySelectorControlProps } from "components/formControls/EntityS
 import EntitySelectorControl from "components/formControls/EntitySelectorControl";
 import formControlTypes from "./formControlTypes";
 import SegmentedControl from "components/formControls/SegmentedControl";
+import type { SegmentedControlProps } from "components/formControls/SegmentedControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -56,7 +57,7 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder(
       formControlTypes.SEGMENTED_CONTROL,
       {
-        buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
+        buildPropertyControl(controlProps: SegmentedControlProps): JSX.Element {
           return <SegmentedControl {...controlProps} />;
         },
       },
