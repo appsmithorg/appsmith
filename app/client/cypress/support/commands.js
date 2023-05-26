@@ -1299,12 +1299,21 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();
   cy.get(welcomePage.submitButton).should("not.be.disabled");
   cy.get(welcomePage.submitButton).click();
-  cy.wait("@createSuperUser").then((interception) => {
-    expect(interception.request.body).contains(
-      "allowCollectingAnonymousData=true",
-    );
-    expect(interception.request.body).contains("signupForNewsletter=true");
-  });
+  if (Cypress.env("AIRGAPPED")) {
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).contains(
+        "allowCollectingAnonymousData=false",
+      );
+      expect(interception.request.body).contains("signupForNewsletter=false");
+    });
+  } else {
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).contains(
+        "allowCollectingAnonymousData=true",
+      );
+      expect(interception.request.body).contains("signupForNewsletter=true");
+    });
+  }
 
   cy.LogOut();
   cy.wait(2000);
