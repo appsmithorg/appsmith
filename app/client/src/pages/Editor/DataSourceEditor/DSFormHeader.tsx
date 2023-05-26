@@ -74,7 +74,6 @@ type DSFormHeaderProps = {
   isDeleting: boolean;
   isNewDatasource: boolean;
   isPluginAuthorized: boolean;
-  isSaving: boolean;
   pluginImage: string;
   pluginType: string;
   pluginName: string;
