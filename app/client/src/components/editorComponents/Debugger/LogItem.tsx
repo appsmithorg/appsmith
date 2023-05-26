@@ -125,6 +125,9 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     color: var(--ads-v2-color-fg-emphasis);
     cursor: pointer;
     width: max-content;
+    > span {
+      font-size: 12px;
+    }
   }
 `;
 
