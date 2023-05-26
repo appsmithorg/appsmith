@@ -101,8 +101,7 @@ export class DataSources {
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
-  _contextMenuDatasource = "span[name='comment-context-menu']";
-  _contextMenuDSReviewPage = "span[name='context-menu']";
+  _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>

@@ -156,6 +156,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
               <StyledMenu onOpenChange={onCloseMenu}>
                 <MenuTrigger>
                   <Button
+                    data-testid="t--context-menu-trigger"
                     isIconButton
                     kind="tertiary"
                     size="md"
