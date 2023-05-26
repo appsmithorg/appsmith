@@ -834,7 +834,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
         //re-setting the properties
-        importedApplication.setForkingEnabled(null);
         importedApplication.setForkWithConfiguration(null);
         importedApplication.setExportWithConfiguration(null);
         // Start the stopwatch to log the execution time
