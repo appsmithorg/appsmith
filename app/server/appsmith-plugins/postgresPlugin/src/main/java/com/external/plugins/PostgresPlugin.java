@@ -23,6 +23,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.PostgresSpecificDataTypes;
@@ -129,7 +130,7 @@ public class PostgresPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
+    public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutorConnectionParam<HikariDataSource, HikariConfig> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -554,13 +555,140 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(PostgresPluginError.POSTGRES_PLUGIN_ERROR,
                         PostgresErrorMessages.POSTGRES_JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
             }
+            HikariConfig config = new HikariConfig();
 
-            return Mono
-                    .fromCallable(() -> {
-                        log.debug("Connecting to Postgres db");
-                        return createConnectionPool(datasourceConfiguration);
-                    })
-                    .subscribeOn(scheduler);
+            log.debug("Connecting to Postgres db");
+            return datasourceCreate(datasourceConfiguration, config);
+        }
+
+        @Override
+        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            return Mono.fromCallable(() -> {
+                HikariDataSource datasource = null;
+                try {
+                    datasource = new HikariDataSource(hikariConfig);
+                } catch (PoolInitializationException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
+                            e.getMessage());
+                }
+
+                return datasource;
+            }).subscribeOn(scheduler);
+        }
+
+        @Override
+        public HikariConfig addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            hikariConfig.setDriverClassName(JDBC_DRIVER);
+            hikariConfig.setMinimumIdle(MINIMUM_POOL_SIZE);
+            hikariConfig.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+            // Configuring leak detection threshold for 60 seconds. Any connection which
+            // hasn't been released in 60 seconds
+            // should get tracked (maybe falsely for long-running queries) as leaked
+            // connection
+            hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+
+            // Set read only mode if applicable
+            switch (configurationConnection.getMode()) {
+                case READ_WRITE: {
+                    hikariConfig.setReadOnly(false);
+                    break;
+                }
+                case READ_ONLY: {
+                    hikariConfig.setReadOnly(true);
+                    hikariConfig.addDataSourceProperty("readOnlyMode", "always");
+                    break;
+                }
+            }
+            return hikariConfig;
+        }
+
+        @Override
+        public HikariConfig addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            // Set authentication properties
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (authentication.getUsername() != null) {
+                hikariConfig.setUsername(authentication.getUsername());
+            }
+            if (authentication.getPassword() != null) {
+                hikariConfig.setPassword(authentication.getPassword());
+            }
+
+            // Set up the connection URL
+            StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
+
+            List<String> hosts = datasourceConfiguration
+                    .getEndpoints()
+                    .stream()
+                    .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                    .collect(Collectors.toList());
+
+            urlBuilder.append(String.join(",", hosts)).append("/");
+
+            if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                urlBuilder.append(authentication.getDatabaseName());
+            }
+
+            /**
+             * JDBC connection parameter to auto resolve argument type when using prepared
+             * statements. Please note that this auto deduction of type happens only when
+             * the argument is bound using `setString()` method. In our case, it means that
+             * we have identified the argument data type as String.
+             * Quoting from doc:
+             * If stringtype is set to unspecified, parameters will be sent to the server as
+             * untyped values, and the server will attempt to infer an appropriate type.
+             * Ref: https://jdbc.postgresql.org/documentation/83/connect.html
+             */
+            urlBuilder.append("?stringtype=unspecified");
+
+            urlBuilder.append("&ApplicationName=Appsmith%20JDBC%20Driver");
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to
+             * a initial value.
+             */
+            if (datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                throw new AppsmithPluginException(
+                        PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                        PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+            }
+
+            /*
+             * - By default, the driver configures SSL in the preferred mode.
+             */
+            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+            switch (sslAuthType) {
+                case ALLOW:
+                case PREFER:
+                case REQUIRE:
+                    hikariConfig.addDataSourceProperty("ssl", "true");
+                    hikariConfig.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                    break;
+                case DISABLE:
+                    hikariConfig.addDataSourceProperty("ssl", "false");
+                    hikariConfig.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                    break;
+                case DEFAULT:
+                    /* do nothing - accept default driver setting */
+
+                    break;
+                default:
+                    throw new AppsmithPluginException(
+                            PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                            String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
+            }
+
+            String url = urlBuilder.toString();
+            hikariConfig.setJdbcUrl(url);
+            return hikariConfig;
         }
 
         @Override
@@ -969,137 +1097,6 @@ public class PostgresPlugin extends BasePlugin {
                             "Unable to map the computed data type to primitive Postgresql type");
             }
         }
-    }
-
-    /**
-     * This function is blocking in nature which connects to the database and
-     * creates a connection pool
-     *
-     * @param datasourceConfiguration
-     * @return connection pool
-     */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
-            throws AppsmithPluginException {
-        HikariConfig config = new HikariConfig();
-
-        config.setDriverClassName(JDBC_DRIVER);
-
-        // Set SSL property
-        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-        config.setMinimumIdle(MINIMUM_POOL_SIZE);
-        config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-
-        // Set authentication properties
-        DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-        if (authentication.getUsername() != null) {
-            config.setUsername(authentication.getUsername());
-        }
-        if (authentication.getPassword() != null) {
-            config.setPassword(authentication.getPassword());
-        }
-
-        // Set up the connection URL
-        StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
-
-        List<String> hosts = datasourceConfiguration
-                .getEndpoints()
-                .stream()
-                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                .collect(Collectors.toList());
-
-        urlBuilder.append(String.join(",", hosts)).append("/");
-
-        if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-            urlBuilder.append(authentication.getDatabaseName());
-        }
-
-        /**
-         * JDBC connection parameter to auto resolve argument type when using prepared
-         * statements. Please note that this auto deduction of type happens only when
-         * the argument is bound using `setString()` method. In our case, it means that
-         * we have identified the argument data type as String.
-         * Quoting from doc:
-         * If stringtype is set to unspecified, parameters will be sent to the server as
-         * untyped values, and the server will attempt to infer an appropriate type.
-         * Ref: https://jdbc.postgresql.org/documentation/83/connect.html
-         */
-        urlBuilder.append("?stringtype=unspecified");
-
-        urlBuilder.append("&ApplicationName=Appsmith%20JDBC%20Driver");
-
-        /*
-         * - Ideally, it is never expected to be null because the SSL dropdown is set to
-         * a initial value.
-         */
-        if (datasourceConfiguration.getConnection() == null
-                || datasourceConfiguration.getConnection().getSsl() == null
-                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-            throw new AppsmithPluginException(
-                    PostgresPluginError.POSTGRES_PLUGIN_ERROR,
-                    PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
-        }
-
-        /*
-         * - By default, the driver configures SSL in the preferred mode.
-         */
-        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
-        switch (sslAuthType) {
-            case ALLOW:
-            case PREFER:
-            case REQUIRE:
-                config.addDataSourceProperty("ssl", "true");
-                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
-
-                break;
-            case DISABLE:
-                config.addDataSourceProperty("ssl", "false");
-                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
-
-                break;
-            case DEFAULT:
-                /* do nothing - accept default driver setting */
-
-                break;
-            default:
-                throw new AppsmithPluginException(
-                        PostgresPluginError.POSTGRES_PLUGIN_ERROR,
-                        String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
-        }
-
-        String url = urlBuilder.toString();
-        config.setJdbcUrl(url);
-
-        // Configuring leak detection threshold for 60 seconds. Any connection which
-        // hasn't been released in 60 seconds
-        // should get tracked (maybe falsely for long-running queries) as leaked
-        // connection
-        config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
-
-        // Set read only mode if applicable
-        switch (configurationConnection.getMode()) {
-            case READ_WRITE: {
-                config.setReadOnly(false);
-                break;
-            }
-            case READ_ONLY: {
-                config.setReadOnly(true);
-                config.addDataSourceProperty("readOnlyMode", "always");
-                break;
-            }
-        }
-
-        // Now create the connection pool from the configuration
-        HikariDataSource datasource = null;
-        try {
-            datasource = new HikariDataSource(config);
-        } catch (PoolInitializationException e) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    e.getMessage());
-        }
-
-        return datasource;
     }
 
     /**

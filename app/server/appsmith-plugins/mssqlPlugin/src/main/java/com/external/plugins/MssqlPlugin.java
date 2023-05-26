@@ -22,6 +22,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
@@ -100,7 +101,7 @@ public class MssqlPlugin extends BasePlugin {
      * MsSQL plugin receives the query as json of the following format :
      */
     @Extension
-    public static class MssqlPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
+    public static class MssqlPluginExecutor implements PluginExecutorConnectionParam<HikariDataSource, HikariConfig>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -383,11 +384,77 @@ public class MssqlPlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            HikariConfig hikariConfig = new HikariConfig();
+            return datasourceCreate(datasourceConfiguration, hikariConfig);
+        }
+
+        @Override
+        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
             return Mono.fromCallable(() -> {
-                        log.debug("Connecting to SQL Server db");
-                        return createConnectionPool(datasourceConfiguration);
-                    })
-                    .subscribeOn(scheduler);
+                try {
+                    HikariDataSource hikariDatasource = new HikariDataSource(hikariConfig);
+                    return hikariDatasource;
+                } catch (HikariPool.PoolInitializationException e) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, MssqlErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG, e.getMessage());
+                }
+            }).subscribeOn(scheduler);
+        }
+
+        @Override
+        public HikariConfig addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            hikariConfig.setDriverClassName(JDBC_DRIVER);
+            hikariConfig.setMinimumIdle(MINIMUM_POOL_SIZE);
+            hikariConfig.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+            // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
+            // should get tracked (may be falsely for long running queries) as leaked connection
+            hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+            return hikariConfig;
+        }
+
+        @Override
+        public HikariConfig addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (authentication.getUsername() != null) {
+                hikariConfig.setUsername(authentication.getUsername());
+            }
+            if (authentication.getPassword() != null) {
+                hikariConfig.setPassword(authentication.getPassword());
+            }
+
+            StringBuilder urlBuilder = new StringBuilder("jdbc:sqlserver://");
+            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                urlBuilder
+                        .append(endpoint.getHost())
+                        .append(":")
+                        .append(getPort(endpoint))
+                        .append(";");
+            }
+
+            if (StringUtils.hasLength(authentication.getDatabaseName())) {
+                urlBuilder
+                        .append("database=")
+                        .append(authentication.getDatabaseName())
+                        .append(";");
+            }
+
+            if (StringUtils.hasLength(authentication.getUsername())) {
+                urlBuilder
+                        .append("user=")
+                        .append(authentication.getUsername())
+                        .append(";");
+            }
+
+            if (StringUtils.hasLength(authentication.getPassword())) {
+                urlBuilder
+                        .append("password=")
+                        .append(authentication.getPassword())
+                        .append(";");
+            }
+
+            addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
+
+            hikariConfig.setJdbcUrl(urlBuilder.toString());
+            return hikariConfig;
         }
 
         @Override
@@ -521,79 +588,6 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         return endpoint.getPort();
-    }
-
-    /**
-     * This function is blocking in nature which connects to the database and creates a connection pool
-     *
-     * @param datasourceConfiguration
-     * @return connection pool
-     */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
-
-        DBAuth authentication = null;
-        StringBuilder urlBuilder = null;
-        HikariConfig hikariConfig = null;
-        HikariDataSource hikariDatasource = null;
-
-        hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(JDBC_DRIVER);
-        hikariConfig.setMinimumIdle(MINIMUM_POOL_SIZE);
-        hikariConfig.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-        // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
-        // should get tracked (may be falsely for long running queries) as leaked connection
-        hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
-
-
-        authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-        if (authentication.getUsername() != null) {
-            hikariConfig.setUsername(authentication.getUsername());
-        }
-        if (authentication.getPassword() != null) {
-            hikariConfig.setPassword(authentication.getPassword());
-        }
-
-        urlBuilder = new StringBuilder("jdbc:sqlserver://");
-        for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-            urlBuilder
-                    .append(endpoint.getHost())
-                    .append(":")
-                    .append(getPort(endpoint))
-                    .append(";");
-        }
-
-        if (StringUtils.hasLength(authentication.getDatabaseName())) {
-            urlBuilder
-                    .append("database=")
-                    .append(authentication.getDatabaseName())
-                    .append(";");
-        }
-
-        if (StringUtils.hasLength(authentication.getUsername())) {
-            urlBuilder
-                    .append("user=")
-                    .append(authentication.getUsername())
-                    .append(";");
-        }
-
-        if (StringUtils.hasLength(authentication.getPassword())) {
-            urlBuilder
-                    .append("password=")
-                    .append(authentication.getPassword())
-                    .append(";");
-        }
-
-        addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
-
-        hikariConfig.setJdbcUrl(urlBuilder.toString());
-
-        try {
-            hikariDatasource = new HikariDataSource(hikariConfig);
-        } catch (HikariPool.PoolInitializationException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, MssqlErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG, e.getMessage());
-        }
-
-        return hikariDatasource;
     }
 
     private static void addSslOptionsToUrlBuilder(DatasourceConfiguration datasourceConfiguration,

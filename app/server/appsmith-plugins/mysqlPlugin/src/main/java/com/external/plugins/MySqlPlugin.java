@@ -20,6 +20,7 @@ import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.plugins.exceptions.MySQLErrorMessages;
@@ -28,9 +29,12 @@ import com.external.utils.MySqlDatasourceUtils;
 import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.mariadb.r2dbc.MariadbConnectionConfiguration;
+import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -66,7 +70,10 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
-import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
+import static com.external.utils.MySqlDatasourceUtils.MAX_CONNECTION_POOL_SIZE;
+import static com.external.utils.MySqlDatasourceUtils.MAX_IDLE_TIME;
+import static com.external.utils.MySqlDatasourceUtils.addSslOptionsToBuilder;
+import static com.external.utils.MySqlDatasourceUtils.getBuilder;
 import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTemplates;
@@ -139,7 +146,7 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionPool>, SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor implements PluginExecutorConnectionParam<ConnectionPool, ConnectionFactoryOptions.Builder>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
@@ -544,14 +551,45 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
+            return datasourceCreate(datasourceConfiguration, ob);
+        }
+
+        @Override
+        public Mono<ConnectionPool> createConnectionClient(DatasourceConfiguration datasourceConfiguration, ConnectionFactoryOptions.Builder ob) {
             ConnectionPool pool = null;
             try {
-                pool = getNewConnectionPool(datasourceConfiguration);
+                MariadbConnectionFactory connectionFactory =
+                        MariadbConnectionFactory.from(
+                                MariadbConnectionConfiguration.fromOptions(ob.build())
+                                        .allowPublicKeyRetrieval(true).build()
+                        );
+
+                /**
+                 * The pool configuration object does not seem to have any option to set the minimum pool size, hence could
+                 * not configure the minimum pool size.
+                 */
+                ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
+                        .maxIdleTime(MAX_IDLE_TIME)
+                        .maxSize(MAX_CONNECTION_POOL_SIZE)
+                        .build();
+                pool = new ConnectionPool(configuration);
             } catch (AppsmithPluginException e) {
                 return Mono.error(e);
             }
             return Mono.just(pool);
         }
+
+        @Override
+        public ConnectionFactoryOptions.Builder addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, ConnectionFactoryOptions.Builder ob) {
+            return addSslOptionsToBuilder(datasourceConfiguration, ob);
+        }
+
+        @Override
+        public ConnectionFactoryOptions.Builder addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, ConnectionFactoryOptions.Builder ob) {
+            return ob;
+        }
+
         @Override
         public void datasourceDestroy(ConnectionPool connectionPool) {
             if (connectionPool != null) {

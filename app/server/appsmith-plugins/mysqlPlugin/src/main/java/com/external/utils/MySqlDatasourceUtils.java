@@ -32,7 +32,7 @@ public class MySqlDatasourceUtils {
 
     public static int MAX_CONNECTION_POOL_SIZE = 5;
 
-    private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
+    public static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
 
     public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -170,25 +170,5 @@ public class MySqlDatasourceUtils {
         }
 
         return invalids;
-    }
-
-    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
-        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
-        ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
-        MariadbConnectionFactory connectionFactory =
-                MariadbConnectionFactory.from(
-                        MariadbConnectionConfiguration.fromOptions(ob.build())
-                                .allowPublicKeyRetrieval(true).build()
-                );
-
-        /**
-         * The pool configuration object does not seem to have any option to set the minimum pool size, hence could
-         * not configure the minimum pool size.
-         */
-        ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
-                .maxIdleTime(MAX_IDLE_TIME)
-                .maxSize(MAX_CONNECTION_POOL_SIZE)
-                .build();
-        return new ConnectionPool(configuration);
     }
 }

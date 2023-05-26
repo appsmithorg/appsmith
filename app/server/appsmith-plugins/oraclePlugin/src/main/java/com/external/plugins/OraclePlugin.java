@@ -10,22 +10,29 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.PluginExecutorConnectionParam;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.OracleErrorMessages;
 import com.external.plugins.exceptions.OraclePluginError;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.external.plugins.utils.OracleSpecificDataTypes;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -66,7 +73,11 @@ import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.OracleDatasourceUtils.JDBC_DRIVER;
-import static com.external.plugins.utils.OracleDatasourceUtils.createConnectionPool;
+import static com.external.plugins.utils.OracleDatasourceUtils.LEAK_DETECTION_TIME_MS;
+import static com.external.plugins.utils.OracleDatasourceUtils.MAXIMUM_POOL_SIZE;
+import static com.external.plugins.utils.OracleDatasourceUtils.MINIMUM_POOL_SIZE;
+import static com.external.plugins.utils.OracleDatasourceUtils.ORACLE_URL_PREFIX;
+import static com.external.plugins.utils.OracleDatasourceUtils.ORACLE_URL_PREFIX_TCPS_OFFSET;
 import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
 import static com.external.plugins.utils.OracleDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
@@ -84,7 +95,7 @@ public class OraclePlugin extends BasePlugin {
         super(wrapper);
     }
     @Extension
-    public static class OraclePluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
+    public static class OraclePluginExecutor implements SmartSubstitutionInterface, PluginExecutorConnectionParam<HikariDataSource, HikariConfig> {
         public static final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
@@ -95,13 +106,90 @@ public class OraclePlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(OraclePluginError.ORACLE_PLUGIN_ERROR,
                         OracleErrorMessages.ORACLE_JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
             }
+            HikariConfig config = new HikariConfig();
+            log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
+            return datasourceCreate(datasourceConfiguration, config);
+        }
 
-            return Mono
-                    .fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
-                        return createConnectionPool(datasourceConfiguration);
-                    })
-                    .subscribeOn(scheduler);
+        @Override
+        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            return Mono.fromCallable(() -> {
+                HikariDataSource datasource = null;
+                try {
+                    datasource = new HikariDataSource(hikariConfig);
+                } catch (HikariPool.PoolInitializationException e) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            OracleErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG, e.getMessage());
+                }
+
+                return datasource;
+            }).subscribeOn(scheduler);
+        }
+
+        @Override
+        public HikariConfig addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            hikariConfig.setDriverClassName(JDBC_DRIVER);
+            hikariConfig.setMinimumIdle(MINIMUM_POOL_SIZE);
+            hikariConfig.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+            // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
+            // should get tracked (may be falsely for long running queries) as leaked connection
+            hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+            return hikariConfig;
+        }
+
+        @Override
+        public HikariConfig addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, HikariConfig hikariConfig) {
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (!isBlank(authentication.getUsername())) {
+                hikariConfig.setUsername(authentication.getUsername());
+            }
+            if (!isBlank(authentication.getPassword())) {
+                hikariConfig.setPassword(authentication.getPassword());
+            }
+            StringBuilder urlBuilder = new StringBuilder(ORACLE_URL_PREFIX);
+
+            List<String> hosts = datasourceConfiguration
+                    .getEndpoints()
+                    .stream()
+                    .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 1521L))
+                    .collect(Collectors.toList());
+
+            urlBuilder.append(String.join(",", hosts)).append("/");
+
+            if (!isBlank(authentication.getDatabaseName())) {
+                urlBuilder.append(authentication.getDatabaseName());
+            }
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if (datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                throw new AppsmithPluginException(OraclePluginError.ORACLE_PLUGIN_ERROR,
+                        OracleErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+            }
+
+            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+            switch (sslAuthType) {
+                case DISABLE:
+                    /* do nothing */
+
+                    break;
+                case NO_VERIFY:
+                    /* convert tcp to tcps in the URL */
+                    urlBuilder.insert(ORACLE_URL_PREFIX_TCPS_OFFSET, 's');
+
+                    break;
+                default:
+                    throw new AppsmithPluginException(OraclePluginError.ORACLE_PLUGIN_ERROR,
+                            String.format(OracleErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
+            }
+
+            String url = urlBuilder.toString();
+            hikariConfig.setJdbcUrl(url);
+            return hikariConfig;
         }
 
         @Override
