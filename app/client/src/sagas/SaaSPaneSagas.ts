@@ -62,7 +62,11 @@ function* handleDatasourceCreatedSaga(
         pageId,
         pluginPackageName: plugin.packageName,
         datasourceId: payload.id,
-        params: { from: "datasources", pluginId: plugin?.id },
+        params: {
+          from: "datasources",
+          pluginId: plugin?.id,
+          viewMode: "false",
+        },
       }),
     );
   }

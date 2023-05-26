@@ -404,6 +404,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                             onChange: handleEditorChange,
                           }}
                           isJSObject
+                          jsObjectName={currentJSCollection.name}
                           mode={EditorModes.JAVASCRIPT}
                           placeholder="Let's write some code!"
                           showLightningMenu={false}
