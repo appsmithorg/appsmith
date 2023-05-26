@@ -260,7 +260,10 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent
         className={"t--import-application-modal"}
-        style={{ width: importingApplication ? "40vw" : "fit-content" }}
+        style={{
+          width: importingApplication ? "40vw" : "fit-content",
+          minWidth: "30vw",
+        }}
       >
         <ModalHeader>
           {createMessage(IMPORT_APPLICATION_MODAL_TITLE)}
