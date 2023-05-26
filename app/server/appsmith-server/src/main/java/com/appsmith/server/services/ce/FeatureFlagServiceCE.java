@@ -30,7 +30,7 @@ public interface FeatureFlagServiceCE {
     /**
      * Fetch all the flags and their values for the current logged in user
      *
-     * @return Mono<Map<String, Boolean>>
+     * @return Mono<Map < String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
 }

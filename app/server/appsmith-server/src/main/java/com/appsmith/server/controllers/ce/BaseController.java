@@ -6,7 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CrudService;
 import com.fasterxml.jackson.annotation.JsonView;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -50,6 +49,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
      * If not, atleast remove it for :
      * 1. Page
      * 2. Datasources
+     *
      * @param params
      * @return
      */
@@ -69,7 +69,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
     @JsonView(Views.Public.class)
     @GetMapping("/{id}")
     public Mono<ResponseDTO<T>> getByIdAndBranchName(@PathVariable ID id,
-                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get resource from base controller for id: {}", id);
         return service.findByIdAndBranchName(id, branchName)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));

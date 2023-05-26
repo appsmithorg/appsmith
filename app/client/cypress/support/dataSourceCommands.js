@@ -74,11 +74,9 @@ Cypress.Commands.add("testDatasource", (expectedRes = true) => {
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click({ force: true });
-  cy.wait("@saveDatasource")
-    .then((xhr) => {
-      cy.log(JSON.stringify(xhr.response.body));
-    })
-    .should("have.nested.property", "response.body.responseMeta.status", 201);
+  cy.wait("@saveDatasource").then((xhr) => {
+    expect(xhr.status).to.equal(201);
+  });
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {

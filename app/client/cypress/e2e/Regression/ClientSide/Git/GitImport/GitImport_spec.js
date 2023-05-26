@@ -24,7 +24,10 @@ describe("Git import flow ", function () {
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
-    cy.xpath(homePage.uploadLogo).attachFile("gitImport.json");
+    cy.xpath(homePage.uploadLogo).selectFile(
+      "cypress/fixtures/gitImport.json",
+      { force: true },
+    );
     cy.wait(4000);
     cy.wait("@importNewApplication").then((interception) => {
       cy.log(interception.response.body.data);
@@ -201,12 +204,12 @@ describe("Git import flow ", function () {
     // validate data binding in edit and deploy mode
     cy.latestDeployPreview();
     cy.get(".tbody").should("have.length", 2);
-    cy.get(".tbody").first().should("contain.text", "Test user 7");
+    _.table.AssertTableLoaded(0, 1, "v1");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
     cy.get(".t--page-switch-tab").contains("Page1 Copy").click({ force: true });
-    cy.get(".tbody").first().should("contain.text", "Test user 7");
+    _.table.AssertTableLoaded(0, 1, "v1");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     cy.get(commonlocators.backToEditor).click();
