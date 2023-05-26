@@ -48,6 +48,7 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
   return (
     <button
       {...mergeProps(buttonProps, hoverProps, focusProps)}
+      aria-busy={isLoading ? true : undefined}
       aria-disabled={visuallyDisabled || isLoading ? true : undefined}
       className={className}
       data-active={isPressed ? "" : undefined}
