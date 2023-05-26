@@ -89,20 +89,17 @@ jobs:
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: martijnhols/actions-cache/restore@v3
+        uses: actions/download-artifact@v3
         with:
-          path: |
-            ~/combined_failed_spec_ci
-          key: ${{ github.run_id }}-"ci-test-result"
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
             
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec_ci)
+          failed_spec_env=$(cat ~/combined_failed_spec_ci/combined_failed_spec_ci)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -185,16 +182,16 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
+        working-directory : app/client
         run: |
-          cd app/client
           yarn install --immutable
 
       - name: Setting up the cypress tests

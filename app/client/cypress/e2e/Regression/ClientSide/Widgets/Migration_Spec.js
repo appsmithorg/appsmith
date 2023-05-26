@@ -11,7 +11,9 @@ describe("Migration Validate", function () {
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo)
-      .attachFile("TableMigrationAppExported.json")
+      .selectFile("cypress/fixtures/TableMigrationAppExported.json", {
+        force: true,
+      })
       .wait(500);
     cy.get(homePage.workspaceImportAppModal).should("not.exist");
 

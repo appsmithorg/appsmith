@@ -1,4 +1,3 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let jsName: any;
@@ -16,8 +15,16 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests", () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.BUTTON_GROUP,
+      200,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.DOCUMENT_VIEWER,
+      200,
+      500,
+    );
 
     // create js object
     _.jsEditor.CreateJSObject(jsObjectBody, {

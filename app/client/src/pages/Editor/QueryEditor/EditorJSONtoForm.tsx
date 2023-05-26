@@ -2,7 +2,7 @@ import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
-import { isString } from "lodash";
+import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
@@ -859,7 +859,7 @@ export function EditorJSONtoForm(props: Props) {
     <>
       {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
-      <QueryFormContainer onSubmit={handleSubmit}>
+      <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
             <ActionNameEditor disabled={!isChangePermitted} />
