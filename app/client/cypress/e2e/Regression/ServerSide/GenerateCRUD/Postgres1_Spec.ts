@@ -122,9 +122,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertContains("Successfully generated a page");
     //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table

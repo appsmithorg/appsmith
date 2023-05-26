@@ -13,16 +13,15 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system-old/build/constants/messages";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
   GOOGLE_SHEETS_LEARN_MORE,
+  createMessage,
 } from "@appsmith/constants/messages";
 
 const StyledAuthMessage = styled.div`
   width: fit-content;
   margin-bottom: var(--ads-v2-spaces-4);
-  margin-top: var(--ads-v2-spaces-7);
 `;
 
 type AuthMessageProps = {

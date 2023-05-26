@@ -126,14 +126,17 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             datasource.setIsConfigured(true);
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            String trueEnvironmentId = datasourceService.getTrueEnvironmentId(environmentId);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, trueEnvironmentId);
-            storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
-            datasource.setDatasourceStorages(storages);
 
-            return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
-                    .then(createSuffixedDatasource(datasource, trueEnvironmentId))
-                    .flatMap(datasource1 -> datasourceService.convertToDatasourceDTO(datasource));
+            return datasourceService.getTrueEnvironmentId(mockDataSource.getWorkspaceId(), environmentId)
+                    .flatMap(trueEnvironmentId -> {
+                        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, trueEnvironmentId);
+                        storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                        datasource.setDatasourceStorages(storages);
+
+                        return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
+                                .then(createSuffixedDatasource(datasource, trueEnvironmentId))
+                                .flatMap(datasource1 -> datasourceService.convertToDatasourceDTO(datasource));
+                    });
         });
 
     }

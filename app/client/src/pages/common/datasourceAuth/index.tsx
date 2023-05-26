@@ -2,12 +2,6 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getEntities,
-  getPluginNameFromId,
-  getPluginTypeFromDatasourceId,
-  getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
-import {
   testDatasource,
   updateDatasource,
   redirectAuthorizationCode,
@@ -20,7 +14,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
@@ -39,6 +32,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { Colors } from "constants/Colors";
+import type { PluginType } from "entities/Action";
 
 interface Props {
   datasource: Datasource;
@@ -51,6 +45,11 @@ interface Props {
   shouldRender?: boolean;
   isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
+  pluginType: PluginType;
+  pluginName: string;
+  pluginPackageName: string;
+  isSaving: boolean;
+  isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
@@ -124,6 +123,11 @@ function DatasourceAuth({
   getSanitizedFormData,
   isInvalid,
   pageId: pageIdProp,
+  pluginType,
+  pluginName,
+  pluginPackageName,
+  isSaving,
+  isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
   triggerSave,
@@ -137,14 +141,8 @@ function DatasourceAuth({
       ? formData?.authType
       : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId, pluginId } = datasource;
+  const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
-  const pluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, pluginId),
-  );
-  const pluginPackageName = useSelector((state: AppState) =>
-    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
-  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -204,15 +202,6 @@ function DatasourceAuth({
     }
   }, [authType]);
 
-  // selectors
-  const {
-    datasources: { isTesting, loading: isSaving },
-  } = useSelector(getEntities);
-
-  const pluginType = useSelector((state: AppState) =>
-    getPluginTypeFromDatasourceId(state, datasourceId),
-  );
-
   useEffect(() => {
     if (triggerSave) {
       if (pluginType === "SAAS") {
@@ -254,8 +243,6 @@ function DatasourceAuth({
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
-      // If the datasource is being saved from the reconnect modal, we don't want to redirect to the active datasource list
-      if (!isInsideReconnectModal) dispatch(setDatasourceViewMode(true));
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
@@ -280,7 +267,6 @@ function DatasourceAuth({
         ),
       );
     } else {
-      dispatch(setDatasourceViewMode(true));
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
