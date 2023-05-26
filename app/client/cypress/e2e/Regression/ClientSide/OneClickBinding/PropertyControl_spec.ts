@@ -18,7 +18,7 @@ describe("One click binding control", () => {
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.dataSources.CreateMockDB("users");
+    _.dataSources.CreateMockDB("Users");
 
     cy.wait(500);
 
@@ -96,13 +96,13 @@ describe("One click binding control", () => {
 
     _.propPane.ToggleJsMode("Table data");
 
-    ChooseAndAssertForm("New from users", "Users", "public.users", "gender");
+    ChooseAndAssertForm("New from Users", "Users", "public.users", "gender");
 
     _.propPane.MoveToTab("Style");
 
     _.propPane.MoveToTab("Content");
 
-    ChooseAndAssertForm("New from sample movies", "movies", "movies", "status");
+    ChooseAndAssertForm("New from sample Movies", "movies", "movies", "status");
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
