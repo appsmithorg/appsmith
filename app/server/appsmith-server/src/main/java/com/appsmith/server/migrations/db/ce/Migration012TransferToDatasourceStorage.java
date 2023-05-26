@@ -29,7 +29,11 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  * to a new collection. The datasource will cease to have configurations after this point
  */
 @Slf4j
-@ChangeUnit(order = "012", id = "migrate-configurations-to-data-storage", author = " ")
+@ChangeUnit(order = "109", id = "migrate-configurations-to-data-storage", author = " ")
+// Although this migration is common to CE and BE, the ordering of this change-unit needs to be specifically after 107-ee,
+// as this migration has EE overrides for default environmentId, and for getting the environments on existing workspaces, 107-ee needs to run
+// If we still keep this as 012, we would still get the right environment id because of ChangeUnit 109-ee, as it replaces the constant
+// with actual default environmentIds, however that wouldn't be the preferred way.
 public class Migration012TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
