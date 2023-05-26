@@ -373,8 +373,8 @@ describe("JS Function Execution", function () {
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //_.agHelper.AssertElementPresence(_.jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      _.agHelper.ClickButton("Yes");
-      _.agHelper.Sleep();
+      _.jsEditor.ConfirmationClick("Yes");
+      _.agHelper.Sleep(2000);
     }
     // Switch to settings tab and assert order
     _.agHelper.GetNClick(_.jsEditor._settingsTab);
@@ -418,8 +418,8 @@ describe("JS Function Execution", function () {
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //_.agHelper.AssertElementPresence(_.jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
-      _.agHelper.Sleep(); //for current pop up to close & next to appear!
+      _.jsEditor.ConfirmationClick("Yes");
+      _.agHelper.Sleep(2000); //for current pop up to close & next to appear!
     }
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.SelectEntityByName(jsObj, "Queries/JS");

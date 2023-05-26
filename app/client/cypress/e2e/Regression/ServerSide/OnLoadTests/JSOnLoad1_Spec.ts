@@ -52,7 +52,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       _.agHelper.AssertElementVisible(
         _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
       );
-      _.agHelper.ClickButton("Yes");
+      _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(1000);
     });
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -67,7 +67,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
-    _.agHelper.ClickButton("Yes");
+    _.jsEditor.ConfirmationClick("Yes");
     //_.agHelper.Sleep(1000);
     _.agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
     _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
@@ -81,7 +81,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.AssertContains(`${jsName + ".getEmployee"} was cancelled`);
     _.table.WaitForTableEmpty();
     _.agHelper.WaitUntilAllToastsDisappear();
@@ -91,8 +91,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
-    _.agHelper.ClickButton("Yes");
-    _.agHelper.AssertElementAbsence(_.locators._toastMsg);
+    _.jsEditor.ConfirmationClick("Yes");
     // _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
@@ -102,7 +101,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
-    _.agHelper.ClickButton("Yes");
+    _.jsEditor.ConfirmationClick("Yes");
     _.agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
   });
 
@@ -139,7 +138,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // ee.SelectEntityByName(jsName as string);
     // _.jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
     // _.agHelper.GetNClick(_.jsEditor._runButton);
-    // _.agHelper.ClickButton("Yes");
+    // _.jsEditor.ConfirmationClick("Yes");
   });
 
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function () {
@@ -149,7 +148,8 @@ describe("JSObjects OnLoad Actions tests", function () {
     // _.agHelper.AssertElementVisible(
     //   _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
-    // _.agHelper.ClickButton("Yes");
+    // _.jsEditor.ConfirmationClick("Yes");
+
     // _.agHelper.AssertElementAbsence(_.locators._toastMsg);
     // _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
     //   expect(cellData).to.be.equal("2");
@@ -160,7 +160,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // _.agHelper.AssertElementVisible(
     //   _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
-    // _.agHelper.ClickButton("Yes");
+    // _.jsEditor.ConfirmationClick("Yes");
     // _.agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
 
     _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
