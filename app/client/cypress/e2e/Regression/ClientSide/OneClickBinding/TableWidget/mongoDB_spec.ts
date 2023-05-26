@@ -83,6 +83,7 @@ describe("one click binding mongodb datasource", function () {
     _.agHelper.Sleep(5000);
 
     //search the table for a row having the text used to create a new row
+    _.agHelper.ClearTextField(_.table._searchInput);
     _.agHelper.TypeText(_.table._searchInput, someText);
     _.agHelper.Sleep();
 

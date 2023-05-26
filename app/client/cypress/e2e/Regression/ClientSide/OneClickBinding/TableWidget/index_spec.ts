@@ -8,6 +8,6 @@ describe("Table widget one click binding feature", () => {
     _.agHelper.AssertElementExist(_.table._connectDataButton);
     // should check that tableData one click property control"
     _.propPane.openWidgetPropertyPane(_.draggableWidgets.TABLE);
-    _.agHelper.AssertElementExist(locators.datasourceSelector());
+    _.agHelper.AssertElementExist(locators.datasourceDropdownSelector);
   });
 });
