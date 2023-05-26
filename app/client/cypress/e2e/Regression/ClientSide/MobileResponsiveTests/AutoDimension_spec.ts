@@ -13,7 +13,7 @@ describe("Validating use cases for Auto Dimension", () => {
   });
 
   ["DESKTOP", "MOBILE"].forEach((viewport) => {
-    it.only(`1. [${viewport}] Verify if Auto dimension works for widgets in the MainCanvas`, () => {
+    it(`1. [${viewport}] Verify if Auto dimension works for widgets in the MainCanvas`, () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
