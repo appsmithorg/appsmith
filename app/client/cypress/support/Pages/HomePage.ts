@@ -429,6 +429,8 @@ export class HomePage {
     });
     this.agHelper.Sleep(3500);
   }
+
+  // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
   public InviteUserToWorkspaceFromApp(
     email: string,
     role: string,
