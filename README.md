@@ -454,4 +454,4 @@ Lets build great software together.
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=841c3402-679b-456d-b528-537480a57269" />
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=841c3402-679b-456d-b528-537480a57269"  />
