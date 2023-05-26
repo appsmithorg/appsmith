@@ -29,6 +29,22 @@ const ResizeableDiv = styled.div`
   display: flex;
   height: 100%;
   flex-shrink: 0;
+
+  &&&& :hover {
+    border: none !important;
+  }
+
+  &&&& :focus {
+    border: none !important;
+  }
+
+  &&&& :focus-visible {
+    border: none !important;
+  }
+
+  &&&& :focus-within {
+    border: none !important;
+  }
 `;
 
 const BodyWrapper = styled.div`
