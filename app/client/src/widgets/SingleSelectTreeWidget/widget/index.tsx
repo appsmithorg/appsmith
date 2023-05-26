@@ -582,15 +582,20 @@ class SingleSelectTreeWidget extends BaseWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-
-    this.props.updateWidgetMetaProperty("selectedOption", value);
-    this.props.updateWidgetMetaProperty("selectedLabel", labelList?.[0] ?? "", {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
+    if (this.props.selectedOptionValue !== value) {
+      this.props.updateWidgetMetaProperty("selectedOption", value);
+      this.props.updateWidgetMetaProperty(
+        "selectedLabel",
+        labelList?.[0] ?? "",
+        {
+          triggerPropertyName: "onOptionChange",
+          dynamicString: this.props.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
+        },
+      );
+    }
   };
 
   onDropdownOpen = () => {
