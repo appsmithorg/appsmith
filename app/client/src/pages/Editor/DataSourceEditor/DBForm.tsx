@@ -49,6 +49,7 @@ export const ViewModeWrapper = styled.div`
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
   padding: var(--ads-v2-spaces-7) 0;
+  gap: var(--ads-v2-spaces-4);
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
