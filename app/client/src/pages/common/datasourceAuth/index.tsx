@@ -99,11 +99,11 @@ const SaveButtonContainer = styled.div<{
   justify-content: flex-end;
   gap: 9px;
   padding-right: 20px;
-  flex: 1 1 10%;
   border-top: ${(props) =>
     props.isInsideReconnectModal ? "none" : "1px solid"};
   border-color: var(--ads-v2-color-border);
   align-items: center;
+  height: 68px;
 `;
 
 const StyledAuthMessage = styled.div`
