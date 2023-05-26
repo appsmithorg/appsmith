@@ -1309,12 +1309,10 @@ Cypress.Commands.add("createSuperUser", () => {
     });
   } else {
     cy.wait("@createSuperUser").then((interception) => {
-      expect(interception.request.body).should(
-        "not.contain",
+      expect(interception.request.body).to.not.contain(
         "allowCollectingAnonymousData=true",
       );
-      expect(interception.request.body).should(
-        "not.contain",
+      expect(interception.request.body).to.not.contain(
         "signupForNewsletter=true",
       );
     });
