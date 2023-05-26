@@ -1307,6 +1307,17 @@ Cypress.Commands.add("createSuperUser", () => {
       );
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
+  } else {
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).should(
+        "not.contain",
+        "allowCollectingAnonymousData=true",
+      );
+      expect(interception.request.body).should(
+        "not.contain",
+        "signupForNewsletter=true",
+      );
+    });
   }
 
   cy.LogOut();
