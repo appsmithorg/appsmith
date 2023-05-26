@@ -152,7 +152,7 @@ export const ManageUsersContainer = styled.div`
 export const ErrorTextContainer = styled.div`
   display: flex;
   margin-top: 4px;
-  gap: 8px;
+  gap: 4px;
 
   > p {
     color: var(--ads-v2-color-fg-error);
@@ -406,8 +406,10 @@ function WorkspaceInviteUsersForm(props: any) {
             />
             {emailError && (
               <ErrorTextContainer>
-                <Icon name="alert-line" size="md" />
-                <Text renderAs="p">{emailError}</Text>
+                <Icon name="alert-line" size="sm" />
+                <Text kind="body-s" renderAs="p">
+                  {emailError}
+                </Text>
               </ErrorTextContainer>
             )}
           </div>
