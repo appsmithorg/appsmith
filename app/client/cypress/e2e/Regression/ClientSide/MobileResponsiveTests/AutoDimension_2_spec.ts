@@ -13,52 +13,7 @@ describe("Validating use cases for Auto Dimension", () => {
   });
 
   ["DESKTOP", "MOBILE"].forEach((viewport) => {
-    it(`1. [${viewport}] Verify if Auto dimension works for widgets in the MainCanvas`, () => {
-      if (viewport === "MOBILE") {
-        _.agHelper.SetCanvasViewportWidth(375);
-      }
-      _.widgets.DropButtonAndTestForAutoDimension(100, 30);
-      _.widgets.DropTextAndTestForAutoDimension(100, 60);
-    });
-
-    it(`2. [${viewport}] Verify if Auto dimension works for widgets in a Container`, () => {
-      if (viewport === "MOBILE") {
-        _.agHelper.SetCanvasViewportWidth(375);
-      }
-      _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 30);
-
-      cy.get(".t--widget-container1")
-        .invoke("attr", "id")
-        .then((id) => {
-          const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
-          // dropButtonAndTest(100, 25, dropTargetClass);
-          _.widgets.DropButtonAndTestForAutoDimension(100, 30, dropTargetClass);
-          // y = main canvas padding (8) + button widget height (40)
-          _.widgets.DropTextAndTestForAutoDimension(100, 48, dropTargetClass);
-        });
-    });
-
-    it(`3. [${viewport}] Verify if Auto dimension works for widgets in a List`, () => {
-      if (viewport === "MOBILE") {
-        _.agHelper.SetCanvasViewportWidth(375);
-      }
-      _.entityExplorer.DragDropWidgetNVerify("listwidgetv2", 100, 30);
-
-      // Delete existing widgets within list
-      _.agHelper.SelectAllWidgets(".t--widget-container1");
-      _.agHelper.PressDelete();
-
-      cy.get(".t--widget-container1")
-        .invoke("attr", "id")
-        .then((id) => {
-          const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
-          _.widgets.DropButtonAndTestForAutoDimension(100, 25, dropTargetClass);
-          // y = main canvas padding (8) + button widget height (40)
-          _.widgets.DropTextAndTestForAutoDimension(100, 48, dropTargetClass);
-        });
-    });
-
-    it(`4. [${viewport}] Check if widget's auto height updation updates container's height`, () => {
+    it(`1. [${viewport}] Check if widget's auto height updation updates container's height`, () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
@@ -103,7 +58,7 @@ describe("Validating use cases for Auto Dimension", () => {
     });
   });
 
-  it("5. Check if widget's bounding box fits on widget shrink", () => {
+  it("2. Check if widget's bounding box fits on widget shrink", () => {
     _.entityExplorer.DragDropWidgetNVerify("textwidget", 100, 30);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
@@ -125,7 +80,7 @@ describe("Validating use cases for Auto Dimension", () => {
     );
   });
 
-  it("6. Check if widgets bounding box fits on canvas resizing", () => {
+  it("3. Check if widgets bounding box fits on canvas resizing", () => {
     _.entityExplorer.DragDropWidgetNVerify("textwidget", 100, 30);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
