@@ -436,9 +436,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       datasource={datasource}
                       description={authErrorMessage}
                       pageId={pageId}
-                      style={{
-                        marginTop: "16px",
-                      }}
                     />
                   ) : null}
                   {!_.isNil(sections)
@@ -454,6 +451,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       actionType="authorize"
                       datasource={datasource}
                       description={authErrorMessage}
+                      isInViewMode
                       pageId={pageId}
                     />
                   ) : null}
