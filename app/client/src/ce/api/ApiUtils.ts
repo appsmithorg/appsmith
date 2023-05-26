@@ -26,10 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import {
-  getDefaultEnvironemntId,
-  getEnvironmentIdByName,
-} from "@appsmith/selectors/environmentSelector";
+import { getEnvironmentIdForHeader } from "@appsmith/api/ApiUtils";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -95,22 +92,9 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
 
-  // Add header for environment name
-  let activeEnv = getQueryParamsObject().environment;
-  // If no environment is specified in the URL
-  // then get default environment from redux store as per isDefault flag.
-  if (activeEnv === undefined || activeEnv === null || activeEnv === "") {
-    activeEnv = getDefaultEnvironemntId(store.getState());
-  }
-  // else fetch environment id for the environment name.
-  else {
-    activeEnv = getEnvironmentIdByName(store.getState(), activeEnv);
-  }
-  // If no environment is specified in the URL and no default environment is set.
-  if (activeEnv === undefined || activeEnv === null || activeEnv === "") {
-    activeEnv = "environmentId";
-  }
-  if (activeEnv.length > 0 && config.headers) {
+  const activeEnv = getEnvironmentIdForHeader();
+
+  if (activeEnv && config.headers) {
     config.headers.environmentId = activeEnv;
   }
 

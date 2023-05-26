@@ -58,7 +58,6 @@ import {
 } from "@appsmith/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -71,7 +70,6 @@ export default class AppEditorEngine extends AppEngine {
     this.completeChore = this.completeChore.bind(this);
     this.loadPageThemesAndActions = this.loadPageThemesAndActions.bind(this);
     this.loadPluginsAndDatasources = this.loadPluginsAndDatasources.bind(this);
-    this.loadEnvironmentVariables = this.loadEnvironmentVariables.bind(this);
   }
 
   /**
@@ -146,34 +144,7 @@ export default class AppEditorEngine extends AppEngine {
     yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
-  private *loadEnvironmentVariables() {
-    const isAirgappedInstance = isAirgapped();
-    const initActions: ReduxAction<unknown>[] = [fetchingEnvironmentConfigs()];
 
-    const successActions = [ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS].filter(
-      (action) =>
-        !isAirgappedInstance
-          ? true
-          : action !== ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
-    );
-
-    const errorActions = [ReduxActionErrorTypes.FETCH_ENVIRONMENT_ERROR].filter(
-      (action) =>
-        !isAirgappedInstance
-          ? true
-          : action !== ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
-    );
-
-    const initActionCalls: boolean = yield call(
-      failFastApiCalls,
-      initActions,
-      successActions,
-      errorActions,
-    );
-
-    if (!initActionCalls)
-      throw new PluginsNotFoundError("Unable to environment variables");
-  }
   private *loadPluginsAndDatasources() {
     const isAirgappedInstance = isAirgapped();
     const initActions: ReduxAction<unknown>[] = [
@@ -231,7 +202,6 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield call(this.loadEnvironmentVariables);
     yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
     yield call(this.loadPluginsAndDatasources);
   }
