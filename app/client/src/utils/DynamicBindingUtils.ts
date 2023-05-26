@@ -452,11 +452,14 @@ export function getDynamicBindingsChangesSaga(
   action: Action,
   value: unknown,
   field: string,
+  formData?: any,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
   // we listen to any viewType changes.
   const viewType = field.endsWith(".viewType");
-  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList
+    ? [...action.dynamicBindingPathList]
+    : [];
 
   if (field.endsWith(".jsonData") || field.endsWith(".componentData")) {
     return dynamicBindings;
@@ -464,16 +467,25 @@ export function getDynamicBindingsChangesSaga(
 
   if (
     action.datasource &&
-    "datasourceConfiguration" in action.datasource &&
+    ("datasourceConfiguration" in action.datasource ||
+      "datasourceConfiguration" in formData?.datasource) &&
     field === "datasource"
   ) {
     // only the datasource.datasourceConfiguration.url can be a dynamic field
     dynamicBindings = dynamicBindings.filter(
-      (binding) => binding.key !== "datasourceUrl",
+      (binding) => binding.key !== "datasourceUrl" && binding.key !== "path",
     );
-    const datasourceUrl = action.datasource.datasourceConfiguration.url;
+    // ideally as we check for the datasource url, we should check for the path field as well.
+    const datasourceUrl = action.datasource?.datasourceConfiguration?.url || "";
+    const datasourcePathField = action.actionConfiguration?.path;
+    const datasourceFormPathField = formData?.actionConfiguration?.path;
+
     isDynamicValue(datasourceUrl) &&
       dynamicBindings.push({ key: "datasourceUrl" });
+
+    // as we check the datasource url for bindings, check the path too.
+    isDynamicValue(datasourcePathField || datasourceFormPathField) &&
+      dynamicBindings.push({ key: "path" });
     return dynamicBindings;
   }
 

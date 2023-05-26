@@ -22,11 +22,13 @@ public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
     private static final String PARAM_EMAIL_DOMAINS = "emailDomains";
     private static final String PARAM_EMAILS = "emails";
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init(String featureName, Map<String, String> initParam) {
         super.init(featureName, initParam);
-        if(!initParam.containsKey(PARAM_EMAIL_DOMAINS) && !initParam.containsKey(PARAM_EMAILS)) {
+        if (!initParam.containsKey(PARAM_EMAIL_DOMAINS) && !initParam.containsKey(PARAM_EMAILS)) {
             String msg = String.format("Either '%s' or '%s' is required for EmailBasedRolloutStrategy", PARAM_EMAIL_DOMAINS, PARAM_EMAILS);
             throw new IllegalArgumentException(msg);
         }
@@ -38,7 +40,9 @@ public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
         User user = (User) executionContext.getValue(FieldName.USER, true);
