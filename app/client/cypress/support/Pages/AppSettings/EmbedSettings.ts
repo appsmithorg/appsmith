@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
-import HomePage from "../../../locators/HomePage";
 
 export class EmbedSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
