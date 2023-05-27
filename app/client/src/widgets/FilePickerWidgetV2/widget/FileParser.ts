@@ -97,7 +97,7 @@ function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
       let result: Record<string, unknown> = {};
       try {
         result = JSON.parse(reader.result as string);
-      } finally {
+      } catch {
         resolve(result);
       }
     };
@@ -123,8 +123,7 @@ function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
           sheetData["name"] = sheetName;
           sheetData["data"] = data;
           sheetsData.push(sheetData);
-        } finally {
-        }
+        } catch {}
       });
       resolve(sheetsData);
     };
@@ -142,7 +141,7 @@ function parseCSVBlob(
       let result: CSVRowData[] = [];
       try {
         result = parseCSVString(reader.result as string, dynamicTyping);
-      } finally {
+      } catch {
         resolve(result);
       }
     };
