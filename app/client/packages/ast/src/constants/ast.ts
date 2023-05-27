@@ -1,6 +1,6 @@
 export const ECMA_VERSION = 11;
 
-/* Indicates the mode the code should be parsed in.
+/* Indicates the mode the code should be parsed in. 
 This influences global strict mode and parsing of import and export declarations.
 */
 export enum SourceType {
@@ -31,4 +31,6 @@ export enum NodeTypes {
   BinaryExpression = "BinaryExpression",
   ExpressionStatement = "ExpressionStatement",
   BlockStatement = "BlockStatement",
+  ConditionalExpression = "ConditionalExpression",
+  AwaitExpression = "AwaitExpression",
 }
