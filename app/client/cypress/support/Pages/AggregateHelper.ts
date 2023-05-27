@@ -1180,6 +1180,9 @@ export class AggregateHelper {
     cy.url().should("include", url);
   }
 
+  public visitURL(url: string) {
+    cy.visit(url);
+  }
   public ScrollTo(
     selector: ElementType,
     position:

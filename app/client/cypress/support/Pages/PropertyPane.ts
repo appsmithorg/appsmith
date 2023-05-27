@@ -93,7 +93,8 @@ export class PropertyPane {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']";
-
+  private _createModalButton = ".t--create-modal-btn";
+  _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
@@ -423,14 +424,38 @@ export class PropertyPane {
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
   }
-
-  public AssertJSToggleDisabled(property: string) {
-    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
-      "be.disabled",
-    );
+  /*
+  public ChangeThemeColor(
+    colorIndex: number | string,
+    type: "Primary" | "Background" = "Primary",
+  ) {
+    const typeIndex = type == "Primary" ? 0 : 1;
+    this.agHelper.GetNClick(this.locators._colorRing, typeIndex);
+    if (typeof colorIndex == "number") {
+      this.agHelper.GetNClick(this.locators._colorPickerV2Popover);
+      this.agHelper.GetNClick(this.locators._colorPickerV2Color, colorIndex);
+    } else {
+      this.agHelper.GetElement(this.locators._colorInput(type)).clear();
+      this.agHelper.TypeText(this.locators._colorInput(type), colorIndex);
+      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
+    }
+  }
+  */
+  public createModal(modalName: string, property: string) {
+    ObjectsRegistry.PropertyPane.AddAction(property);
+    cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
+    this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.AssertAutoSave();
   }
 
-  public AssertSelectValue(value: string) {
-    this.agHelper.AssertElementExist(this.locator._selectByValue(value));
+  public navigateToPage(pageName: string, property: string) {
+    ObjectsRegistry.PropertyPane.AddAction(property);
+    cy.get(
+      ObjectsRegistry.CommonLocators._dropDownValue("Navigate to"),
+    ).click();
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
+    cy.xpath(this._pageName(pageName)).click({ force: true });
+    this.agHelper.AssertAutoSave();
   }
 }
