@@ -170,6 +170,7 @@ export const INVITE_USER_RAMP_TEXT = () =>
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
 export const BUSINESS_TEXT = () => "Business";
+export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
 export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>

@@ -26,6 +26,7 @@ import {
   CUSTOM_ROLES_RAMP_TEXT,
   BUSINESS_TEXT,
   CUSTOM_ROLE_DISABLED_OPTION_TEXT,
+  CUSTOM_ROLE_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -285,7 +286,7 @@ export function CustomRolesRamp() {
       <div className="flex flex-col gap-1">
         <div className="flex gap-1">
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
-            Custom role
+            {createMessage(CUSTOM_ROLE_TEXT)}
           </Text>
           <Tag isClosable={false} size="md">
             {createMessage(BUSINESS_TEXT)}
