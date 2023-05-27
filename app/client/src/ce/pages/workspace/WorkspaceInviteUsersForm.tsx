@@ -483,6 +483,9 @@ function WorkspaceInviteUsersForm(props: any) {
           <div style={{ width: "40%" }}>
             <Select
               data-testid="t--invite-role-input"
+              getPopupContainer={(triggerNode) =>
+                triggerNode.parentNode.parentNode
+              }
               isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
               listHeight={400}
