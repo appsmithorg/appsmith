@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Icon, SegmentedControl, Tooltip } from "design-system";
+import { Icon, SegmentedControl } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -14,22 +14,22 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
 
-const options = Object.keys(boxShadowOptions).map((optionKey) => ({
+const options = Object.keys(boxShadowOptions).map((optionKey, index) => ({
   label: (
-    <Tooltip content={optionKey} key={optionKey}>
+    <React.Fragment key={index}>
       {optionKey === "none" ? (
-        <div className="flex items-center justify-center w-5 h-5">
+        <div>
           <Icon name="close-line" size="md" />
         </div>
       ) : (
-        <div
-          className="flex items-center justify-center w-5 h-5 bg-white"
-          style={{ boxShadow: boxShadowOptions[optionKey] }}
-        />
+        <div>
+          {optionKey === "S" && "Small"}
+          {optionKey === "M" && "Medium"}
+          {optionKey === "L" && "Large"}
+        </div>
       )}
-    </Tooltip>
+    </React.Fragment>
   ),
-
   value: boxShadowOptions[optionKey],
 }));
 
