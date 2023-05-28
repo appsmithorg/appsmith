@@ -157,9 +157,12 @@ import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
+
+const { cloudHosting } = getAppsmithConfigs();
 
 export type CodeEditorExpected = {
   type: string;
@@ -1456,10 +1459,13 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation = this.getEntityInformation();
 
     /**
-     * Decides if AI is enabled by looking at repo, feature flags and props
+     * Decides if AI is enabled by looking at repo, feature flags, props and environment
      */
     this.AIEnabled = Boolean(
-      askAIEnabled && this.props.featureFlags.ask_ai && this.props.AIAssisted,
+      askAIEnabled &&
+        this.props.featureFlags.ask_ai &&
+        this.props.AIAssisted &&
+        cloudHosting,
     );
 
     /**
