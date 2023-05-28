@@ -59,7 +59,7 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { RAMP_LINK_TO, showProductRamps } from "@appsmith/utils/ProductRamps";
+import { getRampLink, showProductRamps } from "@appsmith/utils/ProductRamps";
 import { RAMP_NAME } from "@appsmith/utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
@@ -256,7 +256,7 @@ function InviteUserText({
       {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) && isApplicationInvite ? (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
-          <Link kind="primary" target="_blank" to={RAMP_LINK_TO}>
+          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
             {createMessage(BUSINESS_EDITION_TEXT)}
           </Link>
         </>
@@ -275,7 +275,7 @@ export function CustomRolesRamp() {
         className="inline"
         kind="primary"
         target="_blank"
-        to={RAMP_LINK_TO}
+        to={getRampLink("workspace_share")}
       >
         {createMessage(BUSINESS_EDITION_TEXT)}
       </RampLink>
