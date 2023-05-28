@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -7,7 +6,6 @@ import apiLocators from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Bind a button and Api usecase", function () {
-  let apiData;
   let valueToTest;
   before(() => {
     cy.addDsl(dsl);
@@ -35,7 +33,6 @@ describe("Bind a button and Api usecase", function () {
           .split('"')
           .join("")}`;
         cy.log(valueToTest);
-        apiData = valueToTest;
         cy.log("val1:" + valueToTest);
       });
   });

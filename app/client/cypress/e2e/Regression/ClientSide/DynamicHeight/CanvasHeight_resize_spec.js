@@ -13,7 +13,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
       .then((oheight) => {
         cy.get(".t--widget-textwidget")
           .invoke("css", "height")
-          .then((tnewheight) => {
+          .then(() => {
             cy.openPropertyPane("textwidget");
             cy.get(".t--widget-textwidget")
               .invoke("css", "height")

@@ -8,7 +8,7 @@ describe("Dynamic Height Width validation", function () {
     cy.openPropertyPane("formwidget");
     cy.get(".t--widget-formwidget")
       .invoke("css", "height")
-      .then((formheight) => {
+      .then(() => {
         cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.openPropertyPane("switchgroupwidget");
         cy.changeLayoutHeight(commonlocators.autoHeight);

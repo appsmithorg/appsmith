@@ -1,7 +1,5 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 

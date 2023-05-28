@@ -117,7 +117,7 @@ describe("Omnibar functionality test cases", () => {
       // discord link should be visible
       cy.get(omnibar.discordLink).should("be.visible");
       cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
+        cy.stub(win, "open", () => {
           win.location.href = "https://discord.com/invite/rBTTVJp";
         }).as("discordLink");
       });

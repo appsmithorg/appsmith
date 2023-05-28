@@ -1,8 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const dsl = require("../../../../../fixtures/JsObjecWithGitdsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
-const pages = require("../../../../../locators/Pages.json");
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import datasourceFormData from "../../../../../fixtures/datasources.json";
@@ -252,7 +250,6 @@ describe("Git sync Bug #10773", function () {
       cy.CreateAppForWorkspace(newWorkspaceName, `${newWorkspaceName}app`);
 
       cy.generateUUID().then((uid) => {
-        const owner = Cypress.env("TEST_GITHUB_USER_NAME");
         repoName = uid;
         _.gitSync.CreateTestGiteaRepo(repoName);
         //cy.createTestGithubRepo(repoName);

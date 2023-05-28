@@ -9,11 +9,11 @@ describe("Validating Mobile Views", function () {
     cy.get(".t--widget-containerwidget")
       .first()
       .invoke("css", "height")
-      .then((height) => {
+      .then(() => {
         cy.get(".t--entity-name:contains('Container2')").click({ force: true });
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
-          .then((newheight) => {
+          .then(() => {
             cy.PublishtheApp();
             cy.get(".t--widget-containerwidget")
               .first()

@@ -4,7 +4,6 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import empty repository", function () {
   let repoName;
-  const assertConnectFailure = true;
   const failureMessage =
     "git import failed. \nDetails: Cannot import app from an empty repo";
   before(() => {

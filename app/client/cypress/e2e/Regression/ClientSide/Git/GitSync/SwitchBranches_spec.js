@@ -185,7 +185,6 @@ describe("Git sync:", function () {
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
     const tempBranchRegex = new RegExp(`^${tempBranch}$`);
-    const tempBranchRenamedRegex = new RegExp(`^${tempBranchRenamed}$`);
     const remoteTempBranchRenamedRegex = new RegExp(
       `^origin/${tempBranchRenamed}$`,
     );
@@ -210,7 +209,7 @@ describe("Git sync:", function () {
   // Validate the error faced when user switches between the branches
   it("6. no error faced when user switches branch with new page", function () {
     cy.goToEditFromPublish(); //Adding since skipping 6th case
-    cy.generateUUID().then((uuid) => {
+    cy.generateUUID().then(() => {
       _.gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("Pages");

@@ -80,7 +80,7 @@ describe("Dynamic Height Width validation", function () {
                                     cy.get(".t--widget-textwidget")
                                       .eq(0)
                                       .invoke("css", property)
-                                      .then((updatelargefirstText) => {
+                                      .then(() => {
                                         cy.selectEntityByName("Text2");
                                         cy.get(".t--widget-textwidget")
                                           .eq(1)

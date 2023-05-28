@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
 
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 

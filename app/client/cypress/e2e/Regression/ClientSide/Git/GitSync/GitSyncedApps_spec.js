@@ -1,4 +1,3 @@
-const pages = require("../../../../../locators/Pages.json");
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");

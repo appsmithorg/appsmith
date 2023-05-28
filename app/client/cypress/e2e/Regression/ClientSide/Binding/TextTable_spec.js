@@ -3,7 +3,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/TextTabledsl.json");
 
 describe("Text-Table Binding Functionality", function () {
-  Cypress.on("uncaught:exception", (err, runnable) => {
+  Cypress.on("uncaught:exception", () => {
     // returning false here prevents Cypress from
     // failing the test
     return false;

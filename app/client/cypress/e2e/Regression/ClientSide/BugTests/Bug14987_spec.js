@@ -1,7 +1,7 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid, datasourceName;
+let datasourceName;
 
 let dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper;

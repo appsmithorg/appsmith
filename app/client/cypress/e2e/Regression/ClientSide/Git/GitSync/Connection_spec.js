@@ -10,8 +10,6 @@ const invalidURLDetectedOnTheBackend = "test@";
 const invalidEmail = "test";
 const invalidEmailWithAmp = "test@hello";
 
-const GITHUB_API_BASE = "https://api.github.com";
-
 let repoName;
 let generatedKey;
 let windowOpenSpy;

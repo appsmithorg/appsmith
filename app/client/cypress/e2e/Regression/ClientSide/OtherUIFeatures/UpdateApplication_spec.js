@@ -4,7 +4,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 describe("Update Application", () => {
   let appname;
   let iconname;
-  let colorname;
   let veryLongAppName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1${Math.random()
     .toString(36)
     .slice(2, -1)}`;

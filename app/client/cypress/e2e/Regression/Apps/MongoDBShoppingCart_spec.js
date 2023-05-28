@@ -1,4 +1,3 @@
-const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
@@ -7,7 +6,6 @@ import * as _ from "../../../support/Objects/ObjectsCore";
 
 let repoName;
 describe("Shopping cart App", function () {
-  let datasourceName;
 
   before(() => {
     _.homePage.NavigateToHome();

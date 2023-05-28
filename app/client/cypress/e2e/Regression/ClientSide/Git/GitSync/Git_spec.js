@@ -1,6 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorerLocators = require("../../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -23,7 +22,6 @@ const inputNameTempBranch31 = "inputNameTempBranch31";
 const cleanUrlBranch = "feat/clean_url";
 
 let applicationId = null;
-let applicationName = null;
 
 let repoName;
 describe.skip("Git sync:", function () {
@@ -34,7 +32,6 @@ describe.skip("Git sync:", function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.generateUUID().then((uid) => {
         cy.CreateAppForWorkspace(newWorkspaceName, uid);
-        applicationName = uid;
         cy.get("@currentApplicationId").then(
           (currentAppId) => (applicationId = currentAppId),
         );
