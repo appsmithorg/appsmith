@@ -28,7 +28,7 @@
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "test:unit": "yarn g:jest --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "jest --watch",
-    "g:jest": "cd $INIT_CWD && jest -b --colors --no-cache --silent",
+    "g:jest": "cd $INIT_CWD && jest -b --colors --no-cache --silent --maxWorkers=50%",
     "test:unit:ci": "yarn workspaces foreach -tv run test:unit",
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "node cypress/apply-patches.js && yarn init-husky",
