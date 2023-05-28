@@ -9,7 +9,6 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 const appSettings = ObjectsRegistry.AppSettings;
 const theme = ObjectsRegistry.ThemeSettings;
 
-let themeBackgroudColor;
 let themeFont;
 
 describe("Theme validation usecases", function () {

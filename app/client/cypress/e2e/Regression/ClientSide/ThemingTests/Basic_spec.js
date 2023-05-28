@@ -1,8 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const ee = ObjectsRegistry.EntityExplorer,

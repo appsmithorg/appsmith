@@ -3,8 +3,6 @@ import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let newWorkspaceName;
-
 describe("excludeForAirgap", "Fork a template to the current app", () => {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();

@@ -13,7 +13,7 @@ describe("Table Widget V2 column order maintained on column change validation", 
     cy.get(thirdColumnSelector).trigger("dragstart");
     cy.get(secondColumnSelector).trigger("drop");
     cy.get(commonlocators.switchWidgetActive).click({ force: true });
-    cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
+    cy.get(commonlocators.textWidgetContainer).each((item) => {
       cy.wrap(item).should(
         "contain.text",
         `Column Order: [\\"status\\",\\"task\\",\\"action\\",\\"step1\\"]`,
@@ -23,7 +23,7 @@ describe("Table Widget V2 column order maintained on column change validation", 
     cy.get(thirdColumnSelector).trigger("dragstart");
     cy.get(secondColumnSelector).trigger("drop");
     cy.get(commonlocators.switchWidgetInActive).click({ force: true });
-    cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
+    cy.get(commonlocators.textWidgetContainer).each((item) => {
       cy.wrap(item).should(
         "contain.text",
         `Column Order: [\\"status\\",\\"action\\",\\"task\\",\\"step\\"]`,

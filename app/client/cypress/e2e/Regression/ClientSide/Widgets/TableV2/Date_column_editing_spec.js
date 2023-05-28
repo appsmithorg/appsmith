@@ -1,9 +1,6 @@
 const dsl = require("../../../../../fixtures/Table/DateCellEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
