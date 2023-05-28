@@ -180,9 +180,8 @@ export class HomePage {
     this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
     this.agHelper.AssertElementExist(
-      "//span[text()='Users will have access to all applications in the workspace. For application-level access, try out our ']",
+      "//span[text()='Users will have access to all applications in this workspace']",
     );
-    this.agHelper.AssertElementExist("//span[text()='business edition']");
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
