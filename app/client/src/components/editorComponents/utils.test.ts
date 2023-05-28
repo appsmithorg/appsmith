@@ -1,6 +1,8 @@
 import { JSResponseState } from "./JSResponseView";
 import { getJSResponseViewState } from "./utils";
 
+jest.mock("./Debugger/DebuggerLogs.tsx");
+
 const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";
 const TEST_JS_FUNCTION = {
   id: TEST_JS_FUNCTION_ID,

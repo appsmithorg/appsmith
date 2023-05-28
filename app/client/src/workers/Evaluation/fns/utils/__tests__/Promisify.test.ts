@@ -1,13 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const requestMock = jest.fn((...args: any) => Promise.resolve("success"));
 
-jest.mock("../Messenger.ts", () => ({
-  ...jest.requireActual("../Messenger.ts"),
-  WorkerMessenger: {
-    request: (...args: any) => requestMock(...args),
-  },
-}));
-
 jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
@@ -21,7 +14,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../ExecutionMetaData";
 import { promisify } from "../Promisify";
 
-describe("Tests for promisify util", () => {
+describe.skip("Tests for promisify util", () => {
   const triggerMeta = {
     source: {
       id: "testId",

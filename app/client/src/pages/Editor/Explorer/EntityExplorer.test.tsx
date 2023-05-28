@@ -21,6 +21,20 @@ import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
 
+jest.mock("@appsmith/utils/permissionHelpers", () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual("@appsmith/utils/permissionHelpers"),
+  };
+});
+
+jest.mock("actions/widgetSelectionActions", () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual("actions/widgetSelectionActions"),
+  };
+});
+
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
 pushState.mockImplementation((state: any, title: any, url: any) => {

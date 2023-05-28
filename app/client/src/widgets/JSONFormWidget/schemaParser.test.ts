@@ -1301,6 +1301,7 @@ describe("#convertArrayToSchema", () => {
       sourceDataPath: "sourceData.entries",
       skipDefaultValueProcessing: false,
     });
+    console.log(result);
     expect(result).toEqual(expectedSchema);
     expect(removedSchemaItems).toEqual([]);
     expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);

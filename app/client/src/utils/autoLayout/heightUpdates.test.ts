@@ -6,6 +6,13 @@ import {
 } from "./data/heightTestData";
 import { EMPTY_TABS_DATA, TABS_DATA } from "./data/tabsData";
 
+jest.mock("./flexWidgetUtils", () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual("./flexWidgetUtils"),
+  };
+});
+
 describe("auto layout: heightUpdates", () => {
   beforeEach(() => {
     jest

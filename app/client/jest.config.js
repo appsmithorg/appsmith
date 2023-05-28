@@ -8,7 +8,41 @@ module.exports = {
   setupFiles: ["jest-canvas-mock"],
   roots: ["<rootDir>/src"],
   transform: {
-    "^.+\\.(png|js|ts|tsx)$": "ts-jest",
+    "^.+\\.(js|jsx|mjs)$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: {
+            jsx: true,
+          },
+        },
+      },
+    ],
+    "^.+\\.(ts|tsx)$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+            decorators: true,
+          },
+          paths: {
+            "entities/*": ["./src/entities/*"],
+            "test/*": ["./test/*"],
+            "widgets/*": ["./src/widgets/*"],
+            "utils/*": ["./src/utils/*"],
+            "constants/*": ["./src/constants/*"],
+            "selectors/*": ["./src/selectors/*"],
+            "reducers/*": ["./src/reducers/*"],
+            "workers/*": ["./src/workers/*"],
+            "pages/*": ["./src/pages/*"],
+            "ce/*": ["./src/ce/*"],
+            "ee/*": ["./src/ee/*"],
+          },
+        },
+      },
+    ],
   },
   testEnvironment: "jsdom",
   testTimeout: 9000,
@@ -17,7 +51,28 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never)",
+    `<rootDir>/node_modules/
+        (?!
+        codemirror|
+        styled-components|
+        @emotion|
+        react-router-dom|
+        react-router|
+        resolve-pathname|
+        history|
+        value-equal|
+        design-system|
+        design-system-old|
+        react-dnd|
+        dnd-core|
+        @babel|
+        @blueprintjs|
+        @github|
+        lodash-es|
+        @draft-js-plugins|
+        react-documents|
+        linkedom|
+        assert-never)`,
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -50,20 +105,6 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
   },
   globals: {
-    "ts-jest": {
-      isolatedModules: true,
-      diagnostics: {
-        ignoreCodes: [1343],
-      },
-      astTransformers: {
-        before: [
-          {
-            path: "node_modules/ts-jest-mock-import-meta",
-            options: { metaObjectReplacement: { url: "https://www.url.com" } },
-          },
-        ],
-      },
-    },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
         dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),

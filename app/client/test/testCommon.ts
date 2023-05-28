@@ -1,7 +1,5 @@
-import {
-  Page,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
 import { APP_MODE } from "entities/App";

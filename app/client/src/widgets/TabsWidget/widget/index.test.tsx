@@ -14,6 +14,30 @@ import {
   MockPageDSL,
 } from "test/testCommon";
 
+jest.mock("utils/widgetRenderUtils", () => {
+  const actualModule = jest.requireActual("utils/widgetRenderUtils");
+  return {
+    __esModule: true,
+    ...actualModule,
+  };
+});
+
+jest.mock("selectors/dataTreeSelectors", () => {
+  const actualModule = jest.requireActual("selectors/dataTreeSelectors");
+  return {
+    __esModule: true,
+    ...actualModule,
+  };
+});
+
+jest.mock("selectors/editorSelectors", () => {
+  const actualModule = jest.requireActual("selectors/editorSelectors");
+  return {
+    __esModule: true,
+    ...actualModule,
+  };
+});
+
 describe("Tabs widget functional cases", () => {
   jest
     .spyOn(dataTreeSelectors, "getWidgetEvalValues")
@@ -45,7 +69,7 @@ describe("Tabs widget functional cases", () => {
     expect(tab2).toBeDefined();
   });
 
-  it("Should render components inside tabs by default", () => {
+  it("Should render components inside tabs by default", async () => {
     const tab1Children = buildChildren([
       { type: "SWITCH_WIDGET", label: "Tab1 Switch" },
       { type: "CHECKBOX_WIDGET", label: "Tab1 Checkbox" },
@@ -71,8 +95,8 @@ describe("Tabs widget functional cases", () => {
     );
     const tab1 = component.queryByText("Tab 1");
     const tab2: any = component.queryByText("Tab 2");
-    expect(tab1).toBeDefined();
-    expect(tab2).toBeDefined();
+    expect(tab1).toBeTruthy();
+    expect(tab2).toBeTruthy();
     let tab1Switch = component.queryByText("Tab1 Switch");
     let tab1Checkbox = component.queryByText("Tab1 Checkbox");
     let tab2Input = component.queryByText("Tab2 Text");

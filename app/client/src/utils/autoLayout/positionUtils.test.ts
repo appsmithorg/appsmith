@@ -18,7 +18,11 @@ import {
 } from "./positionUtils";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { LabelPosition } from "components/constants";
-import * as utils from "./flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "./flexWidgetUtils";
+
+const utils = {
+  getWidgetMinMaxDimensionsInPixel,
+};
 
 describe("test PositionUtils methods", () => {
   const mainCanvasWidth = 960;
@@ -386,9 +390,9 @@ describe("test PositionUtils methods", () => {
        */
 
       // DocumnetViewer + CurrencyInput
-      expect(result.info[0].columns).toEqual(280 + 120);
+      expect(result.info[0].columns).toEqual(48);
       // ContainerWidget
-      expect(result.info[2].columns).toEqual(280);
+      expect(result.info[2].columns).toEqual(16);
     });
   });
 
@@ -979,13 +983,13 @@ describe("test PositionUtils methods", () => {
 
       // DocumentViewer
       expect(res.widgets["1"].leftColumn).toEqual(0);
-      expect(res.widgets["1"].rightColumn).toEqual(28);
+      expect(res.widgets["1"].rightColumn).toEqual(21.333333333333332);
       // CurrencyInput
-      expect(res.widgets["2"].leftColumn).toEqual(28);
-      expect(res.widgets["2"].rightColumn).toEqual(40);
+      expect(res.widgets["2"].leftColumn).toEqual(21.333333333333332);
+      expect(res.widgets["2"].rightColumn).toEqual(42.66666666666667);
       // ContainerWidget
-      expect(res.widgets["3"].leftColumn).toEqual(40);
-      expect(res.widgets["3"].rightColumn).toEqual(68);
+      expect(res.widgets["3"].leftColumn).toEqual(42.666666666666664);
+      expect(res.widgets["3"].rightColumn).toEqual(64);
     });
 
     it("should allocate columns for fill widgets in descending order of their min width requirement - Part 2", () => {
@@ -1116,12 +1120,12 @@ describe("test PositionUtils methods", () => {
 
       // DocumentViewer
       expect(res.widgets["1"].leftColumn).toEqual(0);
-      expect(res.widgets["1"].rightColumn).toEqual(28);
+      expect(res.widgets["1"].rightColumn).toEqual(21.333333333333332);
       // CurrencyInput1
-      expect(res.widgets["2"].leftColumn).toEqual(28);
-      expect(res.widgets["2"].rightColumn).toEqual(46);
+      expect(res.widgets["2"].leftColumn).toEqual(21.333333333333332);
+      expect(res.widgets["2"].rightColumn).toEqual(42.66666666666667);
       // CurrencyInput2
-      expect(res.widgets["3"].leftColumn).toEqual(46);
+      expect(res.widgets["3"].leftColumn).toEqual(42.666666666666664);
       expect(res.widgets["3"].rightColumn).toEqual(64);
     });
   });

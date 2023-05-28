@@ -1,4 +1,3 @@
-import * as generators from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import {
   migrateChartDataFromArrayToObject,
@@ -20,6 +19,12 @@ import {
 } from "./WidgetPropsUtils";
 import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+
+jest.mock("utils/generators", () => {
+  return {
+    generateReactKey: () => "some-random-key",
+  };
+});
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {
@@ -147,10 +152,6 @@ describe("WidgetProps tests", () => {
         },
       ],
     };
-
-    // mocking implementation of our generateReactKey function
-    const generatorReactKeyMock = jest.spyOn(generators, "generateReactKey");
-    generatorReactKeyMock.mockImplementation(() => "some-random-key");
 
     const result = migrateChartDataFromArrayToObject(input);
 

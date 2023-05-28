@@ -90,7 +90,7 @@ DOMTokenList {
 `;
 
 exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 3`] = `
-Array [
+[
   "iconName",
   "add-row-top",
   true,
@@ -105,7 +105,7 @@ DOMTokenList {
 `;
 
 exports[`<IconSelectControl /> - Keyboard navigation Pressing '{Enter}' or ' ' should select the icon 5`] = `
-Array [
+[
   "iconName",
   "add-to-artifact",
   true,

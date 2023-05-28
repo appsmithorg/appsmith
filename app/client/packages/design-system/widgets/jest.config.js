@@ -1,5 +1,7 @@
 module.exports = {
-  preset: "ts-jest",
+  transform: {
+    "^.+\\.(ts|tsx)$": ["@swc/jest"],
+  },
   roots: ["<rootDir>/src"],
   testEnvironment: "jsdom",
 };

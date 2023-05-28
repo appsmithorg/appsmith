@@ -170,21 +170,21 @@ export const MAX_ALLOWED_FIELDS = 50;
 export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
-  [FieldType.ARRAY]: ArrayField,
-  [FieldType.CHECKBOX]: CheckboxField,
-  [FieldType.CURRENCY_INPUT]: CurrencyInputField,
-  [FieldType.DATEPICKER]: DateField,
-  [FieldType.EMAIL_INPUT]: InputField,
-  [FieldType.MULTISELECT]: MultiSelectField,
-  [FieldType.MULTILINE_TEXT_INPUT]: InputField,
-  [FieldType.NUMBER_INPUT]: InputField,
-  [FieldType.OBJECT]: ObjectField,
-  [FieldType.PASSWORD_INPUT]: InputField,
-  [FieldType.PHONE_NUMBER_INPUT]: PhoneInputField,
-  [FieldType.RADIO_GROUP]: RadioGroupField,
-  [FieldType.SELECT]: SelectField,
-  [FieldType.SWITCH]: SwitchField,
-  [FieldType.TEXT_INPUT]: InputField,
+  [FieldType.ARRAY]: ArrayField.default,
+  [FieldType.CHECKBOX]: CheckboxField.default,
+  [FieldType.CURRENCY_INPUT]: CurrencyInputField.default,
+  [FieldType.DATEPICKER]: DateField.default,
+  [FieldType.EMAIL_INPUT]: InputField.default,
+  [FieldType.MULTISELECT]: MultiSelectField.default,
+  [FieldType.MULTILINE_TEXT_INPUT]: InputField.default,
+  [FieldType.NUMBER_INPUT]: InputField.default,
+  [FieldType.OBJECT]: ObjectField.default,
+  [FieldType.PASSWORD_INPUT]: InputField.default,
+  [FieldType.PHONE_NUMBER_INPUT]: PhoneInputField.default,
+  [FieldType.RADIO_GROUP]: RadioGroupField.default,
+  [FieldType.SELECT]: SelectField.default,
+  [FieldType.SWITCH]: SwitchField.default,
+  [FieldType.TEXT_INPUT]: InputField.default,
 };
 
 export const INPUT_TYPES = [
