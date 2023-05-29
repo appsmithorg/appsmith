@@ -222,9 +222,11 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     } else {
                         forkWithConfig = Boolean.FALSE;
                     }
-                    // Setting the forkWithConfiguration and exportWithConfiguration to null for newly forked app
+                    // Setting the forkWithConfiguration, exportWithConfiguration and forkingEnabled fields to null for
+                    // newly forked app
                     application.setForkWithConfiguration(null);
                     application.setExportWithConfiguration(null);
+                    application.setForkingEnabled(null);
 
                     final String defaultPageId = application.getPages()
                             .stream()

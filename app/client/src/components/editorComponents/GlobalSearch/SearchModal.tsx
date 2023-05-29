@@ -4,6 +4,20 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ModalBody, ModalContent, Modal } from "design-system";
 
 const StyledDocsSearchModal = styled(ModalContent)`
+  text-rendering: auto;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  width: 500px;
+  margin-left: -250px;
+  margin-top: -200px;
+  transform: translate3d(0, 0, 0) !important;
+  &.modal-documentation,
+  &.modal-snippet {
+    width: 786px;
+    will-change: transform;
+    margin-left: -393px;
+  }
   .modal-snippet,
   .modal-documentation {
     overflow: hidden;
@@ -37,7 +51,10 @@ function DocsSearchModal({
       }}
       open={modalOpen}
     >
-      <StyledDocsSearchModal data-testid="t--global-search-modal">
+      <StyledDocsSearchModal
+        className={`${className}`}
+        data-testid="t--global-search-modal"
+      >
         <ModalBody className={`${className}`}>{children}</ModalBody>
       </StyledDocsSearchModal>
     </Modal>

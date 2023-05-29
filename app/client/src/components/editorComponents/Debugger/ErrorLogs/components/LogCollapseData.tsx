@@ -38,6 +38,7 @@ const MessageWrapper = styled.div`
 `;
 
 export const JsonWrapper = styled.div`
+  word-break: break-all;
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
