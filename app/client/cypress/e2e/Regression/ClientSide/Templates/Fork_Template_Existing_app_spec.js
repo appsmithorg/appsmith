@@ -1,7 +1,6 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../locators/explorerlocators.json");
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -91,6 +90,7 @@ describe(
       cy.get(_.templates.locators._forkApp).first().click();
 
       cy.get(template.templateViewForkButton).should("be.visible");
+      cy.get(_.templates.locators._closeTemplateDialogBoxBtn).click();
     });
 
     it("4. Add page from template to show only apps with 'allowPageImport:true'", () => {
@@ -105,12 +105,12 @@ describe(
             statusCode: 200,
             body: data,
           },
-        ).as("fetchDataFromTempalte");
+        ).as("fetchAllTemplates");
 
         _.entityExplorer.AddNewPage("Add page from template");
 
         cy.get(template.templateDialogBox).should("be.visible");
-        cy.wait("@fetchDataFromTempalte").should(({ request, response }) => {
+        cy.wait("@fetchAllTemplates").should(({ request, response }) => {
           // in the fixture data we are sending some tempaltes with `allowPageImport: false`
           cy.log(response.body.data.length);
           cy.get(template.templateCard).should(
