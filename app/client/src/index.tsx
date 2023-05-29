@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
@@ -22,8 +21,7 @@ import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
-// __webpack_public_path__ = window.CDN_URL;
-__webpack_public_path__ = "https://perf-test-assets.appsmith.com/";
+__webpack_public_path__ = window.CDN_URL;
 
 setAutoFreeze(shouldAutoFreeze);
 
