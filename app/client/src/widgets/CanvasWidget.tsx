@@ -124,17 +124,16 @@ class CanvasWidget extends ContainerWidget {
           </>
         )}
         {this.props.useAutoLayout
-          ? this.renderFlexCanvas(direction)
+          ? this.renderFlexCanvas()
           : this.renderFixedCanvas(props)}
       </ContainerComponent>
     );
   }
 
-  renderFlexCanvas(direction: LayoutDirection) {
+  renderFlexCanvas() {
     const stretchFlexBox = !this.props.children || !this.props.children?.length;
     return (
       <FlexBoxComponent
-        direction={direction}
         flexLayers={this.props.flexLayers || []}
         isMobile={this.props.isMobile || false}
         stretchHeight={stretchFlexBox}

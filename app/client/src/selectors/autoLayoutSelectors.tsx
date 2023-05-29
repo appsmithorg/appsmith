@@ -10,6 +10,8 @@ import type {
 } from "utils/autoLayout/autoLayoutTypes";
 import { getAlignmentColumnInfo } from "utils/autoLayout/AutoLayoutUtils";
 import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
+import WidgetFactory from "utils/WidgetFactory";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 export const getIsCurrentlyConvertingLayout = (state: AppState) =>
   state.ui.layoutConversion.isConverting;
@@ -116,3 +118,15 @@ export const getColumnsForAllLayers = (widgetId: string) =>
       return res;
     },
   );
+
+export const hasFillWidgetSelector = (layer: FlexLayer) =>
+  createSelector(getCanvasAndMetaWidgets, (widgets): boolean => {
+    return layer.children.some((child: LayerChild) => {
+      const widget = widgets[child.id];
+      return (
+        widget &&
+        WidgetFactory.widgetConfigMap.get(widget.type)?.responsiveBehavior ===
+          ResponsiveBehavior.Fill
+      );
+    });
+  });

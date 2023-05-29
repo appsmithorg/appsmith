@@ -662,49 +662,6 @@ export function getLayerWrappingInfo(
 }
 
 /**
- * If a layer is flex wrapped, then individual sub-wrappers will have bottom margins, except the last sub-wrapper.
- * @param arr | AlignmentColumnData[]: array of alignment and its columns.
- * @param res | FlexLayerAlignment[][]: array of rows of alignments.
- * @param resIndex | number: index of the current row.
- * @returns boolean[]
- */
-export function getAlignmentMarginInfo(
-  arr: AlignmentColumnData[],
-  res: FlexLayerAlignment[][] = [[], [], []],
-  resIndex = 0,
-): boolean[] {
-  if (!arr.length) return [];
-  const wrapInfo: FlexLayerAlignment[][] = getLayerWrappingInfo(
-    arr,
-    res,
-    resIndex,
-  );
-  const marginInfo: {
-    [key: string]: (arr: AlignmentColumnData[]) => boolean[];
-  } = {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    "300": (arr): boolean[] => [false, false, false],
-    "120": (arr): boolean[] => [
-      arr[0].columns > 0 && arr[1].columns + arr[2].columns > 0,
-      false,
-      false,
-    ],
-    "210": (arr): boolean[] => [
-      arr[0].columns > 0 && arr[2].columns > 0,
-      arr[1].columns > 0 && arr[2].columns > 0,
-      false,
-    ],
-    "111": (arr): boolean[] => [
-      arr[0].columns > 0,
-      arr[1].columns > 0 && arr[2].columns > 0,
-      false,
-    ],
-  };
-
-  return marginInfo[wrapInfo.map((x) => x.length).join("")](arr);
-}
-
-/**
  * Gets readable values from the date String arguments
  * @param dateString
  * @returns

@@ -1,14 +1,9 @@
-import type {
-  AlignmentColumnData,
-  FlexLayer,
-  LayerChild,
-} from "./autoLayoutTypes";
+import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
-  getAlignmentMarginInfo,
   getCanvasDimensions,
   getFlexLayersForSelectedWidgets,
   getLayerIndexOfWidget,
@@ -406,95 +401,5 @@ describe("test AutoLayoutUtils methods", () => {
     ];
 
     expect(getNewFlexLayers(flexLayers, widgetIdMap)).toEqual(newFlexLayers);
-  });
-
-  it("test getAlignmentMarginInfo'", () => {
-    const info: AlignmentColumnData[] = [
-      {
-        alignment: FlexLayerAlignment.Start,
-        columns: 64,
-      },
-      {
-        alignment: FlexLayerAlignment.Center,
-        columns: 20,
-      },
-      {
-        alignment: FlexLayerAlignment.End,
-        columns: 80,
-      },
-    ];
-    // startColumns = 0
-    // [0,20,20]
-    info[0].columns = 0;
-    info[1].columns = 20;
-    info[2].columns = 20;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-    // [0,80,20]
-    info[1].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, true, false]);
-    // [0,80,80]
-    info[2].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, true, false]);
-    // [0,20,80]
-    info[1].columns = 20;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, true, false]);
-    // [0,0,20]
-    info[1].columns = 0;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-    // [0,20,0]
-    info[1].columns = 20;
-    info[2].columns = 0;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-
-    // centerColumns = 0
-    // [20,0,20]
-    info[0].columns = 20;
-    info[1].columns = 0;
-    info[2].columns = 20;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-
-    // [80,0,20]
-    info[0].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-    // [80,0,80]
-    info[2].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-    // [20,0,80]
-    info[0].columns = 20;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-    // [20,0,0]
-    info[2].columns = 0;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-    // [80,0,0]
-    info[0].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-
-    // endColumns = 0
-    // [20,20,0]
-    info[0].columns = 20;
-    info[1].columns = 20;
-    info[2].columns = 0;
-    expect(getAlignmentMarginInfo(info)).toEqual([false, false, false]);
-
-    // [80,20,0]
-    info[0].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-
-    // [80,80,0]
-    info[1].columns = 80;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-
-    // [20,80,0]
-    info[0].columns = 20;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-
-    // [40,30,0]
-    info[0].columns = 40;
-    info[1].columns = 30;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, false, false]);
-
-    // [40,30,64]
-    info[2].columns = 64;
-    expect(getAlignmentMarginInfo(info)).toEqual([true, true, false]);
   });
 });

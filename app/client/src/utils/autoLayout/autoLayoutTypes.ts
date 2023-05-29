@@ -1,5 +1,6 @@
 import type { FlattenedWidgetProps } from "widgets/constants";
 import type { FlexLayerAlignment } from "./constants";
+import type { ReactNode } from "react";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;
@@ -21,6 +22,13 @@ export interface LayerChild {
 
 export interface FlexLayer {
   children: LayerChild[];
+}
+
+export interface FlexLayerLayoutData {
+  centerChildren: ReactNode[];
+  endChildren: ReactNode[];
+  hasFillWidget: boolean;
+  startChildren: ReactNode[];
 }
 
 export interface DropZone {
