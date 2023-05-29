@@ -58,7 +58,7 @@
   "AirtableBase": "appubHrVbovcudwN6",
   "AirtableTable": "tblsFCQSskVFf7xNd",
 
-  "mockApiUrl": "http://localhost:5001/v1/mock-api?records=10",
+  "mockApiUrl": "http://host.docker.internal:5001/v1/mock-api?records=10",
   "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
   "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
 
