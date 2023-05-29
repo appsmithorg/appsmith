@@ -123,7 +123,7 @@ describe("Peek overlay", () => {
       _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
       _.peekOverlay.ResetHover();
 
-      // pageList is and internal property - peek overlay shouldn't work
+      // pageList is an internal property - peek overlay shouldn't work
       _.peekOverlay.HoverCode(23, 1, "pageList");
       _.peekOverlay.IsOverlayOpen(false);
       _.peekOverlay.ResetHover();
