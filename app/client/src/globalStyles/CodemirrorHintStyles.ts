@@ -87,7 +87,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         display: flex;
         align-items: center;
         > div {
-          padding: 0 2px;
           img {
             height: 14px;
             width: 14px;
@@ -97,7 +96,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       .shortcut {
         font-style: italic;
         font-size: 10px;
-        color: var(--ads-v2-color-fg-subtle);
+        color: var(--ads-v2-color-fg);
       }
     }
 
