@@ -16,8 +16,6 @@ export const PRODUCT_RAMPS_LIST: { [key: string]: SupportedRampsType } = {
   [RAMP_NAME.CUSTOM_ROLES]: CUSTOM_ROLES,
 };
 
-export const RAMP_LINK_TO = "https://appsmith.com/pricing";
-
 export const getRampLink = (section: RampSection) => {
   const state = store.getState();
   const instanceId = state?.tenant?.instanceId;
