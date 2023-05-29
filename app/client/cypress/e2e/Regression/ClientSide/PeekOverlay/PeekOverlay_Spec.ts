@@ -122,6 +122,11 @@ describe("Peek overlay", () => {
       _.peekOverlay.VerifyDataType("array");
       _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
       _.peekOverlay.ResetHover();
+
+      // pageList is and internal property - peek overlay shouldn't work
+      _.peekOverlay.HoverCode(23, 1, "pageList");
+      _.peekOverlay.IsOverlayOpen(false);
+      _.peekOverlay.ResetHover();
     });
   });
 });
@@ -149,6 +154,7 @@ const JsObjectContent = `export default {
     Api1.data[0].id;
     aljshdlja;
     this.numArray;
+    pageList;
   },
   myFun2: async () => {
     storeValue("abc", 123)
