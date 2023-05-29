@@ -366,6 +366,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
                     assertThat(exportedApplication.getExportWithConfiguration()).isNull();
                     assertThat(exportedApplication.getForkWithConfiguration()).isNull();
+                    assertThat(exportedApplication.getForkingEnabled()).isNull();
                 })
                 .verifyComplete();
     }
