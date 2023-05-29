@@ -427,9 +427,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       datasource={datasource}
                       description={googleSheetsInfoMessage}
                       pageId={pageId}
-                      style={{
-                        marginTop: "16px",
-                      }}
                     />
                   ) : null}
                   {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
@@ -441,9 +438,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       datasource={datasource}
                       description={authErrorMessage}
                       pageId={pageId}
-                      style={{
-                        marginTop: "16px",
-                      }}
                     />
                   ) : null}
                   {!_.isNil(sections)
@@ -459,6 +453,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       actionType="authorize"
                       datasource={datasource}
                       description={authErrorMessage}
+                      isInViewMode
                       pageId={pageId}
                     />
                   ) : null}
@@ -479,7 +474,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               <DatasourceAuth
                 datasource={datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
-                deleteTempDSFromDraft={deleteTempDSFromDraft}
                 formData={formData}
                 getSanitizedFormData={_.memoize(this.getSanitizedData)}
                 isInsideReconnectModal={isInsideReconnectModal}

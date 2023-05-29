@@ -109,6 +109,9 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     text-decoration-line: underline;
     flex-shrink: 0;
     width: max-content;
+    > span {
+      font-size: 12px;
+    }
   }
 `;
 
