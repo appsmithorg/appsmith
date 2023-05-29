@@ -96,7 +96,7 @@ export const getWidgetEvalValues = createSelector(
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   (tree: DataTree) => {
-    return _.omit(tree, ["pagesList"]);
+    return _.omit(tree, ["pageList"]);
   },
 );
 
