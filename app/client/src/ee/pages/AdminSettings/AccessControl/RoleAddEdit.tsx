@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useHistory, useParams } from "react-router";
 import { PageHeader } from "./PageHeader";
 import { debounce } from "lodash";
@@ -14,7 +14,6 @@ import type { MenuItemProps, RoleEditProps } from "./types";
 import { updateRoleName } from "@appsmith/actions/aclActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getRolePermissions } from "@appsmith/selectors/aclSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -42,12 +41,6 @@ export function RoleAddEdit(props: RoleEditProps) {
   );
 
   const isNotDefaultUserRole = selected.name !== "Default Role For All Users";
-
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.FETCH_ICON_LOCATIONS,
-    });
-  }, []);
 
   const onSearch = debounce((input: string) => {
     if (input.trim().length > 0) {

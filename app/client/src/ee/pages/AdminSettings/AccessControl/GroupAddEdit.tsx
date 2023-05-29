@@ -501,7 +501,6 @@ export function GroupAddEdit(props: GroupEditProps) {
       <StyledTabs
         data-testid="t--user-edit-tabs-wrapper"
         defaultValue={selectedTab}
-        isEditing={isEditing}
         onValueChange={onTabChange}
       >
         <TabsList>
@@ -520,7 +519,11 @@ export function GroupAddEdit(props: GroupEditProps) {
         </TabsList>
         {tabs.map((tab) => {
           return (
-            <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
+            <TabPanel
+              className={`tab-panel ${isEditing ? "is-editing" : ""}`}
+              key={tab.key}
+              value={tab.key}
+            >
               {tab.panelComponent}
             </TabPanel>
           );

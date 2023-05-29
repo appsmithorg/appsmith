@@ -289,7 +289,7 @@ export function* fetchAclGroupsSaga() {
   }
 }
 
-export function* fetchAclGroupSagaById(
+export function* fetchAclGroupByIdSaga(
   action: ReduxAction<
     FetchSingleDataPayload & {
       triggerUpdateEvent?: boolean;
@@ -583,7 +583,7 @@ export function* fetchAclRolesSaga() {
   }
 }
 
-export function* fetchAclRoleSagaById(
+export function* fetchAclRoleByIdSaga(
   action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
@@ -595,6 +595,9 @@ export function* fetchAclRoleSagaById(
       yield put({
         type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID_SUCCESS,
         payload: response.data,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ICON_LOCATIONS,
       });
     } else {
       yield put({
@@ -846,7 +849,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
       takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
+      takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupByIdSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
       takeLatest(
         ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
@@ -861,7 +864,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
       takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleByIdSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
       takeLatest(

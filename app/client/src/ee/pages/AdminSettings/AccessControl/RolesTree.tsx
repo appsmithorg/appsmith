@@ -11,8 +11,6 @@ import {
   SaveButtonBar,
   StyledTabs,
 } from "./components";
-import isEqual from "lodash/isEqual";
-import unionWith from "lodash/unionWith";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAclIsEditing,
@@ -31,6 +29,7 @@ import {
   TabsList,
   Spinner,
 } from "design-system";
+import { usePrevious } from "@mantine/hooks";
 
 let dataToBeSent: any[] = [];
 
@@ -427,16 +426,17 @@ export function getEntireHoverMap(hoverMap: any, key: string) {
     },
   ];
   for (const map of currentKeyMap) {
-    finalMap = unionWith(
-      finalMap,
-      getEntireHoverMap(
-        hoverMap,
-        `${map?.id}_${map?.p}${
-          type && map.id === keySplit[0] ? `_${type}` : ``
-        }`,
-      ),
-      isEqual,
+    const more = getEntireHoverMap(
+      hoverMap,
+      `${map?.id}_${map?.p}${type && map.id === keySplit[0] ? `_${type}` : ``}`,
     );
+    finalMap = Array.from(
+      new Set(
+        [...finalMap, ...(more.length > 0 ? more : [map])].map((object) =>
+          JSON.stringify(object),
+        ),
+      ),
+    ).map((string) => JSON.parse(string));
   }
   return finalMap;
 }
@@ -684,19 +684,21 @@ export const getExtendedId = (rowData: any, type: string) => {
     : ``;
 };
 
-export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
+export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {
   const {
-    dataFromProps,
     searchValue = "",
+    selectedTab,
     setShowSaveModal,
     showSaveModal,
     tabData,
   } = props;
   const { id: roleId, isSaving, userPermissions } = props.selected;
   const [filteredData, setFilteredData] = useState([]);
-  const [data, setData] = useState(dataFromProps);
+  const [data, setData] = useState<any[]>([]);
+  const [dataFromProps, setDataFromProps] = useState<any[]>([]);
   const iconLocations = useSelector(getIconLocations);
   const isEditing = useSelector(getAclIsEditing);
+  const prevValues = usePrevious({ searchValue });
   const dispatch = useDispatch();
 
   const canEditRole = isPermitted(
@@ -709,18 +711,27 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
   }, []);
 
   useEffect(() => {
-    setData(dataFromProps);
-  }, [tabData]);
+    if (selectedTab) {
+      const calculatedData =
+        makeData({
+          data: [tabData?.data],
+          hoverMap: tabData.hoverMap,
+          permissions: tabData.permissions,
+        }) || [];
+      setData(calculatedData);
+      setDataFromProps(calculatedData);
+    }
+  }, [tabData, selectedTab]);
 
   useEffect(() => {
     if (searchValue && searchValue.trim().length > 0) {
       const currentData = JSON.parse(JSON.stringify(data));
       const result = getSearchData(currentData, searchValue);
       setFilteredData(result);
-    } else {
+    } else if (prevValues?.searchValue !== searchValue) {
       setFilteredData([]);
     }
-  }, [searchValue]);
+  }, [searchValue, data]);
 
   useEffect(() => {
     if (JSON.stringify(data) === JSON.stringify(dataFromProps)) {
@@ -792,9 +803,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           value,
         } = cellProps;
         const rowData = cellProps.cell.row.original;
-        const [isChecked, setIsChecked] = React.useState(
-          value === 1 ? true : false,
-        );
+        const [isChecked, setIsChecked] = useState(value === 1 ? true : false);
         const disableMap = useMemo(
           () =>
             isChecked && canEditRole && tabData.disableHelperMap
@@ -877,6 +886,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
               onMouseOver={addHoverClass}
             >
               <Checkbox
+                aria-label="check-permission"
                 className="design-system-checkbox"
                 defaultSelected={isChecked}
                 isDisabled={!canEditRole || isDisabled}
@@ -999,17 +1009,9 @@ export function EachTab(
   selected: RoleProps,
   showSaveModal: boolean,
   setShowSaveModal: (val: boolean) => void,
+  selectedTab: string,
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
-  const dataFromProps = useMemo(() => {
-    return (
-      makeData({
-        data: [tabs?.data],
-        hoverMap: tabs.hoverMap,
-        permissions: tabs.permissions,
-      }) || []
-    );
-  }, [tabs]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -1021,18 +1023,21 @@ export function EachTab(
     key,
     title: key,
     count: tabCount,
-    panelComponent: (
-      <RolesTree
-        currentTabName={key}
-        dataFromProps={dataFromProps}
-        searchValue={searchValue}
-        selected={selected}
-        setShowSaveModal={setShowSaveModal}
-        showSaveModal={showSaveModal}
-        tabData={tabs}
-        updateTabCount={(n) => setTabCount(n)}
-      />
-    ),
+    panelComponent:
+      selectedTab === key ? (
+        <RolesTree
+          currentTabName={key}
+          searchValue={searchValue}
+          selected={selected}
+          selectedTab={selectedTab === key}
+          setShowSaveModal={setShowSaveModal}
+          showSaveModal={showSaveModal}
+          tabData={tabs}
+          updateTabCount={(n) => setTabCount(n)}
+        />
+      ) : (
+        <div />
+      ),
   };
 }
 
@@ -1042,27 +1047,23 @@ export default function RoleTabs(props: {
 }) {
   const { searchValue, selected } = props;
   const isEditing = useSelector(getAclIsEditing);
-  const [selectedTab, setSelectedTab] = useState<string>("");
+  const [selectedTab, setSelectedTab] = useState<string>(
+    Object.keys(selected?.tabs)?.[0] || "",
+  );
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  const tabs: TabProps[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value]) =>
-        EachTab(
-          key,
-          searchValue,
-          value,
-          selected,
-          showSaveModal,
-          setShowSaveModal,
-        ),
-      )
-    : [];
-
-  useEffect(() => {
-    if (tabs.length > 0) {
-      setSelectedTab(tabs[0].key);
-    }
-  }, [tabs.length]);
+  const tabs: TabProps[] = Object.entries(selected?.tabs || {}).map(
+    ([key, value]) =>
+      EachTab(
+        key,
+        searchValue,
+        value,
+        selected,
+        showSaveModal,
+        setShowSaveModal,
+        selectedTab,
+      ),
+  );
 
   const onTabChange = (value: string) => {
     if (isEditing && selectedTab !== value) {
@@ -1073,12 +1074,8 @@ export default function RoleTabs(props: {
     }
   };
 
-  return tabs.length > 0 && selectedTab ? (
-    <StyledTabs
-      isEditing={isEditing}
-      onValueChange={onTabChange}
-      value={selectedTab}
-    >
+  return tabs.length > 0 ? (
+    <StyledTabs onValueChange={onTabChange} value={selectedTab}>
       <TabsList>
         {tabs.map((tab) => {
           return (
@@ -1095,7 +1092,11 @@ export default function RoleTabs(props: {
       </TabsList>
       {tabs.map((tab) => {
         return (
-          <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
+          <TabPanel
+            className={`tab-panel ${isEditing ? "is-editing" : ""}`}
+            key={tab.key}
+            value={tab.key}
+          >
             {tab.panelComponent}
           </TabPanel>
         );
