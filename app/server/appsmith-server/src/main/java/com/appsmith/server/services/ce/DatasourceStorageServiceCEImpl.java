@@ -94,7 +94,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                                 || e instanceof UncategorizedMongoDbException,
                         error -> {
                             if (error.getMessage() != null
-                                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                                    && error.getMessage().contains("datasource_storage_compound_index")) {
                                 // The duplicate key error is because of the `name` field.
                                 return findByDatasourceAndEnvironmentId(datasource, environmentId);
                             }
@@ -119,7 +119,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                                 || e instanceof UncategorizedMongoDbException,
                         error -> {
                             if (error.getMessage() != null
-                                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                                    && error.getMessage().contains("datasource_storage_compound_index")) {
                                 // The duplicate key error is because of the `name` field.
                                 return findByDatasource(datasource);
                             }
@@ -228,11 +228,11 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
                 .flatMap(unsavedDatasourceStorage -> {
                     return repository.save(unsavedDatasourceStorage)
-                            .map(savedDatasource -> {
+                            .map(datasourceStorage1 -> {
                                 // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
                                 // object from db will have pluginName=null so set it manually from the unsaved datasourceStorage obj
-                                savedDatasource.setPluginName(unsavedDatasourceStorage.getPluginName());
-                                return savedDatasource;
+                                datasourceStorage1.setPluginName(unsavedDatasourceStorage.getPluginName());
+                                return datasourceStorage1;
                             });
                 });
     }

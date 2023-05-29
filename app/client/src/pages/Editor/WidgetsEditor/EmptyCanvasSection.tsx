@@ -21,8 +21,6 @@ import {
   TEMPLATE_CARD_DESCRIPTION,
   TEMPLATE_CARD_TITLE,
 } from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import type FeatureFlags from "entities/FeatureFlags";
 import { deleteCanvasCardsState } from "actions/editorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Icon } from "design-system";
@@ -84,7 +82,6 @@ function CanvasTopSection() {
   const inPreviewMode = useSelector(previewModeSelector);
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
   const isAutoLayout = useSelector(getIsAutoLayout);
 
   useEffect(() => {
@@ -113,26 +110,21 @@ function CanvasTopSection() {
 
   return (
     <Wrapper data-testid="canvas-ctas">
-      {!!featureFlags.TEMPLATES_PHASE_2 &&
-        !isAutoLayout &&
-        !isAirgappedInstance && (
-          <Card data-testid="start-from-template" onClick={showTemplatesModal}>
-            <Icon name="layout-2-line" size="lg" />
-            <Content>
-              <Text
-                color={"var(--ads-v2-color-fg-emphasis)"}
-                type={TextType.H5}
-              >
-                {createMessage(TEMPLATE_CARD_TITLE)}
-              </Text>
-              <Text type={TextType.P3}>
-                {createMessage(TEMPLATE_CARD_DESCRIPTION)}
-              </Text>
-            </Content>
-          </Card>
-        )}
+      {!isAutoLayout && !isAirgappedInstance && (
+        <Card data-testid="start-from-template" onClick={showTemplatesModal}>
+          <Icon name="layout-2-line" size="lg" />
+          <Content>
+            <Text color={"var(--ads-v2-color-fg-emphasis)"} type={TextType.H5}>
+              {createMessage(TEMPLATE_CARD_TITLE)}
+            </Text>
+            <Text type={TextType.P3}>
+              {createMessage(TEMPLATE_CARD_DESCRIPTION)}
+            </Text>
+          </Content>
+        </Card>
+      )}
       <Card
-        centerAlign={!featureFlags.TEMPLATES_PHASE_2}
+        centerAlign={false}
         data-testid="generate-app"
         onClick={onGeneratePageClick}
       >

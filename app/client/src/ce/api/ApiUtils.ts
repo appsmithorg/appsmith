@@ -10,7 +10,6 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 import {
   API_STATUS_CODES,
-  DEFAULT_ENV_NAME,
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "@appsmith/constants/ApiConstants";
@@ -27,6 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getEnvironmentIdForHeader } from "@appsmith/api/ApiUtils";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -93,11 +93,10 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   // Add header for environment name
-  let activeEnv = getQueryParamsObject().environment;
-  if (activeEnv === undefined || activeEnv === null || activeEnv === "")
-    activeEnv = DEFAULT_ENV_NAME;
-  if (activeEnv.length > 0 && config.headers) {
-    config.headers.environmentName = activeEnv;
+  const activeEnv = getEnvironmentIdForHeader();
+
+  if (activeEnv && config.headers) {
+    config.headers.environmentId = activeEnv;
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
