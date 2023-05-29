@@ -93,6 +93,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
+  isPluginAuthorized: boolean;
   gsheetToken?: string;
   gsheetProjectID?: string;
   showDebugger: boolean;
@@ -350,6 +351,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       hiddenHeader,
       isDeleting,
       isInsideReconnectModal,
+      isPluginAuthorized,
       isSaving,
       isTesting,
       pageId,
@@ -368,9 +370,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     */
     const isGoogleSheetPlugin =
       pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
-
-    const isPluginAuthorized =
-      plugin && isDatasourceAuthorizedForQueryCreation(formData, plugin);
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
 
@@ -401,7 +400,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={createFlow}
-            isPluginAuthorized={isPluginAuthorized || false}
+            isPluginAuthorized={isPluginAuthorized}
             pluginImage={pluginImage}
             pluginName={plugin?.name || ""}
             pluginType={plugin?.type || ""}
@@ -579,6 +578,11 @@ const mapStateToProps = (state: AppState, props: any) => {
     viewMode = viewModeFromURLParams === "true";
   }
 
+  const isPluginAuthorized =
+    !!plugin && !!formData
+      ? isDatasourceAuthorizedForQueryCreation(formData, plugin)
+      : true;
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -597,6 +601,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginPackageName:
       props.pluginPackageName || props.match?.params?.pluginPackageName,
     initialValues,
+    isPluginAuthorized,
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
