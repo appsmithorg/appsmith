@@ -154,9 +154,11 @@ const AppsmithLink = styled((props) => {
   return <Link {...props} />;
 })`
   height: 24px;
+  min-width: 24px;
   width: 24px;
   display: inline-block;
   img {
+    min-width: 24px;
     width: 24px;
     height: 24px;
   }
@@ -357,7 +359,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   {pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                      name="double-arrow-left"
+                      name="menu-fold"
                       onClick={onPin}
                       size="md"
                     />
@@ -365,7 +367,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   {!pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                      name="double-arrow-right"
+                      name="menu-unfold"
                       onClick={onPin}
                       size="md"
                     />
@@ -428,7 +430,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         >
           {isCanvasCodeActive ? <CanvasCodeSwitcher /> : <HelpBar />}
         </HeaderSection>
-        <HeaderSection className="gap-x-2">
+        <HeaderSection className="gap-x-1">
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
