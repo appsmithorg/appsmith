@@ -1,14 +1,18 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
 
 export class Widgets {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private propPane = ObjectsRegistry.PropertyPane;
+  private commonLocator = ObjectsRegistry.CommonLocators;
 
-  _buttonWidgetSelector = ".t--widget-buttonwidget";
-  _buttonComponentSelector = ".t--widget-buttonwidget button";
-  _textWidgetSelector = ".t--widget-textwidget";
-  _textComponentSelector = ".t--widget-textwidget .t--text-widget-container";
-  _containerWidgetSelector = ".t--widget-containerwidget";
+  _buttonWidgetSelector = getWidgetSelector(WIDGET.BUTTON);
+  _buttonComponentSelector = `${getWidgetSelector(WIDGET.BUTTON)} button`;
+  _textWidgetSelector = getWidgetSelector(WIDGET.TEXT);
+  _textComponentSelector = `${getWidgetSelector(
+    WIDGET.TEXT,
+  )} .t--text-widget-container`;
+  _containerWidgetSelector = getWidgetSelector(WIDGET.CONTAINER);
 
   /**
    * Drag and drop a button widget and verify if the bounding box fits perfectly
@@ -150,5 +154,9 @@ export class Widgets {
 
   GetWidgetHeight(widgetSelector: string) {
     return cy.get(widgetSelector).invoke("height");
+  }
+
+  GetWidgetByName(widgetName: string) {
+    return cy.get(this.commonLocator._widgetByName(widgetName));
   }
 }

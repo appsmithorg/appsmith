@@ -18,7 +18,8 @@ describe("Validating use cases for Auto Dimension", () => {
         _.agHelper.SetCanvasViewportWidth(375);
       }
       _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 30);
-      cy.get(".t--widget-container1")
+      _.widgets
+        .GetWidgetByName("Container1")
         .invoke("attr", "id")
         .then((id) => {
           const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;

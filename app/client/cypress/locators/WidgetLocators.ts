@@ -6,6 +6,7 @@ export const WIDGET = {
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
+  CONTAINER: "containerwidget",
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
   TREESELECT: "singleselecttreewidget",

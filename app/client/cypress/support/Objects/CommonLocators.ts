@@ -18,6 +18,8 @@ export class CommonLocators {
     widgetName +
     "') span.bp3-editable-text-content";
   _widgetNameTxt = ".editable-text-container input.bp3-editable-text-input";
+  _widgetByName = (widgetName: string) =>
+    `[data-widgetname-cy="${widgetName}"]`;
   _saveStatusContainer = ".t--save-status-container";
   _statusSaving = ".t--save-status-is-saving";
   _saveStatusError = ".t--save-status-error";

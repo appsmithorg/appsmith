@@ -27,7 +27,8 @@ describe("Validating use cases for Auto Dimension", () => {
       }
       _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 30);
 
-      cy.get(".t--widget-container1")
+      _.widgets
+        .GetWidgetByName("Container1")
         .invoke("attr", "id")
         .then((id) => {
           const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
@@ -45,10 +46,11 @@ describe("Validating use cases for Auto Dimension", () => {
       _.entityExplorer.DragDropWidgetNVerify("listwidgetv2", 100, 30);
 
       // Delete existing widgets within list
-      _.agHelper.SelectAllWidgets(".t--widget-container1");
+      _.agHelper.SelectAllWidgets(_.locators._widgetByName("Container1"));
       _.agHelper.PressDelete();
 
-      cy.get(".t--widget-container1")
+      _.widgets
+        .GetWidgetByName("Container1")
         .invoke("attr", "id")
         .then((id) => {
           const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
