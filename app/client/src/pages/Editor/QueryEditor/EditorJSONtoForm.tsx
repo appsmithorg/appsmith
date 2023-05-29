@@ -319,7 +319,8 @@ export const SegmentedControlContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
-  overflow: clip;
+  overflow-y: clip;
+  overflow-x: scroll;
 `;
 
 type QueryFormProps = {
