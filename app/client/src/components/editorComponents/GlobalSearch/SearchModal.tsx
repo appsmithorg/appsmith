@@ -9,9 +9,14 @@ const StyledDocsSearchModal = styled(ModalContent)`
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: auto;
   width: 500px;
+  margin-left: -250px;
+  margin-top: -200px;
+  transform: translate3d(0, 0, 0) !important;
   &.modal-documentation,
   &.modal-snippet {
-    width: 785px;
+    width: 786px;
+    will-change: transform;
+    margin-left: -393px;
   }
   .modal-snippet,
   .modal-documentation {
