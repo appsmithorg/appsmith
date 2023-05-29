@@ -12,7 +12,7 @@ import {
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useParams, useLocation } from "react-router";
+import { useParams, useLocation, useHistory } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
@@ -30,15 +30,16 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { Colors } from "constants/Colors";
+import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { integrationEditorURL } from "RouteBuilder";
+import { getQueryParams } from "utils/URLUtils";
+import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
 
 interface Props {
   datasource: Datasource;
   formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
-  deleteTempDSFromDraft: () => void;
   isInvalid: boolean;
   pageId?: string;
   viewMode?: boolean;
@@ -54,6 +55,7 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
+  showFilterComponent: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -82,11 +84,13 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
+  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
+    // If filter component is present, then we need to push the button to the right
+    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
   }
 `;
 
@@ -97,10 +101,11 @@ const SaveButtonContainer = styled.div<{
   justify-content: flex-end;
   gap: 9px;
   padding-right: 20px;
-  flex: 1 1 10%;
   border-top: ${(props) =>
-    props.isInsideReconnectModal ? "none" : `1px solid ${Colors.ALTO}`};
+    props.isInsideReconnectModal ? "none" : "1px solid"};
+  border-color: var(--ads-v2-color-border);
   align-items: center;
+  height: 68px;
 `;
 
 const StyledAuthMessage = styled.div`
@@ -118,7 +123,6 @@ function DatasourceAuth({
     DatasourceButtonTypeEnum.CANCEL,
     DatasourceButtonTypeEnum.SAVE,
   ],
-  deleteTempDSFromDraft,
   formData,
   getSanitizedFormData,
   isInvalid,
@@ -134,6 +138,7 @@ function DatasourceAuth({
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
+  showFilterComponent,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
@@ -154,6 +159,7 @@ function DatasourceAuth({
   const dispatch = useDispatch();
   const location = useLocation();
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+  const history = useHistory<AppsmithLocationState>();
 
   const pageId = (pageIdQuery || pageIdProp) as string;
 
@@ -296,6 +302,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
+          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}
@@ -307,8 +314,14 @@ function DatasourceAuth({
           key={buttonType}
           kind="tertiary"
           onClick={() => {
-            if (createMode) deleteTempDSFromDraft();
-            else dispatch(setDatasourceViewMode(true));
+            if (createMode) {
+              const URL = integrationEditorURL({
+                pageId,
+                selectedTab: INTEGRATION_TABS.NEW,
+                params: getQueryParams(),
+              });
+              history.push(URL);
+            } else dispatch(setDatasourceViewMode(true));
           }}
           size="md"
         >
