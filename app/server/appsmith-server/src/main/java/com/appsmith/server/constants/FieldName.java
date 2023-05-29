@@ -82,8 +82,6 @@ public class FieldName extends FieldNameCE {
      */
     public static final String APPLICATION_DEVELOPER = "Developer";
     public static final String APPLICATION_VIEWER = "App Viewer";
-    public static final String APPLICATION_DEVELOPER_DESCRIPTION = "Can edit and view this application along with " +
-            "inviting other users to edit and view it";
-    public static final String APPLICATION_VIEWER_DESCRIPTION = "Can view this application and invite other users to " +
-            "view it";
+    public static final String APPLICATION_DEVELOPER_DESCRIPTION = "Can edit and view this application along with inviting other users to this application.";
+    public static final String APPLICATION_VIEWER_DESCRIPTION = "Can view this application and invite other users to view this application.";
 }

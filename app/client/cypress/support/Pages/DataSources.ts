@@ -101,8 +101,7 @@ export class DataSources {
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
-  _contextMenuDatasource = "span[name='comment-context-menu']";
-  _contextMenuDSReviewPage = "span[name='context-menu']";
+  _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
@@ -1001,7 +1000,7 @@ export class DataSources {
     };
   }) {
     if (options.limit) {
-      // Select Limit Variable from dropdown
+      // Select Limit variable from dropdown
       cy.get(this._graphqlPagination._limitVariable).click({
         force: true,
       });
@@ -1009,7 +1008,7 @@ export class DataSources {
         .contains(options.limit.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._limitValue)
         .first()
         .focus()
@@ -1017,7 +1016,7 @@ export class DataSources {
     }
 
     if (options.offset) {
-      // Select Offset Variable from dropdown
+      // Select Offset vaiable from dropdown
       cy.get(this._graphqlPagination._offsetVariable).click({
         force: true,
       });
@@ -1026,7 +1025,7 @@ export class DataSources {
         .contains(options.offset.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._offsetValue)
         .first()
         .focus()

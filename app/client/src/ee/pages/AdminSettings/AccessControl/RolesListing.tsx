@@ -251,11 +251,7 @@ export function RolesListing() {
     >
       {selectedRoleId ? (
         selectedRole ? (
-          <RoleAddEdit
-            isLoading={isLoading}
-            onDelete={onDeleteHandler}
-            selected={selectedRole}
-          />
+          <RoleAddEdit onDelete={onDeleteHandler} selected={selectedRole} />
         ) : (
           <LoaderContainer>
             <Spinner size="lg" />

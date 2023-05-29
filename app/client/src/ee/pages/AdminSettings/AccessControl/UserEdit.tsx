@@ -454,7 +454,6 @@ export function UserEdit(props: UserEditProps) {
       <StyledTabs
         data-testid="t--user-edit-tabs-wrapper"
         defaultValue={selectedTab}
-        isEditing={isEditing}
         onValueChange={onTabChange}
       >
         <TabsList>
@@ -473,7 +472,11 @@ export function UserEdit(props: UserEditProps) {
         </TabsList>
         {tabs.map((tab) => {
           return (
-            <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
+            <TabPanel
+              className={`tab-panel ${isEditing ? "is-editing" : ""}`}
+              key={tab.key}
+              value={tab.key}
+            >
               {tab.panelComponent}
             </TabPanel>
           );

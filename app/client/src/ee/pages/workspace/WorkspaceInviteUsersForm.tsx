@@ -1,5 +1,6 @@
 export * from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import {
+  ErrorBox,
   ErrorTextContainer,
   MailConfigContainer,
   ManageUsersContainer,
@@ -72,6 +73,7 @@ import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants"
 import {
   Avatar,
   Button,
+  Callout,
   Icon,
   Option,
   Select,
@@ -450,10 +452,12 @@ function WorkspaceInviteUsersForm(props: any) {
               suggestions={isEEFeature ? groupSuggestions : undefined}
               type="text"
             />
-            {((submitFailed && error) || emailError) && (
+            {emailError && (
               <ErrorTextContainer>
-                <Icon name="alert-line" size="md" />
-                <Text renderAs="p">{error || emailError}</Text>
+                <Icon name="alert-line" size="sm" />
+                <Text kind="body-s" renderAs="p">
+                  {emailError}
+                </Text>
               </ErrorTextContainer>
             )}
           </div>
@@ -469,9 +473,12 @@ function WorkspaceInviteUsersForm(props: any) {
                     .includes(input.toLowerCase())) ||
                 false
               }
+              getPopupContainer={(triggerNode) =>
+                triggerNode.parentNode.parentNode
+              }
               isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
-              listHeight={400}
+              listHeight={isAclFlow ? 200 : 400}
               onDeselect={onRemoveOptions}
               onSelect={onSelect}
               optionLabelProp="label"
@@ -610,6 +617,9 @@ function WorkspaceInviteUsersForm(props: any) {
             )}
           </>
         )}
+        <ErrorBox message={submitFailed}>
+          {submitFailed && error && <Callout kind="error">{error}</Callout>}
+        </ErrorBox>
         {canManage && !disableManageUsers && (
           <ManageUsersContainer>
             <ManageUsers

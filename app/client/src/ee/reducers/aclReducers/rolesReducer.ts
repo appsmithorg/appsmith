@@ -146,22 +146,16 @@ export const rolesReducers = {
     ),
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ICON_LOCATIONS]: (state: any) => ({
-    ...state,
-    isLoading: true,
-  }),
   [ReduxActionTypes.FETCH_ICON_LOCATIONS_SUCCESS]: (
     state: any,
     action: any,
   ) => ({
     ...state,
     iconLocations: action.payload,
-    isLoading: false,
   }),
   [ReduxActionErrorTypes.FETCH_ICON_LOCATIONS_ERROR]: (state: any) => ({
     ...state,
     iconLocations: [],
-    isLoading: false,
   }),
   [ReduxActionTypes.RESET_ROLES_DATA]: (state: any) => ({
     ...state,

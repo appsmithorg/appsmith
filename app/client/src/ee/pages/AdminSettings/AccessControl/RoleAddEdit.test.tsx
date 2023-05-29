@@ -41,7 +41,6 @@ const props: RoleEditProps = {
     tabs: response1.tabs,
   },
   onDelete: jest.fn(),
-  isLoading: false,
 };
 
 function renderComponent() {
@@ -355,7 +354,6 @@ describe("<RoleAddEdit />", () => {
         ...defaultUserResponse,
       },
       onDelete: jest.fn(),
-      isLoading: false,
     };
     const { queryAllByTestId } = render(<RoleAddEdit {...roleProps} />);
 
@@ -365,15 +363,6 @@ describe("<RoleAddEdit />", () => {
     expect(editableTitle).toHaveLength(0);
     const editableDesc = queryAllByTestId("t--editable-description");
     expect(editableDesc).toHaveLength(0);
-
-    jest
-      .spyOn(selectors, "getRolePermissions")
-      .mockImplementation(() =>
-        mockGetRolePermissions([
-          PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
-          PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
-        ]),
-      );
 
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(1);

@@ -61,13 +61,17 @@ export const SaveButtonBarWrapper = styled.div`
   width: 100%;
 `;
 
-export const StyledTabs = styled(Tabs)<{ isEditing?: boolean }>`
+export const StyledTabs = styled(Tabs)`
   margin: 24px 0 0;
 
   height: calc(100% - 180px);
   .tab-panel {
     overflow: auto;
-    height: ${({ isEditing }) => (isEditing ? `calc(100% - 80px)` : `100%`)};
+    height: 100%;
+
+    &.is-editing {
+      height: calc(100% - 80px);
+    }
   }
 `;
 

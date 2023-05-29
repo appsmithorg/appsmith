@@ -17,7 +17,6 @@ export type RoleProps = BaseAclProps & {
 export type RoleEditProps = {
   selected: RoleProps;
   onDelete: any;
-  isLoading: boolean;
 };
 
 export type RoleTableResponse = {
