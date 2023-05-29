@@ -512,7 +512,12 @@ export function* fetchFeatureFlags() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchFeatureFlagsSuccess(response.data));
+      yield put(
+        fetchFeatureFlagsSuccess({
+          ...response.data,
+          CANVAS_CODE: true,
+        }),
+      );
     }
   } catch (error) {
     log.error(error);

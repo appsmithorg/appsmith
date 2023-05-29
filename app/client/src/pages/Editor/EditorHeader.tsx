@@ -90,8 +90,12 @@ import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import {
+  isCanvasCodeActive as isCanvasCodeActiveSelector,
+  isMultiPaneActive,
+} from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import CanvasCodeSwitcher from "./CanvasCodeSwitcher";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -246,6 +250,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+  const isCanvasCodeActive = useSelector(isCanvasCodeActiveSelector);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -421,7 +426,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             "help-bar": "true",
           })}
         >
-          <HelpBar />
+          {isCanvasCodeActive ? <CanvasCodeSwitcher /> : <HelpBar />}
         </HeaderSection>
         <HeaderSection className="gap-x-2">
           <Boxed
