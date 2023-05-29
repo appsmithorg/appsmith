@@ -25,9 +25,9 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "012", id = "rename-indexes-with-long-names")
+@ChangeUnit(order = "013", id = "rename-indexes-with-long-names")
 @RequiredArgsConstructor
-public class Migration012RenameIndexesWithLongNames {
+public class Migration013RenameIndexesWithLongNames {
 
     private final MongoTemplate mongoTemplate;
 
