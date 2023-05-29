@@ -124,6 +124,7 @@ export type CanvasWidgetStructure = Pick<
     children?: CanvasWidgetStructure[];
     selected?: boolean;
     onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
+    isListWidgetCanvas?: boolean;
   };
 
 export enum FileDataTypes {

@@ -1,19 +1,23 @@
 import type { MutableRefObject } from "react";
+import { useState } from "react";
 import React, { useEffect, useRef } from "react";
 import ReactJson from "react-json-view";
 import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 import { componentWillAppendToBody } from "react-append-to-body";
-import { debounce } from "lodash";
+import _, { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
 import { Divider } from "design-system";
+import { useSelector } from "react-redux";
+import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
+import { filterInternalProperties } from "utils/FilterInternalProperties";
+import { getJSCollections } from "selectors/entitiesSelector";
 
 export type PeekOverlayStateProps = {
-  name: string;
+  objectName: string;
+  propertyPath: string[];
   position: DOMRect;
   textWidth: number;
-  data: unknown;
-  dataType: string;
 };
 
 /*
@@ -29,6 +33,19 @@ export const PeekOverlayPopUp = componentWillAppendToBody(
 
 export const PEEK_OVERLAY_DELAY = 200;
 
+const getPropertyData = (src: unknown, propertyPath: string[]) => {
+  return propertyPath.length > 0 ? _.get(src, propertyPath) : src;
+};
+
+const getDataTypeHeader = (data: unknown) => {
+  const dataType = typeof data;
+  if (dataType === "object") {
+    if (Array.isArray(data)) return "array";
+    if (data === null) return "null";
+  }
+  return dataType;
+};
+
 export function PeekOverlayPopUpContent(
   props: PeekOverlayStateProps & {
     hidePeekOverlay: () => void;
@@ -36,6 +53,25 @@ export function PeekOverlayPopUpContent(
 ) {
   const CONTAINER_MAX_HEIGHT_PX = 252;
   const dataWrapperRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const dataTree = useSelector(getDataTree);
+  const configTree = useSelector(getConfigTree);
+  const jsActions = useSelector(getJSCollections);
+
+  const filteredData = filterInternalProperties(
+    props.objectName,
+    dataTree[props.objectName],
+    jsActions,
+    dataTree,
+    configTree,
+  );
+
+  // Because getPropertyData can return a function
+  // And we don't want to execute it.
+  const [jsData] = useState(() =>
+    getPropertyData(filteredData, props.propertyPath),
+  );
+
+  const [dataType] = useState(getDataTypeHeader(jsData));
 
   useEffect(() => {
     const wheelCallback = () => {
@@ -59,14 +95,6 @@ export function PeekOverlayPopUpContent(
     () => props.hidePeekOverlay(),
     PEEK_OVERLAY_DELAY,
   );
-
-  const getDataTypeHeader = (dataType: string) => {
-    if (props.dataType === "object") {
-      if (Array.isArray(props.data)) return "array";
-      if (props.data === null) return "null";
-    }
-    return dataType;
-  };
 
   return (
     <div
@@ -101,7 +129,7 @@ export function PeekOverlayPopUpContent(
           fontSize: "10px",
         }}
       >
-        {getDataTypeHeader(props.dataType)}
+        {dataType}
       </div>
       <Divider style={{ display: "block" }} />
       <div
@@ -113,7 +141,7 @@ export function PeekOverlayPopUpContent(
           fontSize: "10px",
         }}
       >
-        {props.dataType === "object" && props.data !== null && (
+        {(dataType === "object" || dataType === "array") && jsData !== null && (
           <JsonWrapper
             onClick={objectCollapseAnalytics}
             style={{
@@ -122,31 +150,22 @@ export function PeekOverlayPopUpContent(
               overflowY: "auto",
             }}
           >
-            <ReactJson src={props.data} {...reactJsonProps} />
+            <ReactJson src={jsData} {...reactJsonProps} />
           </JsonWrapper>
         )}
-        {props.dataType === "function" && (
-          <div>{(props.data as any).toString()}</div>
-        )}
-        {props.dataType === "boolean" && (
-          <div>{(props.data as any).toString()}</div>
-        )}
-        {props.dataType === "string" && (
-          <div>{(props.data as any).toString()}</div>
-        )}
-        {props.dataType === "number" && (
-          <div>{(props.data as any).toString()}</div>
-        )}
-        {((props.dataType !== "object" &&
-          props.dataType !== "function" &&
-          props.dataType !== "boolean" &&
-          props.dataType !== "string" &&
-          props.dataType !== "number") ||
-          props.data === null) && (
+        {dataType === "function" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "boolean" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "string" && <div>{(jsData as any).toString()}</div>}
+        {dataType === "number" && <div>{(jsData as any).toString()}</div>}
+        {((dataType !== "object" &&
+          dataType !== "function" &&
+          dataType !== "boolean" &&
+          dataType !== "string" &&
+          dataType !== "array" &&
+          dataType !== "number") ||
+          jsData === null) && (
           <div>
-            {(props.data as any)?.toString() ??
-            props.data ??
-            props.data === undefined
+            {(jsData as any)?.toString() ?? jsData ?? jsData === undefined
               ? "undefined"
               : "null"}
           </div>

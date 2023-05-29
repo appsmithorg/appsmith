@@ -224,26 +224,26 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.l = 0.12;
       color.oklch.c = 0;
+      return color;
     }
 
     color.oklch.l = 0.12;
     color.oklch.c = 0.032;
-
     return color;
   }
 
   private get fgAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) >= -60) {
+    if (this.bg.contrastAPCA(this.seedColor) <= 60) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.25;
+        color.oklch.l = 0.45;
         color.oklch.c = 0;
         return color;
       }
 
-      color.oklch.l = 0.25;
-      color.oklch.c = 0.064;
+      color.oklch.l = 0.45;
+      color.oklch.c = 0.164;
       return color;
     }
 
@@ -251,29 +251,24 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get fgOnAccent() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) <= -60) {
-      if (this.seedIsAchromatic) {
-        color.oklch.l = 0.985;
-        color.oklch.c = 0;
-        return color;
-      }
-
-      color.oklch.l = 0.985;
-      color.oklch.c = 0.016;
-      return color;
-    }
+    const tint = this.seedColor.clone();
+    const shade = this.seedColor.clone();
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
-      color.oklch.c = 0;
-      return color;
+      tint.oklch.c = 0;
+      shade.oklch.c = 0;
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
-    return color;
+    tint.oklch.l = 0.96;
+    shade.oklch.l = 0.23;
+
+    if (
+      -this.bgAccent.contrastAPCA(tint) >= this.bgAccent.contrastAPCA(shade)
+    ) {
+      return tint;
+    }
+
+    return shade;
   }
 
   private get fgNegative() {
@@ -290,7 +285,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bdAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) >= -25) {
+    if (this.bg.contrastAPCA(this.seedColor) <= 25) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.15;
         color.oklch.c = 0;

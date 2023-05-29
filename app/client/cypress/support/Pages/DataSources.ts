@@ -76,7 +76,9 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//input | //label[text()='" +
+    ddTitle +
+    "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
@@ -99,12 +101,13 @@ export class DataSources {
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
-  _contextMenuDatasource = "span[name='comment-context-menu']";
-  _contextMenuDSReviewPage = "span[name='context-menu']";
+  _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
+    option +
+    "'] | //a[contains(@class, 'single-select')]//div[text()='" +
     option +
     "']";
   _queryTableResponse =
@@ -763,6 +766,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
+      .scrollIntoView()
       .within(() => {
         cy.get(this._createQuery).click({ force: true });
       });
@@ -793,9 +797,10 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      this.agHelper.GetNClick(this._dropdownTitle(ddTitle));
       //cy.xpath(this._dropdown(currentValue)).last().click({ force: true });
       //to expand the dropdown
+      //this.agHelper.GetNClick(this._queryOption(newValue))
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
   }
@@ -994,7 +999,7 @@ export class DataSources {
     };
   }) {
     if (options.limit) {
-      // Select Limit Variable from dropdown
+      // Select Limit variable from dropdown
       cy.get(this._graphqlPagination._limitVariable).click({
         force: true,
       });
@@ -1002,7 +1007,7 @@ export class DataSources {
         .contains(options.limit.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._limitValue)
         .first()
         .focus()
@@ -1010,7 +1015,7 @@ export class DataSources {
     }
 
     if (options.offset) {
-      // Select Offset Variable from dropdown
+      // Select Offset vaiable from dropdown
       cy.get(this._graphqlPagination._offsetVariable).click({
         force: true,
       });
@@ -1019,7 +1024,7 @@ export class DataSources {
         .contains(options.offset.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._offsetValue)
         .first()
         .focus()

@@ -11,7 +11,11 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
+    cy.xpath(homePage.uploadLogo).selectFile(
+      "cypress/fixtures/forkedApp.json",
+      { force: true },
+    );
+
     cy.get(homePage.importAppProgressWrapper).should("be.visible");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
@@ -98,8 +102,11 @@ describe("Import, Export and Fork application and validate data binding", functi
           cy.get(homePage.workspaceImportAppOption).click({ force: true });
 
           cy.get(homePage.workspaceImportAppModal).should("be.visible");
-          // cy.get(".t--import-json-card input").attachFile("exportedApp.json");
-          cy.xpath(homePage.uploadLogo).attachFile("exportedApp.json");
+          cy.xpath(homePage.uploadLogo).selectFile(
+            "cypress/fixtures/exportedApp.json",
+            { force: true },
+          );
+
           // import exported application in new workspace
           // cy.get(homePage.workspaceImportAppButton).click({ force: true });
           cy.wait("@importNewApplication").then((interception) => {

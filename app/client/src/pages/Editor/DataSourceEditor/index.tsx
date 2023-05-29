@@ -75,6 +75,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
+import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 
@@ -453,7 +454,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formConfig,
       formData,
       formName,
-      history,
       isFormDirty,
       isInsideReconnectModal,
       isSaving,
@@ -491,29 +491,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           {this.renderSaveDisacardModal()}
         </>
       );
-    }
-    // for saas form
-    if (pluginType === "SAAS") {
-      // todo check if we can remove the flag here
-      if (isInsideReconnectModal) {
-        return (
-          <DatasourceSaasForm
-            datasourceId={datasourceId}
-            hiddenHeader
-            isInsideReconnectModal={isInsideReconnectModal}
-            pageId={pageId}
-            pluginPackageName={pluginPackageName}
-          />
-        );
-      }
-      history.push(
-        saasEditorDatasourceIdURL({
-          pageId,
-          pluginPackageName,
-          datasourceId,
-        }),
-      );
-      return null;
     }
 
     // Default to DB Editor Form
@@ -565,16 +542,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      deleteTempDSFromDraft,
       formData,
+      history,
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
       isPluginAuthorized,
       isSaving,
+      isTesting,
+      pageId,
       pluginId,
       pluginImage,
       pluginName,
+      pluginPackageName,
       pluginType,
       setDatasourceViewMode,
       showDebugger,
@@ -584,6 +564,30 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
+    }
+
+    // for saas form
+    if (pluginType === "SAAS") {
+      // todo check if we can remove the flag here
+      if (isInsideReconnectModal) {
+        return (
+          <DatasourceSaasForm
+            datasourceId={datasourceId}
+            hiddenHeader
+            isInsideReconnectModal={isInsideReconnectModal}
+            pageId={pageId}
+            pluginPackageName={pluginPackageName}
+          />
+        );
+      }
+      history.push(
+        saasEditorDatasourceIdURL({
+          pageId,
+          pluginPackageName,
+          datasourceId,
+        }),
+      );
+      return null;
     }
 
     return (
@@ -604,7 +608,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
             isPluginAuthorized={isPluginAuthorized}
-            isSaving={isSaving}
             pluginImage={pluginImage}
             pluginName={pluginName}
             pluginType={pluginType}
@@ -624,12 +627,16 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               <DatasourceAuth
                 datasource={datasource as Datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
-                deleteTempDSFromDraft={deleteTempDSFromDraft}
                 formData={formData}
                 getSanitizedFormData={memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
                 isInsideReconnectModal={isInsideReconnectModal}
                 isInvalid={this.validateForm()}
+                isSaving={isSaving}
+                isTesting={isTesting}
+                pluginName={pluginName}
+                pluginPackageName={pluginPackageName}
+                pluginType={pluginType as PluginType}
                 triggerSave={triggerSave}
                 viewMode={viewMode}
               />

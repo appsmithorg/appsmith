@@ -911,6 +911,7 @@ public class ApplicationForkingServiceTests {
         Application srcApp = applicationPageService.createApplication(application, srcWorkspace.getId()).block();
         srcApp.setForkWithConfiguration(true);
         srcApp.setExportWithConfiguration(true);
+        srcApp.setForkingEnabled(true);
         Application resultApplication = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, createdSrcDefaultEnvironmentId)
                 .block();
@@ -922,6 +923,7 @@ public class ApplicationForkingServiceTests {
                     assertThat(forkedApplication).isNotNull();
                     assertThat(forkedApplication.getForkWithConfiguration()).isNull();
                     assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getForkingEnabled()).isNull();
                 })
                 .verifyComplete();
     }
@@ -1018,6 +1020,7 @@ public class ApplicationForkingServiceTests {
                     assertThat(forkedApplicationImportDTO.getIsPartialImport()).isTrue();
                     assertThat(forkedApplication.getForkWithConfiguration()).isNull();
                     assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getForkingEnabled()).isNull();
                 })
                 .verifyComplete();
 
@@ -1050,6 +1053,7 @@ public class ApplicationForkingServiceTests {
                     assertThat(forkedApplicationImportDTO.getIsPartialImport()).isFalse();
                     assertThat(forkedApplication.getForkWithConfiguration()).isNull();
                     assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getForkingEnabled()).isNull();
                 })
                 .verifyComplete();
 
@@ -1082,6 +1086,7 @@ public class ApplicationForkingServiceTests {
                     assertThat(forkedApplicationImportDTO.getIsPartialImport()).isFalse();
                     assertThat(forkedApplication.getForkWithConfiguration()).isNull();
                     assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getForkingEnabled()).isNull();
                 })
                 .verifyComplete();
 

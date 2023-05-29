@@ -25,7 +25,6 @@ import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -564,9 +563,6 @@ class CheckboxGroupWidget extends BaseWidget<
               GRID_DENSITY_MIGRATION_V1 >
             1
           )
-        }
-        isAutoLayout={
-          this.props.appPositioningType === AppPositioningTypes.AUTO
         }
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
