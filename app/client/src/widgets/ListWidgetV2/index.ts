@@ -4,7 +4,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { DynamicHeight, RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
   getNumberOfChildListWidget,
@@ -348,6 +348,7 @@ export const CONFIG = {
               [containerId]: {
                 positioning: Positioning.Vertical,
                 isFlexChild: true,
+                bottomRow: 13,
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
@@ -359,12 +360,14 @@ export const CONFIG = {
                 alignment: FlexLayerAlignment.Start,
                 leftColumn: 0,
                 rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                dynamicHeight: DynamicHeight.AUTO_HEIGHT,
               },
               [textWidgets[1].widgetId]: {
                 responsiveBehavior: ResponsiveBehavior.Fill,
                 alignment: FlexLayerAlignment.Start,
                 leftColumn: 0,
                 rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+                dynamicHeight: DynamicHeight.AUTO_HEIGHT,
               },
               [imageWidget.widgetId]: {
                 responsiveBehavior: ResponsiveBehavior.Hug,
@@ -384,11 +387,17 @@ export const CONFIG = {
             widgets: { [widgetId: string]: FlattenedWidgetProps },
             widgetId: string,
             parentId: string,
+            widgetPropertyMaps: { defaultPropertyMap: Record<string, string> },
+            isAutoLayout: boolean,
           ) => {
             if (!parentId) return { widgets };
             const widget = { ...widgets[widgetId] };
 
-            widget.dynamicHeight = "FIXED";
+            widget.dynamicHeight = DynamicHeight.FIXED;
+
+            if (isAutoLayout) {
+              widget.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
+            }
 
             widgets[widgetId] = widget;
             return { widgets };
