@@ -331,7 +331,7 @@ export function* inviteUsers(
       usernames: data.usernames,
       permissionGroupId: data.permissionGroupId,
     });
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);
