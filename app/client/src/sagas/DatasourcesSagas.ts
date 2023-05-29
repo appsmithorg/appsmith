@@ -444,7 +444,10 @@ function* updateDatasourceSaga(
       // If the datasource is being updated from the reconnect modal, we don't want to change the view mode
       // or update initial values as the next form open will be from the reconnect modal itself
       if (!datasourcePayload.isInsideReconnectModal) {
-        yield put(setDatasourceViewMode(true));
+        // Don't redirect to view mode if the plugin is google sheets
+        if (pluginPackageName !== PluginPackageName.GOOGLE_SHEETS) {
+          yield put(setDatasourceViewMode(true));
+        }
         // updating form initial values to latest data, so that next time when form is opened
         // isDirty will use updated initial values data to compare actual values with
         yield put(initialize(DATASOURCE_DB_FORM, response.data));

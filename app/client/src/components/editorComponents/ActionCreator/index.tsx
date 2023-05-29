@@ -14,6 +14,7 @@ import { generateReactKey } from "../../../utils/generators";
 import { useApisQueriesAndJsActionOptions } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
+import { AppsmithFunction } from "./constants";
 
 export const ActionCreatorContext = React.createContext<{
   label: string;
@@ -178,7 +179,10 @@ const ActionCreator = React.forwardRef(
       } else {
         const option = getSelectedFieldFromValue(newActions[id], actionOptions);
         const actionType = (option?.type ||
-          option?.value) as ActionTree["actionType"];
+          option?.value ||
+          // when No action card is deleted, the value is empty string, hence option is undefined
+          // in that case, we set the actionType to none
+          AppsmithFunction.none) as ActionTree["actionType"];
         AnalyticsUtil.logEvent("ACTION_DELETED", {
           actionType: getActionTypeLabel(actionType),
           code: newActions[id],

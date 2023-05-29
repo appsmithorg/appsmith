@@ -85,7 +85,7 @@ class ActionExecutionSolutionCEImplTest {
     ObjectMapper objectMapper;
     @MockBean
     NewActionRepository repository;
-    @MockBean
+    @SpyBean
     DatasourceService datasourceService;
     @MockBean
     PluginService pluginService;
@@ -173,7 +173,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(Flux.empty(), null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
+                .executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -198,12 +199,13 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(partsFlux, null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
+                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
         StepVerifier
                 .create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("executeActionDTO")))
+                        e.getMessage().equals(AppsmithError.GENERIC_REQUEST_BODY_PARSE_ERROR.getMessage()))
                 .verify();
     }
 
@@ -270,6 +272,7 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -321,6 +324,7 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -405,5 +409,4 @@ class ActionExecutionSolutionCEImplTest {
                 })
                 .verifyComplete();
     }
-
 }

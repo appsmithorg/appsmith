@@ -56,7 +56,10 @@ describe("Fork application across workspaces", function () {
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("forkNonSignedInUser.json");
+    cy.xpath(homePage.uploadLogo).selectFile(
+      "cypress/fixtures/forkNonSignedInUser.json",
+      { force: true },
+    );
     cy.wait("@importNewApplication").then((interception) => {
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
@@ -114,7 +117,7 @@ describe("Fork application across workspaces", function () {
     _.embedSettings.ToggleMarkForkable();
 
     _.inviteModal.OpenShareModal();
-    _.homePage.InviteUserToWorkspaceFromApp(
+    _.homePage.InviteUserToApplication(
       Cypress.env("TESTUSERNAME1"),
       "App Viewer",
       false,
