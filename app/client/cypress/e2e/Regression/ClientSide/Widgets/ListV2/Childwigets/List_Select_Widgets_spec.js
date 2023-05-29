@@ -95,7 +95,7 @@ describe("Select Widgets", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 550,
-      y: 120,
+      y: 50,
     });
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Select_Widget");
@@ -110,7 +110,7 @@ describe("Select Widgets", function () {
 
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 550,
-      y: 210,
+      y: 120,
     });
 
     cy.RenameWidgetFromPropertyPane(

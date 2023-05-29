@@ -1180,9 +1180,6 @@ export class AggregateHelper {
     cy.url().should("include", url);
   }
 
-  public visitURL(url: string) {
-    cy.visit(url);
-  }
   public ScrollTo(
     selector: ElementType,
     position:
@@ -1248,6 +1245,10 @@ export class AggregateHelper {
         "_blank",
       );
     });
+  }
+
+  public visitURL(url: string) {
+    cy.visit(url);
   }
 
   //Not used:
