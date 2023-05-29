@@ -123,9 +123,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     margin-left: auto;
     ${getTypographyByKey("btnMedium")};
     color: var(--ads-v2-color-fg-emphasis);
-    text-transform: uppercase;
     cursor: pointer;
     width: max-content;
+    > span {
+      font-size: 12px;
+    }
   }
 `;
 

@@ -60,6 +60,10 @@ import {
   checkIfArgumentExistAtPosition,
 } from "./src/actionCreator";
 
+// peekOverlay
+import type { PeekOverlayExpressionIdentifierOptions } from "./src/peekOverlay";
+import { PeekOverlayExpressionIdentifier } from "./src/peekOverlay";
+
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
   ObjectExpression,
@@ -68,6 +72,7 @@ export type {
   IdentifierInfo,
   TParsedJSProperty,
   JSPropertyPosition,
+  PeekOverlayExpressionIdentifierOptions,
 };
 
 export {
@@ -118,4 +123,5 @@ export {
   checkIfArgumentExistAtPosition,
   isJSFunctionProperty,
   isFunctionPresent,
+  PeekOverlayExpressionIdentifier,
 };
