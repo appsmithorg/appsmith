@@ -6,10 +6,18 @@ import {
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {
-    _.propPane.ConvertToAutoLayout();
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 100, 20);
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 5, 10);
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 100, 75);
+    _.autoLayout.ConvertToAutoLayout();
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      100,
+      20,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.INPUT_V2, 5, 10);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      100,
+      75,
+    );
   });
 
   it(`1. Validating row gap of ${ROW_GAP}px for desktop view`, () => {

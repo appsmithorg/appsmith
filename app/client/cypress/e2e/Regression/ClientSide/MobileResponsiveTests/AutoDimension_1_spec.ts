@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {
-    _.propPane.ConvertToAutoLayout();
+    _.autoLayout.ConvertToAutoLayout();
   });
 
   beforeEach(() => {

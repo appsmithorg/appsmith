@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import { CONVERT_TO_AUTO_BUTTON } from "../../../src/ce/constants/messages";
 
 type filedTypeValues =
   | "Array"
@@ -423,22 +422,6 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
-  }
-
-  /**
-   * Converts the layout to auto layout if not already converted
-   */
-  public ConvertToAutoLayout() {
-    this.agHelper
-      .GetElement(this.locator._autoConvert)
-      .invoke("text")
-      .then((text: string) => {
-        if (text === CONVERT_TO_AUTO_BUTTON()) {
-          this.agHelper.GetNClick(this.locator._autoConvert);
-          this.agHelper.GetNClick(this.locator._convert);
-          this.agHelper.GetNClick(this.locator._refreshApp);
-        }
-      });
   }
 
   public AssertJSToggleDisabled(property: string) {

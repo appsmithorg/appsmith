@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {
-    _.propPane.ConvertToAutoLayout();
+    _.autoLayout.ConvertToAutoLayout();
   });
 
   beforeEach(() => {
@@ -64,7 +64,7 @@ describe("Validating use cases for Auto Dimension", () => {
   });
 
   it("2. Check if widget's bounding box fits on widget shrink", () => {
-    _.entityExplorer.DragDropWidgetNVerify("textwidget", 100, 30);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 100, 30);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -90,7 +90,7 @@ describe("Validating use cases for Auto Dimension", () => {
   });
 
   it("3. Check if widgets bounding box fits on canvas resizing", () => {
-    _.entityExplorer.DragDropWidgetNVerify("textwidget", 100, 30);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 100, 30);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",

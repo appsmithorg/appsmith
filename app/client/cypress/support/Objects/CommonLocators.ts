@@ -201,10 +201,6 @@ export class CommonLocators {
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 
-  _autoConvert = "#t--layout-conversion-cta";
-  _convert = "button:contains('Convert layout')";
-  _refreshApp = "button:contains('Refresh the app')";
-
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
   _resizeHandles = {
     left: "t--resizable-handle-LEFT",

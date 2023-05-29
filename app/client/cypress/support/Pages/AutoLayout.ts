@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
+import { CONVERT_TO_AUTO_BUTTON } from "../../../src/ce/constants/messages";
 
 export class AutoLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
@@ -13,6 +14,9 @@ export class AutoLayout {
     WIDGET.TEXT,
   )} .t--text-widget-container`;
   _containerWidgetSelector = getWidgetSelector(WIDGET.CONTAINER);
+  private _autoConvert = "#t--layout-conversion-cta";
+  private _convert = "button:contains('Convert layout')";
+  private _refreshApp = "button:contains('Refresh the app')";
 
   /**
    * Drag and drop a button widget and verify if the bounding box fits perfectly
@@ -146,5 +150,21 @@ export class AutoLayout {
         expect(widgetRect.width).to.be.closeTo(componentRect.width + 4, DELTA);
       });
     });
+  }
+
+  /**
+   * Converts the layout to auto layout if not already converted
+   */
+  public ConvertToAutoLayout() {
+    this.agHelper
+      .GetElement(this._autoConvert)
+      .invoke("text")
+      .then((text: string) => {
+        if (text === CONVERT_TO_AUTO_BUTTON()) {
+          this.agHelper.GetNClick(this._autoConvert);
+          this.agHelper.GetNClick(this._convert);
+          this.agHelper.GetNClick(this._refreshApp);
+        }
+      });
   }
 }
