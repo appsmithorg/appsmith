@@ -1,5 +1,6 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { integrationEditorURL } from "RouteBuilder";
 import {
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
@@ -12,8 +13,14 @@ import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
+import { INTEGRATION_TABS } from "constants/routes";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { all, put, takeLatest } from "redux-saga/effects";
+import type { FocusHistory } from "reducers/uiReducers/focusHistoryReducer";
+import { all, put, select, takeLatest } from "redux-saga/effects";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getFocusInfo } from "selectors/focusHistorySelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import history from "utils/history";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
@@ -61,6 +68,27 @@ function* setSelectedPropertyTabIndexSaga(
   }
 }
 
+function* navigateToMostRecentEntity() {
+  // console.log()
+  const focusInfo: FocusHistory = yield select(getFocusInfo);
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const currentPageId: string = yield select(getCurrentPageId);
+  const key = `${currentPageId}#${branch}`;
+  const focusState = focusInfo[key];
+
+  if (focusState && focusState.state._routingURL) {
+    const params = history.location.search;
+    history.push(`${focusState.state._routingURL}${params ?? ""}`);
+  } else {
+    history.push(
+      integrationEditorURL({
+        pageId: currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+  }
+}
+
 export default function* editorContextSagas() {
   yield all([
     takeLatest(
@@ -72,5 +100,6 @@ export default function* editorContextSagas() {
       setSelectedPropertyTabIndexSaga,
     ),
     takeLatest(ReduxActionTypes.SET_EDITOR_FIELD_FOCUS, setEditorFieldFocus),
+    takeLatest("NAVIGATE_MOST_RECENT", navigateToMostRecentEntity),
   ]);
 }

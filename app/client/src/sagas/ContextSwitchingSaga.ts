@@ -25,6 +25,7 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
+import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/multiPaneSelectors";
 
 export function* contextSwitchingSaga(
   currentPath: string,
@@ -108,7 +109,6 @@ function* storeStateOfPath(
 
 function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
   const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
-
   const selectors = FocusElementsConfig[entityInfo.entity];
 
   if (focusHistory) {
@@ -202,10 +202,11 @@ const isPageChange = (prevPath: string, currentPath: string) => {
 };
 
 function* getEntitiesForStore(previousPath: string, currentPath: string) {
+  const isCanvasCodeActive: boolean = yield select(isCanvasCodeActiveSelector);
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
   const prevFocusEntityInfo = identifyEntityFromPath(previousPath);
-  if (isPageChange(previousPath, currentPath)) {
+  if (isPageChange(previousPath, currentPath) || isCanvasCodeActive) {
     if (prevFocusEntityInfo.pageId) {
       entities.push({
         key: `${prevFocusEntityInfo.pageId}#${branch}`,
