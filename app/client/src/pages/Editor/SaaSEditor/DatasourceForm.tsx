@@ -486,6 +486,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 pluginPackageName={pluginPackageName}
                 pluginType={plugin?.type as PluginType}
                 scopeValue={scopeValue}
+                setDatasourceViewMode={setDatasourceViewMode}
                 shouldDisplayAuthMessage={!isGoogleSheetPlugin}
                 showFilterComponent={false}
                 triggerSave={this.props.isDatasourceBeingSavedFromPopup}
@@ -621,8 +622,16 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
   toggleSaveActionFromPopupFlag: (flag) =>
     dispatch(toggleSaveActionFromPopupFlag(flag)),
-  setDatasourceViewMode: (viewMode: boolean) =>
-    dispatch(setDatasourceViewMode(viewMode)),
+  setDatasourceViewMode: (viewMode: boolean) => {
+    // Construct URLSearchParams object instance from current URL querystring.
+    const queryParams = new URLSearchParams(window.location.search);
+
+    queryParams.set("viewMode", viewMode.toString());
+    // Replace current querystring with the new one.
+    history.replaceState({}, "", "?" + queryParams.toString());
+
+    dispatch(setDatasourceViewMode(viewMode));
+  },
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
