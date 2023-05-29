@@ -63,9 +63,10 @@ export const StickyCanvasArena = forwardRef(
         entries.forEach(updateCanvasStylesIntersection);
       }),
     );
+
     const resizeObserver = useRef(
       new ResizeObserver(() => {
-        observeSliderIfNecessary();
+        observeSlider();
       }),
     );
 
@@ -127,21 +128,18 @@ export const StickyCanvasArena = forwardRef(
     };
 
     const observeSlider = () => {
-      interSectionObserver.current.disconnect();
-      if (slidingArenaRef && slidingArenaRef.current) {
-        interSectionObserver.current.observe(slidingArenaRef.current);
-      }
-    };
-
-    const observeSliderIfNecessary = () => {
+      // This is to make sure the canvas observes and changes only when needed like when dragging or drw to select.
       if (shouldObserveIntersection) {
-        observeSlider();
+        interSectionObserver.current.disconnect();
+        if (slidingArenaRef && slidingArenaRef.current) {
+          interSectionObserver.current.observe(slidingArenaRef.current);
+        }
       }
     };
 
     useEffect(() => {
       if (slidingArenaRef.current) {
-        observeSliderIfNecessary();
+        observeSlider();
       }
     }, [
       showCanvas,
@@ -157,24 +155,13 @@ export const StickyCanvasArena = forwardRef(
       let parentCanvas: Element | null;
       if (slidingArenaRef.current) {
         parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
-        parentCanvas?.addEventListener(
-          "scroll",
-          observeSliderIfNecessary,
-          false,
-        );
-        parentCanvas?.addEventListener(
-          "mouseover",
-          observeSliderIfNecessary,
-          false,
-        );
+        parentCanvas?.addEventListener("scroll", observeSlider, false);
+        parentCanvas?.addEventListener("mouseover", observeSlider, false);
       }
       resizeObserver.current.observe(slidingArenaRef.current);
       return () => {
-        parentCanvas?.removeEventListener("scroll", observeSliderIfNecessary);
-        parentCanvas?.removeEventListener(
-          "mouseover",
-          observeSliderIfNecessary,
-        );
+        parentCanvas?.removeEventListener("scroll", observeSlider);
+        parentCanvas?.removeEventListener("mouseover", observeSlider);
         if (slidingArenaRef && slidingArenaRef.current) {
           resizeObserver.current.unobserve(slidingArenaRef.current);
         }
