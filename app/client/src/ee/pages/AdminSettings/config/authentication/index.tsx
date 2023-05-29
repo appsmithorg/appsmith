@@ -30,14 +30,18 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import {
+  OIDC_AUTH_DESC,
+  SAML_AUTH_DESC,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
   controlType: SettingTypes.PAGE,
   title: "SAML 2.0",
   component: Saml,
-  subText:
-    "Enable your workspace to sign in with your preferred SAML2 compliant provider.",
+  subText: createMessage(SAML_AUTH_DESC),
   canSave: true,
 };
 
@@ -46,8 +50,7 @@ const OidcAuth: AdminConfigType = {
   controlType: SettingTypes.PAGE,
   title: "OpenID connect",
   component: Oidc,
-  subText:
-    "Enable your workspace to sign in with your preferred OIDC compliant provider.",
+  subText: createMessage(OIDC_AUTH_DESC),
   canSave: true,
   settings: [
     {
@@ -184,7 +187,7 @@ export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   category: SettingCategories.SAML_AUTH,
   label: "SAML 2.0",
-  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
+  subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
 };
 
@@ -192,7 +195,7 @@ export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: SettingCategories.OIDC_AUTH,
   label: "OIDC",
-  subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
+  subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
 };
 

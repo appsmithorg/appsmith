@@ -42,7 +42,7 @@ export const StyledFiltersContainer = styled.div`
   display: flex;
   gap: 16px;
   position: sticky;
-  top: -40px;
+  top: -24px;
   background-color: white;
   padding: 8px 0;
   margin: auto;

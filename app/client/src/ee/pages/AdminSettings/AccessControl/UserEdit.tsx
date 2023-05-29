@@ -375,6 +375,7 @@ export function UserEdit(props: UserEditProps) {
         <User data-testid="t--user-edit-userInfo">
           <AvatarComponent
             className="user-icons"
+            isTooltipEnabled={false}
             label="user-avatar"
             size="md"
             source={

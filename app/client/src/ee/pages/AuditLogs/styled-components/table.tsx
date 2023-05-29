@@ -9,7 +9,7 @@ export const StyledAuditLogsTableHead = styled.div`
   background-color: var(--ads-v2-color-bg-subtle);
   align-items: center;
   position: sticky;
-  top: 41px;
+  top: 52px;
   /** z-index: 100
    * This makes collapsible code fly below it; refer: filters container
    * Without z-index, the collapsible component shows above these components.

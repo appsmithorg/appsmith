@@ -39,7 +39,11 @@ import {
   USERS_HAVE_ACCESS_TO_ONLY_THIS_APP,
   NO_USERS_INVITED,
 } from "@appsmith/constants/messages";
-import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
+import {
+  INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
+  INVITE_USER_SUBMIT_SUCCESS as CE_INVITE_USER_SUBMIT_SUCCESS,
+  INVITE_USERS_SUBMIT_SUCCESS as CE_INVITE_USERS_SUBMIT_SUCCESS,
+} from "ce/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -271,12 +275,21 @@ function WorkspaceInviteUsersForm(props: any) {
 
   useEffect(() => {
     if (submitSucceeded) {
-      toast.show(
-        numberOfUsersInvited > 1
-          ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
-          : createMessage(INVITE_USER_SUBMIT_SUCCESS),
-        { kind: "success" },
-      );
+      if (isAclFlow) {
+        toast.show(
+          numberOfUsersInvited > 1
+            ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS)
+            : createMessage(CE_INVITE_USER_SUBMIT_SUCCESS),
+          { kind: "success" },
+        );
+      } else {
+        toast.show(
+          numberOfUsersInvited > 1
+            ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+            : createMessage(INVITE_USER_SUBMIT_SUCCESS),
+          { kind: "success" },
+        );
+      }
     }
   }, [submitSucceeded]);
 
