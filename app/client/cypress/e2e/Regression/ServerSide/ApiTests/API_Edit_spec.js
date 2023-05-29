@@ -71,8 +71,8 @@ describe("API Panel Test Functionality", function () {
       value: "mimeType='application/vnd.google-apps.spreadsheet'",
     });
   });
-  // skipping test due to bug in evaulated value introduced by ADS changes
-  it.skip("5. Shows evaluated value pane when url field is focused", function () {
+
+  it("5. Shows evaluated value pane when url field is focused", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("TestAPI");
     cy.get(".CodeMirror textarea")

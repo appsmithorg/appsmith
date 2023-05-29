@@ -164,6 +164,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
             <>
               <Select
                 dropdownMatchSelectWidth
+                getPopupContainer={(triggerNode) => triggerNode.parentNode}
                 onSelect={(_, dropdownOption) =>
                   // ignoring this because rc-select label and value types are not compatible
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -12,6 +12,7 @@ import { getCurrentApplication } from "selectors/editorSelectors";
 import PrivateEmbeddingContent from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { ADMIN_SETTINGS_PATH } from "constants/routes";
+import _ from "lodash";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -66,8 +67,21 @@ export function EmbedSnippetTab({
   return <ShareModal />;
 }
 
+// get only the part of the url after the domain name
+export const to = (url: string) => {
+  const path = _.drop(
+    url
+      .toString()
+      .toLowerCase()
+      .replace(/([a-z])?:\/\//, "$1")
+      .split("/"),
+  ).join("/");
+  return `/${path}`;
+};
+
 function ShareModal() {
   const embedSnippet = useUpdateEmbedSnippet();
+
   return (
     <div className="flex flex-col gap-6">
       {embedSnippet.isSuperUser && (
@@ -124,7 +138,7 @@ function ShareModal() {
           data-testid="preview-embed"
           endIcon="share-box-line"
           target={"_blank"}
-          to={embedSnippet.appViewEndPoint}
+          to={to(embedSnippet.appViewEndPoint)}
         >
           {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
         </Link>
