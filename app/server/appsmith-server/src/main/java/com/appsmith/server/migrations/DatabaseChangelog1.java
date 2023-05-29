@@ -2165,10 +2165,10 @@ public class DatabaseChangelog1 {
 
         Map<String, Long> maxDatasourceCount = new HashMap<>();
         mongoTemplate
-                .find(query(where("name").regex("^Untitled Datasource \\d+$")), Datasource.class)
+                .find(query(where("name").regex("^Untitled datasource \\d+$")), Datasource.class)
                 .forEach(datasource -> {
                     long count = 1;
-                    String datasourceCnt = datasource.getName().substring("Untitled Datasource ".length()).trim();
+                    String datasourceCnt = datasource.getName().substring("Untitled datasource ".length()).trim();
                     if (!datasourceCnt.isEmpty()) {
                         count = Long.parseLong(datasourceCnt);
                     }

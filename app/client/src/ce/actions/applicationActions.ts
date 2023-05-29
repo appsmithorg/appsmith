@@ -7,7 +7,7 @@ import type {
   FetchApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
 import type { NavigationSetting } from "constants/AppConstants";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
 import type { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
@@ -76,7 +76,7 @@ export const updateApplication = (
   };
 };
 
-export const updateCurrentApplicationIcon = (icon: AppIconName) => {
+export const updateCurrentApplicationIcon = (icon: IconNames) => {
   return {
     type: ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE,
     payload: icon,
@@ -89,6 +89,15 @@ export const updateCurrentApplicationEmbedSetting = (
   return {
     type: ReduxActionTypes.CURRENT_APPLICATION_EMBED_SETTING_UPDATE,
     payload: embedSetting,
+  };
+};
+
+export const updateCurrentApplicationForkingEnabled = (
+  forkingEnabled: boolean,
+) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE,
+    payload: forkingEnabled,
   };
 };
 
@@ -132,15 +141,6 @@ export const deleteApplicationNavigationLogoSuccessAction = () => {
 export const publishApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-    payload: {
-      applicationId,
-    },
-  };
-};
-
-export const duplicateApplication = (applicationId: string) => {
-  return {
-    type: ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
     payload: {
       applicationId,
     },

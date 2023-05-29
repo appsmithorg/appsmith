@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -106,8 +106,8 @@ public class Migration012RenameIndexesWithLongNames {
         ensureIndexes(mongoTemplate, PermissionGroup.class, newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt);
 
         // remove-structure-from-within-datasource
-        dropIndexIfExists(mongoTemplate, DatasourceConfigurationStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
-        DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceConfigurationStructure.class,
+        dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
+        DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
             DatabaseChangelog1.makeIndex("datasourceId", "envId")
                 .unique().named("dsConfigStructure_dsId_envId")
         );

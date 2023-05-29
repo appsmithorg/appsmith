@@ -2,7 +2,7 @@ package com.appsmith.server.migrations.db.ce;
 
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.server.migrations.DatabaseChangelog1;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -35,9 +35,9 @@ public class Migration009RemoveStructureFromWithinDatasource {
 
     @Execution
     public void executeMigration() {
-        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceConfigurationStructure.class, "dsConfigStructure_dsId_envId");
+        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_dsId_envId");
 
-        DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceConfigurationStructure.class,
+        DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
                 DatabaseChangelog1.makeIndex("datasourceId", "envId")
                         .unique().named("dsConfigStructure_dsId_envId")
         );

@@ -1,13 +1,15 @@
 import type { ReactElement } from "react";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import {
   EditableText,
   EditInteractionKind,
   SavingState,
-  TooltipComponent,
 } from "design-system-old";
+import type { TooltipPlacement } from "design-system";
+import { Tooltip, Button } from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
@@ -16,15 +18,10 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import type { WidgetType } from "constants/WidgetConstants";
-
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { PopoverPosition } from "@blueprintjs/core";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
-import { importSvg } from "design-system-old";
-
-const BackIcon = importSvg(() => import("assets/icons/control/back.svg"));
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -36,9 +33,23 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
-    tooltipPosition?: PopoverPosition;
+    tooltipPosition?: TooltipPlacement;
   }>;
 };
+
+const StyledEditableContainer = styled.div`
+  max-width: calc(100% - 52px);
+  flex-grow: 1;
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid transparent;
+
+  :focus-within {
+    /* outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline); */
+    border-color: var(--ads-v2-color-border-emphasis-plus);
+  }
+`;
 
 /* eslint-disable react/display-name */
 const PropertyPaneTitle = memo(function PropertyPaneTitle(
@@ -171,18 +182,18 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     >
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
-        <button
-          className="p-1 hover:bg-warmGray-100 group t--property-pane-back-btn"
+        <Button
+          data-testid="t--property-pane-back-btn"
+          isIconButton
+          kind="tertiary"
           onClick={props.onBackClick}
-        >
-          <BackIcon className="w-4 h-4 text-gray-500" />
-        </button>
+          startIcon="back-control"
+        />
       )}
       {/* EDITABLE TEXT */}
-      <div
+      <StyledEditableContainer
         className="flex-grow"
         onKeyDown={handleTabKeyDown}
-        style={{ maxWidth: `calc(100% - 52px)` }}
       >
         <EditableText
           className="flex-grow text-lg font-semibold t--property-pane-title"
@@ -200,19 +211,18 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
           wrapperRef={containerRef}
         />
-      </div>
+      </StyledEditableContainer>
 
       {/* ACTIONS */}
       <div className="flex items-center space-x-1">
         {props.actions.map((value, index) => (
-          <TooltipComponent
+          <Tooltip
             content={value.tooltipContent}
-            hoverOpenDelay={200}
             key={index}
-            position={value.tooltipPosition}
+            placement={value.tooltipPosition}
           >
             {value.icon}
-          </TooltipComponent>
+          </Tooltip>
         ))}
       </div>
     </div>
