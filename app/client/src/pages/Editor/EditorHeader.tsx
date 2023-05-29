@@ -428,7 +428,11 @@ export function EditorHeader(props: EditorHeaderProps) {
             "help-bar": "true",
           })}
         >
-          {isCanvasCodeActive ? <CanvasCodeSwitcher /> : <HelpBar />}
+          {isCanvasCodeActive ? (
+            <CanvasCodeSwitcher pageId={pageId} />
+          ) : (
+            <HelpBar />
+          )}
         </HeaderSection>
         <HeaderSection className="gap-x-1">
           <Boxed
