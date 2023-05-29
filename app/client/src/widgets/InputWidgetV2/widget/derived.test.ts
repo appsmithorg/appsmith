@@ -450,6 +450,18 @@ describe("Derived property - ", () => {
       );
 
       expect(isValid).toBeFalsy();
+
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.EMAIL,
+          inputText: "test@appsmith.INFO",
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeTruthy();
     });
   });
 });

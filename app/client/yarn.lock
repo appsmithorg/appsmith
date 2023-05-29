@@ -9569,17 +9569,17 @@ __metadata:
     craco-alias: ^2.1.1
     craco-babel-loader: ^1.0.4
     cy-verify-downloads: ^0.0.5
-    cypress: 10.4.0
+    cypress: 11.2.0
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
     cypress-multi-reporters: ^1.2.4
     cypress-network-idle: ^1.14.2
     cypress-plugin-tab: ^1.0.5
-    cypress-real-events: ^1.7.1
+    cypress-real-events: ^1.8.1
     cypress-tags: ^1.1.2
     cypress-wait-until: ^1.7.2
-    cypress-xpath: ^1.4.0
+    cypress-xpath: ^1.6.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
     design-system: "npm:@appsmithorg/design-system@2.1.9"
@@ -13203,12 +13203,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-real-events@npm:^1.7.1":
-  version: 1.7.1
-  resolution: "cypress-real-events@npm:1.7.1"
+"cypress-real-events@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "cypress-real-events@npm:1.8.1"
   peerDependencies:
-    cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x
-  checksum: b31c2facfa03e01e298926cd0925260b12474770fc1a3ce8998da21818db7e6d9fc2f9eb60d1771aa4ce3c29aca63d04da21e1a63e3bb117b1506a72ab0c3eb1
+    cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x
+  checksum: 48f229335f26f8c225428563e94ca091ab7a00e943a4c953e062135b1d37672edec9cb7667452d894b43528b52924cd1b6061df044ccb0665b9c0965a0fe214f
   languageName: node
   linkType: hard
 
@@ -13232,16 +13232,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-xpath@npm:^1.4.0":
-  version: 1.6.0
-  resolution: "cypress-xpath@npm:1.6.0"
-  checksum: 67cc5613d70a090b1a162d31d0ef11831576592c87ca07d242e2c07a6df2fca413fc81ea7df148a0d0c888025bb7ec0dad34684f2a322eeaa2863b8f3b65dd32
+"cypress-xpath@npm:^1.6.0":
+  version: 1.8.0
+  resolution: "cypress-xpath@npm:1.8.0"
+  checksum: 11792ec46b898f2e00ced81dedcdca8e30d5c232778780210423d1ec0b07cd8b2a29a475d38eadaf9fd7e962efec7f5cee17f92884c308636cfa506efe6017e6
   languageName: node
   linkType: hard
 
-"cypress@npm:10.4.0":
-  version: 10.4.0
-  resolution: "cypress@npm:10.4.0"
+"cypress@npm:11.2.0":
+  version: 11.2.0
+  resolution: "cypress@npm:11.2.0"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -13262,7 +13262,7 @@ __metadata:
     dayjs: ^1.10.4
     debug: ^4.3.2
     enquirer: ^2.3.6
-    eventemitter2: ^6.4.3
+    eventemitter2: 6.4.7
     execa: 4.1.0
     executable: ^4.1.1
     extract-zip: 2.0.1
@@ -13287,7 +13287,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 3f7385e076ac936683d1d1d104a7183f2e61ad0f4c901aff07146ae2e10197e8314019dcdfb6c188312fbf1be05484291f1cf8d49c4c37cf6485103c4ac5303e
+  checksum: e13649fb4b62a3c9dff7cc571f4e01dba009d8179b05c4f885c5ceb4ed76b78a7323fec491d992da35527708b54e596bfc9edb1d702f788317889f794d8c1e76
   languageName: node
   linkType: hard
 
@@ -15136,10 +15136,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter2@npm:^6.4.3":
-  version: 6.4.4
-  resolution: "eventemitter2@npm:6.4.4"
-  checksum: b5e707039973d5a770bc4c64255604df66df3a1f63389dccb7118af163b9f790ca7596463d7868426339301ad9de5ef1c3f4a9c7ac3b93874c5ca792916dede1
+"eventemitter2@npm:6.4.7":
+  version: 6.4.7
+  resolution: "eventemitter2@npm:6.4.7"
+  checksum: 1b36a77e139d6965ebf3a36c01fa00c089ae6b80faa1911e52888f40b3a7057b36a2cc45dcd1ad87cda3798fe7b97a0aabcbb8175a8b96092a23bb7d0f039e66
   languageName: node
   linkType: hard
 

@@ -3619,6 +3619,7 @@ public class ApplicationServiceCETest {
         testApplication.setName(applicationName);
         testApplication.setExportWithConfiguration(TRUE);
         testApplication.setForkWithConfiguration(TRUE);
+        testApplication.setForkingEnabled(TRUE);
 
         Application application = applicationPageService.createApplication(testApplication, workspaceId).block();
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(application.getId(), null);
@@ -3627,6 +3628,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(clonedApplicationMono).assertNext(clonedApplication -> {
             assertThat(clonedApplication.getExportWithConfiguration()).isNull();
             assertThat(clonedApplication.getForkWithConfiguration()).isNull();
+            assertThat(clonedApplication.getForkingEnabled()).isNull();
         }).verifyComplete();
     }
 }

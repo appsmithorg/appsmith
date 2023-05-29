@@ -905,6 +905,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
+        //re-setting the properties
+        importedApplication.setForkWithConfiguration(null);
+        importedApplication.setExportWithConfiguration(null);
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
 
@@ -2360,7 +2363,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
             applicationJson.getExportedApplication().setForkingEnabled(null);
+            applicationJson.getExportedApplication().setForkWithConfiguration(null);
             applicationJson.getExportedApplication().setClonedFromApplicationId(null);
+            applicationJson.getExportedApplication().setExportWithConfiguration(null);
         }
 
         // need to remove git sync id. Also filter pages if pageToImport is not empty
