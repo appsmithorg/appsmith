@@ -727,10 +727,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
     const isABoolean = value === true || value === false;
     const isStringTrueFalse = value === "true" || value === "false";
-    const isValid = isABoolean || isStringTrueFalse;
+    // if strictCheck is true then stringTrueFalse are considered invalid value.
+    const strictCheck = config.params && config.params.strict;
+    const isValid = strictCheck ? isABoolean : isABoolean || isStringTrueFalse;
 
     let parsed = value;
-    if (isStringTrueFalse) parsed = value !== "false";
+    if (isStringTrueFalse && !strictCheck) parsed = value !== "false";
 
     if (!isValid) {
       return {
