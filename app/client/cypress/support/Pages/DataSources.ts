@@ -999,7 +999,7 @@ export class DataSources {
     };
   }) {
     if (options.limit) {
-      // Select Limit Variable from dropdown
+      // Select Limit variable from dropdown
       cy.get(this._graphqlPagination._limitVariable).click({
         force: true,
       });
@@ -1007,7 +1007,7 @@ export class DataSources {
         .contains(options.limit.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._limitValue)
         .first()
         .focus()
@@ -1015,7 +1015,7 @@ export class DataSources {
     }
 
     if (options.offset) {
-      // Select Offset Variable from dropdown
+      // Select Offset vaiable from dropdown
       cy.get(this._graphqlPagination._offsetVariable).click({
         force: true,
       });
@@ -1024,7 +1024,7 @@ export class DataSources {
         .contains(options.offset.variable)
         .click({ force: true });
 
-      // Set the Limit Value as 1
+      // Set the Limit value as 1
       cy.get(this._graphqlPagination._offsetValue)
         .first()
         .focus()
