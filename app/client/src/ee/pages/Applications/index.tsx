@@ -38,7 +38,7 @@ export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
 export type EE_ApplicationState = CE_Applications.ApplicationState;
 
 const UpgradeBannerWrapper = styled.div`
-  margin: 62px 24px 0 16px;
+  margin-bottom: var(--ads-v2-spaces-7);
 `;
 
 export class Applications extends CE_AppClass<

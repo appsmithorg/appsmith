@@ -24,7 +24,7 @@ export class InviteModal {
     _inputOIDC: "input[value='oidc']",
     _inputSAML: "input[value='saml']",
     _inputGoogle: "input[value='google']",
-    _docLink: ".t--documentation-link",
+    _docLink: "[data-testid='t--documentation-link']",
     _ssoMethods: "[data-testid='t--sso-methods]",
   };
 
