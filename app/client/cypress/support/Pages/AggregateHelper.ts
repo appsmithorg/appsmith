@@ -1204,6 +1204,18 @@ export class AggregateHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  GetWidgetWidth(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("width");
+  }
+
+  GetWidgetHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("height");
+  }
+
+  GetWidgetByName(widgetName: string) {
+    return this.GetElement(this.locator._widgetByName(widgetName));
+  }
+
   public EnableAllEditors() {
     this.Sleep(2000);
     cy.get("body").then(($body: any) => {

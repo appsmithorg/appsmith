@@ -22,7 +22,7 @@ import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
 import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
-import { Widgets } from "../Pages/Widgets";
+import { AutoLayout } from "../Pages/AutoLayout";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -217,12 +217,12 @@ export class ObjectsRegistry {
     return ObjectsRegistry.onboarding__;
   }
 
-  private static widgets__: Widgets;
-  static get Widgets(): Widgets {
-    if (ObjectsRegistry.widgets__ === undefined) {
-      ObjectsRegistry.widgets__ = new Widgets();
+  private static autoLayout__: AutoLayout;
+  static get AutoLayout(): AutoLayout {
+    if (ObjectsRegistry.autoLayout__ === undefined) {
+      ObjectsRegistry.autoLayout__ = new AutoLayout();
     }
-    return ObjectsRegistry.widgets__;
+    return ObjectsRegistry.autoLayout__;
   }
 }
 

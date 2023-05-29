@@ -1,10 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
 
-export class Widgets {
+export class AutoLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private propPane = ObjectsRegistry.PropertyPane;
-  private commonLocator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
 
   _buttonWidgetSelector = getWidgetSelector(WIDGET.BUTTON);
@@ -33,9 +32,9 @@ export class Widgets {
     );
 
     // Increase the length of button label & verify if the component expands
-    this.GetWidgetWidth(this._buttonWidgetSelector).as("initialWidth");
+    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).as("initialWidth");
     this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
-    this.GetWidgetWidth(this._buttonWidgetSelector).then((width) => {
+    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).then((width) => {
       cy.get<number>("@initialWidth").then((initialWidth) => {
         expect(width).to.be.greaterThan(initialWidth);
       });
@@ -48,9 +47,9 @@ export class Widgets {
     );
 
     // Decrease the length of button label & verify if the component shrinks
-    this.GetWidgetWidth(this._buttonWidgetSelector).as("initialWidth");
+    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).as("initialWidth");
     this.propPane.UpdatePropertyFieldValue("Label", "Label");
-    this.GetWidgetWidth(this._buttonWidgetSelector).then((width) => {
+    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).then((width) => {
       cy.get<number>("@initialWidth").then((initialWidth) => {
         expect(width).to.be.lessThan(initialWidth);
       });
@@ -81,12 +80,12 @@ export class Widgets {
     );
 
     // Add multi-line text & verify if the component's height increases
-    this.GetWidgetHeight(this._textWidgetSelector).as("initialHeight");
+    this.agHelper.GetWidgetHeight(this._textWidgetSelector).as("initialHeight");
     this.propPane.UpdatePropertyFieldValue(
       "Text",
       "hello\nWorld\nThis\nis\na\nMulti-line\nText",
     );
-    this.GetWidgetHeight(this._textWidgetSelector).then((width) => {
+    this.agHelper.GetWidgetHeight(this._textWidgetSelector).then((width) => {
       cy.get<number>("@initialHeight").then((initialHeight) => {
         expect(width).to.be.greaterThan(initialHeight);
       });
@@ -99,9 +98,9 @@ export class Widgets {
     );
 
     // Remove some lines & verify if the component's height decreases
-    this.GetWidgetHeight(this._textWidgetSelector).as("initialHeight");
+    this.agHelper.GetWidgetHeight(this._textWidgetSelector).as("initialHeight");
     this.propPane.UpdatePropertyFieldValue("Text", "hello\nWorld\nblabla");
-    this.GetWidgetHeight(this._textWidgetSelector).then((width) => {
+    this.agHelper.GetWidgetHeight(this._textWidgetSelector).then((width) => {
       cy.get<number>("@initialHeight").then((initialWidth) => {
         expect(width).to.be.lessThan(initialWidth);
       });
@@ -147,19 +146,5 @@ export class Widgets {
         expect(widgetRect.width).to.be.closeTo(componentRect.width + 4, DELTA);
       });
     });
-  }
-
-  GetWidgetWidth(widgetSelector: string) {
-    return this.agHelper.GetElement(widgetSelector).invoke("width");
-  }
-
-  GetWidgetHeight(widgetSelector: string) {
-    return this.agHelper.GetElement(widgetSelector).invoke("height");
-  }
-
-  GetWidgetByName(widgetName: string) {
-    return this.agHelper.GetElement(
-      this.commonLocator._widgetByName(widgetName),
-    );
   }
 }

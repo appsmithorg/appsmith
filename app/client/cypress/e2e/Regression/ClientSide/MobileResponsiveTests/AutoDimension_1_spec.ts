@@ -17,8 +17,8 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.widgets.DropButtonAndTestForAutoDimension(100, 30);
-      _.widgets.DropTextAndTestForAutoDimension(100, 60);
+      _.autoLayout.DropButtonAndTestForAutoDimension(100, 30);
+      _.autoLayout.DropTextAndTestForAutoDimension(100, 60);
     });
 
     it(`2. [${viewport}] Verify if Auto dimension works for widgets in a Container`, () => {
@@ -31,15 +31,23 @@ describe("Validating use cases for Auto Dimension", () => {
         30,
       );
 
-      _.widgets
+      _.agHelper
         .GetWidgetByName("Container1")
         .invoke("attr", "id")
         .then((id) => {
           const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
           // dropButtonAndTest(100, 25, dropTargetClass);
-          _.widgets.DropButtonAndTestForAutoDimension(100, 30, dropTargetClass);
+          _.autoLayout.DropButtonAndTestForAutoDimension(
+            100,
+            30,
+            dropTargetClass,
+          );
           // y = main canvas padding (8) + button widget height (40)
-          _.widgets.DropTextAndTestForAutoDimension(100, 48, dropTargetClass);
+          _.autoLayout.DropTextAndTestForAutoDimension(
+            100,
+            48,
+            dropTargetClass,
+          );
         });
     });
 
@@ -57,14 +65,22 @@ describe("Validating use cases for Auto Dimension", () => {
       _.agHelper.SelectAllWidgets(_.locators._widgetByName("Container1"));
       _.agHelper.PressDelete();
 
-      _.widgets
+      _.agHelper
         .GetWidgetByName("Container1")
         .invoke("attr", "id")
         .then((id) => {
           const dropTargetClass = `.drop-target-${id?.split("_")[1]}`;
-          _.widgets.DropButtonAndTestForAutoDimension(100, 25, dropTargetClass);
+          _.autoLayout.DropButtonAndTestForAutoDimension(
+            100,
+            25,
+            dropTargetClass,
+          );
           // y = main canvas padding (8) + button widget height (40)
-          _.widgets.DropTextAndTestForAutoDimension(100, 48, dropTargetClass);
+          _.autoLayout.DropTextAndTestForAutoDimension(
+            100,
+            48,
+            dropTargetClass,
+          );
         });
     });
   });

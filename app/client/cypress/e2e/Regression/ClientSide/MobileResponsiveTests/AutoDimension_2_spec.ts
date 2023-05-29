@@ -22,7 +22,7 @@ describe("Validating use cases for Auto Dimension", () => {
         100,
         30,
       );
-      _.widgets
+      _.agHelper
         .GetWidgetByName("Container1")
         .invoke("attr", "id")
         .then((id) => {
@@ -35,15 +35,15 @@ describe("Validating use cases for Auto Dimension", () => {
           );
 
           // Add multi-line text & verify if the container's height increases
-          _.widgets
-            .GetWidgetHeight(_.widgets._containerWidgetSelector)
+          _.agHelper
+            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
             .as("initialHeight");
           _.propPane.UpdatePropertyFieldValue(
             "Text",
             "hello\nWorld\nThis\nis\na\nMulti-line\nText",
           );
-          _.widgets
-            .GetWidgetHeight(_.widgets._containerWidgetSelector)
+          _.agHelper
+            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
             .then((width) => {
               cy.get<number>("@initialHeight").then((initialHeight) => {
                 expect(width).to.be.greaterThan(initialHeight);
@@ -52,8 +52,8 @@ describe("Validating use cases for Auto Dimension", () => {
 
           // Remove some lines & verify if the container's height decreases
           _.propPane.UpdatePropertyFieldValue("Text", "hello");
-          _.widgets
-            .GetWidgetHeight(_.widgets._containerWidgetSelector)
+          _.agHelper
+            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
             .then((width) => {
               cy.get<number>("@initialHeight").then((initialHeight) => {
                 expect(width).to.be.equal(initialHeight);
@@ -70,9 +70,9 @@ describe("Validating use cases for Auto Dimension", () => {
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
     );
     // Check if bounding box fits perfectly to the Text Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._textWidgetSelector,
-      _.widgets._textComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._textWidgetSelector,
+      _.autoLayout._textComponentSelector,
     );
 
     // Drop another widget next to text widget so that it shrinks
@@ -83,9 +83,9 @@ describe("Validating use cases for Auto Dimension", () => {
     );
 
     // Check if bounding box fits perfectly to the Text Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._textWidgetSelector,
-      _.widgets._textComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._textWidgetSelector,
+      _.autoLayout._textComponentSelector,
     );
   });
 
@@ -101,45 +101,45 @@ describe("Validating use cases for Auto Dimension", () => {
     _.agHelper.SetCanvasViewportWidth(500);
 
     // Check if bounding box fits perfectly to the Text Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._textWidgetSelector,
-      _.widgets._textComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._textWidgetSelector,
+      _.autoLayout._textComponentSelector,
     );
 
     // Check if bounding box fits perfectly to the Button Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._buttonWidgetSelector,
-      _.widgets._buttonComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._buttonWidgetSelector,
+      _.autoLayout._buttonComponentSelector,
     );
 
     // increase canvas size
     _.agHelper.SetCanvasViewportWidth(700);
 
     // Check if bounding box fits perfectly to the Text Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._textWidgetSelector,
-      _.widgets._textComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._textWidgetSelector,
+      _.autoLayout._textComponentSelector,
     );
 
     // Check if bounding box fits perfectly to the Button Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._buttonWidgetSelector,
-      _.widgets._buttonComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._buttonWidgetSelector,
+      _.autoLayout._buttonComponentSelector,
     );
 
     // reduce canvas size less than mobile breakpoint
     _.agHelper.SetCanvasViewportWidth(300);
 
     // Check if bounding box fits perfectly to the Text Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._textWidgetSelector,
-      _.widgets._textComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._textWidgetSelector,
+      _.autoLayout._textComponentSelector,
     );
 
     // Check if bounding box fits perfectly to the Button Widget
-    _.widgets.EnsureBoundingBoxFitsComponent(
-      _.widgets._buttonWidgetSelector,
-      _.widgets._buttonComponentSelector,
+    _.autoLayout.EnsureBoundingBoxFitsComponent(
+      _.autoLayout._buttonWidgetSelector,
+      _.autoLayout._buttonComponentSelector,
     );
   });
 });
