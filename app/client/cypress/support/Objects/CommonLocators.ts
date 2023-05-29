@@ -206,6 +206,13 @@ export class CommonLocators {
   _refreshApp = "button:contains('Refresh the app')";
 
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _resizeHandles = {
+    left: "t--resizable-handle-LEFT",
+    right: "t--resizable-handle-RIGHT",
+    bottom: "t--resizable-handle-BOTTOM",
+    bottomLeft: "t--resizable-handle-BOTTOM|LEFT",
+    bottomRight: "t--resizable-handle-BOTTOM|RIGHT",
+  };
   _popUpCloseBtn = (popupname: string) =>
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
