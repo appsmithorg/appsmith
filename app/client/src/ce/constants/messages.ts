@@ -1283,7 +1283,7 @@ export const UPGRADE_TO_EE = (authLabel: string) =>
 export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
   `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
-export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select authentication method";
+export const ADMIN_AUTH_SETTINGS_TITLE = () => "Authentication";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
 export const DANGER_ZONE = () => "Danger zone";
