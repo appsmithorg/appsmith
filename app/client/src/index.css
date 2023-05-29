@@ -228,10 +228,12 @@ div.bp3-popover-arrow {
 .error-menuitem > .ads-v2-menu__menu-item-children {
   color: var(--ads-v2-color-fg-error) !important;
 }
-.error-menuitem:hover {
+
+.error-menuitem:hover:not([data-disabled]),
+.error-menuitem:focus-visible {
   background-color: var(--ads-v2-color-red-50) !important;
 }
-.error-menuitem:active {
+.error-menuitem:active:not([data-disabled]) {
   background-color: var(--ads-v2-color-red-100) !important;
 }
 .menuitem-nohover:hover {
