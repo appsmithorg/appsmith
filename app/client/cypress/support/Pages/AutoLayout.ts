@@ -23,7 +23,7 @@ export class AutoLayout {
    * @param {string} [dropTarget=""]
    */
   DropButtonAndTestForAutoDimension(x: number, y: number, dropTarget = "") {
-    this.entityExplorer.DragDropWidgetNVerify("buttonwidget", x, y, dropTarget);
+    this.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, x, y, dropTarget);
 
     // Check if bounding box fits perfectly to the Button Widget
     this.EnsureBoundingBoxFitsComponent(
@@ -71,7 +71,7 @@ export class AutoLayout {
    * @param {string} [dropTarget=""]
    */
   DropTextAndTestForAutoDimension(x: number, y: number, dropTarget = "") {
-    this.entityExplorer.DragDropWidgetNVerify("textwidget", x, y, dropTarget);
+    this.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, x, y, dropTarget);
 
     // Check if bounding box fits perfectly to the Text Widget
     this.EnsureBoundingBoxFitsComponent(

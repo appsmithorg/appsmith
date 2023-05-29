@@ -429,7 +429,8 @@ export class PropertyPane {
    * Converts the layout to auto layout if not already converted
    */
   public ConvertToAutoLayout() {
-    cy.get(this.locator._autoConvert)
+    this.agHelper
+      .GetElement(this.locator._autoConvert)
       .invoke("text")
       .then((text: string) => {
         if (text === CONVERT_TO_AUTO_BUTTON()) {
