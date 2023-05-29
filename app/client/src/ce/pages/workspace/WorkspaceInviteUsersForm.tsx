@@ -268,21 +268,32 @@ function InviteUserText({
 }
 
 export function CustomRolesRamp() {
+  const [dynamicProps, setDynamicProps] = useState<any>({});
   const rampText = (
     <Text color="var(--ads-v2-color-white)" kind="action-m">
       {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
       <RampLink
         className="inline"
         kind="primary"
-        target="_blank"
-        to={getRampLink("workspace_share")}
+        onClick={() => {
+          setDynamicProps({ visible: false });
+          window.open(getRampLink("workspace_share"), "_blank");
+          // This reset of prop is required because, else the tooltip will be controlled by the state
+          setTimeout(() => {
+            setDynamicProps({});
+          }, 1);
+        }}
       >
         {createMessage(BUSINESS_EDITION_TEXT)}
       </RampLink>
     </Text>
   );
   return (
-    <CustomRoleRampTooltip content={rampText} placement="right">
+    <CustomRoleRampTooltip
+      content={rampText}
+      placement="right"
+      {...dynamicProps}
+    >
       <div className="flex flex-col gap-1">
         <div className="flex gap-1">
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
