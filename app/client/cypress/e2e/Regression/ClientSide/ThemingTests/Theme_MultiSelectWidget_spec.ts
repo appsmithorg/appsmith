@@ -11,7 +11,7 @@ let theme = ObjectsRegistry.ThemeSettings,
 describe("Theme validation usecase for multi-select widget", function () {
   it("1. Drag and drop multi-select widget and navigate to Theme Settings", function () {
     ee.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
-    _.agHelper.GetNClick(themelocator.canvas);
+    _.agHelper.GetNClick(themelocator.canvas, 0, true, 0);
     _.agHelper.Sleep();
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
@@ -40,7 +40,6 @@ describe("Theme validation usecase for multi-select widget", function () {
     _.agHelper.ContainsNClick("Color");
     appSettings.ClosePane();
   });
-
   it("5.validate applied theme", function () {
     theme.clickOnChangeTheme();
     theme.clickOnAppliedTheme();
