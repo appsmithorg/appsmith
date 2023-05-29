@@ -130,6 +130,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
         if (datasourceStorage.getEnvironmentId() != null) {
             storages.put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
         }
+        this.hasDatasourceStorage = true;
     }
 
     /**

@@ -50,6 +50,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 
     AnalyticsUtil.logEvent("CONVERT_AUTO_TO_FIXED", {
       isNewApp: !notEmptyApp,
+      appId,
     });
     snapshotSaveSuccess = true;
 

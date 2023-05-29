@@ -75,6 +75,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
+import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 
@@ -129,10 +130,18 @@ type Props = ReduxStateProps &
     pageId: string;
   }>;
 
+const DSEditorWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+`;
+
 type DatasourceFilterState = {
   id: string;
   name: string;
   userPermissions: string[];
+  showFilterPane: boolean;
 };
 
 /*
@@ -184,6 +193,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         id: "",
         name: "",
         userPermissions: [],
+        showFilterPane: true,
       },
       unblock: () => {
         return undefined;
@@ -421,13 +431,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
-  updateFilter = (id: string, name: string, userPermissions: string[]) => {
+  updateFilter = (
+    id: string,
+    name: string,
+    userPermissions: string[],
+    showFilterPane: boolean,
+  ) => {
     this.setState({
       ...this.state,
       filterParams: {
         id,
         name,
         userPermissions,
+        showFilterPane,
       },
     });
   };
@@ -446,7 +462,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
   }
 
-  renderForm() {
+  renderForm(showFilterComponent: boolean) {
     const {
       datasource,
       datasourceId,
@@ -486,6 +502,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             pageId={pageId}
             pluginName={pluginName}
             pluginPackageName={pluginPackageName}
+            showFilterComponent={showFilterComponent}
           />
           {this.renderSaveDisacardModal()}
         </>
@@ -506,6 +523,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           pageId={pageId}
           pluginType={pluginType}
           setupConfig={this.setupConfig}
+          showFilterComponent={showFilterComponent}
           viewMode={viewMode && !isInsideReconnectModal}
         />
         {this.renderSaveDisacardModal()}
@@ -541,7 +559,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      deleteTempDSFromDraft,
       formData,
       history,
       isDeleting,
@@ -549,6 +566,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isNewDatasource,
       isPluginAuthorized,
       isSaving,
+      isTesting,
       pageId,
       pluginId,
       pluginImage,
@@ -564,6 +582,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
+
+    const showFilterComponent =
+      !viewMode &&
+      !isInsideReconnectModal &&
+      this.state.filterParams.showFilterPane;
 
     // for saas form
     if (pluginType === "SAAS") {
@@ -607,7 +630,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
             isPluginAuthorized={isPluginAuthorized}
-            isSaving={isSaving}
             pluginImage={pluginImage}
             pluginName={pluginName}
             pluginType={pluginType}
@@ -616,27 +638,39 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           />
         )}
         <ResizerMainContainer>
-          <DSDataFilter
-            pluginType={pluginType}
-            updateFilter={this.updateFilter}
-          />
           <ResizerContentContainer className="db-form-resizer-content">
-            {this.renderForm()}
-            {/* Render datasource form call-to-actions */}
-            {datasource && (
-              <DatasourceAuth
-                datasource={datasource as Datasource}
-                datasourceButtonConfiguration={datasourceButtonConfiguration}
-                deleteTempDSFromDraft={deleteTempDSFromDraft}
-                formData={formData}
-                getSanitizedFormData={memoize(this.getSanitizedData)}
-                isFormDirty={this.props.isFormDirty}
-                isInsideReconnectModal={isInsideReconnectModal}
-                isInvalid={this.validateForm()}
-                triggerSave={triggerSave}
-                viewMode={viewMode}
+            <DSEditorWrapper>
+              <DSDataFilter
+                pluginType={this.props.pluginType}
+                showFilterComponent={showFilterComponent}
+                updateFilter={this.updateFilter}
               />
-            )}
+              <div className="db-form-content-container">
+                {this.renderForm(showFilterComponent)}
+                {/* Render datasource form call-to-actions */}
+                {datasource && (
+                  <DatasourceAuth
+                    datasource={datasource as Datasource}
+                    datasourceButtonConfiguration={
+                      datasourceButtonConfiguration
+                    }
+                    formData={formData}
+                    getSanitizedFormData={memoize(this.getSanitizedData)}
+                    isFormDirty={this.props.isFormDirty}
+                    isInsideReconnectModal={isInsideReconnectModal}
+                    isInvalid={this.validateForm()}
+                    isSaving={isSaving}
+                    isTesting={isTesting}
+                    pluginName={pluginName}
+                    pluginPackageName={pluginPackageName}
+                    pluginType={pluginType as PluginType}
+                    showFilterComponent={showFilterComponent}
+                    triggerSave={triggerSave}
+                    viewMode={viewMode}
+                  />
+                )}
+              </div>
+            </DSEditorWrapper>
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
         </ResizerMainContainer>
