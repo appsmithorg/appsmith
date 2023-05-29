@@ -307,7 +307,7 @@ function PaginationTypeBasedWrapper({
                 name={separateKeyPath}
                 onChange={onSeparateKeyChange}
               >
-                <Text> {separateKeyLabel} </Text>
+                {separateKeyLabel}
               </Checkbox>
             </CheckboxFieldWrapper>
           )}
