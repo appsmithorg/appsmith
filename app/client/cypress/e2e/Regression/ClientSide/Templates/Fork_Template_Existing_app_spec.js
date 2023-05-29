@@ -1,7 +1,7 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
-const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+const explorer = require("../../../../locators/explorerlocators.json");
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -93,36 +93,40 @@ describe(
       cy.get(template.templateViewForkButton).should("be.visible");
     });
 
-    it("3. Add page from template to show only apps with 'allowPageImport:true'", () => {
-      cy.wait(5000);
-      cy.CheckAndUnfoldEntityItem("Pages");
-      cy.get(`.t--entity-name:contains(Page1)`)
-        .trigger("mouseover")
-        .click({ force: true });
-      cy.wait(1000);
-      cy.get(template.startFromTemplateCard).click();
+    it("4. Add page from template to show only apps with 'allowPageImport:true'", () => {
+      cy.reload();
+      cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
+        cy.intercept(
+          {
+            method: "GET",
+            url: "/api/v1/app-templates",
+          },
+          {
+            statusCode: 200,
+            body: data,
+          },
+        ).as("fetchDataFromTempalte");
 
-      cy.get(template.templateDialogBox).should("be.visible");
-      cy.wait("@fetchTemplate").then((interception) => {
-        const { response } = interception;
-        const templatesInResponse = response.body.data
-          .filter((card) => !!card.allowPageImport)
-          .map((card) => card.title);
+        _.entityExplorer.AddNewPage("Add page from template");
 
-        if (templatesInResponse.length === 0) {
-          return;
-        }
-        cy.get(template.templateCard).then((cards) => {
-          expect(cards.length).equal(templatesInResponse.length);
-          const cardsInUINames = [];
-          cards.each((index, card) => {
-            const card = Cypress.$(card);
-            const title = card.find(".title").text();
-            cardsInUINames.push(title);
-          });
-          expect(cardsInUINames.sort().join()).to.equal(
-            templatesInResponse.sort().join(),
+        cy.get(template.templateDialogBox).should("be.visible");
+        cy.wait("@fetchDataFromTempalte").should(({ request, response }) => {
+          // in the fixture data we are sending some tempaltes with `allowPageImport: false`
+          cy.log(response.body.data.length);
+          cy.get(template.templateCard).should(
+            "not.have.length",
+            response.body.data.length,
           );
+
+          const templatesInResponse = response.body.data.filter(
+            (card) => !!card.allowPageImport,
+          );
+          cy.log(templatesInResponse);
+          cy.get(template.templateCard).should(
+            "have.length",
+            templatesInResponse.length,
+          );
+          cy.get(_.templates.locators._closeTemplateDialogBoxBtn).click();
         });
       });
     });
