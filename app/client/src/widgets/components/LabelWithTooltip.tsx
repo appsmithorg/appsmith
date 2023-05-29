@@ -4,7 +4,7 @@ import { Alignment, Classes, Label } from "@blueprintjs/core";
 
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { TooltipComponent as Tooltip } from "design-system-old";
+import { TooltipComponent as Tooltip } from "@design-system/widgets-old";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
@@ -261,7 +261,7 @@ const LabelWithTooltip = React.forwardRef<
       alignment={alignment}
       className={LABEL_CONTAINER_CLASS}
       compact={compact}
-      data-cy={LABEL_CONTAINER_CLASS}
+      data-testid={LABEL_CONTAINER_CLASS}
       inline={inline}
       isDynamicHeightEnabled={isDynamicHeightEnabled}
       optionCount={optionCount}

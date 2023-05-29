@@ -45,47 +45,33 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 public class ApplicationFetcherUnitTest {
-    @MockBean
-    WorkspaceService workspaceService;
-
-    @MockBean
-    SessionUserService sessionUserService;
-
-    @MockBean
-    UserService userService;
-
-    @MockBean
-    UserDataService userDataService;
-
-    @MockBean
-    ApplicationRepository applicationRepository;
-
-    @MockBean
-    ReleaseNotesService releaseNotesService;
-
-    @MockBean
-    ResponseUtils responseUtils;
-
-    @MockBean
-    NewPageService newPageService;
-
-    ApplicationFetcher applicationFetcher;
-
-    @MockBean
-    ApplicationService applicationService;
-
-    @MockBean
-    UserWorkspaceService userWorkspaceService;
-
-    WorkspacePermission workspacePermission;
-
-    ApplicationPermission applicationPermission;
-    PagePermission pagePermission;
-
-    User testUser;
-
     final static String defaultPageId = "defaultPageId";
     final static String defaultTenantId = "defaultTenantId";
+    @MockBean
+    WorkspaceService workspaceService;
+    @MockBean
+    SessionUserService sessionUserService;
+    @MockBean
+    UserService userService;
+    @MockBean
+    UserDataService userDataService;
+    @MockBean
+    ApplicationRepository applicationRepository;
+    @MockBean
+    ReleaseNotesService releaseNotesService;
+    @MockBean
+    ResponseUtils responseUtils;
+    @MockBean
+    NewPageService newPageService;
+    ApplicationFetcher applicationFetcher;
+    @MockBean
+    ApplicationService applicationService;
+    @MockBean
+    UserWorkspaceService userWorkspaceService;
+    WorkspacePermission workspacePermission;
+    ApplicationPermission applicationPermission;
+    PagePermission pagePermission;
+    User testUser;
 
     @BeforeEach
     public void setup() {

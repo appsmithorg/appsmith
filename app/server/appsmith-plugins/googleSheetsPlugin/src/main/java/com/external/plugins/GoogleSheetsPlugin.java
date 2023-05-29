@@ -293,14 +293,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
-                                                                 DatasourceConfiguration datasourceConfiguration) {
-            ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
-            return executeCommon(null, datasourceConfiguration, actionConfiguration);
-        }
-
-        @Override
         public Object substituteValueInInput(int index,
                                              String binding,
                                              String value,

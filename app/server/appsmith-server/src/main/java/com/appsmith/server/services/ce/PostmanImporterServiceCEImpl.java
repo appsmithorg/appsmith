@@ -1,12 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.NewPageService;
@@ -17,8 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 
 @Slf4j
 public class PostmanImporterServiceCEImpl extends BaseApiImporter implements PostmanImporterServiceCE {

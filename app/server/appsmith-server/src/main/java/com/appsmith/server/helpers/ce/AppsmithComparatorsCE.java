@@ -2,14 +2,13 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 
 public class AppsmithComparatorsCE {
@@ -34,7 +33,7 @@ public class AppsmithComparatorsCE {
                 boolean workspaceRolePresent1 = o1.getRoles().stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
                 boolean workspaceRolePresent2 = o1.getRoles().stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
 
-                if (! workspaceRolePresent1 || ! workspaceRolePresent2) {
+                if (!workspaceRolePresent1 || !workspaceRolePresent2) {
                     throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
                 }
 

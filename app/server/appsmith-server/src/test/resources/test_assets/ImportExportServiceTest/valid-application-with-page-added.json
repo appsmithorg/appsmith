@@ -25,8 +25,8 @@
       "name": "S3",
       "pluginId": "amazons3-plugin",
       "invalids": [
-        "Mandatory parameter 'Access Key' is empty. Did you forget to edit the 'Access Key' field in the datasource creation form ? You need to fill it with your AWS Access Key.",
-        "Mandatory parameter 'Secret Key' is empty. Did you forget to edit the 'Secret Key' field in the datasource creation form ? You need to fill it with your AWS Secret Key."
+        "Mandatory parameter 'Access key' is empty. Did you forget to edit the 'Access key' field in the datasource creation form ? You need to fill it with your AWS Access key.",
+        "Mandatory parameter 'Secret key' is empty. Did you forget to edit the 'Secret key' field in the datasource creation form ? You need to fill it with your AWS Secret key."
       ],
       "messages": [],
       "isConfigured": false,
@@ -73,8 +73,8 @@
       "name": "noAwsS3",
       "pluginId": "amazons3-plugin",
       "invalids": [
-        "Mandatory parameter 'Access Key' is empty. Did you forget to edit the 'Access Key' field in the datasource creation form ? You need to fill it with your AWS Access Key.",
-        "Mandatory parameter 'Secret Key' is empty. Did you forget to edit the 'Secret Key' field in the datasource creation form ? You need to fill it with your AWS Secret Key."
+        "Mandatory parameter 'Access key' is empty. Did you forget to edit the 'Access key' field in the datasource creation form ? You need to fill it with your AWS Access key.",
+        "Mandatory parameter 'Secret key' is empty. Did you forget to edit the 'Secret key' field in the datasource creation form ? You need to fill it with your AWS Secret key."
       ],
       "messages": [],
       "isConfigured": false,

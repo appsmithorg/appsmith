@@ -1,2 +1,1 @@
-cypress/integration/Regression_TestSuite/Application/CommunityIssues_Spec.ts
-cypress/integration/Regression_TestSuite/Application/CurrencyInputIssue_Spec.js
+cypress/e2e/**/**/*

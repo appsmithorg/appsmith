@@ -22,8 +22,8 @@ import {
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
-import { MenuDivider } from "design-system-old";
-import { importRemixIcon, importSvg } from "design-system-old";
+import { MenuDivider } from "@design-system/widgets-old";
+import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 
 const Check = importRemixIcon(() => import("remixicon-react/CheckFillIcon"));
 const ArrowDownIcon = importRemixIcon(
