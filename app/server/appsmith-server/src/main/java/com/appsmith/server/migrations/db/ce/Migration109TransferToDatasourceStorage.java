@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Map;
 
+import static com.appsmith.server.constants.FieldName.PASSWORD;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -35,10 +36,9 @@ public class Migration109TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
     private final String migrationFlag = "hasDatasourceStorage";
-    private static final String datasourceConfigurationConstant = fieldName(QDatasource.datasource.datasourceConfiguration);
-    private static final String authenticationConstant = fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
+    private static final String datasourceConfigurationFieldName = fieldName(QDatasource.datasource.datasourceConfiguration);
+    private static final String authenticationFieldName = fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
     private static final String delimiter = ".";
-    private static final String password = FieldName.PASSWORD;
 
     private final DatasourceStorageMigrationSolution solution = new DatasourceStorageMigrationSolution();
 
@@ -141,7 +141,7 @@ public class Migration109TransferToDatasourceStorage {
                 // those values, we are getting ArrayOutOfBoundException because password is set to ""
                 where(fieldName(QDatasource.datasource.workspaceId)).exists(true),
                 where(fieldName(QDatasource.datasource.workspaceId)).ne(null),
-                where(datasourceConfigurationConstant +  delimiter + authenticationConstant + delimiter + password).ne("")
+                where(datasourceConfigurationFieldName +  delimiter + authenticationFieldName + delimiter + PASSWORD).ne("")
         );
     }
 
