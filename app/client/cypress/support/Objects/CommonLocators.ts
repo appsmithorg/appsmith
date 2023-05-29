@@ -68,6 +68,7 @@ export class CommonLocators {
   _errorTab = "[data-testid=t--tab-ERROR]";
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
+  _closeModal = "button:contains('Close')";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -191,7 +192,6 @@ export class CommonLocators {
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
   _exitPreviewMode = "[data-testid='preview-mode']";
-
   _ds_imageSelector = ".ads-dialog-trigger";
   _ds_imageSelector_label = ".ads-dialog-trigger .label";
   _ds_uppy_fileInput = ".uppy-Dashboard-input";
