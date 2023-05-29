@@ -209,4 +209,5 @@ export class CommonLocators {
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
+  _fixedLayout = "#t--layout-conversion-cta:contains('Fixed')";
 }
