@@ -257,8 +257,7 @@ public class Application extends BaseDomain {
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
         this.setDefaultPermissionGroup(null);
-        this.setPublishedCustomJSLibs(null);
-        this.setPublishedApplicationDetail(null);
+        this.setPublishedCustomJSLibs(new HashSet<>());
         this.setExportWithConfiguration(null);
         this.setForkWithConfiguration(null);
         this.setForkingEnabled(null);
