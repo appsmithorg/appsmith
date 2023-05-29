@@ -17,7 +17,11 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 30);
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.CONTAINER,
+        100,
+        30,
+      );
       _.widgets
         .GetWidgetByName("Container1")
         .invoke("attr", "id")
@@ -72,7 +76,11 @@ describe("Validating use cases for Auto Dimension", () => {
     );
 
     // Drop another widget next to text widget so that it shrinks
-    _.entityExplorer.DragDropWidgetNVerify("containerwidget", 10, 30);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CONTAINER,
+      10,
+      30,
+    );
 
     // Check if bounding box fits perfectly to the Text Widget
     _.widgets.EnsureBoundingBoxFitsComponent(
@@ -87,7 +95,7 @@ describe("Validating use cases for Auto Dimension", () => {
       "Text",
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
     );
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 100, 200);
 
     // reduce canvas size
     _.agHelper.SetCanvasViewportWidth(500);

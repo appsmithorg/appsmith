@@ -433,9 +433,9 @@ export class PropertyPane {
       .invoke("text")
       .then((text: string) => {
         if (text === CONVERT_TO_AUTO_BUTTON()) {
-          cy.get(this.locator._autoConvert).click();
-          cy.get(this.locator._convert).click();
-          cy.get(this.locator._refreshApp).click();
+          this.agHelper.GetNClick(this.locator._autoConvert);
+          this.agHelper.GetNClick(this.locator._convert);
+          this.agHelper.GetNClick(this.locator._refreshApp);
         }
       });
   }

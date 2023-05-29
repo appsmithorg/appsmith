@@ -25,7 +25,11 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 30);
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.CONTAINER,
+        100,
+        30,
+      );
 
       _.widgets
         .GetWidgetByName("Container1")
@@ -43,7 +47,11 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.entityExplorer.DragDropWidgetNVerify("listwidgetv2", 100, 30);
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.LIST_V2,
+        100,
+        30,
+      );
 
       // Delete existing widgets within list
       _.agHelper.SelectAllWidgets(_.locators._widgetByName("Container1"));

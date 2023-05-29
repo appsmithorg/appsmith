@@ -5,6 +5,7 @@ export class Widgets {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private propPane = ObjectsRegistry.PropertyPane;
   private commonLocator = ObjectsRegistry.CommonLocators;
+  private agHelper = ObjectsRegistry.AggregateHelper;
 
   _buttonWidgetSelector = getWidgetSelector(WIDGET.BUTTON);
   _buttonComponentSelector = `${getWidgetSelector(WIDGET.BUTTON)} button`;
@@ -126,9 +127,9 @@ export class Widgets {
   ) {
     // TODO(aswathkk): Delta should be made 0.5 once the issue with list widget in mobile view is fixed.
     const DELTA = 1;
-    cy.get(widgetSelector).then((widget) => {
+    this.agHelper.GetElement(widgetSelector).then((widget) => {
       const widgetRect = widget.get(0).getBoundingClientRect();
-      cy.get(componentSelector).then((component) => {
+      this.agHelper.GetElement(componentSelector).then((component) => {
         const componentRect = component.get(0).getBoundingClientRect();
         expect(widgetRect.x).to.be.closeTo(componentRect.x - 2, DELTA);
         expect(widgetRect.y).to.be.closeTo(componentRect.y - 2, DELTA);
@@ -149,14 +150,16 @@ export class Widgets {
   }
 
   GetWidgetWidth(widgetSelector: string) {
-    return cy.get(widgetSelector).invoke("width");
+    return this.agHelper.GetElement(widgetSelector).invoke("width");
   }
 
   GetWidgetHeight(widgetSelector: string) {
-    return cy.get(widgetSelector).invoke("height");
+    return this.agHelper.GetElement(widgetSelector).invoke("height");
   }
 
   GetWidgetByName(widgetName: string) {
-    return cy.get(this.commonLocator._widgetByName(widgetName));
+    return this.agHelper.GetElement(
+      this.commonLocator._widgetByName(widgetName),
+    );
   }
 }
