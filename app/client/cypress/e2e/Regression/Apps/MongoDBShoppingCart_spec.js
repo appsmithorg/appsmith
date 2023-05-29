@@ -122,8 +122,7 @@ describe("Shopping cart App", function () {
 
     cy.get(appPage.dropdownChevronLeft).click();
     cy.get(".t--back-button").click();
-    _.deployMode.DeployApp();
-    cy.xpath(appPage.bookname).should("be.visible");
+    _.deployMode.DeployApp(appPage.bookname);
   });
 
   it("2. Perform CRUD operations and validate data", function () {
