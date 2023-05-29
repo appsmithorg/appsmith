@@ -66,14 +66,15 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     cy.wait(1000);
     cy.xpath(
       "//h1[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
-    ).should("be.visible");
-    cy.xpath(
-      "//h1[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
       .wait(500)
       .click();
-    cy.get(templateLocators.dialogForkButton).should("be.visible");
+    cy.get("body").then(($ele) => {
+      if ($ele.find(templateLocators.templateViewForkButton).length) {
+        cy.get(templateLocators.templateViewForkButton).click();
+      }
+    });
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
     cy.get(reconnectDatasourceLocators.DatasourceList)
