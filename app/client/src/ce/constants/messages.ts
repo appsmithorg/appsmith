@@ -1165,6 +1165,16 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
+export const FORM_LOGIN_DESC = () =>
+  "Enable your workspace to sign in with Appsmith Form.";
+export const GOOGLE_AUTH_DESC = () =>
+  "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).";
+export const GITHUB_AUTH_DESC = () =>
+  "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).";
+export const SAML_AUTH_DESC = () =>
+  "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
+export const OIDC_AUTH_DESC = () =>
+  "Enable your workspace to sign in with your preferred OIDC compliant provider.";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
