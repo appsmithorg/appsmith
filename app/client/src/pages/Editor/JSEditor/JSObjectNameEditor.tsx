@@ -105,6 +105,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
             }}
           >
             {currentPlugin && (

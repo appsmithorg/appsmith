@@ -143,7 +143,7 @@ const OptionWrapper = styled.div`
 `;
 // Constants
 
-const datasourceIcon = "layout-left-2-line";
+const datasourceIcon = "layout-5-line";
 const columnIcon = "layout-column-line";
 
 const GENERATE_PAGE_MODE = {

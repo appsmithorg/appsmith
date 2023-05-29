@@ -87,7 +87,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
   return (
     <StyledFieldCheckboxGroup>
       <Text
-        className="admin-settings-form-group-label pt-4 pb-2"
+        className="admin-settings-form-group-label pt-2 pb-2"
         color="var(--ads-v2-color-fg)"
         data-testid="admin-settings-form-group-label"
         kind="heading-xs"
