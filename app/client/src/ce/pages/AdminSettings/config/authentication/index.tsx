@@ -149,8 +149,7 @@ export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Github authentication",
-  subText:
-    "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
+  subText: createMessage(GITHUB_AUTH_DESC),
   canSave: true,
   settings: [
     {
