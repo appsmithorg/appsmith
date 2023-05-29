@@ -72,7 +72,6 @@ export const to = (url: string) => {
   const path = _.drop(
     url
       .toString()
-      .toLowerCase()
       .replace(/([a-z])?:\/\//, "$1")
       .split("/"),
   ).join("/");

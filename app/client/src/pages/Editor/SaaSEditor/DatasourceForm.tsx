@@ -415,6 +415,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               onSubmit={(e) => {
                 e.preventDefault();
               }}
+              showFilterComponent={false}
             >
               {(!viewMode || createFlow || isInsideReconnectModal) && (
                 <>
@@ -486,6 +487,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 pluginType={plugin?.type as PluginType}
                 scopeValue={scopeValue}
                 shouldDisplayAuthMessage={!isGoogleSheetPlugin}
+                showFilterComponent={false}
                 triggerSave={this.props.isDatasourceBeingSavedFromPopup}
                 viewMode={viewMode}
               />

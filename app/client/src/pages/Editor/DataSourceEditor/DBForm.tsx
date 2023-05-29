@@ -30,18 +30,22 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasource: Datasource;
   hiddenHeader?: boolean;
   datasourceName?: string;
+  showFilterComponent: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
-export const Form = styled.form`
+export const Form = styled.form<{
+  showFilterComponent: boolean;
+}>`
   display: flex;
   flex-direction: column;
   height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
   overflow-y: scroll;
   flex: 8 8 80%;
   padding-bottom: 20px;
+  margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
 `;
 
 export const ViewModeWrapper = styled.div`
@@ -76,6 +80,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       formConfig,
       messages,
       pluginType,
+      showFilterComponent,
       viewMode,
     } = this.props;
 
@@ -84,6 +89,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         onSubmit={(e) => {
           e.preventDefault();
         }}
+        showFilterComponent={showFilterComponent}
       >
         {messages &&
           messages.map((msg, i) => {
