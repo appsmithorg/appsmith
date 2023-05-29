@@ -65,3 +65,27 @@ ReactDOM.render(<App />, document.getElementById("root"));
 if ((window as any).Cypress) {
   (window as any).store = store;
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+if (window.__appsmith__allMainThreadNonIconChunkIds) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const chunks = [...window.__appsmith__allMainThreadNonIconChunkIds];
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  console.log("Loading chunks", chunks, __webpack_chunk_load__);
+  const loadChunk = async () => {
+    const chunkId = chunks.shift();
+    console.log("Loading chunk", chunkId);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    await __webpack_chunk_load__(chunkId);
+
+    if (chunks.length) {
+      requestIdleCallback(loadChunk);
+    }
+  };
+
+  requestIdleCallback(loadChunk);
+}
