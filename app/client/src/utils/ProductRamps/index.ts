@@ -1,3 +1,4 @@
+import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import type { EnvTypes, RampSection, SupportedRampsType } from "./RampTypes";
 import {
   CUSTOM_ROLES,
@@ -8,7 +9,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 
-const { cloudHosting } = getAppsmithConfigs();
+const { cloudHosting, pricingUrl } = getAppsmithConfigs();
 
 export const PRODUCT_RAMPS_LIST: { [key: string]: SupportedRampsType } = {
   [RAMP_NAME.INVITE_USER_TO_APP]: INVITE_USER_TO_APP,
@@ -21,7 +22,8 @@ export const getRampLink = (section: RampSection) => {
   const state = store.getState();
   const instanceId = state?.tenant?.instanceId;
   const source = cloudHosting ? "cloud" : "CE";
-  return `${RAMP_LINK_TO}?source=${source}&instanceId=${instanceId}&feature=GAC&section=${section}`;
+  const RAMP_LINK_TO = PRICING_PAGE_URL(pricingUrl, source, instanceId);
+  return `${RAMP_LINK_TO}&feature=GAC&section=${section}`;
 };
 
 export const getUserRoleInWorkspace = () => {
