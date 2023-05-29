@@ -198,6 +198,13 @@ export class CommonLocators {
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _resizeHandles = {
+    left: "t--resizable-handle-LEFT",
+    right: "t--resizable-handle-RIGHT",
+    bottom: "t--resizable-handle-BOTTOM",
+    bottomLeft: "t--resizable-handle-BOTTOM|LEFT",
+    bottomRight: "t--resizable-handle-BOTTOM|RIGHT",
+  };
   _popUpCloseBtn = (popupname: string) =>
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>

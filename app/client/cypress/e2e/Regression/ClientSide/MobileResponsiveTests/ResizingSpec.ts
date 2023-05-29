@@ -1,18 +1,9 @@
 import * as commonlocators from "../../../../locators/commonlocators.json";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const {
-  AggregateHelper: agHelper,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-} = ObjectsRegistry;
-const resizeHandles = {
-  left: "t--resizable-handle-LEFT",
-  right: "t--resizable-handle-RIGHT",
-  bottom: "t--resizable-handle-BOTTOM",
-  bottomLeft: "t--resizable-handle-BOTTOM|LEFT",
-  bottomRight: "t--resizable-handle-BOTTOM|RIGHT",
-};
+const { AggregateHelper: agHelper, EntityExplorer: ee } = ObjectsRegistry;
+
 describe("Resizing Behaviour in Auto Layout", function () {
   before(() => {
     cy.get(commonlocators.autoConvert).click({
@@ -34,7 +25,7 @@ describe("Resizing Behaviour in Auto Layout", function () {
     cy.get("#canvas-viewport").then((canvas) => {
       const mainCanvasWidth = canvas.width() || 0;
       ee.DragDropWidgetNVerify("imagewidget", mainCanvasWidth / 2, 600);
-      Object.values(resizeHandles).forEach((eachHandle) => {
+      Object.values(_.locators._resizeHandles).forEach((eachHandle) => {
         cy.get(`[data-testid='${eachHandle}']`)
           .first()
           .should("not.have.css", "cursor", "undefined")
@@ -46,7 +37,7 @@ describe("Resizing Behaviour in Auto Layout", function () {
     cy.get("#canvas-viewport").then((canvas) => {
       const mainCanvasWidth = canvas.width() || 0;
       ee.DragDropWidgetNVerify("buttonwidget", mainCanvasWidth / 2, 600);
-      Object.values(resizeHandles).forEach((eachHandle) => {
+      Object.values(_.locators._resizeHandles).forEach((eachHandle) => {
         cy.get(`[data-testid='${eachHandle}']`)
           .first()
           .should("have.css", "cursor", "grab");
@@ -68,10 +59,10 @@ describe("Resizing Behaviour in Auto Layout", function () {
       const mainCanvasWidth = canvas.width() || 0;
       ee.DragDropWidgetNVerify("imagewidget", mainCanvasWidth * 0.8, 600);
       [
-        "t--resizable-handle-LEFT",
-        "t--resizable-handle-BOTTOM",
-        "t--resizable-handle-BOTTOM|LEFT",
-        "t--resizable-handle-BOTTOM|RIGHT",
+        _.locators._resizeHandles.left,
+        _.locators._resizeHandles.bottom,
+        _.locators._resizeHandles.bottomLeft,
+        _.locators._resizeHandles.bottomRight,
       ].forEach((eachHandle) => {
         cy.get(`[data-testid='${eachHandle}']`)
           .first()
@@ -85,10 +76,10 @@ describe("Resizing Behaviour in Auto Layout", function () {
       const mainCanvasWidth = canvas.width() || 0;
       ee.DragDropWidgetNVerify("buttonwidget", mainCanvasWidth * 0.8, 600);
       [
-        "t--resizable-handle-LEFT",
-        "t--resizable-handle-BOTTOM",
-        "t--resizable-handle-BOTTOM|LEFT",
-        "t--resizable-handle-BOTTOM|RIGHT",
+        _.locators._resizeHandles.left,
+        _.locators._resizeHandles.bottom,
+        _.locators._resizeHandles.bottomLeft,
+        _.locators._resizeHandles.bottomRight,
       ].forEach((eachHandle) => {
         cy.get(`[data-testid='${eachHandle}']`)
           .first()
@@ -102,10 +93,10 @@ describe("Resizing Behaviour in Auto Layout", function () {
       const mainCanvasWidth = canvas.width() || 0;
       ee.DragDropWidgetNVerify("imagewidget", mainCanvasWidth * 0.1, 600);
       [
-        "t--resizable-handle-RIGHT",
-        "t--resizable-handle-BOTTOM",
-        "t--resizable-handle-BOTTOM|LEFT",
-        "t--resizable-handle-BOTTOM|RIGHT",
+        _.locators._resizeHandles.right,
+        _.locators._resizeHandles.bottom,
+        _.locators._resizeHandles.bottomLeft,
+        _.locators._resizeHandles.bottomRight,
       ].forEach((eachHandle) => {
         cy.get(`[data-testid='${eachHandle}']`)
           .first()
@@ -119,10 +110,10 @@ describe("Resizing Behaviour in Auto Layout", function () {
       const mainCanvasWidth = canvas.width() || 0;
       ee.DragDropWidgetNVerify("buttonwidget", mainCanvasWidth * 0.1, 600);
       [
-        "t--resizable-handle-RIGHT",
-        "t--resizable-handle-BOTTOM",
-        "t--resizable-handle-BOTTOM|LEFT",
-        "t--resizable-handle-BOTTOM|RIGHT",
+        _.locators._resizeHandles.right,
+        _.locators._resizeHandles.bottom,
+        _.locators._resizeHandles.bottomLeft,
+        _.locators._resizeHandles.bottomRight,
       ].forEach((eachHandle) => {
         cy.get(`[data-testid='${eachHandle}']`)
           .first()
