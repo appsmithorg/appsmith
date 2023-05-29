@@ -103,6 +103,25 @@ describe("Peek overlay", () => {
       _.peekOverlay.VerifyDataType("array");
       _.peekOverlay.CheckObjectArrayInOverlay([{}, {}, {}]);
       _.peekOverlay.ResetHover();
+
+      // basic nested property
+      _.peekOverlay.HoverCode(20, 7, "id");
+      _.peekOverlay.IsOverlayOpen();
+      _.peekOverlay.VerifyDataType("number");
+      _.peekOverlay.CheckPrimitiveValue("1");
+      _.peekOverlay.ResetHover();
+
+      // undefined object
+      _.peekOverlay.HoverCode(21, 1, "aljshdlja");
+      _.peekOverlay.IsOverlayOpen(false);
+      _.peekOverlay.ResetHover();
+
+      // this keyword
+      _.peekOverlay.HoverCode(22, 3, "numArray");
+      _.peekOverlay.IsOverlayOpen();
+      _.peekOverlay.VerifyDataType("array");
+      _.peekOverlay.CheckPrimitveArrayInOverlay([1, 2, 3]);
+      _.peekOverlay.ResetHover();
     });
   });
 });
@@ -127,7 +146,9 @@ const JsObjectContent = `export default {
     Table1;
     Table1.pageNo; 
     Table1.tableData;
-    Api1.data.users[0].id;
+    Api1.data[0].id;
+    aljshdlja;
+    this.numArray;
   },
   myFun2: async () => {
     storeValue("abc", 123)
