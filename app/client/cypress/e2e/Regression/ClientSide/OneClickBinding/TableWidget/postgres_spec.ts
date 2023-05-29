@@ -1,6 +1,6 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "../Utility";
+import { ChooseAndAssertForm } from "../spec_utility";
 import locators from "../../../../../locators/OneClickBindingLocator";
 
 describe("Table widget one click binding feature", () => {
@@ -35,7 +35,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(_.table._addNewRow, 0, true);
 
-    (cy as any).enterTableCellValue(0, 0, "2");
+    (cy as any).enterTableCellValue(0, 0, "3");
 
     (cy as any).enterTableCellValue(1, 0, "cypress@appsmith");
 
@@ -46,6 +46,8 @@ describe("Table widget one click binding feature", () => {
     _.agHelper.GetNClick(`[data-testid="datepicker-container"] input`, 0, true);
 
     _.agHelper.GetNClick(".DayPicker-Day", 0, true);
+
+    (cy as any).wait(2000);
 
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
@@ -66,6 +68,8 @@ describe("Table widget one click binding feature", () => {
     (cy as any).enterTableCellValue(1, 0, "automation@appsmith{enter}");
 
     (cy as any).wait(1000);
+
+    (cy as any).AssertTableRowSavable(12, 0);
 
     (cy as any).saveTableRow(12, 0);
 

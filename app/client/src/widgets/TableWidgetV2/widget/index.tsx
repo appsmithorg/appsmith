@@ -154,7 +154,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
       },
       create: {
-        value: `${widget.widgetName}.newRow`,
+        value: `(${widget.widgetName}.newRow || {})`,
       },
       update: {
         value: `${widget.widgetName}.updatedRow`,

@@ -1,5 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "./Utility";
+import { ChooseAndAssertForm } from "./spec_utility";
 import locator from "../../../../locators/OneClickBindingLocator";
 import CommonLocators from "../../../../locators/commonlocators.json";
 import DatasourceEditor from "../../../../locators/DatasourcesEditor.json";

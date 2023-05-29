@@ -1,6 +1,6 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "../Utility";
+import { ChooseAndAssertForm } from "../spec_utility";
 import locators from "../../../../../locators/OneClickBindingLocator";
 
 describe("one click binding mongodb datasource", function () {
