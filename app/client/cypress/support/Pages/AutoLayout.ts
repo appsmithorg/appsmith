@@ -131,13 +131,17 @@ export class AutoLayout {
   }
 
   public verifyIsAutoLayout() {
-    cy.closePropertyPane();
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
     cy.get(this.autoConvertButton).should("contain", "Fixed");
     cy.get(this.flexMainContainer).should("exist");
   }
 
   public verifyIsFixedLayout() {
-    cy.closePropertyPane();
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
     cy.get(this.autoConvertButton).should("contain", "Auto");
     cy.get(this.flexMainContainer).should("not.exist");
   }

@@ -6,11 +6,11 @@ let parentBranchKey = "ParentBranch",
 let repoName;
 describe("Git sync:", function () {
   before(() => {
-    cy.NavigateToHome();
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("AutoLayoutGit" + uid);
+      _.homePage.CreateAppInWorkspace("AutoLayoutGit" + uid);
     });
 
     _.gitSync.CreateNConnectToGit();
@@ -31,14 +31,9 @@ describe("Git sync:", function () {
   });
 
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
-    cy.dragAndDropToCanvas("containerwidget", { x: 100, y: 200 });
+    _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 100);
 
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.AddNewPage("New blank page");
 
     _.autoLayout.convertToAutoLayoutAndVerify();
 
@@ -50,35 +45,27 @@ describe("Git sync:", function () {
 
     cy.wait(1000);
 
-    cy.Deletepage("Page2");
+    _.entityExplorer.ActionContextMenuByEntityName("Page2");
   });
 
+  //Skipped these tests as they seemed to have regressed again, will enable them once it is fixed. #22956
   it.skip("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     _.autoLayout.convertToAutoLayoutAndVerify();
 
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.AddNewPage("New blank page");
 
     _.autoLayout.useSnapshotFromBanner();
 
     _.entityExplorer.verifyIsCurrentPage("Page1");
   });
 
+  //Skipped these tests as they seemed to have regressed again, will enable them once it is fixed. #22956
   it.skip("3. Switch to parentBranch and when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     cy.switchGitBranch(parentBranchKey);
 
     _.autoLayout.convertToAutoLayoutAndVerify();
 
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.AddNewPage("New blank page");
 
     _.autoLayout.useSnapshotFromBanner();
 

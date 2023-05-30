@@ -7,14 +7,9 @@ const conversionDslWithDynamicBindings = require("../../../../fixtures/conversio
 
 describe("Handle Cases while conversion", () => {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
-    cy.dragAndDropToCanvas("containerwidget", { x: 100, y: 200 });
+    _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 200);
 
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.AddNewPage("New blank page");
 
     _.autoLayout.convertToAutoLayoutAndVerify();
 
@@ -26,18 +21,13 @@ describe("Handle Cases while conversion", () => {
 
     cy.wait(1000);
 
-    cy.Deletepage("Page2");
+    _.entityExplorer.ActionContextMenuByEntityName("Page2");
   });
 
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     _.autoLayout.convertToAutoLayoutAndVerify();
 
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.AddNewPage("New blank page");
 
     _.autoLayout.useSnapshotFromBanner();
 
