@@ -85,6 +85,9 @@ describe("API Panel Test Functionality", function () {
         { force: true, parseSpecialCharSequences: false },
       )
       .wait(3000)
+      .click({
+        force: true,
+      })
       .type("{enter}", { parseSpecialCharSequences: true });
 
     cy.validateEvaluatedValue(

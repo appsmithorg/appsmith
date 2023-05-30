@@ -1,5 +1,6 @@
 export class CommonLocators {
   _body = "body";
+  _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
@@ -17,6 +18,8 @@ export class CommonLocators {
     widgetName +
     "') span.bp3-editable-text-content";
   _widgetNameTxt = ".editable-text-container input.bp3-editable-text-input";
+  _widgetByName = (widgetName: string) =>
+    `[data-widgetname-cy="${widgetName}"]`;
   _saveStatusContainer = ".t--save-status-container";
   _statusSaving = ".t--save-status-is-saving";
   _saveStatusError = ".t--save-status-error";
@@ -197,7 +200,15 @@ export class CommonLocators {
   _ds_uppy_fileInput = ".uppy-Dashboard-input";
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
+
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _resizeHandles = {
+    left: "t--resizable-handle-LEFT",
+    right: "t--resizable-handle-RIGHT",
+    bottom: "t--resizable-handle-BOTTOM",
+    bottomLeft: "t--resizable-handle-BOTTOM|LEFT",
+    bottomRight: "t--resizable-handle-BOTTOM|RIGHT",
+  };
   _popUpCloseBtn = (popupname: string) =>
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
