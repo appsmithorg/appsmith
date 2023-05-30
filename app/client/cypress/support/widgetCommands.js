@@ -986,8 +986,9 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.wait(2000);
   cy.selectAction("Delete");
   cy.selectAction("Are you sure?");
-  cy.wait("@deletePage");
-  cy.get("@deletePage").should("have.property", "status", 200);
+  cy.wait("@deletePage")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
 });
 
 Cypress.Commands.add("dropdownDynamic", (text) => {

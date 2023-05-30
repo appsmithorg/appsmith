@@ -718,9 +718,9 @@ export class DataSources {
         expectedRes as number,
       );
     } else {
-      cy.wait("@deleteDatasource").should((response: any) => {
-        expect(response.status).to.be.oneOf([200, 409]);
-      });
+      cy.wait("@deleteDatasource")
+        .its("response.body.responseMeta.status")
+        .should("be.oneOf", [200, 409]);
     }
   }
 

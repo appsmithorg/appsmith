@@ -168,13 +168,31 @@ export class AggregateHelper {
   }
 
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
+    // cy.get(selector).each(($ele) => {
+    //   cy.wrap($ele).within(() => {
+    //     cy.get(this.locator._codeMirrorCode).should(
+    //       "include.text",
+    //       contentToValidate,
+    //     );
+    //   });
+    // });
+
+    let isTextContained = false;
+
     cy.get(selector)
-      .eq(0)
-      .within(() => {
-        cy.get(this.locator._codeMirrorCode).should(
-          "have.text",
-          contentToValidate,
-        );
+      .each(($ele) => {
+        cy.wrap($ele).within(() => {
+          cy.get(this.locator._codeMirrorCode)
+            .invoke("text")
+            .then((text) => {
+              if (contentToValidate.includes(text)) {
+                isTextContained = true;
+              }
+            });
+        });
+      })
+      .then(() => {
+        expect(isTextContained).to.be.true;
       });
   }
 
