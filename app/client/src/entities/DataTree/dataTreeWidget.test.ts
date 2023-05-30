@@ -454,6 +454,79 @@ describe("generateDataTreeWidget", () => {
           value: 10,
         },
       },
+      primaryColumns: {
+        step: {
+          index: 0,
+          width: 150,
+          id: "step",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isCellVisible: true,
+          isDerived: false,
+          label: "step",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
+        },
+        task: {
+          index: 1,
+          width: 150,
+          id: "task",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isCellVisible: true,
+          isDerived: false,
+          label: "task",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
+        },
+        status: {
+          index: 2,
+          width: 150,
+          id: "status",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isCellVisible: true,
+          isDerived: false,
+          label: "status",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
+        },
+        action: {
+          index: 3,
+          width: 150,
+          id: "action",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "button",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isCellVisible: true,
+          isDisabled: false,
+          isDerived: false,
+          label: "action",
+          onClick:
+            "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
+        },
+      },
     };
 
     const tableSetterConfig: Record<string, any> = {
@@ -471,6 +544,25 @@ describe("generateDataTreeWidget", () => {
           type: "object",
         },
       },
+      text: {
+        __setters: {
+          setIsRequired: {
+            path: "primaryColumns.$columnId.isRequired",
+            type: "boolean",
+          },
+        },
+      },
+      button: {
+        __setters: {
+          setIsRequired: {
+            path: "primaryColumns.$columnId.isRequired",
+            type: "boolean",
+          },
+        },
+      },
+      pathToSetters: [
+        { path: "primaryColumns.$columnId", property: "columnType" },
+      ],
     };
 
     const expectedTableData = {
@@ -486,6 +578,22 @@ describe("generateDataTreeWidget", () => {
         setData: {
           path: "Table1.tableData",
           type: "object",
+        },
+        "primaryColumns.action.setIsRequired": {
+          path: "Table1.primaryColumns.action.isRequired",
+          type: "boolean",
+        },
+        "primaryColumns.status.setIsRequired": {
+          path: "Table1.primaryColumns.status.isRequired",
+          type: "boolean",
+        },
+        "primaryColumns.step.setIsRequired": {
+          path: "Table1.primaryColumns.step.isRequired",
+          type: "boolean",
+        },
+        "primaryColumns.task.setIsRequired": {
+          path: "Table1.primaryColumns.task.isRequired",
+          type: "boolean",
         },
       },
     };
