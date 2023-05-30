@@ -3,10 +3,13 @@ package com.appsmith.server.migrations.db.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.external.models.QDatasourceConfiguration;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
+import io.mongock.api.annotations.ChangeUnit;
+import io.mongock.api.annotations.Execution;
+import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,10 +17,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.PASSWORD;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -27,48 +29,36 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  * to a new collection. The datasource will cease to have configurations after this point
  */
 @Slf4j
-//@ChangeUnit(order = "012", id = "migrate-configurations-to-data-storage", author = " ")
-public class Migration012TransferToDatasourceStorage {
+@ChangeUnit(order = "109", id = "migrate-configurations-to-data-storage", author = " ")
+// Although this migration is common to CE and BE, the ordering of this change-unit needs to be specifically after 107-ee,
+// as this migration has EE overrides for default environmentId, and for getting the environments on existing workspaces, 107-ee needs to run
+public class Migration109TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
     private final String migrationFlag = "hasDatasourceStorage";
+    private static final String datasourceConfigurationFieldName = fieldName(QDatasource.datasource.datasourceConfiguration);
+    private static final String authenticationFieldName = fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
+    private static final String delimiter = ".";
 
     private final DatasourceStorageMigrationSolution solution = new DatasourceStorageMigrationSolution();
 
-    public Migration012TransferToDatasourceStorage(MongoTemplate mongoTemplate) {
+    public Migration109TransferToDatasourceStorage(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
-    //    @RollbackExecution
+    @RollbackExecution
     public void rollbackExecution() {
         // We're handling rollbacks using marker fields, so we don't need to implement this
     }
 
-    //    @Execution
+    @Execution
     public void executeMigration() {
-        // First fetch all datasource ids and workspace ids for datasources that
-        // do not have `hasDatasourceStorage` value set as true
-        final Query datasourceQuery = query(findDatasourceIdsToUpdate()).cursorBatchSize(1024);
-        datasourceQuery.fields().include(
-                fieldName(QDatasource.datasource.id),
-                fieldName(QDatasource.datasource.workspaceId));
-
-        final Query performanceOptimizedQuery = CompatibilityUtils
-                .optimizeQueryForNoCursorTimeout(mongoTemplate, datasourceQuery, Datasource.class);
-
-        final List<Datasource> datasourcesWithIds =
-                mongoTemplate.find(performanceOptimizedQuery, Datasource.class);
-
-        // Prepare a map of datasourceId to workspaceId
-        final Map<String, String> datasourceIdMap = datasourcesWithIds.stream().parallel()
-                .collect(Collectors.toMap(Datasource::getId, Datasource::getWorkspaceId));
-
         // Fetch all environment ids and workspace ids that are default in their workspaces
         // Store them in a map of workspaceId to environmentId
         Map<String, String> environmentsMap = solution.getDefaultEnvironmentsMap(mongoTemplate);
 
-        // Now go back to streaming through each datasource that has
-        // `hasDatasourceStorage` value set as true
+        // query to fetch all datasource that
+        // do not have `hasDatasourceStorage` value set as true
         Query datasourcesToUpdateQuery = query(findDatasourceIdsToUpdate()).cursorBatchSize(1024);
         datasourcesToUpdateQuery.fields().include(
                 fieldName(QDatasource.datasource.id),
@@ -83,10 +73,12 @@ public class Migration012TransferToDatasourceStorage {
         final Query performanceOptimizedUpdateQuery = CompatibilityUtils
                 .optimizeQueryForNoCursorTimeout(mongoTemplate, datasourcesToUpdateQuery, Datasource.class);
 
+        // Now go back to streaming through each datasource that has
+        // `hasDatasourceStorage` value set as true
         mongoTemplate
                 .stream(performanceOptimizedUpdateQuery, Datasource.class)
                 .forEach(datasource -> {
-                    // For each of these datasources, we want to build a new datasource storage
+                    // For each of these datasource, we want to build a new datasource storage
 
                     // Fetch the correct environment id to use with this datasource storage
                     String environmentId = solution
@@ -144,7 +136,12 @@ public class Migration012TransferToDatasourceStorage {
                 new Criteria().orOperator(
                         where(FieldName.DELETED_AT).exists(false),
                         where(FieldName.DELETED_AT).is(null)
-                )
+                ),
+                // these checks are placed because we are getting values which are empty and while decrypting
+                // those values, we are getting ArrayOutOfBoundException because password is set to ""
+                where(fieldName(QDatasource.datasource.workspaceId)).exists(true),
+                where(fieldName(QDatasource.datasource.workspaceId)).ne(null),
+                where(datasourceConfigurationFieldName +  delimiter + authenticationFieldName + delimiter + PASSWORD).ne("")
         );
     }
 

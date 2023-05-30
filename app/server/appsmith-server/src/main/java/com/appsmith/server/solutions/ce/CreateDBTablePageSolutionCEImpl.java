@@ -7,8 +7,8 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -146,6 +146,19 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
             .registerTypeAdapter(HttpMethod.class, new HttpMethodConverter())
             .create();
+
+    public Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
+                                                           CRUDPageResourceDTO pageResourceDTO,
+                                                           String environmentId, String branchName, Boolean isTrueEnvironmentIdRequired) {
+        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
+            return datasourceService.findById(pageResourceDTO.getDatasourceId())
+                    .map(Datasource::getWorkspaceId)
+                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(trueEnvironmentId ->createPageFromDBTable(defaultPageId, pageResourceDTO, trueEnvironmentId, branchName));
+        }
+
+        return createPageFromDBTable(defaultPageId, pageResourceDTO, environmentId,branchName);
+    }
 
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
@@ -1086,7 +1099,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 "pageName", page.getName(),
                                 "pluginName", pluginName,
                                 "datasourceId", datasourceStorage.getDatasourceId(),
-                                "organizationId", datasourceStorage.getWorkspaceId()
+                                "organizationId", datasourceStorage.getWorkspaceId(),
+                                "orgId", datasourceStorage.getWorkspaceId()
                         );
                         return analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data)
                                 .thenReturn(crudPage);

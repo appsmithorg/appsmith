@@ -23,7 +23,7 @@ const AutoLayoutCanvasResizer = styled.div`
   width: 2px;
   height: 100%;
   display: flex;
-  background: #d9d9d9;
+  background: var(--ads-v2-color-border);
   align-items: center;
   justify-content: flex-start;
   margin-left: 2px;
@@ -31,11 +31,11 @@ const AutoLayoutCanvasResizer = styled.div`
   transition: background 300ms ease;
   .canvas-resizer-icon {
     border-left: 2px solid;
-    border-color: #d7d7d7;
+    border-color: var(--ads-v2-color-border);
     transition: border 300ms ease;
     margin-left: 2px;
     & > svg {
-      fill: #d7d7d7;
+      fill: var(--ads-v2-color-border);
       transition: fill 300ms ease;
     }
   }
