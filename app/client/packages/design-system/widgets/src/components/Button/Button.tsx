@@ -10,18 +10,28 @@ import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
 import type { fontFamilyTypes } from "../../utils/typography";
 
-export type ButtonVariants = "primary" | "secondary" | "tertiary";
+export const BUTTON_ICON_POSITIONS = ["start", "end"] as const;
+export const BUTTON_VARIANTS = {
+  primary: "primary",
+  secondary: "secondary",
+  tertiary: "tertiary",
+} as const;
+
+// Note(Pawan): Should we use ts-toolbelt?
+export type ButtonVariant =
+  (typeof BUTTON_VARIANTS)[keyof typeof BUTTON_VARIANTS];
+export type ButtonIconPosition = (typeof BUTTON_ICON_POSITIONS)[number];
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /**
    *  @default primary
    */
-  variant?: ButtonVariants;
+  variant?: ButtonVariant;
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
   isFocused?: boolean;
   icon?: React.ReactNode;
-  iconPosition?: "start" | "end";
+  iconPosition?: ButtonIconPosition;
 }
 
 const LOADING_ICON = (
