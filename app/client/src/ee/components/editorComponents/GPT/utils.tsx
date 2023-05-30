@@ -146,7 +146,11 @@ const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
           minimumEntityInfo[field] = entity[field];
       }
       const widgetSkeleton = getDataSkeleton(minimumEntityInfo);
-      context[entityName] = { ...widgetSkeleton, type: "WIDGET" };
+      context[entityName] = {
+        ...widgetSkeleton,
+        type: "WIDGET",
+        widgetType: entity.type,
+      };
     } else if (isJSAction(entity)) {
       context[entityName] = {
         body: entity.body.replace(/export default/g, ""),
