@@ -57,7 +57,7 @@ before(function () {
       }
     });
 
-    Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+    //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
     if (!RapidMode.config.usesDSL) {
       cy.visit(RapidMode.url());
       cy.wait("@getWorkspace");
@@ -113,7 +113,7 @@ before(function () {
     return;
   }
   //console.warn = () => {};
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
@@ -137,7 +137,7 @@ beforeEach(function () {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
   }
   initLocalstorage();
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();

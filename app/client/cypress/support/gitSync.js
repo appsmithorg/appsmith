@@ -18,7 +18,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
   cy.xpath("//span[text()= `${appName}`]").parent().next().click();
   cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
   cy.get(gitSyncLocators.disconnectButton).click();
-  cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
+  cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
   cy.get(gitSyncLocators.disconnectButton).click();
   cy.wait("@disconnect").should(
     "have.nested.property",
@@ -128,8 +128,8 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("latestDeployPreview", () => {
-  cy.server();
-  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  //cy.server();
+  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
