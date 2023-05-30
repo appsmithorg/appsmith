@@ -8,6 +8,7 @@ export const jsEditor = ObjectsRegistry.JSEditor;
 export const propPane = ObjectsRegistry.PropertyPane;
 export const deployMode = ObjectsRegistry.DeployMode;
 export const appSettings = ObjectsRegistry.AppSettings;
+export const autoLayout = ObjectsRegistry.AutoLayout;
 export const generalSettings = ObjectsRegistry.GeneralSettings;
 export const pageSettings = ObjectsRegistry.PageSettings;
 export const embedSettings = ObjectsRegistry.EmbedSettings;
