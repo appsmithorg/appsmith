@@ -579,18 +579,23 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+    if (this.props.selectedOptionValue !== value) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+      this.props.updateWidgetMetaProperty("selectedOption", value);
+      this.props.updateWidgetMetaProperty(
+        "selectedLabel",
+        labelList?.[0] ?? "",
+        {
+          triggerPropertyName: "onOptionChange",
+          dynamicString: this.props.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
+        },
+      );
     }
-
-    this.props.updateWidgetMetaProperty("selectedOption", value);
-    this.props.updateWidgetMetaProperty("selectedLabel", labelList?.[0] ?? "", {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
   };
 
   onDropdownOpen = () => {
