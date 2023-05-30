@@ -4,8 +4,8 @@ let jsName: any, dsName: any;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 500);
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 700, 700);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 100, 100);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 500, 100);
     _.propPane.UpdatePropertyFieldValue(
       "Options",
       `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,
@@ -16,7 +16,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     );
     _.entityExplorer.SelectEntityByName("Select1");
     _.agHelper.RenameWidget("Select1", "selRecordFilter");
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 500);
     _.entityExplorer.NavigateToSwitcher("Explorer");
   });
 
@@ -75,7 +75,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });

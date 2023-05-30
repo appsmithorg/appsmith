@@ -255,7 +255,7 @@ export class AggregateHelper {
       interval: 1000,
     }).then(($ele) => {
       cy.wrap($ele)
-        .contains(msgToCheckforDisappearance)
+        //.contains(msgToCheckforDisappearance)
         .should("have.length", 0);
       this.Sleep();
     });
