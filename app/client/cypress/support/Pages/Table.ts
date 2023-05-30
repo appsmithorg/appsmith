@@ -91,7 +91,7 @@ export class Table {
   _filterColumnsDropdown = ".t--table-filter-columns-dropdown";
   _dropdownText = ".t--dropdown-option";
   _filterConditionDropdown = ".t--table-filter-conditions-dropdown";
-  _filterInputValue = ".t--table-filter-value-input";
+  _filterInputValue = ".t--table-filter-value-input input";
   _addColumn = ".t--add-column-btn";
   _deleteColumn = ".t--delete-column-btn";
   _defaultColName =
