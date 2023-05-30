@@ -133,7 +133,11 @@ import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
-import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
+import {
+  getFormDiffPaths,
+  getFormName,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -367,7 +371,7 @@ function* updateDatasourceSaga(
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
-    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+    if (isGoogleSheetPluginDS(pluginPackageName)) {
       const scopeString: string = (
         datasourcePayload?.datasourceConfiguration?.authentication as any
       )?.scopeString;
