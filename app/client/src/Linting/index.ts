@@ -3,24 +3,24 @@ import { get, isEmpty, set } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { globalData } from "./globalData";
-import type {
-  getlintErrorsFromTreeProps,
-  getlintErrorsFromTreeResponse,
-} from "./types";
 import lintBindingPath from "./utils/lintBindingPath";
 import lintTriggerPath from "./utils/lintTriggerPath";
 import lintJSObjectBody from "./utils/lintJSObjectBody";
 import sortLintingPathsByType from "./utils/sortLintingPathsByType";
 import lintJSObjectProperty from "./utils/lintJSObjectProperty";
+import type {
+  getLintErrorsFromTreeProps,
+  getLintErrorsFromTreeResponse,
+} from "./types";
 
-export function getlintErrorsFromTree({
+export function getLintErrorsFromTree({
   asyncJSFunctionsInDataFields,
   cloudHosting,
   configTree,
   jsPropertiesState,
   pathsToLint,
   unEvalTree,
-}: getlintErrorsFromTreeProps): getlintErrorsFromTreeResponse {
+}: getLintErrorsFromTreeProps): getLintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const updatedJSEntities = new Set<string>();
   globalData.initialize(unEvalTree, cloudHosting);
