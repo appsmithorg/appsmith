@@ -888,10 +888,10 @@ export class AggregateHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInput(selector: string, value: string) {
+  public UpdateInput(selector: string, value: string, force: false) {
     this.GetElement(selector)
       .find("input")
-      .clear()
+      .clear({ force: force })
       //.type(this.selectAll)
       .type(value, { delay: 1, parseSpecialCharSequences: false });
     // .type(selectAllJSObjectContentShortcut)
