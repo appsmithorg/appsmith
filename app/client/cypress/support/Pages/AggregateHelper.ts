@@ -464,6 +464,14 @@ export class AggregateHelper {
     cy.get("body").type(`{del}`, { force: true });
   }
 
+  public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
+    cy.get(parentWidget).type(this.isMac ? "{meta}A" : "{ctrl}A");
+  }
+
+  public SetCanvasViewportWidth(width: number) {
+    cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
+  }
+
   public ClickOutside() {
     cy.get("body").click(0, 0, { force: true });
   }
@@ -1197,6 +1205,18 @@ export class AggregateHelper {
       | "bottomRight",
   ) {
     return this.GetElement(selector).scrollTo(position).wait(2000);
+  }
+
+  GetWidgetWidth(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("width");
+  }
+
+  GetWidgetHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("height");
+  }
+
+  GetWidgetByName(widgetName: string) {
+    return this.GetElement(this.locator._widgetByName(widgetName));
   }
 
   public EnableAllEditors() {
