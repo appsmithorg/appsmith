@@ -899,7 +899,7 @@ export class AggregateHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInput(selector: string, value: string, force: false) {
+  public UpdateInput(selector: string, value: string, force = false) {
     this.GetElement(selector)
       .find("input")
       .clear({ force: force })
