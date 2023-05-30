@@ -8,7 +8,8 @@ export default defineConfig({
   pageLoadTimeout: 30000,
   videoUploadOnPasses: false,
   videoCompression: false,
-  numTestsKeptInMemory: 10,
+  numTestsKeptInMemory: 5,
+  experimentalMemoryManagement : true,
   reporterOptions: {
     reportDir: "results",
     overwrite: false,
@@ -27,10 +28,13 @@ export default defineConfig({
     env: {
       USERNAME: "xxxx",
       PASSWORD: "xxx",
+      },
     },
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
+    experimentalSessionAndOrigin: true,
     specPattern: "cypress/e2e/**/*.{js,ts}",
+    testIsolation: false,
   },
 });
