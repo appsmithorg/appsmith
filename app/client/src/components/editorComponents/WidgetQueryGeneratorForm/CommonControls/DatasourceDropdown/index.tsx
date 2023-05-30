@@ -53,10 +53,10 @@ function DatasourceDropdown() {
           ) {
             return false;
           } else {
-            return (
-              !!option?.value &&
-              option.value.toString()?.toLocaleLowerCase().indexOf(value) > -1
-            );
+            return !!option?.value
+              ?.toString()
+              ?.toLocaleLowerCase()
+              .includes(value);
           }
         }}
         isDisabled={disabled}
