@@ -112,7 +112,6 @@ describe(
         cy.get(template.templateDialogBox).should("be.visible");
         cy.wait("@fetchAllTemplates").should(({ request, response }) => {
           // in the fixture data we are sending some tempaltes with `allowPageImport: false`
-          cy.log(response.body.data.length);
           cy.get(template.templateCard).should(
             "not.have.length",
             response.body.data.length,
@@ -121,7 +120,6 @@ describe(
           const templatesInResponse = response.body.data.filter(
             (card) => !!card.allowPageImport,
           );
-          cy.log(templatesInResponse);
           cy.get(template.templateCard).should(
             "have.length",
             templatesInResponse.length,
