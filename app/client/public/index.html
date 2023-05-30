@@ -219,15 +219,6 @@
       pricingUrl: parseConfig("__APPSMITH_PRICING_URL__") || "https://www.appsmith.com/pricing",
     };
   </script>
-  <script>
-    window.__appsmith__allMainThreadNonIconChunkIds = <%= JSON.stringify(compilation.chunks
-      // Filter out the icons
-      .filter(i => i.name !== 'icon')
-      // Filter out worker-owned chunks (this logic might be fragile)
-      .filter(i => [...i.groupsIterable].some(group => !group.name?.toLowerCase().includes('worker')))
-      .map(i => i.id)
-    ) %>;
-  </script>
 </body>
 
 </html>

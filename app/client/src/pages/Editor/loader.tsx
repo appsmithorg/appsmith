@@ -1,6 +1,10 @@
 import React from "react";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
+import { preexecuteChunk } from "preexecute";
+
+const editorImport = () => import(/* webpackChunkName: "editor" */ "./index");
+preexecuteChunk(editorImport);
 
 class EditorLoader extends React.PureComponent<any, { Page: any }> {
   constructor(props: any) {
@@ -12,11 +16,9 @@ class EditorLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    retryPromise(() => import(/* webpackChunkName: "editor" */ "./index")).then(
-      (module) => {
-        this.setState({ Page: module.default });
-      },
-    );
+    retryPromise(editorImport).then((module) => {
+      this.setState({ Page: module.default });
+    });
   }
   render() {
     const { Page } = this.state;

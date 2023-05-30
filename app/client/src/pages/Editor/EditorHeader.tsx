@@ -92,6 +92,7 @@ import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { preexecuteChunk } from "preexecute";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -212,13 +213,13 @@ type EditorHeaderProps = {
   currentUser?: User;
 };
 
-const GlobalSearch = lazy(() => {
-  return retryPromise(
-    () =>
-      import(
-        /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
-      ),
+const globalSearchImport = () =>
+  import(
+    /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
   );
+preexecuteChunk(globalSearchImport);
+const GlobalSearch = lazy(() => {
+  return retryPromise(globalSearchImport);
 });
 
 const theme = getTheme(ThemeMode.LIGHT);
