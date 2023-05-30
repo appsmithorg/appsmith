@@ -27,7 +27,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("1. Create Mongo Datasource & verify it has collections", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    agHelper.GetNClick(homePage._buildFromDataTableActionCard);
+    ee.AddNewPage("Generate page with data");
+    //agHelper.GetNClick(homePage._buildFromDataTableActionCard);//Commenting this since this is not always available in new app
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,
