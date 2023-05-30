@@ -3,7 +3,7 @@ import * as React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { Icon, SegmentedControl } from "design-system";
-import { boxShadowOptions } from "constants/ThemeConstants";
+import { boxShadowOptions, sizeMappings } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -16,19 +16,15 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
 
 const options = Object.keys(boxShadowOptions).map((optionKey, index) => ({
   label: (
-    <React.Fragment key={index}>
+    <div key={index}>
       {optionKey === "none" ? (
         <div>
           <Icon name="close-line" size="md" />
         </div>
       ) : (
-        <div>
-          {optionKey === "S" && "Small"}
-          {optionKey === "M" && "Medium"}
-          {optionKey === "L" && "Large"}
-        </div>
+        <div>{sizeMappings[optionKey]}</div>
       )}
-    </React.Fragment>
+    </div>
   ),
   value: boxShadowOptions[optionKey],
 }));
