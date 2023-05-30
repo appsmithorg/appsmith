@@ -275,33 +275,41 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
-  cy.location().then((loc) => {
-    let baseURL = Cypress.config().baseUrl;
-    baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
+  let baseURL = Cypress.config().baseUrl;
+  baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
 
-    cy.visit({
-      method: "POST",
-      url: "api/v1/login",
-      headers: {
-        origin: baseURL,
-      },
-      followRedirect: true,
-      body: {
-        username: uname,
-        password: pword,
-      },
-    })
-      .then(() => cy.location())
-      .then((loc) => {
-        expect(loc.href).to.equal(loc.origin + "/applications");
-        cy.wait("@getMe");
-        cy.wait("@applications").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        cy.wait("@getReleaseItems");
-      });
+  // Clear cookies to avoid stale cookies on cypress CI
+  cy.clearCookie("SESSION");
+
+  cy.visit({
+    method: "POST",
+    url: "api/v1/login",
+    headers: {
+      origin: baseURL,
+    },
+    followRedirect: true,
+    body: {
+      username: uname,
+      password: pword,
+    },
+  });
+
+  // Check if cookie is present
+  cy.getCookie("SESSION").then((cookie) => {
+    expect(cookie).to.not.be.null;
+    cy.log(cookie.value);
+
+    cy.location().should((loc) => {
+      expect(loc.href).to.eq(loc.origin + "/applications");
+    });
+
+    cy.wait("@getMe");
+    cy.wait("@applications").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@getReleaseItems");
   });
 });
 
