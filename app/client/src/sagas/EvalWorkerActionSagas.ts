@@ -28,15 +28,13 @@ import type {
 } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
-
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { LintTreeSagaRequestData } from "Linting/types";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
-
-import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
