@@ -7,7 +7,7 @@ import {
   apiRequestInterceptor,
   apiSuccessResponseInterceptor,
   blockedApiRoutesForAirgapInterceptor,
-} from "api/ApiUtils";
+} from "@appsmith/api/ApiUtils";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {

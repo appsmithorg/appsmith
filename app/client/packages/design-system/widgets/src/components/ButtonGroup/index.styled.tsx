@@ -14,50 +14,42 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
     flex-direction: column;
   }
 
-  & > :is([data-button], div) {
+  & [data-button] {
     // increasing z index to make sure the focused button is on top of the others
-    &:is([data-button])[data-focused]:not([data-disabled]),
-    &:is(div) [data-button][data-focused]:not([data-disabled]) {
+    &:not([data-disabled]):focus {
       z-index: 1;
     }
 
-    &:first-child:is([data-button]),
-    &:first-child:is(div) [data-button] {
+    &:first-child {
       border-bottom-right-radius: 0;
     }
 
-    &:last-of-type:is([data-button]),
-    &:last-of-type:is(div) [data-button] {
+    &:last-of-type {
       border-top-left-radius: 0;
     }
 
-    &:not(:first-child):not(:last-of-type):is([data-button]),
-    &:not(:first-child):not(:last-of-type):is(div) [data-button] {
+    &:not(:first-child):not(:last-of-type) {
       border-radius: 0;
     }
   }
 
-  &:not([data-orientation="vertical"]) > :is([data-button], div) {
-    &:first-child:is([data-button]),
-    &:first-child:is(div) [data-button] {
+  &:not([data-orientation="vertical"]) [data-button] {
+    &:first-child {
       border-top-right-radius: 0;
       border-right-width: calc(var(--border-width-1) / 2);
     }
 
-    &:last-of-type:is([data-button]),
-    &:last-of-type:is(div) [data-button] {
+    &:last-of-type {
       border-bottom-left-radius: 0;
       border-left-width: calc(var(--border-width-1) / 2);
     }
 
-    &:not(:first-child):not(:last-of-type):is([data-button]),
-    &:not(:first-child):not(:last-of-type):is(div) [data-button] {
+    &:not(:first-child):not(:last-of-type) {
       border-left-width: calc(var(--border-width-1) / 2);
       border-right-width: calc(var(--border-width-1) / 2);
     }
 
-    &:is([data-button]) + [data-button],
-    &:is(div) + div {
+    & + [data-button] {
       margin-left: calc(var(--border-width-1) * -1);
 
       @media (min-resolution: 192dpi) {
@@ -67,26 +59,22 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
   }
 
   &[data-orientation="vertical"] [data-button] {
-    &:first-child:is([data-button]),
-    &:first-child:is(div) [data-button] {
+    &:first-child {
       border-bottom-left-radius: 0;
       border-bottom-width: calc(var(--border-width-1) / 2);
     }
 
-    &:last-of-type:is([data-button]),
-    &:last-of-type:is(div) [data-button] {
+    &:last-of-type {
       border-top-right-radius: 0;
       border-top-width: calc(var(--border-width-1) / 2);
     }
 
-    &:not(:first-child):not(:last-of-type):is([data-button]),
-    &:not(:first-child):not(:last-of-type):is(div) [data-button] {
+    &:not(:first-child):not(:last-of-type) {
       border-top-width: calc(var(--border-width-1) / 2);
       border-bottom-width: calc(var(--border-width-1) / 2);
     }
 
-    &:is([data-button]) + [data-button],
-    &:is(div) + div {
+    & + [data-button] {
       margin-top: calc(var(--border-width-1) * -1);
 
       @media (min-resolution: 192dpi) {

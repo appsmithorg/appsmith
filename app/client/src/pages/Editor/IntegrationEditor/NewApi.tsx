@@ -14,12 +14,12 @@ import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Spinner } from "design-system";
 
 const StyledContainer = styled.div`
   flex: 1;

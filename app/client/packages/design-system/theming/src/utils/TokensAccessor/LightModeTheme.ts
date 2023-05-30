@@ -46,7 +46,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
-      bgAssistive: this.bgAssistive.toString({ format: "hex" }),
+      bgAssistive: this.bgAssistive.toString(),
       // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
@@ -224,11 +224,11 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.l = 0.12;
       color.oklch.c = 0;
+      return color;
     }
 
     color.oklch.l = 0.12;
     color.oklch.c = 0.032;
-
     return color;
   }
 
@@ -237,13 +237,13 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (this.bg.contrastAPCA(this.seedColor) <= 60) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.25;
+        color.oklch.l = 0.45;
         color.oklch.c = 0;
         return color;
       }
 
-      color.oklch.l = 0.25;
-      color.oklch.c = 0.064;
+      color.oklch.l = 0.45;
+      color.oklch.c = 0.164;
       return color;
     }
 

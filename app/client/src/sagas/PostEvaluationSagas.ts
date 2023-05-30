@@ -41,8 +41,6 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { toast } from "design-system";
@@ -464,10 +462,8 @@ export function* updateTernDefinitions(
     dataTree,
     configTree,
   );
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
     dataTreeForAutocomplete,
-    !!featureFlags.JS_EDITOR,
     jsData,
     configTree,
   );

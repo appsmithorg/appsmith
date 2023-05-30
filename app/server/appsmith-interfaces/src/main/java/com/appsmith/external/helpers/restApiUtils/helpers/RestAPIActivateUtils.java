@@ -2,14 +2,12 @@ package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.constants.ResponseDataType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.util.WebClientUtils;
@@ -46,7 +44,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.restApiUtils.helpers.DataUtils.FIELD_API_CONTENT_TYPE;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -91,7 +88,8 @@ public class RestAPIActivateUtils {
                     ActionExecutionResult result = new ActionExecutionResult();
 
                     // Set the request fields
-                    result.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                    boolean isBodySentWithApiRequest = requestBody == null ? false : true;
+                    result.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest, isBodySentWithApiRequest));
 
                     result.setStatusCode(statusCode.toString());
                     result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
@@ -184,7 +182,12 @@ public class RestAPIActivateUtils {
             ));
         }
 
-        assert requestBody instanceof BodyInserter<?, ?>;
+        /**
+         * requestBody is expected to be null when a GET request type is used with no content-type header.
+         */
+        if (requestBody != null) {
+            assert requestBody instanceof BodyInserter<?, ?>;
+        }
         BodyInserter<?, ?> finalRequestBody = (BodyInserter<?, ?>) requestBody;
 
         return webClient
