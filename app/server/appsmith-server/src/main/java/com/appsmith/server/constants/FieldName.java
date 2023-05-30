@@ -84,4 +84,8 @@ public class FieldName extends FieldNameCE {
     public static final String APPLICATION_VIEWER = "App Viewer";
     public static final String APPLICATION_DEVELOPER_DESCRIPTION = "Can edit and view this application along with inviting other users to this application.";
     public static final String APPLICATION_VIEWER_DESCRIPTION = "Can view this application and invite other users to view this application.";
+    // This constant represents the id of an environment that encountered a failed upgrade from CE to EE .
+    // It facilitates identification and troubleshooting of environments that were unable to
+    // complete the upgrade process between the CE to EE
+    public static final String FAILED_ENVIRONMENT_ID_UPGRADE ="environmentIdUpgradeFailed";
 }
