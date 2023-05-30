@@ -97,7 +97,8 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .flatMap(application ->
                         applicationSnapshotRepository.deleteAllByApplicationId(application.getId())
                                 .thenReturn(application)
-                );
+                )
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<String> getApplicationJsonStringFromSnapShot(String applicationId) {
