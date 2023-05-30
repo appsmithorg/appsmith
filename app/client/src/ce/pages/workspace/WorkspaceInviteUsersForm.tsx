@@ -519,7 +519,7 @@ function WorkspaceInviteUsersForm(props: any) {
             >
               {styledRoles.map((role: any) => (
                 <Option key={role.key} label={role.value} value={role.key}>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 items-center">
                     {isMultiSelectDropdown && (
                       <StyledCheckbox
                         isSelected={selectedOption.find(
