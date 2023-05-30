@@ -1,14 +1,15 @@
 import React, { forwardRef } from "react";
-import { Icon as HeadlessIcon } from "@design-system/headless";
+import { useVisuallyHidden } from "@react-aria/visually-hidden";
+
+import { Text } from "../Text";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
-
-import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
 import type { fontFamilyTypes } from "../../utils/typography";
+import { Icon as HeadlessIcon } from "@design-system/headless";
 
 export type ButtonVariants = "primary" | "secondary" | "tertiary";
 
@@ -39,13 +40,17 @@ export const Button = forwardRef(
       variant = "primary",
       ...rest
     } = props;
+    const { visuallyHiddenProps } = useVisuallyHidden();
 
     const renderChildren = () => {
       if (isLoading) {
         return (
-          <HeadlessIcon>
-            <Spinner />
-          </HeadlessIcon>
+          <>
+            <HeadlessIcon>
+              <Spinner />
+            </HeadlessIcon>
+            <span {...visuallyHiddenProps}>Loading...</span>
+          </>
         );
       }
 
@@ -68,6 +73,7 @@ export const Button = forwardRef(
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         ref={ref}
+        visuallyDisabled={isLoading}
         {...rest}
       >
         {renderChildren()}

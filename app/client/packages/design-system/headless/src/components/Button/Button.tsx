@@ -12,6 +12,10 @@ export interface ButtonProps extends SpectrumAriaBaseButtonProps {
    * Note: Visually disabled button can be focused.
    */
   visuallyDisabled?: boolean;
+  /**
+   * Indicates an element is being modified and that assistive technologies MAY want to wait until the modifications are complete before exposing them to the user.
+   */
+  "aria-busy"?: boolean;
 }
 
 export type ButtonRef = React.Ref<HTMLButtonElement>;
@@ -28,6 +32,7 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
   return (
     <button
       {...mergeProps(buttonProps, hoverProps, focusProps)}
+      aria-busy={props["aria-busy"] ? true : undefined}
       aria-disabled={visuallyDisabled ? true : undefined}
       className={className}
       data-active={isPressed ? "" : undefined}
