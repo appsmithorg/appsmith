@@ -1,0 +1,66 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "",
+          "controlType": "ENTITY_SELECTOR",
+          "configProperty": "actionConfiguration.formData.selector.data",
+          "conditionals": {
+            "show": "{{ true }}"
+          },
+          "schema": [
+            {
+              "label": "Service",
+              "tooltipText": "GRPC Service Name",
+              "propertyName": "grpc_service",
+              "configProperty": "actionConfiguration.formData.service.data",
+              "controlType": "DROP_DOWN",
+              "isSearchable": true,
+              "isRequired": true,
+              "fetchOptionsConditionally": true,
+              "conditionals": {
+                "fetchDynamicValues": {
+                  "condition": "{{true}}",
+                  "config": {
+                    "params": {
+                      "requestType": "SERVICE_SELECTOR",
+                      "displayType": "DROP_DOWN"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "label": "Endpoint",
+              "tooltipText": "GRPC Endpoint Name",
+              "propertyName": "grpc_endpoint",
+              "configProperty": "actionConfiguration.formData.endpoint.data",
+              "controlType": "DROP_DOWN",
+              "isSearchable": true,
+              "isRequired": true,
+              "fetchOptionsConditionally": true,
+              "conditionals": {
+                "show": "{{ !!actionConfiguration.formData.service.data }}",
+                "fetchDynamicValues": {
+                  "condition": "{{ !!actionConfiguration.formData.service.data }}",
+                  "config": {
+                    "params": {
+                      "requestType": "ENDPOINT_SELECTOR",
+                      "displayType": "DROP_DOWN",
+                      "parameters": {
+                        "service": "{{ actionConfiguration.formData.service.data }}"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],"files": ["query.json"]
+}

@@ -1,0 +1,169 @@
+{
+  "form": [
+    {
+      "sectionName": "General",
+      "children": [
+        {
+          "label": "URL",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "example.com:443"
+        },
+        {
+          "label": "Metadata",
+          "info": "Metadata to be appended to all calls to this data source",
+          "configProperty": "datasourceConfiguration.headers",
+          "controlType": "KEYVALUE_ARRAY"
+        },
+        {
+          "label": "Connect using SSL",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "SWITCH",
+          "initialValue": true
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "hidden": {
+        "path": "datasourceConfiguration.properties[1].value",
+        "comparison": "EQUALS",
+        "value": false
+      },
+      "children": [
+        {
+          "label": "Use a self-signed",
+          "configProperty": "datasourceConfiguration.properties[2].value",
+          "controlType": "SWITCH",
+          "initialValue": false,
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "EQUALS",
+            "value": false
+          }
+        },
+        {
+          "label": "CA Authority Override",
+          "configProperty": "datasourceConfiguration.properties[6].value",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "foo.test.google.fr",
+          "isRequired": false,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [{
+              "path": "datasourceConfiguration.properties[1].value",
+              "comparison": "EQUALS",
+              "value": false
+            },{
+              "path": "datasourceConfiguration.properties[2].value",
+              "comparison": "EQUALS",
+              "value": false
+            }]
+          }
+        },
+        {
+          "label": "CA Cert Key",
+          "configProperty": "datasourceConfiguration.properties[3].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "CA Cert"
+        },
+        {
+          "label": "CA cert (ca.key)",
+          "configProperty": "datasourceConfiguration.properties[3].value",
+          "controlType": "FILE_PICKER",
+          "encrypted": true,
+          "isRequired": false,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [{
+              "path": "datasourceConfiguration.properties[1].value",
+              "comparison": "EQUALS",
+              "value": false
+            },{
+              "path": "datasourceConfiguration.properties[2].value",
+              "comparison": "EQUALS",
+              "value": false
+            }]
+          }
+        },
+        {
+          "label": "Use a client certificate",
+          "configProperty": "datasourceConfiguration.properties[7].value",
+          "controlType": "SWITCH",
+          "initialValue": false,
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "EQUALS",
+            "value": false
+          }
+        },
+        {
+          "label": "Client Certificate Private Key Key",
+          "configProperty": "datasourceConfiguration.properties[4].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "Client Certificate Private Key"
+        },
+        {
+          "label": "Client Certificate Private Key (client.key)",
+          "configProperty": "datasourceConfiguration.properties[4].value",
+          "controlType": "FILE_PICKER",
+          "encrypted": true,
+          "isRequired": false,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [{
+              "path": "datasourceConfiguration.properties[1].value",
+              "comparison": "EQUALS",
+              "value": false
+            },{
+              "path": "datasourceConfiguration.properties[7].value",
+              "comparison": "EQUALS",
+              "value": false
+            }]
+          }
+        },
+        {
+          "label": "Client Certificate Cert Chain Key",
+          "configProperty": "datasourceConfiguration.properties[5].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "Cert Chain"
+        },
+        {
+          "label": "Client Certificate Cert Chain (client.pem)",
+          "configProperty": "datasourceConfiguration.properties[5].value",
+          "controlType": "FILE_PICKER",
+          "encrypted": true,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [{
+              "path": "datasourceConfiguration.properties[1].value",
+              "comparison": "EQUALS",
+              "value": false
+            },{
+              "path": "datasourceConfiguration.properties[7].value",
+              "comparison": "EQUALS",
+              "value": false
+            }]
+          }
+        }
+      ]
+    },
+    {
+      "sectionName": "Timeouts",
+      "children": [
+        {
+          "label": "Reflection Timeout (seconds)",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "dataType": "NUMBER",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "10"
+        }
+      ]
+    }
+  ]
+}

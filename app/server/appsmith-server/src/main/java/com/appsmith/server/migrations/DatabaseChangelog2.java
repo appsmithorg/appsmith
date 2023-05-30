@@ -2917,6 +2917,27 @@ public class DatabaseChangelog2 {
         mongoTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
+    @ChangeSet(order = "041", id = "add-grpc-plugin", author = "")
+    public void addGrpcPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Reflective Grpc API");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("grpc-plugin");
+        plugin.setUiComponent("UQIDbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://cncf-branding.netlify.app/img/projects/grpc/icon/color/grpc-icon-color.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-grpc");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
+
     private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongoTemplate mongoTemplate) {
         Query queryToGetNonDeletedWorkspaces = new Query();
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));

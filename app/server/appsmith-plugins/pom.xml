@@ -31,6 +31,7 @@
         <module>jsPlugin</module>
         <module>saasPlugin</module>
         <module>smtpPlugin</module>
+        <module>grpcPlugin</module>
     </modules>
 
     <properties>

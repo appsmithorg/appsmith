@@ -1,0 +1,18 @@
+{
+  "service":"ChatService",
+  "method":"ChatBidirectionalStream",
+  "input": {
+    "equals": {
+      "from": "From",
+      "message": "Message"
+    }
+  },
+  "output": {
+    "data": {
+      "message": {
+        "from": "From Output",
+        "message": "Message Output"
+      }
+    }
+  }
+}

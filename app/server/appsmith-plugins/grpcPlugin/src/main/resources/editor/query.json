@@ -1,0 +1,22 @@
+{
+  "identifier": "QUERY",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{ !!actionConfiguration.formData.endpoint.data }}"
+  },
+  "children": [
+    {
+      "label": "Query Body",
+      "tooltipText": "A single object to be updated based on it's rowIndex property",
+      "propertyName": "grpc_query",
+      "configProperty": "actionConfiguration.formData.body.data",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "isRequired": true,
+      "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+      "conditionals": {
+        "show": "{{!!actionConfiguration.formData.endpoint.data}}"
+      },
+      "placeholderText": "{ \"field_name\": {{Input1.text}} }"
+    }
+  ]
+}
