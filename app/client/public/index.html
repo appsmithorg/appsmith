@@ -65,6 +65,7 @@
       return result;
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const CDN_URL = parseConfig("__APPSMITH_CDN_URL__");
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
     if (CLOUD_HOSTING && ZIPY_KEY) {
       const script = document.createElement('script');
