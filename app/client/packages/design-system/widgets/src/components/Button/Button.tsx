@@ -20,14 +20,16 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   variant?: ButtonVariants;
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
-  isLoading?: boolean;
   isFocused?: boolean;
+  isLoading?: boolean;
   icon?: React.ReactNode;
   iconPosition?: "start" | "end";
+  visuallyDisabled?: boolean;
 }
 
 export const Button = forwardRef(
   (props: ButtonProps, ref: HeadlessButtonRef) => {
+    props = useVisuallyDisabled(props);
     const {
       children,
       fontFamily,
@@ -38,6 +40,7 @@ export const Button = forwardRef(
       // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
       onKeyUp,
       variant = "primary",
+      visuallyDisabled,
       ...rest
     } = props;
     const { visuallyHiddenProps } = useVisuallyHidden();
@@ -67,13 +70,13 @@ export const Button = forwardRef(
     return (
       <StyledButton
         aria-busy={isLoading ? true : undefined}
+        aria-disabled={visuallyDisabled || isLoading ? true : undefined}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         ref={ref}
-        visuallyDisabled={isLoading}
         {...rest}
       >
         {renderChildren()}
@@ -81,3 +84,31 @@ export const Button = forwardRef(
     );
   },
 );
+
+/**
+ * This hook is used to disable all click/press events on a button
+ * when the button is visually disabled
+ *
+ * @param props
+ * @returns
+ */
+const useVisuallyDisabled = (props: ButtonProps) => {
+  let computedProps = props;
+
+  if (props.visuallyDisabled || props.isLoading) {
+    computedProps = {
+      ...props,
+      isDisabled: false,
+      // disabling click/press events
+      onPress: undefined,
+      onPressStart: undefined,
+      onPressEnd: undefined,
+      onPressChange: undefined,
+      onPressUp: undefined,
+      onKeyDown: undefined,
+      onKeyUp: undefined,
+    };
+  }
+
+  return computedProps;
+};

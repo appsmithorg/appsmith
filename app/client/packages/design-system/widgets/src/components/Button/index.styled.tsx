@@ -25,11 +25,11 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     color: var(--color-fg-on-accent);
     border-color: transparent;
 
-    &[data-hovered]:not([data-loading]) {
+    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-hover);
     }
 
-    &[data-active]:not([data-loading]) {
+    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-active);
     }
   }
@@ -40,11 +40,11 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     border-color: var(--color-bd-accent);
     border-width: var(--border-width-1);
 
-    &[data-hovered]:not([data-loading]) {
+    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-subtle-hover);
     }
 
-    &[data-active]:not([data-loading]) {
+    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background-color: var(--color-bg-accent-subtle-active);
     }
   }
@@ -55,11 +55,11 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     border-color: transparent;
     border-width: 0;
 
-    &[data-hovered]:not([data-loading]) {
+    &[data-hovered]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background: var(--color-bg-accent-subtle-hover);
     }
 
-    &[data-active]:not([data-loading]) {
+    &[data-active]:not(:is([data-loading], [data-disabled], [aria-disabled])) {
       background: var(--color-bg-accent-subtle-active);
     }
   }
@@ -68,7 +68,9 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
-  &[data-disabled] {
+  &[data-disabled],
+  // TODO(Pawan): Check if we need to make the UI of loading state same as disabled?
+  &[aria-disabled]:not([data-loading]) {
     cursor: default;
     opacity: var(--opacity-disabled);
   }
