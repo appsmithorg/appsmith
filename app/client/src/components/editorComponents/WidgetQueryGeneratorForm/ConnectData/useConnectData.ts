@@ -29,8 +29,10 @@ export function useConnectData() {
   const onClick = () => {
     const payload = {
       tableName: config.table,
+      sheetName: config.sheet,
       datasourceId: config.datasource,
       widgetId: widgetId,
+      tableHeaderIndex: config.tableHeaderIndex,
       searchableColumn: config.searchableColumn,
       columns: columns.map((column) => column.name),
       primaryColumn,
