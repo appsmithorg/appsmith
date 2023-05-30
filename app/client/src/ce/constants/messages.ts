@@ -1165,6 +1165,16 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
+export const FORM_LOGIN_DESC = () =>
+  "Enable your workspace to sign in with Appsmith Form.";
+export const GOOGLE_AUTH_DESC = () =>
+  "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).";
+export const GITHUB_AUTH_DESC = () =>
+  "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).";
+export const SAML_AUTH_DESC = () =>
+  "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
+export const OIDC_AUTH_DESC = () =>
+  "Enable your workspace to sign in with your preferred OIDC compliant provider.";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
@@ -1273,7 +1283,7 @@ export const UPGRADE_TO_EE = (authLabel: string) =>
 export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
   `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
-export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select authentication method";
+export const ADMIN_AUTH_SETTINGS_TITLE = () => "Authentication";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
 export const DANGER_ZONE = () => "Danger zone";
