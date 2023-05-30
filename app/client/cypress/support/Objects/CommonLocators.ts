@@ -213,4 +213,5 @@ export class CommonLocators {
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
+  _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
 }

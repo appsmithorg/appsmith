@@ -45,13 +45,14 @@ export class HomePage {
   public _closeBtn = ".ads-v2-modal__content-header-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
+  _appEditIcon = ".t--application-edit-link";
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
-  private _applicationName = ".t--application-name";
+  _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".ads-v2-menu__menu-item-children";
   _buildFromDataTableActionCard = "[data-testid='generate-app']";
@@ -323,10 +324,10 @@ export class HomePage {
         .should("be.enabled");
   }
 
-  public FilterApplication(appName: string, workspaceId: string) {
+  public FilterApplication(appName: string, workspaceId?: string) {
     cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
-    cy.get(this._appContainer).contains(workspaceId);
+    workspaceId && cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
   }
 
