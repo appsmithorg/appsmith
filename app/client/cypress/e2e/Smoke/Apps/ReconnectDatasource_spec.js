@@ -19,7 +19,11 @@ describe("Reconnect Datasource Modal validation while importing application", fu
         cy.renameWorkspace(newWorkspaceName, workspaceId);
         cy.get(homePage.workspaceImportAppOption).click({ force: true });
         cy.get(homePage.workspaceImportAppModal).should("be.visible");
-        cy.xpath(homePage.uploadLogo).attachFile("one_postgres.json");
+        cy.xpath(homePage.uploadLogo)
+          .first()
+          .selectFile("cypress/fixtures/one_postgres.json", {
+            force: true,
+          });
         cy.wait("@importNewApplication").then((interception) => {
           cy.wait(100);
           // should check reconnect modal openning

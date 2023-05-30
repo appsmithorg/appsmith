@@ -33,7 +33,7 @@ export const generateDataTreeAction = (
     action.config.datasource &&
     "datasourceConfiguration" in action.config.datasource
   ) {
-    datasourceUrl = action.config.datasource.datasourceConfiguration.url;
+    datasourceUrl = action.config.datasource.datasourceConfiguration?.url ?? "";
   }
 
   const dependencyMap: DependencyMap = {};

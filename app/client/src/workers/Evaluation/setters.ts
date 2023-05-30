@@ -39,9 +39,10 @@ export function applySetterMethod(
   const { validationPaths } = entityConfig;
 
   if (validationPaths) {
-    const validationConfig = validationPaths[propertyPath];
+    const validationConfig = validationPaths[propertyPath] || {};
+    const config = { ...validationConfig, params: { strict: true } };
     const { isValid, messages } = validate(
-      validationConfig,
+      config,
       value,
       entity as Record<string, unknown>,
       propertyPath,

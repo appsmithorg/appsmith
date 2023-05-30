@@ -31,7 +31,6 @@ import WidgetFactory from "utils/WidgetFactory";
 // or DATA_TREE.ACTION.ACTION.Api1
 export const dataTreeTypeDefCreator = (
   dataTree: DataTree,
-  isJSEditorEnabled: boolean,
   jsData: Record<string, unknown> = {},
   configTree: ConfigTree,
 ): { def: Def; entityInfo: Map<string, DataTreeDefEntityInformation> } => {
@@ -84,7 +83,7 @@ export const dataTreeTypeDefCreator = (
         type: ENTITY_TYPE.APPSMITH,
         subType: ENTITY_TYPE.APPSMITH,
       });
-    } else if (isJSAction(entity) && isJSEditorEnabled) {
+    } else if (isJSAction(entity)) {
       const entityConfig = configTree[entityName] as JSActionEntityConfig;
       const metaObj = entityConfig.meta;
       const jsPropertiesDef: Def = {};

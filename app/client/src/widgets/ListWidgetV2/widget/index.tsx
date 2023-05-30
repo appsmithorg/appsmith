@@ -1131,6 +1131,12 @@ class ListWidget extends BaseWidget<
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+            if (
+              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              container.children?.[0]
+            ) {
+              container.children[0].isListWidgetCanvas = true;
+            }
             return {
               ...container,
               focused,

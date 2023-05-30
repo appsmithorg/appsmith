@@ -5,6 +5,7 @@ import { OverflowTypes } from "./constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export const CONFIG = {
   features: {
@@ -47,6 +48,10 @@ export const CONFIG = {
   autoLayout: {
     autoDimension: {
       height: true,
+    },
+    disabledPropsDefaults: {
+      overflow: OverflowTypes.NONE,
+      dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     },
     defaults: {
       columns: 4,

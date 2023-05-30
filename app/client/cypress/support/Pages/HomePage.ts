@@ -424,9 +424,13 @@ export class HomePage {
     else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
-    cy.xpath(this._uploadFile).attachFile(fixtureJson);
+    cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
+      force: true,
+    });
     this.agHelper.Sleep(3500);
   }
+
+  // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
   public InviteUserToWorkspaceFromApp(
     email: string,
     role: string,

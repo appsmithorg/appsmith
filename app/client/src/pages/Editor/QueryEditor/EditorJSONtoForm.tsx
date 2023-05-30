@@ -169,7 +169,6 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  /* padding: 16px 30px; */
   ${thinScrollbar};
   height: 100%;
 `;
@@ -177,7 +176,7 @@ const SettingsWrapper = styled.div`
 const ResultsCount = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 1}px;
+  top: 9px;
   color: var(--ads-v2-color-fg);
 `;
 
@@ -195,7 +194,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div<{ isError: boolean }>`
-  overflow-y: auto;
+  overflow-y: clip;
   display: grid;
   height: ${(props) => (props.isError ? "" : "100%")};
 
@@ -320,7 +319,8 @@ export const SegmentedControlContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
-  overflow: scroll;
+  overflow-y: clip;
+  overflow-x: scroll;
 `;
 
 type QueryFormProps = {
