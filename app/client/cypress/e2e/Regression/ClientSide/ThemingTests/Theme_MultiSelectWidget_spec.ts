@@ -30,6 +30,7 @@ describe("Theme validation usecase for multi-select widget", function () {
     theme.validateShadowPopoverText(3, "L");
     theme.toggleSection("Shadow");
   });
+  
   it.skip("4.validate Change theme color", function () {
     theme.ChangeThemeColor("purple", "Primary");
     _.agHelper.AssertElementValue(themelocator.inputColor, "purple");
