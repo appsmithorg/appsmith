@@ -18,9 +18,7 @@ describe("Page orientation and navigation related usecases ", function () {
     );
   });
   it("2. Validate change with height width for fill widget - Input widget", function () {
-    _.agHelper.GetNClick(commonlocators.autoConvert);
-    _.agHelper.GetNClick(commonlocators.convert);
-    _.agHelper.GetNClick(commonlocators.refreshApp);
+    _.autoLayout.ConvertToAutoLayout();
     _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 100, 200);
     _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 10, 20);
     _.agHelper.Sleep();

@@ -7,9 +7,7 @@ let currentUrl: string | null = null;
 
 describe("Validating multiple widgets in auto layout mode with App navigation settings", function () {
   it("1. Drag and Drop multiple widgets in auto layout mode", function () {
-    _.agHelper.GetNClick(commonlocators.autoConvert);
-    _.agHelper.GetNClick(commonlocators.convert);
-    _.agHelper.GetNClick(commonlocators.refreshApp);
+    _.autoLayout.ConvertToAutoLayout();
     _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 100, 200);
     _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 10, 20);
     _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 10, 20);

@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal Widget with auto layout usecases", function () {
   it("1. Add new Modal widget with other widgets and validate with Auto layout", () => {
-    _.agHelper.GetNClick(commonlocators.autoConvert);
-    _.agHelper.GetNClick(commonlocators.convert);
-    _.agHelper.GetNClick(commonlocators.refreshApp);
+    _.autoLayout.ConvertToAutoLayout();
     _.entityExplorer.DragDropWidgetNVerify("modalwidget", 300, 300);
     _.agHelper.AssertElementExist(_.locators._modal);
     _.agHelper.GetNClick(_.locators._closeModal, 0, true, 0);
