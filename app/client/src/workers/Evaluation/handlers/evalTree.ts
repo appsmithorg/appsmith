@@ -24,7 +24,7 @@ import { setEvalContext } from "../evaluate";
 import type { TJSPropertiesState } from "../JSObject/jsPropertiesState";
 import { jsPropertiesState } from "../JSObject/jsPropertiesState";
 import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
+import type { LintTreeSagaRequestData } from "Linting/types";
 import { WorkerMessenger } from "../fns/utils/Messenger";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;

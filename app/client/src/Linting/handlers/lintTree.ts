@@ -1,5 +1,5 @@
-import { getLintErrorsFromTree } from "Linting";
 import type { LintTreeRequestPayload, LintTreeResponse } from "Linting/types";
+import { getLintErrorsFromTree } from "Linting/utils/lintTree";
 
 export function lintTree(data: LintTreeRequestPayload): LintTreeResponse {
   const lintTreeResponse: LintTreeResponse = {

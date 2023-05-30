@@ -2,16 +2,16 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { get, isEmpty, set } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { LintError } from "utils/DynamicBindingUtils";
-import { globalData } from "./globalData";
-import lintBindingPath from "./utils/lintBindingPath";
-import lintTriggerPath from "./utils/lintTriggerPath";
-import lintJSObjectBody from "./utils/lintJSObjectBody";
-import sortLintingPathsByType from "./utils/sortLintingPathsByType";
-import lintJSObjectProperty from "./utils/lintJSObjectProperty";
+import { globalData } from "../globalData";
+import lintBindingPath from "./lintBindingPath";
+import lintTriggerPath from "./lintTriggerPath";
+import lintJSObjectBody from "./lintJSObjectBody";
+import sortLintingPathsByType from "./sortLintingPathsByType";
+import lintJSObjectProperty from "./lintJSObjectProperty";
 import type {
   getLintErrorsFromTreeProps,
   getLintErrorsFromTreeResponse,
-} from "./types";
+} from "../types";
 
 export function getLintErrorsFromTree({
   asyncJSFunctionsInDataFields,
