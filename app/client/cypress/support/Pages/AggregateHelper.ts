@@ -168,12 +168,14 @@ export class AggregateHelper {
   }
 
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
-    cy.get(selector).within(() => {
-      cy.get(this.locator._codeMirrorCode).should(
-        "have.text",
-        contentToValidate,
-      );
-    });
+    cy.get(selector)
+      .eq(0)
+      .within(() => {
+        cy.get(this.locator._codeMirrorCode).should(
+          "have.text",
+          contentToValidate,
+        );
+      });
   }
 
   public GetElement(selector: ElementType, timeout = 20000) {
@@ -272,7 +274,7 @@ export class AggregateHelper {
 
   public WaitUntilAllToastsDisappear() {
     cy.get(this.locator._toastContainer).waitUntil(
-      ($ele) => cy.wrap($ele).children().should("have.length", 0),
+      ($ele) => cy.wrap($ele).should("have.length", 0),
       {
         errorMsg: "Toasts did not disappear even after 10 seconds",
         timeout: 10000,
