@@ -7,7 +7,6 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationTemplateService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
@@ -76,10 +75,10 @@ public class ApplicationTemplateControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(@PathVariable String templateId,
-                                                                       @PathVariable String applicationId,
-                                                                       @PathVariable String organizationId,
-                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                                       @RequestBody(required = false) List<String> pagesToImport) {
+                                                                                @PathVariable String applicationId,
+                                                                                @PathVariable String organizationId,
+                                                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                                @RequestBody(required = false) List<String> pagesToImport) {
         return applicationTemplateService.mergeTemplateWithApplication(templateId, applicationId, organizationId, branchName, pagesToImport)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }

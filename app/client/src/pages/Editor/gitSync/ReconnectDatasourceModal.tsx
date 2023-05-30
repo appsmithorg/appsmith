@@ -80,6 +80,7 @@ const BodyContainer = styled.div`
   max-height: 82vh;
 `;
 
+// TODO: Removed usage of "t--" classes since they clash with the test classes.
 const ContentWrapper = styled.div`
   height: calc(100% - 16px);
   display: flex;
@@ -90,10 +91,8 @@ const ContentWrapper = styled.div`
   .t--json-to-form-wrapper {
     width: 100%;
 
-    .t--json-to-form-body {
-      .t--collapse-section-container {
-        margin-top: 20px;
-      }
+    .t--collapse-section-container {
+      margin-top: 20px;
     }
 
     .t--close-editor {
@@ -192,6 +191,9 @@ const Message = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
+  width: calc(100% - 206px);
+  overflow: auto;
+  display: flex;
   overflow: hidden;
   height: inherit;
   flex: 1;
@@ -210,7 +212,7 @@ const DBFormWrapper = styled.div`
     height: 100%;
   }
 
-  .t--delete-datasource {
+  .t--cancel-edit-datasource {
     display: none;
   }
 `;
@@ -376,14 +378,43 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = (e: any) => {
+    // Some magic code to handle the scenario where the reconnect modal and google sheets
+    // file picker are both open.
+    // Check if the overlay of the modal was clicked
+    function isOverlayClicked(classList: DOMTokenList) {
+      return classList.contains("reconnect-datasource-modal");
+    }
+    // Check if the close button of the modal was clicked
+    function isCloseButtonClicked(e: HTMLDivElement) {
+      const dialogCloseButton = document.querySelector(
+        ".ads-v2-modal__content-header-close-button",
+      );
+      if (dialogCloseButton) {
+        return dialogCloseButton.contains(e);
+      }
+      return false;
+    }
+
+    let shouldClose = false;
+    if (e) {
+      shouldClose = isOverlayClicked(e.target.classList);
+      shouldClose = shouldClose || isCloseButtonClicked(e.target);
+      // If either the close button or the overlay was clicked close the modal
+      if (shouldClose) {
+        onClose();
+      }
+    }
+  };
+
+  const onClose = () => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
     dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
-  }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
+  };
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
     setIsTesting(false);
@@ -504,8 +535,14 @@ function ReconnectDatasourceModal() {
     isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
-    <Modal onOpenChange={handleClose} open={isModalOpen}>
-      <ModalContentWrapper data-testid="reconnect-datasource-modal">
+    <Modal open={isModalOpen}>
+      <ModalContentWrapper
+        data-testid="reconnect-datasource-modal"
+        onClick={handleClose}
+        onEscapeKeyDown={onClose}
+        onInteractOutside={handleClose}
+        overlayClassName="reconnect-datasource-modal"
+      >
         <ModalHeader>Reconnect datasources</ModalHeader>
         <ModalBodyWrapper>
           <BodyContainer>

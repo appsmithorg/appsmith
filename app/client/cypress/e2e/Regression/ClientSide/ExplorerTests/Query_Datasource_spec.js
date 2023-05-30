@@ -25,10 +25,9 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.wait(2000);
     cy.get(".t--entity-name").contains("Page1").click({ force: true });
     cy.wait(2000);
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.fillPostgresDatasourceForm();
-
+    _.dataSources.NavigateToDSCreateNew();
+    _.dataSources.CreatePlugIn("PostgreSQL");
+    _.dataSources.FillPostgresDSForm();
     // checking that conflicting names are not allowed
     cy.get(".t--edit-datasource-name").click();
     cy.get(".t--edit-datasource-name input")

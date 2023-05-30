@@ -13,16 +13,17 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system-old/build/constants/messages";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
   GOOGLE_SHEETS_LEARN_MORE,
+  createMessage,
 } from "@appsmith/constants/messages";
 
-const StyledAuthMessage = styled.div`
+const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
   width: fit-content;
-  margin-bottom: var(--ads-v2-spaces-4);
-  margin-top: var(--ads-v2-spaces-7);
+  ${(props) =>
+    !props.isInViewMode &&
+    `margin-top: var(--ads-v2-spaces-5);margin-bottom: var(--ads-v2-spaces-4);`}
 `;
 
 type AuthMessageProps = {
@@ -33,6 +34,7 @@ type AuthMessageProps = {
   pageId?: string;
   style?: any;
   calloutType?: CalloutKind;
+  isInViewMode?: boolean;
 };
 
 export default function AuthMessage(props: AuthMessageProps) {
@@ -43,6 +45,7 @@ export default function AuthMessage(props: AuthMessageProps) {
     description,
     pageId,
     style = {},
+    isInViewMode = false,
   } = props;
   const dispatch = useDispatch();
   const pluginType = useSelector((state: AppState) =>
@@ -66,7 +69,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   };
 
   return (
-    <StyledAuthMessage style={style}>
+    <StyledAuthMessage isInViewMode={isInViewMode} style={style}>
       <Callout
         kind={calloutType}
         links={

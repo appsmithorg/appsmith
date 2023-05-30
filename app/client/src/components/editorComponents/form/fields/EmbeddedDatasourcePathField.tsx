@@ -26,7 +26,10 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelper
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
-import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  DATASOURCE_PATH_EXACT_MATCH_REGEX,
+  DATASOURCE_PATH_PARTIAL_MATCH_REGEX,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
@@ -55,6 +58,7 @@ import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -253,9 +257,18 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     let datasourceUrl = "";
     let path = "";
-    const isFullPath = urlGroupsRegexExp.test(value);
-    if (isFullPath) {
-      const matches = value.match(urlGroupsRegexExp);
+    const isCorrectFullPath = DATASOURCE_PATH_EXACT_MATCH_REGEX.test(value);
+    const isSlightlyIncorrectFullPath =
+      DATASOURCE_PATH_PARTIAL_MATCH_REGEX.test(value);
+
+    if (isCorrectFullPath) {
+      const matches = value.match(DATASOURCE_PATH_EXACT_MATCH_REGEX);
+      if (matches && matches.length) {
+        datasourceUrl = matches[1];
+        path = `${matches[2] || ""}${matches[3] || ""}`;
+      }
+    } else if (isSlightlyIncorrectFullPath && !isCorrectFullPath) {
+      const matches = value.match(DATASOURCE_PATH_PARTIAL_MATCH_REGEX);
       if (matches && matches.length) {
         datasourceUrl = matches[1];
         path = `${matches[2] || ""}${matches[3] || ""}`;
@@ -263,6 +276,13 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     } else {
       datasourceUrl = value;
     }
+
+    // if there is a dynamic value in datasource url, make it a path.
+    if (isDynamicValue(datasourceUrl)) {
+      path = datasourceUrl + path;
+      datasourceUrl = "";
+    }
+
     return {
       datasourceUrl,
       path,

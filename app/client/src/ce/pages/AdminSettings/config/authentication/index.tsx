@@ -27,12 +27,20 @@ import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
 } from "@appsmith/selectors/tenantSelectors";
+import {
+  FORM_LOGIN_DESC,
+  GITHUB_AUTH_DESC,
+  GOOGLE_AUTH_DESC,
+  OIDC_AUTH_DESC,
+  SAML_AUTH_DESC,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Form login",
-  subText: "Enable your workspace to sign in with Appsmith form.",
+  subText: createMessage(FORM_LOGIN_DESC),
   canSave: true,
   settings: [
     {
@@ -70,7 +78,7 @@ export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Google authentication",
-  subText: "Enable your workspace to sign in with Google (OAuth).",
+  subText: createMessage(GOOGLE_AUTH_DESC),
   canSave: true,
   settings: [
     {
@@ -141,8 +149,7 @@ export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Github authentication",
-  subText:
-    "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
+  subText: createMessage(GITHUB_AUTH_DESC),
   canSave: true,
   settings: [
     {
@@ -178,7 +185,7 @@ export const FormAuthCallout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
   label: "Form login",
-  subText: "Enable your workspace to sign in with Appsmith Form.",
+  subText: createMessage(FORM_LOGIN_DESC),
   image: Lock,
   icon: "lock-password-line",
 };
@@ -187,8 +194,7 @@ export const GoogleAuthCallout: AuthMethodType = {
   id: "APPSMITH_GOOGLE_AUTH",
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
-  subText:
-    "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).",
+  subText: createMessage(GOOGLE_AUTH_DESC),
   image: Google,
 };
 
@@ -196,8 +202,7 @@ export const GithubAuthCallout: AuthMethodType = {
   id: "APPSMITH_GITHUB_AUTH",
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
-  subText:
-    "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).",
+  subText: createMessage(GITHUB_AUTH_DESC),
   image: Github,
 };
 
@@ -205,7 +210,7 @@ export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   category: "saml",
   label: "SAML 2.0",
-  subText: `Enable your workspace to sign in with your preferred SAML2 compliant provider.`,
+  subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
   needsUpgrade: true,
 };
@@ -214,7 +219,7 @@ export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: "oidc",
   label: "OIDC",
-  subText: `Enable your workspace to sign in with your preferred OIDC compliant provider.`,
+  subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
   needsUpgrade: true,
 };

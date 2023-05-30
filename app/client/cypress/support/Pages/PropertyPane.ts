@@ -76,9 +76,9 @@ export class PropertyPane {
   _actionCallbackTitle = ".action-callback-add";
   _actionTreeCollapse = ".callback-collapse";
   _actionPopupTextLabel = '[data-testid="text-view-label"]';
-  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
+  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-modal";
   _selectorViewButton = ".selector-view .bp3-button-text";
-  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
+  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-page";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
   _navigateToType = (type: string) =>
     "div.tab-view span:contains('" + type + "')";
@@ -422,5 +422,15 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+  }
+
+  public AssertJSToggleDisabled(property: string) {
+    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
+      "be.disabled",
+    );
+  }
+
+  public AssertSelectValue(value: string) {
+    this.agHelper.AssertElementExist(this.locator._selectByValue(value));
   }
 }
