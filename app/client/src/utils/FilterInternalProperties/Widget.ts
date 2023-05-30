@@ -32,6 +32,7 @@ export const getWidgetChildrenPeekData = (
     if (config) {
       if (isFunction(config)) config = config(dataTreeWidget);
 
+      // Need to add this in order to add the setters to the definitions which will appear in the peekOverlay
       addSettersToDefinitions(
         config as Def,
         configTree[widgetName] as WidgetEntityConfig,
