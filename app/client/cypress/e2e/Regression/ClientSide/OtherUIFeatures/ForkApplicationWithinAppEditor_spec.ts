@@ -15,7 +15,7 @@ describe("Fork application across workspaces", function () {
     _.entityExplorer.SelectEntityByName("Input1");
 
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
-    cy.testJsontext("defaultvalue", "A");
+    _.propPane.TypeTextIntoField("defaultvalue", "A");
     cy.wait("@inputUpdate").then((response) => {
       response.response &&
         (parentApplicationDsl = response.response.body.data.dsl);
@@ -33,17 +33,15 @@ describe("Fork application across workspaces", function () {
 
     cy.get(_.locators._forkAppToWorkspaceBtn).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(4000);
-    cy.wait("@postForkAppWorkspace").then((httpResponse) => {
-      expect(httpResponse.status).to.equal(200);
-    });
+    cy.wait("@postForkAppWorkspace").its("status").should("equal", 200);
     // check that forked application has same dsl
-    cy.get("@getPage").then((httpResponse) => {
-      const data = httpResponse.response.body.data;
-      forkedApplicationDsl = data.layouts[0].dsl;
-      expect(JSON.stringify(forkedApplicationDsl)).to.contain(
-        JSON.stringify(parentApplicationDsl),
-      );
-    });
+    cy.get("@getPage")
+      .its("response.body.data")
+      .then((data) => {
+        forkedApplicationDsl = data.layouts[0].dsl;
+        expect(JSON.stringify(forkedApplicationDsl)).to.contain(
+          JSON.stringify(parentApplicationDsl),
+        );
+      });
   });
 });
