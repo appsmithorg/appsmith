@@ -949,8 +949,7 @@ function* formValueChangeSaga(
       );
     }
   }
-  if (!(form === DATASOURCE_DB_FORM || form === DATASOURCE_REST_API_FORM))
-    return;
+  if (form !== DATASOURCE_DB_FORM && form !== DATASOURCE_REST_API_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga, form)]);
 }
