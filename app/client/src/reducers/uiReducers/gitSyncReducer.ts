@@ -34,6 +34,7 @@ const initialState: GitSyncReducerState = {
     id: "",
     name: "",
   },
+  isSwitchingBranch: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -514,6 +515,20 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     discardError: null,
   }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isSwitchingBranch: true,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isSwitchingBranch: false,
+  }),
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR]: (state: GitSyncReducerState) => ({
+    ...state,
+    isSwitchingBranch: false,
+  }),
 });
 
 export type GitStatusData = {
@@ -636,6 +651,8 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isDiscarding?: boolean;
   discard?: GitDiscardResponse;
   discardError?: GitErrorType;
+
+  isSwitchingBranch: boolean;
 };
 
 export default gitSyncReducer;

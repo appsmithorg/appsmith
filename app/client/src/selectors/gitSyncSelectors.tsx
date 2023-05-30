@@ -191,3 +191,6 @@ export const getIsImportingApplicationViaGit = (state: AppState) =>
 
 export const getDeleteBranchWarning = (state: AppState) =>
   state.ui.gitSync.deleteBranchWarning;
+
+export const getIsSwitchingBranch = (state: AppState) =>
+  state.ui.gitSync.isSwitchingBranch;
