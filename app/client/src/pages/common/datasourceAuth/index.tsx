@@ -6,7 +6,6 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
-  setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
 } from "actions/datasourceActions";
@@ -49,12 +48,14 @@ interface Props {
   pluginType: PluginType;
   pluginName: string;
   pluginPackageName: string;
+  setDatasourceViewMode: (viewMode: boolean) => void;
   isSaving: boolean;
   isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
+  showFilterComponent: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -83,11 +84,13 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
+  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
+    // If filter component is present, then we need to push the button to the right
+    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
   }
 `;
 
@@ -131,10 +134,12 @@ function DatasourceAuth({
   isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
+  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
+  showFilterComponent,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
@@ -298,6 +303,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
+          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}
@@ -316,7 +322,7 @@ function DatasourceAuth({
                 params: getQueryParams(),
               });
               history.push(URL);
-            } else dispatch(setDatasourceViewMode(true));
+            } else setDatasourceViewMode(true);
           }}
           size="md"
         >
