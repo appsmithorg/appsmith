@@ -9,19 +9,19 @@ import "codemirror-graphql/mode";
 import QueryWrapper from "./QueryWrapperWithCSS";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system-old";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const QueryHeader = styled.div`
   display: flex;
   width: 100%;
-  background: ${Colors.SEA_SHELL};
+  background: var(--ads-v2-color-bg-subtle);
   padding: 8px 16px;
 `;
 
@@ -52,11 +52,13 @@ function QueryEditor(props: QueryProps) {
   return (
     <QueryWrapper className="t--graphql-query-editor">
       <QueryHeader>
-        <Text color={Colors.GRAY_700} type={TextType.H6}>
+        <Text color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
           Query
         </Text>
       </QueryHeader>
       <Field
+        border={CodeEditorBorder.NONE}
+        borderLess
         component={LazyCodeEditor}
         evaluatedPopUpLabel="Query"
         {...props}

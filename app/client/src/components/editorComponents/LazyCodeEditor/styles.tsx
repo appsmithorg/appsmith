@@ -94,7 +94,7 @@ export const ProgressBar = styled.div`
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: var(--ads-color-brand);
+  background-color: var(--ads-v2-color-bg-brand);
 
   transform-origin: left;
   animation: ${progressBarAnimation} 60s;
@@ -109,6 +109,6 @@ export const ProgressBar = styled.div`
 
 export const SpinnerContainer = styled.div`
   position: absolute;
-  top: 8px;
+  top: 10px;
   right: 8px;
 `;

@@ -23,7 +23,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             helpText:
               "Determines if progress indicator will be determinate or not",
             propertyName: "isIndeterminate",
-            label: "Infinite Loading",
+            label: "Infinite loading",
             controlType: "SWITCH",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -74,7 +74,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           {
             helpText: "Sets the number of steps",
             propertyName: "steps",
-            label: "Number of Steps",
+            label: "Number of steps",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter number of steps",
             isBindProperty: true,
@@ -119,7 +119,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             helpText:
               "Controls the visibility with the value of progress indicator",
             propertyName: "showResult",
-            label: "Show Result",
+            label: "Show result",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -151,7 +151,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           {
             helpText: "Sets the color of the progress indicator",
             propertyName: "fillColor",
-            label: "Fill Color",
+            label: "Fill color",
             controlType: "COLOR_PICKER",
             defaultColor: Colors.GREEN,
             isBindProperty: true,

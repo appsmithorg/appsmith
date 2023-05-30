@@ -26,7 +26,7 @@
     "@typescript-eslint/parser": "^5.25.0",
     "chalk": "^4.1.1",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "9.7.0",
+    "cypress": "11.2.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-log-to-output": "^1.1.2",
@@ -40,6 +40,6 @@
     "dotenv": "^8.1.0",
     "eslint-plugin-cypress": "^2.11.2",
     "tinycolor2": "^1.4.2",
-    "typescript": "4.5.5"
+    "typescript": "4.9.5"
   }
 }
