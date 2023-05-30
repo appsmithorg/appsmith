@@ -11,6 +11,7 @@ import { useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 import { klona } from "klona";
+import log from "loglevel";
 
 import Accordion from "../component/Accordion";
 import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
@@ -31,7 +32,6 @@ import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
-import log from "loglevel";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
