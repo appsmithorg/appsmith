@@ -461,6 +461,14 @@ export class AggregateHelper {
     cy.get("body").type(`{del}`, { force: true });
   }
 
+  public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
+    cy.get(parentWidget).type(this.isMac ? "{meta}A" : "{ctrl}A");
+  }
+
+  public SetCanvasViewportWidth(width: number) {
+    cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
+  }
+
   public ClickOutside() {
     cy.get("body").click(0, 0, { force: true });
   }
@@ -888,10 +896,10 @@ export class AggregateHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInput(selector: string, value: string) {
+  public UpdateInput(selector: string, value: string, force: false) {
     this.GetElement(selector)
       .find("input")
-      .clear()
+      .clear({ force: force })
       //.type(this.selectAll)
       .type(value, { delay: 1, parseSpecialCharSequences: false });
     // .type(selectAllJSObjectContentShortcut)
@@ -1196,6 +1204,18 @@ export class AggregateHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  GetWidgetWidth(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("width");
+  }
+
+  GetWidgetHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("height");
+  }
+
+  GetWidgetByName(widgetName: string) {
+    return this.GetElement(this.locator._widgetByName(widgetName));
+  }
+
   public EnableAllEditors() {
     this.Sleep(2000);
     cy.get("body").then(($body: any) => {
@@ -1230,8 +1250,14 @@ export class AggregateHelper {
   // with the same name.
   public EnableAllCodeEditors() {
     cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
-    cy.get(this.lazyCodeEditorRendered).each(($el) => {
-      cy.wrap($el).find(".CodeMirror").should("exist");
+    // Code editors might not always be present on the page, so we need to check for their existence first
+    // (https://docs.cypress.io/guides/core-concepts/conditional-testing#Element-existence)
+    cy.get("body").then(($body) => {
+      if ($body.find(this.lazyCodeEditorRendered).length === 0) return;
+
+      return cy.get(this.lazyCodeEditorRendered).each(($el) => {
+        cy.wrap($el).find(".CodeMirror").should("exist");
+      });
     });
   }
 

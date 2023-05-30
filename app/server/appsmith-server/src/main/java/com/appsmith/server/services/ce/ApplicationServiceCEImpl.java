@@ -59,6 +59,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -883,5 +884,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Boolean> isPermissionPresentForCurrentUser(Application obj, String permission) {
         return repository.isPermissionPresentForCurrentUser(obj, permission);
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(Application savedApplication) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("appName", ObjectUtils.defaultIfNull(savedApplication.getName(), ""));
+        analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
+        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
+        return analyticsProperties;
     }
 }
