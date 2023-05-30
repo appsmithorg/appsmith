@@ -78,7 +78,7 @@ describe("1. CommandClickNavigation", function () {
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="SQL_Query"]`)
       .should("have.length", 1)
-      .click({ cmdKey: true }, { force: true });
+      .click({ cmdKey: true, force: true });
 
     cy.url().should("contain", "/queries/");
   });
