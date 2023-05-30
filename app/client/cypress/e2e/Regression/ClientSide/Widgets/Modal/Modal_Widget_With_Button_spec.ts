@@ -1,7 +1,7 @@
 import commonlocators from "../../../../../locators/commonlocators.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget Functionality with auto layout", function () {
+describe("Modal Widget with auto layout usecases", function () {
   it("1. Add new Modal widget with other widgets and validate with Auto layout", () => {
     _.agHelper.GetNClick(commonlocators.autoConvert);
     _.agHelper.GetNClick(commonlocators.convert);

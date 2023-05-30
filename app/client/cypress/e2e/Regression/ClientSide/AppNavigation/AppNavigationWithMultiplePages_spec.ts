@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 const deployMode = ObjectsRegistry.DeployMode;
 let currentUrl: string | null = null;
 
-describe("Validating Mobile Views for Fill Widget", function () {
+describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
     _.agHelper.GetNClick(appNavigationLocators.appSettingsButton);
     _.agHelper.GetNClick(appNavigationLocators.navigationSettingsTab);
