@@ -1,37 +1,37 @@
-const dsl = require("../../../../fixtures/basicDsl.json");
-import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
+const dsl = require("../../../../fixtures/basicDsl.json");
+
 let forkedApplicationDsl;
-let parentApplicationDsl;
+let parentApplicationDsl: any;
 
 describe("Fork application across workspaces", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl(dsl);
   });
 
   it("1. Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {
-    const appname = localStorage.getItem("AppName");
+    const appname: string = localStorage.getItem("AppName") || "randomApp";
     _.entityExplorer.SelectEntityByName("Input1");
 
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.testJsontext("defaultvalue", "A");
     cy.wait("@inputUpdate").then((response) => {
-      parentApplicationDsl = response.response.body.data.dsl;
+      response.response &&
+        (parentApplicationDsl = response.response.body.data.dsl);
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.NavigateToHome();
-    cy.get(homePage.searchInput).type(appname);
+    _.homePage.NavigateToHome();
+    _.homePage.FilterApplication(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appEditIcon).first().click({ force: true });
+    cy.get(_.homePage._applicationCard).first().trigger("mouseover");
+    cy.get(_.homePage._appEditIcon).first().click({ force: true });
 
-    cy.get(".t--application-name").click({ force: true });
+    cy.get(_.homePage._applicationName).click({ force: true });
     cy.contains("Fork Application").click({ force: true });
 
-    cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
+    cy.get(_.locators._forkAppToWorkspaceBtn).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
     cy.wait("@postForkAppWorkspace").then((httpResponse) => {
