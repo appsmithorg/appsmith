@@ -24,7 +24,6 @@ import {
   SAVE_BUTTON_TEXT,
   TEST_BUTTON_TEXT,
   createMessage,
-  DATASOURCE_INTERCOM_TEXT,
 } from "@appsmith/constants/messages";
 import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -36,9 +35,6 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import { getAppsmithConfigs } from "ce/configs";
-import { PluginPackageName } from "entities/Action";
-const { intercomAppID } = getAppsmithConfigs();
 
 interface Props {
   datasource: Datasource;
@@ -199,19 +195,6 @@ function DatasourceAuth({
             datasourceName: datasource?.name,
             pluginName: pluginName,
           });
-
-          // Triggering intercom here, to understand what exact
-          // problem user is facing while creating google sheets datasource
-          if (
-            intercomAppID &&
-            window.Intercom &&
-            pluginPackageName === PluginPackageName.GOOGLE_SHEETS
-          ) {
-            window.Intercom(
-              "showNewMessage",
-              createMessage(DATASOURCE_INTERCOM_TEXT),
-            );
-          }
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }

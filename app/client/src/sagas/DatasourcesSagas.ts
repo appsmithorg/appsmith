@@ -87,7 +87,6 @@ import {
   createMessage,
   DATASOURCE_CREATE,
   DATASOURCE_DELETE,
-  DATASOURCE_INTERCOM_TEXT,
   DATASOURCE_SCHEMA_NOT_AVAILABLE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
@@ -135,7 +134,6 @@ import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
-import { getAppsmithConfigs } from "ce/configs";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1355,8 +1353,6 @@ function* filePickerActionCallbackSaga(
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);
 
-    const { intercomAppID } = getAppsmithConfigs();
-
     // update authentication status based on whether files were picked or not
     const authStatus =
       action === FilePickerActionStatus.PICKED
@@ -1394,19 +1390,6 @@ function* filePickerActionCallbackSaga(
       value: fileIds,
     });
     yield put(updateDatasourceAuthState(datasource, authStatus));
-
-    // Triggering intercom here, to understand what exact
-    // problem user is facing while creating google sheets datasource
-    if (
-      intercomAppID &&
-      window.Intercom &&
-      action === FilePickerActionStatus.CANCEL
-    ) {
-      window.Intercom(
-        "showNewMessage",
-        createMessage(DATASOURCE_INTERCOM_TEXT),
-      );
-    }
   } catch (error) {
     yield put({
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
