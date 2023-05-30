@@ -11,6 +11,7 @@ import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -92,11 +93,18 @@ public class Migration109EEStorageMigrationForOneClickUpgrade {
 
                     // This update operator sets the `environmentId` of datasourceStorage to the defaultEnvironmentId,
                     // Criteria for querying the datasourceStorage collection is respective objectIds
-                    mongoTemplate.updateFirst(
-                            new Query().addCriteria(where(fieldName(QDatasourceStorage.datasourceStorage.id)).is(datasourceStorage.getId())),
-                            new Update().set(fieldName(QDatasourceStorage.datasourceStorage.environmentId), defaultEnvironmentId),
-                            DatasourceStorage.class
-                    );
+                    try {
+                        mongoTemplate.updateFirst(
+                                new Query().addCriteria(where(fieldName(QDatasourceStorage.datasourceStorage.id)).is(datasourceStorage.getId())),
+                                new Update().set(fieldName(QDatasourceStorage.datasourceStorage.environmentId), defaultEnvironmentId),
+                                DatasourceStorage.class
+                        );
+                    } catch (DuplicateKeyException duplicateKeyException) {
+                        log.warn("Looks like the datasource storage with id: {} has the environmentId already set at: {}",
+                                datasourceStorage.getId(), defaultEnvironmentId);
+                        log.warn("Skipping the environmentId update as the right environmentId is already set ");
+                    }
+
                 });
     }
 
