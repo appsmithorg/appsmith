@@ -77,27 +77,20 @@ function MainContainer() {
           <Switch key={BUILDER_PATH}>
             <SentryRoute
               component={WidgetsEditor}
-              exact
               path={BUILDER_PATH_DEPRECATED}
             />
-            <SentryRoute component={WidgetsEditor} exact path={BUILDER_PATH} />
+            <SentryRoute component={WidgetsEditor} path={BUILDER_PATH} />
+            <SentryRoute component={WidgetsEditor} path={BUILDER_CUSTOM_PATH} />
             <SentryRoute
               component={WidgetsEditor}
-              exact
-              path={BUILDER_CUSTOM_PATH}
-            />
-            <SentryRoute
-              component={WidgetsEditor}
-              exact
               path={`${path}${WIDGETS_EDITOR_BASE_PATH}`}
             />
             <SentryRoute
               component={WidgetsEditor}
-              exact
               path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
             />
-            <SentryRoute component={EditorsRouter} />
           </Switch>
+          <SentryRoute component={EditorsRouter} />
         </div>
       </Container>
       <BottomBar
