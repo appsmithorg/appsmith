@@ -51,7 +51,7 @@ export const getOriginalRowIndex = (
   primaryColumnId: string,
 ) => {
   let primaryKey = "";
-  let index = -1;
+  let index = selectedRowIndex ?? -1;
 
   if (
     !_.isNil(selectedRowIndex) &&
