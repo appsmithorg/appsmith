@@ -193,7 +193,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         id: "",
         name: "",
         userPermissions: [],
-        showFilterPane: true,
+        showFilterPane: false,
       },
       unblock: () => {
         return undefined;
@@ -664,6 +664,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     pluginName={pluginName}
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}
+                    setDatasourceViewMode={setDatasourceViewMode}
                     showFilterComponent={showFilterComponent}
                     triggerSave={triggerSave}
                     viewMode={viewMode}
