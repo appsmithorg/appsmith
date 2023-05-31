@@ -12,12 +12,9 @@ describe("Property pane CTA to add an action", function () {
       .scrollIntoView()
       .should("be.visible");
     //Check if CTA does not exist when there is an action
-    cy.NavigateToAPI_Panel();
-
-    cy.CreateAPI("FirstAPI");
+    _.apiPage.CreateApi("FirstAPI");
     _.entityExplorer.NavigateToSwitcher("Widgets");
     _.entityExplorer.SelectEntityByName("Table1", "Container3");
-
     cy.get(".t--propertypane-connect-cta").should("not.exist");
   });
 });

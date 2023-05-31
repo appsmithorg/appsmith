@@ -25,11 +25,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
     // Hover out
     cy.get(widgetsPage.buttonWidget).trigger("mouseout");
     // Check if the tooltip is disappeared
-    cy.get(".bp3-popover2-content")
-      .contains(
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
-      )
-      .should("not.exist");
+    cy.get(".bp3-popover2-content").should("not.exist");
   });
 
   it("2. Validate show/hide tooltip feature for a disabled button on deploy", function () {
@@ -58,10 +54,6 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
     // Hover out
     cy.get(publish.buttonWidget).trigger("mouseout");
     // Check if the tooltip is disappeared
-    cy.get(".bp3-popover2-content")
-      .contains(
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
-      )
-      .should("not.exist");
+    cy.get(".bp3-popover2-content").should("not.exist");
   });
 });
