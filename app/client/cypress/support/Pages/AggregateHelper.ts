@@ -1227,7 +1227,7 @@ export class AggregateHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
-  GetWidgetWidth(widgetSelector: string) {
+  public GetWidgetWidth(widgetSelector: string) {
     let width: number;
     return new Promise<number>((resolve) => {
       this.GetElement(widgetSelector).then(($element) => {
@@ -1237,7 +1237,7 @@ export class AggregateHelper {
     });
   }
 
-  GetWidgetHeight(widgetSelector: string) {
+  public GetWidgetHeight(widgetSelector: string) {
     let height: number;
     return new Promise<number>((resolve) => {
       this.GetElement(widgetSelector).then(($element) => {
