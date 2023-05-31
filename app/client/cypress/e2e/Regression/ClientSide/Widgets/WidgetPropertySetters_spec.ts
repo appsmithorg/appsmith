@@ -95,25 +95,6 @@ const setterMethodsToTest = [
     valueBinding: "{{JSON.stringify(Table1.tableData)}}",
     expectedValue: '[{"name":"test"}]',
   },
-  // {
-  //   name: "setLabel",
-  //   property: "text",
-  //   widget: WIDGET.BUTTON,
-  //   actionBinding: "{{Button1.setLabel('Hello World')}}",
-  //   valueBinding: "{{Button1.text}}",
-  //   expectedValue: "Hello World",
-  // },
-  // {
-  //   name: "setTextColor",
-  //   property: "textColor",
-  //   widget: WIDGET.TEXT,
-  //   actionBinding: "{{Text1.setTextColor('#000000')}}",
-  //   valueBinding: "{{Text1.textColor}}",
-  //   expectedValue: "#000000",
-  // },
-  // { name: "setImage", property: "", widget: "" },
-  // { name: "setColour", property: "", widget: "" },
-  // { name: "setOption", property: "", widget: "" },
 ];
 
 Object.values(setterMethodsToTest).forEach(
