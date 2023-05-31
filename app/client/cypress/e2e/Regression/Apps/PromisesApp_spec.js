@@ -118,11 +118,9 @@ describe("JSEditor tests", function () {
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.jsEditor.SelectFunctionDropdown("clearStore");
     _.jsEditor.RunJSObj();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
       .eq(5)

@@ -19,8 +19,8 @@ describe("Array Datatype tests", function () {
     query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
     _.dataSources.NavigateFromActiveDS(dsName, true);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.agHelper.RenameWithInPane("createTable");
     _.dataSources.EnterQuery(query);
+    _.agHelper.RenameWithInPane("createTable");
     _.dataSources.RunQuery();
 
     _.entityExplorer.ExpandCollapseEntity("Datasources");

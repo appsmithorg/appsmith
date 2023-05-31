@@ -65,11 +65,9 @@ Cypress.Commands.add("NavigateToActiveDatasources", () => {
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click({ force: true });
-  cy.wait("@testDatasource").should(
-    "have.nested.property",
-    "response.body.data.success",
-    expectedRes,
-  );
+  cy.wait("@testDatasource")
+    .its("response.body.data.success")
+    .should("eq", expectedRes);
 });
 
 Cypress.Commands.add("saveDatasource", () => {

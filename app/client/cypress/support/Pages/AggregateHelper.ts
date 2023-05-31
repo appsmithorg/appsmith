@@ -321,19 +321,15 @@ export class AggregateHelper {
     aliasName: string,
     expectedRes = true,
   ) {
-    cy.wait(aliasName).should(
-      "have.nested.property",
-      "response.body.data.isExecutionSuccess",
-      expectedRes,
-    );
+    cy.wait(aliasName)
+      .its("response.body.data.isExecutionSuccess")
+      .should("eq", expectedRes);
   }
 
   public ValidateNetworkDataSuccess(aliasName: string, expectedRes = true) {
-    cy.wait(aliasName).should(
-      "have.nested.property",
-      "response.body.data.success",
-      expectedRes,
-    );
+    cy.wait(aliasName)
+      .its("response.body.data.success")
+      .should("eq", expectedRes);
   }
 
   public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {

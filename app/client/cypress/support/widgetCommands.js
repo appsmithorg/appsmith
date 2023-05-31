@@ -1044,7 +1044,9 @@ Cypress.Commands.add("selectTxtSize", (text) => {
 
 Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
-  cy.get('.single-select:contains("Show alert")').click({ force: true });
+  cy.get('.single-select:contains("Show alert")')
+    .click({ force: true })
+    .wait(500);
   agHelper.EnterActionValue("Message", value);
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")

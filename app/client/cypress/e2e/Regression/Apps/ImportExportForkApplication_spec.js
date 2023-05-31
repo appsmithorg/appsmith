@@ -42,11 +42,9 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.wait(2000);
       cy.get(homePage.applicationName).clear().type(appName);
       cy.get("body").click(0, 0);
-      cy.wait("@updateApplication").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      cy.wait("@updateApplication")
+        .its("response.body.responseMeta.status")
+        .should("eq", 200);
       cy.wait(2000);
       cy.wrap(appName).as("appname");
       cy.wait(3000);

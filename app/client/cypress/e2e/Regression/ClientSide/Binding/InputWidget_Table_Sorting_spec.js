@@ -12,12 +12,9 @@ describe("Binding the Table and input Widget", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.SelectEntityByName("Input1", "Form1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLayout")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
   });
 
   it("2. Validation of data displayed in input widgets based on sorting", function () {

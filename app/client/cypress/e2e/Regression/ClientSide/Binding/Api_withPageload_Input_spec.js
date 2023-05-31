@@ -25,11 +25,9 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
     cy.selectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type("3");
 
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLayout")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
@@ -41,12 +39,10 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
     cy.get(widgetsPage.defaultInput).type(testdata.pageloadBinding, {
       parseSpecialCharSequences: false,
     });
+    cy.wait("@updateLayout")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
 
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()

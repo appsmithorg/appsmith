@@ -35,11 +35,9 @@ describe("Test Create Api and Bind to Button widget", function () {
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
 
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
 
     cy.get(commonlocators.toastAction)
       .should("have.length", 1)
@@ -58,13 +56,9 @@ describe("Test Create Api and Bind to Button widget", function () {
 
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
-
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.get(commonlocators.toastAction).should("not.exist");
   });
 });

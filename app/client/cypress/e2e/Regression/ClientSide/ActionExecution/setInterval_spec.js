@@ -32,11 +32,9 @@ describe("Test Create Api and Bind to Button widget", function () {
     cy.PublishtheApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.wait(3000);
 
     cy.wait("@postExecute").should(
