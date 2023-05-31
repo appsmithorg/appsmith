@@ -142,12 +142,6 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
   }
 }
 
-export class UncaughtPromiseError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
-
 export const getErrorAsString = (error: unknown): string => {
   return isString(error) ? error : JSON.stringify(error);
 };

@@ -29,7 +29,7 @@ import {
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "api/ApiUtils";
+import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";

@@ -75,10 +75,9 @@ export const extractGeoLocation = (
  * Hence we're creating a new object with same structure which can be passed to the worker thread
  */
 function sanitizeGeolocationError(error: GeolocationPositionError) {
-  const { code, message } = error;
   return {
-    code,
-    message,
+    code: error.code,
+    message: error.message,
   };
 }
 
@@ -136,7 +135,8 @@ export function* watchCurrentLocation(
   if (watchId) {
     // When a watch is already active, we will not start a new watch.
     // at a given point in time, only one watch is active
-    logActionExecutionError(
+    yield call(
+      logActionExecutionError,
       "A watchLocation is already active. Clear it before before starting a new one",
       true,
     );
