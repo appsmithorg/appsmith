@@ -1383,8 +1383,9 @@ Cypress.Commands.add("deleteQueryOrJS", (Action) => {
   });
   cy.selectAction("Delete");
   cy.selectAction("Are you sure?");
-  cy.wait("@deleteAction");
-  cy.get("@deleteAction").should("have.property", "status", 200);
+  cy.wait("@deleteAction")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
 });
 Cypress.Commands.add(
   "validateNSelectDropdown",

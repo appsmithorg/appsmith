@@ -19,7 +19,8 @@ describe("Login from UI and check the functionality", function () {
       );
       cy.wait(2000);
     });
-    cy.wait("@deletePage");
-    cy.get("@deletePage").should("have.property", "status", 200);
+    cy.wait("@deletePage")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
   });
 });
