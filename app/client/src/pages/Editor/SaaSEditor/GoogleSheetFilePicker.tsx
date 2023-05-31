@@ -4,6 +4,7 @@ import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
 import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface Props {
   datasourceId: string;
@@ -97,6 +98,10 @@ function GoogleSheetFilePicker({
   useEffect(() => {
     if (!!pickerVisible) {
       removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+
+      // Event would be emitted when file picker initialisation is done,
+      // but its either showing cookies permission page or the files to select
+      AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_INITIATED");
     }
   }, [pickerVisible]);
 
@@ -118,6 +123,11 @@ function GoogleSheetFilePicker({
   };
 
   const pickerCallback = async (data: any) => {
+    if (data.action === FilePickerActionStatus.LOADED) {
+      // This event would be emitted when file picker is showing files,
+      // and user has to select files or cancel selection
+      AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_LOADED");
+    }
     if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
