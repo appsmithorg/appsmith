@@ -92,9 +92,19 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.Sleep(2000);
     _.agHelper.GetNClick(HomePage.selectRole);
-    cy.get(".rc-select-item-option")
-      .should("have.length", 2)
-      .and("contain.text", `App Viewer`, `Developer`);
+    if (CURRENT_REPO === REPO.CE) {
+      cy.get(".rc-select-item-option")
+        .should("have.length", 3)
+        .should("contain.text", "App Viewer")
+        .should("contain.text", "Developer")
+        .should("contain.text", "Custom role");
+    } else {
+      cy.get(".rc-select-item-option")
+        .should("have.length", 2)
+        .should("contain.text", "App Viewer")
+        .should("contain.text", "Developer");
+    }
+
     _.agHelper.GetNClick(HomePage.closeBtn);
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
 
@@ -133,9 +143,20 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.Sleep(2000);
     _.agHelper.GetNClick(HomePage.selectRole);
-    cy.get(".rc-select-item-option")
-      .should("have.length", 3)
-      .should("contain.text", `App Viewer`, `Developer`);
+    if (CURRENT_REPO === REPO.CE) {
+      cy.get(".rc-select-item-option")
+        .should("have.length", 4)
+        .should("contain.text", "Administrator")
+        .should("contain.text", "Developer")
+        .should("contain.text", "App Viewer")
+        .should("contain.text", "Custom role");
+    } else {
+      cy.get(".rc-select-item-option")
+        .should("have.length", 3)
+        .should("contain.text", "Administrator")
+        .should("contain.text", "Developer")
+        .should("contain.text", "App Viewer");
+    }
     cy.get(".rc-select-item-option").should("contain.text", `Administrator`);
     _.agHelper.GetNClick(HomePage.closeBtn);
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
