@@ -30,8 +30,6 @@ import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
-import { Colors } from "constants/Colors";
-
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
@@ -46,7 +44,7 @@ const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
 const EmptyStateLabel = styled.div`
   margin: 20px 0px;
   text-align: center;
-  color: ${Colors.GREY_6};
+  color: var(--ads-v2-color-fg);
 `;
 
 interface ReduxStateProps {

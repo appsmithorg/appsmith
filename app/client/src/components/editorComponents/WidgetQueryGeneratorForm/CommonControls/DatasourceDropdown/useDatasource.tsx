@@ -255,9 +255,9 @@ export function useDatasource() {
     return [
       {
         icon: <Icon name="plus" size="md" />,
-        id: "Connect New Datasource",
-        label: "Connect New Datasource",
-        value: "Connect New Datasource",
+        id: "Connect new datasource",
+        label: "Connect new datasource",
+        value: "Connect new datasource",
         onSelect: () => {
           history.push(
             integrationEditorURL({
@@ -270,7 +270,7 @@ export function useDatasource() {
             widgetName: widget.widgetName,
             widgetType: widget.type,
             propertyName: propertyName,
-            selectedAction: "Connect New Datasource",
+            selectedAction: "Connect new datasource",
           });
 
           const entryPoint = DatasourceCreateEntryPoints.ONE_CLICK_BINDING;
@@ -281,9 +281,9 @@ export function useDatasource() {
         },
       },
       {
-        id: "Insert Snippet",
-        label: "Insert Snippet",
-        value: "Insert Snippet",
+        id: "Insert snippet",
+        label: "Insert snippet",
+        value: "Insert snippet",
         icon: <Icon name="code" size="md" />,
         onSelect: () => {
           addSnippet();

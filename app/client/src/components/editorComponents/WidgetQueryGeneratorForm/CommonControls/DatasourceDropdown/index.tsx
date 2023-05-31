@@ -99,6 +99,7 @@ function DatasourceDropdown() {
             <Option
               className="t--one-click-binding-datasource-selector--query"
               key={option.id}
+              label={option.label}
               value={option.label}
             >
               <DropdownOption label={option.label} leftIcon={option.icon} />
@@ -121,7 +122,7 @@ function DatasourceDropdown() {
         {datasourceOptions.map((option) => {
           return (
             <Option
-              className="t--one-click-binding-datasource-selector--datasource"
+              data-testid="t--one-click-binding-datasource-selector--datasource"
               key={option.id}
               value={option.label}
             >
