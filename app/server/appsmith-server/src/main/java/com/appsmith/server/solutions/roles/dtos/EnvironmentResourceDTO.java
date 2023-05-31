@@ -7,6 +7,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EnvironmentResourceDTO extends BaseView {
 
-    // This will be used to provide color coding for each environment
-    String colorCode;
 }

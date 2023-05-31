@@ -7,8 +7,8 @@ describe("CommonUtils", () => {
       expect(getDateString(timestamp)).toEqual("1st Jan 2022");
     });
 
-    it("should return 'Not Available' if timestamp is undefined", () => {
-      expect(getDateString(undefined)).toEqual("Not Available");
+    it("should return 'Not available' if timestamp is undefined", () => {
+      expect(getDateString(undefined)).toEqual("Not available");
     });
   });
 

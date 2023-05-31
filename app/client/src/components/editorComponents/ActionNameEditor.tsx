@@ -11,7 +11,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
 
 import { saveActionName } from "actions/pluginActionActions";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
@@ -39,7 +39,6 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
     props.page === "API_PANE"
       ? `  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
     font-size: ${props.theme.typography.h3.fontSize}px;
-    line-height: ${props.theme.typography.h3.lineHeight}px !important;
     letter-spacing: ${props.theme.typography.h3.letterSpacing}px;
     font-weight: ${props.theme.typography.h3.fontWeight};
   }`
@@ -47,12 +46,18 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
 `;
 
 const ApiIconWrapper = styled.img`
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-  align-self: center;
+  width: 34px;
+  height: auto;
 `;
-
+const ApiIconBox = styled.div`
+  height: 34px;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+`;
 type ActionNameEditorProps = {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
@@ -98,13 +103,16 @@ function ActionNameEditor(props: ActionNameEditorProps) {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
             }}
           >
             {currentPlugin && (
-              <ApiIconWrapper
-                alt={currentPlugin.name}
-                src={getAssetUrl(currentPlugin?.iconLocation)}
-              />
+              <ApiIconBox>
+                <ApiIconWrapper
+                  alt={currentPlugin.name}
+                  src={getAssetUrl(currentPlugin?.iconLocation)}
+                />
+              </ApiIconBox>
             )}
             <EditableText
               className="t--action-name-edit-field"
@@ -122,7 +130,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />
-            {saveStatus.isSaving && <Spinner size={16} />}
+            {saveStatus.isSaving && <Spinner size="md" />}
           </div>
         </ApiNameWrapper>
       )}

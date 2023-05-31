@@ -4,9 +4,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import ProfileImage from "pages/common/ProfileImage";
-import type { MenuItemProps } from "design-system-old";
-import { HighlightText, Spinner } from "design-system-old";
+import { HighlightText } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
@@ -16,7 +14,6 @@ import {
   EmptySearchResult,
   INVITE_USERS_TAB_ID,
 } from "./components";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
@@ -45,19 +42,35 @@ import {
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
-import type { BaseAclProps, UserProps } from "./types";
+import type { BaseAclProps, MenuItemProps, UserProps } from "./types";
 import { ListingType } from "./types";
 import { getCurrentUser } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { LoaderContainer } from "pages/Settings/components";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsList,
+  Text,
+  Link as AdsLink,
+  Spinner,
+} from "design-system";
+import { AvatarComponent } from "pages/common/AvatarComponent";
 
 export const CellContainer = styled.div`
   display: flex;
   align-items: center;
 
-  &.user-email-column > span {
+  &.user-email-column > span:nth-child(2) {
     text-decoration: underline;
+    text-underline-offset: 2px;
+    color: var(--ads-v2-color-fg)
   }
 
   .user-icons {
@@ -68,21 +81,19 @@ export const CellContainer = styled.div`
 
 export const GroupWrapper = styled.div``;
 
-export const MoreGroups = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--appsmith-color-black-700);
+export const MoreGroups = styled(AdsLink)`
   margin-top: 8px;
-  &:hover {
-    cursor: pointer;
-    text-decoration: underline;
+  // TODO: On user listing screen, this text is not differentiable from the text above due to font size
+  > span {
+    font-size: 12px;
   }
 `;
 
 export const AllGroups = styled.div`
   display: flex;
   flex-direction: column;
-  > div {
+  color: var(--ads-v2-color-fg);
+  > p {
     margin: 8px 0;
 
     &:first-child {
@@ -95,14 +106,16 @@ export const AllGroups = styled.div`
   }
 `;
 
-export const ShowLess = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--appsmith-color-black-700);
-  &:hover {
-    cursor: pointer;
-    text-decoration: underline;
+export const ShowLess = styled(AdsLink)`
+  margin-top: 8px;
+  // TODO: On user listing screen, this text is not differentiable from the text above due to font size
+  > span {
+    font-size: 12px;
   }
+`;
+
+export const StyledText = styled(Text)`
+  margin-bottom: 1rem;
 `;
 
 export function UserListing() {
@@ -116,6 +129,9 @@ export function UserListing() {
   const inviteViaRoles = useSelector(getRolesForInvite);
   const inviteViaGroups = useSelector(getGroupsForInvite);
   const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(
+    INVITE_USERS_TAB_ID.VIA_ROLES,
+  );
 
   const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -155,7 +171,7 @@ export function UserListing() {
   }, []);
 
   const onFormSubmitHandler = ({ ...values }) => {
-    if (values.selectedTab === INVITE_USERS_TAB_ID.VIA_GROUPS) {
+    if (activeTab === INVITE_USERS_TAB_ID.VIA_GROUPS) {
       const usernames = values.users ? values.users.split(",") : [];
       const groupIds = values.options.map((option: any) => option.value);
       const groupsAdded = values.options.map((option: any) => ({
@@ -168,7 +184,7 @@ export function UserListing() {
         roles: [],
         numberOfUsersInvited: usernames.length,
       });
-      dispatch(inviteUsersViaGroups(usernames, groupIds, values.selectedTab));
+      dispatch(inviteUsersViaGroups(usernames, groupIds, activeTab));
     } else {
       const users = values.users
         ? values.users.split(",").map((user: string) => ({
@@ -185,7 +201,7 @@ export function UserListing() {
         roles: rolesAdded.map((role: any) => role.id),
         numberOfUsersInvited: users.length,
       });
-      dispatch(inviteUsersViaRoles(users, rolesAdded, values.selectedTab));
+      dispatch(inviteUsersViaRoles(users, rolesAdded, activeTab));
     }
     setShowModal(false);
   };
@@ -216,9 +232,10 @@ export function UserListing() {
               className="user-email-column"
               data-testid="user-listing-userCell"
             >
-              <ProfileImage
+              <AvatarComponent
                 className="user-icons"
-                size={20}
+                label="user-avatar"
+                size="sm"
                 source={
                   photoId
                     ? `/api/${USER_PHOTO_ASSET_URL}/${photoId}`
@@ -238,31 +255,46 @@ export function UserListing() {
       Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
         const values = cellProps.cell.row.values;
+
+        const onClickShowMore = (e: any) => {
+          e.preventDefault();
+          setShowAllGroups(true);
+        };
+
+        const onClickShowLess = (e: any) => {
+          e.preventDefault();
+          setShowAllGroups(false);
+        };
+
         return (
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
                 {values.roles?.map((group: BaseAclProps) => (
-                  <div key={group.id}>{group.name}</div>
+                  <Text key={group.id} renderAs="p">
+                    {group.name}
+                  </Text>
                 ))}
                 <ShowLess
                   data-testid="t--show-less"
-                  onClick={() => setShowAllGroups(false)}
+                  kind="secondary"
+                  onClick={onClickShowLess}
                 >
                   {createMessage(SHOW_LESS_GROUPS)}
                 </ShowLess>
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {values.roles?.[0]?.name}
+                <Text renderAs="span">{values.roles?.[0]?.name}</Text>
                 {values.roles?.[0]?.name.length < 40 &&
                 values.roles?.length > 1 ? (
                   <>
-                    , {values.roles?.[1]?.name}
+                    <Text renderAs="span">, {values.roles?.[1]?.name}</Text>
                     {values.roles?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
-                        onClick={() => setShowAllGroups(true)}
+                        kind="secondary"
+                        onClick={onClickShowMore}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
@@ -275,7 +307,8 @@ export function UserListing() {
                   values.roles?.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
-                      onClick={() => setShowAllGroups(true)}
+                      kind="secondary"
+                      onClick={onClickShowMore}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
@@ -301,10 +334,13 @@ export function UserListing() {
             {showAllGroups ? (
               <AllGroups>
                 {values.groups?.map((group: BaseAclProps) => (
-                  <div key={group.id}>{group.name}</div>
+                  <Text key={group.id} renderAs="p">
+                    {group.name}
+                  </Text>
                 ))}
                 <ShowLess
                   data-testid="t--show-less"
+                  kind="secondary"
                   onClick={() => setShowAllGroups(false)}
                 >
                   {createMessage(SHOW_LESS_GROUPS)}
@@ -312,14 +348,15 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {values.groups?.[0]?.name}
+                <Text renderAs="span">{values.groups?.[0]?.name}</Text>
                 {values.groups?.[0]?.name.length < 40 &&
                 values.groups?.length > 1 ? (
                   <>
-                    , {values.groups?.[1]?.name}
+                    <Text renderAs="span">, {values.groups?.[1]?.name}</Text>
                     {values.groups?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
+                        kind="secondary"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
@@ -333,6 +370,7 @@ export function UserListing() {
                   values.groups?.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
+                      kind="secondary"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
@@ -354,7 +392,7 @@ export function UserListing() {
     {
       label: "edit",
       className: "edit-menu-item",
-      icon: "edit-underline",
+      icon: "pencil-line",
       onSelect: (e: React.MouseEvent, id: string) => {
         if (id) {
           history.push(`/settings/users/${id}`);
@@ -365,7 +403,7 @@ export function UserListing() {
     {
       label: "delete",
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
@@ -391,19 +429,16 @@ export function UserListing() {
     {
       key: INVITE_USERS_TAB_ID.VIA_ROLES,
       title: "via roles",
-      component: WorkspaceInviteUsersForm,
       options: inviteViaRoles.map((role: BaseAclProps) => ({
-        label: role.name,
-        value: role.id,
-        id: role.id,
+        value: role.name,
+        key: role.id,
       })),
-      dropdownPlaceholder: "Select a role",
-      dropdownMaxHeight: "240px",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
         disableManageUsers: true,
         disableUserList: true,
+        dropdownPlaceholder: "Select a role",
         isMultiSelectDropdown: true,
         onSubmitHandler: onFormSubmitHandler,
       },
@@ -411,19 +446,16 @@ export function UserListing() {
     {
       key: INVITE_USERS_TAB_ID.VIA_GROUPS,
       title: "via groups",
-      component: WorkspaceInviteUsersForm,
       options: inviteViaGroups.map((group: BaseAclProps) => ({
-        label: group.name,
-        value: group.id,
-        id: group.id,
+        value: group.name,
+        key: group.id,
       })),
-      dropdownPlaceholder: "Select a group",
-      dropdownMaxHeight: "240px",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
         disableManageUsers: true,
         disableUserList: true,
+        dropdownPlaceholder: "Select a group",
         isMultiSelectDropdown: true,
         onSubmitHandler: onFormSubmitHandler,
       },
@@ -476,13 +508,13 @@ export function UserListing() {
           />
         ) : (
           <LoaderContainer>
-            <Spinner />
+            <Spinner size="lg" />
           </LoaderContainer>
         )
       ) : (
         <>
           <PageHeader
-            buttonText="Add Users"
+            buttonText="Add users"
             data-testid="acl-user-listing-pageheader"
             disableButton={!canInviteUser}
             onButtonClick={onButtonClick}
@@ -507,17 +539,46 @@ export function UserListing() {
             listMenuItems={listMenuItems}
             listingType={ListingType.USERS}
           />
-          <FormDialogComponent
-            Form={WorkspaceInviteUsersForm}
-            canOutsideClickClose
-            data-testid="acl-user-listing-form"
-            isOpen={showModal}
-            message={createMessage(ACL_INVITE_MODAL_MESSAGE)}
-            onClose={() => setShowModal(false)}
-            tabs={tabs}
-            title={createMessage(ACL_INVITE_MODAL_TITLE)}
-            trigger
-          />
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
+          >
+            <ModalContent
+              data-testid="t--dialog-component"
+              style={{ width: "640px" }}
+            >
+              <ModalHeader>{createMessage(ACL_INVITE_MODAL_TITLE)}</ModalHeader>
+              <ModalBody>
+                <StyledText renderAs="p">
+                  {createMessage(ACL_INVITE_MODAL_MESSAGE)}
+                </StyledText>
+                <Tabs
+                  onValueChange={(value) => setActiveTab(value)}
+                  value={activeTab}
+                >
+                  <TabsList>
+                    {tabs.map((tab) => (
+                      <Tab
+                        data-testid={`t--tab-${tab.key}`}
+                        key={tab.key}
+                        value={tab.key}
+                      >
+                        {tab.title}
+                      </Tab>
+                    ))}
+                  </TabsList>
+                  {tabs.map((tab) => (
+                    <TabPanel key={tab.key} value={tab.key}>
+                      <WorkspaceInviteUsersForm
+                        isMultiSelectDropdown
+                        {...tab}
+                      />
+                    </TabPanel>
+                  ))}
+                </Tabs>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
         </>
       )}
       <BottomSpace />

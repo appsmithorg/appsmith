@@ -10,7 +10,6 @@ import {
   createApplicationSaga,
   setDefaultApplicationPageSaga,
   deleteApplicationSaga,
-  duplicateApplicationSaga,
   importApplicationSaga,
   fetchReleases,
   initDatasourceConnectionDuringImport,
@@ -48,7 +47,7 @@ import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 
 export function* fetchAllAppUsersSaga(
   action: ReduxAction<FetchAllAppUsersRequest>,
@@ -139,7 +138,7 @@ export function* inviteUsersToApplicationSaga(
         roleType: data.roleType,
       },
     );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);
@@ -155,12 +154,6 @@ export function* inviteUsersToApplicationSaga(
     yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
-    yield put({
-      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
-      payload: {
-        error,
-      },
-    });
   }
 }
 
@@ -188,12 +181,14 @@ export function* deleteApplicationUserSaga(
           },
         });
       }
-      Toaster.show({
-        text: `${
+      toast.show(
+        `${
           response.data?.username || response.data?.name
         } has been removed successfully`,
-        variant: Variant.success,
-      });
+        {
+          kind: "success",
+        },
+      );
     }
   } catch (error) {
     yield put({
@@ -255,10 +250,6 @@ export default function* applicationSagas() {
       setDefaultApplicationPageSaga,
     ),
     takeLatest(ReduxActionTypes.DELETE_APPLICATION_INIT, deleteApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
-      duplicateApplicationSaga,
-    ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
     takeLatest(
       ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,

@@ -3,7 +3,6 @@ import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
@@ -20,14 +19,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { importSvg } from "design-system-old";
-
-const SheildSuccess = importSvg(
-  () => import("assets/icons/ads/shield-success.svg"),
-);
-const SheildError = importSvg(
-  () => import("assets/icons/ads/shield-error.svg"),
-);
+import { Icon, Text } from "design-system";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -47,13 +39,16 @@ const OAuthContainer = styled.div`
   flex-direction: row;
   padding: 12px 5px;
 `;
-
 interface ErrorProps {
   hasError: boolean;
 }
 
+// TODO (tanvi): this should probably be a different component?
 const OAuthText = styled.span<ErrorProps>`
-  color: ${(props) => (props.hasError ? "#F22B2B" : "#03B365")};
+  color: ${(props) =>
+    props.hasError
+      ? "var(--ads-v2-color-fg-error)"
+      : "var(--ads-v2-color-fg-success)"};
   margin-left: 5px;
 `;
 
@@ -64,7 +59,15 @@ const DescriptionText = styled(Text)`
 function OAuthLabel(props: ErrorProps) {
   return (
     <OAuthContainer>
-      {props.hasError ? <SheildError /> : <SheildSuccess />}
+      <Icon
+        color={
+          props.hasError
+            ? "var(--ads-v2-color-fg-error)"
+            : "var(--ads-v2-color-fg-success)"
+        }
+        name="shield"
+        size="md"
+      />
       <OAuthText hasError={props.hasError}>
         {props.hasError ? OAUTH_ERROR() : OAUTH_2_0()}
       </OAuthText>
@@ -108,7 +111,7 @@ function ApiAuthentication(props: Props): JSX.Element {
   return (
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
-      <DescriptionText type={TextType.P1}>
+      <DescriptionText kind="body-m">
         {shouldSave
           ? createMessage(SAVE_DATASOURCE_MESSAGE)
           : createMessage(EDIT_DATASOURCE_MESSAGE)}

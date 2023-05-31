@@ -20,7 +20,6 @@ public class EnvironmentDTO {
     String name;
     String workspaceId;
     Boolean isDefault;
-    String colorCode;
 
     @Transient
     public Set<String> userPermissions = new HashSet<>();
@@ -31,7 +30,6 @@ public class EnvironmentDTO {
         environmentDTO.setName(environment.getName());
         environmentDTO.setWorkspaceId(environment.getWorkspaceId());
         environmentDTO.setIsDefault(environment.getIsDefault());
-        environmentDTO.setColorCode(environment.getColorCode());
         environmentDTO.setUserPermissions(environment.getUserPermissions());
         return environmentDTO;
     }

@@ -54,7 +54,7 @@ public enum AppsmithErrorCode {
     AUTHENTICATION_FAILURE("AE-APP-5010", "Authentication failure"),
     INSTANCE_REGISTRATION_FAILURE("AE-APP-5011", "Instance registration failure"),
     CLOUD_SERVICES_ERROR("AE-APP-5012", "Cloud services error"),
-    OPEN_AI_ERROR("AE-APP-5013", "Open AI error"),
+    APPSMITH_AI_ERROR("AE-APP-5013", "Appsmith AI error"),
     SSH_KEY_GENERATION_ERROR("AE-APP-5015", "Ssh key generation error"),
     FILE_PART_DATA_BUFFER_ERROR("AE-APP-5017", "File part data buffer error"),
     MIGRATION_ERROR("AE-APP-5018", "Migration error"),
@@ -70,9 +70,10 @@ public enum AppsmithErrorCode {
     GOOGLE_RECAPTCHA_TIMEOUT("AE-APP-5042", "Google recaptcha timeout"),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
+    MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
     INVALID_CRUD_PAGE_REQUEST("AE-CRD-4039", "Invalid crud page request"),
-    EMPTY_CURL_INPUT_STATEMENT("AE-CRL-4054","Invalid CURL input statement"),
+    EMPTY_CURL_INPUT_STATEMENT("AE-CRL-4054", "Invalid CURL input statement"),
     INVALID_CURL_COMMAND("AE-CRL-4029", "Invalid curl command"),
     INVALID_CURL_METHOD("AE-CRL-4032", "Invalid curl method"),
     INVALID_CURL_HEADER("AE-CRL-4036", "Invalid curl header"),
@@ -121,8 +122,7 @@ public enum AppsmithErrorCode {
     // New EE-only errors below this line:
     SAML_CONFIGURATION_FAILURE("AE-SML-4000", "SAML configuration failed"),
     SAML_ALREADY_CONFIGURED("AE-SML-4009", "SAML already configured"),
-    MIGRATION_FAILED("AE-APP-5043", "Migration failed")
-    ;
+    MIGRATION_FAILED("AE-APP-5043", "Migration failed");
     private final String code;
     private final String description;
 

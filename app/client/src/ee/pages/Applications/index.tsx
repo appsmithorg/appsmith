@@ -24,7 +24,6 @@ import {
   getIsCreatingApplication,
   getCreateApplicationError,
   getIsDeletingApplication,
-  getIsDuplicatingApplication,
   getUserApplicationsWorkspacesList,
   getApplicationSearchKeyword,
 } from "@appsmith/selectors/applicationSelectors";
@@ -39,7 +38,7 @@ export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
 export type EE_ApplicationState = CE_Applications.ApplicationState;
 
 const UpgradeBannerWrapper = styled.div`
-  margin: 62px 24px 0 16px;
+  margin-bottom: var(--ads-v2-spaces-7);
 `;
 
 export class Applications extends CE_AppClass<
@@ -98,7 +97,6 @@ const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  duplicatingApplication: getIsDuplicatingApplication(state),
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),

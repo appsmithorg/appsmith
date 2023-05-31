@@ -14,11 +14,6 @@ import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
 import { PAGE_NOT_FOUND_URL, SETUP, USER_AUTH_URL } from "constants/routes";
-import {
-  createMessage,
-  LICENSE_UPDATED_SUCCESSFULLY,
-} from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AxiosError } from "axios";
 
@@ -165,12 +160,6 @@ describe("forceLicenseCheckSaga", () => {
       put({
         type: ReduxActionTypes.FORCE_LICENSE_CHECK_SUCCESS,
         payload: response.data,
-      }),
-    );
-    expect(clone1.next().value).toEqual(
-      Toaster.show({
-        text: createMessage(LICENSE_UPDATED_SUCCESSFULLY),
-        variant: Variant.success,
       }),
     );
     expect(clone1.next().done).toBe(true);

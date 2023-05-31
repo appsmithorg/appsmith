@@ -1,13 +1,5 @@
 import React, { useEffect } from "react";
 import {
-  Category,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
-import {
   ACTIVATE_INSTANCE,
   ADD_KEY,
   createMessage,
@@ -25,7 +17,6 @@ import {
   StyledBannerWrapper,
   StyledCardWrapper,
   StyledContent,
-  StyledButton,
   StyledCard,
   IconBadge,
 } from "./styles";
@@ -37,6 +28,7 @@ import PageHeader from "pages/common/PageHeader";
 import Page from "pages/common/ErrorPages/Page";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { Button, Icon, Text } from "design-system";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -71,7 +63,7 @@ function LicenseCheckPage() {
         <PageHeader hideEditProfileLink />
         <Page
           description={createMessage(LICENSE_ERROR_DESCRIPTION)}
-          errorIcon={<StyledIcon name="warning-line" />}
+          errorIcon={<StyledIcon name="warning-line" size="md" />}
           title={createMessage(LICENSE_ERROR_TITLE)}
         />
       </>
@@ -91,15 +83,16 @@ function LicenseCheckPage() {
             />
             <Text
               data-testid="t--no-active-subscription-text"
-              type={TextType.H1}
-              weight="600"
+              kind="heading-m"
+              renderAs="h1"
             >
               {createMessage(NO_ACTIVE_SUBSCRIPTION)}
             </Text>
             {!isAirgappedInstance && (
               <Text
+                color="var(--ads-v2-color-fg-emphasis)"
                 data-testid="t--choose-one-option-license-text"
-                type={TextType.P1}
+                renderAs="p"
               >
                 {createMessage(GET_STARTED_MESSAGE)}
               </Text>
@@ -108,7 +101,7 @@ function LicenseCheckPage() {
           <StyledCardWrapper data-testid="t--license-check-card-wrapper">
             <StyledCard data-testid="t--license-check-form-card">
               <IconBadge>
-                <Icon name="key-2-line" size={IconSize.XXXXL} />
+                <Icon name="key-2-line" size="lg" />
               </IconBadge>
               <LicenseForm
                 actionBtnText={createMessage(ACTIVATE_INSTANCE)}
@@ -122,22 +115,20 @@ function LicenseCheckPage() {
                 noField
               >
                 <IconBadge>
-                  <Icon name="arrow-up-line" size={IconSize.XXXXL} />
+                  <Icon name="arrow-up-line" size="lg" />
                 </IconBadge>
                 <StyledContent data-testid="t--get-license-key-label">
                   {createMessage(LICENSE_KEY_CTA_LABEL)}
                 </StyledContent>
-                <StyledButton
-                  category={Category.secondary}
+                <Button
                   data-testid="t--customer-portal-cta"
-                  icon="share-2"
-                  iconPosition="left"
+                  kind="secondary"
                   onClick={goToCustomerPortal}
-                  size={Size.large}
-                  tag="button"
-                  text={createMessage(VISIT_CUSTOMER_PORTAL)}
-                  type="button"
-                />
+                  size="md"
+                  startIcon="share-2"
+                >
+                  {createMessage(VISIT_CUSTOMER_PORTAL)}
+                </Button>{" "}
               </StyledCard>
             )}
           </StyledCardWrapper>

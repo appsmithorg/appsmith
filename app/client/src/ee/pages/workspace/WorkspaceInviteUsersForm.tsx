@@ -1,11 +1,10 @@
 export * from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import {
+  CustomRolesRamp,
   ErrorBox,
-  InviteButtonWidth,
-  InviteModalStyles,
-  LabelText,
-  Loading,
+  ErrorTextContainer,
   MailConfigContainer,
+  ManageUsersContainer,
   StyledForm,
   StyledInviteFieldGroup,
   User,
@@ -14,17 +13,11 @@ import {
   UserName,
   UserRole,
   WorkspaceInviteWrapper,
+  WorkspaceText,
 } from "ce/pages/workspace/WorkspaceInviteUsersForm";
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
-import styled, { ThemeContext } from "styled-components";
+import React, { useEffect, useState, useMemo } from "react";
+import styled from "styled-components";
 import { reduxForm, SubmissionError } from "redux-form";
-import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -47,27 +40,21 @@ import {
   USERS_HAVE_ACCESS_TO_ALL_APPS,
   USERS_HAVE_ACCESS_TO_ONLY_THIS_APP,
   NO_USERS_INVITED,
+  BUSINESS_EDITION_TEXT,
+  INVITE_USER_RAMP_TEXT,
 } from "@appsmith/constants/messages";
-import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
+import {
+  INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
+  INVITE_USER_SUBMIT_SUCCESS as CE_INVITE_USER_SUBMIT_SUCCESS,
+  INVITE_USERS_SUBMIT_SUCCESS as CE_INVITE_USERS_SUBMIT_SUCCESS,
+} from "ce/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DropdownOption } from "design-system-old";
-import {
-  Button,
-  Callout,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import ProfileImage from "pages/common/ProfileImage";
+import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import {
   fetchRolesForWorkspace,
@@ -91,7 +78,22 @@ import {
 } from "@appsmith/actions/applicationActions";
 import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+import {
+  Avatar,
+  Button,
+  Callout,
+  Icon,
+  Link,
+  Option,
+  Select,
+  Spinner,
+  Text,
+  Tooltip,
+  toast,
+} from "design-system";
 import { importSvg } from "design-system-old";
+import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -166,20 +168,55 @@ const isUserGroup = (user: string) => {
 };
 
 const StyledInviteFieldGroupEE = styled(StyledInviteFieldGroup)`
-  .wrapper {
-    .user-icons {
-      margin-right: 8px;
-    }
+  .user-icons {
+    margin-right: 8px;
   }
 `;
 
 const StyledUserList = styled(UserList)`
   .user-icons {
-    width: 34px;
-    height: 34px;
+    width: 32px;
     justify-content: center;
   }
 `;
+
+function InviteUserText({
+  isAppLevelInviteOnSelfHost,
+  isApplicationInvite,
+}: {
+  isApplicationInvite: boolean;
+  isAppLevelInviteOnSelfHost: boolean;
+}) {
+  let content: JSX.Element;
+
+  if (isAppLevelInviteOnSelfHost) {
+    content = <>{createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)}</>;
+  } else {
+    content = <>{createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}</>;
+  }
+
+  if (cloudHosting && showProductRamps(RAMP_NAME.INVITE_USER_TO_APP)) {
+    if (isApplicationInvite) {
+      content = (
+        <>
+          {createMessage(INVITE_USER_RAMP_TEXT)}
+          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
+            {createMessage(BUSINESS_EDITION_TEXT)}
+          </Link>
+        </>
+      );
+    }
+  }
+  return (
+    <Text
+      color="var(--ads-v2-color-fg)"
+      data-testid="helper-message"
+      kind="action-m"
+    >
+      {content}
+    </Text>
+  );
+}
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
@@ -193,9 +230,9 @@ function WorkspaceInviteUsersForm(props: any) {
     () =>
       selectedId &&
       props.selected && {
-        label: props.selected.name,
+        description: props.selected.name,
         value: props.selected.name,
-        id: props.selected.id,
+        key: props.selected.id,
       },
     [selectedId],
   );
@@ -203,9 +240,7 @@ function WorkspaceInviteUsersForm(props: any) {
   const {
     allUsers,
     anyTouched,
-    disableManageUsers = false,
-    disableUserList = false,
-    dropdownPlaceholder = "",
+    customProps = {},
     error,
     fetchAllAppRoles,
     fetchAllAppUsers,
@@ -214,17 +249,24 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchGroupSuggestions,
     fetchUser,
     handleSubmit,
-    isAclFlow = false,
     isApplicationInvite = false,
     isLoading,
     isMultiSelectDropdown = false,
-    onSubmitHandler,
     placeholder = "",
     submitFailed,
     submitSucceeded,
     submitting,
     valid,
   } = props;
+
+  const {
+    disableDropdown = false,
+    disableManageUsers = false,
+    disableUserList = false,
+    dropdownPlaceholder = "",
+    isAclFlow = false,
+    onSubmitHandler,
+  } = customProps;
 
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
@@ -237,11 +279,16 @@ function WorkspaceInviteUsersForm(props: any) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
   const isEEFeature = (!isAclFlow && !cloudHosting) || false;
-  const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
+  const isAppLevelInviteOnSelfHost =
+    (!cloudHosting && isApplicationInvite) || false;
+
+  useEffect(() => {
+    setSelectedOption([]);
+  }, [submitSucceeded]);
 
   useEffect(() => {
     if (!isAclFlow) {
-      if (isAppLevelInvite) {
+      if (isAppLevelInviteOnSelfHost) {
         fetchAllAppUsers(props.applicationId);
         fetchAllAppRoles(props.applicationId);
       } else {
@@ -260,7 +307,7 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchAllAppRoles,
     fetchAllAppUsers,
     props.applicationId,
-    isAppLevelInvite,
+    isAppLevelInviteOnSelfHost,
   ]);
 
   useEffect(() => {
@@ -272,6 +319,26 @@ function WorkspaceInviteUsersForm(props: any) {
     }
   }, []);
 
+  useEffect(() => {
+    if (submitSucceeded) {
+      if (isAclFlow) {
+        toast.show(
+          numberOfUsersInvited > 1
+            ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS)
+            : createMessage(CE_INVITE_USER_SUBMIT_SUCCESS),
+          { kind: "success" },
+        );
+      } else {
+        toast.show(
+          numberOfUsersInvited > 1
+            ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+            : createMessage(INVITE_USER_SUBMIT_SUCCESS),
+          { kind: "success" },
+        );
+      }
+    }
+  }, [submitSucceeded]);
+
   const styledRoles =
     props.options && isAclFlow
       ? props.options.length > 0
@@ -279,22 +346,20 @@ function WorkspaceInviteUsersForm(props: any) {
         : []
       : props.roles.map((role: any) => {
           return {
-            id: role.id,
+            key: role.id,
             value: role.name?.split(" - ")[0],
-            label: role.description,
+            description: role.description,
           };
         });
 
   if (isEEFeature && showAdminSettings(user)) {
     styledRoles.push({
-      id: "custom-pg",
+      key: "custom-pg",
       value: "Assign Custom Role",
       link: "/settings/groups",
       icon: "right-arrow",
     });
   }
-
-  const theme = useContext(ThemeContext);
 
   const allUsersProfiles = React.useMemo(
     () =>
@@ -307,40 +372,32 @@ function WorkspaceInviteUsersForm(props: any) {
           permissionGroupName: string;
           name: string;
         }) => {
-          const details = getInitialsAndColorCode(
-            user.name || user.username,
-            theme.colors.appCardColors,
-          );
           return {
             ...user,
-            initials: details[0],
+            initials: getInitialsFromName(user.name || user.username),
           };
         },
       ),
-    [allUsers, theme],
+    [allUsers],
   );
 
-  const onSelect = (_value?: string, option?: any) => {
-    if (option.link) {
-      history.push(option.link);
+  const onSelect = (value: string, option?: any) => {
+    if (option.value === "custom-pg") {
+      history.push("/settings/groups");
     }
-    setSelectedOption(isMultiSelectDropdown ? option : [option]);
+    if (isMultiSelectDropdown) {
+      setSelectedOption((selectedOptions) => [...selectedOptions, option]);
+    } else {
+      setSelectedOption([option]);
+    }
   };
 
-  const onRemoveOptions = (updatedItems: any) => {
-    setSelectedOption(updatedItems);
-  };
-
-  const getLabel = (selectedOption: Partial<DropdownOption>[]) => {
-    return (
-      <span data-testid="t--dropdown-label" style={{ width: "100%" }}>
-        <Text type={TextType.P1}>{`${
-          selected
-            ? selectedOption[0].label
-            : `${selectedOption?.length} Selected`
-        }`}</Text>
-      </span>
-    );
+  const onRemoveOptions = (value: string, option?: any) => {
+    if (isMultiSelectDropdown) {
+      setSelectedOption((selectedOptions) =>
+        selectedOptions.filter((opt) => opt.value !== option.value),
+      );
+    }
   };
 
   const errorHandler = (error: string, values: string[]) => {
@@ -362,10 +419,12 @@ function WorkspaceInviteUsersForm(props: any) {
 
   return (
     <WorkspaceInviteWrapper>
-      <InviteModalStyles />
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
-          validateFormValues(values, isAclFlow);
+          const roles = isMultiSelectDropdown
+            ? selectedOption.map((option: any) => option.value).join(",")
+            : selectedOption[0].value;
+          validateFormValues({ ...values, role: roles }, isAclFlow);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
@@ -391,9 +450,7 @@ function WorkspaceInviteUsersForm(props: any) {
               : {}),
             ...(cloudHosting ? { users: usersStr } : {}),
             numberOfUsersInvited: usersArray.length,
-            role: isMultiSelectDropdown
-              ? selectedOption.map((group: any) => group.id).join(",")
-              : [selectedOption[0].id],
+            role: roles,
           });
           if (onSubmitHandler) {
             return onSubmitHandler({
@@ -409,11 +466,9 @@ function WorkspaceInviteUsersForm(props: any) {
               ...(isEEFeature ? { groups: groupsStr } : {}),
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
               users: usersStr,
-              permissionGroupId: isMultiSelectDropdown
-                ? selectedOption.map((group: any) => group.id).join(",")
-                : selectedOption[0].id,
-              isApplicationInvite: isAppLevelInvite,
-              ...(isAppLevelInvite
+              permissionGroupId: roles,
+              isApplicationInvite: isAppLevelInviteOnSelfHost,
+              ...(isAppLevelInviteOnSelfHost
                 ? {
                     applicationId: props.applicationId,
                     roleType: selectedOption[0].value,
@@ -425,82 +480,125 @@ function WorkspaceInviteUsersForm(props: any) {
         })}
       >
         <StyledInviteFieldGroupEE>
-          <div className="wrapper">
+          <div style={{ width: "60%" }}>
             <TagListField
               autofocus
               customError={(err: string, values?: string[]) =>
                 errorHandler(err, values || [])
               }
-              data-cy="t--invite-email-input"
+              data-testid="t--invite-email-input"
               intent="success"
               label="Emails"
               name="users"
               placeholder={placeholder || "Enter email address(es)"}
               suggestionLeftIcon={
-                <Icon
-                  className="user-icons"
-                  name="group-line"
-                  size={IconSize.XXL}
-                />
+                <Icon className="user-icons" name="group-line" size="md" />
               }
               suggestions={isEEFeature ? groupSuggestions : undefined}
               type="text"
             />
-            <SelectField
-              allowDeselection={isMultiSelectDropdown}
-              data-cy="t--invite-role-input"
-              disabled={props.disableDropdown}
-              dropdownMaxHeight={props.dropdownMaxHeight}
-              enableSearch={isAclFlow ? true : false}
-              isMultiSelect={isMultiSelectDropdown}
-              labelRenderer={(selected: Partial<DropdownOption>[]) =>
-                getLabel(selected)
-              }
-              name={"role"}
-              onSelect={(value, option) => onSelect(value, option)}
-              options={styledRoles}
-              outline={false}
-              placeholder={dropdownPlaceholder || "Select a role"}
-              removeSelectedOption={onRemoveOptions}
-              {...(isAclFlow ? { selected: selectedOption } : {})}
-              showLabelOnly={isMultiSelectDropdown}
-              size="small"
-            />
+            {emailError && (
+              <ErrorTextContainer>
+                <Icon name="alert-line" size="sm" />
+                <Text kind="body-s" renderAs="p">
+                  {emailError}
+                </Text>
+              </ErrorTextContainer>
+            )}
           </div>
-          <Button
-            className="t--invite-user-btn"
-            disabled={!valid}
-            isLoading={submitting && !(submitFailed && !anyTouched)}
-            size={Size.large}
-            tag="button"
-            text="Invite"
-            variant={Variant.info}
-            width={InviteButtonWidth}
-          />
+          <div style={{ width: "40%" }}>
+            <Select
+              data-testid="t--invite-role-input"
+              filterOption={(input, option) =>
+                (option &&
+                  option.label &&
+                  option.label
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())) ||
+                false
+              }
+              getPopupContainer={(triggerNode) =>
+                triggerNode.parentNode.parentNode
+              }
+              isDisabled={disableDropdown}
+              isMultiSelect={isMultiSelectDropdown}
+              listHeight={isAclFlow ? 200 : 400}
+              onDeselect={onRemoveOptions}
+              onSelect={onSelect}
+              optionLabelProp="label"
+              placeholder={dropdownPlaceholder || "Select a role"}
+              showSearch={isAclFlow ? true : false}
+              value={selectedOption}
+            >
+              {styledRoles.map((role: any) => (
+                <Option
+                  key={isAppLevelInviteOnSelfHost ? role.value : role.key}
+                  label={role.value}
+                  value={isAppLevelInviteOnSelfHost ? role.value : role.key}
+                >
+                  <div className="flex flex-col gap-1">
+                    <div className="flex gap-1">
+                      {role.icon && <Icon name={role.icon} size="md" />}
+                      <Text
+                        color="var(--ads-v2-color-fg-emphasis)"
+                        kind={role.description && "heading-xs"}
+                      >
+                        {role.value}
+                      </Text>
+                    </div>
+                    {role.description && (
+                      <Text kind="body-s">{role.description}</Text>
+                    )}
+                  </div>
+                </Option>
+              ))}
+              {cloudHosting && showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                <Option disabled>
+                  <CustomRolesRamp />
+                </Option>
+              )}
+            </Select>
+          </div>
+          <div>
+            <Button
+              className="t--invite-user-btn"
+              isDisabled={!valid || selectedOption.length === 0}
+              isLoading={submitting && !(submitFailed && !anyTouched)}
+              size="md"
+              type="submit"
+            >
+              Invite
+            </Button>
+          </div>
         </StyledInviteFieldGroupEE>
+
         {!isAclFlow && (
-          <LabelText data-testid="helper-message" type={TextType.P0}>
-            <Icon name="user-3-line" size={IconSize.MEDIUM} />
-            {isAppLevelInvite
-              ? createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)
-              : createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-          </LabelText>
+          <div className="flex gap-2 mt-2 items-start">
+            <Icon className="mt-1" name="user-3-line" size="md" />
+            <WorkspaceText>
+              <InviteUserText
+                isAppLevelInviteOnSelfHost={isAppLevelInviteOnSelfHost}
+                isApplicationInvite={isApplicationInvite}
+              />
+            </WorkspaceText>
+          </div>
         )}
+
         {isLoading ? (
-          <Loading size={30} />
+          <div className="pt-4 overflow-hidden">
+            <Spinner size="lg" />
+          </div>
         ) : (
           <>
-            {allUsers.length === 0 && !isAclFlow && (
+            {allUsers.length === 0 && !disableUserList && (
               <MailConfigContainer data-testid="no-users-content">
                 <NoEmailConfigImage />
-                <span>{createMessage(NO_USERS_INVITED)}</span>
+                <Text kind="action-s">{createMessage(NO_USERS_INVITED)}</Text>
               </MailConfigContainer>
             )}
             {!disableUserList && (
-              <StyledUserList
-                ref={userRef}
-                style={{ justifyContent: "space-between" }}
-              >
+              <StyledUserList ref={userRef}>
                 {allUsersProfiles.map(
                   (user: {
                     username: string;
@@ -512,56 +610,68 @@ function WorkspaceInviteUsersForm(props: any) {
                     photoId?: string;
                   }) => {
                     const showUser =
-                      (isAppLevelInvite
+                      (isAppLevelInviteOnSelfHost
                         ? user.roles?.[0]?.entityType ===
                           ENTITY_TYPE.APPLICATION
                         : user.roles?.[0]?.entityType ===
                           ENTITY_TYPE.WORKSPACE) && user.roles?.[0]?.id;
                     return showUser ? (
-                      <Fragment
+                      <User
                         key={
                           user?.userGroupId ? user.userGroupId : user.username
                         }
                       >
-                        <User isApplicationInvite={isApplicationInvite}>
-                          <UserInfo>
-                            {user?.userGroupId ? (
-                              <>
-                                <Icon
-                                  className="user-icons"
-                                  name="group-line"
-                                  size={IconSize.XXL}
-                                />
-                                <UserName>
-                                  <Text type={TextType.H5}>{user.name}</Text>
-                                </UserName>
-                              </>
-                            ) : (
-                              <>
-                                <ProfileImage
-                                  source={
-                                    user.photoId
-                                      ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
-                                      : undefined
-                                  }
-                                  userName={user.name || user.username}
-                                />
-                                <UserName>
-                                  <Text type={TextType.H5}>{user.name}</Text>
-                                  <Text type={TextType.P2}>
-                                    {user.username}
+                        <UserInfo>
+                          {user?.userGroupId ? (
+                            <>
+                              <Icon
+                                className="user-icons"
+                                name="group-line"
+                                size="lg"
+                              />
+                              <UserName>
+                                <Text
+                                  color="var(--ads-v2-color-fg)"
+                                  kind="heading-xs"
+                                >
+                                  {user.name}
+                                </Text>
+                              </UserName>
+                            </>
+                          ) : (
+                            <>
+                              <Avatar
+                                firstLetter={user.initials}
+                                image={
+                                  user.photoId
+                                    ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                    : undefined
+                                }
+                                isTooltipEnabled={false}
+                                label={user.name || user.username}
+                              />
+                              <UserName>
+                                <Tooltip
+                                  content={user.username}
+                                  placement="top"
+                                >
+                                  <Text
+                                    color="var(--ads-v2-color-fg)"
+                                    kind="heading-xs"
+                                  >
+                                    {user.name}
                                   </Text>
-                                </UserName>
-                              </>
-                            )}
-                          </UserInfo>
-                          <UserRole>
-                            <Text type={TextType.P1}>
-                              {user.roles?.[0]?.name?.split(" - ")[0] || ""}
-                            </Text>
-                          </UserRole>
-                        </User>
-                      </Fragment>
+                                </Tooltip>
+                              </UserName>
+                            </>
+                          )}
+                        </UserInfo>
+                        <UserRole>
+                          <Text kind="action-m">
+                            {user.roles?.[0]?.name?.split(" - ")[0] || ""}
+                          </Text>
+                        </UserRole>
+                      </User>
                     ) : null;
                   },
                 )}
@@ -569,27 +679,16 @@ function WorkspaceInviteUsersForm(props: any) {
             )}
           </>
         )}
-        <ErrorBox message={submitSucceeded || submitFailed}>
-          {submitSucceeded && (
-            <Callout
-              fill
-              text={
-                numberOfUsersInvited > 1
-                  ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
-                  : createMessage(INVITE_USER_SUBMIT_SUCCESS)
-              }
-              variant={Variant.success}
-            />
-          )}
-          {((submitFailed && error) || emailError) && (
-            <Callout fill text={error || emailError} variant={Variant.danger} />
-          )}
+        <ErrorBox message={submitFailed}>
+          {submitFailed && error && <Callout kind="error">{error}</Callout>}
         </ErrorBox>
         {canManage && !disableManageUsers && (
-          <ManageUsers
-            isApplicationInvite={isApplicationInvite}
-            workspaceId={props.workspaceId}
-          />
+          <ManageUsersContainer>
+            <ManageUsers
+              isApplicationInvite={isApplicationInvite}
+              workspaceId={props.workspaceId}
+            />
+          </ManageUsersContainer>
         )}
       </StyledForm>
     </WorkspaceInviteWrapper>
@@ -604,13 +703,16 @@ export default connect(
       isApplicationInvite,
     }: { formName?: string; isApplicationInvite?: boolean },
   ): any => {
-    const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
+    const isAppLevelInviteOnSelfHost =
+      (!cloudHosting && isApplicationInvite) || false;
     return {
-      roles: isAppLevelInvite
+      roles: isAppLevelInviteOnSelfHost
         ? getAppRolesForField(state)
         : getRolesForField(state),
-      allUsers: isAppLevelInvite ? getAllAppUsers(state) : getAllUsers(state),
-      isLoading: isAppLevelInvite
+      allUsers: isAppLevelInviteOnSelfHost
+        ? getAllAppUsers(state)
+        : getAllUsers(state),
+      isLoading: isAppLevelInviteOnSelfHost
         ? state.ui.applications.loadingStates.isFetchAllUsers
         : state.ui.workspaces.loadingStates.isFetchAllUsers,
       form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
@@ -641,6 +743,10 @@ export default connect(
       workspaceId?: string;
       isApplicationInvite?: boolean;
       placeholder?: string;
+      customProps?: any;
+      selected?: any;
+      options?: any;
+      isMultiSelectDropdown?: boolean;
     }
   >({
     validate,

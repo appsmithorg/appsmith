@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import type { MenuItemProps } from "design-system-old";
-import { HighlightText, Spinner } from "design-system-old";
+import { HighlightText } from "design-system-old";
+import { Spinner } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
@@ -31,7 +31,7 @@ import {
   getGroups,
   getSelectedGroup,
 } from "@appsmith/selectors/aclSelectors";
-import type { GroupProps } from "./types";
+import type { GroupProps, MenuItemProps } from "./types";
 import { ListingType } from "./types";
 import {
   isPermitted,
@@ -45,6 +45,7 @@ const CellContainer = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  color: var(--ads-v2-color-fg);
 `;
 
 export function GroupListing() {
@@ -127,7 +128,7 @@ export function GroupListing() {
     {
       label: "edit",
       className: "edit-menu-item",
-      icon: "edit-underline",
+      icon: "pencil-line",
       onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/groups/${key}`);
       },
@@ -136,7 +137,7 @@ export function GroupListing() {
     {
       label: "delete",
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
@@ -206,7 +207,7 @@ export function GroupListing() {
           />
         ) : (
           <LoaderContainer>
-            <Spinner />
+            <Spinner size="lg" />
           </LoaderContainer>
         )
       ) : (

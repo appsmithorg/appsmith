@@ -1,10 +1,8 @@
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { Button, DialogComponent, Text, TextInput } from "design-system-old";
-import { IntentColors } from "constants/DefaultTheme";
+import { Text, Input } from "design-system";
 
 export const BillingPageWrapper = styled.div`
-  padding: 48px 48px;
+  padding: 30px 0 0 24px;
   width: 100%;
   overflow: auto;
 `;
@@ -16,15 +14,19 @@ export const PageHeader = styled.div`
 
   .header-text {
     font-size: 24px;
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
 `;
 
 export const PageContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 30px;
   width: 100%;
   margin-top: 24px;
+
+  > div:not(:last-child) {
+    border-bottom: 1px solid var(--ads-v2-color-border);
+  }
 `;
 
 export const StyledCard = styled.div`
@@ -32,41 +34,20 @@ export const StyledCard = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid ${Colors.GRAY_200};
-  width: 70%;
+  width: 60%;
   min-width: 500px;
-  padding: 30px;
+  padding: 24px 16px;
   gap: 20px;
-  .portal-btn {
-    border: none;
-    border-bottom: 1px solid ${Colors.SCORPION};
-    border-radius: 5px 5px 0 0;
-    padding: 10px 0;
-    font-size: 13px;
-    font-weight: 600;
-    gap: 4px;
-    svg path {
-      fill: ${Colors.SCORPION};
-    }
-    :hover {
-      cursor: pointer;
-      background-color: transparent;
-    }
-  }
-  .update-license-btn {
-    border: 1.2px solid ${Colors.SCORPION};
-    padding: 1px 14px;
-  }
 `;
 
 export const CardLeftContent = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 20px;
   overflow: hidden;
-  .cs-text {
-    word-break: break-word;
+
+  .license-key-text {
+    color: var(--ads-v2-color-fg-muted);
   }
 `;
 
@@ -74,18 +55,15 @@ export const CardTextWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  color: var(--ads-v2-color-fg);
 `;
 
 export const IconBadge = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: ${Colors.GRAY_100};
   pointer-events: none;
-  min-width: 48px;
+  margin-right: 10px;
 `;
 
 export const CardRightContent = styled.div`
@@ -94,8 +72,12 @@ export const CardRightContent = styled.div`
   align-items: center;
 `;
 
+export const StyledImage = styled.img`
+  margin: auto;
+  width: 190px;
+`;
+
 export const UserCount = styled(Text)`
-  font-size: 24px;
   margin-right: 10px;
 `;
 
@@ -104,7 +86,7 @@ export const CTATextWrapper = styled.div`
   gap: 6px;
   align-items: center;
   .cta-text {
-    color: ${Colors.CTA_PURPLE};
+    color: var(--ads-v2-color-fg);
     font-size: 14px;
   }
   .cta-icon {
@@ -125,32 +107,7 @@ export const FlexWrapper = styled.div<{
   gap: 8px;
 `;
 
-export const StyledButton = styled(Button)`
-  width: 100%;
-`;
-
-export const StyledDialog = styled(DialogComponent)`
-  padding: 24px 36px;
-`;
-
-export const DialogWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  margin-top: 32px;
-`;
-
-export const DialogHeaderImg = styled.img`
-  position: fixed;
-  transform: translateY(-96%);
-  z-index: 1;
-  width: 190px;
-`;
-
-export const StyledInput = styled(TextInput)`
+export const StyledInput = styled(Input)`
   width: 100%;
 `;
 
@@ -161,13 +118,13 @@ export const StyledForm = styled.form<{ showError?: boolean }>`
   .ur--has-border {
     width: 100%;
     border: ${(props) =>
-      props.showError && `1.2px solid ${IntentColors.danger}`};
+      props.showError && `1.2px solid var(--ads-v2-color-border-error)`};
   }
   .license-input-label {
     margin-bottom: 8px;
   }
   .input-error-msg {
     margin-top: 4px;
-    color: ${IntentColors.danger};
+    color: var(--ads-v2-color-fg-error);
   }
 `;

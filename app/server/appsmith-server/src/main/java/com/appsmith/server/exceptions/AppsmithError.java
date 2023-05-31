@@ -81,7 +81,8 @@ public enum AppsmithError {
     USER_NOT_FOUND(404, AppsmithErrorCode.USER_NOT_FOUND.getCode(), "Unable to find user with email {0}", AppsmithErrorAction.DEFAULT, "No user found", ErrorType.INTERNAL_ERROR, null),
     ACL_NO_RESOURCE_FOUND(404, AppsmithErrorCode.ACL_NO_RESOURCE_FOUND.getCode(), "Unable to find {0} {1}. Either the asset doesn''t exist or you don''t have required permissions",
             AppsmithErrorAction.DEFAULT, "No resource found or permission denied", ErrorType.INTERNAL_ERROR, null),
-    GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad Request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
+    GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
+    GENERIC_REQUEST_BODY_PARSE_ERROR(400, AppsmithErrorCode.MALFORMED_REQUEST.getCode(), "Server cannot understand the request, malformed payload. Contact support for help.", AppsmithErrorAction.DEFAULT, "Malformed request body", ErrorType.BAD_REQUEST, null),
     VALIDATION_FAILURE(400, AppsmithErrorCode.VALIDATION_FAILURE.getCode(), "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, "Validation failed", ErrorType.INTERNAL_ERROR, null),
     INVALID_CURL_COMMAND(400, AppsmithErrorCode.INVALID_CURL_COMMAND.getCode(), "Invalid cURL command, couldn''t import.", AppsmithErrorAction.DEFAULT, "Invalid cURL command", ErrorType.ARGUMENT_ERROR, null),
     INVALID_LOGIN_METHOD(401, AppsmithErrorCode.INVALID_LOGIN_METHOD.getCode(), "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, "Invalid login method", ErrorType.INTERNAL_ERROR, null),
@@ -182,7 +183,7 @@ public enum AppsmithError {
 
     UNKNOWN_SERVER_VARIABLE_TYPE(500, AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(), "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, "Unexpected server variable type", ErrorType.INTERNAL_ERROR, null),
     MIGRATION_FAILED(500, AppsmithErrorCode.MIGRATION_FAILED.getCode(), "Migration {0} failed. Reason: {1}. Note: {2}", AppsmithErrorAction.DEFAULT, "Migration failed", ErrorType.INTERNAL_ERROR, null),
-    OPEN_AI_ERROR(500, AppsmithErrorCode.OPEN_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Open AI error", ErrorType.EE_FEATURE_ERROR, null),
+    APPSMITH_AI_ERROR(500, AppsmithErrorCode.APPSMITH_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Appsmith AI error", ErrorType.EE_FEATURE_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

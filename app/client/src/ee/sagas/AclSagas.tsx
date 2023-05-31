@@ -20,7 +20,7 @@ import type { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/type
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import {
   createMessage,
   ACL_DELETED_SUCCESS,
@@ -71,9 +71,8 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
           id: action.payload.id,
         },
       });
-      Toaster.show({
-        text: "User deleted successfully",
-        variant: Variant.success,
+      toast.show("User deleted successfully", {
+        kind: "success",
       });
     } else {
       yield put({
@@ -210,6 +209,9 @@ export function* updateGroupsInUserSaga(
           },
         },
       });
+      toast.show(`Groups ${createMessage(SUCCESSFULLY_SAVED).toLowerCase()}`, {
+        kind: "success",
+      });
     } else {
       yield put({
         type: ReduxActionErrorTypes.UPDATE_GROUPS_IN_USER_ERROR,
@@ -248,6 +250,9 @@ export function* updateRolesInUserSaga(
           },
         },
       });
+      toast.show(`Roles ${createMessage(SUCCESSFULLY_SAVED).toLowerCase()}`, {
+        kind: "success",
+      });
     } else {
       yield put({
         type: ReduxActionErrorTypes.UPDATE_ROLES_IN_USER_ERROR,
@@ -284,7 +289,7 @@ export function* fetchAclGroupsSaga() {
   }
 }
 
-export function* fetchAclGroupSagaById(
+export function* fetchAclGroupByIdSaga(
   action: ReduxAction<
     FetchSingleDataPayload & {
       triggerUpdateEvent?: boolean;
@@ -401,9 +406,8 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.DELETE_ACL_GROUP_SUCCESS,
         payload: response.data,
       });
-      Toaster.show({
-        text: createMessage(ACL_DELETED_SUCCESS),
-        variant: Variant.success,
+      toast.show(createMessage(ACL_DELETED_SUCCESS), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -490,9 +494,8 @@ export function* updateRolesInGroupSaga(
           updatePayload: action.payload,
         },
       });
-      Toaster.show({
-        text: createMessage(SUCCESSFULLY_SAVED),
-        variant: Variant.success,
+      toast.show(createMessage(SUCCESSFULLY_SAVED), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -580,7 +583,7 @@ export function* fetchAclRolesSaga() {
   }
 }
 
-export function* fetchAclRoleSagaById(
+export function* fetchAclRoleByIdSaga(
   action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
@@ -592,6 +595,9 @@ export function* fetchAclRoleSagaById(
       yield put({
         type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID_SUCCESS,
         payload: response.data,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ICON_LOCATIONS,
       });
     } else {
       yield put({
@@ -643,9 +649,8 @@ export function* updateRoleSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS,
         payload: response.data,
       });
-      Toaster.show({
-        text: createMessage(SUCCESSFULLY_SAVED),
-        variant: Variant.success,
+      toast.show(createMessage(SUCCESSFULLY_SAVED), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -700,9 +705,8 @@ export function* deleteAclRoleSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.DELETE_ACL_ROLE_SUCCESS,
         payload: response.data,
       });
-      Toaster.show({
-        text: createMessage(ACL_DELETED_SUCCESS),
-        variant: Variant.success,
+      toast.show(createMessage(ACL_DELETED_SUCCESS), {
+        kind: "success",
       });
     } else {
       yield put({
@@ -845,7 +849,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
       takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
+      takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupByIdSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
       takeLatest(
         ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
@@ -860,7 +864,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
       takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleByIdSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
       takeLatest(

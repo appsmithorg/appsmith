@@ -1,5 +1,4 @@
 import React from "react";
-import { Button, Category, Size, Text, TextType } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getRemainingDays,
@@ -9,7 +8,6 @@ import { setBEBanner } from "@appsmith/actions/tenantActions";
 import {
   BE_TRIAL_BANNER_EXPIRY_MESSAGE,
   BE_WELCOME_MESSAGE,
-  CLOSE,
   createMessage,
   NO_ACTIVE_SUBSCRIPTION,
   UPGRADE_NOW,
@@ -20,8 +18,10 @@ import {
   BannerContentWrapper,
   BannerTextWrapper,
   BannerCtaWrapper,
+  StyledCallout,
 } from "./styles";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { Button, Text } from "design-system";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export function BEBanner() {
@@ -36,51 +36,55 @@ export function BEBanner() {
   };
 
   return (
-    <BannerWrapper data-testid="t--welcome-banner">
-      <BannerContentWrapper>
-        <img
-          alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
-          className="no-sub-img"
-          height="180px"
-          src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
-          width="180px"
-        />
-        <BannerTextWrapper>
-          <Text className="main-text" type={TextType.H1} weight="700">
-            🚀 {createMessage(BE_WELCOME_MESSAGE)}
-          </Text>
-          <Text
-            className="sub-text"
-            dangerouslySetInnerHTML={{
-              __html: createMessage(() =>
-                BE_TRIAL_BANNER_EXPIRY_MESSAGE(days, suffix),
-              ),
-            }}
-            type={TextType.P1}
-            weight="600"
+    <StyledCallout>
+      <BannerWrapper data-testid="t--welcome-banner">
+        <BannerContentWrapper>
+          <img
+            alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
+            className="no-sub-img"
+            height="180px"
+            src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
+            width="180px"
           />
-        </BannerTextWrapper>
-      </BannerContentWrapper>
-      <BannerCtaWrapper>
-        {isAdmin && !isAirgappedInstance && (
+          <BannerTextWrapper>
+            <Text
+              className="main-text"
+              color="var(--ads-v2-color-fg-emphasis)"
+              kind="heading-m"
+              renderAs="p"
+            >
+              🚀 {createMessage(BE_WELCOME_MESSAGE)}
+            </Text>
+            <p
+              className="sub-text"
+              dangerouslySetInnerHTML={{
+                __html: createMessage(() =>
+                  BE_TRIAL_BANNER_EXPIRY_MESSAGE(days, suffix),
+                ),
+              }}
+            />
+          </BannerTextWrapper>
+        </BannerContentWrapper>
+        <BannerCtaWrapper>
+          {isAdmin && !isAirgappedInstance && (
+            <Button
+              className="upgrade-button"
+              onClick={goToCustomerPortal}
+              size="md"
+            >
+              {createMessage(UPGRADE_NOW)}
+            </Button>
+          )}
           <Button
-            className="upgrade-button"
-            fill
-            onClick={goToCustomerPortal}
-            size={Size.medium}
-            tag="button"
-            text={createMessage(UPGRADE_NOW)}
+            className="close-button"
+            isIconButton
+            kind="tertiary"
+            onClick={handleClose}
+            size="md"
+            startIcon="close-line"
           />
-        )}
-        <Button
-          category={Category.secondary}
-          className="close-button"
-          onClick={handleClose}
-          size={Size.medium}
-          tag="button"
-          text={createMessage(CLOSE)}
-        />
-      </BannerCtaWrapper>
-    </BannerWrapper>
+        </BannerCtaWrapper>
+      </BannerWrapper>
+    </StyledCallout>
   );
 }

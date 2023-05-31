@@ -106,8 +106,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
@@ -150,7 +150,7 @@ jobs:
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
         if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit:ci
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -175,6 +175,15 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
+            
+      # Saving the cache to use it in subsequent runs
+      - name: Save Yarn cache
+        uses: actions/cache/save@v3
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
       # We may not need the client_build_dir env variable.
       - name: Set the client build path env vars

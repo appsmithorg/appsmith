@@ -53,11 +53,6 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
     }
 
     @Override
-    public Mono<Environment> findById(String environmentId) {
-        return queryOne(List.of(environmentIdCriteria(environmentId)));
-    }
-
-    @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId) {
         return queryMany(List.of(
                 workspaceIdCriteria(workspaceId),

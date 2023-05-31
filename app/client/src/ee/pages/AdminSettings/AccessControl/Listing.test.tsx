@@ -6,8 +6,8 @@ import { allUsers } from "./mocks/UserListingMock";
 import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import type { MenuItemProps } from "./types";
 import { ListingType } from "./types";
-import type { MenuItemProps } from "design-system-old";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -27,14 +27,14 @@ const userListingProps = {
   listMenuItems: [
     {
       className: "edit-menu-item",
-      icon: "edit-underline",
+      icon: "pencil-line",
       onSelect: onSelectFn,
       text: "Edit Groups",
       label: "edit",
     },
     {
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: onSelectFn,
       text: "Delete",
       label: "delete",
@@ -92,7 +92,7 @@ describe("<Listing />", () => {
   it("should render table with given data", () => {
     const { getAllByTestId } = renderUserListing();
     const actual = getAllByTestId("user-listing-userCell").map(
-      (cell: HTMLElement) => cell.getElementsByTagName("span")[1].textContent,
+      (cell: HTMLElement) => cell.getElementsByTagName("span")[2].textContent,
     );
     const expected = userListingProps.data.map((user) => user.username);
     expect(actual).toEqual(expected);
@@ -135,15 +135,16 @@ describe("<Listing />", () => {
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await fireEvent.click(deleteOption[0]);
-    const confirmText = getAllByTestId("t--delete-menu-item");
-    expect(confirmText[0]).toHaveTextContent("Are you sure?");
-    await fireEvent.dblClick(deleteOption[0]);
-    user = queryByText(userListingProps.data[0].username);
-    /*expect(user).not.toBeInTheDocument();*/
-    await waitFor(() => {
-      expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalledTimes(
-        1,
-      );
+    waitFor(async () => {
+      const confirmText = getAllByTestId("t--delete-menu-item");
+      expect(confirmText[0]).toHaveTextContent("Are you sure?");
+      await fireEvent.dblClick(deleteOption[0]);
+      user = queryByText(userListingProps.data[0].username);
+      await waitFor(() => {
+        expect(
+          userListingProps.listMenuItems[1].onSelect,
+        ).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

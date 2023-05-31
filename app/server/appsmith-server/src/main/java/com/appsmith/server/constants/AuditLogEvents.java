@@ -1,6 +1,7 @@
 package com.appsmith.server.constants;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -105,6 +106,7 @@ public class AuditLogEvents {
             entry(Application.class.getSimpleName(), FieldName.APPLICATION),
             entry(NewPage.class.getSimpleName(), FieldName.PAGE),
             entry(NewAction.class.getSimpleName(), FieldName.QUERY),
+            entry(ActionDTO.class.getSimpleName(), FieldName.QUERY),
             entry(User.class.getSimpleName(), FieldName.USER),
             entry(UserGroup.class.getSimpleName(), FieldName.GROUP),
             entry(PermissionGroup.class.getSimpleName(), FieldName.ROLE),

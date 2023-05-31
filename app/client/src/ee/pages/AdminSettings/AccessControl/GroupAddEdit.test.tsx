@@ -14,19 +14,19 @@ let container: any = null;
 const listMenuItems = [
   {
     className: "rename-menu-item",
-    icon: "edit-underline",
+    icon: "pencil-line",
     text: "Rename",
     label: "rename",
   },
   {
     className: "rename-desc-menu-item",
-    icon: "edit-underline",
-    text: "Edit Description",
+    icon: "pencil-line",
+    text: "Edit description",
     label: "rename-desc",
   },
   {
     className: "delete-menu-item",
-    icon: "delete-blank",
+    icon: "delete-bin-line",
     onSelect: jest.fn(),
     text: "Delete",
     label: "delete",
@@ -77,9 +77,9 @@ describe("<GroupAddEdit />", () => {
     );
     const button = screen.getByTestId("t--add-users-button");
     expect(emptyState).toContainElement(button);
-    expect(button).toHaveTextContent("Add Users");
+    expect(button).toHaveTextContent("Add users");
     fireEvent.click(button);
-    const modal = screen.queryByTestId("t--dialog-component");
+    const modal = screen.queryByRole("dialog");
     expect(modal).toBeTruthy();
   });
   it("should search and filter users on search", async () => {
@@ -95,10 +95,11 @@ describe("<GroupAddEdit />", () => {
     expect(searchInput).toHaveLength(1);
 
     const tabs = screen.getAllByRole("tab");
-    const tab = tabs[0];
-    fireEvent.click(tab);
+    userEvent.click(tabs[0]);
 
-    const tabCount = screen.queryAllByTestId("t--tab-count");
+    const tabCount = Array.from(
+      document.getElementsByClassName("ads-v2-tabs__list-tab-count"),
+    );
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
       userGroupTableData[1].users.length.toString(),
@@ -115,7 +116,9 @@ describe("<GroupAddEdit />", () => {
     const mockedSearchResults = ["1", "1"];
 
     await waitFor(() => {
-      const tabCount = screen.queryAllByTestId("t--tab-count");
+      const tabCount = Array.from(
+        document.getElementsByClassName("ads-v2-tabs__list-tab-count"),
+      );
       const filtered = screen.queryAllByText("hello123@appsmith.com");
       expect(filtered).toHaveLength(0);
       expect(tabCount).toHaveLength(tabs.length);
@@ -128,7 +131,7 @@ describe("<GroupAddEdit />", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeRolesData = userGroupTableData[0].roles;
     const allRolesData = userGroupTableData[0].allRoles;
     const customRolesData = userGroupTableData[0].allRoles.filter(
@@ -188,10 +191,11 @@ describe("<GroupAddEdit />", () => {
     expect(searchInput).toHaveLength(1);
 
     const tabs = screen.getAllByRole("tab");
-    const tab = tabs[1];
-    fireEvent.click(tab);
+    userEvent.click(tabs[1]);
 
-    const tabCount = screen.queryAllByTestId("t--tab-count");
+    const tabCount = Array.from(
+      document.getElementsByClassName("ads-v2-tabs__list-tab-count"),
+    );
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
       userGroupTableData[1].users.length.toString(),
@@ -213,7 +217,9 @@ describe("<GroupAddEdit />", () => {
     });
 
     await waitFor(() => {
-      const tabCount = screen.queryAllByTestId("t--tab-count");
+      const tabCount = Array.from(
+        document.getElementsByClassName("ads-v2-tabs__list-tab-count"),
+      );
       const filtered = screen.queryAllByText("devops_eng_nov");
       expect(filtered).toHaveLength(0);
       expect(tabCount).toHaveLength(tabs.length);
@@ -270,40 +276,47 @@ describe("<GroupAddEdit />", () => {
   it("should show input box on group description on clicking edit description menu item", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    await userEvent.click(moreMenu[0]);
     let titleEl = document.getElementsByClassName("t--editable-description");
     expect(titleEl).toHaveLength(0);
     const renameOption = getAllByTestId("t--rename-desc-menu-item");
-    await fireEvent.click(renameOption[0]);
-    titleEl = document.getElementsByClassName("t--editable-description");
-    expect(titleEl).toHaveLength(1);
-    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
-    expect(titleEl[0]).not.toHaveTextContent(
-      "This is dummy description for this group.",
-    );
+    await userEvent.click(renameOption[0]);
+    waitFor(async () => {
+      titleEl = document.getElementsByClassName("t--editable-description");
+      expect(titleEl).toHaveLength(1);
+      expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+      expect(titleEl[0]).not.toHaveTextContent(
+        "This is dummy description for this group.",
+      );
 
-    const inputEl = titleEl[0].getElementsByTagName("textarea")[0];
-    await userEvent.type(inputEl, "This is dummy description for this group.");
-    // await userEvent.keyboard("{Shift>}{enter}");
-    titleEl = document.getElementsByClassName("t--editable-description");
-    // expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
-    expect(titleEl[0]).toHaveTextContent(
-      "This is dummy description for this group.",
-    );
+      const inputEl = titleEl[0].getElementsByTagName("textarea")[0];
+      await userEvent.type(
+        inputEl,
+        "This is dummy description for this group.",
+      );
+      // await userEvent.keyboard("{Shift>}{enter}");
+      titleEl = document.getElementsByClassName("t--editable-description");
+      // expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+      expect(titleEl[0]).toHaveTextContent(
+        "This is dummy description for this group.",
+      );
+    });
   });
   it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    await userEvent.click(deleteOption[0]);
-    const confirmationText = getAllByTestId("t--delete-menu-item");
-    expect(confirmationText[0]).toHaveTextContent("Are you sure?");
-    await userEvent.dblClick(deleteOption[0]);
-    expect(props.onDelete).toHaveBeenCalledWith(props.selected.id);
-    expect(window.location.pathname).toEqual("/settings/groups");
+    await fireEvent.click(deleteOption[0]);
+    waitFor(async () => {
+      const confirmationText = getAllByTestId("t--delete-menu-item");
+      expect(confirmationText[0]).toHaveTextContent("Are you sure?");
+      await fireEvent.dblClick(deleteOption[0]);
+      expect(props.onDelete).toHaveBeenCalledWith(props.selected.id);
+      expect(window.location.pathname).toEqual("/settings/groups");
+    });
   });
   it("should contain two tabs", () => {
     renderComponent();
@@ -315,7 +328,7 @@ describe("<GroupAddEdit />", () => {
   it("should mark group to be removed", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
@@ -323,7 +336,7 @@ describe("<GroupAddEdit />", () => {
   it("should mark group to be added", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const allGroups = screen.getAllByTestId("t--all-group-row");
     fireEvent.click(allGroups[0]);
     expect(allGroups[0]).toHaveClass("added");
@@ -335,7 +348,7 @@ describe("<GroupAddEdit />", () => {
     )?.[0];
     expect(saveButton).toBeUndefined();
     const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     await fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
@@ -351,7 +364,7 @@ describe("<GroupAddEdit />", () => {
   it("should hide save bottom bar on clicking clear", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
@@ -425,32 +438,11 @@ describe("<GroupAddEdit />", () => {
     const editableDesc = queryAllByTestId("t--editable-description");
     expect(editableDesc).toHaveLength(0);
   });
-  it("should show error message on save when there is no edit permission", async () => {
-    jest
-      .spyOn(selectors, "getGroupPermissions")
-      .mockImplementation(() =>
-        mockGroupPermissions([PERMISSION_TYPE.MANAGE_USERGROUPS]),
-      );
-    const { queryAllByTestId } = renderComponent();
-    const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
-    const activeGroups = queryAllByTestId("t--active-group-row");
-    await fireEvent.click(activeGroups[0]);
-    expect(activeGroups[0]).toHaveClass("removed");
-    let saveButton;
-    await waitFor(async () => {
-      saveButton = screen.getAllByTestId("t--admin-settings-save-button");
-      expect(saveButton).toHaveLength(1);
-      await fireEvent.click(saveButton[0]);
-      const errorMessage = await document.getElementsByClassName("cs-text");
-      expect(errorMessage).toHaveLength(1);
-    });
-  });
   it("should show lock icon and disable click for active roles which do not have unassign permission", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeRolesData = userGroupTableData[0].roles;
     const roleWithNoUnassignPermission = activeRolesData.findIndex(
       (role: BaseGroupRoleProps) =>

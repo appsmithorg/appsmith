@@ -12,6 +12,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -43,17 +44,20 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                                        AuthenticationValidator authenticationValidator,
                                        DatasourcePermission datasourcePermission,
                                        AnalyticsService analyticsService,
+                                       DatasourceStorageService datasourceStorageService,
+                                       DatasourceStorageTransferSolution datasourceStorageTransferSolution,
                                        VariableReplacementService variableReplacementService) {
         super(newActionService, actionPermission, observationRegistry, objectMapper, repository, datasourceService,
                 pluginService, datasourceContextService, pluginExecutorHelper, newPageService, applicationService,
-                sessionUserService, authenticationValidator, datasourcePermission, analyticsService);
+                sessionUserService, authenticationValidator, datasourcePermission, analyticsService,
+                datasourceStorageService, datasourceStorageTransferSolution);
 
         this.variableReplacementService = variableReplacementService;
     }
 
     @Override
-    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction) {
-        return super.getValidActionForExecution(executeActionDTO, actionId, newAction)
+    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO) {
+        return super.getValidActionForExecution(executeActionDTO)
                 .flatMap(validAction -> {
                     Mono<AppsmithDomain> actionConfigurationMono = this.variableReplacementService
                             .replaceAll(validAction.getActionConfiguration());

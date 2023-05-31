@@ -191,7 +191,7 @@ jobs:
           cd app/client
           yarn install \
           --cwd cypress \
-          --modules-folder ../node_modules
+          --modules-folder node_modules
 
       - name: Set cypress tags to exclude
         if: steps.run_result.outputs.run_result != 'success'

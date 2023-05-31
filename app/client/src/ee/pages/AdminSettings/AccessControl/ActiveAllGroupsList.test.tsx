@@ -6,6 +6,7 @@ import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import { createMessage, ACTIVE_ENTITIES } from "@appsmith/constants/messages";
 import type { ActiveAllGroupsProps, BaseAclProps } from "./types";
+import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 
@@ -118,7 +119,7 @@ describe("<ActiveAllGroupsList />", () => {
     const searchInput = getAllByTestId("t--acl-search-input");
     const tabs = getAllByRole("tab");
     const rolesTab = tabs[1];
-    await fireEvent.click(rolesTab);
+    userEvent.click(rolesTab);
     await fireEvent.change(searchInput[0], { target: { value: "devops" } });
 
     await waitFor(() => {

@@ -13,16 +13,15 @@ import {
 import styled from "styled-components";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
-import TemplateModalHeader from "./Header";
 import LoadingScreen from "./LoadingScreen";
 
 const Wrapper = styled.div`
   display: flex;
   height: 85vh;
-  overflow: auto;
+  overflow-y: hidden;
 
-  .modal-header {
-    padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  .templates-search {
+    background-color: var(--ads-v2-color-bg);
   }
 `;
 
@@ -35,12 +34,7 @@ const FilterWrapper = styled.div`
 const ListWrapper = styled.div`
   height: 79vh;
   overflow: auto;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
+  width: 100%;
 `;
 
 type TemplateListProps = {
@@ -67,11 +61,6 @@ function TemplateList(props: TemplateListProps) {
 
   return (
     <Wrapper className="flex flex-col">
-      <TemplateModalHeader
-        className="modal-header"
-        hideBackButton
-        onClose={props.onClose}
-      />
       <div className="flex">
         <FilterWrapper>
           <Filters />
