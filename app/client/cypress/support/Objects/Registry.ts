@@ -23,6 +23,7 @@ import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
+import { DefaultHostPort } from "./Hostport";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -223,6 +224,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.autoLayout__ = new AutoLayout();
     }
     return ObjectsRegistry.autoLayout__;
+  }
+
+  private static defaultHostPort__: DefaultHostPort;
+  static get DefaultHostPort(): DefaultHostPort {
+    if (ObjectsRegistry.defaultHostPort__ === undefined) {
+      ObjectsRegistry.defaultHostPort__ = new DefaultHostPort();
+    }
+    return ObjectsRegistry.defaultHostPort__;
   }
 }
 

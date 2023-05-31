@@ -27,3 +27,4 @@ export const installer = ObjectsRegistry.LibraryInstaller;
 export const onboarding = ObjectsRegistry.Onboarding;
 export const draggableWidgets = WIDGET;
 export const fakerHelper = ObjectsRegistry.FakerHelper;
+export const hp = ObjectsRegistry.DefaultHostPort;
