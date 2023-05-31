@@ -2135,7 +2135,24 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
       .wait(1000);
     cy.document().its("body").find(option($each)).should("be.checked");
   });
-  cy.document().its("body").type("{esc}");
+  //Closing dropdown
+  cy.get(" .t--widget-multiselectwidgetv2 div.rc-select-selector")
+    .eq(0)
+    .scrollIntoView()
+    .then(($element) => {
+      // here, we try to click on downArrow in dropdown of multiSelect.
+      // the position is calculated from top left of the element
+      const dropdownCenterPosition = +$element.height / 2;
+      const dropdownArrowApproxPosition = +$element.width - 10;
+      cy.get($element).click(
+        dropdownArrowApproxPosition,
+        dropdownCenterPosition,
+        {
+          force: true,
+        },
+      );
+    });
+  //cy.document().its("body").type("{esc}");
 });
 
 Cypress.Commands.add("skipSignposting", () => {
