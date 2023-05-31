@@ -7,7 +7,7 @@ import BranchMoreMenu from "./BranchMoreMenu";
 import { Tooltip, Text, Spinner } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { useSelector } from "react-redux";
-import { getIsSwitchingBranch } from "selectors/gitSyncSelectors";
+import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
 
 export function BranchListItem({
   active,
@@ -22,7 +22,9 @@ export function BranchListItem({
   const [hover] = useHover(itemRef);
   const textRef = React.useRef<HTMLSpanElement>(null);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = React.useState(false);
-  const isSwitchingBranch = useSelector(getIsSwitchingBranch);
+  const { isSwitchingBranch, switchingToBranch } = useSelector(
+    getBranchSwitchingDetails,
+  );
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView) {
       scrollIntoView(itemRef.current, {
@@ -62,7 +64,9 @@ export function BranchListItem({
             {branch}
           </Text>
           {isDefault && <DefaultTag />}
-          {active && isSwitchingBranch && <Spinner />}
+          {switchingToBranch === branch && isSwitchingBranch && (
+            <Spinner size="md" />
+          )}
         </span>
       </Tooltip>
       {(hover || isMoreMenuOpen) && (
