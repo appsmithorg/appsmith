@@ -35,6 +35,7 @@ import java.util.Random;
 
 import static java.util.Arrays.copyOfRange;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -260,7 +261,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .thenReturn(Flux.just(applicationSnapshot));
 
         // mock the import application service to return the application that was passed to it
-        Mockito.when(importExportApplicationService.importApplicationInWorkspace(eq(application.getWorkspaceId()), argThat(applicationJson1 -> applicationJson1.getExportedApplication().getName().equals(application.getName())), eq("branched-app-id"), eq("development")))
+        Mockito.when(importExportApplicationService.restoreSnapshot(eq(application.getWorkspaceId()), argThat(applicationJson1 -> applicationJson1.getExportedApplication().getName().equals(application.getName())), eq("branched-app-id"), eq("development")))
                 .thenReturn(Mono.just(application));
 
         // mock the delete spanshot to return an empty mono
