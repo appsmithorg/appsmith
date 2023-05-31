@@ -172,7 +172,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasourceMono = datasourceMono
                     .map(datasource1 -> {
                         // Everything we create needs to use configs from storage
-                        datasource1.setHasDatasourceStorage(true); // TODO: remove this after migiration
+                        datasource1.setHasDatasourceStorage(true); // TODO: remove this after migration
                         return datasource1;
                     })
                     .flatMap(datasource1 -> {
@@ -311,6 +311,35 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
                 });
 
+    }
+
+    @Override
+    public Mono<Datasource> updateDatasource(String id, Datasource datasource,
+                                             String activeEnvironmentId,
+                                             Boolean isUserRefreshedUpdate) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        // Since policies are a server only concept, first set the empty set (set by constructor) to null
+        datasource.setPolicies(null);
+
+        Mono<Datasource> datasourceMono = repository.findById(id, datasourcePermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+
+        // This is meant to be an update for just the datasource - like a rename
+        return datasourceMono
+                .map(dbDatasource -> {
+                    copyNestedNonNullProperties(datasource, dbDatasource);
+                    return dbDatasource;
+                })
+                .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(savedDatasource -> {
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
+                    Boolean userInvokedUpdate = Boolean.TRUE.equals(isUserRefreshedUpdate) ? Boolean.TRUE: Boolean.FALSE;
+                    analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, userInvokedUpdate);
+                    return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
+                });
     }
 
     @Override
@@ -552,12 +581,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<DatasourceDTO> getAllWithStorages(MultiValueMap<String, String> params) {
+    public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
         String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
         if (workspaceId != null) {
-            return this.getAllByWorkspaceIdWithStorages(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
-                    // TODO: Remove the following snippet after client side API changes
-                    .flatMap(datasource -> convertToDatasourceDTO(datasource));
+            return this.getAllByWorkspaceIdWithStorages(workspaceId, Optional.of(datasourcePermission.getReadPermission()));
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));

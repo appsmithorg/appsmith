@@ -45,10 +45,11 @@ public interface DatasourceServiceCE {
      * Retrieves all datasources based on input params, currently only workspaceId.
      * The retrieved datasources will contain configuration from the default environment,
      * for compatibility.
+     *
      * @param params
      * @return A flux of DatsourceDTO, which will change after API contracts gets updated
      */
-    Flux<DatasourceDTO> getAllWithStorages(MultiValueMap<String, String> params);
+    Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params);
 
     Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission);
 
@@ -74,6 +75,8 @@ public interface DatasourceServiceCE {
     Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> updateDatasourceStorage(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
+
+    Mono<Datasource> updateDatasource(String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId);
 

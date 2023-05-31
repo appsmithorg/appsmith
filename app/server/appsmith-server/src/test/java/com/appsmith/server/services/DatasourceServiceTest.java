@@ -1635,7 +1635,7 @@ public class DatasourceServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
-        Mono<List<DatasourceDTO>> listMono = datasourceService.getAllWithStorages(params).collectList();
+        Mono<List<Datasource>> listMono = datasourceService.getAllWithStorages(params).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(datasources -> {
@@ -1644,11 +1644,11 @@ public class DatasourceServiceTest {
                     assertThat(datasources)
                             .allMatch(datasourceDTO -> Set.of("A", "B", "C", "D").contains(datasourceDTO.getName()));
 
-                    datasources.stream().forEach(datasourceDTO -> {
-                        if (Set.of("A", "B", "C").contains(datasourceDTO.getName())) {
-                            assertThat(datasourceDTO.getIsRecentlyCreated()).isTrue();
+                    datasources.stream().forEach(datasource -> {
+                        if (Set.of("A", "B", "C").contains(datasource.getName())) {
+                            assertThat(datasource.getIsRecentlyCreated()).isTrue();
                         } else {
-                            assertThat(datasourceDTO.getIsRecentlyCreated()).isNull();
+                            assertThat(datasource.getIsRecentlyCreated()).isNull();
                         }
                     });
                 })

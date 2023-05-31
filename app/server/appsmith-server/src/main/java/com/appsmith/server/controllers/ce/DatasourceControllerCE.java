@@ -67,7 +67,7 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("")
-    public Mono<ResponseDTO<List<DatasourceDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<Datasource>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources from datasource controller {}", params);
         return datasourceService.getAllWithStorages(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
@@ -85,11 +85,11 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<DatasourceDTO>> update(@PathVariable String id,
-                                                   @RequestBody DatasourceDTO datasourceDTO,
+    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
+                                                   @RequestBody Datasource datasource,
                                                    @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
-        return datasourceService.update(id, datasourceDTO, environmentId, Boolean.TRUE)
+        return datasourceService.updateDatasource(id, datasource, environmentId, Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
