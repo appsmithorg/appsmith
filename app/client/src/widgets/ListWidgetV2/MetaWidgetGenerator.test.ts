@@ -755,7 +755,8 @@ describe("#generate", () => {
           },
           Canvas1: {},
           Canvas2: {
-            entityDefinition: "",
+            entityDefinition:
+              "backgroundColor: Canvas2.backgroundColor,isVisible: Canvas2.isVisible",
             rowIndex: 0,
             metaWidgetId: "qpgtpiw3cu",
             metaWidgetName: "Canvas2",
@@ -1010,7 +1011,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView }\n        ,\n          Canvas2: { backgroundColor: Canvas2.backgroundColor,isVisible: Canvas2.isVisible }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
     expect(count).toEqual(18);
