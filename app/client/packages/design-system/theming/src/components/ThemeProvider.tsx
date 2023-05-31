@@ -100,7 +100,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   return (
     <ThemeContext.Provider
       value={{
-        rest,
+        ...rest,
         typography: getTypographyStyles({
           rootUnit,
           typography,

@@ -86,6 +86,7 @@ export class TokensAccessor {
   getAllTokens = () => {
     return {
       ...this.getRootUnit(),
+      ...this.getFontFamily(),
       ...this.getTypography(),
       ...this.getColors(),
       ...this.getSpacing(),

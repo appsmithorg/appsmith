@@ -32,7 +32,7 @@ export const Text = forwardRef(
 
     return (
       <StyledText
-        classNam={className}
+        className={className}
         isBold={isBold}
         isItalic={isItalic}
         lineClamp={lineClamp}

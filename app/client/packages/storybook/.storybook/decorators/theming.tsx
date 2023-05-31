@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import webfontloader from "webfontloader";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import * as webfontloader from "webfontloader";
 import styled from "styled-components";
 import {
   ThemeProvider,
@@ -107,7 +108,11 @@ export const theming = (Story, args) => {
 
   useEffect(() => {
     if (args.globals.rootUnit) {
-      tokensAccessor.updateRootUnit(args.globals.rootUnit);
+      tokensAccessor.updateRootUnit(
+        defaultTokens.rootUnit * args.globals.rootUnit,
+      );
+
+      console.log(tokensAccessor.getRootUnit());
 
       setTheme((prevState) => {
         return {

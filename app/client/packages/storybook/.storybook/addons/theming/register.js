@@ -53,8 +53,6 @@ addons.register("widgets/theming", () => {
       const [globals, updateGlobals] = useGlobals();
       const [isDarkMode, setDarkMode] = useState(false);
 
-      globals.rootUnit = 4;
-
       const updateGlobal = (key, value) => {
         updateGlobals({
           [key]: value,
@@ -89,8 +87,8 @@ addons.register("widgets/theming", () => {
                 onChange={(e) => updateGlobal("borderRadius", e.target.value)}
               >
                 <option value="0px">Sharp</option>
-                <option value="0.375rem">Rounded</option>
-                <option value="1rem">Pill</option>
+                <option value="6px">Rounded</option>
+                <option value="14px">Pill</option>
               </StyledSelect>
             </div>
 
@@ -135,15 +133,15 @@ addons.register("widgets/theming", () => {
             </div>
 
             <div>
-              <H6>Root Unit</H6>
+              <H6>Root Unit Ratio</H6>
               <NumberControl
                 name="root-unit"
                 label="Root Unit"
                 value={globals.rootUnit}
                 defaultValue={globals.rootUnit}
-                min={2}
-                max={12}
-                step={1}
+                min={0.5}
+                max={2}
+                step={0.1}
                 onChange={(value) => updateGlobal("rootUnit", value)}
               />
             </div>

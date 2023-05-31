@@ -1,8 +1,13 @@
+import type { TypographyVariants } from "@design-system/theming";
 import styled, { css } from "styled-components";
 
 import type { TextProps } from "./Text";
 
-type StyledTextProp = TextProps & any;
+type StyledTextProp = TextProps & {
+  typography: {
+    [key in TypographyVariants]: string;
+  };
+};
 
 const truncateStyles = css`
   ${(props: TextProps) => {
