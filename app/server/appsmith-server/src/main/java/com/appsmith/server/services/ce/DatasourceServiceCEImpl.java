@@ -59,8 +59,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 public class DatasourceServiceCEImpl implements DatasourceServiceCE {
@@ -135,19 +137,20 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private Mono<Datasource> createEx(@NotNull Datasource datasource, Optional<AclPermission> permission) {
         // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
-        if (workspaceId == null) {
+        if (!hasText(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
-        if (datasource.getId() != null) {
+        if (hasText(datasource.getId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        if (datasource.getPluginId() == null) {
+        if (!hasText(datasource.getPluginId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PLUGIN_ID));
         }
-        if (!StringUtils.hasLength(datasource.getGitSyncId())) {
+        if (!hasText(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
-        if (datasource.getDatasourceStorages() == null || datasource.getDatasourceStorages().isEmpty()) {
+
+        if (isNullOrEmpty(datasource.getDatasourceStorages())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
         }
 
@@ -158,7 +161,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             // We need to create the datasource as well
 
             // Determine valid name for datasource
-            if (!StringUtils.hasLength(datasource.getName())) {
+            if (!hasText(datasource.getName())) {
                 datasourceMono = sequenceService
                         .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
                         .map(sequenceNumber -> {
@@ -169,8 +172,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasourceMono = datasourceMono
                     .map(datasource1 -> {
                         // Everything we create needs to use configs from storage
-                        datasource1.setDatasourceConfiguration(null);
-                        datasource1.setHasDatasourceStorage(true);
+                        datasource1.setHasDatasourceStorage(true); // TODO: remove this after migiration
                         return datasource1;
                     })
                     .flatMap(datasource1 -> {
@@ -203,9 +205,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 }
                                 return Mono.just(datasourceStorage);
                             })
-                            .map(datasourceStorage -> new DatasourceStorageDTO(datasourceStorage))
-                            .collectMap(datasourceStorageDTO -> datasourceStorageDTO.getEnvironmentId(),
-                                    datasourceStorageDTO -> datasourceStorageDTO)
+                            .map(DatasourceStorageDTO::new)
+                            .collectMap(DatasourceStorageDTO::getEnvironmentId)
                             .map(storages -> {
                                 datasource1.setDatasourceStorages(storages);
                                 return datasource1;
