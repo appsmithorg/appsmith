@@ -969,13 +969,11 @@ function* formValueChangeSaga(
   }
   if (form !== DATASOURCE_DB_FORM && form !== DATASOURCE_REST_API_FORM) return;
   if (field === "name") return;
-  yield all([call(updateDraftsSaga)]);
+  yield all([call(updateDraftsSaga, form)]);
 }
 
-function* updateDraftsSaga() {
-  const values: Record<string, unknown> = yield select(
-    getFormValues(DATASOURCE_DB_FORM),
-  );
+function* updateDraftsSaga(form: string) {
+  const values: Record<string, unknown> = yield select(getFormValues(form));
 
   if (!values?.id) return;
   const datasource: Datasource | undefined = yield select(
