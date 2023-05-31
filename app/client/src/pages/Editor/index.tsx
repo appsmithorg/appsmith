@@ -181,6 +181,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
+            {/* TODO: Add a condition for POC */}
             {this.props.isMultiPane ? (
               <MultiPaneContainer />
             ) : (

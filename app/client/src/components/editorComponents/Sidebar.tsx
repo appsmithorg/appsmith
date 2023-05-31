@@ -15,6 +15,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
+import CanvasCodeExplorer from "pages/Editor/Explorer/CanvasCodeExplorer";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
   getExplorerActive,
@@ -29,7 +30,10 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import {
+  isCanvasCodeActive as isCanvasCodeActiveSelector,
+  isMultiPaneActive,
+} from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getEditingEntityName } from "selectors/entitiesSelector";
@@ -55,6 +59,16 @@ type Props = {
   onWidthChange?: (width: number) => void;
   onDragEnd?: () => void;
 };
+
+function ExplorerWrapper() {
+  const isCanvasCodeActive = useSelector(isCanvasCodeActiveSelector);
+
+  if (isCanvasCodeActive) {
+    return <CanvasCodeExplorer />;
+  }
+
+  return <Explorer />;
+}
 
 export const EntityExplorerSidebar = memo((props: Props) => {
   let tooltipTimeout: ReturnType<typeof setTimeout>;
@@ -216,7 +230,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         {/* Popover that contains the bindings info */}
         <EntityProperties />
         {/* Contains entity explorer & widgets library along with a switcher*/}
-        <Explorer />
+        <ExplorerWrapper />
       </div>
       {/* RESIZER */}
       <StyledResizer
