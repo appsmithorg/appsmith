@@ -6,8 +6,12 @@ import { useHover } from "@react-aria/interactions";
 import type { AriaButtonProps as SpectrumAriaBaseButtonProps } from "@react-types/button";
 
 export interface ButtonProps extends SpectrumAriaBaseButtonProps {
+  /** classname to be passed to the button  */
   className?: string;
-  visuallyDisabled?: boolean;
+  /** Indicates an element is being modified and that assistive technologies MAY want to wait until the modifications are complete before exposing them to the user.*/
+  "aria-busy"?: boolean;
+  /** Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable. */
+  "aria-disabled"?: boolean;
 }
 
 export type ButtonRef = React.Ref<HTMLButtonElement>;
@@ -15,13 +19,15 @@ type ButtonRefObject = React.RefObject<HTMLButtonElement>;
 
 export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
   const { autoFocus, children, className, isDisabled } = props;
-  const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
+  const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
 
   return (
     <button
       {...mergeProps(buttonProps, hoverProps, focusProps)}
+      aria-busy={props["aria-busy"] ? true : undefined}
+      aria-disabled={props["aria-disabled"] ? true : undefined}
       className={className}
       data-active={isPressed ? "" : undefined}
       data-disabled={isDisabled ? "" : undefined}

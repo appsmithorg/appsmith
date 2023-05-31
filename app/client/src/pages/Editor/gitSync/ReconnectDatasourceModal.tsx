@@ -294,30 +294,25 @@ function ReconnectDatasourceModal() {
     setIsImport(false);
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
-    const oauthReason = status;
-    const isReconnectDS = true;
-    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-      dsName,
-      oauthReason,
-      orgId,
-      pluginName,
-      isReconnectDS,
-    });
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       toast.show(display_message || message, { kind: "error" });
+      AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+        applicationId: queryAppId,
+        datasourceId: queryDatasourceId,
+        pageId: queryPageId,
+        oAuthPassOrFailVerdict: status,
+        workspaceId: orgId,
+        datasourceName: dsName,
+        pluginName: pluginName,
+      });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
-    AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-      queryAppId,
-      queryDatasourceId,
-      queryPageId,
-    });
   }
 
   // should open reconnect datasource modal
