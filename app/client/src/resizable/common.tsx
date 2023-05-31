@@ -39,7 +39,7 @@ export const getWrapperStyle = memoize(
           : "4px 0px 4px 4px"
         : "4px",
       border: `${resizeBorder}px solid`,
-      padding: `${resizeBorderPadding}px`,
+      padding: `${resizeBorderPadding * 2}px`,
       borderColor: `${showBoundaries ? Colors.GREY_1 : "transparent"}`,
       boxShadow: `${
         showBoundaries

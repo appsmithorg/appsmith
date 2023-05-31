@@ -4,20 +4,14 @@ import {
   isResizingDisabled,
 } from "components/editorComponents/ResizableUtils";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Spring } from "react-spring";
-import type {
-  MovementLimitMap,
-  ReflowedSpace,
-  ReflowedSpaceMap,
-} from "reflow/reflowTypes";
+import type { MovementLimitMap, ReflowedSpaceMap } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
 import {
   ResizableHandle,
-  RESIZE_BORDER_BUFFER,
   ResizeWrapper,
   getWrapperStyle,
 } from "resizable/common";
@@ -27,7 +21,7 @@ import {
   getContainerOccupiedSpacesSelectorWhileResizing,
   getDimensionMap,
 } from "selectors/editorSelectors";
-import { getReflowSelector } from "selectors/widgetReflowSelectors";
+// import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import {
   getFillWidgetLengthForLayer,
   getLayerIndexOfWidget,
@@ -83,22 +77,22 @@ function AutoLayoutResizable(props: ResizableProps) {
     true,
     sentryPerfTags,
   );
-  const reflowSelector = getReflowSelector(props.widgetId);
+  // const reflowSelector = getReflowSelector(props.widgetId);
 
-  const equal = (
-    reflowA: ReflowedSpace | undefined,
-    reflowB: ReflowedSpace | undefined,
-  ) => {
-    if (
-      reflowA?.width !== reflowB?.width ||
-      reflowA?.height !== reflowB?.height
-    )
-      return false;
+  // const equal = (
+  //   reflowA: ReflowedSpace | undefined,
+  //   reflowB: ReflowedSpace | undefined,
+  // ) => {
+  //   if (
+  //     reflowA?.width !== reflowB?.width ||
+  //     reflowA?.height !== reflowB?.height
+  //   )
+  //     return false;
 
-    return true;
-  };
+  //   return true;
+  // };
 
-  const reflowedPosition = useSelector(reflowSelector, equal);
+  // const reflowedPosition = useSelector(reflowSelector, equal);
 
   const reflow = useReflow(
     [props.originalPositions],
@@ -651,14 +645,14 @@ function AutoLayoutResizable(props: ResizableProps) {
       />
     );
   });
-  const widgetWidth =
-    (reflowedPosition?.width === undefined
-      ? newDimensions.width
-      : reflowedPosition.width - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
-  const widgetHeight =
-    (reflowedPosition?.height === undefined
-      ? newDimensions.height
-      : reflowedPosition.height - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
+  // const widgetWidth = "100%";
+  // // (reflowedPosition?.width === undefined
+  // //   ? newDimensions.width
+  // //   : reflowedPosition.width - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
+  // const widgetHeight =
+  //   (reflowedPosition?.height === undefined
+  //     ? newDimensions.height
+  //     : reflowedPosition.height - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     props.topRow <= 2,
     props.showResizeBoundary,
@@ -673,47 +667,56 @@ function AutoLayoutResizable(props: ResizableProps) {
   }, [props.className, pointerEvents, props.showResizeBoundary]);
 
   return (
-    <Spring
-      config={{
-        clamp: true,
-        friction: 0,
-        tension: 999,
-      }}
-      from={{
-        width: props.componentWidth,
-        height: props.autoHeight
-          ? "auto"
-          : Math.min(props.maxHeightInPx, props.componentHeight),
-        maxHeight: props.maxHeightInPx,
-      }}
-      immediate={newDimensions.reset ? true : false}
-      to={{
-        width: widgetWidth,
-        // If height is automatically set, use `auto`, widgetHeight is not considered
-        // other wise, limit the height based on the max.
-        // We could also use the isVerticalDisabled flag here, but that would mean that
-        // the auto height with limits will stop working correctly
-        height: props.autoHeight
-          ? "auto"
-          : Math.min(props.maxHeightInPx, widgetHeight),
-        maxHeight: props.maxHeightInPx,
-        transform: `translate3d(${
-          newDimensions.reflectPosition ? newDimensions.x : 0
-        }px,${newDimensions.reflectPosition ? newDimensions.y : 0}px,0)`,
-      }}
+    // <Spring
+    //   config={{
+    //     clamp: true,
+    //     friction: 0,
+    //     tension: 999,
+    //   }}
+    //   from={{
+    //     width: props.componentWidth,
+    //     height: props.autoHeight
+    //       ? "auto"
+    //       : Math.min(props.maxHeightInPx, props.componentHeight),
+    //     maxHeight: props.maxHeightInPx,
+    //   }}
+    //   immediate={newDimensions.reset ? true : false}
+    //   to={{
+    //     width: widgetWidth,
+    //     // If height is automatically set, use `auto`, widgetHeight is not considered
+    //     // other wise, limit the height based on the max.
+    //     // We could also use the isVerticalDisabled flag here, but that would mean that
+    //     // the auto height with limits will stop working correctly
+    //     height: props.autoHeight
+    //       ? "auto"
+    //       : Math.min(props.maxHeightInPx, widgetHeight),
+    //     maxHeight: props.maxHeightInPx,
+    //     transform: `translate3d(${
+    //       newDimensions.reflectPosition ? newDimensions.x : 0
+    //     }px,${newDimensions.reflectPosition ? newDimensions.y : 0}px,0)`,
+    //   }}
+    // >
+    //   {(_props) => (
+    //     <ResizeWrapper
+    //       className={wrapperClassName}
+    //       id={`resize-${props.widgetId}`}
+    //       ref={resizableRef}
+    //       style={{ ..._props, ...resizeWrapperStyle, ...{ width: "100%" } }}
+    //     >
+    //       {props.children}
+    //       {props.enableHorizontalResize && renderHandles}
+    //     </ResizeWrapper>
+    //   )}
+    // </Spring>
+    <ResizeWrapper
+      className={wrapperClassName}
+      id={`resize-${props.widgetId}`}
+      ref={resizableRef}
+      style={{ ...resizeWrapperStyle, ...{ width: "100%" } }}
     >
-      {(_props) => (
-        <ResizeWrapper
-          className={wrapperClassName}
-          id={`resize-${props.widgetId}`}
-          ref={resizableRef}
-          style={{ ..._props, ...resizeWrapperStyle }}
-        >
-          {props.children}
-          {props.enableHorizontalResize && renderHandles}
-        </ResizeWrapper>
-      )}
-    </Spring>
+      {props.children}
+      {props.enableHorizontalResize && renderHandles}
+    </ResizeWrapper>
   );
 }
 

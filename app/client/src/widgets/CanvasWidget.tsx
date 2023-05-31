@@ -113,14 +113,16 @@ class CanvasWidget extends ContainerWidget {
               widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
-            <CanvasSelectionArena
-              {...this.getSnapSpaces()}
-              canExtend={props.canExtend}
-              dropDisabled={!!props.dropDisabled}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              widgetId={props.widgetId}
-            />
+            {!this.props.useAutoLayout && (
+              <CanvasSelectionArena
+                {...this.getSnapSpaces()}
+                canExtend={props.canExtend}
+                dropDisabled={!!props.dropDisabled}
+                parentId={props.parentId}
+                snapRows={snapRows}
+                widgetId={props.widgetId}
+              />
+            )}
           </>
         )}
         {this.props.useAutoLayout

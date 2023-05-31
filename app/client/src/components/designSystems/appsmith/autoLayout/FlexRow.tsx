@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexLayerLayoutData } from "utils/autoLayout/autoLayoutTypes";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 
@@ -26,6 +28,7 @@ const RowContainer = styled.div<{
   overflow: visible;
   width: 100%;
   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
+  column-gap: ${WIDGET_PADDING}px;
 `;
 
 const Alignment = styled.div<{
@@ -33,12 +36,14 @@ const Alignment = styled.div<{
 }>`
   display: flex;
   flex-direction: row;
-  flex-grow: 1;
-  flex-shrink: 1;
   align-items: flex-start;
   align-self: stretch;
   flex-wrap: wrap;
   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
+  column-gap: ${WIDGET_PADDING}px;
+  border: 1px dashed red;
+  flex-grow: 1;
+  flex-shrink: 1;
 `;
 
 const StartAlignment = styled(Alignment)`
@@ -51,6 +56,11 @@ const EndAlignment = styled(Alignment)`
 
 const CenterAlignment = styled(Alignment)`
   justify-content: center;
+`;
+
+const FillAlignment = styled(Alignment)`
+  justify-content: flex-start;
+  flex-wrap: nowrap;
 `;
 
 function FlexRow(props: FlexRowProps) {
@@ -69,9 +79,9 @@ function FlexRow(props: FlexRowProps) {
      */
     if (hasFillWidget)
       return (
-        <StartAlignment isMobile={isMobile} key={0}>
+        <FillAlignment isMobile={isMobile} key={0}>
           {startChildren}
-        </StartAlignment>
+        </FillAlignment>
       );
 
     const arr: (JSX.Element | null)[] = [

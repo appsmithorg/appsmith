@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+// import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,
@@ -14,13 +14,13 @@ import { getIsResizing } from "selectors/widgetSelectors";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
-  ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
-import { RESIZE_BORDER_BUFFER } from "resizable/common";
+// import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
   alignment: FlexVerticalAlignment;
@@ -44,6 +44,20 @@ export type AutoLayoutProps = {
 
 const FlexWidget = styled.div`
   position: relative;
+  background: yellowgreen;
+
+  &.fill-widget {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 280px;
+    width: -webkit-fill-available;
+  }
+
+  &.hug-widget {
+    flex-grow: 0;
+    flex-shrink: 0;
+    min-width: 100px;
+  }
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {
@@ -82,42 +96,49 @@ export function FlexComponent(props: AutoLayoutProps) {
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()}`,
-    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
+      )} t--widget-${props.widgetName.toLowerCase()} ${
+        props.responsiveBehavior === ResponsiveBehavior.Fill
+          ? "fill-widget"
+          : "hug-widget"
+      }`,
+    [
+      props.parentId,
+      props.responsiveBehavior,
+      props.widgetId,
+      props.widgetType,
+      props.widgetName,
+    ],
   );
   const isPreviewMode = useSelector(previewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
-  const widgetDimensionsViewCss = {
-    width: props.componentWidth - WIDGET_PADDING * 2,
-    height: props.componentHeight - WIDGET_PADDING * 2,
-    margin: WIDGET_PADDING + "px",
-    transform: `translate3d(${
-      props.alignment === "end" ? "-" : ""
-    }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
-  };
-  const widgetDimensionsEditCss = {
-    width:
-      isResizing && !props.isResizeDisabled
-        ? "auto"
-        : `${
-            props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-          }px`,
-    height:
-      isResizing && !props.isResizeDisabled
-        ? "auto"
-        : `${
-            props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-          }px`,
-    margin: WIDGET_PADDING / 2 + "px",
-  };
+  // const widgetDimensionsViewCss = {
+  //   width: props.componentWidth - WIDGET_PADDING * 2,
+  //   height: props.componentHeight - WIDGET_PADDING * 2,
+  //   margin: WIDGET_PADDING + "px",
+  //   transform: `translate3d(${
+  //     props.alignment === "end" ? "-" : ""
+  //   }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
+  // };
+  // const widgetDimensionsEditCss = {
+  //   width:
+  //     isResizing && !props.isResizeDisabled
+  //       ? "auto"
+  //       : `${
+  //           props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
+  //         }px`,
+  //   height:
+  //     isResizing && !props.isResizeDisabled
+  //       ? "auto"
+  //       : `${
+  //           props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
+  //         }px`,
+  //   margin: WIDGET_PADDING / 2 + "px",
+  // };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
       zIndex,
-      ...(props.renderMode === "PAGE"
-        ? widgetDimensionsViewCss
-        : widgetDimensionsEditCss),
       minHeight: "30px",
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
