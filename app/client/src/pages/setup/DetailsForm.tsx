@@ -182,22 +182,35 @@ export default function DetailsForm(
             )}
           </div>
         )}
-        <ButtonWrapper>
-          <Button
-            className="t--welcome-form-submit-button w-100"
-            isDisabled={props.invalid}
-            kind="primary"
-            onClick={() => {
-              if (isFirstPage) setFormState(1);
-            }}
-            size="md"
-            type={isFirstPage ? "button" : "submit"}
-          >
-            {isFirstPage
-              ? createMessage(CONTINUE)
-              : createMessage(ONBOARDING_STATUS_GET_STARTED)}
-          </Button>
-        </ButtonWrapper>
+        {isFirstPage && (
+          <ButtonWrapper>
+            <Button
+              className="t--welcome-form-continue-button w-100"
+              isDisabled={props.invalid}
+              kind="primary"
+              onClick={() => {
+                setFormState(1);
+              }}
+              size="md"
+              type="button"
+            >
+              {createMessage(CONTINUE)}
+            </Button>
+          </ButtonWrapper>
+        )}
+        {!isFirstPage && (
+          <ButtonWrapper>
+            <Button
+              className="t--welcome-form-submit-button w-100"
+              isDisabled={props.invalid}
+              kind="primary"
+              size="md"
+              type="submit"
+            >
+              {createMessage(ONBOARDING_STATUS_GET_STARTED)}
+            </Button>
+          </ButtonWrapper>
+        )}
       </StyledFormBodyWrapper>
     </DetailsFormWrapper>
   );
