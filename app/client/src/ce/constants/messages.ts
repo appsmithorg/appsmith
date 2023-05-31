@@ -165,11 +165,20 @@ export const INVITE_USER_SUBMIT_SUCCESS = (
 ) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
+export const INVITE_USER_RAMP_TEXT = () =>
+  "Users will have access to all applications in the workspace. For application-level access, try out our ";
+export const CUSTOM_ROLES_RAMP_TEXT = () =>
+  "To build and assign custom roles, try out our ";
+export const BUSINESS_TEXT = () => "Business";
+export const CUSTOM_ROLE_TEXT = () => "Custom role";
+export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
+  "Can access specific applications or only certain pages and queries within an application";
 export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
   "Users will have access to all applications in this workspace";
 export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
+export const BUSINESS_EDITION_TEXT = () => "business edition";
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -1645,6 +1654,9 @@ export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
 export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize datasource";
 export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 export const DATASOURCE_SCHEMA_NOT_AVAILABLE = () => "Schema is not available";
+export const DATASOURCE_INTERCOM_TEXT = () =>
+  "Do you need help setting up a Google Sheets datasource?";
+export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask For Support";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
