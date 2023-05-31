@@ -93,6 +93,8 @@ export class PropertyPane {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']";
+  private _createModalButton = ".t--create-modal-btn";
+  _pageName = (option: string) => "//a/div[text()='" + option + "']";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -432,5 +434,23 @@ export class PropertyPane {
 
   public AssertSelectValue(value: string) {
     this.agHelper.AssertElementExist(this.locator._selectByValue(value));
+  }
+
+  public createModal(modalName: string, property: string) {
+    ObjectsRegistry.PropertyPane.AddAction(property);
+    cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
+    this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public navigateToPage(pageName: string, property: string) {
+    ObjectsRegistry.PropertyPane.AddAction(property);
+    cy.get(
+      ObjectsRegistry.CommonLocators._dropDownValue("Navigate to"),
+    ).click();
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
+    cy.xpath(this._pageName(pageName)).click({ force: true });
+    this.agHelper.AssertAutoSave();
   }
 }

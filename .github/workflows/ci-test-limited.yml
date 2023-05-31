@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      previous-workflow-run-id:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
 
 jobs:
   ci-test-limited:
@@ -107,7 +112,17 @@ jobs:
           echo "$specs_to_run" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id != 0
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: cicontainer
+          run_id: ${{ github.event.inputs.previous-workflow-run-id }}
+      
+      # In case of run-id is 0 download the artifact from the current run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id != 0
         uses: actions/download-artifact@v3
         with:
           name: cicontainer

@@ -57,7 +57,7 @@ describe("MySQL noise test", function () {
     cy.get(".bp3-button-text:contains('Refresh Query')").click({ force: true });
     cy.wait(2000);
     cy.get(commonlocators.toastmsg).contains(
-      "UncaughtPromiseRejection: NoiseTestQuery failed to execute",
+      "NoiseTestQuery failed to execute",
     );
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("200 OK");
