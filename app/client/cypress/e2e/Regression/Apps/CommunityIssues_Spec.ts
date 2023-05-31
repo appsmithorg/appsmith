@@ -372,7 +372,7 @@ describe("AForce - Community Issues page validations", function () {
   it("10. Validate Deleting the newly created issue", () => {
     agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
-    table.SelectTableRow(0, 0, true, "v2");
+    table.SelectTableRow(0, 1, true, "v1");
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
     cy.get(table._trashIcon).closest("div").click({ force: true });

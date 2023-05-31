@@ -103,7 +103,7 @@ jobs:
           line_count=$(sed -n '$=' ~/combined_failed_spec_ci/combined_failed_spec_ci)
           if [ $line_count -eq 1 ]; then
             spec_name=$(echo failed_spec_env | awk -F'/' '{print $NF}')
-            failed_spec_env = $(find app/client -name $spec_name | sed 's|app/client/||')
+            failed_spec_env=$(find app/client -name $spec_name | sed 's|app/client/||')
           fi
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
