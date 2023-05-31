@@ -11,4 +11,8 @@ export class Templates {
       .find(this.locators._forkApp)
       .click();
   }
+
+  GetTemplatesCardsList() {
+    return cy.get(this.locators._templateCard);
+  }
 }
