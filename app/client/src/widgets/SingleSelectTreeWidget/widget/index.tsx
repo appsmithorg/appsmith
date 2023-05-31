@@ -11,7 +11,7 @@ import { isArray } from "lodash";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { ReactNode } from "react";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
@@ -122,7 +122,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
             isBindProperty: true,
@@ -159,7 +159,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: true,
+            fullWidth: false,
             hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
@@ -176,13 +176,14 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],
@@ -275,7 +276,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -286,7 +287,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "allowClear",
-            label: "Allow Clearing Value",
+            label: "Allow clearing value",
             helpText: "Enables Icon to clear all Selections",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -296,7 +297,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "expandAll",
-            label: "Expand all by Default",
+            label: "Expand all by default",
             helpText: "Expand All nested options",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -352,11 +353,11 @@ class SingleSelectTreeWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -366,7 +367,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
@@ -415,11 +416,11 @@ class SingleSelectTreeWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -431,11 +432,11 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "accentColor",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -445,7 +446,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -457,7 +458,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -578,18 +579,23 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+    if (this.props.selectedOptionValue !== value) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+      this.props.updateWidgetMetaProperty("selectedOption", value);
+      this.props.updateWidgetMetaProperty(
+        "selectedLabel",
+        labelList?.[0] ?? "",
+        {
+          triggerPropertyName: "onOptionChange",
+          dynamicString: this.props.onOptionChange,
+          event: {
+            type: EventType.ON_OPTION_CHANGE,
+          },
+        },
+      );
     }
-
-    this.props.updateWidgetMetaProperty("selectedOption", value);
-    this.props.updateWidgetMetaProperty("selectedLabel", labelList?.[0] ?? "", {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
   };
 
   onDropdownOpen = () => {

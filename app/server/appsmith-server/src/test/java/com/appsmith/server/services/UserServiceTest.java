@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
@@ -12,6 +13,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -32,6 +34,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -70,6 +73,9 @@ public class UserServiceTest {
     UserService userService;
 
     @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
@@ -100,6 +106,9 @@ public class UserServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @SpyBean
+    CommonConfig commonConfig;
 
     @BeforeEach
     public void setup() {
@@ -434,7 +443,7 @@ public class UserServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException
                                 &&
-                        throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
+                                throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
                 )
                 .verify();
     }
@@ -496,6 +505,22 @@ public class UserServiceTest {
                 .assertNext(userData -> {
                     assertNotNull(userData);
                     assertThat(userData.isIntercomConsentGiven()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getIntercomConsentOfUserOnCloudHosting_AlwaysTrue() {
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+
+        Mono<UserProfileDTO> userProfileDTOMono = sessionUserService.getCurrentUser()
+                .flatMap(userService::buildUserProfileDTO);
+
+        StepVerifier.create(userProfileDTOMono)
+                .assertNext(userProfileDTO -> {
+                    assertNotNull(userProfileDTO);
+                    assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
                 })
                 .verifyComplete();
     }

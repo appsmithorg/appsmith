@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     // Ref syntax for message templates: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
     INVALID_PARAMETER(400, AppsmithErrorCode.INVALID_PARAMETER.getCode(), "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
+    EMPTY_CURL_INPUT_STATEMENT(400, AppsmithErrorCode.EMPTY_CURL_INPUT_STATEMENT.getCode(), "Input CURL statement is empty / null. Please edit the input box to provide a valid CURL statement.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
     PLUGIN_NOT_INSTALLED(400, AppsmithErrorCode.PLUGIN_NOT_INSTALLED.getCode(), "Plugin {0} not installed", AppsmithErrorAction.DEFAULT, "Plugin not installed", ErrorType.INTERNAL_ERROR, null),
     PLUGIN_ID_NOT_GIVEN(400, AppsmithErrorCode.PLUGIN_ID_NOT_GIVEN.getCode(), "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, "Missing plugin id", ErrorType.INTERNAL_ERROR, null),
     DATASOURCE_NOT_GIVEN(400, AppsmithErrorCode.DATASOURCE_NOT_GIVEN.getCode(), "Missing datasource. Add/enter/connect a datasource to create a valid action.",
@@ -80,7 +81,8 @@ public enum AppsmithError {
     USER_NOT_FOUND(404, AppsmithErrorCode.USER_NOT_FOUND.getCode(), "Unable to find user with email {0}", AppsmithErrorAction.DEFAULT, "No user found", ErrorType.INTERNAL_ERROR, null),
     ACL_NO_RESOURCE_FOUND(404, AppsmithErrorCode.ACL_NO_RESOURCE_FOUND.getCode(), "Unable to find {0} {1}. Either the asset doesn''t exist or you don''t have required permissions",
             AppsmithErrorAction.DEFAULT, "No resource found or permission denied", ErrorType.INTERNAL_ERROR, null),
-    GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad Request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
+    GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
+    GENERIC_REQUEST_BODY_PARSE_ERROR(400, AppsmithErrorCode.MALFORMED_REQUEST.getCode(), "Server cannot understand the request, malformed payload. Contact support for help.", AppsmithErrorAction.DEFAULT, "Malformed request body", ErrorType.BAD_REQUEST, null),
     VALIDATION_FAILURE(400, AppsmithErrorCode.VALIDATION_FAILURE.getCode(), "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, "Validation failed", ErrorType.INTERNAL_ERROR, null),
     INVALID_CURL_COMMAND(400, AppsmithErrorCode.INVALID_CURL_COMMAND.getCode(), "Invalid cURL command, couldn''t import.", AppsmithErrorAction.DEFAULT, "Invalid cURL command", ErrorType.ARGUMENT_ERROR, null),
     INVALID_LOGIN_METHOD(401, AppsmithErrorCode.INVALID_LOGIN_METHOD.getCode(), "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, "Invalid login method", ErrorType.INTERNAL_ERROR, null),

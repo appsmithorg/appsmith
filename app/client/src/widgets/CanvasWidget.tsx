@@ -52,6 +52,7 @@ class CanvasWidget extends ContainerWidget {
     return (
       <DropTargetComponent
         bottomRow={this.props.bottomRow}
+        isListWidgetCanvas={this.props.isListWidgetCanvas}
         isMobile={this.props.isMobile}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         mobileBottomRow={this.props.mobileBottomRow}
@@ -176,7 +177,7 @@ class CanvasWidget extends ContainerWidget {
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",
-      height: `${height}px`,
+      height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
       background: "none",
       position: "relative",
     };

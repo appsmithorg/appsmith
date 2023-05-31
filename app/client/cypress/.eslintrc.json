@@ -1,5 +1,5 @@
 {
-  "extends": ["../.eslintrc.json"],
+  "extends": ["../.eslintrc.base.json"],
   "env": {
     "cypress/globals": true
   },
@@ -10,6 +10,8 @@
     "cypress/no-unnecessary-waiting": "off",
     "no-console": "off",
     "prefer-const": "off",
-    "@typescript-eslint/no-non-null-assertion": "error"
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "cypress/unsafe-to-chain-command": "off",
+    "@typescript-eslint/adjacent-overload-signatures": "off"
   }
 }

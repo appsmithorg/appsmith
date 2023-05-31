@@ -7,7 +7,7 @@
   "children": [
     {
       "controlType": "SECTION",
-      "label": "Select Collection to Query",
+      "label": "Select collection to query",
       "children": [
         {
           "label": "Collection",

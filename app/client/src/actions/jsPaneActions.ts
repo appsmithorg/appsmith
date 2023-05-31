@@ -6,6 +6,7 @@ import type {
   SetFunctionPropertyPayload,
 } from "api/JSActionAPI";
 import type { EventLocation } from "utils/AnalyticsUtil";
+import type { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
 
 export const createNewJSCollection = (
   pageId: string,
@@ -105,9 +106,9 @@ export const setActiveJSAction = (payload: {
   };
 };
 
-export const setJsPaneConfigSelectedTabIndex: (
-  payload: number,
-) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
+export const setJsPaneConfigSelectedTab: (
+  payload: JSEditorTab,
+) => ReduxAction<{ selectedTab: JSEditorTab }> = (payload: JSEditorTab) => ({
   type: ReduxActionTypes.SET_JS_PANE_CONFIG_SELECTED_TAB,
-  payload: { selectedTabIndex: payload },
+  payload: { selectedTab: payload },
 });

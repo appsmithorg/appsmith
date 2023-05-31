@@ -5,7 +5,7 @@ import {
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
@@ -27,7 +27,7 @@ export default [
         helpText:
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
-        label: "Table Data",
+        label: "Table data",
         controlType: "INPUT_TEXT",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
@@ -70,7 +70,7 @@ export default [
           params: {
             fn: uniqueColumnNameValidation,
             expected: {
-              type: "Unique Column Names",
+              type: "Unique column names",
               example: "abc",
               autocompleteDataType: AutocompleteDataType.STRING,
             },
@@ -81,7 +81,7 @@ export default [
       {
         propertyName: "inlineEditingSaveOption",
         helpText: "Choose the save experience to save the edited cell",
-        label: "Update Mode",
+        label: "Update mode",
         controlType: "ICON_TABS",
         fullWidth: true,
         isBindProperty: true,
@@ -131,7 +131,7 @@ export default [
       {
         propertyName: "isVisiblePagination",
         helpText: "Toggle visibility of the pagination",
-        label: "Show Pagination",
+        label: "Show pagination",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -142,7 +142,7 @@ export default [
         helpText:
           "Bind the Table.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
-        label: "Server Side Pagination",
+        label: "Server side pagination",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -194,12 +194,12 @@ export default [
     ],
   },
   {
-    sectionName: "Search & Filters",
+    sectionName: "Search & filters",
     children: [
       {
         propertyName: "isVisibleSearch",
         helpText: "Toggle visibility of the search box",
-        label: "Allow Searching",
+        label: "Allow searching",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -208,7 +208,7 @@ export default [
       },
       {
         propertyName: "enableClientSideSearch",
-        label: "Client Side Search",
+        label: "Client side search",
         helpText: "Searches all results only on the data which is loaded",
         controlType: "SWITCH",
         isBindProperty: false,
@@ -218,7 +218,7 @@ export default [
       },
       {
         propertyName: "defaultSearchText",
-        label: "Default Search Text",
+        label: "Default search text",
         helpText: "Adds a search text by default",
         controlType: "INPUT_TEXT",
         placeholderText: "{{appsmith.user.name}}",
@@ -242,7 +242,7 @@ export default [
       {
         propertyName: "isVisibleFilters",
         helpText: "Toggle visibility of the filters",
-        label: "Allow Filtering",
+        label: "Allow filtering",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -252,12 +252,12 @@ export default [
     ],
   },
   {
-    sectionName: "Row Selection",
+    sectionName: "Row selection",
     children: [
       {
         helpText: "Selects row(s) by default",
         propertyName: "defaultSelectedRowIndices",
-        label: "Default Selected Rows",
+        label: "Default selected rows",
         controlType: "INPUT_TEXT",
         placeholderText: "[0]",
         isBindProperty: true,
@@ -282,7 +282,7 @@ export default [
       {
         helpText: "Selects row by default",
         propertyName: "defaultSelectedRowIndex",
-        label: "Default Selected Row",
+        label: "Default selected row",
         controlType: "INPUT_TEXT",
         defaultValue: 0,
         isBindProperty: true,
@@ -301,7 +301,7 @@ export default [
       },
       {
         propertyName: "multiRowSelection",
-        label: "Enable Multi-row Selection",
+        label: "Enable multi-row selection",
         helpText: "Allows users to select multiple rows",
         controlType: "SWITCH",
         isBindProperty: false,
@@ -325,7 +325,7 @@ export default [
         helpText: "Controls sorting in View Mode",
         propertyName: "isSortable",
         isJSConvertible: true,
-        label: "Column Sorting",
+        label: "Column sorting",
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -408,7 +408,7 @@ export default [
       {
         propertyName: "defaultNewRow",
         helpText: "Default new row values",
-        label: "Default Values",
+        label: "Default values",
         controlType: "INPUT_TEXT",
         dependencies: ["allowAddNewRow"],
         hidden: (props: TableWidgetProps) => {
@@ -442,7 +442,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,
@@ -454,7 +454,7 @@ export default [
       {
         propertyName: "isVisibleDownload",
         helpText: "Toggle visibility of the data download",
-        label: "Allow Download",
+        label: "Allow download",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -464,7 +464,7 @@ export default [
       {
         propertyName: "canFreezeColumn",
         helpText: "Controls whether the user can freeze columns",
-        label: "Allow Column Freeze",
+        label: "Allow column freeze",
         controlType: "SWITCH",
         defaultValue: true,
         isJSConvertible: true,
@@ -474,7 +474,7 @@ export default [
       },
       {
         propertyName: "delimiter",
-        label: "CSV Separator",
+        label: "CSV separator",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter CSV separator",
         helpText: "The character used for separating the CSV download file.",

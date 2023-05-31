@@ -27,4 +27,11 @@ public class ApplicationTemplate extends BaseDomain {
     private Long downloadCount;
     private Object appData;
     private Boolean active;
+    //    These fields will be used to display template metadata
+    private String mdText;
+    private String excerpt;
+    private String category;
+    private Boolean featured;
+    private List<String> tags;
+    private Boolean allowPageImport;
 }

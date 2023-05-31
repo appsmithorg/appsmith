@@ -7,8 +7,8 @@ import { useFocusableRef } from "@react-spectrum/utils";
 import SubtractIcon from "remixicon-react/SubtractLineIcon";
 import React, { forwardRef, useContext, useRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import type { FocusableRef, StyleProps } from "@react-types/shared";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
+import type { FocusableRef, StyleProps } from "@react-types/shared";
 import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
 
 import { CheckboxGroupContext } from "./context";
@@ -22,14 +22,16 @@ export interface CheckboxProps
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 
+const ICON_SIZE = 14;
+
 export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   const {
+    autoFocus,
+    children,
     className,
-    icon = <CheckIcon />,
+    icon = <CheckIcon size={ICON_SIZE} />,
     isDisabled = false,
     isIndeterminate = false,
-    children,
-    autoFocus,
     validationState,
   } = props;
   const state = useToggleState(props);
@@ -74,7 +76,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
       {...hoverProps}
       className={className}
       data-disabled={isDisabled ? "" : undefined}
-      data-focussed={isFocusVisible ? "" : undefined}
+      data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
@@ -86,7 +88,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
         ref={inputRef}
       />
       <span aria-hidden="true" data-icon="" role="presentation">
-        {isIndeterminate ? <SubtractIcon /> : icon}
+        {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
       </span>
       {children}
     </label>

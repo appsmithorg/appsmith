@@ -3,10 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import {
-  getTypographyByKey,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -22,6 +19,7 @@ import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Tooltip } from "design-system";
 
 const WidgetList = styled.div`
   ${getTypographyByKey("p1")}
@@ -29,6 +27,7 @@ const WidgetList = styled.div`
 
   img {
     max-width: 100%;
+    border-radius: var(--ads-v2-border-radius);
   }
 
   .image-wrapper {
@@ -42,19 +41,6 @@ const WidgetList = styled.div`
 
   .widget:not(:first-child) {
     margin-top: 24px;
-  }
-`;
-
-const WidgetOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - ${(props) => props.theme.spaces[1]}px);
-
-  &:hover {
-    display: block;
-    background: rgba(0, 0, 0, 0.6);
   }
 `;
 
@@ -248,7 +234,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                       src={getAssetUrl(widgetInfo.image)}
                     />
                   )}
-                  <WidgetOverlay />
                 </div>
               </Tooltip>
             </div>

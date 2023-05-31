@@ -29,6 +29,8 @@ import SortingControl from "components/formControls/SortingControl";
 import type { EntitySelectorControlProps } from "components/formControls/EntitySelectorControl";
 import EntitySelectorControl from "components/formControls/EntitySelectorControl";
 import formControlTypes from "./formControlTypes";
+import SegmentedControl from "components/formControls/SegmentedControl";
+import type { SegmentedControlProps } from "components/formControls/SegmentedControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -49,6 +51,14 @@ class FormControlRegistry {
         ): JSX.Element {
           //TODO: may not be in use
           return <FixedKeyInputControl {...controlProps} />;
+        },
+      },
+    );
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.SEGMENTED_CONTROL,
+      {
+        buildPropertyControl(controlProps: SegmentedControlProps): JSX.Element {
+          return <SegmentedControl {...controlProps} />;
         },
       },
     );

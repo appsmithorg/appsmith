@@ -48,7 +48,7 @@
 //       datasourceName = httpResponse.response.body.data.name;
 //     });
 
-//     //Create New page
+//     //Create new page
 //     cy.get(pages.AddPage)
 //       .first()
 //       .click();
@@ -96,7 +96,7 @@
 //       200,
 //     );
 
-//     cy.get("span:contains('GOT IT')").click();
+//     cy.get("span:contains('Got it')").click();
 //   });
 
 //   it.skip("Create new app and Generate CRUD page using a new datasource", function() {
@@ -115,7 +115,7 @@
 //     cy.get(generatePage.generateCRUDPageActionCard).click();
 //     cy.get(generatePage.selectDatasourceDropdown).click();
 
-//     cy.contains("Connect New Datasource").click();
+//     cy.contains("Connect new datasource").click();
 
 //     cy.get(datasource.MsSQL).click();
 //     cy.fillMsSQLDatasourceForm();
@@ -174,7 +174,7 @@
 //       200,
 //     );
 
-//     cy.get("span:contains('GOT IT')").click();
+//     cy.get("span:contains('Got it')").click();
 //   });
 
 //   it.skip("Generate CRUD page from datasource ACTIVE section", function() {
@@ -221,6 +221,6 @@
 //       200,
 //     );
 
-//     cy.get("span:contains('GOT IT')").click();
+//     cy.get("span:contains('Got it')").click();
 //   });
 // });

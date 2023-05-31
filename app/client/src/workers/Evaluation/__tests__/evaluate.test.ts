@@ -1,11 +1,14 @@
-import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
+import evaluate, {
+  evaluateAsync,
+  convertAllDataTypesToString,
+} from "workers/Evaluation/evaluate";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { functionDeterminer } from "../functionDeterminer";
-import { resetJSLibraries } from "workers/common/JSLibrary";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
+import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
 
 describe("evaluateSync", () => {
   const widget: WidgetEntity = {
@@ -267,4 +270,43 @@ describe("isFunctionAsync", () => {
       expect(actual).toBe(testCase.expected);
     }
   });
+});
+
+describe.only("convertAllDataTypesToString", () => {
+  const cases = [
+    { index: 0, input: 0, expected: "0" },
+    { index: 1, input: -1, expected: "-1" },
+    { index: 2, input: 1, expected: "1" },
+    { index: 3, input: 784630, expected: "784630" },
+    { index: 4, input: true, expected: "true" },
+    { index: 5, input: false, expected: "false" },
+    { index: 6, input: null, expected: "null" },
+    { index: 7, input: undefined, expected: undefined },
+    { index: 8, input: "hello world!", expected: '"hello world!"' },
+    { index: 9, input: `that's all folks!`, expected: '"that\'s all folks!"' },
+    { index: 10, input: [], expected: "[]" },
+    { index: 11, input: {}, expected: "{}" },
+    { index: 12, input: [1, 2, 3, 4], expected: "[1,2,3,4]" },
+    {
+      index: 13,
+      input: [1, [2, 3], [4, [5, [6], 7]], 8],
+      expected: "[1,[2,3],[4,[5,[6],7]],8]",
+    },
+    {
+      index: 15,
+      input: { a: 1, b: 0, c: false, d: { e: { f: 8 } } },
+      expected: '{"a":1,"b":0,"c":false,"d":{"e":{"f":8}}}',
+    },
+    // Reason - need to test empty arrow function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    { index: 16, input: () => {}, expected: "() => { }" },
+  ];
+
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (_, input, expected) => {
+      const result = convertAllDataTypesToString(input);
+      expect(result).toStrictEqual(expected);
+    },
+  );
 });
