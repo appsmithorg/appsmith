@@ -123,10 +123,16 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
+      # - name: Download Docker image artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: cicontainer
+
       - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+        uses: dawidd6/action-download-artifact@v2
         with:
           name: cicontainer
+          run_id: 5130899933
 
       - name: Load Docker image from tar file
         run: |
