@@ -153,7 +153,13 @@ Please check out our [Testing Contribution](docs/TestAutomation.md) guide for mo
 To run a single jest test,
 ```bash
   cd app/client
+  
+  # Run either command below to run a test
   npx jest <file_path/file_name>
+  
+  # or
+
+  yarn jest src/widgets/<filepath>/<filename>.test.ts --silent=false
 ```
 
 To run a single jest test in watch mode,
