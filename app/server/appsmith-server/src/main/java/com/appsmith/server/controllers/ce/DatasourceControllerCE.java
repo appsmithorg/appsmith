@@ -75,10 +75,10 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<DatasourceDTO>> create(@Valid @RequestBody DatasourceDTO resource,
-                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<Datasource>> create(@Valid @RequestBody Datasource resource,
+                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
         log.debug("Going to create resource from datasource controller");
-        return datasourceService.create(resource, environmentId)
+        return datasourceService.create(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
