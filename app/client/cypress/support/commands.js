@@ -267,7 +267,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.dropdownOption).click();
   cy.get(signupPage.useCaseDropdown).click();
   cy.get(signupPage.dropdownOption).click();
-  cy.get(signupPage.roleUsecaseSubmit).click();
+  cy.get(signupPage.roleUsecaseSubmit).click({ force: true });
 
   cy.wait("@getMe");
   cy.wait(3000);
@@ -275,33 +275,45 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
-  cy.location().then((loc) => {
-    let baseURL = Cypress.config().baseUrl;
-    baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
+  let baseURL = Cypress.config().baseUrl;
+  baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
 
-    cy.visit({
-      method: "POST",
-      url: "api/v1/login",
-      headers: {
-        origin: baseURL,
-      },
-      followRedirect: true,
-      body: {
-        username: uname,
-        password: pword,
-      },
-    })
-      .then(() => cy.location())
-      .then((loc) => {
-        expect(loc.href).to.equal(loc.origin + "/applications");
-        cy.wait("@getMe");
-        cy.wait("@applications").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        cy.wait("@getReleaseItems");
-      });
+  // Clear cookies to avoid stale cookies on cypress CI
+  cy.clearCookie("SESSION");
+
+  cy.visit({
+    method: "POST",
+    url: "api/v1/login",
+    headers: {
+      origin: baseURL,
+    },
+    followRedirect: true,
+    body: {
+      username: uname,
+      password: pword,
+    },
+  });
+
+  // Check if cookie is present
+  cy.getCookie("SESSION").then((cookie) => {
+    expect(cookie).to.not.be.null;
+    cy.log(cookie.value);
+
+    cy.location().should((loc) => {
+      expect(loc.href).to.eq(loc.origin + "/applications");
+    });
+
+    if (CURRENT_REPO === REPO.EE) {
+      cy.wait(2000);
+    } else {
+      cy.wait("@getMe");
+      cy.wait("@applications").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.wait("@getReleaseItems");
+    }
   });
 });
 
@@ -1275,73 +1287,48 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
 
 Cypress.Commands.add("createSuperUser", () => {
   cy.wait(1000);
-  cy.get(welcomePage.getStarted).should("be.visible");
-  cy.get(welcomePage.getStarted).should("not.be.disabled");
-  cy.get(welcomePage.getStarted).click();
-  cy.get(welcomePage.fullName).should("be.visible");
+  cy.get(welcomePage.firstName).should("be.visible");
+  cy.get(welcomePage.lastName).should("be.visible");
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
   cy.get(welcomePage.verifyPassword).should("be.visible");
-  cy.get(welcomePage.roleDropdown).should("be.visible");
-  cy.get(welcomePage.useCaseDropdown).should("be.visible");
-  cy.get(welcomePage.nextButton).should("be.disabled");
+  cy.get(welcomePage.submitButton).should("be.disabled");
 
-  cy.get(welcomePage.fullName).type(Cypress.env("USERNAME"));
-  cy.get(welcomePage.nextButton).should("be.disabled");
+  cy.get(welcomePage.firstName).type(Cypress.env("USERNAME"));
+  cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.email).type(Cypress.env("USERNAME"));
-  cy.get(welcomePage.nextButton).should("be.disabled");
+  cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.password).type(Cypress.env("PASSWORD"));
-  cy.get(welcomePage.nextButton).should("be.disabled");
+  cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.verifyPassword).type(Cypress.env("PASSWORD"));
-  cy.get(welcomePage.nextButton).should("be.disabled");
+  cy.get(welcomePage.submitButton).should("not.be.disabled");
+  cy.get(welcomePage.submitButton).click();
+
   cy.get(welcomePage.roleDropdown).click();
   cy.get(welcomePage.roleDropdownOption).eq(1).click();
-  cy.get(welcomePage.nextButton).should("be.disabled");
+  cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.useCaseDropdown).click();
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();
-  cy.get(welcomePage.nextButton).should("not.be.disabled");
-  cy.get(welcomePage.nextButton).click();
-  if (Cypress.env("AIRGAPPED")) {
-    cy.get(welcomePage.newsLetter).should("not.exist");
-    cy.get(welcomePage.dataCollection).should("not.exist");
-    cy.get(welcomePage.createButton).should("not.exist");
-  } else {
-    cy.get(welcomePage.superUserForm).should("be.visible");
-    cy.get(welcomePage.newsLetter).should("be.visible");
-    cy.get(welcomePage.dataCollection).should("be.visible");
-    cy.get(welcomePage.createButton).should("be.visible");
-    cy.get(welcomePage.createButton).trigger("mouseover").click();
+  cy.get(welcomePage.submitButton).should("not.be.disabled");
+  cy.get(welcomePage.submitButton).click();
+  //in case of airgapped both anonymous data and newsletter are disabled
+  if (!Cypress.env("AIRGAPPED")) {
     cy.wait("@createSuperUser").then((interception) => {
       expect(interception.request.body).contains(
         "allowCollectingAnonymousData=true",
       );
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
+  } else {
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).to.not.contain(
+        "allowCollectingAnonymousData=true",
+      );
+      expect(interception.request.body).to.not.contain(
+        "signupForNewsletter=true",
+      );
+    });
   }
-  //cy.get(welcomePage.newsLetter).trigger("mouseover").click();
-  //cy.get(welcomePage.newsLetter).find("input").uncheck();//not working
-  //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
-  //cy.wait(1000); //for toggles to settle
-
-  //Seeing issue with above also, trying multiple click as below
-  //cy.get(welcomePage.createButton).click({ multiple: true });
-  //cy.get(welcomePage.createButton).trigger("click");
-
-  //Submit also not working
-  //cy.get(welcomePage.createSuperUser).submit();
-  //cy.wait(5000); //waiting a bit before attempting logout
-
-  // cy.get("body").then(($ele) => {
-  //   if ($ele.find(locator._spanButton("Next").length) > 0) {
-  //     agHelper.GetNClick(locator._spanButton("Next"));
-  //   } else agHelper.GetNClick(locator._spanButton("Make your first App"));
-  // });
-
-  //trying jquery way - also not working
-  // cy.get(welcomePage.createButton).then(($createBtn) => {
-  //   const $jQueryButton = Cypress.$($createBtn); // wrap the button element in jQuery
-  //   $jQueryButton.trigger("click"); // click on the button using jQuery
-  // });
 
   cy.LogOut();
   cy.wait(2000);

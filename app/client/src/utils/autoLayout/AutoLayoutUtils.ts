@@ -195,7 +195,7 @@ export function alterLayoutForDesktop(
   if (!isStack(allWidgets, parent)) {
     return widgets;
   }
-  if (!children || !children.length) {
+  if (!children || (!children.length && parent.type !== "CANVAS_WIDGET")) {
     return widgets;
   }
 

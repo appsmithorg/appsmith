@@ -45,6 +45,7 @@ describe("Post window message", () => {
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.AssertElementVisible("#iframe-Iframe1");
+    agHelper.Sleep(5000); //allowing time for elements to load fully before clicking - for CI flaky
     cy.get("#iframe-Iframe1").then((element) => {
       element.contents().find("body").find("#iframe-button").click();
     });

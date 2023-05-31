@@ -294,30 +294,25 @@ function ReconnectDatasourceModal() {
     setIsImport(false);
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
-    const oauthReason = status;
-    const isReconnectDS = true;
-    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-      dsName,
-      oauthReason,
-      orgId,
-      pluginName,
-      isReconnectDS,
-    });
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       toast.show(display_message || message, { kind: "error" });
+      AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+        applicationId: queryAppId,
+        datasourceId: queryDatasourceId,
+        pageId: queryPageId,
+        oAuthPassOrFailVerdict: status,
+        workspaceId: orgId,
+        datasourceName: dsName,
+        pluginName: pluginName,
+      });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
-    AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-      queryAppId,
-      queryDatasourceId,
-      queryPageId,
-    });
   }
 
   // should open reconnect datasource modal
@@ -378,14 +373,43 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = (e: any) => {
+    // Some magic code to handle the scenario where the reconnect modal and google sheets
+    // file picker are both open.
+    // Check if the overlay of the modal was clicked
+    function isOverlayClicked(classList: DOMTokenList) {
+      return classList.contains("reconnect-datasource-modal");
+    }
+    // Check if the close button of the modal was clicked
+    function isCloseButtonClicked(e: HTMLDivElement) {
+      const dialogCloseButton = document.querySelector(
+        ".ads-v2-modal__content-header-close-button",
+      );
+      if (dialogCloseButton) {
+        return dialogCloseButton.contains(e);
+      }
+      return false;
+    }
+
+    let shouldClose = false;
+    if (e) {
+      shouldClose = isOverlayClicked(e.target.classList);
+      shouldClose = shouldClose || isCloseButtonClicked(e.target);
+      // If either the close button or the overlay was clicked close the modal
+      if (shouldClose) {
+        onClose();
+      }
+    }
+  };
+
+  const onClose = () => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
     dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
-  }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
+  };
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
     setIsTesting(false);
@@ -506,8 +530,14 @@ function ReconnectDatasourceModal() {
     isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
-    <Modal onOpenChange={handleClose} open={isModalOpen}>
-      <ModalContentWrapper data-testid="reconnect-datasource-modal">
+    <Modal open={isModalOpen}>
+      <ModalContentWrapper
+        data-testid="reconnect-datasource-modal"
+        onClick={handleClose}
+        onEscapeKeyDown={onClose}
+        onInteractOutside={handleClose}
+        overlayClassName="reconnect-datasource-modal"
+      >
         <ModalHeader>Reconnect datasources</ModalHeader>
         <ModalBodyWrapper>
           <BodyContainer>
