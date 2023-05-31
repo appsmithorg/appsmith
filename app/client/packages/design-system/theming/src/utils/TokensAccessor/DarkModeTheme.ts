@@ -186,13 +186,13 @@ export class DarkModeTheme implements ColorModeTheme {
 
     if (this.bg.contrastAPCA(this.seedColor) >= -25) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.985;
+        color.oklch.l = 0.82;
         color.oklch.c = 0;
         return color;
       }
 
-      color.oklch.l = 0.985;
-      color.oklch.c = 0.016;
+      color.oklch.l = 0.75;
+      color.oklch.c = 0.15;
       return color;
     }
 
