@@ -205,7 +205,7 @@ const DBFormWrapper = styled.div`
 
   > div {
     width: 100%;
-    height: calc(100% - 20px);
+    height: calc(100% - 68px);
   }
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
