@@ -1228,11 +1228,23 @@ export class AggregateHelper {
   }
 
   GetWidgetWidth(widgetSelector: string) {
-    return this.GetElement(widgetSelector).invoke("width");
+    let width: number;
+    return new Promise<number>((resolve) => {
+      this.GetElement(widgetSelector).then(($element) => {
+        width = Number($element.width());
+        resolve(width);
+      });
+    });
   }
 
   GetWidgetHeight(widgetSelector: string) {
-    return this.GetElement(widgetSelector).invoke("height");
+    let height: number;
+    return new Promise<number>((resolve) => {
+      this.GetElement(widgetSelector).then(($element) => {
+        height = Number($element.height());
+        resolve(height);
+      });
+    });
   }
 
   GetWidgetByName(widgetName: string) {

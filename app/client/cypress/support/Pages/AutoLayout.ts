@@ -36,13 +36,19 @@ export class AutoLayout {
     );
 
     // Increase the length of button label & verify if the component expands
-    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).as("initialWidth");
-    this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
-    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).then((width) => {
-      cy.get<number>("@initialWidth").then((initialWidth) => {
-        expect(width).to.be.greaterThan(initialWidth);
+    this.agHelper
+      .GetWidgetWidth(this._buttonWidgetSelector)
+      .then(($initialWidth) => {
+        this.propPane.UpdatePropertyFieldValue("Label", "Lengthy Button Label");
+        //this.agHelper.Sleep(5000);//to allow time for widget to resize itself before checking Height again!
+        this.agHelper
+          .GetWidgetWidth(this._buttonWidgetSelector)
+          .then((width: any) => {
+            //cy.get<number>("@initialWidth").then((initialWidth) => {
+            expect(width).to.be.greaterThan($initialWidth);
+            //});
+          });
       });
-    });
 
     // verify if the bounding box fits perfectly to the Button Widget after expanding
     this.EnsureBoundingBoxFitsComponent(
@@ -51,13 +57,16 @@ export class AutoLayout {
     );
 
     // Decrease the length of button label & verify if the component shrinks
-    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).as("initialWidth");
-    this.propPane.UpdatePropertyFieldValue("Label", "Label");
-    this.agHelper.GetWidgetWidth(this._buttonWidgetSelector).then((width) => {
-      cy.get<number>("@initialWidth").then((initialWidth) => {
-        expect(width).to.be.lessThan(initialWidth);
+    this.agHelper
+      .GetWidgetWidth(this._buttonWidgetSelector)
+      .then(($initialWidth) => {
+        this.propPane.UpdatePropertyFieldValue("Label", "Label");
+        this.agHelper
+          .GetWidgetWidth(this._buttonWidgetSelector)
+          .then((width: any) => {
+            expect(width).to.be.lessThan($initialWidth);
+          });
       });
-    });
 
     // verify if the bounding box fits perfectly to the Button Widget after expanding
     this.EnsureBoundingBoxFitsComponent(
@@ -84,16 +93,20 @@ export class AutoLayout {
     );
 
     // Add multi-line text & verify if the component's height increases
-    this.agHelper.GetWidgetHeight(this._textWidgetSelector).as("initialHeight");
-    this.propPane.UpdatePropertyFieldValue(
-      "Text",
-      "hello\nWorld\nThis\nis\na\nMulti-line\nText",
-    );
-    this.agHelper.GetWidgetHeight(this._textWidgetSelector).then((width) => {
-      cy.get<number>("@initialHeight").then((initialHeight) => {
-        expect(width).to.be.greaterThan(initialHeight);
+
+    this.agHelper
+      .GetWidgetHeight(this._textWidgetSelector)
+      .then(($initialHeight) => {
+        this.propPane.UpdatePropertyFieldValue(
+          "Text",
+          "hello\nWorld\nThis\nis\na\nMulti-line\nText",
+        );
+        this.agHelper
+          .GetWidgetHeight(this._textWidgetSelector)
+          .then((height: any) => {
+            expect(height).to.be.greaterThan($initialHeight);
+          });
       });
-    });
 
     // Check if bounding box fits perfectly to the Text Widget
     this.EnsureBoundingBoxFitsComponent(
@@ -102,13 +115,17 @@ export class AutoLayout {
     );
 
     // Remove some lines & verify if the component's height decreases
-    this.agHelper.GetWidgetHeight(this._textWidgetSelector).as("initialHeight");
-    this.propPane.UpdatePropertyFieldValue("Text", "hello\nWorld\nblabla");
-    this.agHelper.GetWidgetHeight(this._textWidgetSelector).then((width) => {
-      cy.get<number>("@initialHeight").then((initialWidth) => {
-        expect(width).to.be.lessThan(initialWidth);
+
+    this.agHelper
+      .GetWidgetHeight(this._textWidgetSelector)
+      .then(($initialHeight) => {
+        this.propPane.UpdatePropertyFieldValue("Text", "hello\nWorld\nblabla");
+        this.agHelper
+          .GetWidgetHeight(this._textWidgetSelector)
+          .then((height: any) => {
+            expect(height).to.be.lessThan($initialHeight);
+          });
       });
-    });
 
     // Check if bounding box fits perfectly to the Text Widget
     this.EnsureBoundingBoxFitsComponent(
