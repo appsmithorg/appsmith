@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import type { RenderMode, WidgetType } from "constants/WidgetConstants";
@@ -21,6 +21,8 @@ import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainer
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
+import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
+import { getAutoWidgetId } from "utils/WidgetPositionsObserver/utils";
 
 export type AutoLayoutProps = {
   alignment: FlexVerticalAlignment;
@@ -56,6 +58,22 @@ export function FlexComponent(props: AutoLayoutProps) {
     },
     [props.widgetId, clickToSelectWidget],
   );
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      widgetPositionsObserver.observeWidget(
+        props.widgetId,
+        getAutoWidgetId(props.widgetId),
+        ref,
+      );
+    }
+
+    return () => {
+      widgetPositionsObserver.unObserveWidget(getAutoWidgetId(props.widgetId));
+    };
+  }, []);
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -140,9 +158,10 @@ export function FlexComponent(props: AutoLayoutProps) {
       className={className}
       data-testid="test-widget"
       data-widgetname-cy={props.widgetName}
-      id={"auto_" + props.widgetId}
+      id={getAutoWidgetId(props.widgetId)}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
+      ref={ref}
       style={flexComponentStyle}
     >
       {wrappedChildren(props.children)}

@@ -1,12 +1,14 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import type { ReactNode } from "react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { getAlignmentMarginInfo } from "utils/autoLayout/AutoLayoutUtils";
 
 import { FlexLayerAlignment } from "utils/autoLayout/constants";
 import type { LayoutDirection } from "utils/autoLayout/constants";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
+import { getAutoLayerId } from "utils/WidgetPositionsObserver/utils";
+import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -72,6 +74,23 @@ const CenterWrapper = styled(SubWrapper)`
 `;
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    widgetPositionsObserver.observeLayer(
+      getAutoLayerId(props.widgetId, props.index),
+      props.widgetId,
+      props.index,
+      ref,
+    );
+
+    return () => {
+      widgetPositionsObserver.unObserveLayer(
+        getAutoLayerId(props.widgetId, props.index),
+      );
+    };
+  }, []);
+
   const renderChildren = () => {
     const {
       center,
@@ -134,6 +153,8 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
+      id={getAutoLayerId(props.widgetId, props.index)}
+      ref={ref}
       wrap={props.isMobile && props.wrapLayer}
     >
       {renderChildren()}
