@@ -10,10 +10,12 @@ widgetSchema.define({ children: [widgetSchema] });
 
 class CanvasWidgetsNormalizer {
   static normalize(dsl: Partial<DSLWidget>): { entities: any; result: any } {
+    console.log({ dsl });
     return normalize(dsl, widgetSchema);
   }
 
   static denormalize(pageWidgetId: string, entities: any): DSLWidget {
+    console.log({ pageWidgetId, entities });
     return denormalize(pageWidgetId, widgetSchema, entities);
   }
 }

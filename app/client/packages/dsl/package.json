@@ -1,0 +1,23 @@
+{
+    "name": "@shared/dsl",
+    "private": true,
+    "version": "1.0.0",
+    "description": "",
+    "main": "build/index.js",
+    "module": "build/index.es.js",
+    "types": "build/index.d.ts",
+    "files": [
+        "build"
+    ],
+    "publishConfig": {
+        "directory": "build"
+    },
+    "dependencies": {
+        "normalizr": "^3.6.2"
+    },
+    "author": "",
+    "license": "ISC",
+    "peerDependencies": {
+        "react": "*"
+    }
+}
