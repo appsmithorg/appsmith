@@ -114,7 +114,7 @@ describe("Table Widget text wrapping functionality", function () {
         columnType: "Icon button",
         expected: "not.exist",
       },
-    ].forEach((data, i) => {
+    ].forEach((data) => {
       cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option")
         .children()
@@ -129,7 +129,7 @@ describe("Table Widget text wrapping functionality", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("id");
 
-    ["URL", "Number", "Plain text"].forEach((data, i) => {
+    ["URL", "Number", "Plain text"].forEach((data) => {
       cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option").children().contains(data).click();
       cy.wait("@updateLayout");

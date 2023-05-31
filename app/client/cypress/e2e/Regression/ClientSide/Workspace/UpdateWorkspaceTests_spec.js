@@ -4,14 +4,12 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Update Workspace", function () {
   let workspaceId;
   let newWorkspaceName;
-  let appid;
 
   it("1. Open the workspace general settings and update workspace name. The update should reflect in the workspace. It should also reflect in the workspace names on the left side and the workspace dropdown.	", function () {
     cy.NavigateToHome();
     _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      appid = "App" + uid;
       workspaceId = uid;
       _.homePage.CreateNewWorkspace(workspaceId);
       cy.get(homePage.workspaceSettingOption).click({ force: true });

@@ -1,7 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {

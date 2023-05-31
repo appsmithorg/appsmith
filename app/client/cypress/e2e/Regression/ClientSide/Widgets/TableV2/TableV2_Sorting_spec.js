@@ -1,5 +1,4 @@
 const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget V2 Sorting", function () {

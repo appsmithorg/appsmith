@@ -11,7 +11,6 @@ describe("Create new workspace and share with a user", function () {
   let workspaceId;
   let appid;
   let currentUrl;
-  let newWorkspaceName;
 
   it("1. Create workspace and then share with a user from Application share option within application", function () {
     HomePage.NavigateToHome();

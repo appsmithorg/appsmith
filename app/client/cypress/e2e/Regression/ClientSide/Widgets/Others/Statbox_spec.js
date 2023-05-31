@@ -1,6 +1,4 @@
 const dsl = require("../../../../../fixtures/StatboxDsl.json");
-const dsl1 = require("../../../../../fixtures/dynamicHeightStatboxdsl.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const data = require("../../../../../fixtures/example.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";

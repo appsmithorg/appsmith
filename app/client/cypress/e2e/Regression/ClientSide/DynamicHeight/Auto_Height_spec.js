@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/dynamicHeightContainerCheckboxdsl.json");
 const cdsl = require("../../../../fixtures/dynamicHeigthContainerFixedDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;

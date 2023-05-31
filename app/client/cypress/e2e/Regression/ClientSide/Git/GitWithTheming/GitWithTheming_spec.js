@@ -8,7 +8,6 @@ describe("Git with Theming:", function () {
   const tempBranch = "tempBranch";
   let repoName;
   let applicationId = null;
-  let applicationName = null;
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -16,7 +15,6 @@ describe("Git with Theming:", function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.generateUUID().then((uid) => {
         cy.CreateAppForWorkspace(newWorkspaceName, uid);
-        applicationName = uid;
         cy.get("@currentApplicationId").then(
           (currentAppId) => (applicationId = currentAppId),
         );

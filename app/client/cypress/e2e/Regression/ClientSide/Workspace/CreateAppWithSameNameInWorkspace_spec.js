@@ -5,14 +5,10 @@ const application = require("../../../../locators/Applications.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Create workspace and a new app / delete and recreate app", function () {
-  let workspaceId;
-  let appid;
   it("1. Create app within an workspace and delete and re-create another app with same name", function () {
     cy.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      workspaceId = uid;
-      appid = uid;
       _.homePage.CreateNewWorkspace(uid);
       //Automated as part of Bug19506
       cy.get(application.shareButton).first().click({ force: true });

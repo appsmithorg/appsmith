@@ -6,9 +6,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
 const HomePage = ObjectsRegistry.HomePage;
 describe("Export application as a JSON file", function () {
-  let workspaceId;
   let appid;
-  let newWorkspaceName;
   let appname;
 
   before(() => {

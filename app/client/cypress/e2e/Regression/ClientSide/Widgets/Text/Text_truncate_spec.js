@@ -1,5 +1,4 @@
 const dsl = require("../../../../../fixtures/textNewDsl.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Text Widget Truncate Functionality", function () {
   before(() => {

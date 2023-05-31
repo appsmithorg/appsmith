@@ -1,4 +1,3 @@
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const dsl = require("../../../../../fixtures/CameraDsl.json");
 
 describe("Camera Widget", () => {

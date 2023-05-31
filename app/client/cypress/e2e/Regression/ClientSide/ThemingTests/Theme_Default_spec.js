@@ -8,8 +8,6 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 
 const appSettings = ObjectsRegistry.AppSettings;
 
-let themeBackgroudColor;
-
 describe("Theme validation for default data", function () {
   it("1. Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
     cy.log("Login Successful");
