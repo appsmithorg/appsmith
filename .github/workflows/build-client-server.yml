@@ -13,7 +13,7 @@ on:
 jobs:
   server-build:
     name: server-build
-    if: inputs.previous_run_id != 0
+    if: inputs.previous_run_id == 0
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
