@@ -28,7 +28,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 cy.log(dheight);
                 cy.wait(3000);
 
-                _.autoLayout.convertToAutoLayoutAndVerify();
+                _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
@@ -43,7 +43,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
 
-                            _.autoLayout.useSnapshotFromBanner();
+                            _.autoLayout.UseSnapshotFromBanner();
 
                             cy.get(".t--widget-audiorecorderwidget")
                               .invoke("css", "height")
@@ -93,7 +93,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 cy.log(dheight);
                 cy.wait(3000);
 
-                _.autoLayout.convertToAutoLayoutAndVerify();
+                _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 cy.get(".t--widget-inputwidgetv2")
                   .invoke("css", "height")
@@ -108,7 +108,7 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
 
-                            _.autoLayout.useSnapshotFromBanner();
+                            _.autoLayout.UseSnapshotFromBanner();
 
                             cy.get(".t--widget-inputwidgetv2")
                               .invoke("css", "height")
@@ -163,23 +163,23 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     cy.wait(1000);
     cy.get(widgets.modalCloseButton).click({ force: true });
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
 
     canvasTypeWidgets.forEach((canvasWidget) => {
-      _.autoLayout.verifyCurrentWidgetIsAutolayout(canvasWidget);
+      _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
     });
     _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-    _.autoLayout.verifyCurrentWidgetIsAutolayout("modalwidget");
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout("modalwidget");
     cy.wait(1000);
     cy.get(widgets.modalCloseButton).click({ force: true });
 
-    _.autoLayout.convertToFixedLayoutAndVerify("DESKTOP");
+    _.autoLayout.ConvertToFixedLayoutAndVerify("DESKTOP");
 
     canvasTypeWidgets.forEach((canvasWidget) => {
-      _.autoLayout.verifyCurrentWidgetIsFixedlayout(canvasWidget);
+      _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
     });
     _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-    _.autoLayout.verifyCurrentWidgetIsFixedlayout("modalwidget");
+    _.autoLayout.VerifyCurrentWidgetIsFixedlayout("modalwidget");
     cy.wait(1000);
     cy.get(widgets.modalCloseButton).click({ force: true });
   });

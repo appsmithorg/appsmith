@@ -5,7 +5,7 @@ let twidth;
 
 describe("Validating Mobile Views for Fill Widget", function () {
   it("Validate change with height width for fill widget - Input widget", function () {
-    _.autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
     cy.PublishtheApp();

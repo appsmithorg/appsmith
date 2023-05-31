@@ -214,4 +214,7 @@ export class CommonLocators {
   _selectByValue = (value: string) =>
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
+  _selectedWidget = "div[data-testid='t--selected']";
+  _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
+  _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
 }

@@ -11,11 +11,11 @@ describe("Handle Cases while conversion", () => {
 
     _.entityExplorer.AddNewPage("New blank page");
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
 
-    _.autoLayout.useSnapshotFromBanner();
+    _.autoLayout.UseSnapshotFromBanner();
 
-    _.entityExplorer.verifyIsCurrentPage("Page2");
+    _.entityExplorer.VerifyIsCurrentPage("Page2");
 
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
 
@@ -25,13 +25,13 @@ describe("Handle Cases while conversion", () => {
   });
 
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
 
     _.entityExplorer.AddNewPage("New blank page");
 
-    _.autoLayout.useSnapshotFromBanner();
+    _.autoLayout.UseSnapshotFromBanner();
 
-    _.entityExplorer.verifyIsCurrentPage("Page1");
+    _.entityExplorer.VerifyIsCurrentPage("Page1");
   });
 
   it("3. #21969 - when app has null values in some widget's property actions or bindings, it should still convert without errors", () => {
@@ -40,7 +40,7 @@ describe("Handle Cases while conversion", () => {
 
     cy.addDsl(templatePageWithNullBindings);
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
   });
 
   it("4. when app has widgets with dynamic Bindings, which have default values that are to be defined during conversion, it should convert without errors", () => {
@@ -49,8 +49,8 @@ describe("Handle Cases while conversion", () => {
 
     cy.addDsl(conversionDslWithDynamicBindings);
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
-    _.autoLayout.useSnapshotFromBanner();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
+    _.autoLayout.UseSnapshotFromBanner();
   });
 
   it("5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load", () => {
@@ -68,6 +68,6 @@ describe("Handle Cases while conversion", () => {
       "template added successfully",
     );
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
   });
 });

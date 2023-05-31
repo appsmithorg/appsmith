@@ -21,7 +21,7 @@ let width = {
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
   it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
-    _.autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("codescannerwidget", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("listwidgetv2", { x: 620, y: 820 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 620, y: 820 });

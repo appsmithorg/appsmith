@@ -5,11 +5,11 @@ describe("Handle Conversion for Generated/Imported Pages", () => {
     _.dataSources.GeneratePageWithMockDB();
 
     //Converting generated CRUD app to Auto Layout and verify the canvases
-    _.autoLayout.convertToAutoLayoutAndVerify();
-    _.autoLayout.verifyCurrentWidgetIsAutolayout("containerwidget");
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout("containerwidget");
 
     //Add Generated CRUD from within the Auto Layout and verify the canvases
     _.dataSources.GeneratePageWithMockDB();
-    _.autoLayout.verifyCurrentWidgetIsAutolayout("containerwidget");
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout("containerwidget");
   });
 });

@@ -6,7 +6,7 @@ import {
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {
-    _.autoLayout.convertToAutoLayoutAndVerify(false);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.INPUT_V2,
       100,

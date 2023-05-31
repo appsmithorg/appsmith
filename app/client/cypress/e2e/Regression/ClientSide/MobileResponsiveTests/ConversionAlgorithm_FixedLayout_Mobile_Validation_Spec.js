@@ -27,7 +27,7 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                 cy.log(dheight);
                 cy.wait(3000);
 
-                _.autoLayout.convertToAutoLayoutAndVerify();
+                _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
@@ -42,7 +42,7 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
 
-                            _.autoLayout.convertToFixedLayoutAndVerify(
+                            _.autoLayout.ConvertToFixedLayoutAndVerify(
                               "MOBILE",
                             );
 

@@ -44,8 +44,8 @@ export class AutoLayout {
 
   private flexMainContainer = ".flex-container-0";
 
-  public convertToAutoLayoutAndVerify(isNotNewApp = true) {
-    this.verifyIsFixedLayout();
+  public ConvertToAutoLayoutAndVerify(isNotNewApp = true) {
+    this.VerifyIsFixedLayout();
 
     cy.get(this.autoConvertButton).contains("Auto").click({
       force: true,
@@ -72,13 +72,13 @@ export class AutoLayout {
     });
     cy.wait(2000);
 
-    this.verifyIsAutoLayout();
+    this.VerifyIsAutoLayout();
   }
 
-  public convertToFixedLayoutAndVerify(
+  public ConvertToFixedLayoutAndVerify(
     fixedConversionOption: FixedConversionOptions,
   ) {
-    this.verifyIsAutoLayout();
+    this.VerifyIsAutoLayout();
 
     cy.get(this.autoConvertButton).click({
       force: true,
@@ -118,10 +118,10 @@ export class AutoLayout {
     });
     cy.wait(2000);
 
-    this.verifyIsFixedLayout();
+    this.VerifyIsFixedLayout();
   }
 
-  public useSnapshotFromBanner() {
+  public UseSnapshotFromBanner() {
     cy.get(this.useSnapshotBannerButton).click({
       force: true,
     });
@@ -138,7 +138,7 @@ export class AutoLayout {
     cy.wait(2000);
   }
 
-  public discardSnapshot() {
+  public DiscardSnapshot() {
     cy.get(this.discardSnapshotBannerButton).click({
       force: true,
     });
@@ -147,7 +147,7 @@ export class AutoLayout {
     });
   }
 
-  public verifyIsAutoLayout() {
+  public VerifyIsAutoLayout() {
     cy.get(`#div-selection-0`).click({
       force: true,
     });
@@ -155,7 +155,7 @@ export class AutoLayout {
     cy.get(this.flexMainContainer).should("exist");
   }
 
-  public verifyIsFixedLayout() {
+  public VerifyIsFixedLayout() {
     cy.get(`#div-selection-0`).click({
       force: true,
     });
@@ -163,7 +163,7 @@ export class AutoLayout {
     cy.get(this.flexMainContainer).should("not.exist");
   }
 
-  public verifyCurrentWidgetIsAutolayout(widgetTypeName: string) {
+  public VerifyCurrentWidgetIsAutolayout(widgetTypeName: string) {
     if (widgetTypeName === "modalwidget") {
       cy.get(`.t--modal-widget canvas`)
         .siblings('*[class^="flex-container"]')
@@ -175,7 +175,7 @@ export class AutoLayout {
     }
   }
 
-  public verifyCurrentWidgetIsFixedlayout(widgetTypeName: string) {
+  public VerifyCurrentWidgetIsFixedlayout(widgetTypeName: string) {
     if (widgetTypeName === "modalwidget") {
       cy.get(`.t--modal-widget canvas`)
         .siblings('*[class^="flex-container"]')
@@ -187,7 +187,7 @@ export class AutoLayout {
     }
   }
 
-  public verifyIfChildWidgetPositionInFlexContainer(
+  public VerifyIfChildWidgetPositionInFlexContainer(
     canvasWrapperSelector: string,
     childWidgetSelector: string,
     layerIndex: number,

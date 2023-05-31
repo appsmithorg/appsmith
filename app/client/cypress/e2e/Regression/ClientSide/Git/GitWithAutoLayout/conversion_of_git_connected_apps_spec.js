@@ -35,11 +35,11 @@ describe("Git sync:", function () {
 
     _.entityExplorer.AddNewPage("New blank page");
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
 
-    _.autoLayout.useSnapshotFromBanner();
+    _.autoLayout.UseSnapshotFromBanner();
 
-    _.entityExplorer.verifyIsCurrentPage("Page2");
+    _.entityExplorer.VerifyIsCurrentPage("Page2");
 
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
 
@@ -50,26 +50,26 @@ describe("Git sync:", function () {
 
   //Skipped these tests as they seemed to have regressed again, will enable them once it is fixed. #22956
   it.skip("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
 
     _.entityExplorer.AddNewPage("New blank page");
 
-    _.autoLayout.useSnapshotFromBanner();
+    _.autoLayout.UseSnapshotFromBanner();
 
-    _.entityExplorer.verifyIsCurrentPage("Page1");
+    _.entityExplorer.VerifyIsCurrentPage("Page1");
   });
 
   //Skipped these tests as they seemed to have regressed again, will enable them once it is fixed. #22956
   it.skip("3. Switch to parentBranch and when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     cy.switchGitBranch(parentBranchKey);
 
-    _.autoLayout.convertToAutoLayoutAndVerify();
+    _.autoLayout.ConvertToAutoLayoutAndVerify();
 
     _.entityExplorer.AddNewPage("New blank page");
 
     _.autoLayout.useSnapshotFromBanner();
 
-    _.entityExplorer.verifyIsCurrentPage("Page1");
+    _.entityExplorer.VerifyIsCurrentPage("Page1");
   });
 
   after(() => {
