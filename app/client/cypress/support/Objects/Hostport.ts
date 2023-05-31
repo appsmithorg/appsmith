@@ -63,8 +63,8 @@ export class DefaultHostPort {
   echoApiUrl = "http://host.docker.internal:5001/v1/mock_api/echo";
   randomCatfactUrl = "http://host.docker.internal:5001/v1/catfact/random";
 
-  firestore_database_url = "https://appsmith_22e8b.firebaseio.com";
-  firestore_projectID = "appsmith_22e8b";
+  firestore_database_url = "https://appsmith-22e8b.firebaseio.com";
+  firestore_projectID = "appsmith-22e8b";
 
   restapi_url = "https://my_json_server.typicode.com/typicode/demo/posts";
   connection_type = "Replica set";
