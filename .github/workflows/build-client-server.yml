@@ -65,4 +65,4 @@ jobs:
     secrets: inherit
     with:
       pr: 0
-      previous-workflow-run-id: ${{ inputs.previous_run_id }}
+      previous-workflow-run-id: ${{ github.event.inputs.previous_run_id }}
