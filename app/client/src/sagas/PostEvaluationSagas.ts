@@ -31,9 +31,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
+  JS_EXECUTION_FAILURE,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-  JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
@@ -45,8 +45,9 @@ import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { toast } from "design-system";
 import type { ActionEntityConfig } from "entities/DataTree/types";
-import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
+import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+import { logActionExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -318,6 +319,16 @@ export function* evalErrorHandler(
   });
 }
 
+export function* dynamicTriggerErrorHandler(errors: any[]) {
+  if (errors.length > 0) {
+    for (const error of errors) {
+      const errorMessage =
+        error.errorMessage.message.message || error.errorMessage.message;
+      logActionExecutionError(errorMessage, true);
+    }
+  }
+}
+
 export function* logSuccessfulBindings(
   unEvalTree: UnEvalTree,
   dataTree: DataTree,
@@ -325,6 +336,7 @@ export function* logSuccessfulBindings(
   isCreateFirstTree: boolean,
   isNewWidgetAdded: boolean,
   configTree: ConfigTree,
+  undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -343,6 +355,10 @@ export function* logSuccessfulBindings(
       | ActionEntityConfig;
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
+      let isUndefined = false;
+
+      isUndefined = get(undefinedEvalValuesMap, evaluatedPath) || false;
+
       const entityType = isAction(entity)
         ? entityConfig.pluginType
         : entity.type;
@@ -387,9 +403,11 @@ export function* logSuccessfulBindings(
               unevalValue,
               entityType,
               propertyPath,
+              isUndefined,
             });
           }
         }
+
         successfulBindingPaths[evaluatedPath] = unevalValue;
       } else {
         /**Remove the binding from the map so that in case it is added again, we log it*/
