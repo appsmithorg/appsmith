@@ -325,9 +325,9 @@ Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
     .contains("Leave Workspace")
     .click();
   cy.contains("Are you sure").click();
-  cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
-    expect(httpResponse.status).to.equal(200);
-  });
+  cy.wait("@leaveWorkspaceApiCall")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
   cy.get(homePage.toastMessage).should(
     "contain",
     "You have successfully left the workspace",

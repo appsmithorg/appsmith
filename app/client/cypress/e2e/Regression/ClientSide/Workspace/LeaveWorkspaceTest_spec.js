@@ -15,9 +15,9 @@ describe("Leave workspace test spec", function () {
       // verify leave workspace is visible
       cy.contains("Leave workspace").click();
       cy.contains("Are you sure").click();
-      cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
-        expect(httpResponse.status).to.equal(400);
-      });
+      cy.wait("@leaveWorkspaceApiCall")
+        .its("response.body.responseMeta.status")
+        .should("eq", 400);
       cy.contains(newWorkspaceName);
     });
   });

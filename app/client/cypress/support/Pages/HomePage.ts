@@ -526,11 +526,8 @@ export class HomePage {
     this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
-    cy.wait("@leaveWorkspaceApiCall").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    this.agHelper.ValidateNetworkStatus("@leaveWorkspaceApiCall");
+
     this.agHelper.ValidateToastMessage(
       "You have successfully left the workspace",
     );

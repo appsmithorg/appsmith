@@ -12,9 +12,9 @@ describe("Delete workspace test spec", function () {
       newWorkspaceName = "workspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
       _.homePage.DeleteWorkspace(newWorkspaceName);
-      cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
-        expect(httpResponse.status).to.equal(200);
-      });
+      cy.wait("@deleteWorkspaceApiCall")
+        .its("response.body.responseMeta.status")
+        .should("eq", 200);
       cy.get(newWorkspaceName).should("not.exist");
     });
   });
