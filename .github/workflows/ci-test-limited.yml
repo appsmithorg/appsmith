@@ -112,6 +112,7 @@ jobs:
           echo "$specs_to_run" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      # In case of run-id provided download the artifact from the previous run
       - name: Get docker image artifact name to download
         run: |
           if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
@@ -123,7 +124,7 @@ jobs:
       - name: Log the docker container name
         run: |
           echo "docker_container_name: ${{ env.docker_container_name }}"
-
+      
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
