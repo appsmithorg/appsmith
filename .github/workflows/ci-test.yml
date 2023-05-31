@@ -103,8 +103,13 @@ jobs:
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           while IFS= read -r line
           do
-            spec_name=$(echo line | awk -F'/' '{print $NF}')
+            echo $line
+            spec_name=$(echo $line | awk -F'/' '{print $NF}')
+            echo $spec_name
+            echo $(find . -name $spec_name) 
             failed_spec_env=$(find . -name $spec_name | sed 's|./||')
+            echo $failed_spec_env
+            echo "-----------------------------------------"
             echo "$failed_spec_env" >> $GITHUB_ENV
           done < ~/combined_failed_spec_ci/combined_failed_spec_ci
           echo "EOF" >> $GITHUB_ENV
