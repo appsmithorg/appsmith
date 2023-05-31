@@ -1,9 +1,10 @@
 import React from "react";
-import _, { merge } from "lodash";
+import _ from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
+import { getFormInitialValues } from "redux-form";
 import { getFormValues, isDirty, reduxForm } from "redux-form";
 import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
@@ -60,7 +61,6 @@ import {
 import { getDatasourceErrorMessage } from "./errorUtils";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
-import { getConfigInitialValues } from "components/formControls/utils";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { DSFormHeader } from "../DataSourceEditor/DSFormHeader";
 import Debugger, {
@@ -527,12 +527,9 @@ const mapStateToProps = (state: AppState, props: any) => {
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
-  const initialValues = {};
-  if (formConfig) {
-    merge(initialValues, getConfigInitialValues(formConfig));
-  }
-
-  merge(initialValues, datasource);
+  const initialValues = getFormInitialValues(DATASOURCE_SAAS_FORM)(
+    state,
+  ) as Datasource;
 
   // get scopeValue to be shown in analytical events
   const scopeValue = getDatasourceScopeValue(
@@ -543,7 +540,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
-    formData?.pluginId,
+    pluginId,
   );
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID
