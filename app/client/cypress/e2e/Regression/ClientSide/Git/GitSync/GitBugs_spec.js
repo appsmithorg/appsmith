@@ -1,11 +1,8 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const dsl = require("../../../../../fixtures/JsObjecWithGitdsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
-const pages = require("../../../../../locators/Pages.json");
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../../fixtures/datasources.json";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -274,7 +271,7 @@ describe("Git sync Bug #10773", function () {
           `generateKey-${repoName}`,
         );
         cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}${datasourceFormData["GITEA_API_URL_TED"]}/${repoName}.git`,
+          `{selectAll}${_.hostPort.GITEA_API_URL_TED}/${repoName}.git`,
         );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();

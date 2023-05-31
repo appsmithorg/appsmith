@@ -1,5 +1,4 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../fixtures/datasources.json";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe("excludeForAirgap", "Validate Airtable Ds", () => {
@@ -21,12 +20,12 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       "List Records",
     );
 
-    _.agHelper.EnterValue(datasourceFormData.AirtableBase, {
+    _.agHelper.EnterValue(_.hostPort.AirtableBase, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Base ID ",
     });
-    _.agHelper.EnterValue(datasourceFormData.AirtableTable, {
+    _.agHelper.EnterValue(_.hostPort.AirtableTable, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Table Name",
