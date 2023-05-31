@@ -205,7 +205,7 @@ const DBFormWrapper = styled.div`
 
   > div {
     width: 100%;
-    height: calc(100% - 68px);
+    height: calc(100% - 68px); // Adding height offset of the buttons container
   }
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
