@@ -98,15 +98,15 @@ jobs:
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
+        working-directory : app/client
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec_ci/combined_failed_spec_ci)
-          line_count=$(sed -n '$=' ~/combined_failed_spec_ci/combined_failed_spec_ci)
-          if [ $line_count -eq 1 ]; then
-            spec_name=$(echo failed_spec_env | awk -F'/' '{print $NF}')
-            failed_spec_env=$(find ${{ github.workspace }}/app/client -name $spec_name | sed 's|${{ github.workspace }}/app/client/||')
-          fi
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$failed_spec_env" >> $GITHUB_ENV
+          while IFS= read -r line
+          do
+            spec_name=$(echo line | awk -F'/' '{print $NF}')
+            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
+            echo "$failed_spec_env" >> $GITHUB_ENV
+          done < ~/combined_failed_spec_ci/combined_failed_spec_ci
           echo "EOF" >> $GITHUB_ENV
 
       - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
