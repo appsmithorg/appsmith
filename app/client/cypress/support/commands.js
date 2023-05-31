@@ -1287,17 +1287,17 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
   cy.get(welcomePage.verifyPassword).should("be.visible");
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
 
   cy.get(welcomePage.firstName).type(Cypress.env("USERNAME"));
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.email).type(Cypress.env("USERNAME"));
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.password).type(Cypress.env("PASSWORD"));
-  cy.get(welcomePage.submitButton).should("be.disabled");
+  cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.verifyPassword).type(Cypress.env("PASSWORD"));
-  cy.get(welcomePage.submitButton).should("not.be.disabled");
-  cy.get(welcomePage.submitButton).click();
+  cy.get(welcomePage.continueButton).should("not.be.disabled");
+  cy.get(welcomePage.continueButton).click();
 
   cy.get(welcomePage.roleDropdown).click();
   cy.get(welcomePage.roleDropdownOption).eq(1).click();
@@ -1307,14 +1307,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.submitButton).should("not.be.disabled");
   cy.get(welcomePage.submitButton).click();
   //in case of airgapped both anonymous data and newsletter are disabled
-  if (!Cypress.env("AIRGAPPED")) {
-    cy.wait("@createSuperUser").then((interception) => {
-      expect(interception.request.body).contains(
-        "allowCollectingAnonymousData=true",
-      );
-      expect(interception.request.body).contains("signupForNewsletter=true");
-    });
-  } else {
+  if (Cypress.env("AIRGAPPED")) {
     cy.wait("@createSuperUser").then((interception) => {
       expect(interception.request.body).to.not.contain(
         "allowCollectingAnonymousData=true",
@@ -1322,6 +1315,13 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).to.not.contain(
         "signupForNewsletter=true",
       );
+    });
+  } else {
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).contains(
+        "allowCollectingAnonymousData=true",
+      );
+      expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
 
