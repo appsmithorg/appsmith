@@ -236,7 +236,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
                 DraggableListCard({
                   ...props,
                   showCheckbox: true,
-                  placeholder: "Column Title",
+                  placeholder: "Column title",
                 })
               }
               toggleCheckbox={this.toggleCheckbox}
