@@ -2499,6 +2499,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Map<String, Object> analyticsProps = new HashMap<>();
         if (gitData != null) {
             analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
+            analyticsProps.put("appId", gitData.getDefaultApplicationId());
             analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
             analyticsProps.put("gitHostingProvider", GitUtils.getGitProviderName(gitData.getRemoteUrl()));
         }
@@ -2509,6 +2510,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
         analyticsProps.putAll(Map.of(
                 FieldName.ORGANIZATION_ID, defaultIfNull(application.getWorkspaceId(), ""),
+                "orgId", defaultIfNull(application.getWorkspaceId(), ""),
                 "branchApplicationId", defaultIfNull(application.getId(), ""),
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                 "isSystemGenerated", defaultIfNull(isSystemGenerated, "")
