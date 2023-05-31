@@ -1,23 +1,19 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources;
-
 describe("Validate MySQL query UI flows - Bug 14054", () => {
   it("1. Create a new MySQL DS", () => {
-    dataSources.CreateDataSource("MySql");
+    _.dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
   it("2. Validate Describe & verify query response", () => {
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("verifyDescribe");
+    _.dataSources.NavigateFromActiveDS(dsName, true);
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.agHelper.RenameWithInPane("verifyDescribe");
     runQueryNValidate("Describe customers;", [
       "Field",
       "Type",
@@ -42,30 +38,25 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
       "Default",
       "Extra",
     ]);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("3. Validate SHOW & verify query response", () => {
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("verifyShow");
+    _.dataSources.NavigateFromActiveDS(dsName, true);
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.agHelper.RenameWithInPane("verifyShow");
     runQueryNValidate("SHOW tables;", ["Tables_in_fakeapi"]);
     runQueryNValidate("SHOW databases", ["Database"]);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("4. Verify Deletion of the datasource", () => {
-    ee.SelectEntityByName(dsName, "Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
-
-    cy.wait("@deleteDatasource").should((response: any) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+  after("4. Verify Deletion of the datasource", () => {
+    _.dataSources.DeleteDSFromEntityExplorer(dsName, [200, 409]);
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(columnHeaders);
+    _.dataSources.EnterQuery(query);
+    _.dataSources.RunQuery();
+    _.dataSources.AssertQueryResponseHeaders(columnHeaders);
   }
 });

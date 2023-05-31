@@ -707,6 +707,16 @@ export class DataSources {
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
   }
+
+  public DeleteDSFromEntityExplorer(
+    dsName: string,
+    expectedRes: number | number[] = 200,
+  ) {
+    this.ee.SelectEntityByName(dsName, "Datasources");
+    this.ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
+    this.ValidateDSDeletion(expectedRes);
+  }
+
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
     let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
     if (toValidateRes) {
