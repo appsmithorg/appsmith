@@ -43,6 +43,13 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
+import { Icon } from "design-system";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import {
+  SEARCH_CATEGORY_ID,
+  filterCategories,
+} from "components/editorComponents/GlobalSearch/utils";
+import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/multiPaneSelectors";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -87,6 +94,7 @@ function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
+  const isCanvasCodeActive = useSelector(isCanvasCodeActiveSelector);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
   const isPagesOpen = getExplorerStatus(applicationId, "pages");
@@ -161,6 +169,19 @@ function Pages() {
     dispatch(setExplorerPinnedAction(!pinned));
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
+  const onClickRightIcon = () => {
+    dispatch(
+      setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+    );
+  };
+
+  const canvasCodeProps = isCanvasCodeActive
+    ? {
+        onClickRightIcon,
+        rightIcon: <Icon name="search-line" />,
+      }
+    : {};
+
   const onPageToggle = useCallback(
     (isOpen: boolean) => {
       saveExplorerStatus(applicationId, "pages", isOpen);
@@ -222,7 +243,6 @@ function Pages() {
     <RelativeContainer>
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
-        alwaysShowRightIcon
         className="group pages"
         collapseRef={pageResizeRef}
         customAddButton={
@@ -245,6 +265,7 @@ function Pages() {
         searchKeyword={""}
         showAddButton={canCreatePages}
         step={0}
+        {...canvasCodeProps}
       >
         {pageElements}
       </StyledEntity>
