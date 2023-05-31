@@ -34,7 +34,8 @@ describe("Git sync apps", function () {
     _.homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
-    cy.get(generatePage.generateCRUDPageActionCard).click();
+    _.entityExplorer.AddNewPage("Generate page with data");
+    //cy.get(generatePage.generateCRUDPageActionCard).click();
 
     cy.get(generatePage.selectDatasourceDropdown).click();
 
