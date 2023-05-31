@@ -1,27 +1,26 @@
-import commonlocators from "../../../../locators/commonlocators.json";
-import appNavigationLocators from "../../../../locators/AppNavigation.json";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const deployMode = ObjectsRegistry.DeployMode;
-let currentUrl: string | null = null;
 
 describe("Validating multiple widgets in auto layout mode with App navigation settings", function () {
   it("1. Drag and Drop multiple widgets in auto layout mode", function () {
     _.autoLayout.ConvertToAutoLayout();
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 100, 200);
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 10, 20);
-    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 10, 20);
-    _.propPane.navigateToPage("Page1", "onClick");
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      100,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.INPUT_V2, 10, 20);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 10, 20);
+    _.propPane.NavigateToPage("Page1", "onClick");
   });
   it("2. Change App navigation settings and valdiate the layout settings", () => {
-    _.agHelper.GetNClick("[data-testid='t--entity-item-Page1']");
-    _.agHelper.GetNClick(appNavigationLocators.appSettingsButton);
-    _.agHelper.GetNClick(appNavigationLocators.navigationSettingsTab);
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.agHelper.GetNClick(_.appSettings.locators._appSettings);
+    _.agHelper.GetNClick(_.appSettings.locators._generalSettingsHeader);
     _.agHelper.GetNClick(
-      appNavigationLocators.navigationSettings.orientationOptions.side,
+      _.appSettings.locators._navigationSettings._orientationOptions._side,
     );
     _.agHelper.GetNClickByContains(
-      appNavigationLocators.navigationMenuItem,
+      _.appSettings.locators._navigationMenuItem,
       "Page1",
     );
     _.agHelper.Sleep();
