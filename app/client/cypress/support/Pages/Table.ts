@@ -105,7 +105,7 @@ export class Table {
   private _downloadBtn = ".t--table-download-btn";
   private _downloadOption = ".t--table-download-data-option";
   _columnSettings = (columnName: string) =>
-    "//input[@placeholder='Column Title'][@value='" +
+    "//input[@placeholder='Column title'][@value='" +
     columnName +
     "']/parent::div/parent::div/parent::div/parent::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
   _columnSettingsV2 = (columnName: string) =>
