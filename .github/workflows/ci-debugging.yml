@@ -3,326 +3,93 @@ name: CI Debugging
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
-    # inputs:
-    #   run_id:
-    #     description: 'Run id to download artifacts:'
-    #     required: true
-    #     type: number      
+    inputs:
+      run_id:
+        description: 'Run id to download artifacts:'
+        required: true
+        type: number      
 
 jobs:
-  notify:
+  ci-debugger:
     runs-on: ubuntu-latest
-    steps:
-      # This step creates a comment on the PR with a link to this workflow run.
-      - name: Add a comment on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: 23073
-          body: |
-            Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Workflow: `${{ github.workflow }}`.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            PR: 23073.
-            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=23073&runId=${{ github.run_id }}_${{github.run_attempt}}>
-
-  server-build:
-    name: server-build
-    uses: ./.github/workflows/server-build.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  client-build:
-    name: client-build
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  rts-build:
-    name: rts-build
-    uses: ./.github/workflows/rts-build.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  test-shared-modules:
-    name: shared-modules
-    uses: ./.github/workflows/shared-modules.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  test-appsmithctl:
-    name: appsmithctl
-    uses: ./.github/workflows/appsmithctl.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
-    # Only run if the build step is successful
-    if: success()
-    name: build-docker-image
-    uses: ./.github/workflows/build-docker-image.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  ci-test:
-    needs: [ build-docker-image ]
-    # Only run if the build step is successful
-    if: success()
-    name: ci-test
-    uses: ./.github/workflows/ci-test.yml
-    secrets: inherit
-    with:
-      pr: 23073
-
-  # perf-test:
-  #   needs: [ build-docker-image ]
-  #   # Only run if the build step is successful
-  #   if: success()
-  #   name: perf-test
-  #   uses: ./.github/workflows/perf-test.yml
-  #   secrets: inherit
-  #   with:
-  #     pr: 23073
-
-  ci-test-result:
-    needs: [ci-test]
-    # Only run if the ci-test with matrices step is successful
-    if: always()
-    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     defaults:
       run:
         shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [ 0 ]
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
     steps:
-      - name: Dump the client payload context
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download Docker image artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: cicontainer
+          run_id: ${{ github.event.inputs.run_id }}
+
+      - name: Load Docker image from tar file
+        run: |
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
+
+      - name: Create folder
+        if: steps.run_result.outputs.run_result != 'success'
         env:
-          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
-        run: echo "$PAYLOAD_CONTEXT"
-
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
-        if: needs.ci-test.result != 'success'
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
         run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
+          mkdir -p cicontainerlocal/stacks/configuration/
 
-      # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v3
-        if: needs.ci-test.result != 'success'
-        id: download_ci
-        with:
-          name: failed-spec-ci
-          path: ~/failed_spec_ci
-          
-      # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
-        if: needs.ci-test.result != 'success'
+      - name: Run docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
         run: |
-          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
-          cat ~/failed_spec_ci/failed_spec_ci*
-          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
-
-      # Force save the CI failed spec list into a cache
-      - name: Store the combined run result for CI
-        if: needs.ci-test.result != 'success'
-        uses: martijnhols/actions-cache/save@v3
-        with:
-          path: |
-            ~/combined_failed_spec_ci
-          key: ${{ github.run_id }}-"ci-test-result"
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+          sudo /etc/init.d/ssh stop ;
+          mkdir -p ~/git-server/keys
+          mkdir -p ~/git-server/repos
+          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+          cd cicontainerlocal
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway \
+            cicontainer
             
-      # Upload combined failed CI spec list to a file
-      # This is done for debugging.
-      - name: upload combined failed spec
-        if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
-        with:
-          name: combined_failed_spec_ci
-          path: ~/combined_failed_spec_ci
-
-      - name: Get Latest flaky Tests
-        shell: bash
+      - name: Execute access to ci-debug.sh
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
         run: |
-          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+          chmod +x ci-debug.sh
 
-     # Verify CI test failures against known failures
-      - name: Verify CI test failures against known failures
-        if: needs.ci-test.result != 'success'
-        shell: bash
-        run: |
-          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
-          echo "$new_failed_spec_env"
-          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$new_failed_spec_env" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Add a comment on the PR with new CI failures
-        if: needs.ci-test.result != 'success'
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 23073
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
-
-      - name: Add a comment on the PR when ci-test is success
-        if: needs.ci-test.result == 'success'
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: 23073
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            All cypress tests have passed 🎉
-          
-
-      # Update check run called "ci-test-result"
-      - name: Mark ci-test-result job as complete
-        uses: actions/github-script@v6
-        id: update-check-run
-        if: ${{ always() }}
-        env:
-          run_id: ${{ github.run_id }}
-          repository: ${{ github.repository }}
-          number: 23073
-          job: ${{ github.job }}
-          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-          conclusion: ${{ job.status }}
-          matrix_result: ${{ toJson(needs.ci-test) }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
-
-            const { data: checks } = await github.rest.checks.listForRef({
-              ...context.repo,
-              ref
-            });
-
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
-
-            if(check.length == 0) {
-              const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.rest.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head_sha: head_sha,
-                name: process.env.job,
-                status: 'completed',
-                conclusion: JSON.parse(process.env.matrix_result).result,
-                output: {
-                  title: "Integration tests result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-              });
-
-              return completed_at;
-            } else {
-              try {
-                const { data: result } = await github.rest.checks.update({
-                  ...context.repo,
-                  check_run_id: check[0].id,
-                  status: 'completed',
-                  conclusion: JSON.parse(process.env.matrix_result).result,
-                    output: {
-                      title: "Integration tests result for ok to test",
-                      summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                    }
-                });
-                console.log({ result });
-                return result;
-              } catch(e) {
-                console.error({ error: e.message });
-              }
-            }
-
-      - name: Dump the client payload context
-        env:
-          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
-        run: echo "$PAYLOAD_CONTEXT"
-
-      - name: Check ci-test set status
-        if: needs.ci-test.result != 'success'
-        run: exit 1
-
-  # package:
-  #   needs: [ ci-test ]
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: app/client
-  #   # Run this job only if all the previous steps are a success and the reference if the release or master branch
-  #   if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
-
-  #   steps:
-  #     # Update check run called "package"
-  #     - name: Mark package job as complete
-  #       uses: actions/github-script@v6
-  #       id: update-check-run
-  #       if: ${{ always() }}
-  #       env:
-  #         run_id: ${{ github.run_id }}
-  #         repository: ${{ github.repository }}
-  #         number: 23073
-  #         job: ${{ github.job }}
-  #         # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-  #         conclusion: ${{ job.status }}
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         script: |
-  #           const { data: pull } = await github.rest.pulls.get({
-  #             ...context.repo,
-  #             pull_number: process.env.number
-  #           });
-  #           const ref = pull.head.sha;
-
-  #           const { data: checks } = await github.rest.checks.listForRef({
-  #             ...context.repo,
-  #             ref
-  #           });
-
-  #           const check = checks.check_runs.filter(c => c.name === process.env.job);
-
-  #           if(check.length == 0) {
-  #             const head_sha = pull.head.sha;
-  #             const { data: completed_at } = await github.rest.checks.create({
-  #               owner: context.repo.owner,
-  #               repo: context.repo.repo,
-  #               head_sha: head_sha,
-  #               name: process.env.job,
-  #               status: 'completed',
-  #               conclusion: process.env.conclusion,
-  #               output: {
-  #                 title: "Package result for ok to test",
-  #                 summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-  #               }
-  #             });
-
-  #             return completed_at;
-  #           } else {
-  #             const { data: result } = await github.rest.checks.update({
-  #             ...context.repo,
-  #             check_run_id: check[0].id,
-  #             status: 'completed',
-  #             conclusion: process.env.conclusion,
-  #               output: {
-  #                 title: "Package result for ok to test",
-  #                 summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-  #               }
-  #           });
-
-  #           return result;
-  #           }
+      # Start tmate session for tunnelling
+      - name: Setup tmate session
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: mxschmitt/action-tmate@v3
