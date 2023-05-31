@@ -132,7 +132,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           name: cicontainer
-          run_id: 5130899933
+          run_id: 5133285287
 
       - name: Load Docker image from tar file
         run: |
@@ -144,16 +144,6 @@ jobs:
         working-directory: "."
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
-
-      #Download the oldstacks from appsmithorg/oldstacks repo
-      - name: Download the oldstack
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          repository: appsmithorg/ci-oldstack
-          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          submodules: 'recursive'
-          path: cicontainerlocal/oldstack
 
       - name: Run Appsmith & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
