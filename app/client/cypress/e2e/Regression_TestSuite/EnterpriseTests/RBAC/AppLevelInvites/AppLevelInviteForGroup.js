@@ -84,6 +84,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
     _.agHelper.Sleep(2000);
+    _.onboarding.closeIntroModal();
     _.agHelper.AssertElementExist(_.dataSources._addNewDataSource);
     _.entityExplorer.AddNewPage("Generate page with data");
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
@@ -136,6 +137,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
     _.agHelper.Sleep(2000);
+    _.onboarding.closeIntroModal();
     _.agHelper.AssertElementAbsence(_.dataSources._addNewDataSource);
     _.entityExplorer.AddNewPage("Generate page with data");
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
@@ -189,6 +191,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
     _.agHelper.Sleep(2000);
+    _.onboarding.closeIntroModal();
     _.agHelper.AssertElementAbsence(_.dataSources._addNewDataSource);
     _.entityExplorer.AddNewPage("Generate page with data");
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
