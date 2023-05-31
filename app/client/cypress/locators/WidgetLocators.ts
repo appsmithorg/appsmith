@@ -33,6 +33,7 @@ export const WIDGET = {
   RANGE_SLIDER: "rangesliderwidget",
   IFRAME: "iframewidget",
   DIVIDER: "dividerwidget",
+  PROGRESS: "progresswidget",
 } as const;
 
 // property pane element selector are maintained here
