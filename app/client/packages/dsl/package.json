@@ -18,6 +18,6 @@
     "author": "",
     "license": "ISC",
     "peerDependencies": {
-        "react": "*"
+        "react": "^17.0.2"
     }
 }

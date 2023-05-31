@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import { schema, normalize, denormalize } from "normalizr";
 
 export type WidgetType = string;
 
@@ -187,13 +188,54 @@ export interface FlattenedWidgetProps extends WidgetProps {
   children?: string[];
 }
 
-export interface IWidgetDSL extends WidgetProps {
-  children?: IWidgetDSL[];
+export interface DSLWidget extends WidgetProps {
+  children?: DSLWidget[];
 }
 
+// actual code
 class DSL {
+  rawDSL: DSLWidget;
+  widgetSchemaById: any;
+  widgetSchemaByName: any;
+
   constructor(rawDSL: WidgetProps) {
     this.rawDSL = rawDSL;
+
+    // schema by widgetId
+    this.widgetSchemaById = new schema.Entity(
+      "canvasWidgets",
+      {},
+      { idAttribute: "widgetId" },
+    );
+    this.widgetSchemaById.define({ children: [this.widgetSchemaById] });
+
+    // schema by widgetName
+    this.widgetSchemaByName = new schema.Entity(
+      "canvasWidgets",
+      {},
+      { idAttribute: "widgetName" },
+    );
+    this.widgetSchemaByName.define({ children: [this.widgetSchemaByName] });
+  }
+
+  asNestedDSL() {
+    return this.rawDSL;
+  }
+
+  asFlatDSL() {
+    return normalize(this.rawDSL, this.widgetSchemaById);
+  }
+
+  asNestedDSLFromFlat(pageWidgetId: string, entities: any): DSLWidget {
+    return denormalize(pageWidgetId, this.widgetSchemaById, entities);
+  }
+
+  asGitDSL() {
+    return normalize(this.rawDSL, this.widgetSchemaByName);
+  }
+
+  asNestedDSLFromGit(pageWidgetId: string, entities: any): DSLWidget {
+    return denormalize(pageWidgetId, this.widgetSchemaByName, entities);
   }
 }
 
