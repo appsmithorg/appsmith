@@ -5,7 +5,7 @@
       "children": [
         {
           "label": "Authentication type",
-          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": true,
@@ -13,7 +13,7 @@
         },
         {
           "label": "Grant type",
-          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.grantType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": true,
@@ -21,7 +21,7 @@
         },
         {
           "label": "Account",
-          "configProperty": "datasourceConfiguration.properties[0].value",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.properties[0].value",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
@@ -32,7 +32,7 @@
         },
         {
           "label": "Permissions | Scope",
-          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.scopeString",
           "controlType": "DROP_DOWN",
           "options": [
             {

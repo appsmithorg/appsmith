@@ -481,6 +481,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       viewMode,
     } = this.props;
 
+    console.log("ondhu 123 ", this.props);
     const shouldViewMode = viewMode && !isInsideReconnectModal;
     // Check for specific form types first
     if (
@@ -743,6 +744,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
 
+  //Chandan
   const isPluginAuthorized =
     pluginPackageName === PluginPackageName.GOOGLE_SHEETS
       ? plugin &&

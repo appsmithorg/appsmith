@@ -274,7 +274,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasource?.datasourceConfiguration,
+              datasource?.datasourceStorages.active_env.datasourceConfiguration,
             ),
           ]
         : [];

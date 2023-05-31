@@ -5,6 +5,7 @@ import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 
 const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;
@@ -58,6 +59,7 @@ function ListItemWrapper(props: {
   onClick: (ds: Datasource) => void;
 }) {
   const { ds, onClick, plugin, selected } = props;
+  const currentEnvironment = getCurrentEnvironment();
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}
@@ -76,11 +78,15 @@ function ListItemWrapper(props: {
           <Tooltip content={ds.name} placement="left">
             <Icon
               color={
-                ds.isConfigured
+                ds.datasourceStorages[currentEnvironment].isConfigured
                   ? "var(--ads-v2-color-fg-success)"
                   : "var(--ads-v2-color-fg-error)"
               }
-              name={ds.isConfigured ? "oval-check" : "info"}
+              name={
+                ds.datasourceStorages[currentEnvironment].isConfigured
+                  ? "oval-check"
+                  : "info"
+              }
               size="md"
             />
           </Tooltip>

@@ -9,14 +9,14 @@
           "children": [
             {
               "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$"
             },
             {
               "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY"
             }
@@ -24,7 +24,7 @@
         },
         {
           "label": "Database number",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "dataType": "NUMBER",
           "placeholderText": "0"
@@ -40,13 +40,13 @@
           "children": [
             {
               "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Username"
             },
             {
               "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",

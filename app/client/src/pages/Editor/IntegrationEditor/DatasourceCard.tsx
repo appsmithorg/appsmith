@@ -45,6 +45,7 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -142,6 +143,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     !!generateCRUDSupportedPlugin[datasource.pluginId];
 
   const pageId = useSelector(getCurrentPageId);
+  const currentEnvironment = getCurrentEnvironment();
 
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
@@ -275,11 +277,13 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!datasource.isConfigured || supportTemplateGeneration) &&
+            {(!datasource.datasourceStorages[currentEnvironment].isConfigured ||
+              supportTemplateGeneration) &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
                 <Button
                   className={
-                    datasource.isConfigured
+                    datasource.datasourceStorages[currentEnvironment]
+                      .isConfigured
                       ? "t--generate-template"
                       : "t--reconnect-btn"
                   }
@@ -287,18 +291,20 @@ function DatasourceCard(props: DatasourceCardProps) {
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    datasource.isConfigured
+                    datasource.datasourceStorages[currentEnvironment]
+                      .isConfigured
                       ? routeToGeneratePage()
                       : editDatasource();
                   }}
                   size="md"
                 >
-                  {datasource.isConfigured
+                  {datasource.datasourceStorages[currentEnvironment]
+                    .isConfigured
                     ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
                     : createMessage(RECONNECT_BUTTON_TEXT)}
                 </Button>
               )}
-            {datasource.isConfigured && (
+            {datasource.datasourceStorages[currentEnvironment].isConfigured && (
               <NewActionButton
                 datasource={datasource}
                 disabled={

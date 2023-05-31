@@ -4,6 +4,7 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "ce/constants/forms";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
@@ -83,21 +84,23 @@ export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
 ): boolean {
+  const currentEnvironment = getCurrentEnvironment();
   if (!datasource) return false;
   const authType =
     datasource &&
-    datasource?.datasourceConfiguration?.authentication?.authenticationType;
+    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+      ?.authentication?.authenticationType;
 
   /* 
     TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
-    Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
+    Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code. Chandan
   */
   const isGoogleSheetPlugin =
     plugin.packageName === PluginPackageName.GOOGLE_SHEETS;
   if (isGoogleSheetPlugin && authType === AuthType.OAUTH2) {
     const isAuthorized =
-      datasource?.datasourceConfiguration?.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+      datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+        ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
@@ -113,12 +116,15 @@ export function isDatasourceAuthorizedForQueryCreation(
 export function getDatasourcePropertyValue(
   datasource: Datasource,
   propertyKey: string,
+  currentEnvironment: string,
 ): string | null {
   if (!datasource) {
     return null;
   }
 
-  const properties = datasource?.datasourceConfiguration?.properties;
+  const properties =
+    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+      ?.properties;
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
     if (!!propertyObj) {

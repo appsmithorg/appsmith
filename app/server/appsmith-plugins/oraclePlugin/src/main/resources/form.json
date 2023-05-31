@@ -9,7 +9,7 @@
           "children": [
             {
               "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$",
@@ -17,7 +17,7 @@
             },
             {
               "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY"
             }
@@ -25,7 +25,7 @@
         },
         {
           "label": "Service Name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "gfb284db6bcee33_testdb_high.adb.oraclecloud.com",
           "isRequired": true
@@ -41,14 +41,14 @@
           "children": [
             {
               "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
               "placeholderText": "admin",
               "isRequired": true
             },
             {
               "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
+              "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "password",
@@ -65,7 +65,7 @@
       "children": [
         {
           "label": "SSL mode",
-          "configProperty": "datasourceConfiguration.connection.ssl.authType",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "NO_VERIFY",
           "options": [

@@ -10,6 +10,7 @@ import {
 import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 
 /**
  * Returns true if :
@@ -22,13 +23,21 @@ export function isAuthorisedFilesEmptyGsheet(
   datasource: Datasource,
   propertyKey: string,
 ): boolean {
+  const currentEnvironment = getCurrentEnvironment();
   const scopeValue: string = (
-    datasource?.datasourceConfiguration?.authentication as any
+    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+      ?.authentication as any
   )?.scopeString;
 
-  const authorisedFileIds = getDatasourcePropertyValue(datasource, propertyKey);
+  //Chandan
+  const authorisedFileIds = getDatasourcePropertyValue(
+    datasource,
+    propertyKey,
+    currentEnvironment,
+  );
   const authStatus =
-    datasource?.datasourceConfiguration?.authentication?.authenticationStatus;
+    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+      ?.authentication?.authenticationStatus;
   const isAuthFailure =
     !!authStatus && authStatus === AuthenticationStatus.FAILURE;
   const gapiLoadSuccess = (window as any).googleAPIsLoaded;

@@ -23,6 +23,7 @@ import { DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptions } from "pages/Editor/GeneratePage/components/constants";
 import type { DropdownOptionType } from "../../types";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 
 export function useDatasource() {
   const { addBinding, addSnippet, config, updateConfig } = useContext(
@@ -36,7 +37,9 @@ export function useDatasource() {
   const pluginImages = useSelector(getPluginImages);
 
   const datasources: Datasource[] = useSelector(getDatasources);
+  const currentEnvironment = getCurrentEnvironment();
 
+  //Chandan
   const datasourceOptions: DropdownOptions = useMemo(() => {
     return datasources
       .filter(({ pluginId }) => WidgetQueryGeneratorRegistry.has(pluginId))
@@ -46,7 +49,7 @@ export function useDatasource() {
         value: datasource.name,
         data: {
           pluginId: datasource.pluginId,
-          isValid: datasource.isValid,
+          isValid: datasource.datasourceStorages[currentEnvironment].isValid,
           pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
         },
         icon: (

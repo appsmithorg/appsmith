@@ -134,6 +134,7 @@ import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
+import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -357,22 +358,24 @@ function* updateDatasourceSaga(
 ) {
   try {
     const queryParams = getQueryParams();
+    const currentEnvironment = getCurrentEnvironment();
     const datasourcePayload = omit(actionPayload.payload, "name");
     const pluginPackageName: PluginPackageName = yield select(
       getPluginPackageFromDatasourceId,
       datasourcePayload?.id,
     );
-    datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+    datasourcePayload.datasourceStorages.active_env.isConfigured = true; // when clicking save button, it should be changed as configured
 
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
     if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
       const scopeString: string = (
-        datasourcePayload?.datasourceConfiguration?.authentication as any
+        datasourcePayload?.datasourceStorages.active_env.datasourceConfiguration
+          ?.authentication as any
       )?.scopeString;
       if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
-        datasourcePayload.isConfigured = false;
+        datasourcePayload.datasourceStorages.active_env.isConfigured = false;
       }
     }
 
@@ -383,6 +386,8 @@ function* updateDatasourceSaga(
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      response.data.datasourceStorages.active_env =
+        response.data.datasourceStorages.unused_env;
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       const formName: string = getFormName(plugin);
       const state: AppState = yield select();
@@ -435,7 +440,9 @@ function* updateDatasourceSaga(
           type: ENTITY_TYPE.DATASOURCE,
         },
         state: {
-          datasourceConfiguration: response.data.datasourceConfiguration,
+          datasourceConfiguration:
+            response.data.datasourceStorages[currentEnvironment]
+              .datasourceConfiguration,
         },
       });
 
@@ -634,11 +641,13 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   try {
+    //Chandan
+    console.log("ondhu test ", payload);
     const response: ApiResponse<Datasource> =
-      yield DatasourcesApi.testDatasource({
-        ...payload,
+      yield DatasourcesApi.testDatasource(
+        payload.datasourceStorages.active_env,
         workspaceId,
-      });
+      );
     const isValidResponse: boolean = yield validateResponse(response);
     let messages: Array<string> = [];
     if (isValidResponse) {
@@ -762,8 +771,14 @@ function* createTempDatasourceFromFormSaga(
     type: datasourceType,
     pluginId: actionPayload.payload.pluginId,
     new: false,
-    datasourceConfiguration: {
-      properties: [],
+    datasourceStorages: {
+      active_env: {
+        datasourceId: "",
+        environmentId: "",
+        datasourceConfiguration: {
+          properties: [],
+        },
+      },
     },
   };
 
@@ -813,7 +828,8 @@ function* createDatasourceFromFormSaga(
       "type",
     ]);
 
-    payload.isConfigured = true;
+    if (payload.datasourceStorages)
+      payload.datasourceStorages.active_env.isConfigured = true;
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.createDatasource({
@@ -839,6 +855,8 @@ function* createDatasourceFromFormSaga(
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
       });
+      response.data.datasourceStorages.active_env =
+        response.data.datasourceStorages.unused_env;
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
         payload: response.data,
@@ -896,6 +914,7 @@ function* changeDatasourceSaga(
     shouldNotRedirect?: boolean;
   }>,
 ) {
+  console.log("ondhu change");
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
@@ -944,6 +963,7 @@ function* switchDatasourceSaga(
     shouldNotRedirect: boolean;
   }>,
 ) {
+  console.log("ondhu switch");
   const { datasourceId, shouldNotRedirect } = action.payload;
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   if (datasource) {
@@ -1011,7 +1031,11 @@ function* storeAsDatasourceSaga() {
     (d) => !(d.key === "" && d.key === ""),
   );
 
-  set(datasource, "datasourceConfiguration.headers", filteredDatasourceHeaders);
+  set(
+    datasource,
+    "datasourceStorages.active_env.datasourceConfiguration.headers",
+    filteredDatasourceHeaders,
+  );
 
   yield put(createTempDatasourceFromForm(datasource));
   const createDatasourceSuccessAction: unknown = yield take(
@@ -1360,12 +1384,12 @@ function* filePickerActionCallbackSaga(
         : AuthenticationStatus.FAILURE;
     set(
       datasource,
-      "datasourceConfiguration.authentication.authenticationStatus",
+      "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationStatus",
       authStatus,
     );
 
     // Once files are selected in case of import, set this flag
-    set(datasource, "isConfigured", true);
+    set(datasource, "datasourceStorages.active_env.isConfigured", true);
 
     // auth complete event once the files are selected/not selected
     AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
@@ -1385,10 +1409,14 @@ function* filePickerActionCallbackSaga(
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
     // using the second index specifically for file ids.
-    set(datasource, "datasourceConfiguration.properties[1]", {
-      key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
-      value: fileIds,
-    });
+    set(
+      datasource,
+      "datasourceStorages.active_env.datasourceConfiguration.properties[1]",
+      {
+        key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+        value: fileIds,
+      },
+    );
     yield put(updateDatasourceAuthState(datasource, authStatus));
   } catch (error) {
     yield put({
@@ -1621,7 +1649,9 @@ function* updateDatasourceAuthStateSaga(
   try {
     const { authStatus, datasource } = actionPayload.payload;
     const response: ApiResponse<Datasource> =
-      yield DatasourcesApi.updateDatasource(datasource, datasource.id);
+      yield DatasourcesApi.updateDatasourceStorage(
+        datasource.datasourceStorages.active_env,
+      );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

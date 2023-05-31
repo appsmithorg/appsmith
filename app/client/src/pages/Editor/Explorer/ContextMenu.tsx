@@ -75,7 +75,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   function renderTreeOption(option: TreeDropdownOption) {
     if (option.children) {
       return (
-        <MenuSub>
+        <MenuSub key={option.value}>
           <MenuSubTrigger>{option.label}</MenuSubTrigger>
           <StyledMenuSubContent width="220px">
             {option.children.map(renderTreeOption)}
@@ -90,6 +90,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
           option.className
         }`}
         disabled={option.disabled}
+        key={option.value}
         onClick={(e) => {
           handleSelect(option);
           e.stopPropagation();
