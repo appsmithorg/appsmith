@@ -20,6 +20,8 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
 // import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
@@ -40,6 +42,7 @@ export type AutoLayoutProps = {
   flexVerticalAlignment: FlexVerticalAlignment;
   isMobile: boolean;
   renderMode: RenderMode;
+  mainCanvasWidth?: number;
 };
 
 const FlexWidget = styled.div`
@@ -49,19 +52,27 @@ const FlexWidget = styled.div`
   &.fill-widget {
     flex-grow: 1;
     flex-shrink: 1;
-    min-width: 280px;
     width: -webkit-fill-available;
   }
 
   &.hug-widget {
     flex-grow: 0;
     flex-shrink: 0;
-    min-width: 100px;
   }
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+  const {
+    maxHeight,
+    maxWidth,
+    minHeight,
+    minWidth,
+  }: { [key in keyof MinMaxSize]: number | undefined } =
+    getWidgetMinMaxDimensionsInPixel(
+      { type: props.widgetType },
+      props.mainCanvasWidth || 1,
+    );
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(
@@ -139,11 +150,14 @@ export function FlexComponent(props: AutoLayoutProps) {
     return {
       display: "flex",
       zIndex,
-      minHeight: "30px",
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
+      minWidth: minWidth ? `${minWidth}px` : undefined,
+      maxWidth: maxWidth ? `${maxWidth}px` : undefined,
+      minHeight: minHeight ? `${minHeight}px` : undefined,
+      maxHeight: maxHeight ? `${maxHeight}px` : undefined,
     };
   }, [
     props.isMobile,
