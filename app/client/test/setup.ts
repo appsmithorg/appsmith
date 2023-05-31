@@ -9,6 +9,14 @@ jest.mock("api/Api", () => ({
   default: class Api {},
 }));
 
+window.ResizeObserver =
+  window.ResizeObserver ||
+  jest.fn().mockImplementation(() => ({
+    disconnect: jest.fn(),
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+  }));
+
 window.scrollTo = jest.fn();
 Element.prototype.scrollIntoView = jest.fn();
 Element.prototype.scrollBy = jest.fn();
