@@ -118,7 +118,7 @@ describe("Input Widget Functionality", function () {
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Input Functionality To check number input type with custom regex", function () {
