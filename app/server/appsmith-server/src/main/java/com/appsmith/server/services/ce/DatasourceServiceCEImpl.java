@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -599,12 +600,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
 
         return repository.findAllByWorkspaceId(workspaceId, permission)
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
+                        .publishOn(Schedulers.boundedElastic())
                         .flatMap(datasourceStorageService::populateHintMessages)
                         .map(DatasourceStorageDTO::new)
-                        .collectMap(datasourceStorageDTO -> datasourceStorageDTO.getEnvironmentId(),
-                                datasourceStorageDTO -> datasourceStorageDTO)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId)
                         .flatMap(datasourceStorages -> {
                             datasource.setDatasourceStorages(datasourceStorages);
                             return Mono.just(datasource);
@@ -641,6 +643,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 })
                 .flatMap(toDelete -> {
                     return datasourceStorageService.findStrictlyByDatasourceId(toDelete.getId())
+                            .publishOn(Schedulers.boundedElastic())
                             .map(datasourceStorage -> {
                                 datasourceStorage.prepareTransientFields(toDelete);
                                 return datasourceStorage;
