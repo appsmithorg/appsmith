@@ -7,13 +7,13 @@ on:
       previous_run_id:
         description: 'Run id to download the docker image artifact:'
         required: false
-        type: number
-        default: 0
+        type: string
+        default: "0"
 
 jobs:
   server-build:
     name: server-build
-    if: inputs.previous_run_id == 0
+    if: inputs.previous_run_id == "0"
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
@@ -22,7 +22,7 @@ jobs:
 
   client-build:
     name: client-build
-    if: inputs.previous_run_id == 0
+    if: inputs.previous_run_id == "0"
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
@@ -31,7 +31,7 @@ jobs:
 
   rts-build:
     name: rts-build
-    if: inputs.previous_run_id == 0
+    if: inputs.previous_run_id == "0"
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
@@ -40,7 +40,7 @@ jobs:
   build-docker-image:
     needs: [ client-build, server-build, rts-build ]
     # Only run if the build step is successful
-    if: success() && inputs.previous_run_id == 0
+    if: success() && inputs.previous_run_id == "0"
     name: build-docker-image
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
@@ -50,7 +50,7 @@ jobs:
   ci-test-limited:
     needs: [ build-docker-image ]
     # Only run if the build step is successful
-    if: success() && inputs.previous_run_id == 0
+    if: success() && inputs.previous_run_id == "0"
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
@@ -59,7 +59,7 @@ jobs:
 
   ci-test-limited-existing-docker-image:
     # Only run if the previous run-id is provided
-    if: inputs.previous_run_id != 0
+    if: inputs.previous_run_id != "0"
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
