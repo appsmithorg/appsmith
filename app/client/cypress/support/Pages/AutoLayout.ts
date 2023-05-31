@@ -7,9 +7,9 @@ export class AutoLayout {
   private propPane = ObjectsRegistry.PropertyPane;
   private agHelper = ObjectsRegistry.AggregateHelper;
 
-  _buttonWidgetSelector = getWidgetSelector(WIDGET.BUTTON);
+  _buttonWidgetSelector = `${getWidgetSelector(WIDGET.BUTTON)}`;
   _buttonComponentSelector = `${getWidgetSelector(WIDGET.BUTTON)} button`;
-  _textWidgetSelector = getWidgetSelector(WIDGET.TEXT);
+  _textWidgetSelector = `${getWidgetSelector(WIDGET.TEXT)}`;
   _textComponentSelector = `${getWidgetSelector(
     WIDGET.TEXT,
   )} .t--text-widget-container`;
