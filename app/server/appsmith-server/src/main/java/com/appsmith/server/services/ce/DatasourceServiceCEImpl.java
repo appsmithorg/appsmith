@@ -314,6 +314,39 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
+    public Mono<Datasource> updateDatasourceStorage(@NotNull DatasourceStorageDTO datasourceStorageDTO,
+                                                    String activeEnvironmentId,
+                                                    Boolean IsUserRefreshedUpdate) {
+
+        String datasourceId = datasourceStorageDTO.getDatasourceId();
+        String environmentId = datasourceStorageDTO.getEnvironmentId();
+
+        if (!hasText(datasourceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        if (!hasText(environmentId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT_ID));
+        }
+
+        // querying for each of the datasource
+        Mono<Datasource> datasourceMono = repository.findById(datasourceId, datasourcePermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
+
+        return datasourceMono
+                .flatMap(datasource -> {
+                            datasource.getDatasourceStorages().put(environmentId, datasourceStorageDTO);
+                            return datasourceStorageService.updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE)
+                                    .map(DatasourceStorageDTO::new)
+                                    .map(datasourceStorageDTO1 -> {
+                                        String envId = datasourceStorageDTO1.getEnvironmentId();
+                                        datasource.getDatasourceStorages().put(envId, datasourceStorageDTO1);
+                                        return datasource;
+                                    });
+                });
+    }
+
+    @Override
     public Mono<Datasource> save(Datasource datasource) {
         if (datasource.getGitSyncId() == null) {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
