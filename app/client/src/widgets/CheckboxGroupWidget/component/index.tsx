@@ -50,6 +50,10 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   height: 100%;
   border: 1px solid transparent;
 
+  .auto-layout & {
+    min-width: 232px;
+  }
+
   .${Classes.CONTROL} {
     display: flex;
     align-items: center;
@@ -211,7 +215,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         />
       )}
       <InputContainer
-        data-cy="checkbox-group-container"
+        data-testid="checkbox-group-container"
         inline={isInline}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}

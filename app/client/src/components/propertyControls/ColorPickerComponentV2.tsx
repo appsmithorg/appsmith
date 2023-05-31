@@ -6,15 +6,14 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
+import { Icon } from "design-system";
 import {
   Popover,
   InputGroup,
   PopoverInteractionKind,
   Classes,
 } from "@blueprintjs/core";
-import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
@@ -27,6 +26,7 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
+
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -66,7 +66,7 @@ const ColorIcon = styled.div<{ color: string }>`
 
 const ColorPickerIconContainer = styled.div`
   position: absolute;
-  top: 6px;
+  top: 11px;
   left: 6px;
   height: 24px;
   width: 24px;
@@ -76,7 +76,8 @@ const ColorPickerIconContainer = styled.div`
 const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
     box-shadow: none;
-    border-radius: 0;
+    border: 1px solid var(--ads-v2-color-border);
+    border-radius: var(--ads-v2-border-radius);
     &:focus {
       box-shadow: none;
     }
@@ -84,13 +85,20 @@ const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
     height: 36px;
-    border: 1px solid ${Colors.GREY_5};
+    border: 1px solid var(--ads-v2-color-border);
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
 
+    &:hover {
+      border-color: var(--ads-v2-color-border-emphasis);
+    }
+
     &:focus {
-      border: 1px solid ${Colors.GREY_9};
+      border: 1px solid var(--ads-v2-color-border-emphasis);
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
     }
   }
 `;
@@ -106,6 +114,13 @@ interface ColorPickerPopupProps {
   showThemeColors?: boolean;
   showApplicationColors?: boolean;
 }
+
+const PopupContainer = styled.div`
+  padding: 0.75rem;
+  width: 18rem;
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
+`;
 
 function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
@@ -141,8 +156,8 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   }
 
   const popup = (
-    <div
-      className="p-3 space-y-2 w-72"
+    <PopupContainer
+      className="space-y-2"
       data-testid="color-picker"
       onClick={handleClick}
       onFocus={handleFocus}
@@ -283,7 +298,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
           />
         </div>
       </section>
-    </div>
+    </PopupContainer>
   );
 
   return (
@@ -325,7 +340,7 @@ function LeftIcon(props: LeftIconProps) {
       className="cursor-pointer"
       onClick={props.handleInputClick}
     >
-      <ColorPickerIcon />
+      <Icon name="sip-line" size="md" />
     </ColorPickerIconContainer>
   );
 }
@@ -553,6 +568,7 @@ const ColorPickerComponent = React.forwardRef(
           minimal
           modifiers={POPOVER_MODFIER}
           onInteraction={handleOnInteraction}
+          popoverClassName="color-picker-input"
           portalContainer={props.portalContainer}
         >
           <StyledInputGroup

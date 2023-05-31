@@ -3,9 +3,9 @@ import type {
   DataTreeDefEntityInformation,
 } from "./CodemirrorTernService";
 import CodemirrorTernService, {
-  AutocompleteDataType,
   createCompletionHeader,
 } from "./CodemirrorTernService";
+import { AutocompleteDataType } from "./AutocompleteDataType";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
@@ -146,6 +146,7 @@ describe("Tern server", () => {
               getLine: () => "{{}}",
               somethingSelected: () => false,
               getValue: () => "{{}}",
+              getEditor: () => MockCodemirrorEditor,
             } as unknown as CodeMirror.Doc,
           },
           requestCallbackData: {
@@ -166,6 +167,7 @@ describe("Tern server", () => {
               getLine: () => " {{}}",
               somethingSelected: () => false,
               getValue: () => " {{}}",
+              getEditor: () => MockCodemirrorEditor,
             } as unknown as CodeMirror.Doc,
           },
           requestCallbackData: {
@@ -369,9 +371,9 @@ describe("Tern server sorting", () => {
     expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
     expect(sortedCompletions).toEqual(
       expect.arrayContaining([
-        createCompletionHeader("Best Match"),
+        createCompletionHeader("Best match"),
         sameTypeDiffEntityTypeCompletion,
-        createCompletionHeader("Search Results"),
+        createCompletionHeader("Search results"),
         dataTreeCompletion,
       ]),
     );

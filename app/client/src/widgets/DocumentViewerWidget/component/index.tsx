@@ -76,6 +76,9 @@ const getFileExtensionFromBase64 = (docUrl: string) => {
     case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
       extension = "xlsx";
       break;
+    case "vnd.ms-excel":
+      extension = "xls";
+      break;
     case "plain":
       extension = "txt";
       break;
@@ -125,7 +128,7 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
       if (blob) {
         if (extension === "docx") {
           renderer = Renderers.DOCX_VIEWER;
-        } else if (extension === "xlsx") {
+        } else if (extension === "xlsx" || extension == "xls") {
           renderer = Renderers.XLSX_VIEWER;
         }
       } else {

@@ -31,7 +31,7 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
    3. [Windows](https://github.com/awslabs/git-secrets#windows)
 2. Register the secrets with git-secrets
    1. `git secrets --register-aws`
-   2. This is very important step as it the registers the regex to be scanned by the git-secrets.
+   2. This is very important step as it registers the regex to be scanned by the git-secrets.
 3. Verify the secrets are registered
    1. `git secrets --list`
 4. Refer to [this repo](https://github.com/awslabs/git-secrets) for more information.

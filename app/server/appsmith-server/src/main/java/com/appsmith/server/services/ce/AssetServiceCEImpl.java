@@ -58,6 +58,8 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        // Resetting the position of the cursor
+        dataBuffer.readPosition(0);
         if (bufferedImage == null) {
             /*
                 This is true for SVG and ICO images.
@@ -65,7 +67,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
                 means the file is not an image type file rather any other corrupted file but the extension has been
                 changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
              */
-            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())){
+            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())) {
                 return false;
             }
         }

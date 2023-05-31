@@ -2,7 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { CategorySliderWidgetProps } from "..";
 import {
@@ -38,7 +38,7 @@ export default [
       {
         helpText: "Sets a default selected option",
         propertyName: "defaultOptionValue",
-        label: "Default Value",
+        label: "Default value",
         placeholderText: "Y",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
@@ -96,13 +96,14 @@ export default [
         propertyName: "labelAlignment",
         label: "Alignment",
         controlType: "LABEL_ALIGNMENT_OPTIONS",
+        fullWidth: false,
         options: [
           {
-            icon: "LEFT_ALIGN",
+            startIcon: "align-left",
             value: Alignment.LEFT,
           },
           {
-            icon: "RIGHT_ALIGN",
+            startIcon: "align-right",
             value: Alignment.RIGHT,
           },
         ],
@@ -150,7 +151,7 @@ export default [
       {
         propertyName: "showMarksLabel",
         helpText: "Controls the visibility of the marks Label widget",
-        label: "Show Marks",
+        label: "Show marks",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -179,7 +180,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,

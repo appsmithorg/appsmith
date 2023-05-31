@@ -22,7 +22,7 @@ export enum FilePickerActionStatus {
 
 export enum ActionType {
   AUTHORIZE = "authorize",
-  DOCUMENTATION = "picked",
+  DOCUMENTATION = "documentation",
 }
 
 export interface DatasourceAuthentication {
@@ -73,11 +73,13 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
+  type?: string;
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
   userPermissions?: string[];
   isDeleting?: boolean;
+  isMock?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (

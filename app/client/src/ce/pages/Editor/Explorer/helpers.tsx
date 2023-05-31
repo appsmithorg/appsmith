@@ -10,6 +10,7 @@ import {
   BUILDER_CUSTOM_PATH,
   matchBuilderPath,
   matchViewerPath,
+  BUILDER_VIEWER_PATH_PREFIX,
 } from "constants/routes";
 
 import {
@@ -78,6 +79,21 @@ export const getActionIdFromURL = () => {
     return saasMatch.params.apiId;
   }
 };
+
+export function getAppViewerPageIdFromPath(path: string): string | null {
+  const regexes = [
+    `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\\-):pageId`, // VIEWER_PATH
+    `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\\-):pageId`, // VIEWER_CUSTOM_PATH
+    `/applications/:applicationId/pages/:pageId`, // VIEWER_PATH_DEPRECATED
+  ];
+  for (const regex of regexes) {
+    const match = matchPath<{ pageId: string }>(path, { path: regex });
+    if (match?.params.pageId) {
+      return match.params.pageId;
+    }
+  }
+  return null;
+}
 
 export const isEditorPath = (path: string) => {
   return !!matchBuilderPath(path, { end: false });

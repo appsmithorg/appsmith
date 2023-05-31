@@ -14,7 +14,7 @@ export default styled.div<{ theme?: EditorTheme }>`
   pointer-events: none;
   z-index: 10;
   color: ${(props) =>
-    props.theme === EditorTheme.DARK ? "#FFFFFF" : "#000000"};
+    props.theme === EditorTheme.DARK ? "#FFFFFF" : "var(--ads-v2-color-fg)"};
   display: flex;
   align-items: center;
   justify-content: center;

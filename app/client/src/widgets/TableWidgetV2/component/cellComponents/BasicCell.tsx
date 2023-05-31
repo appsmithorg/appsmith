@@ -2,11 +2,15 @@ import type { Ref } from "react";
 import React, { useCallback } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import type { BaseCellComponentProps } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
+import { importSvg } from "design-system-old";
+
+const EditIcon = importSvg(
+  () => import("assets/icons/control/edit-variant1.svg"),
+);
 
 const Wrapper = styled.div<{
   allowWrapping?: boolean;

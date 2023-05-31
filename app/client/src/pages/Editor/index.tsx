@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
-import { Spinner } from "@blueprintjs/core";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
@@ -40,6 +39,7 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
+import { Spinner } from "design-system";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -165,7 +165,7 @@ class Editor extends Component<Props> {
         <CenteredWrapper
           style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
         >
-          <Spinner />
+          <Spinner size="lg" />
         </CenteredWrapper>
       );
     }

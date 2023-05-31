@@ -169,10 +169,7 @@
                         "dataType": "array",
                         "defaultValue": "{{((sourceData, formData, fieldState) => (Table1.selectedRow.details.genres))(UpdateJSONForm.sourceData, UpdateJSONForm.formData, UpdateJSONForm.fieldState)}}",
                         "fieldType": "Multiselect",
-                        "sourceData": [
-                          "Self-Help",
-                          "Thriller"
-                        ],
+                        "sourceData": ["Self-Help", "Thriller"],
                         "isCustomField": false,
                         "accessor": "genres",
                         "identifier": "genres",
@@ -201,10 +198,7 @@
                         "publishedDate": "2022-07-12"
                       },
                       "title": "heyy",
-                      "genres": [
-                        "Self-Help",
-                        "Thriller"
-                      ]
+                      "genres": ["Self-Help", "Thriller"]
                     },
                     "isCustomField": false,
                     "accessor": "__root_schema__",
@@ -447,7 +441,7 @@
                 "widgetName": "IconButton1Copy",
                 "onClick": "{{closeModal('UpdateModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -636,11 +630,7 @@
         },
         "widgetName": "Table1",
         "defaultPageSize": 0,
-        "columnOrder": [
-          "serialid",
-          "details",
-          "customColumn1"
-        ],
+        "columnOrder": ["serialid", "details", "customColumn1"],
         "dynamicPropertyPathList": [],
         "displayName": "Table",
         "bottomRow": 57,
@@ -892,7 +882,7 @@
                 "widgetName": "IconButton1",
                 "onClick": "{{closeModal('InsertModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -1071,9 +1061,7 @@
                         "dataType": "array",
                         "defaultValue": "",
                         "fieldType": "Multiselect",
-                        "sourceData": [
-                          "Self-Help"
-                        ],
+                        "sourceData": ["Self-Help"],
                         "isCustomField": false,
                         "accessor": "genres",
                         "identifier": "genres",
@@ -1103,9 +1091,7 @@
                         "publishedDate": "2022-08-01"
                       },
                       "title": "ssss",
-                      "genres": [
-                        "Self-Help"
-                      ]
+                      "genres": ["Self-Help"]
                     },
                     "isCustomField": false,
                     "accessor": "__root_schema__",
@@ -1358,7 +1344,7 @@
         "widgetName": "IconButton2",
         "onClick": "{{deleteAllRecords.run(() => selectRecords.run(), () => {})}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-        "displayName": "Icon Button",
+        "displayName": "Icon button",
         "iconSVG": "/static/media/icon.1a0c634a.svg",
         "topRow": 2,
         "bottomRow": 6,

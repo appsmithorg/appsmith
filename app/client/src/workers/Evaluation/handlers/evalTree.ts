@@ -275,6 +275,7 @@ export default function (request: EvalWorkerSyncRequest) {
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
+    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
   };
 
   return evalTreeResponse;

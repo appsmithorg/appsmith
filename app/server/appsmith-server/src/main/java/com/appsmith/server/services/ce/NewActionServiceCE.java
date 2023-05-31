@@ -1,8 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
@@ -11,7 +9,6 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,14 +33,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
-
-    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName);
-
-    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName, String environmentName);
-
-    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
-
-    <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
@@ -72,6 +61,10 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
@@ -105,7 +98,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
-    public Mono<NewAction> sanitizeAction(NewAction action);
+    Mono<NewAction> sanitizeAction(NewAction action);
 
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 

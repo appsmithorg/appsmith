@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
@@ -20,14 +20,16 @@ import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
-import { Spinner } from "design-system-old";
+import { Spinner } from "design-system";
+import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
+import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
  * Revisit these imports in v1.1
  * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b?pvs=4
  */
-// import LogoConfiguration from "./LogoConfiguration";
 // import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/nav-position-sticky.svg";
 // import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
 // import { ReactComponent as NavStyleMinimalIcon } from "assets/icons/settings/nav-style-minimal.svg";
@@ -37,13 +39,94 @@ export type UpdateSetting = (
   value: NavigationSetting[keyof NavigationSetting],
 ) => void;
 
+export type LogoConfigurationSwitches = {
+  logo: boolean;
+  applicationTitle: boolean;
+};
+
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
+  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
   );
+  const [logoConfigurationSwitches, setLogoConfigurationSwitches] =
+    useState<LogoConfigurationSwitches>({
+      logo: false,
+      applicationTitle: false,
+    });
+
+  useEffect(() => {
+    setNavigationSetting(application?.applicationDetail?.navigationSetting);
+
+    // Logo configuration
+    switch (navigationSetting?.logoConfiguration) {
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY:
+        setLogoConfigurationSwitches({
+          logo: false,
+          applicationTitle: true,
+        });
+        break;
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE:
+        setLogoConfigurationSwitches({
+          logo: true,
+          applicationTitle: true,
+        });
+        break;
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY:
+        setLogoConfigurationSwitches({
+          logo: true,
+          applicationTitle: false,
+        });
+        break;
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE:
+        setLogoConfigurationSwitches({
+          logo: false,
+          applicationTitle: false,
+        });
+        break;
+      default:
+        break;
+    }
+  }, [application?.applicationDetail?.navigationSetting]);
+
+  useEffect(() => {
+    if (
+      logoConfigurationSwitches.logo &&
+      logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+      );
+    } else if (
+      logoConfigurationSwitches.logo &&
+      !logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+      );
+    } else if (
+      !logoConfigurationSwitches.logo &&
+      logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+      );
+    } else if (
+      !logoConfigurationSwitches.logo &&
+      !logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
+      );
+    }
+  }, [logoConfigurationSwitches]);
 
   const updateSetting = useCallback(
     debounce(
@@ -56,7 +139,7 @@ function NavigationSettings() {
           isPlainObject(navigationSetting) &&
           !isEmpty(navigationSetting)
         ) {
-          const newSettings = {
+          const newSettings: NavigationSetting = {
             ...navigationSetting,
             [key]: value,
           };
@@ -104,14 +187,9 @@ function NavigationSettings() {
             //   }
             // }
 
-            if (payload.applicationDetail) {
-              payload.applicationDetail.navigationSetting =
-                newSettings as NavigationSetting;
-            } else {
-              payload.applicationDetail = {
-                navigationSetting: newSettings as NavigationSetting,
-              };
-            }
+            payload.applicationDetail = {
+              navigationSetting: newSettings,
+            };
 
             dispatch(updateApplication(applicationId, payload));
             setNavigationSetting(newSettings);
@@ -126,7 +204,7 @@ function NavigationSettings() {
   if (!navigationSetting) {
     return (
       <div className="px-4 py-10 w-full flex justify-center">
-        <Spinner size="extraExtraExtraExtraLarge" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -150,12 +228,12 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
                 value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-                // icon: <NavOrientationTopIcon />,
+                // startIcon:<NavOrientationTopIcon />,
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
                 value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-                // icon: <NavOrientationSideIcon />,
+                // startIcon:<NavOrientationSideIcon />,
               },
             ]}
             updateSetting={updateSetting}
@@ -163,7 +241,8 @@ function NavigationSettings() {
 
           {/**
            * TODO - @Dhruvik - ImprovedAppNav
-           * Remove check for orientation = top in v1.1
+           * Remove check for orientation = top when adding sidebar minimal to show sidebar
+           * variants as well.
            * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b
            */}
           {navigationSetting?.orientation ===
@@ -176,7 +255,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
-                  // icon: <NavStyleStackedIcon />,
+                  // startIcon:<NavStyleStackedIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -184,7 +263,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
-                  // icon: <NavStyleInlineIcon />,
+                  // startIcon:<NavStyleInlineIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -192,7 +271,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
-                  // icon: <NavStyleSidebarIcon />,
+                  // startIcon:<NavStyleSidebarIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.TOP,
@@ -205,7 +284,7 @@ function NavigationSettings() {
                 // {
                 //   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL),
                 //   value: NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
-                //   icon: <NavStyleMinimalIcon />,
+                //   startIcon:<NavStyleMinimalIcon />,
                 //   hidden:
                 //     navigationSetting?.orientation ===
                 //     NAVIGATION_SETTINGS.ORIENTATION.TOP,
@@ -228,12 +307,12 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.POSITION.STATIC),
                 value: NAVIGATION_SETTINGS.POSITION.STATIC,
-                icon: <NavPositionStaticIcon />,
+                startIcon:<NavPositionStaticIcon />,
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.POSITION.STICKY),
                 value: NAVIGATION_SETTINGS.POSITION.STICKY,
-                icon: <NavPositionStickyIcon />,
+                startIcon:<NavPositionStickyIcon />,
               },
             ]}
             updateSetting={updateSetting}
@@ -282,67 +361,66 @@ function NavigationSettings() {
             navigationSetting={navigationSetting}
             options={[
               {
-                label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
-                icon: (
-                  <ColorStyleIcon
-                    colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
-                  />
+                label: (
+                  <div className="flex items-center">
+                    <ColorStyleIcon
+                      colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
+                    />
+                    <span>
+                      {_.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT)}
+                    </span>
+                  </div>
                 ),
               },
               {
-                label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME),
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
-                icon: (
-                  <ColorStyleIcon
-                    colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
-                  />
+                label: (
+                  <div className="flex items-center">
+                    <ColorStyleIcon
+                      colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
+                    />
+                    <span>
+                      {_.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME)}
+                    </span>
+                  </div>
                 ),
               },
             ]}
             updateSetting={updateSetting}
           />
 
-          {/**
-           * TODO - @Dhruvik - ImprovedAppNav
-           * Hiding logo config for v1
-           * https://www.notion.so/appsmith/Logo-configuration-option-can-be-multiselect-2a436598539c4db99d1f030850fd8918?pvs=4
-           */}
-          {/* <LogoConfiguration
-            navigationSetting={navigationSetting}
-            options={[
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-                ),
-                value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-              },
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-                ),
-                value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-              },
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-                ),
-                value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-              },
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                    .NO_LOGO_OR_APPLICATION_TITLE,
-                ),
-                value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                    .NO_LOGO_OR_APPLICATION_TITLE,
-              },
-            ]}
-            updateSetting={updateSetting}
-          /> */}
+          {(navigationSetting?.logoAssetId ||
+            featureFlags.APP_NAVIGATION_LOGO_UPLOAD) && (
+            <>
+              <SwitchSettingForLogoConfiguration
+                keyName="logo"
+                label={createMessage(APP_NAVIGATION_SETTING.showLogoLabel)}
+                logoConfigurationSwitches={logoConfigurationSwitches}
+                setLogoConfigurationSwitches={setLogoConfigurationSwitches}
+              />
+
+              {(navigationSetting?.logoConfiguration ===
+                NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                  .LOGO_AND_APPLICATION_TITLE ||
+                navigationSetting?.logoConfiguration ===
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) && (
+                <LogoInput
+                  navigationSetting={navigationSetting}
+                  updateSetting={updateSetting}
+                />
+              )}
+            </>
+          )}
+
+          <SwitchSettingForLogoConfiguration
+            keyName="applicationTitle"
+            label={createMessage(
+              APP_NAVIGATION_SETTING.showApplicationTitleLabel,
+            )}
+            logoConfigurationSwitches={logoConfigurationSwitches}
+            setLogoConfigurationSwitches={setLogoConfigurationSwitches}
+          />
 
           <SwitchSetting
             keyName="showSignIn"

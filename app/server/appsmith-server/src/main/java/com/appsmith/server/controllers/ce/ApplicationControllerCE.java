@@ -24,8 +24,8 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import jakarta.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -176,12 +176,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
-    public Mono<ResponseDTO<Application>> forkApplication(
+    public Mono<ResponseDTO<ApplicationImportDTO>> forkApplication(
             @PathVariable String defaultApplicationId,
             @PathVariable String workspaceId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationForkingService.forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
-                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
@@ -228,7 +228,9 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping("/snapshot/{id}/restore")
-    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id,
+                                                          @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                          @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService.restoreSnapshot(id, branchName)
@@ -240,7 +242,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
                                                                              @PathVariable String workspaceId,
-                                                                             @RequestParam(name=FieldName.APPLICATION_ID, required = false) String applicationId,
+                                                                             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId,
                                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
@@ -301,7 +303,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{defaultApplicationId}/logo")
     public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId,
-                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName){
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
                 .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }

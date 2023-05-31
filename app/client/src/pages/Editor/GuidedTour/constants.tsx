@@ -9,7 +9,6 @@ import {
   forceShowContent,
   focusWidget,
 } from "actions/onboardingActions";
-import type { IconName } from "design-system-old";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -250,7 +249,7 @@ type Step = {
     buttonText?: string;
   };
   info?: {
-    icon: IconName;
+    icon: string;
     text: ReactNode;
     onClick: (dispatch: Dispatch<any>) => void;
     buttonText?: string;
@@ -267,7 +266,7 @@ export const Steps: StepsType = {
         text: (
           <>
             This command will fetch the first 20 items in the user_data
-            database. Hit <b>RUN</b> to see the response.
+            database. Hit <b>Run</b> to see the response.
           </>
         ),
       },
@@ -314,7 +313,7 @@ export const Steps: StepsType = {
                 {"getCustomers.data"}&#125;&#125;
               </code>
             </b>{" "}
-            in the Table Data input field on the right pane.
+            in the Table data input field on the right pane.
           </>
         ),
         image: TableData,
@@ -336,8 +335,8 @@ export const Steps: StepsType = {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          The pane on the right is called the <b>Property Pane</b>. Here you can
-          modify properties, data, or styling for every widget.
+          The pane on the right is called the&nbsp;<b>Property Pane</b>. Here
+          you can modify properties, data, or styling for every widget.
         </>
       ),
       onClick: (dispatch) => {
@@ -356,7 +355,7 @@ export const Steps: StepsType = {
           }),
         );
       },
-      buttonText: "GOT IT",
+      buttonText: "Got it",
     },
   },
   [GUIDED_TOUR_STEPS.NAME_INPUT_BINDING]: {
@@ -484,8 +483,9 @@ export const Steps: StepsType = {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          To <b>update the customers</b> through the button, we created an{" "}
-          <b>updateCustomerInfo query</b> for you which is ready to use
+          To&nbsp;<b>update the customers</b>&nbsp;through the button, we
+          created an&nbsp;<b>updateCustomerInfo query</b>&nbsp;for you which is
+          ready to use
         </>
       ),
       onClick: (dispatch) => {

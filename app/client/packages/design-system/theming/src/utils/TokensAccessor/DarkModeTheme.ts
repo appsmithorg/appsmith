@@ -31,6 +31,7 @@ export class DarkModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
+      // bg
       bg: this.bg.toString({ format: "hex" }),
       bgAccent: this.bgAccent.toString({ format: "hex" }),
       bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
@@ -39,10 +40,14 @@ export class DarkModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
         format: "hex",
       }),
+      bgAssistive: this.bgAssistive.toString({ format: "hex" }),
+      // fg
       fg: this.fg.toString({ format: "hex" }),
       fgAccent: this.fgAccent.toString({ format: "hex" }),
       fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
       fgNegative: this.fgNegative,
+      fgOnAssistive: this.fgOnAssistive.toString({ format: "hex" }),
+      // bd
       bdAccent: this.bdAccent.toString({ format: "hex" }),
       bdFocus: this.bdFocus.toString({ format: "hex" }),
       bdNeutral: this.bdNeutral.toString({ format: "hex" }),
@@ -111,6 +116,10 @@ export class DarkModeTheme implements ColorModeTheme {
     return this.bgAccentSubtleHover.clone().darken(0.1);
   }
 
+  private get bgAssistive() {
+    return this.fg.clone();
+  }
+
   /*
    * Foreground colors
    */
@@ -131,7 +140,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get fgAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) <= 60) {
+    if (this.bg.contrastAPCA(this.seedColor) >= -60) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.79;
         color.oklch.c = 0;
@@ -142,52 +151,48 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.c = 0.136;
       return color;
     }
-
     return color;
   }
 
   private get fgOnAccent() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) <= 40) {
-      if (this.seedIsAchromatic) {
-        color.oklch.l = 0.985;
-        color.oklch.c = 0;
-        return color;
-      }
-
-      color.oklch.l = 0.985;
-      color.oklch.c = 0.016;
-      return color;
-    }
+    const tint = this.seedColor.clone();
+    const shade = this.seedColor.clone();
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
-      color.oklch.c = 0;
-      return color;
+      tint.oklch.c = 0;
+      shade.oklch.c = 0;
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
-    return color;
+    tint.oklch.l = 0.94;
+    shade.oklch.l = 0.27;
+
+    if (-this.bgAccent.contrastAPCA(tint) < this.bgAccent.contrastAPCA(shade)) {
+      return shade;
+    }
+
+    return tint;
   }
 
   private get fgNegative() {
     return "#d91921";
   }
 
+  private get fgOnAssistive() {
+    return this.bg.clone();
+  }
+
   private get bdAccent() {
     const color = this.seedColor.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) <= 15) {
+    if (this.bg.contrastAPCA(this.seedColor) >= -25) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.985;
+        color.oklch.l = 0.82;
         color.oklch.c = 0;
         return color;
       }
 
-      color.oklch.l = 0.985;
-      color.oklch.c = 0.016;
+      color.oklch.l = 0.75;
+      color.oklch.c = 0.15;
       return color;
     }
 
@@ -195,26 +200,37 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdNeutral() {
-    const color = this.seedColor.clone();
+    const color = this.bdAccent.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) >= -25 && !this.seedIsAchromatic) {
-      color.oklch.c = 0.008;
-      return color;
-    }
+    color.oklch.c = 0.035;
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
       color.oklch.c = 0;
-      return color;
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
+    if (this.bg.contrastAPCA(color) > -25) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
     return color;
   }
 
   private get bdNeutralHover() {
-    return this.bdNeutral.clone().lighten(0.06);
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.8) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.9) {
+      color.oklch.l = color.oklch.l - 0.25;
+    }
+
+    return color;
   }
 
   private get bdFocus() {

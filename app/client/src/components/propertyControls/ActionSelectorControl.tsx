@@ -129,8 +129,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
     try {
       const blocks = getActionBlocks(codeFromProperty, evaluationVersion);
-      for (const block of blocks) {
-        codeToAction(block, fieldOptions, true, true);
+      for (const codeBlock of blocks) {
+        codeToAction(codeBlock, fieldOptions, true, true);
       }
     } catch (e) {
       return false;

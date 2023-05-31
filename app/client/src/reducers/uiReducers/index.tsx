@@ -25,6 +25,7 @@ import pageCanvasStructureReducer from "reducers/uiReducers/pageCanvasStructureR
 import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
+import actionSelectorReducer from "./actionSelectorReducer";
 import releasesReducer from "./releasesReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
@@ -97,6 +98,7 @@ const uiReducer = combineReducers({
   libraries: libraryReducer,
   autoHeightUI: autoHeightUIReducer,
   layoutConversion: layoutConversionReducer,
+  actionSelector: actionSelectorReducer,
 });
 
 export default uiReducer;

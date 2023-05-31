@@ -4,6 +4,7 @@ import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
 import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface Props {
   datasourceId: string;
@@ -48,9 +49,17 @@ function GoogleSheetFilePicker({
     if (pickerVisible) {
       const element: HTMLElement | null =
         document.querySelector(".picker-dialog-bg");
+      const elements: NodeListOf<HTMLElement> =
+        document.querySelectorAll(".picker-dialog");
+      // When the reconnect modal the ads modal disables pointer events everywhere else.
+      // To enable selection from the google sheets picker we set pointer events auto to it.
       if (!!element) {
         element.style.opacity = "1";
+        element.style.pointerEvents = "auto";
       }
+      elements.forEach((element) => {
+        element.style.pointerEvents = "auto";
+      });
     }
   }, [pickerVisible]);
 
@@ -89,6 +98,10 @@ function GoogleSheetFilePicker({
   useEffect(() => {
     if (!!pickerVisible) {
       removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+
+      // Event would be emitted when file picker initialisation is done,
+      // but its either showing cookies permission page or the files to select
+      AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_INITIATED");
     }
   }, [pickerVisible]);
 
@@ -110,6 +123,11 @@ function GoogleSheetFilePicker({
   };
 
   const pickerCallback = async (data: any) => {
+    if (data.action === FilePickerActionStatus.LOADED) {
+      // This event would be emitted when file picker is showing files,
+      // and user has to select files or cancel selection
+      AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_LOADED");
+    }
     if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED

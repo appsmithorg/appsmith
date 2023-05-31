@@ -38,6 +38,7 @@ import type { EvaluationDependencyState } from "reducers/evaluationReducers/depe
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import type { OnboardingState } from "reducers/uiReducers/onBoardingReducer";
 import type { GlobalSearchReduxState } from "reducers/uiReducers/globalSearchReducer";
+import type { ActionSelectorReduxState } from "reducers/uiReducers/actionSelectorReducer";
 import type { ReleasesState } from "reducers/uiReducers/releasesReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { WebsocketReducerState } from "reducers/uiReducers/websocketReducer";
@@ -135,6 +136,7 @@ export interface AppState {
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
     layoutConversion: layoutConversionReduxState;
+    actionSelector: ActionSelectorReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

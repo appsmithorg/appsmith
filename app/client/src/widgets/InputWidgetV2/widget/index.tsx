@@ -16,7 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
@@ -290,7 +290,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Changes the type of data captured in the input",
               propertyName: "inputType",
-              label: "Data Type",
+              label: "Data type",
               controlType: "DROP_DOWN",
               options: [
                 {
@@ -323,7 +323,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Value",
+              label: "Default value",
               controlType: "INPUT_TEXT",
               placeholderText: "John Doe",
               isBindProperty: true,
@@ -363,7 +363,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Sets maximum allowed text length",
               propertyName: "maxChars",
-              label: "Max Characters",
+              label: "Max characters",
               controlType: "INPUT_TEXT",
               placeholderText: "255",
               isBindProperty: true,
@@ -460,14 +460,14 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
-              fullWidth: true,
+              fullWidth: false,
               options: [
                 {
-                  icon: "VERTICAL_LEFT",
+                  startIcon: "skip-left-line",
                   value: "left",
                 },
                 {
-                  icon: "VERTICAL_RIGHT",
+                  startIcon: "skip-right-line",
                   value: "right",
                 },
               ],

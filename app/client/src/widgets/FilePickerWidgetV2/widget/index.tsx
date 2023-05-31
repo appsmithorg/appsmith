@@ -29,7 +29,6 @@ import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -39,8 +38,6 @@ const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \
 const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
 
 type Result = string | Buffer | ArrayBuffer | null;
-
-const isAirgappedInstance = isAirgapped();
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -245,7 +242,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
-            label: "Allowed File Types",
+            label: "Allowed file types",
             controlType: "DROP_DOWN",
             isMultiSelect: true,
             placeholderText: "Select File types",
@@ -301,7 +298,7 @@ class FilePickerWidget extends BaseWidget<
           {
             helpText: "Set the format of the data read from the files",
             propertyName: "fileDataType",
-            label: "Data Format",
+            label: "Data format",
             controlType: "DROP_DOWN",
             helperText: (props: FilePickerWidgetProps) => {
               return props.fileDataType === FileDataTypes.Array
@@ -346,7 +343,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "maxNumFiles",
-            label: "Max No. of files",
+            label: "Max no. of files",
             helpText:
               "Sets the maximum number of files that can be uploaded at once",
             controlType: "INPUT_TEXT",
@@ -433,7 +430,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -471,7 +468,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "buttonColor",
             helpText: "Changes the color of the button",
-            label: "Button Color",
+            label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -481,11 +478,11 @@ class FilePickerWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -497,7 +494,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -611,7 +608,7 @@ class FilePickerWidget extends BaseWidget<
         closeAfterFinish: true,
         closeModalOnClickOutside: true,
         disableStatusBar: false,
-        disableInformer: isAirgappedInstance,
+        disableInformer: false,
         disableThumbnailGenerator: false,
         disablePageScrollWhenModalOpen: true,
         proudlyDisplayPoweredByUppy: false,

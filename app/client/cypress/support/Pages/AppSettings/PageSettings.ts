@@ -130,18 +130,12 @@ export class PageSettings {
   }
 
   TogglePageNavigation() {
-    this.agHelper.GetSiblingNClick(
-      this.locators._showPageNavSwitch,
-      this.locators._setHomePageToggle,
-    );
+    this.agHelper.GetNClick(this.locators._showPageNavSwitch);
     this.agHelper.ValidateNetworkStatus("@updatePage", 200);
   }
 
   ToggleHomePage() {
-    this.agHelper.GetSiblingNClick(
-      this.locators._setAsHomePageSwitch,
-      this.locators._setHomePageToggle,
-    );
+    this.agHelper.GetNClick(this.locators._setAsHomePageSwitch);
     this.agHelper.ValidateNetworkStatus("@makePageDefault", 200);
   }
 

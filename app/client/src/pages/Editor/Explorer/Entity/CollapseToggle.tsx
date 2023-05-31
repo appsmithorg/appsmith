@@ -1,6 +1,5 @@
 import React from "react";
-import type { AppIconName } from "design-system-old";
-import { AppIcon as Icon, Size } from "design-system-old";
+import { Icon } from "design-system";
 
 export function CollapseToggle(props: {
   isOpen: boolean;
@@ -13,15 +12,17 @@ export function CollapseToggle(props: {
     props.onClick(e);
     e.stopPropagation();
   };
-  const icon: AppIconName = props.isOpen ? "arrow-down" : "arrow-right";
+  const icon = props.isOpen ? "arrow-down-s-line" : "arrow-right-s-line";
 
   if (!props.isVisible) return <span />;
+
   return (
     <Icon
       className={props.className}
+      id={icon}
       name={icon}
       onClick={handleClick}
-      size={Size.small}
+      size={"md"}
     />
   );
 }
