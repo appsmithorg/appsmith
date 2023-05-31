@@ -80,10 +80,8 @@ if (intercomAppID && window.Intercom) {
 
 function IntercomConsent({
   showIntercomConsent,
-  showMenu,
 }: {
   showIntercomConsent: (val: boolean) => void;
-  showMenu: (val: boolean) => void;
 }) {
   const user = useSelector(getCurrentUser);
   const instanceId = useSelector(getInstanceId);
@@ -97,7 +95,6 @@ function IntercomConsent({
       }),
     );
     dispatch(updateIntercomConsent());
-    showMenu(false);
     showIntercomConsent(false);
     window.Intercom("show");
   };
@@ -126,7 +123,6 @@ function IntercomConsent({
 
 function HelpButton() {
   const user = useSelector(getCurrentUser);
-  const [showMenu, setShowMenu] = useState(false);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
 
   useEffect(() => {
@@ -137,10 +133,10 @@ function HelpButton() {
     <Menu
       onOpenChange={(open) => {
         if (open) {
+          setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
         }
       }}
-      open={showMenu}
     >
       <MenuTrigger>
         <div>
@@ -151,7 +147,6 @@ function HelpButton() {
             <Button
               data-testid="t--help-button"
               kind="tertiary"
-              onClick={() => setShowMenu(true)}
               size="md"
               startIcon="question-line"
             >
@@ -162,24 +157,20 @@ function HelpButton() {
       </MenuTrigger>
       <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
         {showIntercomConsent ? (
-          <IntercomConsent
-            showIntercomConsent={setShowIntercomConsent}
-            showMenu={setShowMenu}
-          />
+          <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
         ) : (
           HELP_MENU_ITEMS.map((item) => (
             <MenuItem
               id={item.id}
               key={item.label}
-              onClick={() => {
+              onSelect={(e) => {
                 if (item.link) {
-                  setShowMenu(false);
                   window.open(item.link, "_blank");
                 }
                 if (item.id === "intercom-trigger") {
+                  e?.preventDefault();
                   if (intercomAppID && window.Intercom) {
                     if (user?.isIntercomConsentGiven || cloudHosting) {
-                      setShowMenu(false);
                       window.Intercom("show");
                     } else {
                       setShowIntercomConsent(true);
