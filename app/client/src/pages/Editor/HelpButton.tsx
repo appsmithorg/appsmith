@@ -112,7 +112,7 @@ function IntercomConsent({
           startIcon="arrow-left"
         />
       </ActionsRow>
-      <div className="mb-3">
+      <div className="mb-3" data-testid="t--intercom-consent-text">
         <Text kind="body-s" renderAs="p">
           {createMessage(INTERCOM_CONSENT_MESSAGE)}
         </Text>
@@ -149,6 +149,7 @@ function HelpButton() {
             placement="bottomRight"
           >
             <Button
+              data-testid="t--help-button"
               kind="tertiary"
               onClick={() => setShowMenu(true)}
               size="md"
@@ -168,6 +169,7 @@ function HelpButton() {
         ) : (
           HELP_MENU_ITEMS.map((item) => (
             <MenuItem
+              id={item.id}
               key={item.label}
               onClick={() => {
                 if (item.link) {
