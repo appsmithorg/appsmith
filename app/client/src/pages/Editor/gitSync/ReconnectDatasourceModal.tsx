@@ -42,7 +42,6 @@ import {
   setWorkspaceIdForImport,
 } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import { AuthType } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -472,19 +471,6 @@ function ReconnectDatasourceModal() {
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
-      // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
-      if (queryParams.get("importForGit") !== "true" && datasources.length) {
-        const selectedDS = datasources.find(
-          (ds: Datasource) => ds.id === selectedDatasourceId,
-        );
-        if (selectedDS) {
-          const authType =
-            selectedDS.datasourceConfiguration?.authentication
-              ?.authenticationType;
-
-          if (authType === AuthType.OAUTH2) return;
-        }
-      }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
