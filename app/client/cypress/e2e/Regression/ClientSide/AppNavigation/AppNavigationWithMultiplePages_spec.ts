@@ -5,7 +5,7 @@ let currentUrl: string | null = null;
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
     _.agHelper.GetNClick(_.appSettings.locators._appSettings);
-    _.agHelper.GetNClick(_.appSettings.locators._generalSettingsHeader);
+    _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
     _.agHelper.GetNClick(
       _.appSettings.locators._navigationSettings._orientationOptions._side,
     );
@@ -31,7 +31,7 @@ describe("Page orientation and navigation related usecases ", function () {
     }
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 10, 20);
     //_.propPane.navigateToPage("Page1", "onClick");
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
+    _.propPane.NavigateToPage("Page1","onClick");
     //cy.navigateOnClick("Page1", "onClick");
     _.deployMode.DeployApp();
     _.agHelper.Sleep();

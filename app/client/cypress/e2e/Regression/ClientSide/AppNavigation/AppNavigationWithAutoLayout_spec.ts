@@ -15,7 +15,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
   it("2. Change App navigation settings and valdiate the layout settings", () => {
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.agHelper.GetNClick(_.appSettings.locators._appSettings);
-    _.agHelper.GetNClick(_.appSettings.locators._generalSettingsHeader);
+    _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
     _.agHelper.GetNClick(
       _.appSettings.locators._navigationSettings._orientationOptions._side,
     );

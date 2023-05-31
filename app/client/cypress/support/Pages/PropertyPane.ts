@@ -437,14 +437,15 @@ export class PropertyPane {
   }
 
   public CreateModal(modalName: string, property: string) {
-    this.SelectPlatformFunction(property,"Show Modal");
+    this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
     this.agHelper.AssertAutoSave();
   }
 
   public NavigateToPage(pageName: string, property: string) {
-    this.SelectPlatformFunction(property,"Navigate to");
+    this.SelectPlatformFunction(property, "Navigate to");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
     this.agHelper.GetNClick(this._pageName(pageName));
     this.agHelper.AssertAutoSave();
   }
