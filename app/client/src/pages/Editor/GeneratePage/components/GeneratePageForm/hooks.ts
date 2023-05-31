@@ -23,10 +23,12 @@ export const useDatasourceOptions = ({
   canCreateDatasource,
   datasources,
   generateCRUDSupportedPlugin,
+  selectedEnvironmentId,
 }: {
   canCreateDatasource: boolean;
   datasources: Datasource[];
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
+  selectedEnvironmentId: string;
 }) => {
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
@@ -42,7 +44,8 @@ export const useDatasourceOptions = ({
         FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
       );
     }
-    datasources.forEach(({ id, isValid, name, pluginId }) => {
+    datasources.forEach((datasource) => {
+      const { datasourceStorages, id, name, pluginId } = datasource;
       const datasourceObject = {
         id,
         label: name,
@@ -50,7 +53,7 @@ export const useDatasourceOptions = ({
         data: {
           pluginId,
           isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
-          isValid,
+          isValid: datasourceStorages[selectedEnvironmentId].isValid,
         },
       };
       if (generateCRUDSupportedPlugin[pluginId])
@@ -64,7 +67,12 @@ export const useDatasourceOptions = ({
       unSupportedDatasourceOptions,
     );
     setDataSourceOptions(newDataSourceOptions);
-  }, [datasources, setDataSourceOptions, generateCRUDSupportedPlugin]);
+  }, [
+    datasources,
+    setDataSourceOptions,
+    generateCRUDSupportedPlugin,
+    selectedEnvironmentId,
+  ]);
   return dataSourceOptions;
 };
 

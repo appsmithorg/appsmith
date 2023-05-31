@@ -23,12 +23,14 @@ export function isAuthorisedFilesEmptyGsheet(
   propertyKey: string,
 ): boolean {
   const scopeValue: string = (
-    datasource?.datasourceConfiguration?.authentication as any
+    datasource?.datasourceStorages.active_env.datasourceConfiguration
+      ?.authentication as any
   )?.scopeString;
 
   const authorisedFileIds = getDatasourcePropertyValue(datasource, propertyKey);
   const authStatus =
-    datasource?.datasourceConfiguration?.authentication?.authenticationStatus;
+    datasource?.datasourceStorages.active_env.datasourceConfiguration
+      ?.authentication?.authenticationStatus;
   const isAuthFailure =
     !!authStatus && authStatus === AuthenticationStatus.FAILURE;
   const gapiLoadSuccess = (window as any).googleAPIsLoaded;

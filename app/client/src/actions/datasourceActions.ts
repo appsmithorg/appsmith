@@ -15,7 +15,7 @@ import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export const createDatasourceFromForm = (
-  payload: CreateDatasourceConfig & Datasource,
+  payload: Datasource,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
 ) => {

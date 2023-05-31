@@ -145,7 +145,8 @@ function DatasourceAuth({
   const authType =
     formData && "authType" in formData
       ? formData?.authType
-      : formData?.datasourceConfiguration?.authentication?.authenticationType;
+      : formData?.datasourceStorages.active_env.datasourceConfiguration
+          ?.authentication?.authenticationType;
 
   const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
@@ -214,8 +215,8 @@ function DatasourceAuth({
   }, [triggerSave]);
 
   const isAuthorized =
-    datasource?.datasourceConfiguration?.authentication
-      ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+    datasource?.datasourceStorages.active_env.datasourceConfiguration
+      ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
 

@@ -3,15 +3,23 @@ import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
 
-import type { DatasourceAuthentication, Datasource } from "entities/Datasource";
+import type {
+  DatasourceAuthentication,
+  Datasource,
+  DatasourceStorage,
+} from "entities/Datasource";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
   type?: string;
-  datasourceConfiguration: {
-    url: string;
-    databaseName?: string;
-    authentication?: DatasourceAuthentication;
+  datasourceStorages: {
+    active_env: {
+      datasourceConfiguration: {
+        url: string;
+        databaseName?: string;
+        authentication?: DatasourceAuthentication;
+      };
+    };
   };
   //Passed for logging purposes.
   appName?: string;
@@ -47,10 +55,27 @@ class DatasourcesApi extends API {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
-  static testDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
-    return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
-      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
-    });
+  static testDatasource(
+    datasourceConfig: Partial<DatasourceStorage>,
+    workspaceId: string,
+  ): Promise<any> {
+    return API.post(
+      `${DatasourcesApi.url}/test`,
+      { ...datasourceConfig, workspaceId },
+      undefined,
+      {
+        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+      },
+    );
+  }
+
+  static updateDatasourceStorage(
+    datasourceConfig: Partial<DatasourceStorage>,
+  ): Promise<any> {
+    return API.put(
+      DatasourcesApi.url + "/datasource-storages",
+      datasourceConfig,
+    );
   }
 
   static updateDatasource(

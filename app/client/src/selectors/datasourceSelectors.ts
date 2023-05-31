@@ -27,3 +27,7 @@ export const getGsheetsColumns =
 export const getIsFetchingGsheetsColumns = (state: AppState) => {
   return state.entities.datasources.gsheetStructure.isFetchingColumns;
 };
+
+export const getSelectedEnvironmentId = (state: AppState) => {
+  return state.entities.datasources.selectedEnvironmentId;
+};

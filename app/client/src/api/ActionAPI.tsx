@@ -147,7 +147,7 @@ class ActionAPI extends API {
   static abortActionExecutionTokenSource: CancelTokenSource;
 
   static createAction(
-    apiConfig: Partial<Action>,
+    apiConfig: any,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, apiConfig);
   }

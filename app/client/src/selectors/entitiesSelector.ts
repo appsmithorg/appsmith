@@ -9,6 +9,7 @@ import type {
   Datasource,
   MockDatasource,
   DatasourceStructure,
+  DatasourceConfiguration,
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
@@ -228,6 +229,17 @@ export const getDatasource = (
     (datasource) => datasource.id === datasourceId,
   );
 
+export const getDatasourceConfiguration = (
+  state: AppState,
+  datasourceId: string,
+): DatasourceConfiguration | undefined => {
+  const datasource = state.entities.datasources.list.find(
+    (datasource) => datasource.id === datasourceId,
+  );
+  return datasource?.datasourceStorages[
+    state.entities.datasources.selectedEnvironmentId
+  ]?.datasourceConfiguration;
+};
 export const getDatasourceDrafts = (state: AppState) => {
   return state.ui.datasourcePane.drafts;
 };

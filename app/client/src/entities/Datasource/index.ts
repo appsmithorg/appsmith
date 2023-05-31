@@ -75,8 +75,6 @@ interface BaseDatasource {
   name: string;
   type?: string;
   workspaceId: string;
-  isValid: boolean;
-  isConfigured?: boolean;
   userPermissions?: string[];
   isDeleting?: boolean;
   isMock?: boolean;
@@ -99,6 +97,7 @@ export interface EmbeddedRestDatasource extends BaseDatasource {
   datasourceConfiguration: { url: string };
   invalids: Array<string>;
   messages: Array<string>;
+  isValid: boolean;
 }
 
 export interface DatasourceConfiguration {
@@ -112,11 +111,19 @@ export interface DatasourceConfiguration {
 
 export interface Datasource extends BaseDatasource {
   id: string;
+  datasourceStorages: Record<string, DatasourceStorage>;
+  success?: boolean;
+}
+
+export interface DatasourceStorage {
+  datasourceId: string;
+  environmentId: string;
   datasourceConfiguration: DatasourceConfiguration;
+  isValid: boolean;
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
-  success?: boolean;
+  isConfigured?: boolean;
 }
 
 export interface TokenResponse {

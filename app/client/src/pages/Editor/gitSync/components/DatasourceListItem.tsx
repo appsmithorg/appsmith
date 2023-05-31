@@ -56,8 +56,9 @@ function ListItemWrapper(props: {
     name: string;
   };
   onClick: (ds: Datasource) => void;
+  selectedEnvironmentId: string;
 }) {
-  const { ds, onClick, plugin, selected } = props;
+  const { ds, onClick, plugin, selected, selectedEnvironmentId } = props;
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}
@@ -76,11 +77,15 @@ function ListItemWrapper(props: {
           <Tooltip content={ds.name} placement="left">
             <Icon
               color={
-                ds.isConfigured
+                ds.datasourceStorages[selectedEnvironmentId].isConfigured
                   ? "var(--ads-v2-color-fg-success)"
                   : "var(--ads-v2-color-fg-error)"
               }
-              name={ds.isConfigured ? "oval-check" : "info"}
+              name={
+                ds.datasourceStorages[selectedEnvironmentId].isConfigured
+                  ? "oval-check"
+                  : "info"
+              }
               size="md"
             />
           </Tooltip>

@@ -148,8 +148,8 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,
   ) as Datasource;
-
-  const hintMessages = datasource && datasource.messages;
+  const hintMessages =
+    datasource && datasource.datasourceStorages.active_env.messages;
 
   return {
     messages: hintMessages,

@@ -6,21 +6,21 @@
       "children": [
         {
           "label": "Database URL",
-          "configProperty": "datasourceConfiguration.url",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.url",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "placeholderText": "https://your-project-id.firebaseio.com"
         },
         {
           "label": "Project Id",
-          "configProperty": "datasourceConfiguration.authentication.username",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
         },
         {
-          "label": "Service account credentials",
-          "configProperty": "datasourceConfiguration.authentication.password",
+          "label": "Service Account Credentials",
+          "configProperty": "datasourceStorages.active_env.datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "isRequired": true,

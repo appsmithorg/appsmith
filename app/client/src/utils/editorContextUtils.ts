@@ -82,11 +82,13 @@ export function getPropertyControlFocusElement(
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
+  selectedEnvironmentId: string,
 ): boolean {
   if (!datasource) return false;
   const authType =
     datasource &&
-    datasource?.datasourceConfiguration?.authentication?.authenticationType;
+    datasource?.datasourceStorages[selectedEnvironmentId]
+      .datasourceConfiguration?.authentication?.authenticationType;
 
   /* 
     TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
@@ -96,8 +98,8 @@ export function isDatasourceAuthorizedForQueryCreation(
     plugin.packageName === PluginPackageName.GOOGLE_SHEETS;
   if (isGoogleSheetPlugin && authType === AuthType.OAUTH2) {
     const isAuthorized =
-      datasource?.datasourceConfiguration?.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+      datasource?.datasourceStorages.active_env.datasourceConfiguration
+        ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
@@ -118,7 +120,9 @@ export function getDatasourcePropertyValue(
     return null;
   }
 
-  const properties = datasource?.datasourceConfiguration?.properties;
+  const properties =
+    datasource?.datasourceStorages.active_env.datasourceConfiguration
+      ?.properties;
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
     if (!!propertyObj) {

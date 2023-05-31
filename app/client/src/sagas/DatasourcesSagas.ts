@@ -89,7 +89,6 @@ import {
   DATASOURCE_DELETE,
   DATASOURCE_SCHEMA_NOT_AVAILABLE,
   DATASOURCE_UPDATE,
-  DATASOURCE_VALID,
   FILES_NOT_SELECTED_EVENT,
   GSHEET_AUTHORISED_FILE_IDS_KEY,
   OAUTH_APPSMITH_TOKEN_NOT_FOUND,
@@ -348,6 +347,7 @@ export function* deleteDatasourceSaga(
   }
 }
 
+//TODO chandan handle update object
 function* updateDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<
     Datasource & { isInsideReconnectModal: boolean },
@@ -362,27 +362,29 @@ function* updateDatasourceSaga(
       getPluginPackageFromDatasourceId,
       datasourcePayload?.id,
     );
-    datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+    datasourcePayload.datasourceStorages.active_env.isConfigured = true; // when clicking save button, it should be changed as configured
 
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
     if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
       const scopeString: string = (
-        datasourcePayload?.datasourceConfiguration?.authentication as any
+        datasourcePayload?.datasourceStorages.active_env.datasourceConfiguration
+          ?.authentication as any
       )?.scopeString;
       if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
-        datasourcePayload.isConfigured = false;
+        datasourcePayload.datasourceStorages.active_env.isConfigured = false;
       }
     }
 
     const response: ApiResponse<Datasource> =
-      yield DatasourcesApi.updateDatasource(
-        datasourcePayload,
-        datasourcePayload.id,
+      yield DatasourcesApi.updateDatasourceStorage(
+        datasourcePayload.datasourceStorages.active_env,
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      response.data.datasourceStorages.active_env =
+        response.data.datasourceStorages.unused_env;
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       const formName: string = getFormName(plugin);
       const state: AppState = yield select();
@@ -435,7 +437,8 @@ function* updateDatasourceSaga(
           type: ENTITY_TYPE.DATASOURCE,
         },
         state: {
-          datasourceConfiguration: response.data.datasourceConfiguration,
+          datasourceConfiguration:
+            response.data.datasourceStorages.unused_env.datasourceConfiguration,
         },
       });
 
@@ -622,7 +625,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     `Datasource not found for id - ${actionPayload.payload.id}`,
   );
   const payload = {
-    ...actionPayload.payload,
+    ...actionPayload.payload.datasourceStorages.unused_env,
     id: actionPayload.payload.id as any,
   };
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
@@ -635,79 +638,77 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   try {
     const response: ApiResponse<Datasource> =
-      yield DatasourcesApi.testDatasource({
-        ...payload,
-        workspaceId,
-      });
+      yield DatasourcesApi.testDatasource(payload, workspaceId);
     const isValidResponse: boolean = yield validateResponse(response);
-    let messages: Array<string> = [];
+    // let messages: Array<string> = [];
     if (isValidResponse) {
-      const responseData = response.data;
-      if (
-        (responseData.invalids && responseData.invalids.length) ||
-        (responseData.messages && responseData.messages.length)
-      ) {
-        AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
-          datasoureId: datasource?.id,
-          pluginName: plugin?.name,
-          errorMessages: responseData.invalids,
-          messages: responseData.messages,
-        });
-        if (responseData.invalids && responseData.invalids.length) {
-          responseData.invalids.forEach((message: string) => {
-            toast.show(message, {
-              kind: "error",
-            });
-          });
-        }
-        if (responseData.messages && responseData.messages.length) {
-          messages = responseData.messages;
-          if (responseData.success) {
-            toast.show(createMessage(DATASOURCE_VALID, payload.name), {
-              kind: "success",
-            });
-          }
-        }
-        yield put({
-          type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
-          payload: { show: false, id: datasource.id, messages: messages },
-        });
-        AppsmithConsole.error({
-          text: "Test Connection failed",
-          source: {
-            id: actionPayload.payload.id,
-            name: datasource.name,
-            type: ENTITY_TYPE.DATASOURCE,
-          },
-          state: {
-            message:
-              responseData.invalids && responseData.invalids.length
-                ? responseData.invalids[0]
-                : "",
-          },
-        });
-      } else {
-        AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
-          datasourceName: payload.name,
-          datasoureId: datasource?.id,
-          pluginName: plugin?.name,
-        });
-        toast.show(createMessage(DATASOURCE_VALID, payload.name), {
-          kind: "success",
-        });
-        yield put({
-          type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-          payload: { show: false, id: datasource.id, messages: [] },
-        });
-        AppsmithConsole.info({
-          text: "Test Connection successful",
-          source: {
-            id: actionPayload.payload.id,
-            name: datasource.name,
-            type: ENTITY_TYPE.DATASOURCE,
-          },
-        });
-      }
+      // const responseData = response.data;
+      // if (
+      //   (responseData.invalids && responseData.invalids.length) ||
+      //   (responseData.messages && responseData.messages.length)
+      // ) {
+      //   AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
+      //     datasoureId: datasource?.id,
+      //     pluginName: plugin?.name,
+      //     errorMessages: responseData.invalids,
+      //     messages: responseData.messages,
+      //   });
+      //   if (responseData.invalids && responseData.invalids.length) {
+      //     responseData.invalids.forEach((message: string) => {
+      //       toast.show(message, {
+      //         kind: "error",
+      //       });
+      //     });
+      //   }
+      //   if (hasMessages) {
+      //     messages = responseData.datasourceStorages.unused_env.messages || [];
+      //     if (responseData.success) {
+      //       toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+      //         kind: "success",
+      //       });
+      //     }
+      //   }
+      //   yield put({
+      //     type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
+      //     payload: { show: false, id: datasource.id, messages: messages },
+      //   });
+      //   AppsmithConsole.error({
+      //     text: "Test Connection failed",
+      //     source: {
+      //       id: actionPayload.payload.id,
+      //       name: datasource.name,
+      //       type: ENTITY_TYPE.DATASOURCE,
+      //     },
+      //     state: {
+      //       message:
+      //         responseData.datasourceStorages.unused_env.invalids &&
+      //         responseData.datasourceStorages.unused_env.invalids.length
+      //           ? responseData.datasourceStorages.unused_env.invalids[0]
+      //           : "",
+      //     },
+      //   });
+      // } else {
+      //   AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
+      //     datasourceName: payload.name,
+      //     datasoureId: datasource?.id,
+      //     pluginName: plugin?.name,
+      //   });
+      //   toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+      //     kind: "success",
+      //   });
+      //   yield put({
+      //     type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
+      //     payload: { show: false, id: datasource.id, messages: [] },
+      //   });
+      //   AppsmithConsole.info({
+      //     text: "Test Connection successful",
+      //     source: {
+      //       id: actionPayload.payload.id,
+      //       name: datasource.name,
+      //       type: ENTITY_TYPE.DATASOURCE,
+      //     },
+      //   });
+      // }
     }
   } catch (error) {
     yield put({
@@ -762,8 +763,14 @@ function* createTempDatasourceFromFormSaga(
     type: datasourceType,
     pluginId: actionPayload.payload.pluginId,
     new: false,
-    datasourceConfiguration: {
-      properties: [],
+    datasourceStorages: {
+      active_env: {
+        datasourceId: "",
+        environmentId: "",
+        datasourceConfiguration: {
+          properties: [],
+        },
+      },
     },
   };
 
@@ -813,7 +820,8 @@ function* createDatasourceFromFormSaga(
       "type",
     ]);
 
-    payload.isConfigured = true;
+    if (payload.datasourceStorages)
+      payload.datasourceStorages.active_env.isConfigured = true;
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.createDatasource({
@@ -839,6 +847,8 @@ function* createDatasourceFromFormSaga(
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
       });
+      response.data.datasourceStorages.active_env =
+        response.data.datasourceStorages.unused_env;
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
         payload: response.data,
@@ -1360,7 +1370,7 @@ function* filePickerActionCallbackSaga(
         : AuthenticationStatus.FAILURE;
     set(
       datasource,
-      "datasourceConfiguration.authentication.authenticationStatus",
+      "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationStatus",
       authStatus,
     );
 
@@ -1385,10 +1395,14 @@ function* filePickerActionCallbackSaga(
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
     // using the second index specifically for file ids.
-    set(datasource, "datasourceConfiguration.properties[1]", {
-      key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
-      value: fileIds,
-    });
+    set(
+      datasource,
+      "datasourceStorages.active_env.datasourceConfiguration.properties[1]",
+      {
+        key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+        value: fileIds,
+      },
+    );
     yield put(updateDatasourceAuthState(datasource, authStatus));
   } catch (error) {
     yield put({
@@ -1621,7 +1635,9 @@ function* updateDatasourceAuthStateSaga(
   try {
     const { authStatus, datasource } = actionPayload.payload;
     const response: ApiResponse<Datasource> =
-      yield DatasourcesApi.updateDatasource(datasource, datasource.id);
+      yield DatasourcesApi.updateDatasourceStorage(
+        datasource.datasourceStorages.active_env,
+      );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

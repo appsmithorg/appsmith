@@ -78,6 +78,7 @@ import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
+import { getSelectedEnvironmentId } from "selectors/datasourceSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -707,6 +708,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const datasource = getDatasource(state, datasourceId) as
     | Datasource
     | ApiDatasourceForm;
+  const selectedEnvironmentId = getSelectedEnvironmentId(state);
+  // if (datasource && datasource.datasourceStorages[selectedEnvironmentId])
+  //   datasource.datasourceStorages.active_env =
+  //     datasource.datasourceStorages[selectedEnvironmentId];
   const { formConfigs } = plugins;
   const pluginId = get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
@@ -746,7 +751,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isPluginAuthorized =
     pluginPackageName === PluginPackageName.GOOGLE_SHEETS
       ? plugin &&
-        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+        isDatasourceAuthorizedForQueryCreation(
+          formData as Datasource,
+          plugin,
+          selectedEnvironmentId,
+        )
       : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(

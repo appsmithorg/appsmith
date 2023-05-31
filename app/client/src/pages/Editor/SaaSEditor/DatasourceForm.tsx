@@ -69,6 +69,7 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
+import { getSelectedEnvironmentId } from "selectors/datasourceSelectors";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -580,7 +581,11 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const isPluginAuthorized =
     !!plugin && !!formData
-      ? isDatasourceAuthorizedForQueryCreation(formData, plugin)
+      ? isDatasourceAuthorizedForQueryCreation(
+          formData,
+          plugin,
+          getSelectedEnvironmentId(state),
+        )
       : true;
 
   return {

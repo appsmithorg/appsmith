@@ -23,6 +23,7 @@ import { DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon } from "design-system";
 import type { DropdownOptions } from "pages/Editor/GeneratePage/components/constants";
 import type { DropdownOptionType } from "../../types";
+import { getSelectedEnvironmentId } from "selectors/datasourceSelectors";
 
 export function useDatasource() {
   const { addBinding, addSnippet, config, updateConfig } = useContext(
@@ -36,6 +37,7 @@ export function useDatasource() {
   const pluginImages = useSelector(getPluginImages);
 
   const datasources: Datasource[] = useSelector(getDatasources);
+  const selectedEnvironmentId: string = useSelector(getSelectedEnvironmentId);
 
   const datasourceOptions: DropdownOptions = useMemo(() => {
     return datasources
@@ -46,7 +48,7 @@ export function useDatasource() {
         value: datasource.name,
         data: {
           pluginId: datasource.pluginId,
-          isValid: datasource.isValid,
+          isValid: datasource.datasourceStorages[selectedEnvironmentId].isValid,
           pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
         },
         icon: (

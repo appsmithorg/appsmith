@@ -64,6 +64,18 @@ import {
   Button,
   Text,
 } from "design-system";
+import { getSelectedEnvironmentId } from "selectors/datasourceSelectors";
+
+// const Container = styled.div`
+//   height: 765px;
+//   max-height: 82vh;
+//   width: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   position: relative;
+//   overflow-y: hidden;
+//   padding: 0px 10px 0px 0px;
+// `;
 
 const Section = styled.div`
   display: flex;
@@ -254,6 +266,7 @@ function ReconnectDatasourceModal() {
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
+  const selectedEnvironmentId = useSelector(getSelectedEnvironmentId);
 
   // checking refresh modal
   const pendingApp = JSON.parse(
@@ -419,7 +432,7 @@ function ReconnectDatasourceModal() {
       id: ds.id,
       name: ds.name,
       pluginName: pluginNames[ds.id],
-      isConfigured: ds.isConfigured,
+      isConfigured: ds.datasourceStorages[selectedEnvironmentId].isConfigured,
     });
   }, []);
 
@@ -471,24 +484,34 @@ function ReconnectDatasourceModal() {
         );
         if (selectedDS) {
           const authType =
-            selectedDS.datasourceConfiguration?.authentication
-              ?.authenticationType;
+            selectedDS.datasourceStorages[selectedEnvironmentId]
+              .datasourceConfiguration?.authentication?.authenticationType;
 
           if (authType === AuthType.OAUTH2) return;
         }
       }
       const id = selectedDatasourceId;
-      const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
+      const pending = datasources.filter(
+        (ds: Datasource) =>
+          !ds.datasourceStorages[selectedEnvironmentId].isConfigured,
+      );
       if (pending.length > 0) {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
-          if (index > -1 && !datasources[index].isConfigured) {
+          if (
+            index > -1 &&
+            !datasources[index].datasourceStorages[selectedEnvironmentId]
+              .isConfigured
+          ) {
             return;
           }
           next = datasources
             .slice(index + 1)
-            .find((ds: Datasource) => !ds.isConfigured);
+            .find(
+              (ds: Datasource) =>
+                !ds.datasourceStorages[selectedEnvironmentId].isConfigured,
+            );
         }
         next = next || pending[0];
         setSelectedDatasourceId(next.id);
@@ -522,12 +545,15 @@ function ReconnectDatasourceModal() {
           image: pluginImages[ds.pluginId],
         }}
         selected={ds.id === selectedDatasourceId}
+        selectedEnvironmentId={selectedEnvironmentId}
       />
     );
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !datasource?.isConfigured;
+    isConfigFetched &&
+    !isLoading &&
+    !datasource?.datasourceStorages[selectedEnvironmentId].isConfigured;
 
   return (
     <Modal open={isModalOpen}>
@@ -564,7 +590,8 @@ function ReconnectDatasourceModal() {
                     pageId={pageId}
                   />
                 )}
-                {datasource?.isConfigured && SuccessMessages()}
+                {datasource?.datasourceStorages[selectedEnvironmentId]
+                  .isConfigured && SuccessMessages()}
               </DBFormWrapper>
 
               <SkipToAppWrapper>

@@ -851,7 +851,7 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  if (!datasource.datasourceConfiguration) {
+  if (!datasource.datasourceStorages.active_env.datasourceConfiguration) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -862,7 +862,8 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       formConfig,
     );
     const payload = merge(initialValues, datasource);
-    payload.isConfigured = false; // imported datasource as not configured yet
+    payload.datasourceStorages.active_env.isConfigured = false; // imported datasource as not configured yet
+    //Chandan
     const response: ApiResponse = yield DatasourcesApi.updateDatasource(
       payload,
       datasource.id,

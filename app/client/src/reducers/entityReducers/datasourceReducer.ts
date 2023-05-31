@@ -40,6 +40,7 @@ export interface DatasourceDataState {
     isFetchingColumns: boolean;
   };
   recentDatasources: string[];
+  selectedEnvironmentId: string;
 }
 
 const initialState: DatasourceDataState = {
@@ -68,6 +69,7 @@ const initialState: DatasourceDataState = {
     isFetchingColumns: false,
   },
   recentDatasources: [],
+  selectedEnvironmentId: "unused_env",
 };
 
 const datasourceReducer = createReducer(initialState, {

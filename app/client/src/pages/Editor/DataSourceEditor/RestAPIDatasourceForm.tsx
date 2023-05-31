@@ -43,6 +43,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Form } from "./DBForm";
+import { getSelectedEnvironmentId } from "selectors/datasourceSelectors";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -224,6 +225,52 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       onSuccess,
     );
   };
+
+  // createApiAction = () => {
+  //   const { actions, datasource, pageId } = this.props;
+  //   if (
+  //     !datasource ||
+  //     !datasource.datasourceStorages.active_env.datasourceConfiguration ||
+  //     !datasource.datasourceStorages.active_env.datasourceConfiguration.url
+  //   ) {
+  //     Toaster.show({
+  //       text: "Unable to create API. Try adding a url to the datasource",
+  //       variant: Variant.danger,
+  //     });
+  //     return;
+  //   }
+  //   const newApiName = createNewApiName(actions, pageId || "");
+
+  //   const headers =
+  //     this.props.datasource?.datasourceStorages.active_env
+  //       .datasourceConfiguration?.headers ?? [];
+  //   const queryParameters =
+  //     this.props.datasource?.datasourceStorages.active_env
+  //       .datasourceConfiguration?.queryParameters ?? [];
+  //   const defaultApiActionConfig: ApiActionConfig = {
+  //     ...DEFAULT_API_ACTION_CONFIG,
+  //     headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+  //     queryParameters: queryParameters.length
+  //       ? queryParameters
+  //       : DEFAULT_API_ACTION_CONFIG.queryParameters,
+  //   };
+
+  //   this.save(
+  //     createActionRequest({
+  //       name: newApiName,
+  //       pageId: pageId,
+  //       pluginId: datasource.pluginId,
+  //       datasource: {
+  //         id: datasource.id,
+  //       },
+  //       eventData: {
+  //         actionType: "API",
+  //         from: "datasource-pane",
+  //       },
+  //       actionConfiguration: defaultApiActionConfig,
+  //     }),
+  //   );
+  // };
 
   urlValidator = (value: string) => {
     const validationRegex = "^(http|https)://";
@@ -1044,13 +1091,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState, props: any) => {
   const { datasource, formName } = props;
-  const hintMessages = datasource && datasource.messages;
+  //const hintMessages = datasource && datasource.messages;
+
+  const selectedEnvironmentId = getSelectedEnvironmentId(state);
+
+  const hintMessages =
+    datasource && datasource.datasourceStorages[selectedEnvironmentId].messages;
 
   return {
     initialValues: datasourceToFormValues(datasource),
     formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
+    selectedEnvironmentId,
   };
 };
 

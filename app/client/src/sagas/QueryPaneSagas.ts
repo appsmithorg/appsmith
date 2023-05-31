@@ -39,6 +39,7 @@ import {
   getActions,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
+  getDatasourceConfiguration,
 } from "selectors/entitiesSelector";
 import type { Action, ApiActionConfig, QueryAction } from "entities/Action";
 import { isGraphqlPlugin, PluginType } from "entities/Action";
@@ -50,7 +51,7 @@ import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceConfiguration } from "entities/Datasource";
 import omit from "lodash/omit";
 import {
   createMessage,
@@ -257,13 +258,14 @@ function* formValueChangeSaga(
     // pass it to run form evaluations method
     // This is required for google sheets, as we need to modify query
     // state based on datasource config
-    const datasource: Datasource | undefined = yield select(
-      getDatasource,
+    const datasource: DatasourceConfiguration | undefined = yield select(
+      getDatasourceConfiguration,
       values.datasource.id,
     );
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
+    //chandan
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -274,7 +276,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasource?.datasourceConfiguration,
+              datasource,
             ),
           ]
         : [];

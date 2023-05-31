@@ -59,6 +59,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { set } from "lodash";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -191,7 +192,10 @@ function CustomHint(props: { datasource: Datasource }) {
         </span>
       </div>
       <span style={datasourceInfoStyles}>
-        {get(props.datasource, "datasourceConfiguration.url")}
+        {get(
+          props.datasource,
+          "datasourceStorages.active_env.datasourceConfiguration.url",
+        )}
       </span>
     </div>
   );
@@ -209,20 +213,27 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
     const { datasource, pluginId, workspaceId } = this.props;
     const urlHasUpdated =
-      datasourceUrl !== datasource.datasourceConfiguration?.url;
+      datasourceUrl !==
+      get(
+        datasource,
+        "datasourceStorages.active_env.datasourceConfiguration.url",
+      );
     if (urlHasUpdated) {
       const isDatasourceRemoved =
-        datasourceUrl.indexOf(datasource.datasourceConfiguration?.url) === -1;
+        datasourceUrl.indexOf(
+          get(
+            datasource,
+            "datasourceStorages.active_env.datasourceConfiguration.url",
+          ) || "",
+        ) === -1;
       let newDatasource = isDatasourceRemoved
         ? { ...DEFAULT_DATASOURCE(pluginId, workspaceId) }
         : { ...datasource };
-      newDatasource = {
-        ...newDatasource,
-        datasourceConfiguration: {
-          ...newDatasource.datasourceConfiguration,
-          url: datasourceUrl,
-        },
-      };
+      newDatasource = set(
+        newDatasource,
+        "datasourceStorages.active_env.datasourceConfiguration.url",
+        datasourceUrl,
+      );
       this.props.updateDatasource(newDatasource);
     }
   };
@@ -246,7 +257,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       };
     }
     if (datasource && datasource.hasOwnProperty("id")) {
-      const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
+      const datasourceUrl = get(
+        datasource,
+        "datasourceStorages.active_env.datasourceConfiguration.url",
+        "",
+      );
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -303,11 +318,15 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     const { datasource } = this.props;
     const authType: string = get(
       datasource,
-      "datasourceConfiguration.authentication.authenticationType",
+      "datasourceStorages.active_env.datasourceConfiguration.authentication.authenticationType",
       "",
     );
 
-    const hasError = !get(datasource, "isValid", true);
+    const hasError = !get(
+      datasource,
+      "datasourceStorages.active_env.isValid",
+      true,
+    );
 
     let className = "datasource-highlight";
 
@@ -325,7 +344,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         datasource.id &&
         datasource.id !== TEMP_DATASOURCE_ID
       ) {
-        const end = get(datasource, "datasourceConfiguration.url", "").length;
+        const end = get(
+          datasource,
+          "datasourceStorages.active_env.datasourceConfiguration.url",
+          "",
+        ).length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
@@ -356,14 +379,16 @@ class EmbeddedDatasourcePathComponent extends React.Component<
               hint: () => {
                 const list = datasourceList
                   .filter((datasource: Datasource) =>
-                    (datasource.datasourceConfiguration?.url || "").includes(
-                      parsed.datasourceUrl,
-                    ),
+                    (
+                      datasource.datasourceStorages.active_env
+                        .datasourceConfiguration?.url || ""
+                    ).includes(parsed.datasourceUrl),
                   )
                   .map((datasource: Datasource) => ({
-                    text: datasource.datasourceConfiguration?.url,
+                    text: datasource.datasourceStorages.active_env
+                      .datasourceConfiguration?.url,
                     data: datasource,
-                    className: !datasource.isValid
+                    className: !datasource.datasourceStorages.active_env.isValid
                       ? "datasource-hint custom invalid"
                       : "datasource-hint custom",
                     render: (element: HTMLElement, self: any, data: any) => {
@@ -424,7 +449,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
       const evaluatedDatasourceUrl =
         "id" in datasource
-          ? datasource.datasourceConfiguration?.url
+          ? datasource.datasourceStorages.active_env.datasourceConfiguration
+              ?.url
           : entity.datasourceUrl;
 
       const fullDatasourceUrlPath =

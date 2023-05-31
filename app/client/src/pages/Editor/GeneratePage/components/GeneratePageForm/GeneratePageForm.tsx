@@ -69,6 +69,7 @@ import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers
 import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { getSelectedEnvironmentId } from "selectors/datasourceSelectors";
 
 //  ---------- Styles ----------
 
@@ -222,6 +223,7 @@ function GeneratePageForm() {
 
   const applicationId = useSelector(getCurrentApplicationId);
   const workspace = useSelector(getCurrentAppWorkspace);
+  const selectedEnvironmentId = useSelector(getSelectedEnvironmentId);
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -416,6 +418,7 @@ function GeneratePageForm() {
     canCreateDatasource,
     datasources,
     generateCRUDSupportedPlugin,
+    selectedEnvironmentId,
   });
 
   const spreadSheetsProps = useSpreadSheets({
