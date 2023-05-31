@@ -13,19 +13,13 @@ import {
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
-
-const options = Object.keys(boxShadowOptions).map((optionKey, index) => ({
-  label: (
-    <div key={index}>
-      {optionKey === "none" ? (
-        <div>
-          <Icon name="close-line" size="md" />
-        </div>
-      ) : (
-        <div>{sizeMappings[optionKey]}</div>
-      )}
-    </div>
-  ),
+const options = Object.keys(boxShadowOptions).map((optionKey) => ({
+  label:
+    optionKey === "none" ? (
+      <Icon name="close-line" size="md" />
+    ) : (
+      sizeMappings[optionKey]
+    ),
   value: boxShadowOptions[optionKey],
 }));
 

@@ -43,18 +43,13 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
     ? invertedBoxShadowOptions[selectedOption]
     : "";
 
-  const buttonGroupOptions = Object.keys(options).map((optionKey, index) => ({
-    label: (
-      <div key={index}>
-        {optionKey === "none" ? (
-          <div>
-            <Icon name="close-line" size="md" />
-          </div>
-        ) : (
-          <div>{sizeMappings[optionKey]}</div>
-        )}
-      </div>
-    ),
+  const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
+    label:
+      optionKey === "none" ? (
+        <Icon name="close-line" size="md" />
+      ) : (
+        sizeMappings[optionKey]
+      ),
     value: optionKey,
   }));
 
