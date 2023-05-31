@@ -103,13 +103,8 @@ jobs:
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           while IFS= read -r line
           do
-            echo $line
             spec_name=$(echo $line | awk -F'/' '{print $NF}')
-            echo $spec_name
-            echo $(find . -name $spec_name) 
             failed_spec_env=$(find . -name $spec_name | sed 's|./||')
-            echo $failed_spec_env
-            echo "-----------------------------------------"
             echo "$failed_spec_env" >> $GITHUB_ENV
           done < ~/combined_failed_spec_ci/combined_failed_spec_ci
           echo "EOF" >> $GITHUB_ENV
@@ -123,16 +118,10 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      # - name: Download Docker image artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: cicontainer
-
       - name: Download Docker image artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: cicontainer
-          run_id: 5133285287
 
       - name: Load Docker image from tar file
         run: |
