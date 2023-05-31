@@ -27,6 +27,8 @@ public interface DatasourceServiceCE {
      */
     Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId);
 
+    Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId);
+
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);

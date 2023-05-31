@@ -488,6 +488,35 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(this::verifyDatasourceAndTest);
     }
 
+    @Override
+    public Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+
+        Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage)
+                .flatMap(datasourceStorageService::checkEnvironment);
+        // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
+        // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
+        // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
+        if (datasourceStorage.getDatasourceId() != null && datasourceStorage.getEnvironmentId() != null
+                && datasourceStorage.getDatasourceConfiguration() != null
+                && datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
+            datasourceStorageMono = this.findById(datasourceStorage.getDatasourceId(),
+                            datasourcePermission.getExecutePermission())
+                            .flatMap(datasource1 -> datasourceStorageService
+                                    .findByDatasourceAndEnvironmentId(datasource1,
+                                            datasourceStorage.getEnvironmentId()))
+                            .map(datasourceStorage1 -> {
+                                copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
+                                return datasourceStorage1;
+                            })
+                            .switchIfEmpty(datasourceStorageMono);
+        }
+
+        return datasourceStorageMono
+                .flatMap(this::verifyDatasourceAndTest);
+    }
+
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
         return Mono.justOrEmpty(datasourceStorage)
                 .flatMap(datasourceStorageService::validateDatasourceConfiguration)

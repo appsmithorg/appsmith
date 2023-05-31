@@ -114,11 +114,11 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceDTO datasourceDTO,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceStorageDTO datasourceStorageDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
-        log.debug("Going to test the datasource with name: {} and id: {}", datasourceDTO.getName(), datasourceDTO.getId());
-        return datasourceService.testDatasource(datasourceDTO, environmentId)
+        log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
+        return datasourceService.testDatasource(datasourceStorageDTO, activeEnvironmentId)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
