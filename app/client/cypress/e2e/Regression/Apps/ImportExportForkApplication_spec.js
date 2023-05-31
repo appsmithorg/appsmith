@@ -40,7 +40,9 @@ describe("Import, Export and Fork application and validate data binding", functi
         force: true,
       });
       cy.wait(2000);
-      cy.get(homePage.applicationName).clear().type(appName);
+      cy.get(homePage.applicationName + " input").type(appName, {
+        force: true,
+      });
       cy.get("body").click(0, 0);
       cy.wait("@updateApplication")
         .its("response.body.responseMeta.status")
