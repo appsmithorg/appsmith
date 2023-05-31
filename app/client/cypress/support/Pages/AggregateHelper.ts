@@ -1273,6 +1273,10 @@ export class AggregateHelper {
     });
   }
 
+  public visitURL(url: string) {
+    cy.visit(url);
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
