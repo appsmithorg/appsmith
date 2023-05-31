@@ -1,5 +1,5 @@
 export class DefaultHostPort {
-  mongo_authenticationAuthtype = "SCRAM_SHA_1";
+  mongo_authenticationAuthtype = "SCRAM-SHA-1";
   mongo_host = "host.docker.internal";
   mongo_port = 28017;
   mongo_databaseName = "mongo_samples";
@@ -59,17 +59,17 @@ export class DefaultHostPort {
   AirtableBase = "appubHrVbovcudwN6";
   AirtableTable = "tblsFCQSskVFf7xNd";
 
-  mockApiUrl = "http://host.docker.internal:5001/v1/mock_api?records=10";
-  echoApiUrl = "http://host.docker.internal:5001/v1/mock_api/echo";
+  mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10";
+  echoApiUrl = "http://host.docker.internal:5001/v1/mock-api/echo";
   randomCatfactUrl = "http://host.docker.internal:5001/v1/catfact/random";
 
   firestore_database_url = "https://appsmith-22e8b.firebaseio.com";
   firestore_projectID = "appsmith-22e8b";
 
-  restapi_url = "https://my_json_server.typicode.com/typicode/demo/posts";
+  restapi_url = "https://my-json-server.typicode.com/typicode/demo/posts";
   connection_type = "Replica set";
 
-  mockHostAddress = "fake_api.cvuydmurdlas.us_east_1.rds.amazonaws.com";
+  mockHostAddress = "fake_api.cvuydmurdlas.us-east-1.rds.amazonaws.com";
   mockDatabaseName = "fakeapi";
   mockDatabaseUsername = "fakeapi";
   mockDatabasePassword = "LimitedAccess123#";
