@@ -96,12 +96,12 @@ export const Binding = styled.div`
   position: relative;
   left: 1px;
   top: -1px;
-  color: ${Colors.GRAY};
+  color: var(--ads-v2-color-fg);
 `;
 
 export const ErrorMessage = styled.div`
   font-weight: 400;
   font-size: 12px;
   line-height: 14px;
-  color: ${Colors.CRIMSON};
+  color: var(--ads-v2-color-fg-error);
 `;

@@ -60,7 +60,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
           className="t--cypress-table-overlay-connectdata"
           onClick={props.onConnectData}
         >
-          CONNECT DATA
+          Connect data
         </ConnecData>
         <Footer>or write a new binding</Footer>
       </Container>

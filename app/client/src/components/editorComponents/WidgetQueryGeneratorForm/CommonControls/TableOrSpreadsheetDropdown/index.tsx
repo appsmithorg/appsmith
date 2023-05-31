@@ -22,7 +22,7 @@ function TableOrSpreadsheetDropdown() {
       <SelectWrapper className="space-y-2">
         {label}
         <Select
-          className="t--one-click-binding-table-selector"
+          data-testid="t--one-click-binding-table-selector"
           dropdownStyle={{
             minWidth: "350px",
             maxHeight: "300px",
@@ -52,7 +52,7 @@ function TableOrSpreadsheetDropdown() {
             );
           })}
         </Select>
-        <ErrorMessage className="t--one-click-binding-table-selector--error">
+        <ErrorMessage data-testid="t--one-click-binding-table-selector--error">
           {error}
         </ErrorMessage>
       </SelectWrapper>

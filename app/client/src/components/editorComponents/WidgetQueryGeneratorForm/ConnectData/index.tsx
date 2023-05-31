@@ -9,12 +9,12 @@ export function ConnectData() {
   if (show) {
     return (
       <StyledButton
-        className="t--one-click-binding-connect-data"
+        data-testId="t--one-click-binding-connect-data"
         isDisabled={disabled}
         isLoading={isLoading}
         onClick={onClick}
       >
-        CONNECT DATA
+        Connect data
       </StyledButton>
     );
   } else {

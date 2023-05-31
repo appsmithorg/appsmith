@@ -8,7 +8,6 @@ import { Icon } from "design-system";
 import { Tooltip } from "design-system";
 import React, { memo } from "react";
 import {
-  ErrorMessage,
   Row,
   RowHeading,
   SelectWrapper,
@@ -47,11 +46,11 @@ export default memo(function TableHeaderIndex() {
           </TooltipWrapper>
         </Row>
         <Input
+          errorMessage={error}
           onChange={onChange}
           placeholder="Table Header Index"
           value={value.toString()}
         />
-        <ErrorMessage>{error}</ErrorMessage>
       </SelectWrapper>
     );
   } else {

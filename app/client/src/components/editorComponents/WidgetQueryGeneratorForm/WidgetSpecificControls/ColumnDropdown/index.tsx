@@ -29,7 +29,7 @@ function ColumnDropdown(props: Props) {
         <Label>{props.label}</Label>
         <Select
           allowClear
-          className={`t--one-click-binding-column-${props.alias}`}
+          data-testid={`t--one-click-binding-column-${props.alias}`}
           dropdownStyle={{
             minWidth: "350px",
             maxHeight: "300px",
