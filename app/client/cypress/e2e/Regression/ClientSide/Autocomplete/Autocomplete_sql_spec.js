@@ -13,8 +13,11 @@ describe("SQL Autocompletion", function () {
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
     cy.get(queryLocators.templateMenu).click({ force: true });
-    cy.get(".CodeMirror textarea").focus().type("S");
-    cy.get(_.locators._hints).should("exist");
+    cy.get(".CodeMirror textarea").focus().type("select");
+    // Hints should exist
+    cy.get(locator._hints).should("exist");
+    // select should be parsed as a keyword and should not be capitalised
+    cy.get(locator._sqlKeyword).contains("select");
     cy.deleteQueryUsingContext();
   });
 });
