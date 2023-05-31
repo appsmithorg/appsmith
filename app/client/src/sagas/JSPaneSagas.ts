@@ -381,7 +381,6 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionName,
       action,
       collectionId,
-      isExecuteJSFunc,
     );
     // open response tab in debugger on runnning or page load js action.
     if (window.location.pathname.includes(collectionId)) {

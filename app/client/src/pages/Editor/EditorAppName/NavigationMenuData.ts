@@ -26,10 +26,12 @@ import type { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
+  setForkApplicationModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const GetNavigationMenuData = ({
   editMode,
+  setForkApplicationModalOpen,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -42,6 +44,10 @@ export const GetNavigationMenuData = ({
   const hasExportPermission = isPermitted(
     currentApplication?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
+  );
+  const hasEditPermission = isPermitted(
+    currentApplication?.userPermissions ?? [],
+    PERMISSION_TYPE.MANAGE_APPLICATION,
   );
   const openExternalLink = useCallback((link: string) => {
     if (link) {
@@ -147,6 +153,12 @@ export const GetNavigationMenuData = ({
           isOpensNewWindow: true,
         },
       ],
+    },
+    {
+      text: "Fork Application",
+      onClick: () => setForkApplicationModalOpen(true),
+      type: MenuTypes.MENU,
+      isVisible: isApplicationIdPresent && hasEditPermission,
     },
     {
       text: "Export application",
