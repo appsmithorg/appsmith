@@ -4,6 +4,7 @@ import {
   ErrorTextContainer,
   MailConfigContainer,
   ManageUsersContainer,
+  StyledCheckbox,
   StyledForm,
   StyledInviteFieldGroup,
   User,
@@ -505,19 +506,30 @@ function WorkspaceInviteUsersForm(props: any) {
                   label={role.value}
                   value={isAppLevelInvite ? role.value : role.key}
                 >
-                  <div className="flex flex-col gap-1">
-                    <div className="flex gap-1">
-                      {role.icon && <Icon name={role.icon} size="md" />}
-                      <Text
-                        color="var(--ads-v2-color-fg-emphasis)"
-                        kind={role.description && "heading-xs"}
-                      >
-                        {role.value}
-                      </Text>
-                    </div>
-                    {role.description && (
-                      <Text kind="body-s">{role.description}</Text>
+                  <div className="flex gap-1 items-center">
+                    {isMultiSelectDropdown && (
+                      <StyledCheckbox
+                        isSelected={selectedOption.find((v) =>
+                          isAppLevelInviteOnSelfHost
+                            ? v.value === role.value
+                            : v.key === role.key,
+                        )}
+                      />
                     )}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex gap-1">
+                        {role.icon && <Icon name={role.icon} size="md" />}
+                        <Text
+                          color="var(--ads-v2-color-fg-emphasis)"
+                          kind={role.description && "heading-xs"}
+                        >
+                          {role.value}
+                        </Text>
+                      </div>
+                      {role.description && (
+                        <Text kind="body-s">{role.description}</Text>
+                      )}
+                    </div>
                   </div>
                 </Option>
               ))}
