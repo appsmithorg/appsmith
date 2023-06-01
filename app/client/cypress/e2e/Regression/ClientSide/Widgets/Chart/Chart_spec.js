@@ -330,6 +330,7 @@ describe("Chart Widget Functionality", function () {
       "font-family",
       '"Nunito Sans"',
     );
+    cy.PublishtheApp();
   });
 
   afterEach(() => {
