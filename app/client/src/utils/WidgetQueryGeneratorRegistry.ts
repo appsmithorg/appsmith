@@ -32,9 +32,3 @@ export default class WidgetQueryGeneratorRegistry {
     return WidgetQueryGeneratorRegistry.queryGeneratorMap.has(id);
   }
 }
-
-//testing coder
-WidgetQueryGeneratorRegistry.register("5e687c18fb01e64e6a3f873f", {});
-WidgetQueryGeneratorRegistry.register("5c9f512f96c1a50004819786", {});
-WidgetQueryGeneratorRegistry.register("6080f9266b8cfd602957ba72", {});
-//
