@@ -354,7 +354,8 @@ Cypress.Commands.add("NavigateToApiEditor", () => {
 
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
-  cy.wait("@createNewApi")
+  cy.wait("@createNewApi");
+  cy.get("@createNewApi")
     .its("response.body.responseMeta.status")
     .should("eq", 201);
 });

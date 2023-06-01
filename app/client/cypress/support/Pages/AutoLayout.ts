@@ -6,13 +6,14 @@ export class AutoLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private propPane = ObjectsRegistry.PropertyPane;
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private locator = ObjectsRegistry.CommonLocators;
 
-  _buttonWidgetSelector = `${getWidgetSelector(WIDGET.BUTTON)}`;
-  _buttonComponentSelector = `${getWidgetSelector(WIDGET.BUTTON)} button`;
-  _textWidgetSelector = `${getWidgetSelector(WIDGET.TEXT)}`;
-  _textComponentSelector = `${getWidgetSelector(
-    WIDGET.TEXT,
-  )} .t--text-widget-container`;
+  _buttonWidgetSelector = this.locator._widgetInDeployed(WIDGET.BUTTON);
+  _buttonComponentSelector =
+    this.locator._widgetInDeployed(WIDGET.BUTTON) + ` button`;
+  _textWidgetSelector = this.locator._widgetInDeployed(WIDGET.TEXT);
+  _textComponentSelector =
+    this.locator._widgetInDeployed(WIDGET.TEXT) + ` .t--text-widget-container`;
   _containerWidgetSelector = getWidgetSelector(WIDGET.CONTAINER);
   private _autoConvert = "#t--layout-conversion-cta";
   private _convert = "button:contains('Convert layout')";
