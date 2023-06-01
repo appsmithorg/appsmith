@@ -6,6 +6,11 @@ import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
 import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
+import type { Plugin } from "api/PluginApi";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 
 const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;
@@ -52,20 +57,20 @@ const DsTitle = styled.div`
 function ListItemWrapper(props: {
   ds: Datasource;
   selected?: boolean;
-  plugin: {
-    image: string;
-    name: string;
-  };
+  plugin: Plugin;
   onClick: (ds: Datasource) => void;
 }) {
   const { ds, onClick, plugin, selected } = props;
   const currentEnvironment = getCurrentEnvironment();
+  const isPluginAuthorized = isGoogleSheetPluginDS(plugin?.packageName)
+    ? isDatasourceAuthorizedForQueryCreation(ds, plugin ?? {})
+    : ds.datasourceStorages[currentEnvironment].isConfigured;
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}
       onClick={() => onClick(ds)}
     >
-      <PluginImage alt="Datasource" src={getAssetUrl(plugin.image)} />
+      <PluginImage alt="Datasource" src={getAssetUrl(plugin?.iconLocation)} />
       <ListLabels>
         <DsTitle>
           <Text
@@ -78,21 +83,17 @@ function ListItemWrapper(props: {
           <Tooltip content={ds.name} placement="left">
             <Icon
               color={
-                ds.datasourceStorages[currentEnvironment].isConfigured
+                isPluginAuthorized
                   ? "var(--ads-v2-color-fg-success)"
                   : "var(--ads-v2-color-fg-error)"
               }
-              name={
-                ds.datasourceStorages[currentEnvironment].isConfigured
-                  ? "oval-check"
-                  : "info"
-              }
+              name={isPluginAuthorized ? "oval-check" : "info"}
               size="md"
             />
           </Tooltip>
         </DsTitle>
         <Text color="var(--ads-v2-color-fg)" type={TextType.H5}>
-          {plugin.name}
+          {plugin?.name}
         </Text>
       </ListLabels>
     </ListItem>

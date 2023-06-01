@@ -773,6 +773,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO1.getDatasourceConfiguration());
                     datasourceDTO.setInvalids(datasourceStorageDTO1.getInvalids());
                     datasourceDTO.setMessages(datasourceStorageDTO1.getMessages());
+                    datasourceDTO.setIsConfigured(datasourceStorageDTO1.getIsConfigured());
                     return datasourceDTO;
                 })
                 .thenReturn(datasourceDTO);
