@@ -83,7 +83,7 @@ const StyledFieldCheckboxGroup = styled.div`
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export function CheckboxComponent({ setting }: SettingComponentProps) {
-  const settings: any = useSelector(formValuesSelector);
+  const settings: Record<string, any> = useSelector(formValuesSelector);
 
   return (
     <StyledFieldCheckboxGroup>

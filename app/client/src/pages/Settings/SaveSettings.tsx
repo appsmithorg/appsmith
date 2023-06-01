@@ -1,5 +1,10 @@
 import React from "react";
-import { createMessage } from "@appsmith/constants/messages";
+import {
+  RESET_BUTTON,
+  SAVE_AND_RESTART_BUTTON,
+  SAVE_BUTTON,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { Button } from "design-system";
 import styled from "styled-components";
 
@@ -46,11 +51,11 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onSave}
         size="md"
       >
-        {createMessage(() =>
+        {createMessage(
           updatedTenantSettings?.length === Object.keys(settings).length &&
-          updatedTenantSettings?.length !== 0
-            ? "Save"
-            : "Save & Restart",
+            updatedTenantSettings?.length !== 0
+            ? SAVE_BUTTON
+            : SAVE_AND_RESTART_BUTTON,
         )}
       </Button>
       <Button
@@ -60,7 +65,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onClear}
         size="md"
       >
-        {createMessage(() => "Reset")}
+        {createMessage(RESET_BUTTON)}
       </Button>
     </SettingsButtonWrapper>
   );
