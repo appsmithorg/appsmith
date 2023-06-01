@@ -50,7 +50,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
   return obj;
 };
 
-export const TestColorComponent = (props: any) => {
+export const ColorComponent = (props: any) => {
   const {
     children,
     colorMode,

@@ -10,7 +10,7 @@ import {
   NumberControl,
 } from "@storybook/components";
 import { useGlobals } from "@storybook/api";
-import { fontMetricsMap } from "@design-system/theming";
+import { fontMetrics } from "@design-system/theming";
 import debounce from "lodash/debounce";
 
 const { Select } = Form;
@@ -114,7 +114,7 @@ addons.register("widgets/theming", () => {
                 onChange={(e) => updateGlobal("fontFamily", e.target.value)}
               >
                 <option value="">System Default</option>
-                {Object.keys(fontMetricsMap)
+                {Object.keys(fontMetrics)
                   .filter((item) => {
                     return (
                       [

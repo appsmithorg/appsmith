@@ -1,46 +1,22 @@
-import type { ColorMode, ColorTypes } from "../color";
-import type { fontFamilyTypes, Typography } from "../typography";
+import type { ReactNode } from "react";
+import type { FlattenSimpleInterpolation } from "styled-components";
+import type { ThemeTokens } from "../token";
+import type { Typography, TypographyVariants } from "../typography";
 
 export type Theme = ThemeTokens & {
+  typography: Typography;
   rootUnit: number;
-  fontFamily?: fontFamilyTypes;
-  typography?: Typography;
 };
 
-export type ThemeTokens = {
-  [key in TokenType]?: { [key: string]: Token };
-};
-
-export type Types = ThemeTokens & {
+export type ThemeContextType = ThemeTokens & {
   rootUnit: number;
-  fontFamily?: fontFamilyTypes;
-  typography?: Typography;
+  typography?: {
+    [key in TypographyVariants]?: FlattenSimpleInterpolation;
+  };
 };
 
-export type TokenType =
-  | "sizing"
-  | "color"
-  | "spacing"
-  | "borderRadius"
-  | "boxShadow"
-  | "borderWidth"
-  | "opacity";
-
-export interface Token {
-  value: string | number;
-  type: TokenType;
+export interface ThemeProviderProps {
+  theme: Theme;
+  children: ReactNode;
+  className?: string;
 }
-
-export interface TokenSource {
-  seedColor?: ColorTypes;
-  colorMode?: ColorMode;
-  rootUnit: number;
-  borderRadius?: TokenObj;
-  boxShadow?: TokenObj;
-  borderWidth?: TokenObj;
-  opacity?: TokenObj;
-  typography?: Typography;
-  fontFamily?: fontFamilyTypes;
-}
-
-export type TokenObj = { [key: string]: string | number };

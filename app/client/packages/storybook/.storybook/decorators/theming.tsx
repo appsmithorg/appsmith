@@ -31,7 +31,7 @@ export const theming = (Story, args) => {
     setTheme((prevState) => {
       return {
         ...prevState,
-        ...tokensAccessor.getFontFamily(),
+        ...tokensAccessor.getTypography(),
       };
     });
   };
@@ -112,12 +112,12 @@ export const theming = (Story, args) => {
         defaultTokens.rootUnit * args.globals.rootUnit,
       );
 
-      console.log(tokensAccessor.getRootUnit());
-
       setTheme((prevState) => {
         return {
           ...prevState,
-          ...tokensAccessor.getRootUnit(),
+          rootUnit: tokensAccessor.getRootUnit(),
+          ...tokensAccessor.getSpacing(),
+          ...tokensAccessor.getTypography(),
         };
       });
     }

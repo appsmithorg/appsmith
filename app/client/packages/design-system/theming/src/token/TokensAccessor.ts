@@ -1,10 +1,17 @@
-import range from "lodash/range";
 import kebabCase from "lodash/kebabCase";
-import { DarkModeTheme, LightModeTheme } from "../color";
-
+import range from "lodash/range";
 import type { ColorMode, ColorTypes } from "../color";
-import type { TokenObj, TokenSource, ThemeTokens, TokenType } from "../theme";
-import type { Typography, fontFamilyTypes } from "../typography";
+import { DarkModeTheme, LightModeTheme } from "../color";
+import type { FontFamilyTypes, Typography } from "../typography";
+
+import type { ThemeTokens, TokenObj, TokenSource, TokenType } from "./types";
+
+const DEFAULT_TYPOGRAPHY = {
+  body: {
+    capHeight: 2.5,
+    lineGap: 2,
+  },
+};
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;
@@ -15,7 +22,7 @@ export class TokensAccessor {
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
   private typography?: Typography;
-  private fontFamily?: fontFamilyTypes;
+  private fontFamily?: FontFamilyTypes;
 
   constructor({
     borderRadius,
@@ -43,7 +50,7 @@ export class TokensAccessor {
     this.rootUnit = rootUnit;
   };
 
-  updateFontFamily = (fontFamily: fontFamilyTypes) => {
+  updateFontFamily = (fontFamily: FontFamilyTypes) => {
     this.fontFamily = fontFamily;
   };
 
@@ -77,8 +84,7 @@ export class TokensAccessor {
 
   getAllTokens = () => {
     return {
-      ...this.getRootUnit(),
-      ...this.getFontFamily(),
+      rootUnit: this.getRootUnit(),
       ...this.getTypography(),
       ...this.getColors(),
       ...this.getSpacing(),
@@ -90,15 +96,17 @@ export class TokensAccessor {
   };
 
   getRootUnit = () => {
-    return { rootUnit: this.rootUnit };
-  };
-
-  getFontFamily = () => {
-    return { fontFamily: this.fontFamily };
+    return this.rootUnit;
   };
 
   getTypography = () => {
-    return { typography: this.typography };
+    return {
+      typography: this.updateTypographySizes(
+        this.rootUnit,
+        this.typography ?? DEFAULT_TYPOGRAPHY,
+        this.fontFamily,
+      ),
+    };
   };
 
   getColors = () => {
@@ -166,6 +174,28 @@ export class TokensAccessor {
 
   private get isDarkMode() {
     return this.colorMode === "dark";
+  }
+
+  private updateTypographySizes(
+    rootUnit: number,
+    typography: Typography,
+    fontFamily?: FontFamilyTypes,
+  ) {
+    return Object.keys(typography).reduce((prev, current) => {
+      const {
+        capHeight,
+        fontFamily: fontFamily1,
+        lineGap,
+      } = typography[current as keyof Typography];
+      return {
+        ...prev,
+        [current]: {
+          capHeight: capHeight * rootUnit,
+          lineGap: lineGap * rootUnit,
+          fontFamily: fontFamily1 ?? fontFamily,
+        },
+      };
+    }, {} as Typography);
   }
 
   private createTokenObject = (

@@ -1,65 +1,55 @@
-import { createStyleObject } from "@capsizecss/core";
+import { createStyleObject, createFontStack } from "@capsizecss/core";
 import { css } from "styled-components";
-import type { fontFamilyTypes, TypographyStyles } from "./types";
-import { fontMetricsMap } from "./types";
-import appleSystem from "@capsizecss/metrics/appleSystem";
 
-export const getTypographyStyles = ({
-  fontFamily,
-  rootUnit,
-  typography,
-}: TypographyStyles) => {
-  if (!typography) {
+import arial from "@capsizecss/metrics/arial";
+import inter from "@capsizecss/metrics/inter";
+import rubik from "@capsizecss/metrics/rubik";
+import roboto from "@capsizecss/metrics/roboto";
+import ubuntu from "@capsizecss/metrics/ubuntu";
+import poppins from "@capsizecss/metrics/poppins";
+import segoeUI from "@capsizecss/metrics/segoeUI";
+import openSans from "@capsizecss/metrics/openSans";
+import notoSans from "@capsizecss/metrics/notoSans";
+import montserrat from "@capsizecss/metrics/montserrat";
+import nunitoSans from "@capsizecss/metrics/nunitoSans";
+import appleSystem from "@capsizecss/metrics/appleSystem";
+import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
+
+export const fontMetrics = {
+  Poppins: poppins,
+  Inter: inter,
+  Roboto: roboto,
+  Rubik: rubik,
+  Ubuntu: ubuntu,
+  "Noto Sans": notoSans,
+  "Open Sans": openSans,
+  Montserrat: montserrat,
+  "Nunito Sans": nunitoSans,
+  Arial: arial,
+  "-apple-system": appleSystem,
+  BlinkMacSystemFont: BlinkMacSystemFont,
+  "Segoe UI": segoeUI,
+} as const;
+
+import type { FontFamilyTypes, Typography } from "./types";
+
+export const getTypography = (typography: Typography) => {
+  return Object.keys(typography).reduce((prev, current) => {
+    const { capHeight, fontFamily, lineGap } =
+      typography[current as keyof Typography];
     return {
-      body: css`
-        ${createTypographyStyles(rootUnit * 2.5, rootUnit * 2)}
+      ...prev,
+      [current]: css`
+        ${createTypographyStyles(capHeight, lineGap, fontFamily)}
       `,
     };
-  }
-
-  const { body, footnote, heading } = typography;
-
-  const headingStyles = heading
-    ? createTypographyStyles(
-        rootUnit * heading.capHeight,
-        rootUnit * heading.lineGap,
-        heading.fontFamily ?? fontFamily,
-      )
-    : "";
-
-  const bodyStyles = body
-    ? createTypographyStyles(
-        rootUnit * body.capHeight,
-        rootUnit * body.lineGap,
-        body.fontFamily ?? fontFamily,
-      )
-    : "";
-
-  const footnoteStyles = footnote
-    ? createTypographyStyles(
-        rootUnit * footnote.capHeight,
-        rootUnit * footnote.lineGap,
-        footnote.fontFamily ?? fontFamily,
-      )
-    : "";
-
-  return {
-    heading: css`
-      ${headingStyles}
-    `,
-    body: css`
-      ${bodyStyles}
-    `,
-    footnote: css`
-      ${footnoteStyles}
-    `,
-  };
+  }, {});
 };
 
 export const createTypographyStyles = (
   capHeight: number,
   lineGap: number,
-  fontFamily?: fontFamilyTypes,
+  fontFamily?: FontFamilyTypes,
 ) => {
   // if there is no font family, use the default font stack
   if (!fontFamily) {
@@ -78,11 +68,17 @@ export const createTypographyStyles = (
   const styles = createStyleObject({
     capHeight,
     lineGap,
-    fontMetrics: fontMetricsMap[fontFamily],
+    fontMetrics: fontMetrics[fontFamily],
   });
 
   return {
     fontFamily: `"${fontFamily}"`,
     ...styles,
   };
+};
+
+export const createGlobalFontStack = () => {
+  return createFontStack([appleSystem, BlinkMacSystemFont, segoeUI, roboto], {
+    fontFaceFormat: "styleString",
+  });
 };

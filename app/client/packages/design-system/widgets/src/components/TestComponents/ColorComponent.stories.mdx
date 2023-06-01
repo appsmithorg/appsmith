@@ -1,10 +1,10 @@
 import { Canvas, Meta, Story } from "@storybook/addon-docs";
-import { TestColorComponent } from "./TestColorComponent";
+import { ColorComponent } from "./ColorComponent";
 
-<Meta title="Design-system/widgets" component={TestColorComponent} />
+<Meta title="Design-system/widgets" component={ColorComponent} />
 
 export const Template = (args, { globals: { colorMode } }) => (
-  <TestColorComponent {...args} colorMode={colorMode}>
+  <ColorComponent {...args} colorMode={colorMode}>
     {(color) => (
       <>
         {color.seed}
@@ -12,7 +12,7 @@ export const Template = (args, { globals: { colorMode } }) => (
         {color.derived}
       </>
     )}
-  </TestColorComponent>
+  </ColorComponent>
 );
 
 <Canvas>
