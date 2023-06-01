@@ -19,7 +19,7 @@ import {
   EVENTS_LABEL,
   EVENTS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import { Option, Select } from "design-system";
+import { Checkbox, Option, Select } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
 export default function EventFilter() {
@@ -78,6 +78,7 @@ export default function EventFilter() {
         maxTagTextLength={selectedEvents.length === 1 ? 20 : 5}
         onDeselect={removeSelectedOption}
         onSelect={handleSelection}
+        optionLabelProp="label"
         placeholder={createMessage(EVENTS_PLACEHOLDER)}
         showSearch
         size="md"
@@ -86,8 +87,14 @@ export default function EventFilter() {
       >
         {events.length > 0 &&
           events.map((obj) => (
-            <Option key={obj.key} value={obj.value}>
-              {obj.label}
+            <Option key={obj.key} label={obj.label} value={obj.value}>
+              <Checkbox
+                isSelected={Boolean(
+                  selectedEvents.find((v) => v.value == obj.value),
+                )}
+              >
+                {obj.label}
+              </Checkbox>
             </Option>
           ))}
       </Select>
