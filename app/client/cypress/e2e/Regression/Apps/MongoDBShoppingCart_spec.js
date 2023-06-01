@@ -1,4 +1,3 @@
-const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
@@ -140,14 +139,19 @@ describe("Shopping cart App", function () {
     _.agHelper.UpdateInput(appPage.bookquantity, 1, true);
     cy.get("span:contains('Submit')").closest("div").eq(1).click();
     cy.assertPageSave();
-    cy.wait("@postExecute");
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
+      .first()
       .within(() => {
         cy.get("span:contains('Delete')").closest("div").eq(1).click();
-        cy.wait("@postExecute");
         cy.wait(5000);
+        cy.wait("@postExecute")
+          .its("response.body.responseMeta.status")
+          .should("eq", 200);
 
         // validating that the book is deleted
         cy.get("span:contains('Delete')")
