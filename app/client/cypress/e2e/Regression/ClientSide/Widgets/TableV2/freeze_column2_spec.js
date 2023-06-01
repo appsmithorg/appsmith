@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Check column freeze and unfreeze mechanism in page mode", () => {
+describe("Column freeze & unfreeze in page mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
     cy.openPropertyPane(_.draggableWidgets.TABLE);

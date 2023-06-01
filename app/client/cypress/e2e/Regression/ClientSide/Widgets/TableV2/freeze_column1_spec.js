@@ -7,7 +7,7 @@ import {
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
+describe("Column freeze & unfreeze in canavs mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
     cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 200, y: 600 });

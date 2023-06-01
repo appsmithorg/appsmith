@@ -1658,6 +1658,7 @@ Cypress.Commands.add(
   },
 );
 Cypress.Commands.add("findAndExpandEvaluatedTypeTitle", () => {
+  cy.wait(2500); //for eval popup to open
   cy.get(commonlocators.evaluatedTypeTitle).first().next().find("span").click();
 });
 

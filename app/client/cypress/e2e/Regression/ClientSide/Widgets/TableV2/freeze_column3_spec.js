@@ -6,7 +6,7 @@ import { TABLE_DATA_DYNAMIC } from "../../../../../support/Constants";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("1 Server-side pagination when turned on test of re-ordering columns", () => {
+describe("Server-side pagination when turned on test of re-ordering columns", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 500, y: 200 });
     cy.openPropertyPane(WIDGET.TABLE);

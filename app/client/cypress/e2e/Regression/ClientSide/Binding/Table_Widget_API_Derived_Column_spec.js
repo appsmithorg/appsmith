@@ -10,15 +10,17 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    cy.fixture("example").then(function (data) {
+      _.apiPage.CreateAndFillApi(data.paginationUrl + data.paginationParam);
+    });
     cy.RunAPI();
     //Validate Table with API data and then add a column
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-    cy.testJsontext("tabledata", "{{Api1.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     _.entityExplorer.SelectEntityByName("Text1");
 
-    cy.testJsontext("text", "{{Table1.selectedRow.url}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
     _.entityExplorer.SelectEntityByName("Table1");
 
     cy.readTabledata("0", "4").then((tabData) => {
