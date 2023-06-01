@@ -47,7 +47,6 @@ import libraryReducer from "./libraryReducer";
 import appSettingsPaneReducer from "./appSettingsPaneReducer";
 import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
-import multiPaneReducer from "./multiPaneReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
 
 const uiReducer = combineReducers({
@@ -98,7 +97,6 @@ const uiReducer = combineReducers({
   editorContext: editorContextReducer,
   libraries: libraryReducer,
   autoHeightUI: autoHeightUIReducer,
-  multiPaneConfig: multiPaneReducer,
   layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
 });
