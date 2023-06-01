@@ -6,9 +6,26 @@ import type { FlexLayerLayoutData } from "utils/autoLayout/autoLayoutTypes";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 
 /**
- * 1. Given a direction if should employ flex in perpendicular direction.
- * 2. It should be able to render children within three nested wrappers for start, center and end alignment.
- * 3. Only render start wrapper if a fill widget is present.
+ * If FlexLayer hasFillWidget:
+ * then render all children directly within the AutoLayoutLayer (row / flex-start / wrap);
+ * no need for alignments.
+ *
+ * Else:
+ * render children in 3 alignments: start, center and end.
+ * Each alignment has following characteristcs:
+ * 1. Mobile viewport:
+ *   - flex-wrap: wrap.
+ *   - flex-basis: auto.
+ *   ~ This ensures the alignment takes up as much space as needed by the children.
+ *   ~ It can stretch to the full width of the viewport.
+ *   ~ or collapse completely if there is no content.
+ *
+ * 2. Larger viewports:
+ *  - flex-wrap: nowrap.
+ *  - flex-basis: 0%.
+ *  ~ This ensures that alignments share the total space equally, until possible.
+ *  ~ Soon as the content in any alignment needs more space, it will wrap to the next line
+ *    thanks to flex wrap in AutoLayoutLayer.
  */
 
 export type AutoLayoutLayerProps = FlexLayerLayoutData & {
@@ -38,12 +55,14 @@ const Alignment = styled.div<{
   flex-direction: row;
   align-items: flex-start;
   align-self: stretch;
-  flex-wrap: wrap;
+  flex-wrap: ${({ isMobile }) => (isMobile ? "wrap" : "nowrap")};
   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
   column-gap: ${WIDGET_PADDING}px;
   border: 1px dashed red;
   flex-grow: 1;
   flex-shrink: 1;
+  border: 1px dotted red;
+  flex-basis: ${({ isMobile }) => (isMobile ? "auto" : "0%")};
 `;
 
 const StartAlignment = styled(Alignment)`
