@@ -30,10 +30,7 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import {
-  isCanvasCodeActive as isCanvasCodeActiveSelector,
-  isMultiPaneActive,
-} from "selectors/multiPaneSelectors";
+import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/canvasCodeSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getEditingEntityName } from "selectors/entitiesSelector";
@@ -75,9 +72,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  let pinned = useSelector(getExplorerPinned);
-  const isMultiPane = useSelector(isMultiPaneActive);
-  if (isMultiPane) pinned = false;
+  const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,

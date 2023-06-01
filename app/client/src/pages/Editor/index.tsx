@@ -39,8 +39,6 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
-import MultiPaneContainer from "pages/Editor/MultiPaneContainer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { Spinner } from "design-system";
 
 type EditorProps = {
@@ -181,12 +179,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            {/* TODO: Add a condition for POC */}
-            {this.props.isMultiPane ? (
-              <MultiPaneContainer />
-            ) : (
-              <MainContainer />
-            )}
+            <MainContainer />
             <GitSyncModal />
             <DisconnectGitModal />
             <GuidedTourModal />
@@ -214,7 +207,6 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   loadingGuidedTour: loading(state),
-  isMultiPane: isMultiPaneActive(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
