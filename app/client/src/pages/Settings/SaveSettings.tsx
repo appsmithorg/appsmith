@@ -47,7 +47,8 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         size="md"
       >
         {createMessage(() =>
-          updatedTenantSettings.length === Object.keys(settings).length
+          updatedTenantSettings.length === Object.keys(settings).length &&
+          updatedTenantSettings.length !== 0
             ? "Save"
             : "Save & Restart",
         )}
