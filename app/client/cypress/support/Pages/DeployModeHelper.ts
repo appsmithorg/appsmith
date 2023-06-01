@@ -39,6 +39,7 @@ export class DeployMode {
         window.location.href = Cypress.config().baseUrl + url.substring(1);
       });
     });
+    this.agHelper.AssertDocumentReady();
     cy.get(this.locator._publishButton).click();
     this.agHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
@@ -69,6 +70,7 @@ export class DeployMode {
   }
 
   public NavigateBacktoEditor() {
+    this.agHelper.AssertDocumentReady();
     cy.get(this.locator._backToEditor).click({ force: true });
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");

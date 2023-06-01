@@ -790,9 +790,14 @@ export class AggregateHelper {
   }
 
   public RefreshPage() {
-    cy.reload().then(() => {
-      this.AssertDocumentReady();
-    });
+    this.AssertDocumentReady();
+    cy.window()
+      .then((win) => {
+        win.location.reload();
+      })
+      .then(() => {
+        this.AssertDocumentReady();
+      });
     this.Sleep(2000);
   }
 
