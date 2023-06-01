@@ -18,6 +18,7 @@ import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import TemplateModalHeader from "./Header";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const ModalContentWrapper = styled(ModalContent)`
   width: 100%;
@@ -39,6 +40,11 @@ function TemplatesModal() {
 
   useEffect(() => {
     setShowTemplateDetails("");
+    if (templatesModalOpen) {
+      dispatch({
+        type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
+      });
+    }
   }, [templatesModalOpen]);
 
   useEffect(() => {
