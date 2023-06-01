@@ -29,6 +29,8 @@ import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { Button } from "design-system";
+import { isCanvasCodeActive } from "selectors/canvasCodeSelectors";
+import { matchBuilderPath } from "constants/routes";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -62,6 +64,7 @@ function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const selectedTab = useSelector(getDebuggerSelectedTab);
+  const canvasCodeActive = useSelector(isCanvasCodeActive);
   // fetch the error count from the store.
   const errorCount = useSelector(getErrorCount);
   // get the height of the response pane.
@@ -99,11 +102,22 @@ function DebuggerTabs() {
     },
   ];
 
+  // Applies to CanvasCode POC which is under feature flag
+  const canvasCodePOCShouldRender = () => {
+    if (canvasCodeActive) {
+      if (!matchBuilderPath(window.location.pathname)) {
+        return false;
+      }
+    }
+
+    return true;
+  };
   // Do not render if response tab and header tab is selected in the bottom bar.
-  const shouldRender = !(
-    selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
-    selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
-  );
+  const shouldRender =
+    !(
+      selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
+      selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+    ) && canvasCodePOCShouldRender();
 
   return shouldRender ? (
     <Container
