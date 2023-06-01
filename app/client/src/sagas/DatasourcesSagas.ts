@@ -646,7 +646,6 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.testDatasource(
         payload.datasourceStorages.active_env,
-        workspaceId,
       );
     const isValidResponse: boolean = yield validateResponse(response);
     let messages: Array<string> = [];
