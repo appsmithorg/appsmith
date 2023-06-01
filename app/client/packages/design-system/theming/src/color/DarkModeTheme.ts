@@ -299,6 +299,9 @@ export class DarkModeTheme implements ColorModeTheme {
     return this.bg.clone();
   }
 
+  /*
+   * Border colors
+   */
   private get bdAccent() {
     const color = this.seedColor.clone();
 
@@ -312,40 +315,6 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.75;
       color.oklch.c = 0.15;
       return color;
-    }
-
-    return color;
-  }
-
-  private get bdNeutral() {
-    const color = this.bdAccent.clone();
-
-    color.oklch.c = 0.035;
-
-    if (this.seedIsAchromatic) {
-      color.oklch.c = 0;
-    }
-
-    if (this.bg.contrastAPCA(color) > -25) {
-      color.oklch.l = color.oklch.l + 0.15;
-    }
-
-    return color;
-  }
-
-  private get bdNeutralHover() {
-    const color = this.bdNeutral.clone();
-
-    if (this.bdNeutral.oklch.l < 0.8) {
-      color.oklch.l = color.oklch.l + 0.15;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
-      color.oklch.l = color.oklch.l + 0.1;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.9) {
-      color.oklch.l = color.oklch.l - 0.25;
     }
 
     return color;
@@ -385,6 +354,40 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.bdNegative.oklch.l >= 0.9) {
       color.oklch.l = color.oklch.l - 0.25;
     }
+    return color;
+  }
+
+  private get bdNeutral() {
+    const color = this.bdAccent.clone();
+
+    color.oklch.c = 0.035;
+
+    if (this.seedIsAchromatic) {
+      color.oklch.c = 0;
+    }
+
+    if (this.bg.contrastAPCA(color) > -25) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    return color;
+  }
+
+  private get bdNeutralHover() {
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.8) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.9) {
+      color.oklch.l = color.oklch.l - 0.25;
+    }
+
     return color;
   }
 }
