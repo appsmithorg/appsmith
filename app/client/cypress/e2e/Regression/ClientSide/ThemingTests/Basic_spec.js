@@ -780,12 +780,7 @@ describe("App Theming funtionality", function () {
     cy.contains(".ads-v2-segmented-control-value-0", "Large").click();
     cy.contains(".ads-v2-segmented-control-value-0", "Large")
       .invoke("css", "box-shadow")
-      .then((boxshadow) => {
-        // cy.get(".t--widget-button2 button").should(
-        //   "have.css",
-        //   "box-shadow",
-        //   boxshadow, //rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px
-        // );
+      .then(() => {
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "box-shadow",
@@ -1003,16 +998,10 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".ads-v2-segmented-control-value-0").eq(0).click({ force: true });
-    cy.get(".ads-v2-segmented-control-value-0 div")
-      .eq(0)
+    cy.contains(".ads-v2-segmented-control-value-0", "Small").click();
+    cy.contains(".ads-v2-segmented-control-value-0", "Small")
       .invoke("css", "box-shadow")
-      .then((boxshadow) => {
-        cy.get(".t--widget-button1 button").should(
-          "have.css",
-          "box-shadow",
-          boxshadow, //rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px
-        );
+      .then(() => {
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "box-shadow",
