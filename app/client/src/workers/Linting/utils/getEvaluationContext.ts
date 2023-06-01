@@ -13,14 +13,12 @@ export function getEvaluationContext(
       dataTree: unevalTree,
       configTree,
       isTriggerBased: false,
-      removeEntityFunctions: true,
     });
 
   const evalContext = createEvaluationContext({
     dataTree: unevalTree,
     configTree,
     isTriggerBased: true,
-    removeEntityFunctions: false,
   });
 
   const platformFnNamesMap = Object.values(

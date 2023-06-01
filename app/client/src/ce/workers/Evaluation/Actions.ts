@@ -14,7 +14,6 @@ import {
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
-import { klona } from "klona/full";
 import { isEmpty } from "lodash";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import { applySetterMethod } from "workers/Evaluation/setters";
@@ -62,23 +61,16 @@ function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
 export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: EvalContext;
   dataTree: Readonly<DataTree>;
-  removeEntityFunctions?: boolean;
   isTriggerBased: boolean;
   configTree: ConfigTree;
 }) => {
-  const {
-    configTree,
-    dataTree,
-    EVAL_CONTEXT,
-    isTriggerBased,
-    removeEntityFunctions = false,
-  } = args;
+  const { configTree, dataTree, EVAL_CONTEXT, isTriggerBased } = args;
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = getEntityForEvalContext(entity, entityName);
-    if (!removeEntityFunctions && !isTriggerBased) continue;
+    if (!isTriggerBased) continue;
 
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
@@ -96,12 +88,6 @@ export const addDataTreeToContext = (args: {
       entityMethodMap,
     );
   }
-
-  if (removeEntityFunctions)
-    return removeEntityFunctionsFromEvalContext(
-      entityFunctionCollection,
-      EVAL_CONTEXT,
-    );
 
   // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
   if (!isTriggerBased) return;
@@ -137,19 +123,4 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
-};
-
-export const removeEntityFunctionsFromEvalContext = (
-  entityFunctionCollection: Record<string, Record<string, Function>>,
-  evalContext: EvalContext,
-) => {
-  for (const [entityName, funcObj] of Object.entries(
-    entityFunctionCollection,
-  )) {
-    const entity = klona(evalContext[entityName]);
-    Object.keys(funcObj).forEach((entityFn) => {
-      delete entity[entityFn];
-    });
-    evalContext[entityName] = entity;
-  }
 };
