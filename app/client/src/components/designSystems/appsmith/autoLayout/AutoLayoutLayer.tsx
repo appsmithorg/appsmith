@@ -60,10 +60,8 @@ const Alignment = styled.div<{
   flex-wrap: ${({ isMobile }) => (isMobile ? "wrap" : "nowrap")};
   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
   column-gap: ${WIDGET_PADDING}px;
-  border: 1px dashed red;
   flex-grow: 1;
   flex-shrink: 1;
-  border: 1px dotted red;
   flex-basis: ${({ isMobile }) => (isMobile ? "auto" : "0%")};
 `;
 

@@ -49,7 +49,6 @@ export type AutoLayoutProps = {
 
 const FlexWidget = styled.div`
   position: relative;
-  background: yellowgreen;
 
   &.fill-widget {
     flex-grow: 9999;
