@@ -23,7 +23,4 @@ describe("SQL Autocompletion", () => {
     // "select" should be parsed as a keyword and should not be capitalised
     cy.get(locator._sqlKeyword).contains("select");
   });
-  it("Deletes datasource", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
-  });
 });
