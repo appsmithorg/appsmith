@@ -8,11 +8,29 @@ export type FetchCurrentTenantConfigResponse = ApiResponse<{
   new: boolean;
 }>;
 
+export type UpdateTenantConfigResponse = ApiResponse<{
+  tenantConfiguration: Record<string, string>;
+}>;
+
+export type UpdateTenantConfigRequest = {
+  // instanceId: string;
+  tenantConfiguration: Record<string, string>;
+};
+
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
   static fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
     return Api.get(TenantApi.tenantsUrl + "/current");
+  }
+
+  static updateTenantConfig(
+    request: UpdateTenantConfigRequest,
+  ): AxiosPromise<UpdateTenantConfigResponse> {
+    return Api.put(
+      `${TenantApi.tenantsUrl}/updateDefaultTenantConfiguration`,
+      request.tenantConfiguration,
+    );
   }
 }
 
