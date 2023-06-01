@@ -510,7 +510,7 @@ function WorkspaceInviteUsersForm(props: any) {
                     {isMultiSelectDropdown && (
                       <StyledCheckbox
                         isSelected={selectedOption.find((v) =>
-                          isAppLevelInviteOnSelfHost
+                          isAppLevelInvite
                             ? v.value === role.value
                             : v.key === role.key,
                         )}
