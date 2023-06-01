@@ -282,6 +282,11 @@ export class EntityExplorer {
   ) {
     this.NavigateToSwitcher("Widgets");
     this.agHelper.Sleep();
+    this.agHelper.ClearTextField(this.locator._entityExplorersearch);
+    this.agHelper.TypeText(
+      this.locator._entityExplorersearch,
+      widgetType.split("widget")[0].trim(),
+    );
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })

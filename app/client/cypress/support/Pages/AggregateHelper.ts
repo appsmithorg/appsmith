@@ -784,7 +784,7 @@ export class AggregateHelper {
   }
 
   public RefreshPage() {
-    cy.reload(true).then(() => {
+    cy.reload().then(() => {
       cy.waitUntil(() =>
         cy.document().then((doc) => doc.readyState === "complete"),
       );

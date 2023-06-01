@@ -41,6 +41,8 @@ export class Table {
     "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
     columnName +
     "')]/parent::div/parent::div";
+  private _columnHeaderDiv = (columnName: string) =>
+    `[data-header=${columnName}]`;
   private _tableWidgetVersion = (version: "v1" | "v2") =>
     `.t--widget-tablewidget${version == "v1" ? "" : version}`;
   private _nextPage = (version: "v1" | "v2") =>
@@ -177,6 +179,20 @@ export class Table {
       .then((x) => {
         expect(x).to.eq(expectedOrder);
       });
+  }
+
+  public AssertColumnFreezeStatus(columnName: string, freezed = true) {
+    if (freezed) {
+      this.agHelper
+        .GetElement(this._columnHeaderDiv(columnName))
+        .then(($elem) => {
+          expect($elem.attr("data-sticky-td")).to.equal("true");
+        });
+    } else {
+      this.agHelper
+        .GetElement(this._columnHeaderDiv(columnName))
+        .should("not.have.attr", "data-sticky-td");
+    }
   }
 
   public ReadTableRowColumnData(
