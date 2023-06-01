@@ -125,6 +125,8 @@ describe("Shopping cart App", function () {
   it("2. Perform CRUD operations and validate data", function () {
     // Adding the books to the Add cart form
     _.agHelper.GetNClick(appPage.bookname);
+    //Wait for element to be in DOM
+    _.agHelper.Sleep(3000);
     _.agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
     _.agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
     _.agHelper.UpdateInput(appPage.bookprice, 200, true);
@@ -132,6 +134,7 @@ describe("Shopping cart App", function () {
     _.agHelper.GetNClick(appPage.addButton, 0, true);
     _.agHelper.AssertAutoSave();
     cy.wait("@postExecute");
+    cy.wait(3000);
     _.agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
     _.agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
     _.agHelper.UpdateInput(appPage.bookprice, 100, true);
