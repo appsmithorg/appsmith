@@ -123,7 +123,7 @@ function SetupForm(props: SetupFormProps) {
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
     ) as HTMLInputElement;
-    verifyPassword.removeAttribute("name");
+    if (verifyPassword) verifyPassword.removeAttribute("name");
 
     const firstName: HTMLInputElement = document.querySelector(
       `[name="firstName"]`,
@@ -143,7 +143,6 @@ function SetupForm(props: SetupFormProps) {
     }
 
     const roleInput = document.createElement("input");
-    verifyPassword.removeAttribute("name");
     roleInput.type = "text";
     roleInput.name = "role";
     roleInput.style.display = "none";
@@ -175,6 +174,7 @@ function SetupForm(props: SetupFormProps) {
     ) as HTMLInputElement;
     if (signupForNewsletter)
       signupForNewsletter.value = signupForNewsletter.checked.toString();
+    form.submit();
     return true;
   };
 
@@ -197,7 +197,6 @@ function SetupForm(props: SetupFormProps) {
           // If we are on the first page we do not want to submit the form
           // instead we move the user to the next page
           toggleFormPage();
-          event.preventDefault();
         } else {
           // If we are on the second page we submit the form
           onSubmit();
@@ -214,8 +213,6 @@ function SetupForm(props: SetupFormProps) {
             props.formSyncErrors.hasOwnProperty(key) && toTouch.push(key);
         }
         props.touch(...toTouch);
-        // prevent submitting the form on enter if the values are invalid
-        event.preventDefault();
       }
     }
   };
