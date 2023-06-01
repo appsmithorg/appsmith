@@ -30,7 +30,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
-import { Callout } from "design-system";
+import { Callout, Checkbox } from "design-system";
 import {
   Avatar,
   Button,
@@ -162,6 +162,14 @@ export const ErrorTextContainer = styled.div`
     path {
       fill: var(--ads-v2-color-fg-error);
     }
+  }
+`;
+
+export const StyledCheckbox = styled(Checkbox)`
+  height: 16px;
+
+  .ads-v2-checkbox {
+    padding: 0;
   }
 `;
 
@@ -430,16 +438,25 @@ function WorkspaceInviteUsersForm(props: any) {
             >
               {styledRoles.map((role: any) => (
                 <Option key={role.key} label={role.value} value={role.key}>
-                  <div className="flex flex-col gap-1">
-                    <Text
-                      color="var(--ads-v2-color-fg-emphasis)"
-                      kind={role.description && "heading-xs"}
-                    >
-                      {role.value}
-                    </Text>
-                    {role.description && (
-                      <Text kind="body-s">{role.description}</Text>
+                  <div className="flex gap-1 items-center">
+                    {isMultiSelectDropdown && (
+                      <StyledCheckbox
+                        isSelected={selectedOption.find(
+                          (v) => v.key == role.key,
+                        )}
+                      />
                     )}
+                    <div className="flex flex-col gap-1">
+                      <Text
+                        color="var(--ads-v2-color-fg-emphasis)"
+                        kind={role.description && "heading-xs"}
+                      >
+                        {role.value}
+                      </Text>
+                      {role.description && (
+                        <Text kind="body-s">{role.description}</Text>
+                      )}
+                    </div>
                   </div>
                 </Option>
               ))}
