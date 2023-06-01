@@ -1,5 +1,6 @@
 const dynamicDSL = require("../../../../../fixtures/PhoneInputDynamic.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "phoneinputwidget";
 
@@ -8,14 +9,12 @@ describe("Phone input widget - ", () => {
     cy.addDsl(dynamicDSL);
   });
   it("1. Should show empty dropdown for a typo", () => {
-    cy.openPropertyPane(widgetName);
-
+    _.entityExplorer.SelectEntityByName("PhoneInput1");
     // Turn on changecountrycode
-    cy.get(".t--property-control-changecountrycode label")
-      .last()
-      .click({ force: true });
+    _.propPane.ToggleOnOrOff("Change country code");
+
     // Click on the country code change option
-    cy.get(".t--input-country-code-change").first().click();
+    cy.get(".t--input-country-code-change").first().click().wait(200);
     // Search with a typo
     cy.get(".t--search-input input").type("inpia");
     cy.wait(500);
