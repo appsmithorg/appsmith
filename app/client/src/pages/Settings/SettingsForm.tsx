@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -92,16 +92,19 @@ export function SettingsForm(
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
 
+  const updatedTenantSettings = useMemo(
+    () => Object.keys(props.settings).filter((s) => isTenantConfig(s)),
+    [props.settings],
+  );
+
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
-        const isTenantSettingPresent = Object.keys(props.settings).map((s) =>
-          isTenantConfig(s),
-        );
-        if (isTenantSettingPresent.every((el) => el === false)) {
+        const settingsKeyLength = Object.keys(props.settings).length;
+        if (updatedTenantSettings.length === 0 && settingsKeyLength !== 0) {
           dispatch(saveSettings(props.settings));
         } else {
           const config: any = {};
@@ -116,7 +119,10 @@ export function SettingsForm(
               tenantConfiguration: config,
             }),
           );
-          if (!isTenantSettingPresent.every((el) => el === true)) {
+          if (
+            updatedTenantSettings.length !== 0 &&
+            updatedTenantSettings.length !== settingsKeyLength
+          ) {
             const filteredSettings = Object.keys(props.settings)
               .filter((key) => !isTenantConfig(key))
               .reduce((obj, key) => {
@@ -265,6 +271,7 @@ export function SettingsForm(
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}
+            updatedTenantSettings={updatedTenantSettings}
             valid={props.valid}
           />
         )}

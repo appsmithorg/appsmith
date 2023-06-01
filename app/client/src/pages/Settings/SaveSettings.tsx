@@ -30,10 +30,12 @@ type SaveAdminSettingsProps = {
   onClear?: () => void;
   settings: Record<string, string>;
   valid: boolean;
+  updatedTenantSettings: string[];
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
-  const { isSaving, onClear, onSave, settings, valid } = props;
+  const { isSaving, onClear, onSave, settings, updatedTenantSettings, valid } =
+    props;
 
   return (
     <SettingsButtonWrapper>
@@ -44,7 +46,11 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onSave}
         size="md"
       >
-        {createMessage(() => "Save & Restart")}
+        {createMessage(() =>
+          updatedTenantSettings.length === Object.keys(settings).length
+            ? "Save"
+            : "Save & Restart",
+        )}
       </Button>
       <Button
         className="t--admin-settings-reset-button"
