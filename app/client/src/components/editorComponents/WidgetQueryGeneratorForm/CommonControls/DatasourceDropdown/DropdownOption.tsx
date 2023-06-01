@@ -3,11 +3,13 @@ import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
+  width: calc(100% - 10px);
 `;
 
 const LeftSection = styled.div`
   width: calc(100% - 16px);
   display: flex;
+  align-items: center;
 `;
 
 const RightSection = styled.div`
@@ -15,15 +17,19 @@ const RightSection = styled.div`
 `;
 
 const IconContainer = styled.div`
-  width: 28px;
+  width: 24px;
+  display: flex;
+  margin-top: 3px;
 `;
 
 const Label = styled.div`
-  width: calc(100% - 28px);
+  width: calc(100% - 40px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 type Props = {
-  label?: string;
+  label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
 };

@@ -463,8 +463,13 @@
         "defaultSelectedRowIndices": [0.0],
         "widgetName": "Table1",
         "defaultPageSize": 0.0,
-        "columnOrder": ["step", "task", "status", "action"],
-        "dynamicPropertyPathList": [],
+        "columnOrder": [
+          "step",
+          "task",
+          "status",
+          "action"
+        ],
+        "dynamicPropertyPathList": [{"key": "tableData"}],
         "displayName": "Table",
         "bottomRow": 155.0,
         "columnWidthMap": {

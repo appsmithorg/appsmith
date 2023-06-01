@@ -3535,7 +3535,7 @@
                     "updated_at",
                     "customColumn2"
                   ],
-                  "dynamicPropertyPathList": [],
+                  "dynamicPropertyPathList": [{"key": "tableData"}],
                   "displayName": "Table",
                   "bottomRow": 89.0,
                   "columnWidthMap": {

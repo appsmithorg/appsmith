@@ -8,7 +8,7 @@ import type {
 } from "design-system-old";
 import { Classes, Text, TextType } from "design-system-old";
 import _ from "lodash";
-import { Icon, Tooltip } from "design-system";
+import { Tooltip, Button } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
@@ -48,12 +48,6 @@ const OptionWrapper = styled.div<{
       }
     }
   }
-`;
-
-const CreateIconWrapper = styled.div`
-  margin: 0px 8px 0px 0px;
-  cursor: pointer;
-  height: 16px;
 `;
 
 const ImageWrapper = styled.div`
@@ -122,9 +116,7 @@ function DataSourceOption({
         width={optionWidth}
       >
         {isConnectNewDataSourceBtn ? (
-          <CreateIconWrapper>
-            <Icon name="plus" size="md" />
-          </CreateIconWrapper>
+          <Button isIconButton kind="tertiary" size="md" startIcon="plus" />
         ) : pluginImages[(dropdownOption as DropdownOption)?.data?.pluginId] ? (
           <ImageWrapper>
             <DatasourceImage
