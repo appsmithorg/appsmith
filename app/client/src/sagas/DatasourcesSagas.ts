@@ -41,7 +41,6 @@ import {
   getDatasourceActionRouteInfo,
   getPlugin,
   getEditorConfig,
-  getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -134,7 +133,11 @@ import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
-import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
+import {
+  getFormDiffPaths,
+  getFormName,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -368,7 +371,7 @@ function* updateDatasourceSaga(
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
-    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+    if (isGoogleSheetPluginDS(pluginPackageName)) {
       const scopeString: string = (
         datasourcePayload?.datasourceConfiguration?.authentication as any
       )?.scopeString;
@@ -508,6 +511,8 @@ function* getOAuthAccessTokenSaga(
   const { datasourceId } = actionPayload.payload;
   // get the saved appsmith token that started the auth request
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   if (!appsmithToken) {
     // Error out because auth token should been here
     log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
@@ -521,6 +526,10 @@ function* getOAuthAccessTokenSaga(
     const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,
       appsmithToken,
+    );
+    const plugin: Plugin = yield select(
+      getPlugin,
+      response.data.datasource?.pluginId,
     );
     if (validateResponse(response)) {
       // Update the datasource object
@@ -538,6 +547,15 @@ function* getOAuthAccessTokenSaga(
           },
         });
       } else {
+        AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+          applicationId: applicationId,
+          datasourceId: datasourceId,
+          pageId: pageId,
+          oAuthPassOrFailVerdict: "success",
+          workspaceId: response.data.datasource?.workspaceId,
+          datasourceName: response.data.datasource?.name,
+          pluginName: plugin?.name,
+        });
         toast.show(OAUTH_AUTHORIZATION_SUCCESSFUL, {
           kind: "success",
         });
@@ -951,13 +969,11 @@ function* formValueChangeSaga(
   }
   if (form !== DATASOURCE_DB_FORM && form !== DATASOURCE_REST_API_FORM) return;
   if (field === "name") return;
-  yield all([call(updateDraftsSaga)]);
+  yield all([call(updateDraftsSaga, form)]);
 }
 
-function* updateDraftsSaga() {
-  const values: Record<string, unknown> = yield select(
-    getFormValues(DATASOURCE_DB_FORM),
-  );
+function* updateDraftsSaga(form: string) {
+  const values: Record<string, unknown> = yield select(getFormValues(form));
 
   if (!values?.id) return;
   const datasource: Datasource | undefined = yield select(
@@ -1335,6 +1351,9 @@ function* filePickerActionCallbackSaga(
     });
 
     const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
 
     // update authentication status based on whether files were picked or not
     const authStatus =
@@ -1350,22 +1369,19 @@ function* filePickerActionCallbackSaga(
     // Once files are selected in case of import, set this flag
     set(datasource, "isConfigured", true);
 
-    // event in case files are not selected
-    if (action === FilePickerActionStatus.CANCEL) {
-      const oauthReason = createMessage(FILES_NOT_SELECTED_EVENT);
-      const dsName = datasource?.name;
-      const orgId = datasource?.workspaceId;
-      const pluginName: string = yield select(
-        getPluginNameFromId,
-        datasource?.pluginId,
-      );
-      AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-        dsName,
-        oauthReason,
-        orgId,
-        pluginName,
-      });
-    }
+    // auth complete event once the files are selected/not selected
+    AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+      applicationId: applicationId,
+      pageId: pageId,
+      datasourceId: datasource?.id,
+      oAuthPassOrFailVerdict:
+        authStatus === AuthenticationStatus.FAILURE
+          ? createMessage(FILES_NOT_SELECTED_EVENT)
+          : authStatus.toLowerCase(),
+      workspaceId: datasource?.workspaceId,
+      datasourceName: datasource?.name,
+      pluginName: plugin?.name,
+    });
 
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource

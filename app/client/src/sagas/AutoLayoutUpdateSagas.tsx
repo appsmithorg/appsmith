@@ -386,6 +386,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       "mobileBottomRow",
       "mobileLeftColumn",
       "mobileRightColumn",
+      "height",
     ];
 
     for (const prop of positionProperties) {
