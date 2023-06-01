@@ -40,8 +40,11 @@ import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 import { Spinner } from "design-system";
+import { isCanvasCodeActive } from "selectors/canvasCodeSelectors";
+import CanvasCodeContainer from "./CanvasCodeContainer";
 
 type EditorProps = {
+  canvasCodeActive: boolean;
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (payload: InitializeEditorPayload) => void;
@@ -179,7 +182,11 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <MainContainer />
+            {this.props.canvasCodeActive ? (
+              <CanvasCodeContainer />
+            ) : (
+              <MainContainer />
+            )}
             <GitSyncModal />
             <DisconnectGitModal />
             <GuidedTourModal />
@@ -207,6 +214,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   loadingGuidedTour: loading(state),
+  canvasCodeActive: isCanvasCodeActive(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

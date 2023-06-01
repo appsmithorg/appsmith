@@ -17,9 +17,9 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import WidgetsEditor from "./WidgetsEditor";
-import EditorsRouter from "./routes";
 import styled from "styled-components";
 import BottomBar from "components/BottomBar";
+import CanvasCodeRouter from "./CanvasCodeRouter";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -77,27 +77,20 @@ function MainContainer() {
           <Switch key={BUILDER_PATH}>
             <SentryRoute
               component={WidgetsEditor}
-              exact
               path={BUILDER_PATH_DEPRECATED}
             />
-            <SentryRoute component={WidgetsEditor} exact path={BUILDER_PATH} />
+            <SentryRoute component={WidgetsEditor} path={BUILDER_PATH} />
+            <SentryRoute component={WidgetsEditor} path={BUILDER_CUSTOM_PATH} />
             <SentryRoute
               component={WidgetsEditor}
-              exact
-              path={BUILDER_CUSTOM_PATH}
-            />
-            <SentryRoute
-              component={WidgetsEditor}
-              exact
               path={`${path}${WIDGETS_EDITOR_BASE_PATH}`}
             />
             <SentryRoute
               component={WidgetsEditor}
-              exact
               path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
             />
-            <SentryRoute component={EditorsRouter} />
           </Switch>
+          <SentryRoute component={CanvasCodeRouter} />
         </div>
       </Container>
       <BottomBar

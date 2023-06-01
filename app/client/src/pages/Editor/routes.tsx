@@ -57,138 +57,72 @@ function EditorsRouter() {
   });
 
   return (
-    <Switch key={path}>
-      <SentryRoute
-        exact
-        path={`${path}${INTEGRATION_EDITOR_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <IntegrationEditor {...routeProps} />
-            </Wrapper>
-          );
-        }}
-      />
-      <SentryRoute
-        exact
-        path={`${path}${BUILDER_CHECKLIST_PATH}`}
-        render={() => {
-          return (
-            <Wrapper isVisible>
-              <OnboardingChecklist />
-            </Wrapper>
-          );
-        }}
-      />
-      <SentryRoute
-        exact
-        path={`${path}${API_EDITOR_ID_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <ApiEditor {...routeProps} />
-            </Wrapper>
-          );
-        }}
-      />
-      <SentryRoute
-        exact
-        path={`${path}${QUERIES_EDITOR_ID_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <QueryEditor {...routeProps} />
-            </Wrapper>
-          );
-        }}
-      />
-      <SentryRoute
-        exact
-        path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <JSEditor {...(routeProps as any)} />
-            </Wrapper>
-          );
-        }}
-      />
-      <SentryRoute
-        exact
-        path={`${path}${JS_COLLECTION_ID_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <JSEditor {...(routeProps as any)} />
-            </Wrapper>
-          );
-        }}
-      />
-
-      <SentryRoute
-        exact
-        path={`${path}${CURL_IMPORT_PAGE_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <CurlImportForm {...(routeProps as any)} />
-            </Wrapper>
-          );
-        }}
-      />
-      {SaaSEditorRoutes.map(({ component: Component, path: childPath }) => (
+    <Wrapper isVisible>
+      <Switch key={path}>
         <SentryRoute
+          component={IntegrationEditor}
           exact
-          key={path}
-          path={`${path}${childPath}`}
-          render={(routeProps) => {
-            return (
-              <Wrapper isVisible>
-                <Component {...(routeProps as any)} />
-              </Wrapper>
-            );
-          }}
+          path={`${path}${INTEGRATION_EDITOR_PATH}`}
         />
-      ))}
-      {DatasourceEditorRoutes.map(
-        ({ component: Component, path: childPath }) => (
+        <SentryRoute
+          component={OnboardingChecklist}
+          exact
+          path={`${path}${BUILDER_CHECKLIST_PATH}`}
+        />
+        <SentryRoute
+          component={ApiEditor}
+          exact
+          path={`${path}${API_EDITOR_ID_PATH}`}
+        />
+        <SentryRoute
+          component={QueryEditor}
+          exact
+          path={`${path}${QUERIES_EDITOR_ID_PATH}`}
+        />
+        <SentryRoute
+          component={JSEditor}
+          exact
+          path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
+        />
+        <SentryRoute
+          component={JSEditor}
+          exact
+          path={`${path}${JS_COLLECTION_ID_PATH}`}
+        />
+
+        <SentryRoute
+          component={CurlImportForm}
+          exact
+          path={`${path}${CURL_IMPORT_PAGE_PATH}`}
+        />
+        {SaaSEditorRoutes.map(({ component, path: childPath }) => (
           <SentryRoute
+            component={component}
+            exact
+            key={path}
+            path={`${path}${childPath}`}
+          />
+        ))}
+        {DatasourceEditorRoutes.map(({ component, path: childPath }) => (
+          <SentryRoute
+            component={component}
             exact
             key={childPath}
             path={`${path}${childPath}`}
-            render={(routeProps) => {
-              return (
-                <Wrapper isVisible>
-                  <Component {...routeProps} />
-                </Wrapper>
-              );
-            }}
           />
-        ),
-      )}
-      <SentryRoute
-        exact
-        path={`${path}${PROVIDER_TEMPLATE_PATH}`}
-        render={(routeProps) => {
-          return (
-            <Wrapper isVisible>
-              <ProviderTemplates {...routeProps} />
-            </Wrapper>
-          );
-        }}
-      />
-      <SentryRoute
-        exact
-        path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
-        render={() => {
-          return (
-            <Wrapper isVisible>
-              <GeneratePage />
-            </Wrapper>
-          );
-        }}
-      />
-    </Switch>
+        ))}
+        <SentryRoute
+          component={ProviderTemplates}
+          exact
+          path={`${path}${PROVIDER_TEMPLATE_PATH}`}
+        />
+        <SentryRoute
+          component={GeneratePage}
+          exact
+          path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
+        />
+      </Switch>
+    </Wrapper>
   );
 }
 
