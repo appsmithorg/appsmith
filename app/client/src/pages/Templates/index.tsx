@@ -15,6 +15,7 @@ import {
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
+  allTemplatesFiltersSelector,
   getForkableWorkspaces,
   getSearchedTemplateList,
   getTemplateFiltersLength,
@@ -102,9 +103,7 @@ function TemplateRoutes() {
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
-  const filters = useSelector(
-    (state: AppState) => state.ui.templates.allFilters,
-  );
+  const filters = useSelector(allTemplatesFiltersSelector);
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));

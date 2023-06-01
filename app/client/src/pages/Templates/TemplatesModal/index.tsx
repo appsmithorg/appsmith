@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  allTemplatesFiltersSelector,
   templateModalOpenSelector,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
@@ -33,9 +34,7 @@ function TemplatesModal() {
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
   );
-  const filters = useSelector(
-    (state: AppState) => state.ui.templates.allFilters,
-  );
+  const filters = useSelector(allTemplatesFiltersSelector);
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
 
   useEffect(() => {

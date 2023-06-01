@@ -143,7 +143,7 @@ export const templatesDatasourceFiltersSelector = createSelector(
   },
 );
 
-export const templatesFiltersSelector = (state: AppState) =>
+export const allTemplatesFiltersSelector = (state: AppState) =>
   state.ui.templates.allFilters;
 
 // Get all filters which is associated with atleast one template
@@ -152,7 +152,7 @@ export const getFilterListSelector = createSelector(
   getWidgetCards,
   templatesDatasourceFiltersSelector,
   getTemplatesSelector,
-  templatesFiltersSelector,
+  allTemplatesFiltersSelector,
   (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
