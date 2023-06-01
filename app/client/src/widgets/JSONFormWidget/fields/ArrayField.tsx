@@ -11,6 +11,7 @@ import { useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 import { klona } from "klona";
+import log from "loglevel";
 
 import Accordion from "../component/Accordion";
 import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
@@ -166,7 +167,21 @@ function ArrayField({
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   const value = watch(name);
-  const valueLength = value?.length || 0;
+  /**
+   * parsedArrayValue is a patch that parses a stringified array.
+   * We are doing this because we want to avoid creation of multiple children fields when the ArrayField recieves value as a stringified array.
+   * This scenario happens when evaluations returns the defaultValue as a stringified array earlier in the evaluation cycles.
+   * Please refer to this issue:https://github.com/appsmithorg/appsmith/issues/23825 for more information.
+   */
+  let parsedArrayValue = value;
+  try {
+    if (typeof value === "string") {
+      parsedArrayValue = JSON.parse(value);
+    }
+  } catch (e) {
+    log.debug("Unable to parse value", e);
+  }
+  const valueLength = parsedArrayValue?.length || 0;
   const [cachedDefaultValue, setCachedDefaultValue] =
     useState<unknown[]>(defaultValue);
 
