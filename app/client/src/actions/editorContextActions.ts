@@ -160,3 +160,10 @@ export const setExplorerSwitchIndex = (payload: number) => {
     payload,
   };
 };
+
+export const setCodeTabPath = (payload: string) => {
+  return {
+    type: ReduxActionTypes.SET_CODE_TAB_PATH,
+    payload,
+  };
+};

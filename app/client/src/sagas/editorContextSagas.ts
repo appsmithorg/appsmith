@@ -1,6 +1,6 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { integrationEditorURL } from "RouteBuilder";
+import { blankPage } from "RouteBuilder";
 import {
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
@@ -13,13 +13,10 @@ import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
-import { INTEGRATION_TABS } from "constants/routes";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import type { FocusHistory } from "reducers/uiReducers/focusHistoryReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
+import { getCodeTabPath } from "selectors/canvasCodeSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import history from "utils/history";
 
 /**
@@ -69,21 +66,15 @@ function* setSelectedPropertyTabIndexSaga(
 }
 
 function* navigateToMostRecentEntity() {
-  // console.log()
-  const focusInfo: FocusHistory = yield select(getFocusInfo);
-  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const codeTabPath: string | undefined = yield select(getCodeTabPath);
   const currentPageId: string = yield select(getCurrentPageId);
-  const key = `${currentPageId}#${branch}`;
-  const focusState = focusInfo[key];
-
-  if (focusState && focusState.state._routingURL) {
+  if (codeTabPath) {
     const params = history.location.search;
-    history.push(`${focusState.state._routingURL}${params ?? ""}`);
+    history.push(`${codeTabPath}${params ?? ""}`);
   } else {
     history.push(
-      integrationEditorURL({
+      blankPage({
         pageId: currentPageId,
-        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
   }

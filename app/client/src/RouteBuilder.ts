@@ -97,6 +97,13 @@ export const integrationEditorURL = (
   });
 };
 
+export const blankPage = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `blank`,
+  });
+};
+
 export const queryEditorIdURL = (
   props: URLBuilderParams & {
     queryId: string;

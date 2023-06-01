@@ -44,6 +44,7 @@ export type EditorContextState = {
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
   propertyPanelState: PropertyPanelState;
+  codeTabPath?: string;
 };
 
 const initialState: EditorContextState = {
@@ -213,5 +214,11 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => {
     state.explorerSwitchIndex = action.payload ? 1 : 0;
+  },
+  [ReduxActionTypes.SET_CODE_TAB_PATH]: (
+    state: EditorContextState,
+    action: ReduxAction<string>,
+  ) => {
+    state.codeTabPath = action.payload;
   },
 });

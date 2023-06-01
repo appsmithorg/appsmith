@@ -8,6 +8,7 @@ import {
   setAllEntityCollapsibleStates,
   setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
+  setCodeTabPath,
   setExplorerSwitchIndex,
   setFocusableInputField,
   setPanelPropertiesState,
@@ -67,9 +68,11 @@ import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
+import { getCodeTabPath } from "selectors/canvasCodeSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
+  CodeTabPath = "CodeTabPath",
   CodeEditorHistory = "CodeEditorHistory",
   EntityCollapsibleState = "EntityCollapsibleState",
   EntityExplorerWidth = "EntityExplorerWidth",
@@ -137,6 +140,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getPropertyPanelState,
       setter: setPanelPropertiesState,
       defaultValue: {},
+    },
+    {
+      name: FocusElement.CodeTabPath,
+      selector: getCodeTabPath,
+      setter: setCodeTabPath,
     },
   ],
   [FocusEntity.CANVAS]: [

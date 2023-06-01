@@ -7,6 +7,8 @@ import { useLocation } from "react-router";
 import { matchBuilderPath } from "constants/routes";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { setCodeTabPath } from "actions/editorContextActions";
+import { shouldStoreURLForFocus } from "navigation/FocusEntity";
 
 type CanvasCodeSwitcherProps = {
   pageId: string;
@@ -25,7 +27,7 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
     {
       label: "Canvas",
       value: "CANVAS",
-      shortcut: "⌘ + C",
+      shortcut: "⌘ + J",
     },
     {
       label: "Code",
@@ -80,6 +82,9 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
       setSwitcher("CANVAS");
     } else {
       setSwitcher("CODE");
+      if (shouldStoreURLForFocus(location.pathname)) {
+        dispatch(setCodeTabPath(location.pathname));
+      }
     }
     setOptionsState(options);
   }, [location]);
