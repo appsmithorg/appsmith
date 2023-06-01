@@ -451,14 +451,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Update datasource as being authorized
         // Return control to client
 
-        Mono<Datasource> datasourceMono = datasourceService
+        Mono<Datasource> datasourceMonoCache = datasourceService
                 .findById(datasourceId, datasourcePermission.getEditPermission()).cache();
 
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceMono
+        Mono<DatasourceStorage> datasourceStorageMonoCache = datasourceMonoCache
                 .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .cache();
 
-        return datasourceStorageMono
+        return datasourceStorageMonoCache
                 .filter(datasourceStorage -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS
                         .equals(datasourceStorage.getDatasourceConfiguration().getAuthentication().getAuthenticationStatus()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
@@ -526,15 +526,17 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                                         .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
                                                 .getDatasourceMetadata(datasourceStorage.getDatasourceConfiguration()))
-                                        .then(Mono.zip(Mono.just(datasourceStorage), accessTokenMono, projectIdMono, datasourceMono));
+                                        .then(Mono.zip(Mono.just(datasourceStorage), accessTokenMono, projectIdMono, datasourceMonoCache));
                             });
                 })
                 .flatMap(tuple -> {
                     DatasourceStorage datasourceStorage = tuple.getT1();
                     String accessToken = tuple.getT2();
                     String projectID = tuple.getT3();
-                    // This is here just because client side usages datasource related permissions to allow users to
-                    // for verifying the user permissions for its usage
+                    // This datasource is coming fresh from db which has all the metadata and permissions,
+                    // which is required by client side in order to allow users to generate queries otherwise the
+                    // buttons are disabled. we will be sending this datasource itself which has the permissions as a fix
+                    // ref: https://github.com/appsmithorg/appsmith/issues/23840
                     Datasource datasource = tuple.getT4();
                     OAuth2ResponseDTO response = new OAuth2ResponseDTO();
                     response.setToken(accessToken);
@@ -556,7 +558,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 AppsmithError.AUTHENTICATION_FAILURE,
                                 "Unable to connect to Appsmith authentication server."
                         ))
-                .onErrorResume(BaseException.class, error -> datasourceStorageMono.flatMap(datasourceStorage -> {
+                .onErrorResume(BaseException.class, error -> datasourceStorageMonoCache.flatMap(datasourceStorage -> {
                     datasourceStorage.getDatasourceConfiguration().getAuthentication()
                             .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
                     return datasourceStorageService.save(datasourceStorage).then(Mono.error(error));
