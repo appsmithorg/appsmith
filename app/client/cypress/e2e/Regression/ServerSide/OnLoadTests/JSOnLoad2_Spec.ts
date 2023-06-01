@@ -17,13 +17,9 @@ describe("JSObjects OnLoad Actions tests", function () {
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
 
-  it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked & duplicated", () => {
+  it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked", () => {
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("JSOnloadImportTest");
-    AssertJSOnPageLoad("runSpaceCraftImages");
-
-    _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("JSOnloadImportTest");
     AssertJSOnPageLoad("runSpaceCraftImages");
   });
 
@@ -34,26 +30,18 @@ describe("JSObjects OnLoad Actions tests", function () {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "ReferenceError: getWorldCountries is not defined",
+        "getWorldCountries is not defined",
       );
     });
   });
 
-  it("4. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while forked & duplicated- failing JSObj", () => {
+  it("4. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while forked - failing JSObj", () => {
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("JSOnLoadFailureTest");
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "ReferenceError: getWorldCountries is not defined",
-    );
-
-    _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("JSOnLoadFailureTest");
-    AssertJSOnPageLoad(
-      "runWorldCountries",
-      false,
-      "ReferenceError: getWorldCountries is not defined",
+      "getWorldCountries is not defined",
     );
   });
 
@@ -61,10 +49,9 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.homePage.NavigateToHome();
     _.homePage.DeleteApplication("JSOnloadImportTest");
     _.homePage.DeleteApplication("JSOnloadImportTest (1)");
-    _.homePage.DeleteApplication("JSOnloadImportTest Copy");
+
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.homePage.DeleteApplication("JSOnLoadFailureTest Copy");
     _.agHelper.AssertContains("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });
@@ -156,13 +143,13 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
 
     _.deployMode.DeployApp();
-    for (let dialog = 1; dialog <= 3; dialog++) {
-      _.agHelper.ClickButton("Yes");
+    for (let dialog = 1; dialog <= 5; dialog++) {
+      _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(500);
     }
     _.deployMode.NavigateBacktoEditor();
-    for (let dialog = 1; dialog <= 3; dialog++) {
-      _.agHelper.ClickButton("Yes");
+    for (let dialog = 1; dialog <= 5; dialog++) {
+      _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(500);
     }
   });
@@ -236,7 +223,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody("JSObject1." + jsMethod),
     );
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.Sleep(1000);
 
     shouldCheckImport && _.homePage.AssertNCloseImport();
@@ -245,11 +232,11 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody("JSObject1." + jsMethod),
     );
-    _.agHelper.ClickButton("Yes");
+    _.jsEditor.ConfirmationClick("Yes");
     if (faliureMsg) _.agHelper.ValidateToastMessage(faliureMsg);
     else _.agHelper.Sleep(3000);
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.ClickButton("No");
+    _.jsEditor.ConfirmationClick("No");
     _.agHelper.Sleep(2000);
   }
 

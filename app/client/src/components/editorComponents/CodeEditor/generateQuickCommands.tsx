@@ -13,6 +13,8 @@ import type FeatureFlags from "entities/FeatureFlags";
 import type { FieldEntityInformation } from "./EditorConfig";
 import { Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -155,11 +157,17 @@ export const generateQuickCommands = (
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New datasource",
-    action: () =>
+    action: () => {
       executeCommand({
         actionType: SlashCommand.NEW_INTEGRATION,
         args: {},
-      }),
+      });
+      // Event for datasource creation click
+      const entryPoint = DatasourceCreateEntryPoints.CODE_EDITOR_SLASH_COMMAND;
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+        entryPoint,
+      });
+    },
     shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {

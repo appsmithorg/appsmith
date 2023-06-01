@@ -5,5 +5,5 @@ export default {
   ImportSuccessModal: ".t--import-app-success-modal",
   ImportSuccessModalCloseBtn: ".t--import-success-modal-got-it",
   ListItemIcon: ".ads-v2-icon",
-  DatasourceList: ".t--ds-list"
+  DatasourceList: ".t--ds-list",
 };

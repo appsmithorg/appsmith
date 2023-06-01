@@ -68,6 +68,8 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 
 //  ---------- Styles ----------
 
@@ -142,7 +144,7 @@ const OptionWrapper = styled.div`
 `;
 // Constants
 
-const datasourceIcon = "layout-left-2-line";
+const datasourceIcon = "layout-5-line";
 const columnIcon = "layout-column-line";
 
 const GENERATE_PAGE_MODE = {
@@ -260,8 +262,9 @@ function GeneratePageForm() {
   const selectedDatasourcePluginPackageName: string =
     generateCRUDSupportedPlugin[selectedDatasourcePluginId];
 
-  const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS;
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(
+    selectedDatasourcePluginPackageName,
+  );
 
   const isS3Plugin =
     selectedDatasourcePluginPackageName === PluginPackageName.S3;
@@ -534,6 +537,11 @@ function GeneratePageForm() {
         params: { isGeneratePageMode: "generate-page" },
       }),
     );
+    // Event for datasource creation click
+    const entryPoint = DatasourceCreateEntryPoints.GENERATE_CRUD;
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+      entryPoint,
+    });
   };
 
   const generatePageAction = (data: GeneratePagePayload) => {

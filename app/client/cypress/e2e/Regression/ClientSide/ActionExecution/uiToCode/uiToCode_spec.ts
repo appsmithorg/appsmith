@@ -347,7 +347,7 @@ describe("UI to Code", () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });}).catch(() => {});}}`,
+      `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });});}}`,
     );
   });
 
@@ -380,7 +380,7 @@ describe("UI to Code", () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });}).catch(() => {});}}`,
+      `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });});}}`,
     );
   });
 

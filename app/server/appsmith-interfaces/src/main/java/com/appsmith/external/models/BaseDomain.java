@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -28,7 +29,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable {
+public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 

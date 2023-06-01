@@ -8,6 +8,7 @@ export type AvatarProps = {
   size: string;
   source?: string;
   label?: string;
+  isTooltipEnabled?: boolean;
 };
 
 export function AvatarComponent(props: any) {
@@ -25,6 +26,7 @@ export function AvatarComponent(props: any) {
       className={props.className}
       firstLetter={getInitials(props.commonName || props.userName)}
       image={props.source}
+      isTooltipEnabled={props.isTooltipEnabled}
       label={props.label}
       size={props.size}
     />

@@ -12,7 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
 
@@ -22,11 +21,11 @@ type NewActionButtonProps = {
   packageName?: string;
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
-  plugin?: Plugin;
+  pluginType?: string;
+  style?: any;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, disabled, plugin } = props;
-  const pluginType = plugin?.type;
+  const { datasource, disabled, pluginType } = props;
   const [isSelected, setIsSelected] = useState(false);
 
   const dispatch = useDispatch();

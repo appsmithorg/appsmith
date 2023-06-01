@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      previous-workflow-run-id:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
 
 jobs:
   ci-test-limited:
@@ -25,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
+        job: [0, 1, 2, 3, 4]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -107,7 +112,17 @@ jobs:
           echo "$specs_to_run" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id != 0
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: cicontainer
+          run_id: ${{ github.event.inputs.previous-workflow-run-id }}
+      
+      # In case of run-id is 0 download the artifact from the current run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id == 0
         uses: actions/download-artifact@v3
         with:
           name: cicontainer
@@ -165,15 +180,15 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
+        working-directory : app/client
         run: |
-          cd app/client
           yarn install --immutable
 
       - name: Setting up the cypress tests

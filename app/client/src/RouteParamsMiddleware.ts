@@ -17,7 +17,6 @@ const routeParamsMiddleware: Middleware =
     let appParams: ApplicationURLParams = {};
     let pageParams: PageURLParams[] = [];
     switch (action.type) {
-      case ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS:
       case ReduxActionTypes.IMPORT_APPLICATION_SUCCESS:
       case ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS:
       case ReduxActionTypes.FETCH_APPLICATION_SUCCESS: {

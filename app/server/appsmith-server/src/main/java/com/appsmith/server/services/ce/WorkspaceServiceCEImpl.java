@@ -237,6 +237,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return Mono.just(TRUE);
     }
 
+    @Override
+    public Mono<String> getDefaultEnvironmentId(String workspaceId) {
+        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
+    }
+
     private String generateNewDefaultName(String oldName, String workspaceName) {
         if (oldName.startsWith(ADMINISTRATOR)) {
             return generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName);

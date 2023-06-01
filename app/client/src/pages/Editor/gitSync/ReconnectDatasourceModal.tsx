@@ -27,11 +27,11 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getDatasourceLoading,
+  getDatasourcePlugins,
+  getDatasources,
   getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
-  getPluginImages,
-  getPluginNames,
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
@@ -42,7 +42,6 @@ import {
   setWorkspaceIdForImport,
 } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import { AuthType } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -64,6 +63,7 @@ import {
   Button,
   Text,
 } from "design-system";
+import { keyBy } from "lodash";
 
 const Section = styled.div`
   display: flex;
@@ -80,6 +80,7 @@ const BodyContainer = styled.div`
   max-height: 82vh;
 `;
 
+// TODO: Removed usage of "t--" classes since they clash with the test classes.
 const ContentWrapper = styled.div`
   height: calc(100% - 16px);
   display: flex;
@@ -90,10 +91,8 @@ const ContentWrapper = styled.div`
   .t--json-to-form-wrapper {
     width: 100%;
 
-    .t--json-to-form-body {
-      .t--collapse-section-container {
-        margin-top: 20px;
-      }
+    .t--collapse-section-container {
+      margin-top: 20px;
     }
 
     .t--close-editor {
@@ -192,6 +191,9 @@ const Message = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
+  width: calc(100% - 206px);
+  overflow: auto;
+  display: flex;
   overflow: hidden;
   height: inherit;
   flex: 1;
@@ -203,14 +205,14 @@ const DBFormWrapper = styled.div`
 
   > div {
     width: 100%;
-    height: calc(100% - 20px);
+    height: calc(100% - 68px); // Adding height offset of the buttons container
   }
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
     height: 100%;
   }
 
-  .t--delete-datasource {
+  .t--cancel-edit-datasource {
     display: none;
   }
 `;
@@ -246,9 +248,16 @@ function ReconnectDatasourceModal() {
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);
   const pageIdForImport = useSelector(getPageIdForImport);
-  const datasources = useSelector(getUnconfiguredDatasources);
-  const pluginImages = useSelector(getPluginImages);
-  const pluginNames = useSelector(getPluginNames);
+  const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
+  const unconfiguredDatasourceIds = unconfiguredDatasources.map(
+    (ds: Datasource) => ds.id,
+  );
+  let datasources = useSelector(getDatasources);
+  datasources = datasources.filter((ds: Datasource) =>
+    unconfiguredDatasourceIds.includes(ds.id),
+  );
+  const pluginsArray = useSelector(getDatasourcePlugins);
+  const plugins = keyBy(pluginsArray, "id");
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
@@ -284,7 +293,7 @@ function ReconnectDatasourceModal() {
   const orgId = queryDS?.workspaceId;
   let pluginName = "";
   if (!!queryDS?.pluginId) {
-    pluginName = pluginNames[queryDS.pluginId];
+    pluginName = plugins[queryDS.pluginId]?.name;
   }
 
   // when redirecting from oauth, processing the status
@@ -292,30 +301,25 @@ function ReconnectDatasourceModal() {
     setIsImport(false);
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
-    const oauthReason = status;
-    const isReconnectDS = true;
-    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-      dsName,
-      oauthReason,
-      orgId,
-      pluginName,
-      isReconnectDS,
-    });
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       toast.show(display_message || message, { kind: "error" });
+      AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+        applicationId: queryAppId,
+        datasourceId: queryDatasourceId,
+        pageId: queryPageId,
+        oAuthPassOrFailVerdict: status,
+        workspaceId: orgId,
+        datasourceName: dsName,
+        pluginName: pluginName,
+      });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
-    AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-      queryAppId,
-      queryDatasourceId,
-      queryPageId,
-    });
   }
 
   // should open reconnect datasource modal
@@ -376,14 +380,43 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = (e: any) => {
+    // Some magic code to handle the scenario where the reconnect modal and google sheets
+    // file picker are both open.
+    // Check if the overlay of the modal was clicked
+    function isOverlayClicked(classList: DOMTokenList) {
+      return classList.contains("reconnect-datasource-modal");
+    }
+    // Check if the close button of the modal was clicked
+    function isCloseButtonClicked(e: HTMLDivElement) {
+      const dialogCloseButton = document.querySelector(
+        ".ads-v2-modal__content-header-close-button",
+      );
+      if (dialogCloseButton) {
+        return dialogCloseButton.contains(e);
+      }
+      return false;
+    }
+
+    let shouldClose = false;
+    if (e) {
+      shouldClose = isOverlayClicked(e.target.classList);
+      shouldClose = shouldClose || isCloseButtonClicked(e.target);
+      // If either the close button or the overlay was clicked close the modal
+      if (shouldClose) {
+        onClose();
+      }
+    }
+  };
+
+  const onClose = () => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
     dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
-  }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
+  };
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
     setIsTesting(false);
@@ -392,7 +425,7 @@ function ReconnectDatasourceModal() {
     AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
       id: ds.id,
       name: ds.name,
-      pluginName: pluginNames[ds.id],
+      pluginName: plugins[ds.id]?.name,
       isConfigured: ds.isConfigured,
     });
   }, []);
@@ -438,19 +471,6 @@ function ReconnectDatasourceModal() {
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
-      // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
-      if (queryParams.get("importForGit") !== "true" && datasources.length) {
-        const selectedDS = datasources.find(
-          (ds: Datasource) => ds.id === selectedDatasourceId,
-        );
-        if (selectedDS) {
-          const authType =
-            selectedDS.datasourceConfiguration?.authentication
-              ?.authenticationType;
-
-          if (authType === AuthType.OAUTH2) return;
-        }
-      }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
@@ -491,10 +511,7 @@ function ReconnectDatasourceModal() {
         onClick={() => {
           onSelectDatasource(ds);
         }}
-        plugin={{
-          name: pluginNames[ds.pluginId],
-          image: pluginImages[ds.pluginId],
-        }}
+        plugin={plugins[ds.pluginId]}
         selected={ds.id === selectedDatasourceId}
       />
     );
@@ -504,8 +521,14 @@ function ReconnectDatasourceModal() {
     isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
-    <Modal onOpenChange={handleClose} open={isModalOpen}>
-      <ModalContentWrapper data-testid="reconnect-datasource-modal">
+    <Modal open={isModalOpen}>
+      <ModalContentWrapper
+        data-testid="reconnect-datasource-modal"
+        onClick={handleClose}
+        onEscapeKeyDown={onClose}
+        onInteractOutside={handleClose}
+        overlayClassName="reconnect-datasource-modal"
+      >
         <ModalHeader>Reconnect datasources</ModalHeader>
         <ModalBodyWrapper>
           <BodyContainer>

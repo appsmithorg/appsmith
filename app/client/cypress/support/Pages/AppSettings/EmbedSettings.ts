@@ -11,6 +11,8 @@ export class EmbedSettings {
     _restrictedText: "Embedding restricted",
     _disabledText: "Embedding disabled",
     _showNavigationBar: "[data-testid='show-navigation-bar-toggle']",
+    _enableForking: "[data-testid='forking-enabled-toggle']",
+    _confirmForking: "[data-testid='allow-forking']",
   };
 
   public OpenEmbedSettings() {
@@ -41,6 +43,21 @@ export class EmbedSettings {
     input.invoke("attr", "checked").then((value) => {
       if (value !== check) {
         this.agHelper.GetNClick(this.locators._showNavigationBar);
+        this.agHelper.ValidateNetworkStatus("@updateApplication");
+      }
+    });
+  }
+
+  public ToggleMarkForkable(check: "true" | "false" = "true") {
+    const input = this.agHelper.GetElement(this.locators._enableForking);
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== check) {
+        this.agHelper.GetNClick(this.locators._enableForking);
+
+        if (check) {
+          this.agHelper.GetNClick(this.locators._confirmForking);
+        }
+
         this.agHelper.ValidateNetworkStatus("@updateApplication");
       }
     });
