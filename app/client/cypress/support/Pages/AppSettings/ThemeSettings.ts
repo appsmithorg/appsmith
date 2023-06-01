@@ -44,6 +44,7 @@ export class ThemeSettings {
         : this.locators._colorRingBackground;
     this.agHelper.Sleep(200); //for themes to complete opening
     this.agHelper.GetNClick(colorType);
+    this.agHelper.Sleep(200); //for themes to complete opening
     if (typeof colorIndex == "number") {
       this.agHelper.GetNClick(this.locators._colorPickerV2Popover);
       this.agHelper.GetNClick(this.locators._colorPickerV2Color, colorIndex);
@@ -54,6 +55,20 @@ export class ThemeSettings {
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
+  }
+
+  public ChooseColorType(type: "Primary" | "Background" = "Primary") {
+    const colorType =
+      type == "Primary"
+        ? this.locators._colorRingPrimary
+        : this.locators._colorRingBackground;
+    this.agHelper.Sleep(200); //for themes to complete opening
+    this.agHelper.GetNClick(colorType);
+    this.agHelper.Sleep(200); //for themes to complete opening
+  }
+
+  public ChooseColorFromColorPicker(color: string) {
+    this.agHelper.GetNClick(color);
   }
 
   public clickOnChangeTheme() {

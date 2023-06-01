@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -9,7 +10,6 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 const appSettings = ObjectsRegistry.AppSettings;
 const theme = ObjectsRegistry.ThemeSettings;
 
-let themeBackgroudColor;
 let themeFont;
 
 describe("Theme validation usecases", function () {
@@ -33,10 +33,10 @@ describe("Theme validation usecases", function () {
     appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    cy.get(themelocator.border).should("have.length", "3");
-    cy.borderMouseover(0, "none");
-    cy.borderMouseover(1, "M");
-    cy.borderMouseover(2, "L");
+    theme.validateBorderTypeCount(3);
+    theme.validateBorderPopoverText(0, "none");
+    theme.validateBorderPopoverText(1, "M");
+    theme.validateBorderPopoverText(2, "L");
     cy.get(themelocator.border).eq(2).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -48,10 +48,10 @@ describe("Theme validation usecases", function () {
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
+    theme.validateShadowPopoverText(0, "none");
+    theme.validateShadowPopoverText(1, "S");
+    theme.validateShadowPopoverText(2, "M");
+    theme.validateShadowPopoverText(3, "L");
     cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -93,13 +93,18 @@ describe("Theme validation usecases", function () {
           //Color
           //cy.contains("Color").click({ force: true });
           cy.wait(2000);
-          cy.colorMouseover(0, "Primary color");
-          cy.validateColor("Primary", "#553DE9");
-          cy.colorMouseover(1, "Background color");
-          cy.validateColor("Background", "#F8FAFC");
+          // cy.colorMouseover(0, "Primary color");
+          // cy.validateColor("Primary", "#553DE9");
+          theme.ChooseColorType("Primary");
+          _.agHelper.AssertElementValue(themelocator.inputColor, "#553DE9");
+          _.agHelper.Sleep();
+          theme.ChooseColorType("Background");
+          _.agHelper.AssertElementValue(themelocator.inputColor, "#F8FAFC");
+          _.agHelper.Sleep();
 
           cy.get(themelocator.inputColor).click({ force: true });
-          cy.chooseColor(0, themelocator.greenColor);
+          //cy.chooseColor(0, themelocator.greenColor);
+          theme.ChooseColorFromColorPicker(themelocator.greenColor);
 
           cy.get(themelocator.inputColor).should("have.value", "#15803d");
           cy.get(themelocator.inputColor).clear({ force: true });

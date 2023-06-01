@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -9,6 +10,7 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 const appSettings = ObjectsRegistry.AppSettings;
 
 let themeBackgroudColor;
+let theme = ObjectsRegistry.ThemeSettings;
 
 describe("Theme validation for default data", function () {
   it("1. Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
@@ -31,19 +33,19 @@ describe("Theme validation for default data", function () {
     appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    cy.get(themelocator.border).should("have.length", "3");
-    cy.borderMouseover(0, "none");
-    cy.borderMouseover(1, "M");
-    cy.borderMouseover(2, "L");
+    theme.validateBorderTypeCount(3);
+    theme.validateBorderPopoverText(0, "none");
+    theme.validateBorderPopoverText(1, "M");
+    theme.validateBorderPopoverText(2, "L");
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover("none");
-    cy.shadowMouseover("S");
-    cy.shadowMouseover("M");
-    cy.shadowMouseover("L");
+    theme.validateShadowPopoverText(0, "none");
+    theme.validateShadowPopoverText(1, "S");
+    theme.validateShadowPopoverText(2, "M");
+    theme.validateShadowPopoverText(3, "L");
     cy.contains("Shadow").click({ force: true });
 
     //Font
@@ -61,10 +63,12 @@ describe("Theme validation for default data", function () {
     //Color
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
-    cy.colorMouseover(0, "Primary color");
-    cy.validateColor("Primary", "#553DE9");
-    cy.colorMouseover(1, "Background color");
-    cy.validateColor("Background", "#F8FAFC");
+    theme.ChooseColorType("Primary");
+    _.agHelper.AssertElementValue(themelocator.inputColor, "#553DE9");
+    _.agHelper.Sleep();
+    theme.ChooseColorType("Background");
+    _.agHelper.AssertElementValue(themelocator.inputColor, "#F8FAFC");
+    _.agHelper.Sleep();
     appSettings.ClosePane();
   });
 
