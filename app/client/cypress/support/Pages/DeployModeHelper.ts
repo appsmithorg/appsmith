@@ -40,6 +40,9 @@ export class DeployMode {
       });
     });
     cy.get(this.locator._publishButton).click();
+    cy.waitUntil(() =>
+      cy.document().then((doc) => doc.readyState === "complete"),
+    );
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!

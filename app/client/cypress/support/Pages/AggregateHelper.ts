@@ -784,7 +784,11 @@ export class AggregateHelper {
   }
 
   public RefreshPage() {
-    cy.reload();
+    cy.reload(true).then(() => {
+      cy.waitUntil(() =>
+        cy.document().then((doc) => doc.readyState === "complete"),
+      );
+    });
     this.Sleep(2000);
   }
 

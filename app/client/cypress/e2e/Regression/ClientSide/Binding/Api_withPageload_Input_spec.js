@@ -3,6 +3,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the API with pageOnLoad and input Widgets", function () {
   before(() => {
@@ -17,7 +18,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
     cy.get(apiwidget.settings).click({ force: true });
     cy.get(apiwidget.onPageLoad).click({ force: true });
     cy.wait("@setExecuteOnLoad");
-    cy.reload();
+    _.agHelper.RefreshPage();
   });
 
   it("2. Input widget updated with deafult data", function () {

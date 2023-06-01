@@ -1,7 +1,4 @@
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
-let dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe(
   "excludeForAirgap",
@@ -11,26 +8,25 @@ describe(
       cy.intercept("GET", "/api/v1/users/features", {
         fixture: "featureFlags.json",
       }).as("featureFlags");
-      cy.reload();
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("Google Sheets");
+      _.dataSources.NavigateToDSCreateNew();
+      _.dataSources.CreatePlugIn("Google Sheets");
       VerifyFunctionDropdown([
         "Read / Write / Delete | Selected google sheets",
         "Read / Write / Delete | All google sheets",
         "Read / Write | All google sheets",
         "Read | All google sheets",
       ]);
-      dataSources.SaveDSFromDialog(false);
+      _.dataSources.SaveDSFromDialog(false);
     });
 
     function VerifyFunctionDropdown(scopeOptions: string[]) {
-      agHelper.GetNClick(dataSources._gsScopeDropdown);
-      cy.get(dataSources._gsScopeOptions).then(function ($ele) {
+      _.agHelper.GetNClick(_.dataSources._gsScopeDropdown);
+      cy.get(_.dataSources._gsScopeOptions).then(function ($ele) {
         expect($ele.eq(0).text()).to.be.oneOf(scopeOptions);
         expect($ele.eq(1).text()).to.be.oneOf(scopeOptions);
         expect($ele.eq(2).text()).to.be.oneOf(scopeOptions);
       });
-      agHelper.GetNClick(dataSources._gsScopeDropdown);
+      _.agHelper.GetNClick(_.dataSources._gsScopeDropdown);
     }
   },
 );

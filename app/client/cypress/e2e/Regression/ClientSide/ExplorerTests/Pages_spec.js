@@ -31,8 +31,7 @@ describe("Pages", function () {
 
   it("2. Check for Refrsh page and validate and 404 is showing correct route", () => {
     //Automated as part Bug19654
-    cy.get(publish.backToEditor).click();
-    cy.reload();
+    _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
     //Checks if 404 is showing correct route
     cy.visit("/route-that-does-not-exist");

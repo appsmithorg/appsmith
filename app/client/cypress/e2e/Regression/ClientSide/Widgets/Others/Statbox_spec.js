@@ -1,18 +1,15 @@
 const dsl = require("../../../../../fixtures/StatboxDsl.json");
-const dsl1 = require("../../../../../fixtures/dynamicHeightStatboxdsl.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const data = require("../../../../../fixtures/example.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget Functionality", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -71,7 +68,7 @@ describe("Statbox Widget Functionality", function () {
     cy.SaveAndRunAPI();
     // going to HomePage where the button widget is located and opening it's property pane.
     cy.get(widgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
+    _.agHelper.RefreshPage();
     // binding datasource to text widget in statbox
     cy.openPropertyPane("textwidget");
     cy.get(".CodeMirror textarea")

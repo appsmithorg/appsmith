@@ -42,7 +42,7 @@ describe("Page Load tests", () => {
       "This is Page 2",
     );
     // Test after reload
-    cy.reload();
+    _.agHelper.RefreshPage();
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")

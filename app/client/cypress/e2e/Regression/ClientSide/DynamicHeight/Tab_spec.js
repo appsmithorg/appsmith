@@ -100,7 +100,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
         cy.get(".t--tabid-tab2").click({ force: true });
         cy.changeLayoutHeight(commonlocators.fixed);
         cy.wait(2000);
-        cy.reload();
+        _.agHelper.RefreshPage();
         cy.openPropertyPane("tabswidget");
         cy.get(".t--widget-tabswidget")
           .invoke("css", "height")
