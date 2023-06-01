@@ -15,9 +15,11 @@ export const TooltipContent = forwardRef(
     const { children, ...rest } = props;
 
     // We have to shift the arrow so that there is no empty space if the tooltip has rounding
-    const { borderRadius } = useThemeContext();
+    const theme = useThemeContext();
     const isRounded =
-      borderRadius[1].value.replace("px", "") > BORDER_RADIUS_THRESHOLD;
+      // @ts-expect-error this is a string
+      theme?.borderRadius?.[1].value.replace("px", "") >
+      BORDER_RADIUS_THRESHOLD;
 
     return (
       <StyledTooltipContent isRounded={isRounded} ref={ref} {...rest}>

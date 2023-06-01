@@ -2,11 +2,14 @@ import type { Ref } from "react";
 import React, { forwardRef } from "react";
 import { StyledText } from "./index.styled";
 import { useThemeContext } from "@design-system/theming";
-import type { TypographyVariants } from "@design-system/theming";
+import type {
+  TypographyVariants,
+  TypographyTypes,
+} from "@design-system/theming";
 
 export interface TextProps {
   variant?: TypographyVariants;
-  type?: "default" | "neutral" | "positive" | "negative" | "warn";
+  type?: TypographyTypes;
   isBold?: boolean;
   isItalic?: boolean;
   textAlign?: "left" | "center" | "right";
@@ -28,7 +31,7 @@ export const Text = forwardRef(
       variant = "body",
     } = props;
 
-    const { typography } = useThemeContext();
+    const theme = useThemeContext();
 
     return (
       <StyledText
@@ -39,7 +42,7 @@ export const Text = forwardRef(
         ref={ref}
         textAlign={textAlign}
         type={type}
-        typography={typography}
+        typography={theme?.typography}
         variant={variant}
       >
         <span>{children}</span>

@@ -1,18 +1,10 @@
 import range from "lodash/range";
 import kebabCase from "lodash/kebabCase";
-import { DarkModeTheme } from "./DarkModeTheme";
-import { LightModeTheme } from "./LightModeTheme";
+import { DarkModeTheme, LightModeTheme } from "../color";
 
-import type {
-  ColorMode,
-  TokenObj,
-  TokenSource,
-  ThemeTokens,
-  TokenType,
-  ColorTypes,
-  Typography,
-  fontFamilyTypes,
-} from "./types";
+import type { ColorMode, ColorTypes } from "../color";
+import type { TokenObj, TokenSource, ThemeTokens, TokenType } from "../theme";
+import type { Typography, fontFamilyTypes } from "../typography";
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;

@@ -1,6 +1,6 @@
 import fs from "fs";
 import { TokensAccessor, defaultTokens } from "../";
-import type { TokenSource } from "./";
+import type { TokenSource } from "../theme";
 
 fs.writeFileSync(
   `${__dirname}/../tokens/themeTokens.json`,

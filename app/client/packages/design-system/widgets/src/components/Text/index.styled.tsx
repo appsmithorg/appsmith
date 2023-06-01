@@ -1,11 +1,12 @@
 import type { TypographyVariants } from "@design-system/theming";
+import type { FlattenSimpleInterpolation } from "styled-components";
 import styled, { css } from "styled-components";
 
 import type { TextProps } from "./Text";
 
 type StyledTextProp = TextProps & {
-  typography: {
-    [key in TypographyVariants]: string;
+  typography?: {
+    [key in TypographyVariants]?: FlattenSimpleInterpolation;
   };
 };
 
@@ -44,13 +45,13 @@ export const StyledText = styled.div<StyledTextProp>`
   ${({ typography, variant }) => {
     switch (true) {
       case variant === "heading":
-        return typography.heading;
+        return typography?.heading;
       case variant === "footnote":
-        return typography.footnote;
+        return typography?.footnote;
       case variant === "body":
-        return typography.body;
+        return typography?.body;
       default:
-        return typography.body;
+        return typography?.body;
     }
   }}
 

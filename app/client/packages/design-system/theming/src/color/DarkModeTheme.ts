@@ -1,4 +1,4 @@
-import { ColorsAccessor } from "../ColorsAccessor";
+import { ColorsAccessor } from "./ColorsAccessor";
 
 import type Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
