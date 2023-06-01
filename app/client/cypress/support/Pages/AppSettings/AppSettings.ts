@@ -3,12 +3,26 @@ export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;
 
-  private locators = {
+  public locators = {
     _appSettings: ".t--app-settings-cta",
     _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
+    _navigationSettingsTab: "#t--navigation-settings-header",
+    _navigationSettings: {
+      _showNavbar: "#t--navigation-settings-show-navbar",
+      _showSignIn: "#t--navigation-settings-show-sign-in",
+      _orientation: ".t--navigation-settings-orientation",
+      _navStyle: ".t--navigation-settings-navStyle",
+      _colorStyle: ".t--navigation-settings-colorStyle",
+      _orientationOptions: {
+        _top: ".t--navigation-settings-orientation .ads-v2-segmented-control-value-top",
+        _side:
+          ".t--navigation-settings-orientation .ads-v2-segmented-control-value-side",
+      },
+    },
+    _navigationMenuItem: ".t--page-switch-tab",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
     _updateStatus: ".ads-v2-icon.rotate",
