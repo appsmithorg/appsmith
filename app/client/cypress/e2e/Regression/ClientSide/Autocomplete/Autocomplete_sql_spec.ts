@@ -17,8 +17,7 @@ describe("SQL Autocompletion", () => {
   it("Shows autocompletion hints in SQL", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
-    dataSources.EnterQuery("select");
+    cy.get(locator._codeMirrorTextArea).focus().type("select");
     // Hints should exist
     cy.get(locator._hints).should("exist");
     // "select" should be parsed as a keyword and should not be capitalised
