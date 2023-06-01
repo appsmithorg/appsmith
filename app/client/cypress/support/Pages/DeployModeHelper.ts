@@ -40,9 +40,7 @@ export class DeployMode {
       });
     });
     cy.get(this.locator._publishButton).click();
-    cy.waitUntil(() =>
-      cy.document().then((doc) => doc.readyState === "complete"),
-    );
+    this.agHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -74,6 +72,7 @@ export class DeployMode {
     cy.get(this.locator._backToEditor).click({ force: true });
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
+    this.agHelper.AssertDocumentReady();
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
   }
 

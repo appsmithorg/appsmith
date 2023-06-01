@@ -21,7 +21,7 @@ describe("Container Widget Functionality", function () {
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. List-Check Visible field Validation", function () {
@@ -31,7 +31,7 @@ describe("Container Widget Functionality", function () {
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Toggle JS - List-Unckeck Visible field Validation", function () {
@@ -42,7 +42,7 @@ describe("Container Widget Functionality", function () {
     cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Toggle JS - List-Check Visible field Validation", function () {
@@ -52,7 +52,7 @@ describe("Container Widget Functionality", function () {
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. checks if list shows correct no. of items", function () {
@@ -153,7 +153,7 @@ describe("Container Widget Functionality", function () {
       expect($lis.eq(0)).to.contain(items[2].first_name);
       expect($lis.eq(1)).to.contain(items[3].first_name);
     });
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("11. ListWidget-Copy & Delete Verification", function () {
@@ -163,7 +163,7 @@ describe("Container Widget Functionality", function () {
     cy.PublishtheApp();
     // Verify the copied list widget is deleted
     cy.get(commonlocators.containerWidget).should("have.length", 2);
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("12. List widget background colour and deploy ", function () {
@@ -189,7 +189,7 @@ describe("Container Widget Functionality", function () {
       "background-color",
       "rgb(126, 34, 206)",
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("13. Toggle JS - List widget background colour and deploy ", function () {
@@ -217,7 +217,7 @@ describe("Container Widget Functionality", function () {
       "background-color",
       "rgb(56, 175, 244)",
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("14. Add new item in the list widget array object", function () {
@@ -228,7 +228,7 @@ describe("Container Widget Functionality", function () {
     cy.testJsontext("items", JSON.stringify(this.data.ListItems));
     cy.wait(2000);
     cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("15. Adding large item Spacing for item card", function () {
@@ -241,7 +241,7 @@ describe("Container Widget Functionality", function () {
     cy.wait(2000);
     // Click on Deploy and ensure it is deployed appropriately
     cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("16. Renaming the widget from Property pane and Entity explorer ", function () {
@@ -268,7 +268,7 @@ describe("Container Widget Functionality", function () {
       "List1",
     );
     cy.PublishtheApp();
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   afterEach(() => {

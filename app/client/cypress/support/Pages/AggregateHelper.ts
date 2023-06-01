@@ -72,6 +72,12 @@ export class AggregateHelper {
     });
   }
 
+  public AssertDocumentReady() {
+    cy.waitUntil(() =>
+      cy.document().then((doc) => doc.readyState === "complete"),
+    );
+  }
+
   public AddDsl(
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
@@ -785,9 +791,7 @@ export class AggregateHelper {
 
   public RefreshPage() {
     cy.reload().then(() => {
-      cy.waitUntil(() =>
-        cy.document().then((doc) => doc.readyState === "complete"),
-      );
+      this.AssertDocumentReady();
     });
     this.Sleep(2000);
   }
