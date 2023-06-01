@@ -118,7 +118,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           name: cicontainer
-          run_id: ${{ github.event.inputs.previous-workflow-run-id }}
+          run_id: ${{ inputs.previous-workflow-run-id }}
       
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
