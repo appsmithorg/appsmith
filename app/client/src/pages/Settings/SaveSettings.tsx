@@ -30,7 +30,7 @@ type SaveAdminSettingsProps = {
   onClear?: () => void;
   settings: Record<string, string>;
   valid: boolean;
-  updatedTenantSettings: string[];
+  updatedTenantSettings?: string[];
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
@@ -47,8 +47,8 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         size="md"
       >
         {createMessage(() =>
-          updatedTenantSettings.length === Object.keys(settings).length &&
-          updatedTenantSettings.length !== 0
+          updatedTenantSettings?.length === Object.keys(settings).length &&
+          updatedTenantSettings?.length !== 0
             ? "Save"
             : "Save & Restart",
         )}
