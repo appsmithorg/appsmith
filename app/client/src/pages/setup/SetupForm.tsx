@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import DetailsForm from "./DetailsForm";
@@ -52,6 +52,21 @@ export type DetailsFormValues = {
   role_name?: string;
 };
 
+export const firstpageValues = [
+  "firstName",
+  "lastName",
+  "email",
+  "password",
+  "verifyPassword",
+];
+
+export const secondPageValues = [
+  "role",
+  "useCase",
+  "custom_useCase",
+  "role_name",
+];
+
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
   if (!values.firstName) {
@@ -99,7 +114,7 @@ export type SetupFormProps = DetailsFormValues & {
 
 function SetupForm(props: SetupFormProps) {
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
-  const [showDetailsForm, setShowDetailsForm] = useState(true);
+  const [isFirstPage, setIsFirstPage] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
   const isAirgappedFlag = isAirgapped();
 
@@ -163,31 +178,46 @@ function SetupForm(props: SetupFormProps) {
     return true;
   };
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    //add enter key event listener
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [props]);
+
+  const toggleFormPage = () => {
+    setIsFirstPage(!isFirstPage);
+  };
+
+  const onKeyDown = (event: any) => {
     if (event.key === "Enter") {
       if (props.valid) {
-        if (showDetailsForm) {
-          // If we are on the details page we do not want to submit the form
+        if (isFirstPage) {
+          // If we are on the first page we do not want to submit the form
           // instead we move the user to the next page
+          toggleFormPage();
           event.preventDefault();
-          onNext();
+        } else {
+          // If we are on the second page we submit the form
+          onSubmit();
         }
       } else {
         // The fields to be marked as touched so that we can display the errors
         const toTouch = [];
-        // We fetch the fields which are invalid
+        // We fetch the fields which are invalid based on field name
         for (const key in props.formSyncErrors) {
-          props.formSyncErrors.hasOwnProperty(key) && toTouch.push(key);
+          if (
+            (isFirstPage && firstpageValues.includes(key)) ||
+            (!isFirstPage && secondPageValues.includes(key))
+          )
+            props.formSyncErrors.hasOwnProperty(key) && toTouch.push(key);
         }
         props.touch(...toTouch);
         // prevent submitting the form on enter if the values are invalid
         event.preventDefault();
       }
     }
-  };
-
-  const onNext = () => {
-    setShowDetailsForm(false);
   };
 
   return (
@@ -198,12 +228,15 @@ function SetupForm(props: SetupFormProps) {
           data-testid="super-user-form"
           id="super-user-form"
           method="POST"
-          onKeyDown={onKeyDown}
           onSubmit={onSubmit}
           ref={formRef}
         >
-          <SetupStep active={showDetailsForm}>
-            <DetailsForm {...props} onNext={onNext} />
+          <SetupStep active>
+            <DetailsForm
+              {...props}
+              isFirstPage={isFirstPage}
+              toggleFormPage={toggleFormPage}
+            />
           </SetupStep>
         </form>
         <SpaceFiller />
