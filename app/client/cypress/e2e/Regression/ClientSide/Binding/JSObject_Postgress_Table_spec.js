@@ -2,6 +2,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/inputdsl.json");
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -37,6 +38,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       _.jsEditor.CreateJSObject("return Query1.data;");
       cy.CheckAndUnfoldEntityItem("Widgets");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      _.propPane.ToggleJsMode("Table data");
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabData) => {

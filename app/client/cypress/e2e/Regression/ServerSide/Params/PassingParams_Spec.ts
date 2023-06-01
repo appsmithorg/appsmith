@@ -17,6 +17,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.propPane.RenameWidget("Select1", "selRecordFilter");
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 500);
     _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.table.AddSampleTableData();
   });
 
   it("1. With Optional chaining : {{ this?.params?.condition }}", function () {

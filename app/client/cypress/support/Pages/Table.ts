@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import sampleTableData from "../../fixtures/Table/sampleTableData.json";
+
 const path = require("path");
 
 type filterTypes =
@@ -114,6 +116,16 @@ export class Table {
     `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
+  _headerCell = (column: string) =>
+    `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
+  _addNewRow = ".t--add-new-row";
+  _saveNewRow = ".t--save-new-row";
+  _searchInput = ".t--search-input input";
+  _bodyCell = (cellValue: string) =>
+    `.t--table-text-cell:contains(${cellValue})`;
+  _newRow = ".new-row";
+  _connectDataHeader = ".t--cypress-table-overlay-header";
+  _connectDataButton = ".t--cypress-table-overlay-connectdata";
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -566,5 +578,15 @@ export class Table {
     if (checkNoNextPage)
       cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
     else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+  }
+
+  public AddSampleTableData() {
+    this.propPane.ToggleJsMode("Table data");
+    this.propPane.UpdatePropertyFieldValue(
+      "Table data",
+      JSON.stringify(sampleTableData),
+      true,
+    );
+    this.ChangeColumnType("action", "Button", "v2");
   }
 }
