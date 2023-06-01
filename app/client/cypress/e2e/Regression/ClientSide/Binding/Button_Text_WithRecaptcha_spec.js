@@ -104,7 +104,10 @@ describe(
             _.locators._specificToast(
               "Google Re-Captcha token generation failed!",
             ),
-          ).length
+          ).length ||
+          $ele
+            .find(_.locators._widgetInCanvas("textwidget") + " span")
+            .text() == ""
         ) {
           _.agHelper.ClickButton("Submit");
         }
