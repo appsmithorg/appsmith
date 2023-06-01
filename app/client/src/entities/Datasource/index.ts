@@ -22,7 +22,7 @@ export enum FilePickerActionStatus {
 
 export enum ActionType {
   AUTHORIZE = "authorize",
-  DOCUMENTATION = "picked",
+  DOCUMENTATION = "documentation",
 }
 
 export interface DatasourceAuthentication {

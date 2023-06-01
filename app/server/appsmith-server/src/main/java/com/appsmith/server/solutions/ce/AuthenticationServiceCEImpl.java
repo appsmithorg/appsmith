@@ -89,6 +89,51 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
+    // TODO: Remove after client side changes have been merged
+    public Mono<String> getAuthorizationCodeURLForGenericOAuth2(String datasourceId,
+                                                                String environmentId,
+                                                                String pageId,
+                                                                ServerHttpRequest httpRequest,
+                                                                Boolean isTrueEnvironmentIdRequired) {
+        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
+            return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+                    .map(Datasource::getWorkspaceId)
+                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(trueEnvironmentId -> getAuthorizationCodeURLForGenericOAuth2(datasourceId, trueEnvironmentId, pageId, httpRequest));
+        }
+
+        return getAuthorizationCodeURLForGenericOAuth2(datasourceId, environmentId, pageId, httpRequest);
+    }
+
+    public Mono<String> getAppsmithToken(String datasourceId, String environmentId, String pageId, String branchName,
+                                         ServerHttpRequest request, String importForGit,
+                                         Boolean isTrueEnvironmentIdRequired) {
+
+        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
+            return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+                    .map(Datasource::getWorkspaceId)
+                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(trueEnvironmentId -> getAppsmithToken(datasourceId, trueEnvironmentId, pageId, branchName, request, importForGit));
+        }
+
+        return getAppsmithToken(datasourceId, environmentId, pageId, branchName, request, importForGit);
+
+    }
+
+    public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(String datasourceId, String environmentId,
+                                                           String appsmithToken,
+                                                           Boolean isTrueEnvironmentIdRequired) {
+
+        if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
+            return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+                    .map(Datasource::getWorkspaceId)
+                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(trueEnvironmentId -> getAccessTokenFromCloud(datasourceId, trueEnvironmentId, appsmithToken));
+        }
+
+        return getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken);
+    }
+
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
      * when hitting the authorization url and redirect to it from the controller.

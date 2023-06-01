@@ -2,25 +2,17 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getEntities,
-  getPluginNameFromId,
-  getPluginTypeFromDatasourceId,
-  getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
-import {
   testDatasource,
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
-  setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useParams, useLocation } from "react-router";
+import { useParams, useLocation, useHistory } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
@@ -37,24 +29,33 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { Colors } from "constants/Colors";
+import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { integrationEditorURL } from "RouteBuilder";
+import { getQueryParams } from "utils/URLUtils";
+import type { AppsmithLocationState } from "utils/history";
+import type { PluginType } from "entities/Action";
 
 interface Props {
   datasource: Datasource;
   formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
-  deleteTempDSFromDraft: () => void;
   isInvalid: boolean;
   pageId?: string;
   viewMode?: boolean;
   shouldRender?: boolean;
   isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
+  pluginType: PluginType;
+  pluginName: string;
+  pluginPackageName: string;
+  setDatasourceViewMode: (viewMode: boolean) => void;
+  isSaving: boolean;
+  isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
+  showFilterComponent: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -83,11 +84,13 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
+  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
+    // If filter component is present, then we need to push the button to the right
+    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
   }
 `;
 
@@ -98,10 +101,11 @@ const SaveButtonContainer = styled.div<{
   justify-content: flex-end;
   gap: 9px;
   padding-right: 20px;
-  flex: 1 1 10%;
   border-top: ${(props) =>
-    props.isInsideReconnectModal ? "none" : `1px solid ${Colors.ALTO}`};
+    props.isInsideReconnectModal ? "none" : "1px solid"};
+  border-color: var(--ads-v2-color-border);
   align-items: center;
+  height: 68px;
 `;
 
 const StyledAuthMessage = styled.div`
@@ -119,17 +123,23 @@ function DatasourceAuth({
     DatasourceButtonTypeEnum.CANCEL,
     DatasourceButtonTypeEnum.SAVE,
   ],
-  deleteTempDSFromDraft,
   formData,
   getSanitizedFormData,
   isInvalid,
   pageId: pageIdProp,
+  pluginType,
+  pluginName,
+  pluginPackageName,
+  isSaving,
+  isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
+  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
+  showFilterComponent,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
@@ -137,14 +147,8 @@ function DatasourceAuth({
       ? formData?.authType
       : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId, pluginId } = datasource;
+  const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
-  const pluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, pluginId),
-  );
-  const pluginPackageName = useSelector((state: AppState) =>
-    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
-  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -156,11 +160,9 @@ function DatasourceAuth({
   const dispatch = useDispatch();
   const location = useLocation();
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+  const history = useHistory<AppsmithLocationState>();
 
   const pageId = (pageIdQuery || pageIdProp) as string;
-
-  const dsName = datasource?.name;
-  const orgId = datasource?.workspaceId;
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -179,39 +181,27 @@ function DatasourceAuth({
           !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const oauthReason = status;
-        AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-          dsName,
-          oauthReason,
-          orgId,
-          pluginName,
-        });
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           toast.show(display_message || message, { kind: "error" });
+          AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+            applicationId: applicationId,
+            datasourceId: datasourceId,
+            pageId: pageId,
+            oAuthPassOrFailVerdict: status,
+            workspaceId: datasource?.workspaceId,
+            datasourceName: datasource?.name,
+            pluginName: pluginName,
+          });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
-        AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-          applicationId,
-          datasourceId,
-          pageId,
-        });
       }
     }
   }, [authType]);
-
-  // selectors
-  const {
-    datasources: { isTesting, loading: isSaving },
-  } = useSelector(getEntities);
-
-  const pluginType = useSelector((state: AppState) =>
-    getPluginTypeFromDatasourceId(state, datasourceId),
-  );
 
   useEffect(() => {
     if (triggerSave) {
@@ -254,8 +244,6 @@ function DatasourceAuth({
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
-      // If the datasource is being saved from the reconnect modal, we don't want to redirect to the active datasource list
-      if (!isInsideReconnectModal) dispatch(setDatasourceViewMode(true));
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
@@ -280,7 +268,6 @@ function DatasourceAuth({
         ),
       );
     } else {
-      dispatch(setDatasourceViewMode(true));
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
@@ -291,10 +278,10 @@ function DatasourceAuth({
       );
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
-      dsName,
-      orgId,
-      pluginName,
-      scopeValue,
+      dsName: datasource?.name,
+      orgId: datasource?.workspaceId,
+      pluginName: pluginName,
+      scopeValue: scopeValue,
     });
   };
 
@@ -310,6 +297,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
+          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}
@@ -321,8 +309,14 @@ function DatasourceAuth({
           key={buttonType}
           kind="tertiary"
           onClick={() => {
-            if (createMode) deleteTempDSFromDraft();
-            else dispatch(setDatasourceViewMode(true));
+            if (createMode) {
+              const URL = integrationEditorURL({
+                pageId,
+                selectedTab: INTEGRATION_TABS.NEW,
+                params: getQueryParams(),
+              });
+              history.push(URL);
+            } else setDatasourceViewMode(true);
           }}
           size="md"
         >
