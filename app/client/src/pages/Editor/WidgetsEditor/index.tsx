@@ -49,6 +49,21 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/canvasCodeSelectors";
+import { matchBuilderPath } from "constants/routes";
+
+function PropertyPane() {
+  const isCanvasCodeActive = useSelector(isCanvasCodeActiveSelector);
+
+  if (isCanvasCodeActive) {
+    if (matchBuilderPath(window.location.pathname)) {
+      return <PropertyPaneContainer />;
+    }
+    return null;
+  }
+
+  return <PropertyPaneContainer />;
+}
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -235,7 +250,7 @@ function WidgetsEditor() {
               </div>
               <Debugger />
             </div>
-            <PropertyPaneContainer />
+            <PropertyPane />
           </div>
         </>
       )}

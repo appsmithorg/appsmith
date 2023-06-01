@@ -49,7 +49,7 @@ import {
   SEARCH_CATEGORY_ID,
   filterCategories,
 } from "components/editorComponents/GlobalSearch/utils";
-import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/multiPaneSelectors";
+import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/canvasCodeSelectors";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;

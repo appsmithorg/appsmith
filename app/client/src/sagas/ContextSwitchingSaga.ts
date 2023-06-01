@@ -25,7 +25,7 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
-import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/multiPaneSelectors";
+import { isCanvasCodeActive as isCanvasCodeActiveSelector } from "selectors/canvasCodeSelectors";
 
 export function* contextSwitchingSaga(
   currentPath: string,
