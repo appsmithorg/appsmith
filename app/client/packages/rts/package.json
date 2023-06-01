@@ -17,6 +17,7 @@
   "dependencies": {
     "@babel/runtime": "^7.21.0",
     "@shared/ast": "workspace:^",
+    "@shared/dsl": "workspace:^",
     "astravel": "^0.6.1",
     "axios": "^1.2.0",
     "escodegen": "^2.0.0",
