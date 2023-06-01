@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.MergeOperation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 
@@ -43,7 +44,11 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
         AggregationOperation defaultWorkspaceIDToNull = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).
                 withValue(null).build();
 
-        AggregationOperation out = Aggregation.out("permissionGroup");
+        AggregationOperation merge = Aggregation.merge()
+                .intoCollection("permissionGroup")
+                .on("_id")
+                .whenMatched(MergeOperation.WhenDocumentsMatch.mergeDocuments())
+                .build();
 
         Aggregation combinedAggregation = Aggregation.newAggregation(
                 matchDocWithWorkspaceIDField,
@@ -51,7 +56,7 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
                 defaultWorkSpaceIDAdd,
                 defaultDomainTypeAdd,
                 defaultWorkspaceIDToNull,
-                out);
+                merge);
 
         mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
 
