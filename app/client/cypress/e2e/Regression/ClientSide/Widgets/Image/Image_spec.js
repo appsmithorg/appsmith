@@ -3,13 +3,14 @@ const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Image Widget Functionality", function () {
+  it("1. Image Widget Functionality", function () {
     cy.openPropertyPane("imagewidget");
     /**
      * @param{Text} Random Text
@@ -34,7 +35,7 @@ describe("Image Widget Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("No Zoom functionality check", function () {
+  it("2. No Zoom functionality check", function () {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
     cy.changeZoomLevel("1x (No Zoom)");
@@ -43,32 +44,30 @@ describe("Image Widget Functionality", function () {
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");
     cy.PublishtheApp();
-  });
-
-  it("Image Widget Functionality To Validate Image", function () {
+    // Image Widget Functionality To Validate Image
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
       .should("contain", this.data.NewImage);
   });
 
-  it("Image Widget Functionality To Unchecked Visible Widget", function () {
+  it("3. Image Widget Functionality To Unchecked Visible Widget", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("imagewidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.imageWidget).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("Image Widget Functionality To Check Visible Widget", function () {
+  it("4. Image Widget Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.imageWidget).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("Image Widget Functionality To check download option and validate image link", function () {
+  it("5. Image Widget Functionality To check download option and validate image link", function () {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(".t--property-control-enabledownload input[type='checkbox']");
     cy.get(publish.imageWidget).trigger("mouseover");
@@ -79,7 +78,7 @@ describe("Image Widget Functionality", function () {
     );
   });
 
-  it("In case of an image loading error, show off the error message", () => {
+  it("6. In case of an image loading error, show off the error message", () => {
     cy.openPropertyPane("imagewidget");
     // Invalid image url
     const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";

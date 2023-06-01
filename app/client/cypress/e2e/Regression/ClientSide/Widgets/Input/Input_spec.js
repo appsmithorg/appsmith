@@ -70,7 +70,7 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "placeholder")
       .should("contain", this.data.placeholder);
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. isSpellCheck: true", function () {
@@ -80,7 +80,7 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "spellcheck")
       .should("eq", "true");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
 
     //isSpellCheck: false
     cy.openPropertyPane("inputwidgetv2");
@@ -89,7 +89,7 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "spellcheck")
       .should("eq", "false");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Input Widget Functionality To Check Disabled Widget", function () {
@@ -97,21 +97,21 @@ describe("Input Widget Functionality", function () {
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
 
     //Input Widget Functionality To Check Enabled Widget
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
   it("5. Input Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
 
     //Input Functionality To Check Visible Widget
     cy.openPropertyPane("inputwidgetv2");
