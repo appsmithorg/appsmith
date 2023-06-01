@@ -29,7 +29,11 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { saveAllowed } from "@appsmith/utils/adminSettingsHelpers";
+import {
+  isTenantConfig,
+  saveAllowed,
+  tenantConfigConnection,
+} from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
@@ -45,6 +49,7 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import { updateTenantConfig } from "@appsmith/actions/tenantActions";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -63,6 +68,10 @@ function getSettingDetail(category: string, subCategory: string) {
 
 function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
+}
+
+function getKeyByValue(object: any, value: string) {
+  return Object.keys(object).find((key) => object[key] === value);
 }
 
 export function SettingsForm(
@@ -89,7 +98,35 @@ export function SettingsForm(
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
-        dispatch(saveSettings(props.settings));
+        const isTenantSettingPresent = Object.keys(props.settings).map((s) =>
+          isTenantConfig(s),
+        );
+        if (isTenantSettingPresent.every((el) => el === false)) {
+          dispatch(saveSettings(props.settings));
+        } else {
+          const config: any = {};
+          for (const each in props.settings) {
+            const key = getKeyByValue(tenantConfigConnection, each) || "";
+            if (key) {
+              config[key] = props.settings[each];
+            }
+          }
+          dispatch(
+            updateTenantConfig({
+              tenantConfiguration: config,
+            }),
+          );
+          if (!isTenantSettingPresent.every((el) => el === true)) {
+            const filteredSettings = Object.keys(props.settings)
+              .filter((key) => !isTenantConfig(key))
+              .reduce((obj, key) => {
+                return Object.assign(obj, {
+                  [key]: props.settings[key],
+                });
+              }, {});
+            dispatch(saveSettings(filteredSettings));
+          }
+        }
       } else {
         saveBlocked();
       }
