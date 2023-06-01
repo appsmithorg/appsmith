@@ -614,14 +614,16 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
     //When using saved datasource we should update active env to unused env
     //This is because use active_env for editing datasource.
+    const defaultDataStorage = get(datasource, "datasourceStorages.unused_env");
     if (
       !isNewDatasource &&
-      this.props.pluginDatasourceForm === DatasourceComponentTypes.AutoForm
+      this.props.pluginDatasourceForm === DatasourceComponentTypes.AutoForm &&
+      defaultDataStorage
     )
       set(
         datasource as Datasource,
         "datasourceStorages.active_env",
-        get(datasource, "datasourceStorages.unused_env"),
+        defaultDataStorage,
       );
     return (
       <Form
