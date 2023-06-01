@@ -196,7 +196,11 @@ export function TemplatesContent(props: TemplatesContentProps) {
           />
         </div>
       </SearchWrapper>
-      <ResultsCount kind="heading-m" renderAs="h1">
+      <ResultsCount
+        data-testid="t--application-templates-results-header"
+        kind="heading-m"
+        renderAs="h1"
+      >
         {resultsText}
       </ResultsCount>
       <TemplateList

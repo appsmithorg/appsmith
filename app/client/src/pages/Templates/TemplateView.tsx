@@ -197,7 +197,7 @@ function TemplateView() {
           <ReconnectDatasourceModal />
           <TemplateViewWrapper>
             <HeaderWrapper>
-              <div className="left">
+              <div className="left" data-testid="t--template-view-goback">
                 <Link onClick={goBack} startIcon="arrow-left-line">
                   {createMessage(GO_BACK)}
                 </Link>
