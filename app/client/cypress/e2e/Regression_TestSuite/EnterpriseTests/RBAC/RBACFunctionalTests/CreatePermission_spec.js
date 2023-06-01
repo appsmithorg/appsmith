@@ -1,4 +1,4 @@
-import homePage from "../../../../../locators/HomePage";
+import homePageLocators from "../../../../../locators/HomePage";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
@@ -7,9 +7,7 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
 const testUrl1 = "https://mock-api.appsmith.com/echo/get";
 const omnibar = require("../../../../../locators/Omnibar.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper,
-  homePage1 = ObjectsRegistry.HomePage;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Create Permission flow ", function () {
   let datasourceName;
@@ -170,24 +168,24 @@ describe("Create Permission flow ", function () {
       Cypress.env("TESTPASSWORD1"),
     );
     cy.wait(2000);
-    cy.get(homePage.searchInput).type(appName);
+    cy.get(homePageLocators.searchInput).type(appName);
     cy.wait(2000);
     // verify user is able to create app in same workspace
-    cy.get(homePage.appsContainer).contains(workspaceName);
-    cy.get(homePage.createNewAppButton).first().click();
+    cy.get(homePageLocators.appsContainer).contains(workspaceName);
+    cy.get(homePageLocators.createNewAppButton).first().click();
     cy.wait("@applications").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
     cy.wait(4000);
-    cy.get(homePage.homeIcon).click({ force: true });
+    cy.get(homePageLocators.homeIcon).click({ force: true });
     // verify user is able to create pages in exisiting app
     cy.wait(2000);
-    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appEditIcon).click();
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("page3");
@@ -214,13 +212,10 @@ describe("Create Permission flow ", function () {
     cy.createJSObject('return "Success";');
     cy.wait(2000);
     // verify user is  able to create new datasource
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasources.MySQL).click();
-    cy.fillMySQLDatasourceForm();
+    _.dataSources.CreateDataSource("MySql");
     cy.generateUUID().then((UUID) => {
       datasourceName2 = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName2);
-      cy.testSaveDatasource();
       // verify user is able to create new query & verify create new datasource dropdown cta is visible
       cy.NavigateToActiveDSQueryPane(datasourceName2);
       cy.get(".rc-select-selector").click();
@@ -232,17 +227,19 @@ describe("Create Permission flow ", function () {
         .first()
         .focus()
         .type("select * from users limit 10");
-      cy.WaitAutoSave();
-      cy.runQuery();
+      _.agHelper.AssertAutoSave();
+      _.dataSources.RunQuery({
+        toValidateResponse: false,
+      });
     });
   });
   it("2. Create Permission : Workspace level, verify user has edit permission too", function () {
     // verify user should be able to edit existing app
-    cy.get(homePage.homeIcon).click({ force: true });
-    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePageLocators.homeIcon).click({ force: true });
+    cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appEditIcon).click();
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).click();
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("page2");
     cy.wait(1000);
@@ -252,22 +249,22 @@ describe("Create Permission flow ", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
     cy.get(".t--widget-tablewidgetv2").should("exist");
-    cy.get(homePage.homeIcon).click({ force: true });
+    cy.get(homePageLocators.homeIcon).click({ force: true });
     cy.wait(2000);
-    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePageLocators.searchInput).clear().type(appName);
     // verify duplication of app
-    homePage1.ForkApplication(appName);
+    _.homePage.ForkApplication(appName);
   });
   it("3. Create Permission : Workspace level, verify user can import an application", function () {
     // verify user should be able to import an app
     // import application
-    cy.get(homePage.homeIcon).click();
-    cy.get(homePage.searchInput).clear().type(appName);
-    cy.get(homePage.optionsIcon).first().click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(homePage.workspaceImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
-    cy.get(homePage.importAppProgressWrapper).should("be.visible");
+    cy.get(homePageLocators.homeIcon).click();
+    cy.get(homePageLocators.searchInput).clear().type(appName);
+    cy.get(homePageLocators.optionsIcon).first().click();
+    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
+    cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
+    cy.xpath(homePageLocators.uploadLogo).attachFile("forkedApp.json");
+    cy.get(homePageLocators.importAppProgressWrapper).should("be.visible");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
       // should check reconnect modal opening
@@ -278,7 +275,7 @@ describe("Create Permission flow ", function () {
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
         cy.wait(2000);
       } else {
-        cy.get(homePage.toastMessage).should(
+        cy.get(homePageLocators.toastMessage).should(
           "contain",
           "Application imported successfully",
         );
@@ -288,13 +285,16 @@ describe("Create Permission flow ", function () {
   it("4. Export permission- Verify user is able to export app", function () {
     // verify user is able to export the app
     cy.NavigateToHome();
-    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
     cy.get(RBAC.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.exportAppFromMenu).should("be.visible");
-    cy.get(homePage.exportAppFromMenu).click({ force: true });
-    cy.get(homePage.toastMessage).should("contain", "Successfully exported");
+    cy.get(homePageLocators.exportAppFromMenu).should("be.visible");
+    cy.get(homePageLocators.exportAppFromMenu).click({ force: true });
+    cy.get(homePageLocators.toastMessage).should(
+      "contain",
+      "Successfully exported",
+    );
     cy.LogOut();
   });
   it("5. Create permission- application resources & datasource and queries: App level", function () {
@@ -303,13 +303,13 @@ describe("Create Permission flow ", function () {
       Cypress.env("TESTPASSWORD2"),
     );
     cy.wait(2000);
-    cy.get(homePage.searchInput).type(appName);
+    cy.get(homePageLocators.searchInput).type(appName);
     cy.wait(2000);
     // verify create new app button is not visible to user
-    cy.get(homePage.createNewAppButton).should("not.exist");
+    cy.get(homePageLocators.createNewAppButton).should("not.exist");
     // verify user is able to create new page in same app
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appEditIcon).click();
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("page2");
@@ -332,12 +332,12 @@ describe("Create Permission flow ", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
-    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePageLocators.searchInput).clear().type(appName);
     // verify create new app button is not visible to user
-    cy.get(homePage.createNewAppButton).should("not.exist");
+    cy.get(homePageLocators.createNewAppButton).should("not.exist");
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appEditIcon).click();
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     // verify user is not able to create new page
     cy.get(explorer.AddPage).should("not.exist");
@@ -358,10 +358,10 @@ describe("Create Permission flow ", function () {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
-    cy.get(homePage.searchInput).clear().type(appName);
+    cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
-    cy.get(homePage.appEditIcon).click();
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
     // verify create new on omnibar is visible to user
@@ -405,18 +405,20 @@ describe("Create Permission flow ", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
-    cy.get(homePage.searchInput).type(appName);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePageLocators.searchInput).type(appName);
+    cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
     cy.wait(2000);
     cy.get(RBAC.appMoreIcon)
       // .should("have.length", 1)
       .first()
       .click({ force: true });
     cy.wait(2000);
-    cy.get(homePage.deleteAppConfirm)
+    cy.get(homePageLocators.deleteAppConfirm)
       .should("be.visible")
       .click({ force: true });
-    cy.get(homePage.deleteApp).should("be.visible").click({ force: true });
+    cy.get(homePageLocators.deleteApp)
+      .should("be.visible")
+      .click({ force: true });
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
   });
