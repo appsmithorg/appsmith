@@ -78,7 +78,10 @@ export const addDataTreeToContext = (args: {
 
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = getEntityForEvalContext(entity, entityName);
-    if (!removeEntityFunctions && !isTriggerBased) continue;
+
+    const skipEntityFunctions = !removeEntityFunctions && !isTriggerBased;
+
+    if (skipEntityFunctions) continue;
 
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
@@ -86,6 +89,9 @@ export const addDataTreeToContext = (args: {
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       set(entityFunctionCollection, fullPath, func);
     }
+
+    // Don't add entity function ( setter method ) to evalContext if removeEntityFunctions is true
+    if (removeEntityFunctions) continue;
 
     const entityConfig = configTree[entityName];
     const entityMethodMap = getEntityMethodFromConfig(entityConfig);
