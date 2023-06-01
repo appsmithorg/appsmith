@@ -473,7 +473,7 @@ function ReconnectDatasourceModal() {
     if (isModalOpen && !isTesting) {
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
-      if (pending.length > 0) {
+      if (unconfiguredDatasourceIds.length > 0) {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
@@ -485,15 +485,20 @@ function ReconnectDatasourceModal() {
             .find((ds: Datasource) => !ds.isConfigured);
         }
         next = next || pending[0];
-        setSelectedDatasourceId(next.id);
-        setDatasource(next);
-        // when refresh, it should be opened.
-        const appInfo = {
-          appId: appId,
-          pageId: pageId,
-          datasourceId: next.id,
-        };
-        localStorage.setItem("importedAppPendingInfo", JSON.stringify(appInfo));
+        if (next && next.id) {
+          setSelectedDatasourceId(next.id);
+          setDatasource(next);
+          // when refresh, it should be opened.
+          const appInfo = {
+            appId: appId,
+            pageId: pageId,
+            datasourceId: next.id,
+          };
+          localStorage.setItem(
+            "importedAppPendingInfo",
+            JSON.stringify(appInfo),
+          );
+        }
       } else if (appURL) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
@@ -501,7 +506,14 @@ function ReconnectDatasourceModal() {
         window.open(appURL, "_self");
       }
     }
-  }, [datasources, appURL, isModalOpen, isTesting, queryIsImport]);
+  }, [
+    datasources,
+    unconfiguredDatasourceIds,
+    appURL,
+    isModalOpen,
+    isTesting,
+    queryIsImport,
+  ]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (

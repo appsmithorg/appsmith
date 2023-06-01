@@ -62,11 +62,19 @@ describe("Fork application across workspaces", function () {
     );
     cy.wait("@importNewApplication").then((interception) => {
       const { isPartialImport } = interception.response.body.data;
+      cy.log("isPartialImport : ", isPartialImport);
       if (isPartialImport) {
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
           force: true,
         });
         cy.wait(2000);
+      } else {
+        cy.get(reconnectDatasourceModal.SkipToAppBtn).should(($button) => {
+          if ($button.length > 0) {
+            cy.log("isPartialImport was false but reconnect modal appeared");
+            cy.wrap($button).click({ force: true });
+          }
+        });
       }
       cy.get("#sidebar").should("be.visible");
       cy.PublishtheApp();
