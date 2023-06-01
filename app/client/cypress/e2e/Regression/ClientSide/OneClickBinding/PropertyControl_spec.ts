@@ -17,6 +17,7 @@ describe("One click binding control", () => {
     _.agHelper.AssertElementExist(locator.datasourceOtherActionsSelector);
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
+    cy.wait(500);
 
     _.dataSources.CreateMockDB("Users");
 
@@ -43,10 +44,10 @@ describe("One click binding control", () => {
     _.agHelper.AssertElementExist(locator.otherActionSelector());
 
     _.agHelper.AssertElementExist(
-      locator.otherActionSelector("Connect New Datasource"),
+      locator.otherActionSelector("Connect new datasource"),
     );
 
-    _.agHelper.GetNClick(locator.otherActionSelector("Connect New Datasource"));
+    _.agHelper.GetNClick(locator.otherActionSelector("Connect new datasource"));
 
     _.agHelper.AssertElementExist(locator.datasourcePage);
 
@@ -55,10 +56,10 @@ describe("One click binding control", () => {
     _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      locator.otherActionSelector("Insert Snippet"),
+      locator.otherActionSelector("Insert snippet"),
     );
 
-    _.agHelper.GetNClick(locator.otherActionSelector("Insert Snippet"));
+    _.agHelper.GetNClick(locator.otherActionSelector("Insert snippet"));
 
     _.agHelper.AssertElementExist(CommonLocators.globalSearchModal);
 
@@ -67,10 +68,10 @@ describe("One click binding control", () => {
     _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      locator.otherActionSelector("Insert Binding"),
+      locator.otherActionSelector("Insert binding"),
     );
 
-    _.agHelper.GetNClick(locator.otherActionSelector("Insert Binding"));
+    _.agHelper.GetNClick(locator.otherActionSelector("Insert binding"));
 
     _.propPane.ValidatePropertyFieldValue("Table data", "{{}}");
 
