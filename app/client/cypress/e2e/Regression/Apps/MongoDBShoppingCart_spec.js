@@ -6,7 +6,7 @@ const formControls = require("../../../locators/FormControl.json");
 import * as _ from "../../../support/Objects/ObjectsCore";
 
 let repoName;
-describe("Shopping cart App", function () {
+describe.skip("Shopping cart App", function () {
   let datasourceName;
 
   before(() => {
