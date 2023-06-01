@@ -13,7 +13,6 @@ export type UpdateTenantConfigResponse = ApiResponse<{
 }>;
 
 export type UpdateTenantConfigRequest = {
-  // instanceId: string;
   tenantConfiguration: Record<string, string>;
 };
 
