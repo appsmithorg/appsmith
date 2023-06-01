@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("Sanitise toast error messages", () => {
+describe("Sanitise toast error messages", () => {
   before(() => {
     _.jsEditor.CreateJSObject(
       `export default {
