@@ -17,7 +17,6 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
   border-top: solid 1px var(--ads-v2-color-border);
-  padding-left: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const Wrapper = styled.div`
