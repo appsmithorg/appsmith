@@ -10,7 +10,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   });
 
   it("1. Should paste at the bottom of the canvas that contains the selected widget", () => {
-    cy.get(_.locators._widgetInCanvas("buttonwidget")).first().click({
+    cy.get(_.locators._widgetInDeployed("buttonwidget")).first().click({
       ctrlKey: true,
     });
     cy.get(_.locators._selectedWidget).should("have.length", 1);
@@ -24,8 +24,8 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //verify button widget pastes inside the container, in layer index 3 and is center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
-      _.locators._widgetInCanvas("containerwidget"),
-      _.locators._widgetInCanvas("buttonwidget"),
+      _.locators._widgetInDeployed("containerwidget"),
+      _.locators._widgetInDeployed("buttonwidget"),
       3,
       "CENTER",
     );
@@ -37,7 +37,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   });
 
   it("2. Should paste at the bottom of the canvas of the selected Container", () => {
-    cy.get(_.locators._widgetInCanvas("buttonwidget")).eq(1).click({
+    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(1).click({
       ctrlKey: true,
     });
     cy.get(_.locators._selectedWidget).should("have.length", 1);
@@ -46,7 +46,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     cy.get("body").type(`{${modifierKey}}{c}`);
     cy.get(_.locators._toastMsg).contains("Copied");
 
-    cy.get(_.locators._widgetInCanvas("containerwidget")).first().click({
+    cy.get(_.locators._widgetInDeployed("containerwidget")).first().click({
       ctrlKey: true,
     });
 
@@ -55,8 +55,8 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //verify button widget pastes inside selected the container, in layer index 4 and is end aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
-      _.locators._widgetInCanvas("containerwidget"),
-      _.locators._widgetInCanvas("buttonwidget"),
+      _.locators._widgetInDeployed("containerwidget"),
+      _.locators._widgetInDeployed("buttonwidget"),
       4,
       "END",
     );
@@ -68,7 +68,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   });
 
   it("3. Should paste at the bottom of the main canvas when no widget is selected", () => {
-    cy.get(_.locators._widgetInCanvas("buttonwidget")).eq(0).click({
+    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(0).click({
       ctrlKey: true,
     });
     cy.get(_.locators._selectedWidget).should("have.length", 1);
@@ -89,7 +89,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     //verify button widget pastes in main canvas, in layer index 1 and is center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInCanvas("buttonwidget"),
+      _.locators._widgetInDeployed("buttonwidget"),
       1,
       "CENTER",
     );
@@ -103,19 +103,19 @@ describe("Copy paste widget related tests for Auto layout", () => {
   it("4. Should paste widgets in copied orientation, when multiple widgets are copied", () => {
     //Select and copy widgets in,
     // button in layer index 0, end aligned
-    cy.get(_.locators._widgetInCanvas("buttonwidget")).eq(1).click({
+    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(1).click({
       ctrlKey: true,
     });
     // button in layer index 1, start aligned
-    cy.get(_.locators._widgetInCanvas("buttonwidget")).eq(2).click({
+    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(2).click({
       ctrlKey: true,
     });
     // icon button in layer index 1, end aligned
-    cy.get(_.locators._widgetInCanvas("iconbuttonwidget")).eq(0).click({
+    cy.get(_.locators._widgetInDeployed("iconbuttonwidget")).eq(0).click({
       ctrlKey: true,
     });
     // button in layer index 2, center aligned
-    cy.get(_.locators._widgetInCanvas("buttonwidget")).eq(3).click({
+    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(3).click({
       ctrlKey: true,
     });
     cy.get(_.locators._selectedWidget).should("have.length", 4);
@@ -135,28 +135,28 @@ describe("Copy paste widget related tests for Auto layout", () => {
     // button in layer index 2, end aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInCanvas("buttonwidget"),
+      _.locators._widgetInDeployed("buttonwidget"),
       2,
       "END",
     );
     // button in layer index 3, start aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInCanvas("buttonwidget"),
+      _.locators._widgetInDeployed("buttonwidget"),
       3,
       "START",
     );
     // icon button in layer index 3, center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInCanvas("iconbuttonwidget"),
+      _.locators._widgetInDeployed("iconbuttonwidget"),
       3,
       "CENTER",
     );
     // button in layer index 4, center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInCanvas("buttonwidget"),
+      _.locators._widgetInDeployed("buttonwidget"),
       4,
       "CENTER",
     );
