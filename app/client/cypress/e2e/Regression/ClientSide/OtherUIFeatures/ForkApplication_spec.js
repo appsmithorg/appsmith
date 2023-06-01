@@ -52,12 +52,6 @@ describe("Fork application across workspaces", function () {
 
   it("2. Non signed user should be able to fork a public forkable app", function () {
     cy.NavigateToHome();
-    cy.get(reconnectDatasourceModal.SkipToAppBtn).should(($button) => {
-      if ($button && $button.length > 0) {
-        cy.log("The reconnect modal appeared again after navigating to home");
-        cy.wrap($button).click({ force: true });
-      }
-    });
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
@@ -74,13 +68,6 @@ describe("Fork application across workspaces", function () {
           force: true,
         });
         cy.wait(2000);
-      } else {
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).should(($button) => {
-          if ($button.length > 0) {
-            cy.log("isPartialImport was false but reconnect modal appeared");
-            cy.wrap($button).click({ force: true });
-          }
-        });
       }
       cy.get("#sidebar").should("be.visible");
       cy.PublishtheApp();

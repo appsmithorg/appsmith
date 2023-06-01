@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   getImportedApplication,
@@ -252,10 +252,12 @@ function ReconnectDatasourceModal() {
   const unconfiguredDatasourceIds = unconfiguredDatasources.map(
     (ds: Datasource) => ds.id,
   );
-  let datasources = useSelector(getDatasources);
-  datasources = datasources.filter((ds: Datasource) =>
-    unconfiguredDatasourceIds.includes(ds.id),
-  );
+  const datasourcesList = useSelector(getDatasources);
+  const datasources = useMemo(() => {
+    return datasourcesList.filter((ds: Datasource) =>
+      unconfiguredDatasourceIds.includes(ds.id),
+    );
+  }, [datasourcesList, unconfiguredDatasourceIds]);
   const pluginsArray = useSelector(getDatasourcePlugins);
   const plugins = keyBy(pluginsArray, "id");
   const isLoading = useSelector(getIsListing);
@@ -473,7 +475,7 @@ function ReconnectDatasourceModal() {
     if (isModalOpen && !isTesting) {
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
-      if (unconfiguredDatasourceIds.length > 0) {
+      if (pending.length > 0) {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
@@ -506,14 +508,7 @@ function ReconnectDatasourceModal() {
         window.open(appURL, "_self");
       }
     }
-  }, [
-    datasources,
-    unconfiguredDatasourceIds,
-    appURL,
-    isModalOpen,
-    isTesting,
-    queryIsImport,
-  ]);
+  }, [datasources, appURL, isModalOpen, isTesting, queryIsImport]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
