@@ -68,7 +68,7 @@ jobs:
       # Timestamp will be used to create cache key
       - id: timestamp
         run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
-        
+
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         id: cache-appsmith
@@ -79,21 +79,21 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-      
+
       - name: Get the previous run result
         if: steps.cache-appsmith.outputs.cache-hit == 'true'
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
           echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
-          
+
       # Download failed_spec list for all jobs in case of rerun
       - uses: actions/download-artifact@v3
         if: steps.run_result.outputs.run_result == 'failedtest'
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
-          
+
       # In case of rerun combine all the failed specs and set it in env
       - name: combine all specs for CI in case of rerun
         if: steps.run_result.outputs.run_result == 'failedtest'
@@ -119,7 +119,7 @@ jobs:
         with:
           name: cicontainer
           run_id: ${{ inputs.previous-workflow-run-id }}
-      
+
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
@@ -187,7 +187,7 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        working-directory : app/client
+        working-directory: app/client
         run: |
           yarn install --immutable
 
@@ -255,7 +255,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          echo COMMIT_INFO_MESSAGE=Running tests on $COMMIT_INFO_BRANCH >> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=Cypress Tests run on $COMMIT_INFO_BRANCH >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
@@ -334,7 +334,7 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
-          
+
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
@@ -396,13 +396,13 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
-          
+
       - name: Collect CI container logs
         if: always()
         working-directory: "."
         run: |
           docker logs appsmith 2>&1 > ~/dockerlogs.txt
-      
+
       # Upload docker logs
       - name: Upload docker logs on failure
         if: always()
@@ -410,7 +410,7 @@ jobs:
         with:
           name: dockerlogs-${{ matrix.job }}
           path: ~/dockerlogs.txt
-      
+
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
@@ -422,7 +422,7 @@ jobs:
         if: always()
         run: |
           mkdir -p  ~/failed_spec_ci
-          
+
       # add list failed tests to a file
       - name: In case of test failures copy them to a file
         if: failure()
@@ -444,7 +444,7 @@ jobs:
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
-          
+
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
