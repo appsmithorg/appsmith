@@ -27,11 +27,11 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getDatasourceLoading,
+  getDatasourcePlugins,
+  getDatasources,
   getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
-  getPluginImages,
-  getPluginNames,
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
@@ -42,7 +42,6 @@ import {
   setWorkspaceIdForImport,
 } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import { AuthType } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -64,6 +63,7 @@ import {
   Button,
   Text,
 } from "design-system";
+import { keyBy } from "lodash";
 
 const Section = styled.div`
   display: flex;
@@ -205,7 +205,7 @@ const DBFormWrapper = styled.div`
 
   > div {
     width: 100%;
-    height: calc(100% - 20px);
+    height: calc(100% - 68px); // Adding height offset of the buttons container
   }
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
@@ -248,9 +248,16 @@ function ReconnectDatasourceModal() {
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);
   const pageIdForImport = useSelector(getPageIdForImport);
-  const datasources = useSelector(getUnconfiguredDatasources);
-  const pluginImages = useSelector(getPluginImages);
-  const pluginNames = useSelector(getPluginNames);
+  const unconfiguredDatasources = useSelector(getUnconfiguredDatasources);
+  const unconfiguredDatasourceIds = unconfiguredDatasources.map(
+    (ds: Datasource) => ds.id,
+  );
+  let datasources = useSelector(getDatasources);
+  datasources = datasources.filter((ds: Datasource) =>
+    unconfiguredDatasourceIds.includes(ds.id),
+  );
+  const pluginsArray = useSelector(getDatasourcePlugins);
+  const plugins = keyBy(pluginsArray, "id");
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
@@ -286,7 +293,7 @@ function ReconnectDatasourceModal() {
   const orgId = queryDS?.workspaceId;
   let pluginName = "";
   if (!!queryDS?.pluginId) {
-    pluginName = pluginNames[queryDS.pluginId];
+    pluginName = plugins[queryDS.pluginId]?.name;
   }
 
   // when redirecting from oauth, processing the status
@@ -423,7 +430,7 @@ function ReconnectDatasourceModal() {
     AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
       id: ds.id,
       name: ds.name,
-      pluginName: pluginNames[ds.id],
+      pluginName: plugins[ds.id]?.name,
       isConfigured: ds.isConfigured,
     });
   }, []);
@@ -469,19 +476,6 @@ function ReconnectDatasourceModal() {
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
-      // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
-      if (queryParams.get("importForGit") !== "true" && datasources.length) {
-        const selectedDS = datasources.find(
-          (ds: Datasource) => ds.id === selectedDatasourceId,
-        );
-        if (selectedDS) {
-          const authType =
-            selectedDS.datasourceConfiguration?.authentication
-              ?.authenticationType;
-
-          if (authType === AuthType.OAUTH2) return;
-        }
-      }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
@@ -522,10 +516,7 @@ function ReconnectDatasourceModal() {
         onClick={() => {
           onSelectDatasource(ds);
         }}
-        plugin={{
-          name: pluginNames[ds.pluginId],
-          image: pluginImages[ds.pluginId],
-        }}
+        plugin={plugins[ds.pluginId]}
         selected={ds.id === selectedDatasourceId}
       />
     );
