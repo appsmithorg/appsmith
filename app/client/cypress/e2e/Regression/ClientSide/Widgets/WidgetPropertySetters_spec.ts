@@ -114,7 +114,6 @@ Object.values(setterMethodsToTest).forEach(
 
         _.EntityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 700, 400);
 
-        // Display the bound store value
         _.PropertyPane.UpdatePropertyFieldValue(
           PROPERTY_SELECTOR.TextFieldName,
           valueBinding,
