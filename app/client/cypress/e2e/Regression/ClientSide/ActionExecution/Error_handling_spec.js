@@ -15,7 +15,7 @@ describe("Test Create Api and Bind to Button widget", function () {
   it("1. Call the api with & without error handling", () => {
     _.entityExplorer.SelectEntityByName("Button1");
     _.propPane.EnterJSContext("onClick", "{{Api1.run()}}");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(2000);
     _.agHelper.ClickButton("Submit");
@@ -31,7 +31,7 @@ describe("Test Create Api and Bind to Button widget", function () {
     //With Error handling
     _.entityExplorer.SelectEntityByName("Button1");
     _.propPane.EnterJSContext("onClick", "{{Api1.run(() => {}, () => {})}}");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.wait(2000);
     _.agHelper.ClickButton("Submit");

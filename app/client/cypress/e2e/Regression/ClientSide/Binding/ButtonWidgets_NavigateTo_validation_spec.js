@@ -1,6 +1,4 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/buttondsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -26,7 +24,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
   });
 
   it("2. Button click should take the control to page link validation", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(publish.buttonWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting

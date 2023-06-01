@@ -44,7 +44,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
       .its("response.body.responseMeta.status")
       .should("eq", 200);
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")

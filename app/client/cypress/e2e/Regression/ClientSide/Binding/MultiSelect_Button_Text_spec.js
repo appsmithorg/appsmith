@@ -2,8 +2,7 @@
 
 const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 import {
   WIDGET,
@@ -30,11 +29,11 @@ const widgetsToTest = {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset action`, function () {
     beforeEach(() => {
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
     });
 
     afterEach(() => {
-      agHelper.SaveLocalStorageCache();
+      _.agHelper.SaveLocalStorageCache();
     });
     before(() => {
       cy.addDsl(dsl);
@@ -77,7 +76,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it("3. Publish the app and validate reset action", function () {
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.get(".rc-select-selection-overflow").click({ force: true });
       cy.get(".rc-select-item-option:contains('Blue')").click({ force: true });
       cy.wait(1000);

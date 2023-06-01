@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/ChartTextDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Chart Binding Functionality", function () {
   before(() => {
@@ -35,7 +36,7 @@ describe("Text-Chart Binding Functionality", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Text-Chart Binding Functionality Publish", function () {

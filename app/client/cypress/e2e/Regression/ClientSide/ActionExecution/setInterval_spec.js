@@ -29,7 +29,7 @@ describe("Test Create Api and Bind to Button widget", function () {
     );
 
     //Works in the published version"
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
     cy.wait("@postExecute")

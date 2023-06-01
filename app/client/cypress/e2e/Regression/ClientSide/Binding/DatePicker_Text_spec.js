@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Datepicker and Text Widget", function () {
   let nextDay;
@@ -32,7 +33,7 @@ describe("Binding the Datepicker and Text Widget", function () {
       cy.wait("@updateLayout");
       cy.wait("@updateLayout");
 
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
 
       /**
        * Change the date in DatePicker1 in Publish mode and validate the same in Text Widget
@@ -92,7 +93,7 @@ describe("Binding the Datepicker and Text Widget", function () {
       .eq(1)
       .should("have.value", dateDp2);
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
     cy.get(publishPage.datepickerWidget + commonlocators.inputField)
       .eq(1)
@@ -110,7 +111,7 @@ describe("Binding the Datepicker and Text Widget", function () {
       "{{DatePicker1.isDisabled}} DatePicker {{DatePicker2.isDisabled}}",
     );
     cy.get(commonlocators.labelTextStyle).should("contain.text", "DatePicker");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle).should("contain.text", "DatePicker");
     cy.get(publishPage.backToEditor).click({ force: true });
   });

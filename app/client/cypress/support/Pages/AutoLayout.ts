@@ -27,7 +27,11 @@ export class AutoLayout {
    * @param {number} y
    * @param {string} [dropTarget=""]
    */
-  DropButtonAndTestForAutoDimension(x: number, y: number, dropTarget = "") {
+  public DropButtonAndTestForAutoDimension(
+    x: number,
+    y: number,
+    dropTarget = "",
+  ) {
     this.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, x, y, dropTarget);
 
     // Check if bounding box fits perfectly to the Button Widget
@@ -84,7 +88,11 @@ export class AutoLayout {
    * @param {number} y
    * @param {string} [dropTarget=""]
    */
-  DropTextAndTestForAutoDimension(x: number, y: number, dropTarget = "") {
+  public DropTextAndTestForAutoDimension(
+    x: number,
+    y: number,
+    dropTarget = "",
+  ) {
     this.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, x, y, dropTarget);
 
     // Check if bounding box fits perfectly to the Text Widget
@@ -142,7 +150,7 @@ export class AutoLayout {
    * @param {string} componentSelector - Selector for the component element.
    * @returns {void}
    */
-  EnsureBoundingBoxFitsComponent(
+  public EnsureBoundingBoxFitsComponent(
     widgetSelector: string,
     componentSelector: string,
   ) {
@@ -150,6 +158,7 @@ export class AutoLayout {
     const DELTA = 1;
     this.agHelper.GetElement(widgetSelector).then((widget) => {
       const widgetRect = widget.get(0).getBoundingClientRect();
+      cy.log("widgetRect.x is " + widgetRect.x);
       this.agHelper.GetElement(componentSelector).then((component) => {
         const componentRect = component.get(0).getBoundingClientRect();
         expect(widgetRect.x).to.be.closeTo(componentRect.x - 2, DELTA);

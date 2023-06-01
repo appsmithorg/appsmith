@@ -438,7 +438,7 @@ export class PropertyPane {
 
   public RenameWidget(oldName: string, newName: string) {
     this.entityExplorer.SelectEntityByName(oldName, "Widgets");
-    this.agHelper.GetNClick(this.locator._widgetName(oldName));
+    this.agHelper.GetNClick(this.locator._widgetName(oldName), 0, true);
     cy.get(this.locator._widgetNameTxt)
       .clear({ force: true })
       .type(newName, { force: true })

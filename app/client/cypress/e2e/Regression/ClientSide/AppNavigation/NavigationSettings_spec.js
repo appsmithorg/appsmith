@@ -1,9 +1,5 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
@@ -23,12 +19,12 @@ describe("Test app's navigation settings", function () {
     cy.get(appNavigationLocators.navigationSettings.showNavbar).click({
       force: true,
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.go("back");
     // Wait for the app to load
-    agHelper.Sleep(3000);
+    _.agHelper.Sleep(3000);
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     // Toggle show navbar back to on
@@ -43,15 +39,15 @@ describe("Test app's navigation settings", function () {
     ).click({
       force: true,
     });
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.get(appNavigationLocators.sidebar).should("exist");
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
-    entityExplorer.AddNewPage();
+    _.entityExplorer.AddNewPage();
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     cy.get(
@@ -64,10 +60,10 @@ describe("Test app's navigation settings", function () {
     ).click({
       force: true,
     });
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.get(appNavigationLocators.topInline).should("exist");
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

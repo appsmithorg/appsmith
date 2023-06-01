@@ -41,8 +41,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       dsName = $dsName;
       _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
       _.agHelper.RefreshPage();
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
+    });
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
       _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
     });
   });

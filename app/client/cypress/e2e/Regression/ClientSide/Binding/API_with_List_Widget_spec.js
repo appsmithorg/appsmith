@@ -41,7 +41,7 @@ describe("Test Create Api and Bind to List widget", function () {
       .then((text) => {
         expect(text).to.equal(valueToTest);
       });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
@@ -82,7 +82,7 @@ describe("Test Create Api and Bind to List widget", function () {
       .then((text) => {
         expect(text).to.equal(valueToTest);
       });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
