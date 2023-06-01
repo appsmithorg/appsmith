@@ -31,7 +31,7 @@ describe("Page orientation and navigation related usecases ", function () {
     }
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 10, 20);
     //_.propPane.navigateToPage("Page1", "onClick");
-    _.propPane.NavigateToPage("Page1","onClick");
+    _.propPane.NavigateToPage("Page1", "onClick");
     //cy.navigateOnClick("Page1", "onClick");
     _.deployMode.DeployApp();
     _.agHelper.Sleep();
