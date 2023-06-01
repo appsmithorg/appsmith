@@ -22,10 +22,7 @@ describe("Shopping cart App", function () {
   });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click();
-    cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource();
+    _.dataSources.CreateDataSource("Mongo");
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
@@ -126,28 +123,27 @@ describe("Shopping cart App", function () {
   });
 
   it("2. Perform CRUD operations and validate data", function () {
-    //Wait for the page to settle
-    _.agHelper.Sleep(5000);
     // Adding the books to the Add cart form
+    _.agHelper.GetNClick(appPage.bookname);
     _.agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
     _.agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
     _.agHelper.UpdateInput(appPage.bookprice, 200, true);
     _.agHelper.UpdateInput(appPage.bookquantity, 2, true);
-    cy.get("span:contains('Submit')").closest("div").eq(1).click();
-    cy.assertPageSave();
-    cy.wait(8000);
+    _.agHelper.GetNClick(appPage.addButton, 0, true);
+    _.agHelper.AssertAutoSave();
+    cy.wait("@postExecute");
     _.agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
     _.agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
     _.agHelper.UpdateInput(appPage.bookprice, 100, true);
     _.agHelper.UpdateInput(appPage.bookquantity, 1, true);
-    cy.get("span:contains('Submit')").closest("div").eq(1).click();
-    cy.assertPageSave();
+    _.agHelper.GetNClick(appPage.addButton, 0, true);
+    _.agHelper.AssertAutoSave();
     cy.wait("@postExecute");
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
-        cy.get("span:contains('Delete')").closest("div").eq(1).click();
+        _.agHelper.GetNClick(appPage.deleteButton, 1, false);
         cy.wait("@postExecute");
         cy.wait(5000);
 
@@ -158,9 +154,9 @@ describe("Shopping cart App", function () {
       });
     // Updating the book quantity from edit cart
     _.agHelper.UpdateInput(appPage.editbookquantity, 3, true);
-    cy.get("span:contains('Submit')").closest("div").eq(0).click();
-    cy.assertPageSave();
-    cy.wait(5000);
+    _.agHelper.GetNClick(appPage.editButton, 0, true);
+    _.agHelper.AssertAutoSave();
+    cy.wait("@postExecute");
     // validating updated value in the cart
     cy.get(".selected-row").children().eq(3).should("have.text", "3");
   });
