@@ -302,7 +302,7 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.config.ts
-          group: "Electrons on Github Action Fat Container"
+          group: "Chrome-Fat Container tests"
           spec: "cypress/e2e/**/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
@@ -363,7 +363,7 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.config.ts
-          group: "Electrons on Github Action Fat Container"
+          group: "Chrome-Fat Container tests"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
