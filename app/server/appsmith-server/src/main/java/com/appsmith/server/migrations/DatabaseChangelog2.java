@@ -983,123 +983,33 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDomainObjects(MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        // Datasource
-        AggregationOperation wholeDataSoruceProjection = Aggregation.project(Datasource.class);
-        AggregationOperation dataSourceAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QDatasource.datasource.workspaceId)).
-                withValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))).build();
-
-        AggregationOperation outDataSource = Aggregation.out("datasource");
-
-        Aggregation combinedDataSourceAggregation = Aggregation.newAggregation(
-                wholeDataSoruceProjection,
-                dataSourceAddWorkSpaceID,
-                outDataSource);
-
-        mongoTemplate.aggregate(combinedDataSourceAggregation, Datasource.class, Datasource.class);
-
-        // ActionCollection
-        AggregationOperation wholeActionCollectionProjection = Aggregation.project(ActionCollection.class);
-        AggregationOperation actionCollectionAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QActionCollection.actionCollection.workspaceId)).
-                withValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))).build();
-
-        AggregationOperation outActionCollection = Aggregation.out("actionCollection");
-
-        Aggregation combinedActionCollectionAggregation = Aggregation.newAggregation(
-                wholeActionCollectionProjection,
-                actionCollectionAddWorkSpaceID,
-                outActionCollection);
-
-        mongoTemplate.aggregate(combinedActionCollectionAggregation, ActionCollection.class, ActionCollection.class);
-
-        // Application
-        AggregationOperation wholeApplicationProjection = Aggregation.project(Application.class);
-        AggregationOperation applicationAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QApplication.application.workspaceId)).
-                withValueOf(Fields.field(fieldName(QApplication.application.organizationId))).build();
-
-        AggregationOperation outApplicationCollection = Aggregation.out("application");
-
-        Aggregation combinedApplicationAggregation = Aggregation.newAggregation(
-                wholeApplicationProjection,
-                applicationAddWorkSpaceID,
-                outApplicationCollection);
-
-        mongoTemplate.aggregate(combinedApplicationAggregation, Application.class, Application.class);
-
-        // New Action
-        AggregationOperation wholeNewActionProjection = Aggregation.project(NewAction.class);
-        AggregationOperation newActionAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QNewAction.newAction.workspaceId)).
-                withValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))).build();
-
-        AggregationOperation outNewActionCollection = Aggregation.out("newAction");
-
-        Aggregation combinedNewActionAggregation = Aggregation.newAggregation(
-                wholeNewActionProjection,
-                newActionAddWorkSpaceID,
-                outNewActionCollection);
-
-        mongoTemplate.aggregate(combinedNewActionAggregation, NewAction.class, NewAction.class);
-
-        // Theme
-        AggregationOperation wholeThemeProjection = Aggregation.project(Theme.class);
-        AggregationOperation themeAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QTheme.theme.workspaceId)).
-                withValueOf(Fields.field(fieldName(QTheme.theme.organizationId))).build();
-
-        AggregationOperation outThemeCollection = Aggregation.out("theme");
-
-        Aggregation combinedThemeAggregation = Aggregation.newAggregation(
-                wholeThemeProjection,
-                themeAddWorkSpaceID,
-                outThemeCollection);
-
-        mongoTemplate.aggregate(combinedThemeAggregation, Theme.class, Theme.class);
-
-        // UserData
-        AggregationOperation wholeUserDataProjection = Aggregation.project(UserData.class);
-        AggregationOperation userDataAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).
-                withValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))).build();
-
-        AggregationOperation outUserDataCollection = Aggregation.out("userData");
-
-        Aggregation combinedUserDataAggregation = Aggregation.newAggregation(
-                wholeUserDataProjection,
-                userDataAddWorkSpaceID,
-                outUserDataCollection);
-
-        mongoTemplate.aggregate(combinedUserDataAggregation, UserData.class, UserData.class);
-
-        // Workspace
-        AggregationOperation wholeWorkspaceProjection = Aggregation.project(Workspace.class);
-        AggregationOperation workspaceAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).
-                withValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))).build();
-
-        AggregationOperation outWorkspaceCollection = Aggregation.out("workspace");
-
-        Aggregation combinedWorkspaceAggregation = Aggregation.newAggregation(
-                wholeWorkspaceProjection,
-                workspaceAddWorkSpaceID,
-                outWorkspaceCollection);
-
-        mongoTemplate.aggregate(combinedWorkspaceAggregation, Workspace.class, Workspace.class);
-
-        // User
-        AggregationOperation wholeUserProjection = Aggregation.project(User.class);
-        AggregationOperation userAddWorkSpaceID = Aggregation.addFields().addField(fieldName(QUser.user.workspaceIds)).
-                withValueOf(Fields.field(fieldName(QUser.user.organizationIds))).build();
-        AggregationOperation userAddCurrentWorkspaceID = Aggregation.addFields().addField(fieldName(QUser.user.currentWorkspaceId)).
-                withValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId))).build();
-        AggregationOperation userAddExampleWorkspaceID = Aggregation.addFields().addField(fieldName(QUser.user.examplesWorkspaceId)).
-                withValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))).build();
-
-        AggregationOperation outUserCollection = Aggregation.out("user");
-
-        Aggregation combinedUserAggregation = Aggregation.newAggregation(
-                wholeUserProjection,
-                userAddWorkSpaceID,
-                userAddCurrentWorkspaceID,
-                userAddExampleWorkspaceID,
-                outUserCollection);
-
-        mongoTemplate.aggregate(combinedUserAggregation, User.class, User.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QDatasource.datasource.workspaceId)).toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
+                Datasource.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QActionCollection.actionCollection.workspaceId)).toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
+                ActionCollection.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QApplication.application.workspaceId)).toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
+                Application.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QNewAction.newAction.workspaceId)).toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
+                NewAction.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QTheme.theme.workspaceId)).toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
+                Theme.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
+                UserData.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update().set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
+                Workspace.class);
+        mongoTemplate.updateMulti(new Query(),
+                AggregationUpdate.update()
+                        .set(fieldName(QUser.user.workspaceIds)).toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
+                        .set(fieldName(QUser.user.currentWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
+                        .set(fieldName(QUser.user.examplesWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
+                User.class);
 
         // Now sign out all the existing users since this change impacts the user object.
         final String script =
@@ -1187,23 +1097,12 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction-datasource", author = "")
     public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(MongoTemplate mongoTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        AggregationOperation orgIDFieldExists = Aggregation.match(where("unpublishedAction.datasource.organizationId").exists(true));
-        AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-        AggregationOperation defaultWorkSpaceIDAddUnpublishedAction = Aggregation.addFields().addField("unpublishedAction.datasource.workspaceId").
-                withValueOf(Fields.field("unpublishedAction.datasource.organizationId")).build();
-        AggregationOperation defaultWorkSpaceIDAddPublishedAction = Aggregation.addFields().addField("publishedAction.datasource.organizationId").
-                withValueOf(Fields.field("publishedAction.datasource.organizationId")).build();
-
-        AggregationOperation outNewAction = Aggregation.out("newAction");
-
-        Aggregation combinedAggregation = Aggregation.newAggregation(
-                orgIDFieldExists,
-                wholeProjection,
-                defaultWorkSpaceIDAddUnpublishedAction,
-                defaultWorkSpaceIDAddPublishedAction,
-                outNewAction);
-
-        mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
+        mongoTemplate.updateMulti(new Query(Criteria.where("unpublishedAction.datasource.organizationId").exists(true)),
+                AggregationUpdate.update().set("unpublishedAction.datasource.workspaceId").toValueOf(Fields.field("unpublishedAction.datasource.organizationId")),
+                NewAction.class);
+        mongoTemplate.updateMulti(new Query(Criteria.where("publishedAction.datasource.organizationId").exists(true)),
+                AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
+                NewAction.class);
     }
 
     @ChangeSet(order = "020", id = "migrate-google-sheets-to-uqi", author = "")
