@@ -62,7 +62,6 @@ jobs:
           fetch-depth: 0
       
       - name: Run Appsmith & TED docker image
-        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
