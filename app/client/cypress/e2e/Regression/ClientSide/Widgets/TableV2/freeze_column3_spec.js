@@ -1,16 +1,12 @@
-import {
-  PROPERTY_SELECTOR,
-  WIDGET,
-} from "../../../../../locators/WidgetLocators";
+import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 import { TABLE_DATA_DYNAMIC } from "../../../../../support/Constants";
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Server-side pagination when turned on test of re-ordering columns", () => {
   before(() => {
-    cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 500, y: 200 });
-    cy.openPropertyPane(WIDGET.TABLE);
-    cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_DYNAMIC);
+    cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 500, y: 200 });
+    _.propPane.EnterJSContext("Table data", TABLE_DATA_DYNAMIC);
     cy.get(commonlocators.serverSidePaginationCheckbox).click({ force: true });
   });
   it("3.1 Re-order column", () => {

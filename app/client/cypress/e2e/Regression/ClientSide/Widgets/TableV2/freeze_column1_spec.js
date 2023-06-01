@@ -1,39 +1,39 @@
 import {
   getWidgetSelector,
   PROPERTY_SELECTOR,
-  WIDGET,
 } from "../../../../../locators/WidgetLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Column freeze & unfreeze in canavs mode", () => {
   before(() => {
-    cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
-    cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 200, y: 600 });
-    cy.openPropertyPane(WIDGET.TEXT);
-    cy.updateCodeInput(
-      PROPERTY_SELECTOR.text,
+    cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
+    _.table.AddSampleTableData();
+    cy.dragAndDropToCanvas(_.draggableWidgets.TEXT, { x: 200, y: 600 });
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
       `{{JSON.stringify({
-          step: Table1.primaryColumns.step.sticky,
-          status: Table1.primaryColumns.status.sticky,
-          task: Table1.primaryColumns.task.sticky,
-          action: Table1.primaryColumns.action.sticky,
-      }, null ,2)}}`,
+      step: Table1.primaryColumns.step.sticky,
+      status: Table1.primaryColumns.status.sticky,
+      task: Table1.primaryColumns.task.sticky,
+      action: Table1.primaryColumns.action.sticky,
+  }, null ,2)}}`,
     );
   });
   after(() => {
     cy.wait(1000);
     cy.get(widgetsPage.tableWidgetV2).then(($elem) => {
       if ($elem) {
-        cy.openPropertyPane(WIDGET.TABLE);
+        cy.openPropertyPane(_.draggableWidgets.TABLE);
         cy.deleteWidget(widgetsPage.tableWidgetV2);
       }
     });
   });
   describe("1.1 Column freeze and unfreeze testing via propertypane", () => {
     it("1.1.1 Freeze column to left", () => {
-      cy.openPropertyPane(WIDGET.TABLE);
+      cy.openPropertyPane(_.draggableWidgets.TABLE);
       cy.openFieldConfiguration("step");
       cy.get(".t--property-control-columnfreeze span[data-value='left']").click(
         {
@@ -42,7 +42,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
       );
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
 
-      cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+      cy.get(getWidgetSelector(_.draggableWidgets.TEXT)).should(
         "contain.text",
         '"step": "left"',
       );
@@ -60,7 +60,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
       // Check if the first cell has position sticky:
       cy.checkIfColumnIsFrozenViaCSS("0", "3");
 
-      cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+      cy.get(getWidgetSelector(_.draggableWidgets.TEXT)).should(
         "contain.text",
         '"action": "right"',
       );
@@ -84,7 +84,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
       cy.getTableV2DataSelector("0", "3").then((selector) => {
         cy.get(selector).should("not.have.css", "position", "sticky");
       });
-      cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+      cy.get(getWidgetSelector(_.draggableWidgets.TEXT)).should(
         "not.contain.text",
         '"action": "right"',
       );
@@ -95,7 +95,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
       // Check if the first cell has position sticky:
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
 
-      cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+      cy.get(getWidgetSelector(_.draggableWidgets.TEXT)).should(
         "contain.text",
         '"step": "left"',
       );
@@ -105,7 +105,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
 
   describe("1.2 Column freeze and unfreeze testing via dropdown", () => {
     it("1.2.1 Check if column freeze for user mode is enabled", () => {
-      cy.openPropertyPane(WIDGET.TABLE);
+      cy.openPropertyPane(_.draggableWidgets.TABLE);
 
       cy.get(
         ".t--property-control-allowcolumnfreeze input[type='checkbox']",
@@ -184,7 +184,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
     });
 
     it("1.2.6 Check if column freeze for user mode is disabled", () => {
-      cy.openPropertyPane(WIDGET.TABLE);
+      cy.openPropertyPane(_.draggableWidgets.TABLE);
       cy.get(
         ".t--property-control-allowcolumnfreeze input[type='checkbox']",
       ).click({

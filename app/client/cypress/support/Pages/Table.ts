@@ -581,12 +581,7 @@ export class Table {
   }
 
   public AddSampleTableData() {
-    this.propPane.ToggleJsMode("Table data");
-    this.propPane.UpdatePropertyFieldValue(
-      "Table data",
-      JSON.stringify(sampleTableData),
-      true,
-    );
+    this.propPane.EnterJSContext("Table data", JSON.stringify(sampleTableData));
     this.ChangeColumnType("action", "Button", "v2");
   }
 }

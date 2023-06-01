@@ -275,10 +275,28 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
   }
 
-  public ToggleJsMode(fieldName: string) {
-    this.agHelper.GetNClick(
-      this.locator._jsToggle(fieldName.toLowerCase().replaceAll(" ", "")),
-    );
+  public EnableJSMode(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (!classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+  }
+
+  public DisableJSMode(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
