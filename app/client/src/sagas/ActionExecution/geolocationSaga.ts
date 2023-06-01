@@ -75,10 +75,9 @@ export const extractGeoLocation = (
  * Hence we're creating a new object with same structure which can be passed to the worker thread
  */
 function sanitizeGeolocationError(error: GeolocationPositionError) {
-  const { code, message } = error;
   return {
-    code,
-    message,
+    code: error.code,
+    message: error.message,
   };
 }
 

@@ -93,6 +93,8 @@ export class PropertyPane {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']";
+  private _createModalButton = ".t--create-modal-btn";
+  _pageName = (option: string) => "//a/div[text()='" + option + "']";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -432,5 +434,19 @@ export class PropertyPane {
 
   public AssertSelectValue(value: string) {
     this.agHelper.AssertElementExist(this.locator._selectByValue(value));
+  }
+
+  public CreateModal(modalName: string, property: string) {
+    this.SelectPlatformFunction(property, "Show modal");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
+    this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public NavigateToPage(pageName: string, property: string) {
+    this.SelectPlatformFunction(property, "Navigate to");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
+    this.agHelper.GetNClick(this._pageName(pageName));
+    this.agHelper.AssertAutoSave();
   }
 }

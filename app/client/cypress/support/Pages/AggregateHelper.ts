@@ -1297,6 +1297,9 @@ export class AggregateHelper {
   public GetNMouseover(selector: string, index = 0) {
     cy.get(selector).eq(index).trigger("mouseover", { force: true }).wait(500);
   }
+  public visitURL(url: string) {
+    cy.visit(url);
+  }
 
   //Not used:
   // private xPathToCss(xpath: string) {
