@@ -97,42 +97,51 @@ export function SettingsForm(
     [props.settings],
   );
 
+  const saveChangedSettings = () => {
+    const settingsKeyLength = Object.keys(props.settings).length;
+    const isOnlyEnvSettings =
+      updatedTenantSettings.length === 0 && settingsKeyLength !== 0;
+    const isEnvAndTenantSettings =
+      updatedTenantSettings.length !== 0 &&
+      updatedTenantSettings.length !== settingsKeyLength;
+    if (isOnlyEnvSettings) {
+      // only env settings
+      dispatch(saveSettings(props.settings));
+    } else {
+      // only tenant settings
+      const config: any = {};
+      for (const each in props.settings) {
+        const key = getKeyByValue(tenantConfigConnection, each) || "";
+        if (key) {
+          config[key] = props.settings[each];
+        }
+      }
+      dispatch(
+        updateTenantConfig({
+          tenantConfiguration: config,
+        }),
+      );
+      // both env and tenant settings
+      if (isEnvAndTenantSettings) {
+        const filteredSettings = Object.keys(props.settings)
+          .filter((key) => !isTenantConfig(key))
+          .reduce((obj, key) => {
+            return Object.assign(obj, {
+              [key]: props.settings[key],
+            });
+          }, {});
+        dispatch(saveSettings(filteredSettings));
+      }
+    }
+  };
+
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
-        const settingsKeyLength = Object.keys(props.settings).length;
-        if (updatedTenantSettings.length === 0 && settingsKeyLength !== 0) {
-          dispatch(saveSettings(props.settings));
-        } else {
-          const config: any = {};
-          for (const each in props.settings) {
-            const key = getKeyByValue(tenantConfigConnection, each) || "";
-            if (key) {
-              config[key] = props.settings[each];
-            }
-          }
-          dispatch(
-            updateTenantConfig({
-              tenantConfiguration: config,
-            }),
-          );
-          if (
-            updatedTenantSettings.length !== 0 &&
-            updatedTenantSettings.length !== settingsKeyLength
-          ) {
-            const filteredSettings = Object.keys(props.settings)
-              .filter((key) => !isTenantConfig(key))
-              .reduce((obj, key) => {
-                return Object.assign(obj, {
-                  [key]: props.settings[key],
-                });
-              }, {});
-            dispatch(saveSettings(filteredSettings));
-          }
-        }
+        saveChangedSettings();
       } else {
         saveBlocked();
       }
