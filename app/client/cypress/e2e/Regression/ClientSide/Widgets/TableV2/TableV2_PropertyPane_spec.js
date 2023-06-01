@@ -1,7 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
@@ -67,7 +66,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.wait(2000);
     // Verify Row is selected by showing the message
     cy.get(commonlocators.toastmsg).contains("Row is selected");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Verify On Search Text Change Action", function () {
@@ -81,7 +80,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.wait(2000);
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Check On Page Change Action", function () {
@@ -98,7 +97,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(widgetsPage.nextPageButton).click({ force: true });
     // Verify the page is changed
     cy.get(commonlocators.toastmsg).contains("Page Changed");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Check open section and column data in property pane", function () {
@@ -331,7 +330,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.PublishtheApp();
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function () {

@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Icon button Widget Functionality", function () {
   before(() => {
@@ -63,7 +64,7 @@ describe("Icon button Widget Functionality", function () {
     cy.wait(2000);
     cy.get(publishPage.iconWidgetBtn).click();
     cy.get(commonlocators.toastmsg).contains("Icon button Clicked");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. should not show alert onclick if button is disabled", function () {
