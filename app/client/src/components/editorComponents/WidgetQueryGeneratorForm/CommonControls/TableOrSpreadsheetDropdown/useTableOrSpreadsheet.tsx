@@ -3,7 +3,6 @@ import { fetchGheetSheets } from "actions/datasourceActions";
 import { Colors } from "constants/Colors";
 import type { DropdownOption } from "design-system-old";
 import { IconSize } from "design-system-old";
-import { PluginPackageName } from "entities/Action";
 import { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,6 +20,7 @@ import {
   getGsheetSpreadsheets,
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
+import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
@@ -52,7 +52,7 @@ export function useTableOrSpreadsheet() {
 
   const options: DropdownOption[] = useMemo(() => {
     if (
-      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
+      isGoogleSheetPluginDS(selectedDatasourcePluginPackageName) &&
       spreadSheets
     ) {
       return (spreadSheets.value || []).map(({ label, value }) => ({
@@ -81,9 +81,7 @@ export function useTableOrSpreadsheet() {
     (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
       updateConfig("table", TableObj);
 
-      if (
-        selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
-      ) {
+      if (isGoogleSheetPluginDS(selectedDatasourcePluginPackageName)) {
         dispatch(
           fetchGheetSheets({
             datasourceId: config.datasource.id,
@@ -97,10 +95,9 @@ export function useTableOrSpreadsheet() {
   );
 
   return {
-    error:
-      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
-        ? spreadSheets?.error
-        : datasourceStructure?.error?.message,
+    error: isGoogleSheetPluginDS(selectedDatasourcePluginPackageName)
+      ? spreadSheets?.error
+      : datasourceStructure?.error?.message,
     label: (
       <Label>
         Select {pluginField?.TABLE} from <Bold>{config.datasource.label}</Bold>
