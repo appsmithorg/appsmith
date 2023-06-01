@@ -380,9 +380,8 @@ function* updateDatasourceSaga(
     }
 
     const response: ApiResponse<Datasource> =
-      yield DatasourcesApi.updateDatasource(
-        datasourcePayload,
-        datasourcePayload.id,
+      yield DatasourcesApi.updateDatasourceStorage(
+        datasourcePayload.datasourceStorages.active_env,
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
