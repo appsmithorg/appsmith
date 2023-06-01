@@ -584,12 +584,13 @@ const mapStateToProps = (
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction || {};
-  const datasourceFromDataSourceList = getDatasource(
-    state,
-    datasourceFromAction.id,
-  );
+  let datasourceFromDataSourceList: Datasource | undefined;
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
+    const datasourceFromDataSourceList = getDatasource(
+      state,
+      datasourceFromAction.id,
+    );
     if (datasourceFromDataSourceList) {
       datasourceMerged = merge(
         {},
