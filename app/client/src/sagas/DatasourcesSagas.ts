@@ -645,7 +645,6 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   try {
     //Chandan
-    console.log("ondhu test ", payload);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.testDatasource(
         payload.datasourceStorages.active_env,
@@ -916,7 +915,6 @@ function* changeDatasourceSaga(
     shouldNotRedirect?: boolean;
   }>,
 ) {
-  console.log("ondhu change");
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
@@ -965,7 +963,6 @@ function* switchDatasourceSaga(
     shouldNotRedirect: boolean;
   }>,
 ) {
-  console.log("ondhu switch");
   const { datasourceId, shouldNotRedirect } = action.payload;
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   if (datasource) {

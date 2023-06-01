@@ -483,7 +483,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       viewMode,
     } = this.props;
 
-    console.log("ondhu 123 ", this.props);
     const shouldViewMode = viewMode && !isInsideReconnectModal;
     // Check for specific form types first
     if (

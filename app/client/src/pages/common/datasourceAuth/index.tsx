@@ -142,7 +142,6 @@ function DatasourceAuth({
   showFilterComponent,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
-  console.log("ondhu 3", datasource);
   const authType =
     formData && "authType" in formData
       ? formData?.authType
@@ -214,7 +213,6 @@ function DatasourceAuth({
       }
     }
   }, [triggerSave]);
-  console.log("ondhu 2", datasource);
   const isAuthorized =
     datasource?.datasourceStorages.active_env.datasourceConfiguration
       ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
