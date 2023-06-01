@@ -1292,7 +1292,6 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
   cy.get(welcomePage.verifyPassword).should("be.visible");
-  cy.get("button").should("have.text", "Continue").should("be.disabled");
   cy.get(welcomePage.continueButton).should("be.disabled");
 
   cy.get(welcomePage.firstName).type(Cypress.env("USERNAME"));
