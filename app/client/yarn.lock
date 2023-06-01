@@ -5180,11 +5180,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shared/dsl@workspace:packages/dsl":
+"@shared/dsl@workspace:^, @shared/dsl@workspace:packages/dsl":
   version: 0.0.0-use.local
   resolution: "@shared/dsl@workspace:packages/dsl"
   dependencies:
+    "@babel/runtime": ^7.21.0
+    "@rollup/plugin-commonjs": ^22.0.0
+    "@types/escodegen": ^0.0.7
+    "@types/lodash": ^4.14.120
     normalizr: ^3.6.2
+    rollup: ^2.77.0
+    rollup-plugin-generate-package-json: ^3.2.0
+    rollup-plugin-peer-deps-external: ^2.2.4
+    rollup-plugin-typescript2: ^0.32.0
+    typescript: 4.5.5
   peerDependencies:
     react: ^17.0.2
   languageName: unknown
@@ -9442,6 +9451,7 @@ __metadata:
   dependencies:
     "@babel/runtime": ^7.21.0
     "@shared/ast": "workspace:^"
+    "@shared/dsl": "workspace:^"
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
     astravel: ^0.6.1
