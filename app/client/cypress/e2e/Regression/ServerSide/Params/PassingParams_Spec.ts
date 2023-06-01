@@ -14,8 +14,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       "Default selected value",
       `{\n    \"label\": \"8\",\n    \"value\": \"8\"\n  }`,
     );
-    _.entityExplorer.SelectEntityByName("Select1");
-    _.agHelper.RenameWidget("Select1", "selRecordFilter");
+    _.propPane.RenameWidget("Select1", "selRecordFilter");
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 500);
     _.entityExplorer.NavigateToSwitcher("Explorer");
   });

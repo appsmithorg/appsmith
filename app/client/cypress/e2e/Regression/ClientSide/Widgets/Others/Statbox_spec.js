@@ -67,16 +67,8 @@ describe("Statbox Widget Functionality", function () {
     );
     cy.SaveAndRunAPI();
     // going to HomePage where the button widget is located and opening it's property pane.
-    cy.get(widgetsPage.NavHomePage).click({ force: true });
-    _.agHelper.RefreshPage();
     // binding datasource to text widget in statbox
-    cy.openPropertyPane("textwidget");
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("{ctrl}{shift}{downarrow}")
-      .type("{{MockApi.data.users[0].id}}", {
-        parseSpecialCharSequences: false,
-      });
+    _.entityExplorer.SelectEntityByName("Text1", "Statbox1");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data.users[0].id}}");
   });
 });

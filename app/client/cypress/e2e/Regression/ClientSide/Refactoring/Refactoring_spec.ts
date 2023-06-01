@@ -56,13 +56,11 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
 
   it("1. Refactor Widget, API, Query and JSObject", () => {
     //Rename all widgets and entities
-    _.entityExplorer.SelectEntityByName(refactorInput.textWidget.oldName);
-    _.agHelper.RenameWidget(
+    _.propPane.RenameWidget(
       refactorInput.textWidget.oldName,
       refactorInput.textWidget.newName,
     );
-    _.entityExplorer.SelectEntityByName(refactorInput.inputWidget.oldName);
-    _.agHelper.RenameWidget(
+    _.propPane.RenameWidget(
       refactorInput.inputWidget.oldName,
       refactorInput.inputWidget.newName,
     );

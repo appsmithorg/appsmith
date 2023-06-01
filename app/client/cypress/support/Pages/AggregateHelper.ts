@@ -130,19 +130,10 @@ export class AggregateHelper {
       .clear({ force: true })
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
+      .focus()
       .blur();
     this.AssertElementAbsence(this.locator._runBtnSpinner, 10000);
-    //this.Sleep(2000); //allow name to settle
-  }
-
-  public RenameWidget(oldName: string, newName: string) {
-    this.GetNClick(this.locator._widgetName(oldName));
-    cy.get(this.locator._widgetNameTxt)
-      .clear({ force: true })
-      .type(newName, { force: true })
-      .should("have.value", newName)
-      .blur();
-    this.Sleep();
+    this.Sleep(300); //allow lil more time for new name to settle
   }
 
   public CheckForPageSaveError() {

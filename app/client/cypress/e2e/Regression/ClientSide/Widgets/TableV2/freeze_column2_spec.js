@@ -4,12 +4,12 @@ describe("Column freeze & unfreeze in page mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
     cy.openPropertyPane(_.draggableWidgets.TABLE);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   describe("2.1 Column freeze and unfreeze testing with 0 pre-frozen columns", () => {
     after(() => {
-      cy.goToEditFromPublish();
+      _.deployMode.NavigateBacktoEditor();
     });
     it("2.1.1 Freeze Columns left", () => {
       cy.freezeColumnFromDropdown("status", "left");
@@ -78,7 +78,7 @@ describe("Column freeze & unfreeze in page mode", () => {
 
   describe("2.2 Column freeze and unfreeze testing with multiple pre-frozen columns", () => {
     after(() => {
-      cy.goToEditFromPublish();
+      _.deployMode.NavigateBacktoEditor();
     });
     it("2.2.1 Freeze column left", () => {
       // Freeze additional column in editor mode
@@ -87,7 +87,7 @@ describe("Column freeze & unfreeze in page mode", () => {
       cy.freezeColumnFromDropdown("step", "right");
       cy.checkColumnPosition("step", 3);
 
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
 
       // User frozen columns
       cy.freezeColumnFromDropdown("status", "left");

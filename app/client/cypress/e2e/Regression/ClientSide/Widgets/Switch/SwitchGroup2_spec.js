@@ -3,8 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/SwitchGroupWidgetDsl.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane,
+let propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer;
 
 describe("Switch Group Widget Functionality", function () {
@@ -22,8 +21,7 @@ describe("Switch Group Widget Functionality", function () {
      * @param{RadioWidget}Mouseover
      * @param{RadioPre Css} Assertion
      */
-    ee.SelectEntityByName("SwitchGroup1");
-    agHelper.RenameWidget("SwitchGroup1", "SwitchGroupTest");
+    propPane.RenameWidget("SwitchGroup1", "SwitchGroupTest");
   });
 
   it("2. Property: options", function () {

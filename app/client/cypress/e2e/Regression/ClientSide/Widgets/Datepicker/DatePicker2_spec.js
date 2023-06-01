@@ -45,8 +45,7 @@ describe("DatePicker Widget Functionality", function () {
       "contain.value",
       nextDay,
     );
-
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
       nextDay,
@@ -57,7 +56,7 @@ describe("DatePicker Widget Functionality", function () {
     const today = dayjs().add(0, "days").format("DD/MM/YYYY");
     cy.get(formWidgetsPage.defaultDate).click();
     cy.ClearDate();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
       "",
@@ -148,14 +147,14 @@ describe("DatePicker Widget Functionality", function () {
   it("2. DatePicker-check Visible field  validation", function () {
     // Check the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget).should("not.exist");
   });
 
   it("3. DatePicker-uncheck Visible field validation", function () {
     // Check the visible checkbox
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget).should("be.visible");
   });
 
@@ -166,7 +165,7 @@ describe("DatePicker Widget Functionality", function () {
       formWidgetsPage.datepickerWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateDisableWidget(
       publishPage.datepickerWidget,
       commonlocators.disabledField,
@@ -180,7 +179,7 @@ describe("DatePicker Widget Functionality", function () {
       formWidgetsPage.datepickerWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateEnableWidget(
       publishPage.datepickerWidget,
       commonlocators.disabledField,
@@ -188,6 +187,6 @@ describe("DatePicker Widget Functionality", function () {
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

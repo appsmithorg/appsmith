@@ -85,7 +85,7 @@ export class EntityExplorer {
       .click(
         ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
       );
-    this.agHelper.Sleep(500);
+    this.agHelper.Sleep(); //for selection to settle
   }
 
   public SelectEntityInModal(

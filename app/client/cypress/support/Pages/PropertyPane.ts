@@ -436,6 +436,18 @@ export class PropertyPane {
     this.agHelper.AssertElementExist(this.locator._selectByValue(value));
   }
 
+  public RenameWidget(oldName: string, newName: string) {
+    this.entityExplorer.SelectEntityByName(oldName, "Widgets");
+    this.agHelper.GetNClick(this.locator._widgetName(oldName));
+    cy.get(this.locator._widgetNameTxt)
+      .clear({ force: true })
+      .type(newName, { force: true })
+      .should("have.value", newName)
+      .blur();
+    this.agHelper.ValidateNetworkStatus("@updateWidgetName");
+    this.agHelper.Sleep();
+  }
+
   public createModal(modalName: string, property: string) {
     ObjectsRegistry.PropertyPane.AddAction(property);
     cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();

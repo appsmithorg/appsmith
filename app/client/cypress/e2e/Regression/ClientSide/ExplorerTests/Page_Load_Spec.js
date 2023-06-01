@@ -1,7 +1,5 @@
 const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
-
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Page Load tests", () => {
@@ -26,7 +24,7 @@ describe("Page Load tests", () => {
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");
     // Publish
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
@@ -76,18 +74,18 @@ describe("Page Load tests", () => {
   });
 
   it("2. Hide Page and validate published app", () => {
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ActionContextMenuByEntityName("Page1", "Hide");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",
       "This is Page 1",
     );
     cy.contains("Page2").should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("Page2");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",
