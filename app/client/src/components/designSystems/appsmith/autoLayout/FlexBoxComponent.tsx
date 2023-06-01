@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
-import FlexRow from "./FlexRow";
+import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import type {
   FlexLayer,
@@ -76,7 +76,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     }: FlexLayerLayoutData = getLayoutDataForFlexLayer(map, layer);
 
     return (
-      <FlexRow
+      <AutoLayoutLayer
         centerChildren={centerChildren}
         endChildren={endChildren}
         hasFillWidget={hasFillWidget}

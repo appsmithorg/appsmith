@@ -11,7 +11,7 @@ import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
  * 3. Only render start wrapper if a fill widget is present.
  */
 
-export type FlexRowProps = FlexLayerLayoutData & {
+export type AutoLayoutLayerProps = FlexLayerLayoutData & {
   index: number;
   isMobile?: boolean;
   widgetId: string;
@@ -58,12 +58,7 @@ const CenterAlignment = styled(Alignment)`
   justify-content: center;
 `;
 
-const FillAlignment = styled(Alignment)`
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-`;
-
-function FlexRow(props: FlexRowProps) {
+function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   const renderChildren = () => {
     const {
       centerChildren,
@@ -77,12 +72,7 @@ function FlexRow(props: FlexRowProps) {
      * If flex layer has a fill widget,
      * then we need to render all children in a single alignment (start).
      */
-    if (hasFillWidget)
-      return (
-        <FillAlignment isMobile={isMobile} key={0}>
-          {startChildren}
-        </FillAlignment>
-      );
+    if (hasFillWidget) return startChildren;
 
     const arr: (JSX.Element | null)[] = [
       <StartAlignment isMobile={isMobile} key={0}>
@@ -105,4 +95,4 @@ function FlexRow(props: FlexRowProps) {
   );
 }
 
-export default FlexRow;
+export default AutoLayoutLayer;

@@ -50,9 +50,9 @@ const FlexWidget = styled.div`
   background: yellowgreen;
 
   &.fill-widget {
-    flex-grow: 1;
+    flex-grow: 9999;
     flex-shrink: 1;
-    width: -webkit-fill-available;
+    flex-basis: 0%;
   }
 
   &.hug-widget {
@@ -146,6 +146,11 @@ export function FlexComponent(props: AutoLayoutProps) {
   //         }px`,
   //   margin: WIDGET_PADDING / 2 + "px",
   // };
+
+  /**
+   * TODO (Preet): Temporarily hard coding fill widget min-width to 100% for mobile viewport.
+   * Move this logic to widget config.
+   */
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
@@ -154,7 +159,12 @@ export function FlexComponent(props: AutoLayoutProps) {
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
-      minWidth: minWidth ? `${minWidth}px` : undefined,
+      minWidth:
+        props.responsiveBehavior === ResponsiveBehavior.Fill && props.isMobile
+          ? "calc(100% - 8px)"
+          : minWidth
+          ? `${minWidth}px`
+          : undefined,
       maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       minHeight: minHeight ? `${minHeight}px` : undefined,
       maxHeight: maxHeight ? `${maxHeight}px` : undefined,
