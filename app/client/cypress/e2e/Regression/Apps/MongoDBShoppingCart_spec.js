@@ -125,7 +125,9 @@ describe("Shopping cart App", function () {
     _.deployMode.DeployApp(appPage.bookname);
   });
 
-  it.skip("2. Perform CRUD operations and validate data", function () {
+  it("2. Perform CRUD operations and validate data", function () {
+    //Wait for the page to settle
+    _.agHelper.Sleep(5000);
     // Adding the books to the Add cart form
     _.agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
     _.agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
@@ -163,7 +165,7 @@ describe("Shopping cart App", function () {
     cy.get(".selected-row").children().eq(3).should("have.text", "3");
   });
 
-  it.skip("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
+  it("3. Connect the appplication to git and validate data in deploy mode and edit mode", function () {
     cy.get(".t--back-to-editor").click();
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
