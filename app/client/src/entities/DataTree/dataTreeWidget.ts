@@ -59,7 +59,7 @@ import { error } from "loglevel";
       }
  */
 
-function getSetterConfig(
+export function getSetterConfig(
   setterConfig: Record<string, any>,
   widget: FlattenedWidgetProps,
 ) {
@@ -81,38 +81,55 @@ function getSetterConfig(
 
     const pathToSetters = setterConfig.pathToSetters;
 
+    //pathToSetters = [{ path: "primaryColumns.$columnId", property: "columnType" }]
     for (const { path, property } of pathToSetters) {
       const pathArray = path.split(".");
-      const lastElement = pathArray[pathArray.length - 1];
+      const placeHolder = pathArray[pathArray.length - 1];
 
-      if (lastElement[0] !== "$") continue;
+      if (placeHolder[0] !== "$") continue;
 
+      //pathToParentObj = primaryColumns
       const pathToParentObj = pathArray.slice(0, -1).join(".");
       const accessors = Object.keys(get(widget, pathToParentObj));
 
+      //accessors = action, step, status, task
       for (const accesskey of accessors) {
         const fullPath = pathToParentObj + "." + accesskey;
-        const subConfigParentObj = get(widget, fullPath);
+        const accessorObject = get(widget, fullPath);
 
-        const propertyType = subConfigParentObj[property];
+        //propertyType = text, button etc
+        const propertyType = accessorObject[property];
         if (!propertyType) continue;
-        const subConfig = setterConfig[propertyType];
-        if (!subConfig) continue;
-        const settersMap = subConfig.__setters;
-        if (!settersMap) continue;
 
-        const entries = Object.entries(settersMap) as [
+        // "text": {
+        //     __setters:{
+        //       setIsRequired: {
+        //           path: "primaryColumns.$columnId.isRequired"
+        //       }
+        //     }
+        // }
+        const accessorSetterConfig = setterConfig[propertyType];
+        if (!accessorSetterConfig) continue;
+
+        const accessorSettersMap = accessorSetterConfig.__setters;
+        if (!accessorSettersMap) continue;
+
+        const entries = Object.entries(accessorSettersMap) as [
           string,
           Record<string, unknown>,
         ][];
+
         for (const [setterName, setterBody] of entries) {
-          const path = (setterBody as any).path.replace(lastElement, accesskey);
+          //path = primaryColumns.action.isRequired
+          const path = (setterBody as any).path.replace(placeHolder, accesskey);
           const setterPathArray = path.split(".");
           setterPathArray.pop();
           setterPathArray.push(setterName);
+
+          //setterPath = primaryColumns.action.setIsRequired
           const setterPath = setterPathArray.join(".");
           modifiedSetterConfig.__setters[setterPath] = {
-            path,
+            path: `${widget.widgetName}.${path}`, //Table2.primaryColumns.action.isRequired
             type: setterBody.type,
           };
         }
