@@ -495,12 +495,12 @@ export class DataSources {
 
   public FillAirtableDSForm() {
     this.ValidateNSelectDropdown(
-      "Authentication Type",
+      "Authentication type",
       "Please select an option",
-      "Bearer Token",
+      "Bearer token",
     );
     this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Bearer Token"),
+      this.locator._inputFieldByName("Bearer token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
