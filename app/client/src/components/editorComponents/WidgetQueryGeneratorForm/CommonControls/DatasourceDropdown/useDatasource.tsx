@@ -297,9 +297,9 @@ export function useDatasource() {
         },
       },
       {
-        id: "Insert Binding",
-        label: "Insert Binding",
-        value: "Insert Binding",
+        id: "Insert binding",
+        label: "Insert binding",
+        value: "Insert binding",
         icon: <Binding>{"{ }"}</Binding>,
         onSelect: () => {
           addBinding("{{}}", true);
