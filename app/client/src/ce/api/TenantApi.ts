@@ -20,7 +20,7 @@ export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
   static fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
-    return Api.get(TenantApi.tenantsUrl + "/current");
+    return Api.get(`${TenantApi.tenantsUrl}/current`);
   }
 
   static updateTenantConfig(
