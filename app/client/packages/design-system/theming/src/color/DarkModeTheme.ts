@@ -11,6 +11,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedHue: number;
   private readonly seedIsAchromatic: boolean;
   private readonly seedIsCold: boolean;
+  private readonly seedIsRed: boolean;
   private readonly seedIsVeryDark: boolean;
 
   constructor(color: ColorTypes) {
@@ -20,6 +21,7 @@ export class DarkModeTheme implements ColorModeTheme {
       hue,
       isAchromatic,
       isCold,
+      isRed,
       isVeryDark,
       lightness,
     } = new ColorsAccessor(color);
@@ -27,9 +29,10 @@ export class DarkModeTheme implements ColorModeTheme {
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
-    this.seedIsCold = isCold;
-    this.seedIsVeryDark = isVeryDark;
     this.seedIsAchromatic = isAchromatic;
+    this.seedIsCold = isCold;
+    this.seedIsRed = isRed;
+    this.seedIsVeryDark = isVeryDark;
   }
 
   public getColors = () => {
@@ -42,22 +45,23 @@ export class DarkModeTheme implements ColorModeTheme {
       bgAccentSubtleHover: this.bgAccentSubtleHover.toString(),
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
       bgAssistive: this.bgAssistive.toString(),
+      bgNegative: this.bgNegative.toString(),
       // fg
       fg: this.fg.toString(),
       fgAccent: this.fgAccent.toString(),
-      fgOnAccent: this.fgOnAccent.toString(),
+      fgNegative: this.fgNegative.toString(),
       fgNeutral: this.fgNeutral.toString(),
+      fgOnAccent: this.fgOnAccent.toString(),
+      fgOnAssistive: this.fgOnAssistive.toString(),
       fgPositive: this.fgPositive,
       fgWarn: this.fgWarn,
-      fgNegative: this.fgNegative,
-      fgOnAssistive: this.fgOnAssistive.toString(),
       // bd
       bdAccent: this.bdAccent.toString(),
       bdFocus: this.bdFocus.toString(),
+      bdNegative: this.bdNegative.toString(),
+      bdNegativeHover: this.bdNegativeHover.toString(),
       bdNeutral: this.bdNeutral.toString(),
       bdNeutralHover: this.bdNeutralHover.toString(),
-      bdNegative: this.bdNegative,
-      bdNegativeHover: this.bdNegativeHover,
     };
   };
 
@@ -200,6 +204,22 @@ export class DarkModeTheme implements ColorModeTheme {
     return this.fg.clone();
   }
 
+  private get bgNegative() {
+    const color = this.bgAccent.clone();
+
+    color.oklch.h = 40;
+
+    if (this.seedIsRed) {
+      if (this.seedColor.oklch.h < 39) {
+        color.oklch.h = 50;
+      }
+      if (this.seedColor.oklch.h >= 39) {
+        color.oklch.h = 29;
+      }
+    }
+
+    return color;
+  }
   /*
    * Foreground colors
    */
@@ -266,7 +286,13 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get fgNegative() {
-    return "#d91921";
+    const color = this.bgNegative.clone();
+
+    if (this.bg.contrastAPCA(color) > -60) {
+      color.oklch.l = 50;
+    }
+
+    return color;
   }
 
   private get fgOnAssistive() {
@@ -338,10 +364,27 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdNegative() {
-    return "#d91921";
+    const color = this.bdAccent.clone();
+
+    color.oklch.h = this.bgNegative.oklch.h;
+
+    return color;
   }
 
   private get bdNegativeHover() {
-    return "#b90707";
+    const color = this.bdNegative.clone();
+
+    if (this.bdNegative.oklch.l < 0.8) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    if (this.bdNegative.oklch.l >= 0.8 && this.bdNegative.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (this.bdNegative.oklch.l >= 0.9) {
+      color.oklch.l = color.oklch.l - 0.25;
+    }
+    return color;
   }
 }
