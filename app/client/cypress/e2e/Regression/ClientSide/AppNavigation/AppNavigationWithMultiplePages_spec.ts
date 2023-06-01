@@ -1,4 +1,3 @@
-import appNavigationLocators from "../../../../locators/AppNavigation.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let currentUrl: string | null = null;
 
