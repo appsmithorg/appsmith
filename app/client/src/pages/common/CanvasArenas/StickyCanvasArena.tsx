@@ -15,6 +15,7 @@ interface StickyCanvasArenaProps {
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
   ref: StickyCanvasArenaRef;
+  shouldObserveIntersection: boolean;
 }
 
 interface StickyCanvasArenaRef {
@@ -43,6 +44,7 @@ export const StickyCanvasArena = forwardRef(
       canvasPadding,
       getRelativeScrollingParent,
       id,
+      shouldObserveIntersection,
       showCanvas,
       snapColSpace,
       snapRows,
@@ -55,6 +57,7 @@ export const StickyCanvasArena = forwardRef(
         entries.forEach(updateCanvasStylesIntersection);
       }),
     );
+
     const resizeObserver = useRef(
       new ResizeObserver(() => {
         observeSlider();
@@ -88,20 +91,26 @@ export const StickyCanvasArena = forwardRef(
       entry: IntersectionObserverEntry,
     ) => {
       if (slidingArenaRef.current) {
-        const parentCanvas: Element | null = getRelativeScrollingParent(
-          slidingArenaRef.current,
-        );
+        requestAnimationFrame(() => {
+          const parentCanvas: Element | null = getRelativeScrollingParent(
+            slidingArenaRef.current,
+          );
 
-        if (parentCanvas && stickyCanvasRef.current) {
-          repositionSliderCanvas(entry);
-          rescaleSliderCanvas(entry);
-        }
+          if (parentCanvas && stickyCanvasRef.current) {
+            repositionSliderCanvas(entry);
+            rescaleSliderCanvas(entry);
+          }
+        });
       }
     };
+
     const observeSlider = () => {
-      interSectionObserver.current.disconnect();
-      if (slidingArenaRef && slidingArenaRef.current) {
-        interSectionObserver.current.observe(slidingArenaRef.current);
+      // This is to make sure the canvas observes and changes only when needed like when dragging or drw to select.
+      if (shouldObserveIntersection) {
+        interSectionObserver.current.disconnect();
+        if (slidingArenaRef && slidingArenaRef.current) {
+          interSectionObserver.current.observe(slidingArenaRef.current);
+        }
       }
     };
 
@@ -109,7 +118,14 @@ export const StickyCanvasArena = forwardRef(
       if (slidingArenaRef.current) {
         observeSlider();
       }
-    }, [showCanvas, snapRows, canExtend, snapColSpace, snapRowSpace]);
+    }, [
+      showCanvas,
+      snapRows,
+      canExtend,
+      snapColSpace,
+      snapRowSpace,
+      shouldObserveIntersection,
+    ]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
@@ -126,7 +142,7 @@ export const StickyCanvasArena = forwardRef(
           resizeObserver.current.unobserve(slidingArenaRef.current);
         }
       };
-    }, []);
+    }, [shouldObserveIntersection]);
     return (
       <>
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
