@@ -4,7 +4,6 @@ import { useDatasource } from "./useDatasource";
 import { Select, Option, Icon } from "design-system";
 import { DropdownOption } from "./DropdownOption";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import type { DropdownOptionType } from "../../types";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { DATASOURCE_DROPDOWN_SECTIONS } from "../../constants";
@@ -13,7 +12,7 @@ const SectionHeader = styled.div`
   cursor: default;
   font-weight: 500;
   line-height: 19px;
-  color: ${Colors.GREY_900};
+  color: #4c5664;
 `;
 
 function DatasourceDropdown() {
@@ -128,10 +127,10 @@ function DatasourceDropdown() {
             >
               <DropdownOption
                 label={
-                  <>
+                  <span>
                     New from {option.data.isSample ? "sample " : ""}
                     <Bold>{option.label?.replace("sample ", "")}</Bold>
-                  </>
+                  </span>
                 }
                 leftIcon={option.icon}
                 rightIcon={<Icon name="add-box-line" size="md" />}
