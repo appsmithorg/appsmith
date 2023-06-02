@@ -1662,7 +1662,7 @@ export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask For Support";
 export const CONVERT = () => "Convert layout";
 export const BUILD_RESPONSIVE = () => "Build responsive apps";
 export const BUILD_RESPONSIVE_TEXT = () =>
-  "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
+  "Appsmith will convert your application's UI to auto-layout, a new mode designed for building mobile-friendly apps in no time";
 export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
@@ -1689,7 +1689,7 @@ export const CONVERSION_WARNING_TEXT = () =>
   "You might need to manually position some of the widgets your layout contains";
 export const CONVERSION_ERROR_HEADER = () => "Conversion failed";
 export const CONVERSION_ERROR = () =>
-  "Appsmith ran into a critical error while trying to convert to auto layout";
+  "Appsmith ran into a critical error while trying to convert to auto-layout";
 export const SEND_REPORT = () => "Send us a report";
 export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
 export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";

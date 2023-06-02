@@ -28,7 +28,7 @@ ff4j:
 
     - uid: AUTO_LAYOUT
       enable: true
-      description: Enable auto layout editor for everyone
+      description: Enable auto-layout editor for everyone
       flipstrategy:
         class: org.ff4j.strategy.PonderationStrategy
         param:

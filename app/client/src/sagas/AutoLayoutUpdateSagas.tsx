@@ -176,7 +176,7 @@ export function* updateLayoutPositioningSaga(
 
       yield call(recalculateAutoLayoutColumnsAndSave);
     }
-    // Convert Auto layout to fixed
+    // Convert auto-layout to fixed
     else {
       yield put(
         updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),

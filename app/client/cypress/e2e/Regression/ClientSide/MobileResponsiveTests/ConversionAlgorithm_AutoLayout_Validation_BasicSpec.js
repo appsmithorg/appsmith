@@ -2,7 +2,7 @@ const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 let testHeight;
 
-describe("Auto conversion algorithm usecases for Autolayout", function () {
+describe("Auto conversion algorithm usecases for auto-layout", function () {
   it("1. Validate basic conversion algorithm usecases", function () {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle

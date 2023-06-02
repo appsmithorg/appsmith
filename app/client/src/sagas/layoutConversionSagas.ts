@@ -30,7 +30,7 @@ import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /**
- * This method is used to convert from Auto layout to Fixed layout
+ * This method is used to convert from auto-layout to Fixed layout
  * @param action
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
@@ -121,7 +121,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 }
 
 /**
- * This method is used to convert from Fixed layout to Auto layout
+ * This method is used to convert from Fixed layout to auto-layout
  * @param action
  */
 function* convertFromFixedToAutoSaga() {
