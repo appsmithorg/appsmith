@@ -183,10 +183,4 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
 
         return newDs;
     }
-
-    @Override
-    public void sanitiseToExportDBObject() {
-        this.setDatasourceStorages(null);
-        super.sanitiseToExportDBObject();
-    }
 }
