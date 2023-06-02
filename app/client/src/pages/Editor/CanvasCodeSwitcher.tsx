@@ -4,7 +4,7 @@ import history from "utils/history";
 import { builderURL } from "RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import { matchBuilderPath } from "constants/routes";
+import { matchBuilderPath, matchDatasourcePath } from "constants/routes";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setCodeTabPath } from "actions/editorContextActions";
@@ -80,6 +80,8 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
   }, [isEditorInitialized]);
 
   useEffect(() => {
+    if (matchDatasourcePath(location.pathname)) return;
+
     if (matchBuilderPath(location.pathname)) {
       dispatch(canvasCodeToggle("CANVAS"));
     } else {

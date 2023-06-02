@@ -50,7 +50,6 @@ export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
-export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
 export const matchBuilderPath = (
@@ -77,6 +76,10 @@ export const matchGeneratePagePath = (pathName: string) =>
   match(`${BUILDER_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
   match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
   match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName);
+export const matchDatasourcePath = (pathName: string) =>
+  match(`${BUILDER_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`)(pathName) ||
+  match(`${BUILDER_CUSTOM_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`)(pathName) ||
+  match(`${BUILDER_PATH_DEPRECATED}${DATA_SOURCES_EDITOR_ID_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
