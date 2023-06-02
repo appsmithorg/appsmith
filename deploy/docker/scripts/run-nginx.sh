@@ -81,7 +81,7 @@ apply-env-vars() {
   const content = fs.readFileSync("'"$original"'", "utf8").replace(
     /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
     (placeholder, name) => (process.env[name] || "")
-  ).replace(/\/static\//g, cdn_url + "/static/")
+  )
   fs.writeFileSync("'"$served"'", content)
   '
 }
