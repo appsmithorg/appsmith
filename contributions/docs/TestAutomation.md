@@ -14,7 +14,7 @@
 
 1. For default settings, check the `app/client/cypress.config.ts` file.
 
-1. You can create a local file `app/client/cypress.config.ts` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
+1. Update file `app/client/cypress.config.ts` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
    ```json
    {
