@@ -17,6 +17,7 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getCodeTabPath } from "selectors/canvasCodeSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { matchPath_BuilderSlug } from "utils/helpers";
 import history from "utils/history";
 
 /**
@@ -68,7 +69,9 @@ function* setSelectedPropertyTabIndexSaga(
 function* navigateToMostRecentEntity() {
   const codeTabPath: string | undefined = yield select(getCodeTabPath);
   const currentPageId: string = yield select(getCurrentPageId);
-  if (codeTabPath) {
+  // hack: to be fixed
+  const values = matchPath_BuilderSlug(codeTabPath ?? "");
+  if (codeTabPath && values?.params.pageId === currentPageId) {
     const params = history.location.search;
     history.push(`${codeTabPath}${params ?? ""}`);
   } else {
