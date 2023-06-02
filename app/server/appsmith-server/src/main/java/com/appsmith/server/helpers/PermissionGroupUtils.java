@@ -1,6 +1,8 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -14,8 +16,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 
 @Component
@@ -69,6 +73,15 @@ public class PermissionGroupUtils {
                     permissionGroupInfoDTO.setAutoCreated(isAutoCreated);
                     return permissionGroupInfoDTO;
                 });
+    }
+
+    public static boolean isUserManagementRole(PermissionGroup role) {
+        Optional<Policy> readPolicy = role.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equalsIgnoreCase(READ_PERMISSION_GROUPS.getValue()))
+                .findFirst();
+
+        boolean readPolicyNotPresentOrEmpty = readPolicy.isEmpty() || readPolicy.get().getPermissionGroups().isEmpty();
+        return role.getName().endsWith(FieldName.SUFFIX_USER_MANAGEMENT_ROLE) && readPolicyNotPresentOrEmpty;
     }
 
 }

@@ -4,10 +4,12 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
@@ -36,12 +38,14 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_PRIMARY_COLOR;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @Service
@@ -94,7 +98,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        return Mono.zip(
+        Mono<Tenant> tenantWithConfigurationMono = tenantService.getTenantConfiguration().cache();
+        Mono<UserProfileDTO> userProfileDTOMono = Mono.zip(
                         super.buildUserProfileDTO(user),
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
                         ReactiveSecurityContextHolder.getContext()
@@ -140,6 +145,33 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                         return profile;
                     });
                 });
+        Mono<UserProfileDTO> userProfileDTOWithRolesAndGroups = Mono.zip(userProfileDTOMono, tenantWithConfigurationMono)
+                .flatMap(pair -> {
+                    UserProfileDTO userProfileDTO = pair.getT1();
+                    Tenant defaultTenantWithConfiguration = pair.getT2();
+                    if (Boolean.TRUE.equals(defaultTenantWithConfiguration.getTenantConfiguration().getShowRolesAndGroups())) {
+                        Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
+                        Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
+
+                        if (StringUtils.isNotEmpty(user.getId())) {
+                            rolesUserHasBeenAssignedMono = permissionGroupService.getRoleNamesAssignedToUserIds(Set.of(user.getId())).collectList();
+                            groupsUsersIsPartOfMono = userGroupRepository.getAllByUsersIn(Set.of(user.getId()),
+                                            Optional.of(List.of(fieldName(QUserGroup.userGroup.name))), Optional.empty())
+                                    .map(UserGroup::getName)
+                                    .collectList();
+                        }
+                        return Mono.zip(rolesUserHasBeenAssignedMono, groupsUsersIsPartOfMono)
+                                .map(pair2 -> {
+                                    List<String> rolesAssigned = pair2.getT1();
+                                    List<String> memberOfRoles = pair2.getT2();
+                                    userProfileDTO.setRoles(rolesAssigned);
+                                    userProfileDTO.setGroups(memberOfRoles);
+                                    return userProfileDTO;
+                                });
+                    }
+                    return Mono.just(userProfileDTO);
+                });
+        return userProfileDTOWithRolesAndGroups;
     }
 
     @Override

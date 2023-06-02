@@ -35,7 +35,7 @@
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
     const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
     // Setting it as global variable as it is used by webpack in other files
-    CDN_URL = parseConfig("__APPSMITH_CDN_URL__") || "/"; 
+    CDN_URL = parseConfig("__APPSMITH_CDN_URL__") || "/";
 
   </script>
   <%=
@@ -83,6 +83,7 @@
       const head = document.getElementsByTagName('head')[0];
       head && head.appendChild(script);
     }
+
     // This function is triggered on load of google apis javascript library
     // Even though the script is loaded asynchronously, in case of firefox run on windows
     // The gapi script is getting loaded even before the last script of index.html

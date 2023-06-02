@@ -209,4 +209,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 tenant.getTenantConfiguration().getLicense() != null &&
                 tenant.getTenantConfiguration().getLicense().getKey() != null;
     }
+
+    @Override
+    public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        return getDefaultTenantId()
+                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+    }
 }

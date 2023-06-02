@@ -98,7 +98,7 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-            
+
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec

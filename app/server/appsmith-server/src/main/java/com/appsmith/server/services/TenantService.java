@@ -41,4 +41,6 @@ public interface TenantService extends TenantServiceCE {
      * @return
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
+
+    Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
 }
