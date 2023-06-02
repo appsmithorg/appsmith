@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   getImportedApplication,
@@ -252,10 +252,12 @@ function ReconnectDatasourceModal() {
   const unconfiguredDatasourceIds = unconfiguredDatasources.map(
     (ds: Datasource) => ds.id,
   );
-  let datasources = useSelector(getDatasources);
-  datasources = datasources.filter((ds: Datasource) =>
-    unconfiguredDatasourceIds.includes(ds.id),
-  );
+  const datasourcesList = useSelector(getDatasources);
+  const datasources = useMemo(() => {
+    return datasourcesList.filter((ds: Datasource) =>
+      unconfiguredDatasourceIds.includes(ds.id),
+    );
+  }, [datasourcesList, unconfiguredDatasourceIds]);
   const pluginsArray = useSelector(getDatasourcePlugins);
   const plugins = keyBy(pluginsArray, "id");
   const isLoading = useSelector(getIsListing);
@@ -490,15 +492,20 @@ function ReconnectDatasourceModal() {
             .find((ds: Datasource) => !ds.isConfigured);
         }
         next = next || pending[0];
-        setSelectedDatasourceId(next.id);
-        setDatasource(next);
-        // when refresh, it should be opened.
-        const appInfo = {
-          appId: appId,
-          pageId: pageId,
-          datasourceId: next.id,
-        };
-        localStorage.setItem("importedAppPendingInfo", JSON.stringify(appInfo));
+        if (next && next.id) {
+          setSelectedDatasourceId(next.id);
+          setDatasource(next);
+          // when refresh, it should be opened.
+          const appInfo = {
+            appId: appId,
+            pageId: pageId,
+            datasourceId: next.id,
+          };
+          localStorage.setItem(
+            "importedAppPendingInfo",
+            JSON.stringify(appInfo),
+          );
+        }
       } else if (appURL) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
