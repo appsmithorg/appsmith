@@ -20,6 +20,8 @@ import GlobalStyles from "globalStyles";
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 
+__webpack_public_path__ = window.CDN_URL;
+
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
 setAutoFreeze(shouldAutoFreeze);

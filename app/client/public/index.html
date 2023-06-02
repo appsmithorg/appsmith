@@ -34,6 +34,9 @@
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
     const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
+    // Setting it as global variable as it is used by webpack in other files
+    CDN_URL = parseConfig("__APPSMITH_CDN_URL__") || "/"; 
+
   </script>
   <%=
     (function () {
