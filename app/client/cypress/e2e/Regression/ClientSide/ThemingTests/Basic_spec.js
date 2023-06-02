@@ -778,20 +778,13 @@ describe("App Theming funtionality", function () {
 
     //Change Shadow & verify
     cy.contains(".ads-v2-segmented-control-value-0", "Large").click();
-    cy.contains(".ads-v2-segmented-control-value-0", "Large")
-      .invoke("css", "box-shadow")
-      .then(() => {
-        cy.get(widgetsPage.iconWidgetBtn).should(
-          "have.css",
-          "box-shadow",
-          "none",
-        );
-        cy.get(".t--widget-button1 button").should(
-          "have.css",
-          "box-shadow",
-          "none",
-        );
-      });
+
+    cy.get(widgetsPage.iconWidgetBtn).should("have.css", "box-shadow", "none");
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "box-shadow",
+      "none",
+    );
 
     cy.assertPageSave();
     cy.wait(2000);
@@ -999,22 +992,14 @@ describe("App Theming funtionality", function () {
 
     //Change Shadow & verify
     cy.contains(".ads-v2-segmented-control-value-0", "Small").click();
-    cy.contains(".ads-v2-segmented-control-value-0", "Small")
-      .invoke("css", "box-shadow")
-      .then(() => {
-        cy.get(widgetsPage.iconWidgetBtn).should(
-          "have.css",
-          "box-shadow",
-          "none",
-        );
-        cy.get(".t--widget-button2 button").should(
-          "have.css",
-          "box-shadow",
-          //same value as previous box shadow selection
-          //since revertion is not possible for box shadow - hence this widget maintains the same value
-          "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-        );
-      });
+    cy.get(widgetsPage.iconWidgetBtn).should("have.css", "box-shadow", "none");
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "box-shadow",
+      //same value as previous box shadow selection
+      //since revertion is not possible for box shadow - hence this widget maintains the same value
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    );
 
     cy.assertPageSave();
 
