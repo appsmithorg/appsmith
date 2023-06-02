@@ -110,6 +110,9 @@ function FilterCategory({
   label,
   selectedFilters,
 }: FilterCategoryProps) {
+  const filterLabelsToDisplay: Record<string, string> = {
+    functions: "teams",
+  };
   // const [expand, setExpand] = useState(!!selectedFilters.length);
   const dispatch = useDispatch();
   // This indicates how many filter items do we want to show, the rest are hidden
@@ -139,7 +142,7 @@ function FilterCategory({
   return (
     <FilterCategoryWrapper>
       <StyledFilterCategory kind="body-m" renderAs="h4">
-        {`${label} `}
+        {`${filterLabelsToDisplay[label] ?? label} `}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
       <ListWrapper>
