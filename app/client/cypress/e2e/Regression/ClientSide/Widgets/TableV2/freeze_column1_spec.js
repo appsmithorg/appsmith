@@ -91,7 +91,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
     });
 
     it("1.1.4 Check column is frozen in page mode", () => {
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       // Check if the first cell has position sticky:
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
 
@@ -99,7 +99,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
         "contain.text",
         '"step": "left"',
       );
-      cy.goToEditFromPublish();
+      _.deployMode.NavigateBacktoEditor();
     });
   });
 
@@ -124,7 +124,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
         });
 
       // Check in publish mode.
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.get(`[role="columnheader"] .header-menu .bp3-popover2-target`)
         .first()
         .click({
@@ -136,7 +136,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
         .then(($elem) => {
           cy.get($elem).parent().should("not.have.class", "bp3-disabled");
         });
-      cy.goToEditFromPublish();
+      _.deployMode.NavigateBacktoEditor();
     });
 
     it("1.2.2 Check if column is freezing in the edit mode", () => {
@@ -206,7 +206,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
         .should("have.class", "bp3-disabled");
 
       // Check in publish mode.
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.wait(3000);
       cy.get(`[role="columnheader"] .header-menu .bp3-popover2-target`)
         .first()
@@ -218,7 +218,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
         .contains("Freeze column left")
         .should("have.class", "bp3-disabled");
 
-      cy.goToEditFromPublish();
+      _.deployMode.NavigateBacktoEditor();
     });
   });
 });

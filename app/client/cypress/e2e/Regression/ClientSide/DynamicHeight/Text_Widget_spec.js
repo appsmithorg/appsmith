@@ -1,5 +1,6 @@
 const dsl = require("../../../../fixtures/textWidgetDynamicdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for text widget", function () {
   before(() => {
@@ -28,7 +29,7 @@ describe("Dynamic Height Width validation for text widget", function () {
           .then((tnewheight) => {
             expect(theight).to.not.equal(tnewheight);
           });
-        cy.PublishtheApp();
+        _.deployMode.DeployApp();
         cy.get(commonlocators.headingTextStyle)
           .should("have.text", textMsg)
           .should("have.css", "font-size", "16px");

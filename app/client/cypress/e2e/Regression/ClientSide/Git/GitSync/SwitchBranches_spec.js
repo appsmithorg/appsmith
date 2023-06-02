@@ -172,7 +172,7 @@ describe("Git sync:", function () {
     // uncomment once prune branch flow is complete
     let tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
     _.gitSync.CreateGitBranch(tempBranch, true);
     cy.get("@gitbranchName").then((branName) => {
       tempBranch = branName;
@@ -209,7 +209,7 @@ describe("Git sync:", function () {
 
   // Validate the error faced when user switches between the branches
   it("6. no error faced when user switches branch with new page", function () {
-    cy.goToEditFromPublish(); //Adding since skipping 6th case
+    _.deployMode.NavigateBacktoEditor(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
       _.gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);

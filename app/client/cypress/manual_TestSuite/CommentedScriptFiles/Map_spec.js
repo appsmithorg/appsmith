@@ -65,7 +65,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
        * Validation will be added when create marker fun is working fine
        */
 
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       /**
        * Publish mode Validation
        */
@@ -98,7 +98,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
        * Validation will be added when create marker fun is working fine
        */
 
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       /**
        * Publish mode Validation
        */
@@ -127,7 +127,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
     it("Map-Check Visible field Validation", function () {
       //Check the disableed checkbox and Validate
       cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.get(publishPage.mapWidget).should("be.visible");
       _.deployMode.NavigateBacktoEditor();
     });
@@ -136,7 +136,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.openPropertyPane("mapwidget");
       //Uncheck the disabled checkbox and validate
       cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.get(publishPage.mapWidget).should("not.exist");
     });
   });

@@ -23,10 +23,8 @@ import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
-const onboardingLocators = require("../locators/FirstTimeUserOnboarding.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
@@ -39,6 +37,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
 const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
+const deployMode = ObjectsRegistry.DeployMode;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -50,15 +49,15 @@ export const initLocalstorage = () => {
   });
 };
 
-Cypress.Commands.add("goToEditFromPublish", () => {
-  cy.url().then((url) => {
-    const urlObject = new URL(url);
-    if (!urlObject.pathname.includes("edit")) {
-      urlObject.pathname = urlObject.pathname + "/edit";
-      cy.visit(urlObject.toString());
-    }
-  });
-});
+// Cypress.Commands.add("goToEditFromPublish", () => {
+//   cy.url().then((url) => {
+//     const urlObject = new URL(url);
+//     if (!urlObject.pathname.includes("edit")) {
+//       urlObject.pathname = urlObject.pathname + "/edit";
+//       cy.visit(urlObject.toString());
+//     }
+//   });
+// });
 
 Cypress.Commands.add(
   "dragTo",
@@ -574,27 +573,27 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
-  //cy.server();
-  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
-  // Wait before publish
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.assertPageSave(validateSavedState);
+// Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
+//   //cy.server();
+//   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
+//   // Wait before publish
+//   // eslint-disable-next-line cypress/no-unnecessary-waiting
+//   cy.wait(2000);
+//   cy.assertPageSave(validateSavedState);
 
-  // Stubbing window.open to open in the same tab
-  cy.window().then((window) => {
-    cy.stub(window, "open").callsFake((url) => {
-      window.location.href = Cypress.config().baseUrl + url.substring(1);
-      window.location.target = "_self";
-    });
-  });
+//   // Stubbing window.open to open in the same tab
+//   cy.window().then((window) => {
+//     cy.stub(window, "open").callsFake((url) => {
+//       window.location.href = Cypress.config().baseUrl + url.substring(1);
+//       window.location.target = "_self";
+//     });
+//   });
 
-  cy.get(homePage.publishButton).click();
-  cy.wait("@publishApp");
-  cy.log("pagename: " + localStorage.getItem("PageName"));
-  cy.wait(1000); //wait time for page to load!
-});
+//   cy.get(homePage.publishButton).click();
+//   cy.wait("@publishApp");
+//   cy.log("pagename: " + localStorage.getItem("PageName"));
+//   cy.wait(1000); //wait time for page to load!
+// });
 
 Cypress.Commands.add("tabPopertyUpdate", (tabId, newTabName) => {
   cy.get("[data-rbd-draggable-id='" + tabId + "'] input")
@@ -838,7 +837,7 @@ Cypress.Commands.add("changeButtonColor", (buttonColor) => {
     .click({ force: true })
     .clear()
     .type(buttonColor);
-  cy.PublishtheApp();
+  deployMode.DeployApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
     "background-color",
@@ -2075,6 +2074,7 @@ Cypress.Commands.add("forceVisit", (url) => {
 });
 
 Cypress.Commands.add("SelectDropDown", (dropdownOption) => {
+  cy.wait(1000);
   cy.get(".t--widget-selectwidget button").first().scrollIntoView().click();
   cy.get(".t--widget-selectwidget button .cancel-icon")
     .first()

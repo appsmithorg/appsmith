@@ -2,6 +2,7 @@ const Layoutpage = require("../../../../../locators/Layout.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tabsWithWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
   before(() => {
@@ -17,7 +18,7 @@ describe("Tab widget test", function () {
   });
 
   it("Publish the app and validate the widgets displayed under each tab", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.buttonWidget).should("be.visible");
     cy.get(publish.textWidget).should("be.visible");
     cy.get(publish.datePickerNew).should("be.visible");

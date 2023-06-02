@@ -48,7 +48,7 @@ describe("Switch column type funtionality test", () => {
     });
     // Toggle visiblity
     _.propPane.ToggleOnOrOff("Visible", "off");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector).should("not.exist");
     });

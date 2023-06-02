@@ -21,7 +21,7 @@ describe("Binding the input Widget with tab Widget", function () {
   });
 
   it("2. validation of data displayed in input widgets based on tab selected", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget)
       .contains("Tab 2")
       .click()

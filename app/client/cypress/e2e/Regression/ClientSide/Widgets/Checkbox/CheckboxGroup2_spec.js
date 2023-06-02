@@ -4,6 +4,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const dsl = require("../../../../../fixtures/checkboxgroupDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Group Widget Functionality", function () {
   before(() => {
@@ -59,22 +60,22 @@ describe("Checkbox Group Widget Functionality", function () {
     //   .get(commonlocators.dropdownSelectButton)
     //   .click({ force: true })
     //   .type("2");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Checkbox Group Functionality To Unchecked Visible Widget", function () {
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Checkbox Group Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(500);
     cy.get(publish.checkboxGroupWidget + " " + "input")
       .eq(0)
@@ -85,7 +86,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.get(publish.checkboxGroupWidget + " " + "label")
       .eq(2)
       .should("have.text", "test2");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("handleSelectAllChange: unchecked", function () {

@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
@@ -53,7 +54,7 @@ describe("Binding the multiple input Widget", function () {
     cy.xpath(testdata.input2)
       .invoke("attr", "value")
       .should("contain", testdata.defaultdata);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
@@ -61,7 +62,7 @@ describe("Binding the multiple input Widget", function () {
     cy.xpath(testdata.input2)
       .invoke("attr", "value")
       .should("contain", testdata.defaultdata);
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Binding third input widget with first input widget and validating", function () {
@@ -74,7 +75,7 @@ describe("Binding the multiple input Widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")

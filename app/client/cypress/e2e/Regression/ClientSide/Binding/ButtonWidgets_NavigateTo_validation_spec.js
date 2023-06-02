@@ -31,7 +31,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     cy.wait(500);
     cy.get(publish.buttonWidget).should("not.exist");
     cy.go("back");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.wait("@getPage")
       .its("response.body.responseMeta.status")
       .should("eq", 200);

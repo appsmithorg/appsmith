@@ -31,7 +31,7 @@ describe("Tab widget test", function () {
 
   /* To be enabled once the bug is fixed
     it("Publish app and check for the widget name", function() {
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.get(publish.tabWidget)
         .contains(tabname)
         .click({ force: true })
@@ -43,7 +43,7 @@ describe("Tab widget test", function () {
     });
 
     it("Tab Widget Functionality To Unchecked Visible Widget", function() {
-      cy.get(publish.backToEditor).first().click();
+_.deployMode.NavigateBacktoEditor();
       cy.openPropertyPane("tabswidget");
       cy.closePropertyPane();
       cy.get(Layoutpage.tabWidget)

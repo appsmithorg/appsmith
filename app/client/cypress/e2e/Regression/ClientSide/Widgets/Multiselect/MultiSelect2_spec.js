@@ -10,10 +10,7 @@ import {
   WIDGET,
   getWidgetSelector,
 } from "../../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
@@ -235,16 +232,16 @@ describe("MultiSelect Widget Functionality", function () {
 
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
-      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
-      agHelper.PressEscape();
+      _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
+      _.agHelper.PressEscape();
       // set default value
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Default selected values",
         JSON.stringify(defaultValue, null, 2),
       );
       // select other options
-      agHelper.SelectFromMultiSelect(optionsToSelect);
-      agHelper.RemoveMultiSelectItems(optionsToDeselect);
+      _.agHelper.SelectFromMultiSelect(optionsToSelect);
+      _.agHelper.RemoveMultiSelectItems(optionsToDeselect);
 
       // reset multiselect
       cy.get(
@@ -264,33 +261,33 @@ describe("MultiSelect Widget Functionality", function () {
   it("9. Verify MultiSelect deselection behavior", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Options",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
-    agHelper.PressEscape();
-    propPane.UpdatePropertyFieldValue("Default selected values", '["RED"]');
-    agHelper.RemoveMultiSelectItems(["RED"]);
+    _.agHelper.PressEscape();
+    _.propPane.UpdatePropertyFieldValue("Default selected values", '["RED"]');
+    _.agHelper.RemoveMultiSelectItems(["RED"]);
     // verify value is equal to default value
     cy.get(getWidgetSelector("textwidget")).eq(1).should("have.text", "");
   });
 
   it("10. Dropdown Functionality To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
       "not.exist",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("11. Dropdown Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
       "be.visible",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

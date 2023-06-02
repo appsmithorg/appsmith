@@ -4,6 +4,7 @@ const dsl = require("../../../../fixtures/navigateTotabledsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
 const pageid = "MyPage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   before(() => {
@@ -32,7 +33,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
       .should("be.visible")
       .click({ force: true });
     cy.wait(4000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.readTabledataPublish("1", "0").then((tabDataP) => {
       const tabValueP = tabDataP;
       cy.log(tabValueP);

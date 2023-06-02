@@ -31,7 +31,7 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("emptyAppBuilder");
 
     //Layout Validation for Empty deployed app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(3000);
     // taking screenshot of empty deployed app
     cy.get("#root").matchImageSnapshot("EmptyApp");

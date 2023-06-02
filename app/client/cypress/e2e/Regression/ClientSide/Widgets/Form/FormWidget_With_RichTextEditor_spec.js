@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formWithRTEDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -9,7 +8,6 @@ describe("RichTextEditor Widget Functionality in Form", function () {
   });
 
   beforeEach(() => {
-    cy.wait(7000);
     cy.openPropertyPane("richtexteditorwidget");
   });
 
@@ -37,8 +35,5 @@ describe("RichTextEditor Widget Functionality in Form", function () {
     );
 
     cy.get(".t--draggable-formbuttonwidget button").should("be.disabled");
-  });
-  afterEach(() => {
-    cy.goToEditFromPublish();
   });
 });

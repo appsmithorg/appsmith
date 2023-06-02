@@ -28,7 +28,7 @@ describe("Map Chart Widget Functionality", function () {
   it("2. Show Labels: FALSE", function () {
     cy.togglebarDisable(commonLocators.mapChartShowLabels);
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("not.exist");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Show Labels: TRUE
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("MapChart1", "Widgets");

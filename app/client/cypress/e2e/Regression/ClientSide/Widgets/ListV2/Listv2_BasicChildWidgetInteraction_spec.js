@@ -82,7 +82,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify drop
     cy.get(publishLocators.selectwidget).should("exist");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.waitUntil(() =>
       cy
@@ -118,7 +118,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify drop
     cy.get(publishLocators.checkboxGroupWidget).should("exist");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.waitUntil(() =>
       cy
@@ -160,7 +160,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify drop
     cy.get(publishLocators.switchwidget).should("exist");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.waitUntil(() =>
       cy
@@ -204,7 +204,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Verify drop
     cy.get(publishLocators.radioWidget).should("exist");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.waitUntil(() =>
       cy

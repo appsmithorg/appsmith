@@ -4,6 +4,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelectTree Widget Functionality", function () {
   before(() => {
@@ -80,21 +81,21 @@ describe("MultiSelectTree Widget Functionality", function () {
 
   it("5. To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(
       publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",
     ).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. To Check Visible Widget", function () {
     cy.openPropertyPane("multiselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(
       publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",
     ).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("7. To Check Option Not Found", function () {

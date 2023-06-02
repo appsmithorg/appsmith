@@ -1,5 +1,5 @@
 const dynamicDSL = require("../../../../../fixtures/CurrencyInputDynamic.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "currencyinputwidget";
 
@@ -23,7 +23,7 @@ describe("Currency input widget - ", () => {
     // Assert the options dropdown is still open
     cy.get(".t--search-input input").should("be.visible");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Click on the currency change option
     cy.get(".t--input-currency-change").first().click();
     // Search with a typo
@@ -32,7 +32,7 @@ describe("Currency input widget - ", () => {
     // Assert the options dropdown is still open
     cy.get(".t--search-input input").should("be.visible");
     // Back to the editor
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. should check that widget can be used with dynamic default currency code", () => {
@@ -49,7 +49,7 @@ describe("Currency input widget - ", () => {
       "contain",
       "{{appsmith.store.test}}",
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".bp3-button.select-button").click({ force: true });
     cy.get(".menu-item-text").first().click({ force: true });
     cy.get(".t--widget-textwidget").should("contain", "USD:AS:USD");

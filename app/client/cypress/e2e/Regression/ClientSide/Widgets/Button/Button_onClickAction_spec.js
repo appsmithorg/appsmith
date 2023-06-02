@@ -17,7 +17,7 @@ describe("Button Widget Functionality", function () {
   it("1. Button-Modal Validation", function () {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName, "onClick");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(5000); //for page to load fully - for CI exclusively
     cy.get(publishPage.buttonWidget).should("be.visible");
     cy.get(publishPage.buttonWidget).click();
@@ -50,7 +50,7 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
         cy.get(publishPage.buttonWidget).click();
@@ -102,7 +102,7 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -123,7 +123,7 @@ describe("Button Widget Functionality", function () {
       "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -143,7 +143,7 @@ describe("Button Widget Functionality", function () {
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -164,7 +164,7 @@ describe("Button Widget Functionality", function () {
       "{{setTimeout(() => showAlert('Hello from setTimeout after 3 seconds'), 3000)}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -182,6 +182,6 @@ describe("Button Widget Functionality", function () {
   });
 
   afterEach(() => {
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

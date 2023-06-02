@@ -42,8 +42,7 @@ describe("Code Scanner widget's functionality", () => {
 
           // Disable and publish
           cy.togglebar(commonlocators.disableCheckbox);
-          cy.PublishtheApp();
-
+          _.deployMode.DeployApp();
           // Disabled icon should be there
           cy.get(codeScannerDisabledSVGIconOnPublishPage).should("exist");
         });
@@ -54,7 +53,7 @@ describe("Code Scanner widget's functionality", () => {
           cy.get(codeScannerVideoOnPublishPage).should("not.exist");
 
           // Back to editor
-          cy.get(publish.backToEditor).click();
+          _.deployMode.NavigateBacktoEditor();
         });
       });
 
@@ -65,7 +64,7 @@ describe("Code Scanner widget's functionality", () => {
 
           // Enable and publish
           cy.togglebarDisable(commonlocators.disableCheckbox);
-          cy.PublishtheApp();
+          _.deployMode.DeployApp();
 
           // Disabled icon should NOT be visible
           cy.get(codeScannerDisabledSVGIconOnPublishPage).should("not.exist");
@@ -76,7 +75,7 @@ describe("Code Scanner widget's functionality", () => {
           cy.get(codeScannerVideoOnPublishPage).should("exist");
 
           // Back to editor
-          cy.get(publish.backToEditor).click();
+          _.deployMode.NavigateBacktoEditor();
         });
       });
     });
@@ -88,13 +87,13 @@ describe("Code Scanner widget's functionality", () => {
 
         // Visibilty OFF and publish
         cy.togglebarDisable(commonlocators.visibleCheckbox);
-        cy.PublishtheApp();
+        _.deployMode.DeployApp();
 
         // Video should NOT be streaming
         cy.get(codeScannerVideoOnPublishPage).should("not.exist");
 
         // Back to editor
-        cy.get(publish.backToEditor).click();
+        _.deployMode.NavigateBacktoEditor();
       });
 
       it("3.2.2 => Widget should be visible on the canvas", () => {
@@ -103,13 +102,13 @@ describe("Code Scanner widget's functionality", () => {
 
         // Visibilty ON and publish
         cy.togglebar(commonlocators.visibleCheckbox);
-        cy.PublishtheApp();
+        _.deployMode.DeployApp();
 
         // Video should be streaming
         cy.get(codeScannerVideoOnPublishPage).should("be.visible");
 
         // Back to editor
-        cy.get(publish.backToEditor).click();
+        _.deployMode.NavigateBacktoEditor();
       });
     });
   });

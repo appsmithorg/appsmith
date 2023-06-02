@@ -1,8 +1,6 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart feature", function () {
@@ -63,7 +61,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
 
     //Close edit prop
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Custom Chart Widget Functionality", function () {
@@ -85,7 +83,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("3. Toggle JS - Custom Chart Widget Functionality", function () {
@@ -111,7 +109,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     });
 
     //Close edit prop
-    cy.PublishtheApp(false);
+    _.deployMode.DeployApp(_.locators._backToEditor, true, false);
   });
 
   it("4. Chart-Copy & Delete Verification", function () {
@@ -120,18 +118,17 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.CopyWidgetFromPropertyPane("Test");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     //Chart-Delete Verification"
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });
 
   afterEach(() => {
-    cy.wait(2000);
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

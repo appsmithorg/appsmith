@@ -4,6 +4,7 @@ const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -52,7 +53,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
 
   it("2. Validate NavigateTo Page functionality ", function () {
     cy.wait(2000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);
     cy.get(widgetsPage.chartWidget).should("be.visible");

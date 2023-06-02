@@ -80,8 +80,4 @@ describe("List Widget V2 Functionality", function () {
       });
     },
   );
-
-  afterEach(() => {
-    cy.goToEditFromPublish();
-  });
 });

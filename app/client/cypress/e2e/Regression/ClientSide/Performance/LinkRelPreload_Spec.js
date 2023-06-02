@@ -1,4 +1,5 @@
 import emptyDSL from "../../../../fixtures/emptyDSL.json";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 // Hi, developer!
 //
@@ -34,7 +35,7 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   it("1. In edit & View mode", function () {
     testLinkRelPreloads();
     //In view mode", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     testLinkRelPreloads();
   });

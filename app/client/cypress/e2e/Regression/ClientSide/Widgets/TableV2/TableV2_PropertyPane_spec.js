@@ -61,7 +61,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onRowSelected", "Row is selected");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Select 1st row
     cy.isSelectRow(2);
     cy.wait(2000);
@@ -75,7 +75,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
     cy.getAlert("onSearchTextChanged", "Search Text Changed");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
@@ -92,7 +92,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
     // Select show message in the "on selected row" dropdown
     cy.getAlert("onPageChange", "Page Changed");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     // Change the page
     cy.get(widgetsPage.nextPageButton).click({ force: true });
@@ -328,7 +328,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Chage deat search text value to "data"
     cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "data");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     _.deployMode.NavigateBacktoEditor();

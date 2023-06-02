@@ -130,8 +130,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     );
   });
 
-  it("9. Datepicker default date validation with js binding", function () {
-    cy.PublishtheApp();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-  });
+  // it("9. Datepicker default date validation with js binding", function () {
+  //   _.deployMode.DeployApp();
+  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  // });
 });

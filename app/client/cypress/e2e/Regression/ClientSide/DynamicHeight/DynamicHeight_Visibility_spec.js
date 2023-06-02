@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/invisibleWidgetdsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for Visibility", function () {
   before(() => {
@@ -25,7 +26,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
             cy.get("label:Contains('On')").should("not.be.enabled");
           });
       });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((theight) => {

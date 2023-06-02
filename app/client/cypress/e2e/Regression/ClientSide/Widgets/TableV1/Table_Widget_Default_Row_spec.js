@@ -19,9 +19,4 @@ describe("Table Widget property pane deafult feature validation", function () {
       cy.get(".bp3-ui-text span").eq(0).should("have.text", tabData);
     });
   });
-
-  afterEach(() => {
-    // put your clean up code if any
-    cy.goToEditFromPublish();
-  });
 });

@@ -39,7 +39,7 @@ describe("RichTextEditor Widget Functionality", function () {
   });
 
   beforeEach(() => {
-    cy.wait(7000);
+    cy.wait(3000);
     cy.openPropertyPane("richtexteditorwidget");
   });
 
@@ -60,12 +60,13 @@ describe("RichTextEditor Widget Functionality", function () {
       "h1",
       "This is a Heading",
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateHTMLText(
       publishPage.richTextEditorWidget,
       "h1",
       "This is a Heading",
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. RichTextEditor-Enable Validation", function () {
@@ -76,7 +77,7 @@ describe("RichTextEditor Widget Functionality", function () {
       commonlocators.disabledBtn,
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateEnableWidget(
       publishPage.richTextEditorWidget,
       commonlocators.disabledBtn,
@@ -91,17 +92,18 @@ describe("RichTextEditor Widget Functionality", function () {
       commonlocators.disabledBtn,
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateDisableWidget(
       publishPage.richTextEditorWidget,
       commonlocators.disabledBtn,
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. RichTextEditor-check Visible field  validation", function () {
     // Uncheck the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.richTextEditorWidget).should("not.exist");
 
     _.deployMode.NavigateBacktoEditor();
@@ -109,8 +111,9 @@ describe("RichTextEditor Widget Functionality", function () {
 
     // RichTextEditor-uncheck Visible field validation
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.richTextEditorWidget).should("be.visible");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. RichTextEditor-check Hide toolbar field validation", function () {
@@ -120,7 +123,7 @@ describe("RichTextEditor Widget Functionality", function () {
       formWidgetsPage.richTextEditorWidget,
       commonlocators.rteToolbar,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateToolbarHidden(
       publishPage.richTextEditorWidget,
       commonlocators.rteToolbar,
@@ -135,11 +138,12 @@ describe("RichTextEditor Widget Functionality", function () {
       formWidgetsPage.richTextEditorWidget,
       commonlocators.rteToolbar,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateToolbarVisible(
       publishPage.richTextEditorWidget,
       commonlocators.rteToolbar,
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Reset RichTextEditor", function () {
@@ -314,9 +318,5 @@ describe("RichTextEditor Widget Functionality", function () {
     cy.window().then((win) => {
       expect(getEditorContent(win)).not.contains("😀");
     });
-  });
-
-  afterEach(() => {
-    cy.goToEditFromPublish();
   });
 });

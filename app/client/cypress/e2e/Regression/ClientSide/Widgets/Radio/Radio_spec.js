@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Radio Widget Functionality", function () {
   before(() => {
@@ -46,27 +47,27 @@ describe("Radio Widget Functionality", function () {
       .scrollIntoView()
       .click({ force: true })
       .type("2");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
   it("Radio Functionality To Unchecked Visible Widget", function () {
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.radioWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
   it("Radio Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.radioWidget + " " + "input").should("be.checked");
   });
   it("Radio Functionality To Button Text", function () {
     cy.get(publish.radioWidget + " " + "label")
       .eq(1)
       .should("have.text", "test2");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 });
 afterEach(() => {

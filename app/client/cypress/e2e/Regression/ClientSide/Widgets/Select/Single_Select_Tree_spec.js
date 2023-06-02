@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
@@ -72,21 +73,21 @@ describe("Single Select Widget Functionality", function () {
 
   it("5. To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. To Check Visible Widget", function () {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("7. To Check Option Not Found", function () {

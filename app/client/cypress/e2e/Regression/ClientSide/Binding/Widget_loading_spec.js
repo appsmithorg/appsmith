@@ -43,7 +43,7 @@ describe("Binding the multiple widgets and validating default data", function ()
   });
 
   it("3. Publish App and validate loading functionalty", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(widgetsPage.widgetBtn).first().click({ force: true });

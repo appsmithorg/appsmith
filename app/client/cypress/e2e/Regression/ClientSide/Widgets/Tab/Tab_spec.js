@@ -47,7 +47,7 @@ describe("Tab widget test", function () {
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
     cy.assertPageSave();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Tab Widget Functionality To Select Tabs", function () {
@@ -56,23 +56,23 @@ describe("Tab widget test", function () {
       .last()
       .click({ force: true })
       .should("have.class", "is-selected");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Tab Widget Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Tab Widget Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("tabswidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Tab Widget Functionality To Check tab invisiblity", function () {
@@ -82,9 +82,9 @@ describe("Tab widget test", function () {
     });
     cy.get(Layoutpage.tabVisibility).first().click({ force: true });
     cy.get(Layoutpage.tabWidget).contains("Tab 1").should("not.exist");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget).contains("Tab 1").should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Tab Widget Functionality To Check tab visibility", function () {
@@ -94,7 +94,7 @@ describe("Tab widget test", function () {
     });
     cy.get(Layoutpage.tabVisibility).first().click({ force: true });
     cy.get(Layoutpage.tabWidget).contains("Tab 1").should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget).contains("Tab 1").should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });
@@ -117,7 +117,7 @@ describe("Tab widget test", function () {
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 1")
       .should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget)
       .contains("Tab 1")
       .should("be.visible");

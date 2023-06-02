@@ -138,7 +138,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 
     // In view Mode
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.waitUntil(() =>
       cy

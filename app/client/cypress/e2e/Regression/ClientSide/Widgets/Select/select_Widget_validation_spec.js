@@ -2,6 +2,7 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/selectWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
   before(() => {
@@ -21,9 +22,9 @@ describe("Select Widget Functionality", function () {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
     cy.get(".bp3-disabled").should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".bp3-disabled").should("be.visible");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("enable the widget and check in publish mode", function () {
@@ -32,7 +33,7 @@ describe("Select Widget Functionality", function () {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
     cy.get(".t--widget-selectwidget .bp3-button").should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--widget-selectwidget .bp3-button")
       .should("be.visible")
       .click({ force: true });
@@ -40,6 +41,5 @@ describe("Select Widget Functionality", function () {
       "contain.text",
       "Green",
     );
-    cy.goToEditFromPublish();
   });
 });

@@ -10,7 +10,7 @@ describe("List widget V2 PropertyPane", () => {
     });
     cy.openPropertyPane("listwidgetv2");
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidgetv2).should("not.exist");
     _.deployMode.NavigateBacktoEditor();
 
@@ -18,7 +18,7 @@ describe("List widget V2 PropertyPane", () => {
     cy.openPropertyPane("listwidgetv2");
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000); //for the deployed page to load fully
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
     _.deployMode.NavigateBacktoEditor();
@@ -31,14 +31,14 @@ describe("List widget V2 PropertyPane", () => {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidgetv2).should("not.exist");
     _.deployMode.NavigateBacktoEditor();
     // Open Property pane
     cy.openPropertyPane("listwidgetv2");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });

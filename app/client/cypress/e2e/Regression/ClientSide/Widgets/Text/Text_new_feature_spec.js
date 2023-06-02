@@ -57,7 +57,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
       this.data.TextLabelValueScrollable,
     );
     cy.wait("@updateLayout");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.data.TextLabelValueScrollable)
       .should("have.css", "font-size", "16px");

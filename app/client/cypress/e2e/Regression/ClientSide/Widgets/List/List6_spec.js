@@ -1,5 +1,4 @@
 const dsl = require("../../../../../fixtures/listRegressionDsl.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Binding the list widget with text widget", function () {
@@ -11,7 +10,7 @@ describe("Binding the list widget with text widget", function () {
   });
 
   it("1. Validate text widget data based on changes in list widget Data1", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
       "have.length",
@@ -21,7 +20,7 @@ describe("Binding the list widget with text widget", function () {
       "have.length",
       1,
     );
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.get(".t--text-widget-container:contains('Vivek')").should(
       "have.length",
       1,
@@ -58,7 +57,7 @@ describe("Binding the list widget with text widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('pawan, Vivek')").should(
       "have.length",
@@ -68,7 +67,7 @@ describe("Binding the list widget with text widget", function () {
       "have.length",
       1,
     );
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Validate text widget data based on changes in list widget Data3", function () {
@@ -96,7 +95,7 @@ describe("Binding the list widget with text widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
       "have.length",
@@ -106,7 +105,7 @@ describe("Binding the list widget with text widget", function () {
       "have.length",
       2,
     );
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   after(function () {

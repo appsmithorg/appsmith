@@ -1,4 +1,5 @@
 const dsl = require("../../../../../fixtures/modalScroll.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal Widget Functionality", function () {
   before(() => {
@@ -7,7 +8,7 @@ describe("Modal Widget Functionality", function () {
   });
 
   it("1. [Bug]- 11415 - Open  Modal from button and test scroll", () => {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(1000);
     cy.get("span:contains('Submit')").closest("div").click();
     cy.get(".t--modal-widget").should("exist");

@@ -16,7 +16,7 @@
 //   it("Verify Search box for selecting drop-down options", function() {
 //     cy.openPropertyPane("selectwidget");
 //     cy.togglebar(formWidgetsPage.filterCheckbox);
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     cy.get(formWidgetsPage.selectWidget)
 //       .find(widgetLocators.dropdownSingleSelect)
 //       .click({ force: true });
@@ -24,7 +24,7 @@
 //   });
 
 //   it("Verify Dropdown default value", function() {
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Select");
 //   });
 
@@ -48,7 +48,7 @@
 //   });
 
 //   it("Verify Dropdown Icon is available", function() {
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     cy.get(formWidgetsPage.dropdowonChevranDown).should("exist");
 //   });
 
@@ -127,7 +127,7 @@
 //     cy.SearchEntityandOpen("Dropdown1Copy");
 //     // Delete the Dropdown widget
 //     cy.deleteWidget(formwidgetsPage.selectwidget);
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     // Verify the Dropdown widget is deleted
 //     cy.get(formwidgetsPage.selectwidget).should("not.exist");
 //   });
@@ -146,7 +146,7 @@
 //     cy.openPropertyPane("selectwidget");
 //     // Disable the visible JS
 //     cy.togglebarDisable(commonlocators.visibleCheckbox);
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     // Verify the disabled visible JS
 //     cy.get(publish.selectwidget + " " + "input").should("not.exist");
 //   });
@@ -154,7 +154,7 @@
 //     cy.SearchEntityandOpen("lock");
 //     // Check the visible JS
 //     cy.togglebar(commonlocators.visibleCheckbox);
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     // Verify the checked visible JS
 //     cy.get(publish.selectwidget).should("exist");
 //   });
@@ -164,7 +164,7 @@
 //     //Uncheck the disabled checkbox using JS and validate
 //     cy.get(formWidgetsPage.toggleVisible).click({ force: true });
 //     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "false");
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     cy.get(formWidgetsPage.selectWidget).should("not.exist");
 //   });
 
@@ -173,10 +173,10 @@
 //     cy.openPropertyPane("selectwidget");
 //     //Check the disabled checkbox using JS and Validate
 //     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "true");
-//     cy.PublishtheApp();
+//     _.deployMode.DeployApp();
 //     cy.get(formWidgetsPage.selectWidget).should("exist");
 //   });
 // });
 // afterEach(() => {
-//   cy.goToEditFromPublish();
+//   _.deployMode.NavigateBacktoEditor();
 // });

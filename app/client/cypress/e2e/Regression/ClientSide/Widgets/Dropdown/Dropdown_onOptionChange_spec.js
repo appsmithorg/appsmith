@@ -1,7 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
@@ -21,7 +20,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.testJsontext("options", JSON.stringify(data.input));
     //creating the Modal and verify Modal name //to fix below
     // cy.createModal("Modal1", false);
-    // cy.PublishtheApp();
+    // _.deployMode.DeployApp();
     // // Changing the option to verify the success message
     // cy.get(formWidgetsPage.selectWidget)
     //   .find(widgetLocators.dropdownSingleSelect)
@@ -60,8 +59,7 @@ describe("Dropdown Widget Functionality", function () {
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
 
-    cy.PublishtheApp();
-
+    _.deployMode.DeployApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -70,6 +68,7 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 3")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Dropdown-Call-Query Validation", function () {
@@ -102,7 +101,6 @@ describe("Dropdown Widget Functionality", function () {
     });
 
     cy.CreateMockQuery("Query1");
-
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
       force: true,
@@ -115,7 +113,7 @@ describe("Dropdown Widget Functionality", function () {
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
@@ -125,6 +123,7 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
@@ -141,7 +140,7 @@ describe("Dropdown Widget Functionality", function () {
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -150,6 +149,7 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
@@ -164,7 +164,7 @@ describe("Dropdown Widget Functionality", function () {
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -173,7 +173,7 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 1")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("selectwidget");
   });
 
@@ -190,7 +190,7 @@ describe("Dropdown Widget Functionality", function () {
     // Dropdown On Option Change
     _.propPane.DisableJSMode("onOptionChange");
     cy.getAlert("onOptionChange", "Option Changed");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Change the Option
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -200,9 +200,6 @@ describe("Dropdown Widget Functionality", function () {
       .click({ force: true });
     // Verify Option is changed
     cy.validateToastMessage("Option Changed");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
-});
-afterEach(() => {
-  cy.goToEditFromPublish();
 });

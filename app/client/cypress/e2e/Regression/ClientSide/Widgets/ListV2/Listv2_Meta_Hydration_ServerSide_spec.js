@@ -291,7 +291,7 @@ describe("List widget v2 - meta hydration tests", () => {
   });
 
   it("3. using server side data in view mode", () => {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
       3,

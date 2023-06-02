@@ -18,7 +18,7 @@ describe("Container Widget Functionality", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
     _.deployMode.NavigateBacktoEditor();
   });
@@ -28,7 +28,7 @@ describe("Container Widget Functionality", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });
@@ -39,7 +39,7 @@ describe("Container Widget Functionality", function () {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("not.exist");
     _.deployMode.NavigateBacktoEditor();
   });
@@ -49,7 +49,7 @@ describe("Container Widget Functionality", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.listWidget).should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });
@@ -107,7 +107,7 @@ describe("Container Widget Functionality", function () {
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onClick");
     cy.wait(3000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn).should("have.length", 2);
@@ -126,7 +126,7 @@ describe("Container Widget Functionality", function () {
     // Write binding inside the Message code textarea
     cy.addAction("{{currentItem.first_name}}", "onListItemClick");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Click on list first item
     cy.get(
       "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
@@ -158,7 +158,7 @@ describe("Container Widget Functionality", function () {
     //Copy Chart and verify all properties
     _.propPane.CopyWidgetFromPropertyPane("List1");
     _.propPane.DeleteWidgetFromPropertyPane("List1Copy");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the copied list widget is deleted
     cy.get(commonlocators.containerWidget).should("have.length", 2);
     _.deployMode.NavigateBacktoEditor();
@@ -174,7 +174,7 @@ describe("Container Widget Functionality", function () {
     cy.wait(1000);
     cy.selectColor("itembackgroundcolor");
     // Click on Deploy and ensure it is deployed appropriately
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Ensure List Background Color
     cy.get(widgetsPage.listWidget).should(
       "have.css",
@@ -202,7 +202,7 @@ describe("Container Widget Functionality", function () {
     cy.get(widgetsPage.itemBackgroundColorToggle).click({ force: true });
     cy.testJsontext("itembackgroundcolor", "#38AFF4");
     // Click on Deploy and ensure it is deployed appropriately
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Ensure List Background Color
     cy.get(widgetsPage.listWidget).should(
       "have.css",
@@ -225,7 +225,7 @@ describe("Container Widget Functionality", function () {
     //Add the new item in the list
     cy.testJsontext("items", JSON.stringify(this.data.ListItems));
     cy.wait(2000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();
   });
 
@@ -238,7 +238,7 @@ describe("Container Widget Functionality", function () {
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
     cy.wait(2000);
     // Click on Deploy and ensure it is deployed appropriately
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();
   });
 
@@ -265,7 +265,7 @@ describe("Container Widget Functionality", function () {
       widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
       "List1",
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();
   });
 

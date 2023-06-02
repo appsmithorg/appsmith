@@ -38,7 +38,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
         "contain.value",
         "14/02/2021",
       );
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.get(publishPage.datepickerWidget + " .bp3-input").should(
         "contain.value",
         "14/02/2021",

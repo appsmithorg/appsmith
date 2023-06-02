@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = "[data-testid='t--property-pane-back-btn']";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   // Check if visible
@@ -212,7 +213,7 @@ describe("JSON Form Hidden fields", () => {
     cy.togglebarDisable(".t--property-control-visible input");
 
     // publish the app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(4000);
 
     // Check if name is hidden

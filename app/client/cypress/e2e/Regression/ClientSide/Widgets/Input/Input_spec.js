@@ -60,7 +60,7 @@ describe("Input Widget Functionality", function () {
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert("onTextChanged");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Input Widget Functionality To Validate Default Text and Placeholder", function () {
@@ -76,7 +76,7 @@ describe("Input Widget Functionality", function () {
   it("3. isSpellCheck: true", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.spellCheck + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "spellcheck")
       .should("eq", "true");
@@ -85,7 +85,7 @@ describe("Input Widget Functionality", function () {
     //isSpellCheck: false
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "spellcheck")
       .should("eq", "false");
@@ -95,28 +95,28 @@ describe("Input Widget Functionality", function () {
   it("4. Input Widget Functionality To Check Disabled Widget", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
     _.deployMode.NavigateBacktoEditor();
 
     //Input Widget Functionality To Check Enabled Widget
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
     _.deployMode.NavigateBacktoEditor();
   });
   it("5. Input Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("not.exist");
     _.deployMode.NavigateBacktoEditor();
 
     //Input Functionality To Check Visible Widget
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });

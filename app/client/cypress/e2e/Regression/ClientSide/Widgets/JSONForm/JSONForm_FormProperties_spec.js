@@ -8,7 +8,7 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =
   ".t--property-pane-section-submitbuttonstyles";
-import * as _ from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget Form Bindings", () => {
   beforeEach(() => {
@@ -131,7 +131,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openFieldConfiguration("name");
     cy.togglebar(`${propertyControlPrefix}-required input`);
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
@@ -155,7 +155,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openFieldConfiguration("name");
     cy.togglebar(`${propertyControlPrefix}-required input`);
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 

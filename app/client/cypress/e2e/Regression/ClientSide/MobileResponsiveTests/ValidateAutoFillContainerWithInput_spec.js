@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/autoLayoutContainerWidgetDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating Mobile Views", function () {
   it("1. Validate change with height width for widgets", function () {
@@ -14,7 +15,7 @@ describe("Validating Mobile Views", function () {
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
           .then((newheight) => {
-            cy.PublishtheApp();
+            _.deployMode.DeployApp();
             cy.get(".t--widget-containerwidget")
               .first()
               .invoke("css", "height")

@@ -76,6 +76,7 @@ export class AggregateHelper {
     cy.waitUntil(() =>
       cy.document().then((doc) => doc.readyState === "complete"),
     );
+    cy.window().should("have.property", "onload");
   }
 
   public AddDsl(
@@ -782,13 +783,13 @@ export class AggregateHelper {
 
   public RefreshPage() {
     this.AssertDocumentReady();
-    cy.window()
-      .then((win) => {
-        win.location.reload();
-      })
-      .then(() => {
-        this.AssertDocumentReady();
-      });
+    // cy.window()
+    //   .then((win) => {
+    //     win.location.reload();
+    //   })
+    cy.reload(true).then(() => {
+      this.AssertDocumentReady();
+    });
     this.Sleep(2000);
   }
 

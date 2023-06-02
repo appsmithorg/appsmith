@@ -51,7 +51,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table v2 Page No", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(500);
     // Make sure onPageLoad action has run before validating the data
     cy.wait("@postExecute");
@@ -76,7 +76,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.get(".t--entity-name").contains("Table1").click({ force: true });
     cy.testJsontext("totalrecords", 20);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(500);
     cy.wait("@postExecute");
     cy.wait(500);
@@ -129,7 +129,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     _.entityExplorer.SelectEntityByName("Table1");
 
     cy.ValidatePaginateResponseUrlDataV2(apiPage.apiPaginationPrevTest, false);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

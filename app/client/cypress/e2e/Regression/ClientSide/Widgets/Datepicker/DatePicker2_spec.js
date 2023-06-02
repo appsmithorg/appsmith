@@ -81,7 +81,7 @@ describe("DatePicker Widget Functionality", function () {
   //   cy.wait(1000);
   //   cy.setDate(1, "ddd MMM DD YYYY");
 
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   cy.get(publishPage.datepickerWidget + " .bp3-input").click();
 
   //   const minDate = Cypress.moment()
@@ -113,7 +113,7 @@ describe("DatePicker Widget Functionality", function () {
   //     "1px solid rgb(206, 66, 87)",
   //   );
 
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   // });
 
   // it("DatePicker-check Required field validation", function() {
@@ -123,7 +123,7 @@ describe("DatePicker Widget Functionality", function () {
   //     "contain.text",
   //     "From Date",
   //   );
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   cy.get(publishPage.datepickerWidget + " .bp3-label").should(
   //     "contain.text",
   //     "From Date",
@@ -137,7 +137,7 @@ describe("DatePicker Widget Functionality", function () {
   //     "contain.text",
   //     "From Date",
   //   );
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   cy.get(publishPage.datepickerWidget + " .bp3-label").should(
   //     "contain.text",
   //     "From Date",

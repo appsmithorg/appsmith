@@ -26,8 +26,4 @@ describe("RichTextEditor Widget Validation", function () {
 
     cy.closePropertyPane();
   });
-
-  afterEach(() => {
-    cy.goToEditFromPublish();
-  });
 });

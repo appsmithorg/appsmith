@@ -2,6 +2,7 @@ const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   let datasourceName;
@@ -75,7 +76,7 @@ describe("API Panel Test Functionality", function () {
     );
 
     // Publish the app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {

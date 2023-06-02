@@ -28,11 +28,12 @@ export class DeployMode {
   public DeployApp(
     eleToCheckInDeployPage: string = this.locator._backToEditor,
     toCheckFailureToast = true,
+    toValidateSavedState = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
     this.agHelper.Sleep(2000); //wait for elements settle!
-    this.agHelper.AssertAutoSave();
+    toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {

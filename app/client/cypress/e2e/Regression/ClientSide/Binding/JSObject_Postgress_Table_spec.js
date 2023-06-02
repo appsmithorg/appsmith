@@ -54,7 +54,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       cy.url().then((url) => {
         currentUrl = url;
         cy.log("Published url is: " + currentUrl);
-        cy.get(publish.backToEditor).first().click();
+        _.deployMode.NavigateBacktoEditor();
         cy.wait(2000);
         cy.visit(currentUrl);
         cy.wait("@getPagesForViewApp").should(

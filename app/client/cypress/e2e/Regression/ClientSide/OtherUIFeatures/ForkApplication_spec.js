@@ -69,7 +69,7 @@ describe("Fork application across workspaces", function () {
         cy.wait(2000);
       }
       cy.get("#sidebar").should("be.visible");
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       _.agHelper.Sleep(2000);
       cy.get("button:contains('Share')").first().click({ force: true });
       // _.agHelper.Sleep(1000);

@@ -1,6 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const publish = require("../../../../locators/publishWidgetspage.json");
-
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };
@@ -20,7 +18,7 @@ describe("Pages", function () {
     //Creates a page with long name and checks if it shows tooltip on hover
     cy.get("body").click(0, 0);
     cy.Createpage(veryLongPageName);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(`.t--page-switch-tab:contains(${veryLongPageName})`).trigger(
       "mouseover",
     );

@@ -43,7 +43,7 @@ describe("Image Widget Functionality", function () {
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Image Widget Functionality To Validate Image
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
@@ -51,10 +51,10 @@ describe("Image Widget Functionality", function () {
   });
 
   it("3. Image Widget Functionality To Unchecked Visible Widget", function () {
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("imagewidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.imageWidget).should("not.exist");
     _.deployMode.NavigateBacktoEditor();
   });
@@ -62,7 +62,7 @@ describe("Image Widget Functionality", function () {
   it("4. Image Widget Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.imageWidget).should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });

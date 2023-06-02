@@ -2,6 +2,7 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableAndChart.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
   const updateData = `[
@@ -47,7 +48,7 @@ describe("Text-Table Binding Functionality", function () {
   });
 
   it("2. Publish and assert", function () {
-    cy.PublishtheApp(false);
+    _.deployMode.DeployApp(_.locators._backToEditor, true, false);
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");
     });

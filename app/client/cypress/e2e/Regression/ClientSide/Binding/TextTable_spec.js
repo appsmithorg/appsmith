@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/TextTabledsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
   Cypress.on("uncaught:exception", (err, runnable) => {
@@ -30,7 +31,7 @@ describe("Text-Table Binding Functionality", function () {
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "0").then((tabDataP) => {
         const tabValueP = tabDataP;
@@ -38,8 +39,8 @@ describe("Text-Table Binding Functionality", function () {
       });
     });
   });
+
   it("2. Text-Table Binding Functionality For Email", function () {
-    cy.get(publish.backToEditor).click();
     cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
@@ -53,7 +54,7 @@ describe("Text-Table Binding Functionality", function () {
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.isSelectRow(2);
       cy.readTabledataPublish("2", "1").then((tabDataP) => {
         const tabValueP = tabDataP;
@@ -62,7 +63,6 @@ describe("Text-Table Binding Functionality", function () {
     });
   });
   it("3. Text-Table Binding Functionality For Total Length", function () {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
     cy.get(commonlocators.TableRow)
@@ -73,7 +73,7 @@ describe("Text-Table Binding Functionality", function () {
         cy.findAndExpandEvaluatedTypeTitle();
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(listingCount);
-        cy.PublishtheApp();
+        _.deployMode.DeployApp();
         cy.get(publish.tableLength)
           .find(".tr")
           .then((listing) => {
@@ -82,8 +82,8 @@ describe("Text-Table Binding Functionality", function () {
           });
       });
   });
+
   it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("defaultselectedrow", "2");
     cy.wait("@updateLayout");
@@ -95,14 +95,14 @@ describe("Text-Table Binding Functionality", function () {
       });
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.readTabledataPublish("2", "1").then((tabDataP) => {
       const tabValueP = tabDataP;
       cy.get(commonlocators.TextInside).should("have.text", tabValueP);
     });
   });
+
   it("5. Text-Table Binding Functionality For Username", function () {
-    cy.get(publish.backToEditor).click();
     /**
      * @param(Index)  Provide index value to select the row.
      */
@@ -119,7 +119,7 @@ describe("Text-Table Binding Functionality", function () {
       cy.findAndExpandEvaluatedTypeTitle();
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
-      cy.PublishtheApp();
+      _.deployMode.DeployApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "2").then((tabDataP) => {
         const tabValueP = `\"${tabDataP}\"`;
@@ -129,5 +129,5 @@ describe("Text-Table Binding Functionality", function () {
   });
 });
 afterEach(() => {
-  // put your clean up code if any
+  _.deployMode.NavigateBacktoEditor();
 });

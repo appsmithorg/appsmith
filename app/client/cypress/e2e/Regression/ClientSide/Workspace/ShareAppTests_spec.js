@@ -3,9 +3,7 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const HomePage = ObjectsRegistry.HomePage;
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Create new workspace and share with a user", function () {
   let workspaceId;
@@ -14,17 +12,17 @@ describe("Create new workspace and share with a user", function () {
   let newWorkspaceName;
 
   it("1. Create workspace and then share with a user from Application share option within application", function () {
-    HomePage.NavigateToHome();
-    agHelper.GenerateUUID();
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = "shareApp" + uid;
       appid = "Share" + uid;
-      HomePage.CreateNewWorkspace(workspaceId);
-      HomePage.CreateAppInWorkspace(workspaceId, appid);
+      _.homePage.CreateNewWorkspace(workspaceId);
+      _.homePage.CreateAppInWorkspace(workspaceId, appid);
 
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToApplication(
+      _.homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
@@ -58,13 +56,13 @@ describe("Create new workspace and share with a user", function () {
     cy.get("h2").contains("Drag and drop a widget here");
     cy.get(homePage.shareApp).click();
     cy.enablePublicAccess(true);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     currentUrl = cy.url();
     cy.url().then((url) => {
       currentUrl = url;
       cy.log(currentUrl);
     });
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.LogOut();
   });
 

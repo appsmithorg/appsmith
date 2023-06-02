@@ -1,6 +1,5 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
-const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", function () {
@@ -22,7 +21,7 @@ describe("Table Widget", function () {
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput($el, jsContext);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(5000);
     cy.getTableV2DataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
@@ -48,7 +47,7 @@ describe("Table Widget", function () {
       expect(value).to.be.equal("joe");
     });
 
-    cy.get(publish.backToEditor).click().wait(1000);
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Widgets");
 

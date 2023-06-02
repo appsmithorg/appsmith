@@ -53,6 +53,6 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
       .last()
       .invoke("attr", "value")
       .should("contain", "23");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

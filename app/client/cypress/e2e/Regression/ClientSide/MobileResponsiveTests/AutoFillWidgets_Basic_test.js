@@ -1,4 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let widgets = [
   "switchwidget",
   "currencyinputwidget",
@@ -55,7 +57,7 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     cy.dragAndDropToCanvas("phoneinputwidget", { x: 660, y: 810 });
     cy.dragAndDropToCanvas("categorysliderwidget", { x: 620, y: 810 });
     cy.wait(5000); //for dsl to settle
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     for (let i = 0; i < widgets.length; i++) {
       cy.get(".t--widget-".concat(widgets[i]))

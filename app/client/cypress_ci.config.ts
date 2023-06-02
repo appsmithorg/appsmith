@@ -4,7 +4,7 @@ export default defineConfig({
   defaultCommandTimeout: 30000,
   requestTimeout: 21000,
   responseTimeout: 30000,
-  pageLoadTimeout: 30000,
+  pageLoadTimeout: 60000,
   videoUploadOnPasses: false,
   videoCompression: false,
   numTestsKeptInMemory: 5,

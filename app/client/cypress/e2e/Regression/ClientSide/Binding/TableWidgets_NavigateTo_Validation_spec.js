@@ -4,17 +4,15 @@ const testdata = require("../../../../fixtures/testdata.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Navigate to functionality validation", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
@@ -41,7 +39,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();
-    propPane.SelectPlatformFunction("onRowSelected", "Navigate to");
+    _.propPane.SelectPlatformFunction("onRowSelected", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)
@@ -49,7 +47,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
     cy.assertPageSave();
     //Validate NavigateTo Page functionality
     cy.wait(2000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);
     cy.get(widgetsPage.chartWidget).should("be.visible");

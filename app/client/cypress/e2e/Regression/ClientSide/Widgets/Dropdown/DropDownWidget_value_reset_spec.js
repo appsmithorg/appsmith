@@ -29,6 +29,3 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
       .should("have.text", "Red");
   });
 });
-afterEach(() => {
-  cy.goToEditFromPublish();
-});

@@ -1,7 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const boxShadowOptions = {
   none: "none",
@@ -65,7 +64,7 @@ describe("Container Widget Functionality", function () {
       .eq(0)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
   it("Container Widget Functionality To Verify The Colour", function () {
     cy.get(widgetsPage.containerD)
@@ -78,7 +77,7 @@ describe("Container Widget Functionality", function () {
   });
 
   it("Test border width and verity", function () {
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("containerwidget");
     cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");

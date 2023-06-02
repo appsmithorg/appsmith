@@ -218,7 +218,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     cy.wait(2000);
     cy.selectEntityByName("Page3");
     cy.wait(1000);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(3000);
     cy.get(commonlocators.toastAction).should("not.exist");
     // .its("length")
