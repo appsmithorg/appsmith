@@ -22,8 +22,11 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { getCurrentTenant } from "ce/actions/tenantActions";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { toast } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getSettings } from "selectors/settingsSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -74,6 +77,9 @@ export function* SaveAdminSettingsSaga(
   const { needsRestart = true, settings } = action.payload;
 
   try {
+    const currentSettings: Record<string, any> = yield select(getSettings);
+    const currentUser: User | undefined = yield select(getCurrentUser);
+    const instanceId: string = yield select(getInstanceId);
     const response: ApiResponse = yield call(
       UserApi.saveAdminSettings,
       settings,
@@ -84,6 +90,17 @@ export function* SaveAdminSettingsSaga(
       toast.show("Successfully saved", {
         kind: "success",
       });
+
+      if (settings["APPSMITH_DISABLE_TELEMETRY"]) {
+        AnalyticsUtil.logEvent("telemetry_disabled", {
+          instanceId,
+          segment_source_name: "General",
+          version: currentSettings["APPSMITH_CURRENT_VERSION"],
+          email: currentUser?.email,
+          emailDomainHash: currentUser?.email?.split("@")[1],
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
