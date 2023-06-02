@@ -196,6 +196,5 @@ describe("Shopping cart App", function () {
   after(() => {
     //clean up
     _.gitSync.DeleteTestGithubRepo(repoName);
-    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });
