@@ -35,9 +35,11 @@ import {
 import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import type { Plugin } from "api/PluginApi";
-import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
 import {
@@ -387,12 +389,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       viewMode,
     } = this.props;
 
-    /*
-      TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
-      Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
-    */
-    const isGoogleSheetPlugin =
-      pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
+    const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
 

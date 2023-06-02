@@ -1,14 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
+import { useDispatch, useSelector } from "react-redux";
+import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
 import {
   APPSMITH_DISPLAY_VERSION,
+  CONTINUE,
   createMessage,
   HELP_RESOURCE_TOOLTIP,
+  INTERCOM_CONSENT_MESSAGE,
 } from "@appsmith/constants/messages";
 import {
   Button,
@@ -18,10 +20,13 @@ import {
   MenuTrigger,
   Tooltip,
   MenuSeparator,
+  Text,
 } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import moment from "moment/moment";
 import styled from "styled-components";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -30,6 +35,15 @@ const HelpFooter = styled.div`
   align-items: center;
   justify-content: space-between;
   font-size: 8px;
+`;
+const ConsentContainer = styled.div`
+  padding: 10px;
+`;
+const ActionsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 `;
 type HelpItem = {
   label: string;
@@ -64,8 +78,52 @@ if (intercomAppID && window.Intercom) {
   });
 }
 
+function IntercomConsent({
+  showIntercomConsent,
+}: {
+  showIntercomConsent: (val: boolean) => void;
+}) {
+  const user = useSelector(getCurrentUser);
+  const instanceId = useSelector(getInstanceId);
+  const dispatch = useDispatch();
+
+  const sendUserDataToIntercom = () => {
+    updateIntercomProperties(instanceId, user);
+    dispatch(
+      updateUserDetails({
+        intercomConsentGiven: true,
+      }),
+    );
+    dispatch(updateIntercomConsent());
+    showIntercomConsent(false);
+    window.Intercom("show");
+  };
+  return (
+    <ConsentContainer>
+      <ActionsRow>
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() => showIntercomConsent(false)}
+          size="sm"
+          startIcon="arrow-left"
+        />
+      </ActionsRow>
+      <div className="mb-3" data-testid="t--intercom-consent-text">
+        <Text kind="body-s" renderAs="p">
+          {createMessage(INTERCOM_CONSENT_MESSAGE)}
+        </Text>
+      </div>
+      <Button kind="primary" onClick={sendUserDataToIntercom} size="sm">
+        {createMessage(CONTINUE)}
+      </Button>
+    </ConsentContainer>
+  );
+}
+
 function HelpButton() {
   const user = useSelector(getCurrentUser);
+  const [showIntercomConsent, setShowIntercomConsent] = useState(false);
 
   useEffect(() => {
     bootIntercom(user);
@@ -75,6 +133,7 @@ function HelpButton() {
     <Menu
       onOpenChange={(open) => {
         if (open) {
+          setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
         }
       }}
@@ -85,29 +144,46 @@ function HelpButton() {
             content={createMessage(HELP_RESOURCE_TOOLTIP)}
             placement="bottomRight"
           >
-            <Button kind="tertiary" size="md" startIcon="question-line">
+            <Button
+              data-testid="t--help-button"
+              kind="tertiary"
+              size="md"
+              startIcon="question-line"
+            >
               Help
             </Button>
           </Tooltip>
         </div>
       </MenuTrigger>
       <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
-        {HELP_MENU_ITEMS.map((item) => (
-          <MenuItem
-            key={item.label}
-            onClick={() => {
-              if (item.link) window.open(item.link, "_blank");
-              if (item.id === "intercom-trigger") {
-                if (intercomAppID && window.Intercom) {
-                  window.Intercom("show");
+        {showIntercomConsent ? (
+          <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
+        ) : (
+          HELP_MENU_ITEMS.map((item) => (
+            <MenuItem
+              id={item.id}
+              key={item.label}
+              onSelect={(e) => {
+                if (item.link) {
+                  window.open(item.link, "_blank");
                 }
-              }
-            }}
-            startIcon={item.icon}
-          >
-            {item.label}
-          </MenuItem>
-        ))}
+                if (item.id === "intercom-trigger") {
+                  e?.preventDefault();
+                  if (intercomAppID && window.Intercom) {
+                    if (user?.isIntercomConsentGiven || cloudHosting) {
+                      window.Intercom("show");
+                    } else {
+                      setShowIntercomConsent(true);
+                    }
+                  }
+                }
+              }}
+              startIcon={item.icon}
+            >
+              {item.label}
+            </MenuItem>
+          ))
+        )}
         {appVersion.id && (
           <>
             <MenuSeparator />
