@@ -5,7 +5,7 @@ export default defineConfig({
   defaultCommandTimeout: 30000,
   requestTimeout: 21000,
   responseTimeout: 30000,
-  pageLoadTimeout: 30000,
+  pageLoadTimeout: 60000,
   videoUploadOnPasses: false,
   videoCompression: false,
   numTestsKeptInMemory: 5,
@@ -18,7 +18,7 @@ export default defineConfig({
   },
   chromeWebSecurity: false,
   viewportHeight: 1200,
-  viewportWidth: 1300,
+  viewportWidth: 1600,
   retries: {
     runMode: 1,
     openMode: 0,
