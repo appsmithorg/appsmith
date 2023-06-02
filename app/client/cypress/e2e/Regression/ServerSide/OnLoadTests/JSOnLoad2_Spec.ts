@@ -30,7 +30,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "ReferenceError: getWorldCountries is not defined",
+        "getWorldCountries is not defined",
       );
     });
   });
@@ -41,7 +41,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "ReferenceError: getWorldCountries is not defined",
+      "getWorldCountries is not defined",
     );
   });
 
@@ -52,7 +52,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.agHelper.AssertContains("Deleting application...");
+    _.agHelper.WaitUntilToastDisappear("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });
 

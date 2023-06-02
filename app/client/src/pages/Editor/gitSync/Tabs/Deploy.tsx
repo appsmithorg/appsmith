@@ -331,6 +331,7 @@ function Deploy() {
                 placeholder={"Your commit message here"}
                 ref={commitInputRef}
                 renderAs="textarea"
+                size="md"
                 type="text"
                 value={commitMessageDisplay}
               />

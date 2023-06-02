@@ -625,7 +625,10 @@ export function* forkApplicationSaga(
       application: ApplicationResponsePayload;
       isPartialImport: boolean;
       unConfiguredDatasourceList: Datasource[];
-    }> = yield call(ApplicationApi.forkApplication, action.payload);
+    }> = yield call(ApplicationApi.forkApplication, {
+      applicationId: action.payload.applicationId,
+      workspaceId: action.payload.workspaceId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
@@ -644,12 +647,24 @@ export function* forkApplicationSaga(
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          id: action.payload.workspaceId,
+          workspaceId: action.payload.workspaceId,
         },
       });
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });
+
+      if (action.payload.editMode) {
+        const appId = application.id;
+        const pageId = application.defaultPageId;
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+          payload: {
+            applicationId: appId,
+            pageId,
+          },
+        });
+      }
       history.push(pageURL);
 
       const isEditorInitialized: boolean = yield select(getIsEditorInitialized);

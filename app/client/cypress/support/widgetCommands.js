@@ -1411,8 +1411,14 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.get(commonlocators.lazyCodeEditorFallback, { timeout: 60000 }).should(
     "not.exist",
   );
-  cy.get(commonlocators.lazyCodeEditorRendered).each(($el) => {
-    cy.wrap($el).find(".CodeMirror").should("exist");
+  // Code editors might not always be present on the page, so we need to check for their existence first
+  // (https://docs.cypress.io/guides/core-concepts/conditional-testing#Element-existence)
+  cy.get("body").then(($body) => {
+    if ($body.find(commonlocators.lazyCodeEditorRendered).length === 0) return;
+
+    return cy.get(commonlocators.lazyCodeEditorRendered).each(($el) => {
+      cy.wrap($el).find(".CodeMirror").should("exist");
+    });
   });
 });
 
@@ -1492,6 +1498,16 @@ Cypress.Commands.add("saveTableRow", (x, y) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
   ).click({ force: true });
+});
+
+Cypress.Commands.add("AssertTableRowSavable", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).should("exist");
+
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).should("not.be.disabled");
 });
 
 Cypress.Commands.add("discardTableRow", (x, y) => {

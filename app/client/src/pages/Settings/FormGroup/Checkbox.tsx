@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import type { EventName } from "utils/AnalyticsUtil";
+import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -82,12 +83,12 @@ const StyledFieldCheckboxGroup = styled.div`
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export function CheckboxComponent({ setting }: SettingComponentProps) {
-  const settings = useSelector(formValuesSelector);
+  const settings: Record<string, any> = useSelector(formValuesSelector);
 
   return (
     <StyledFieldCheckboxGroup>
       <Text
-        className="admin-settings-form-group-label pt-4 pb-2"
+        className="admin-settings-form-group-label pt-2 pb-2"
         color="var(--ads-v2-color-fg)"
         data-testid="admin-settings-form-group-label"
         kind="heading-xs"
@@ -105,7 +106,9 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
           labelSuffix: setting.textSuffix,
           upgradeLogEventName: setting.upgradeLogEventName,
           upgradeIntercomMessage: setting.upgradeIntercomMessage,
-          isPropertyDisabled: !setting.name?.toLowerCase().includes("enable"),
+          isPropertyDisabled: isTenantConfig(setting.id)
+            ? false
+            : !setting.name?.toLowerCase().includes("enable"),
         })}
         name={setting.name}
       />
