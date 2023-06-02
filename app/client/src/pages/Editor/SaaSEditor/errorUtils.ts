@@ -39,7 +39,8 @@ export function isAuthorisedFilesEmptyGsheet(
     datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
       ?.authentication?.authenticationStatus;
   const isAuthFailure =
-    !!authStatus && authStatus === AuthenticationStatus.FAILURE;
+    !!authStatus &&
+    authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED;
   const gapiLoadSuccess = (window as any).googleAPIsLoaded;
 
   return (
