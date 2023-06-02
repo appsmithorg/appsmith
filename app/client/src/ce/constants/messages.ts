@@ -1668,7 +1668,7 @@ export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "Use snapshot";
 export const USE_SNAPSHOT_HEADER = () => "Use snapshot";
-export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a snapshot";
 export const SAVE_SNAPSHOT = () =>
   "Save a snapshot of your current layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
