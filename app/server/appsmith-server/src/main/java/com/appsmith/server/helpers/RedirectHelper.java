@@ -184,9 +184,6 @@ public class RedirectHelper {
         return fulfillRedirectUrl(redirectUrl, httpHeaders);
     }
 
-
-
-
     /**
      * Checks if the provided url is default redirect url
      *
