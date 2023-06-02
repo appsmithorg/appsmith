@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 import {
   ERROR_ACTION_EXECUTE_FAIL,
@@ -8,7 +9,7 @@ import {
 
 describe("API Bugs", function () {
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
-    _.apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "Api1");
+    _.apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
     _.apiPage.RunAPI();
 
     _.dataSources.AddSuggesstedWidget(Widgets.Table);

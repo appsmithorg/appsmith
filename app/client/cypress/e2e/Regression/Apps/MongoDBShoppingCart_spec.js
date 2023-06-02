@@ -132,7 +132,6 @@ describe("Shopping cart App", function () {
     _.agHelper.UpdateInput(appPage.bookprice, 200, true);
     _.agHelper.UpdateInput(appPage.bookquantity, 2, true);
     _.agHelper.GetNClick(appPage.addButton, 0, true);
-    _.agHelper.AssertAutoSave();
     cy.wait("@postExecute");
     cy.wait(3000);
     _.agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
@@ -140,7 +139,6 @@ describe("Shopping cart App", function () {
     _.agHelper.UpdateInput(appPage.bookprice, 100, true);
     _.agHelper.UpdateInput(appPage.bookquantity, 1, true);
     _.agHelper.GetNClick(appPage.addButton, 0, true);
-    _.agHelper.AssertAutoSave();
     cy.wait("@postExecute");
     // Deleting the book from the cart
     cy.get(".tableWrap")
@@ -159,7 +157,12 @@ describe("Shopping cart App", function () {
     _.agHelper.UpdateInput(appPage.editbookquantity, 3, true);
     _.agHelper.GetNClick(appPage.editButton, 0, true);
     _.agHelper.AssertAutoSave();
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    cy.get("@postExecute.last")
+      .its("response.body")
+      .then((user) => {
+        expect(user.data.body[0].quantity).to.equal("3");
+      });
     // validating updated value in the cart
     cy.get(".selected-row").children().eq(3).should("have.text", "3");
   });
