@@ -8,6 +8,7 @@ import type {
   AuthenticationStatus,
   Datasource,
   FilePickerActionStatus,
+  MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
@@ -40,10 +41,15 @@ export const updateDatasource = (
   payload: Datasource,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
-): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
+  isInsideReconnectModal?: boolean,
+): ReduxActionWithCallbacks<
+  Datasource & { isInsideReconnectModal: boolean },
+  unknown,
+  unknown
+> => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload,
+    payload: { ...payload, isInsideReconnectModal: !!isInsideReconnectModal },
     onSuccess,
     onError,
   };
@@ -107,6 +113,15 @@ export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
       id,
       ignoreCache,
     },
+  };
+};
+
+export const addAndFetchMockDatasourceStructure = (
+  datasource: MockDatasource,
+) => {
+  return {
+    type: ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
+    payload: datasource,
   };
 };
 
@@ -252,6 +267,7 @@ export interface addMockRequest
     pluginId: string;
     packageName: string;
     isGeneratePageMode?: string;
+    skipRedirection?: boolean;
   }> {
   extraParams?: any;
 }
@@ -262,10 +278,11 @@ export const addMockDatasourceToWorkspace = (
   pluginId: string,
   packageName: string,
   isGeneratePageMode?: string,
+  skipRedirection = false,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { name, packageName, pluginId, workspaceId },
+    payload: { name, packageName, pluginId, workspaceId, skipRedirection },
     extraParams: { isGeneratePageMode },
   };
 };
@@ -429,6 +446,15 @@ export const updateDatasourceAuthState = (
     payload: {
       datasource: datasource,
       authStatus: authStatus,
+    },
+  };
+};
+
+export const datasourceDiscardAction = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
+    payload: {
+      pluginId: pluginId,
     },
   };
 };

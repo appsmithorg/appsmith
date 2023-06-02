@@ -19,17 +19,18 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
-    "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
-  private _goBackToProperty = "button.t--property-pane-back-btn";
-  private _copyWidget = "button.t--copy-widget";
-  _deleteWidget = "button.t--delete-widget";
-  private _changeThemeBtn = ".t--change-theme-btn";
-  private _styleTabBtn = (tab: string) => "li:contains('" + tab + "')";
+    "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
+  private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
+  private _copyWidget = "[data-testid='t--copy-widget']";
+  _deleteWidget = "[data-testid='t--delete-widget']";
+  private _styleTabBtn = (tab: string) =>
+    "button[role='tab'] span:contains('" + tab + "')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -55,13 +56,10 @@ export class PropertyPane {
     " input[type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
-  _colorRing = ".border-2";
   _colorInput = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div//input";
   _colorInputField = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div";
-  _rowHeightBtn = (btnType: "SHORT" | "DEFAULT" | "TALL") =>
-    ".t--button-group-" + btnType + " ";
   _actionSelectorPopup = ".t--action-selector-popup";
   _actionSelectorFieldByLabel = (label: string) =>
     `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
@@ -78,21 +76,37 @@ export class PropertyPane {
   _actionCallbackTitle = ".action-callback-add";
   _actionTreeCollapse = ".callback-collapse";
   _actionPopupTextLabel = '[data-testid="text-view-label"]';
-  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
+  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-modal";
   _selectorViewButton = ".selector-view .bp3-button-text";
-  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
-  _pageNameSwitcher = "#switcher--page-name";
+  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-page";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
-  _urlSwitcher = "#switcher--url";
+  _navigateToType = (type: string) =>
+    "div.tab-view span:contains('" + type + "')";
+
   _dropdownSelectType = ".t--open-dropdown-Select-type";
   _selectorViewLabel = '[data-testId="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
+  _dropDownValue = (dropdownOption: string) =>
+    `.rc-virtual-list .rc-select-item-option span:contains('${dropdownOption}')`;
+  _selectPropDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//input[@class='rc-select-selection-search-input']";
+  private _createModalButton = ".t--create-modal-btn";
+  _pageName = (option: string) => "//a/div[text()='" + option + "']";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+
+  private getWidgetSelector = (widgetType: string) =>
+    `div.t--widget-${widgetType}`;
+
+  public openWidgetPropertyPane(widgetType: string) {
+    this.agHelper.GetNClick(this.getWidgetSelector(widgetType));
+  }
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
@@ -119,28 +133,20 @@ export class PropertyPane {
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
-  public ChangeTheme(newTheme: string) {
-    this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
-    this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.AssertContains("Theme " + newTheme + " Applied");
+  public CopyWidgetFromPropertyPane(widgetName: string) {
+    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    this.agHelper.GetNClick(this._copyWidget);
+    this.agHelper.Sleep(200);
+    cy.get("body").type(`{${this.agHelper._modifierKey}}v`);
+    this.agHelper.Sleep(500);
+    this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
   }
 
-  public ChangeThemeColor(
-    colorIndex: number | string,
-    type: "Primary" | "Background" = "Primary",
-  ) {
-    const typeIndex = type == "Primary" ? 0 : 1;
-    this.agHelper.GetNClick(this._colorRing, typeIndex);
-    if (typeof colorIndex == "number") {
-      this.agHelper.GetNClick(this._colorPickerV2Popover);
-      this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
-    } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
-      this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
-      this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
-    }
+  public DeleteWidgetFromPropertyPane(widgetName: string) {
+    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    this.agHelper.GetNClick(this._deleteWidget);
+    this.agHelper.Sleep(500);
+    this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
   }
 
   public GetJSONFormConfigurationFileds() {
@@ -164,7 +170,7 @@ export class PropertyPane {
       field = $filedName;
       this.agHelper.GetNClick(this._fieldConfig(field as string));
       this.agHelper.Sleep(200);
-      this.RemoveText("Default Value", false);
+      this.RemoveText("Default value", false);
       this.agHelper
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
@@ -172,8 +178,8 @@ export class PropertyPane {
           this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
       cy.focused().blur();
-      //this.RemoveText("Default Value", false);
-      //this.UpdatePropertyFieldValue("Default Value", "");
+      //this.RemoveText("Default value", false);
+      //this.UpdatePropertyFieldValue("Default value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -191,7 +197,7 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public MoveToTab(tab: "CONTENT" | "STYLE") {
+  public MoveToTab(tab: "Content" | "Style") {
     this.agHelper.GetNClick(this._styleTabBtn(tab));
     this.agHelper.Sleep();
   }
@@ -203,16 +209,13 @@ export class PropertyPane {
     index = 0,
   ) {
     if (action == "Action")
-      this.agHelper.GetNClick(
-        this.locator._selectPropDropdown(endpoint),
-        index,
-      );
+      this.agHelper.GetNClick(this._selectPropDropdown(endpoint), index);
     else
       this.agHelper.GetNClick(
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    cy.get(this.locator._dropDownValue(dropdownOption)).click();
+    cy.get(this._dropDownValue(dropdownOption)).click();
   }
 
   public SelectJSFunctionToExecuteInExistingActionBlock(
@@ -270,6 +273,12 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
     this.ValidatePropertyFieldValue(fieldName, valueToValidate);
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
+  }
+
+  public ToggleJsMode(fieldName: string) {
+    this.agHelper.GetNClick(
+      this.locator._jsToggle(fieldName.toLowerCase().replaceAll(" ", "")),
+    );
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
@@ -428,5 +437,35 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+  }
+
+  public AssertJSToggleDisabled(property: string) {
+    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
+      "be.disabled",
+    );
+  }
+
+  public AssertSelectValue(value: string) {
+    this.agHelper.AssertElementExist(this.locator._selectByValue(value));
+  }
+
+  public CreateModal(modalName: string, property: string) {
+    this.SelectPlatformFunction(property, "Show modal");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
+    this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public NavigateToPage(pageName: string, property: string) {
+    this.SelectPlatformFunction(property, "Navigate to");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
+    this.agHelper.GetNClick(this._pageName(pageName));
+    this.agHelper.AssertAutoSave();
+  }
+
+  public DeleteWidget() {
+    ObjectsRegistry.AggregateHelper.GetNClick(
+      `[data-testid="t--delete-widget"]`,
+    );
   }
 }

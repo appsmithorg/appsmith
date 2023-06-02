@@ -12,35 +12,25 @@ import {
   CodeEditorBorder,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  Case,
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes } from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
-  DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
-  DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { Colors } from "constants/Colors";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { Button, Text } from "design-system";
+import RequestDropdownField from "./RequestDropdownField";
 
 type CustomStack = {
   removeTopPadding?: boolean;
 };
 
 const KeyValueStackContainer = styled.div<CustomStack>`
-  padding: ${(props) => (props.removeTopPadding ? 0 : props.theme.spaces[4])}px
-    ${(props) => props.theme.spaces[14]}px
-    ${(props) => props.theme.spaces[11] + 1}px
-    ${(props) => props.theme.spaces[11] + 2}px;
+  padding: 0 0 var(--ads-v2-spaces-7) 0;
 `;
+// const AddMoreButton = styled(Button)`
+//   margin-top: 5px;
+// `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
   margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
@@ -52,36 +42,9 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-const CenteredIcon = styled(Icon)`
+const CenteredButton = styled(Button)`
   align-self: center;
-  margin-left: 15px;
-`;
-
-const AddMoreAction = styled.div`
-  width: fit-content;
-  cursor: pointer;
-  display: flex;
-  margin-top: 16px;
-  margin-left: 12px;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: ${Colors.GRAY};
-  }
-  svg {
-    fill: ${Colors.GRAY};
-    path {
-      fill: unset;
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${Colors.CHARCOAL};
-    }
-    svg {
-      fill: ${Colors.CHARCOAL};
-    }
-  }
+  margin-left: 5px;
 `;
 
 const Flex = styled.div<{ size: number }>`
@@ -89,7 +52,7 @@ const Flex = styled.div<{ size: number }>`
   ${(props) =>
     props.size === 3
       ? `
-    margin-left: ${props.theme.spaces[4]}px;
+    margin-left: 5px;
   `
       : null};
 `;
@@ -100,35 +63,33 @@ const FlexContainer = styled.div`
   width: calc(100% - 30px);
 
   .key-value {
-    padding: ${(props) => props.theme.spaces[2]}px 0px
-      ${(props) => props.theme.spaces[2]}px
-      ${(props) => props.theme.spaces[1]}px;
+    padding: 6px 0px 6px 0px;
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.apiPane.text};
+      color: var(--ads-v2-color-fg);
     }
     border-bottom: 0px;
   }
   .key-value:nth-child(2) {
-    margin-left: ${(props) => props.theme.spaces[4]}px;
+    margin-left: 0;
   }
 `;
 
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
-
-  &
-    .${BlueprintClasses.POPOVER_TARGET},
-    &
-    .${BlueprintClasses.POPOVER_TARGET}
-    > div {
-    height: 100%;
-  }
 `;
 
 const DynamicDropdownFieldWrapper = styled.div`
   position: relative;
   margin-left: 5px;
+  border-color: var(--ads-v2-color-border);
+  color: var(--ads-v2-color-fg);
+
+  .ads-v2-select > .rc-select-selector {
+    min-width: 77px;
+    width: 77px;
+    height: 36px;
+  }
 `;
 
 const expected = {
@@ -156,14 +117,10 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
       {!props.hideHeader && (
         <FlexContainer>
           <Flex className="key-value" size={1}>
-            <Text case={Case.CAPITALIZE} type={TextType.H6}>
-              Key
-            </Text>
+            <Text kind="body-m">Key</Text>
           </Flex>
           <Flex className="key-value" size={3}>
-            <Text case={Case.CAPITALIZE} type={TextType.H6}>
-              Value
-            </Text>
+            <Text kind="body-m">Value</Text>
           </Flex>
         </FlexContainer>
       )}
@@ -206,12 +163,12 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       <DynamicDropdownFieldWrapper
                         data-replay-id={btoa(`${field}.type`)}
                       >
-                        <DynamicDropdownField
-                          height={DEFAULT_MULTI_PART_DROPDOWN_HEIGHT}
+                        {/* eslint-disable-next-line */}
+                        {/* @ts-ignore*/}
+                        <RequestDropdownField
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
                           placeholder={DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER}
-                          width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
                         />
                       </DynamicDropdownFieldWrapper>
                     </DynamicTextFieldWithDropdownWrapper>
@@ -269,8 +226,8 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                             props.actionConfig[index].type
                           ? `${props.actionConfig[index].type}`
                           : props.actionConfig[index].type
-                          ? `${props.actionConfig[index].type} (Optional)`
-                          : `(Optional)`
+                          ? `${props.actionConfig[index].type} (optional)`
+                          : `(optional)`
                       }
                       showLightningMenu={
                         props.actionConfig[index].editable ||
@@ -285,10 +242,13 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                   </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
-                  <CenteredIcon
-                    name="delete"
+                  <CenteredButton
+                    data-testid="t--trash-icon"
+                    isIconButton
+                    kind="tertiary"
                     onClick={() => props.fields.remove(index)}
-                    size={IconSize.LARGE}
+                    size="md"
+                    startIcon="delete-bin-line"
                   />
                 )}
               </FormRowWithLabel>
@@ -296,12 +256,15 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
           })}
         </>
       )}
-      <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
-        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
-        <Text case={Case.UPPERCASE} type={TextType.H5}>
-          Add more
-        </Text>
-      </AddMoreAction>
+      <Button
+        className="btn-add-more t--addApiHeader"
+        kind="tertiary"
+        onClick={() => props.fields.push({ key: "", value: "" })}
+        size="md"
+        startIcon="add-more"
+      >
+        Add more
+      </Button>
     </KeyValueStackContainer>
   );
 }
@@ -309,9 +272,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 type Props = {
   name: string;
   label: string;
-  // TODO(Hetu): Fix the banned type here
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  rightIcon?: Function;
+  rightIcon?: React.ReactNode;
   description?: string;
   actionConfig?: any;
   addOrDeleteFields?: boolean;

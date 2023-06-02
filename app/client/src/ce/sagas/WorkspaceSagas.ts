@@ -28,7 +28,6 @@ import type {
 } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { Toaster, Variant } from "design-system-old";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
@@ -41,6 +40,7 @@ import {
   createMessage,
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 export function* fetchRolesSaga() {
   try {
@@ -169,10 +169,9 @@ export function* deleteWorkspaceUserSaga(
           },
         });
       }
-      Toaster.show({
-        //@ts-expect-error: response is of type unknown
-        text: `${response.data.username} has been removed successfully`,
-        variant: Variant.success,
+      //@ts-expect-error: response is of type unknown
+      toast.show(`${response.data.username} has been removed successfully`, {
+        kind: "success",
       });
     }
   } catch (error) {
@@ -246,9 +245,8 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
         type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
         payload: workspaceId,
       });
-      Toaster.show({
-        text: createMessage(DELETE_WORKSPACE_SUCCESSFUL),
-        variant: Variant.success,
+      toast.show(createMessage(DELETE_WORKSPACE_SUCCESSFUL), {
+        kind: "success",
       });
     }
   } catch (error) {
@@ -326,9 +324,8 @@ export function* uploadWorkspaceLogoSaga(
             logoUrl: response.data.logoUrl,
           },
         });
-        Toaster.show({
-          text: "Logo uploaded successfully",
-          variant: Variant.success,
+        toast.show("Logo uploaded successfully", {
+          kind: "success",
         });
       }
     }
@@ -359,9 +356,8 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
             logoUrl: response.data.logoUrl,
           },
         });
-        Toaster.show({
-          text: "Logo removed successfully",
-          variant: Variant.success,
+        toast.show("Logo removed successfully", {
+          kind: "success",
         });
       }
     }

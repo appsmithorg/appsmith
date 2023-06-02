@@ -1,8 +1,8 @@
 import React, { forwardRef } from "react";
-import type { DOMRef } from "@react-types/shared";
 import { useDOMRef } from "@react-spectrum/utils";
-import { useCheckboxGroup } from "@react-aria/checkbox";
+import type { DOMRef } from "@react-types/shared";
 import type { StyleProps } from "@react-types/shared";
+import { useCheckboxGroup } from "@react-aria/checkbox";
 import { useCheckboxGroupState } from "@react-stately/checkbox";
 import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
@@ -33,7 +33,7 @@ export const CheckboxGroup = forwardRef(
         ref={domRef}
         wrapperClassName={className}
       >
-        <div {...groupProps} data-field-group data-orientation={orientation}>
+        <div {...groupProps} data-field-group="" data-orientation={orientation}>
           <CheckboxGroupContext.Provider value={state}>
             {children}
           </CheckboxGroupContext.Provider>

@@ -27,11 +27,6 @@ import {
 } from "sagas/ActionExecution/ModalSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
-  logActionExecutionError,
-  TriggerFailureError,
-  UncaughtPromiseError,
-} from "sagas/ActionExecution/errorUtils";
-import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
@@ -86,12 +81,7 @@ export function* executeActionTriggers(
       yield call(resetWidgetActionSaga, trigger);
       break;
     case "GET_CURRENT_LOCATION":
-      response = yield call(
-        getCurrentLocationSaga,
-        trigger,
-        eventType,
-        triggerMeta,
-      );
+      response = yield call(getCurrentLocationSaga, trigger);
       break;
     case "WATCH_CURRENT_LOCATION":
       response = yield call(
@@ -102,10 +92,10 @@ export function* executeActionTriggers(
       );
       break;
     case "STOP_WATCHING_CURRENT_LOCATION":
-      response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
+      response = yield call(stopWatchCurrentLocation);
       break;
     case "POST_MESSAGE":
-      yield call(postMessageSaga, trigger, triggerMeta);
+      yield call(postMessageSaga, trigger);
       break;
     default:
       log.error("Trigger type unknown", trigger);
@@ -154,10 +144,6 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
-      logActionExecutionError(e.message, true, source, triggerPropertyName);
-    }
-    // handle errors here
     if (event.callback) {
       event.callback({ success: false });
     }
