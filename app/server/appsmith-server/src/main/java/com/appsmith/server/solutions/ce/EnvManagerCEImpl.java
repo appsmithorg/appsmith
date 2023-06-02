@@ -697,9 +697,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     mailSender.setPort(requestDTO.getSmtpPort());
 
                     Properties props = mailSender.getJavaMailProperties();
-                    props.put("mail.transport.protocol", "smtp");
                     props.put("mail.smtp.starttls.enable", "true");
                     props.put("mail.smtp.timeout", 7000); // 7 seconds
+                    props.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");
 
                     if (StringUtils.hasLength(requestDTO.getUsername())) {
                         props.put("mail.smtp.auth", "true");
