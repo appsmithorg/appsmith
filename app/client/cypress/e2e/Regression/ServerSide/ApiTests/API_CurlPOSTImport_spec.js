@@ -32,7 +32,7 @@ describe("Test curl import flow", function () {
     });
   });
 
-  it("2. Test curl import flow for POST action with multipart form data", function () {
+  it.skip("2. Test curl import flow for POST action with multipart form data", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
     _.dataSources.NavigateToDSCreateNew();

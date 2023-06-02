@@ -605,7 +605,6 @@
                     "phone",
                     "image"
                   ],
-                  "dynamicPropertyPathList": [],
                   "displayName": "Table",
                   "bottomRow": 68.0,
                   "columnWidthMap": {
@@ -878,6 +877,7 @@
                   "textSize": "0.875rem",
                   "widgetId": "aqpqbznlzl",
                   "tableData": "{{getCustomers.data}}",
+                  "dynamicPropertyPathList": [{ "key": "tableData" }],
                   "label": "Data",
                   "searchKey": "",
                   "parentId": "0",
