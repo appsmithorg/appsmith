@@ -688,35 +688,4 @@ public class UserServiceTest {
             assertThat(userProfileDTO.isAnonymous()).isTrue();
         }).verifyComplete();
     }
-
-
-    /**
-     * This test case asserts that on every user creation, User Management role is auto-created and associated with that user.
-     */
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testCreateNewUser_assertUserManagementRole() {
-        String testName = "testCreateNewUser_assertUserManagementRole";
-        User user = new User();
-        user.setEmail(testName);
-        user.setPassword(testName);
-
-        User createdUser = userService.create(user).block();
-        assertThat(createdUser.getPolicies()).isNotEmpty();
-        assertThat(createdUser.getPolicies().stream().anyMatch(policy -> policy.getPermission().equals(MANAGE_USERS.getValue()))).isTrue();
-        Policy manageUserPolicy = createdUser.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
-                .findFirst()
-                .get();
-
-        PermissionGroup userManagementRole = permissionGroupRepository.findAll()
-                .filter(role -> role.getName().equals(createdUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE))
-                .blockFirst();
-
-        assertThat(manageUserPolicy.getPermissionGroups()).hasSize(1);
-
-        String userManagementRoleId = manageUserPolicy.getPermissionGroups().stream().findFirst().get();
-
-        assertThat(userManagementRole.getId()).isEqualTo(userManagementRoleId);
-    }
 }

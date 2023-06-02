@@ -433,7 +433,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Create user management permission group
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
+        userManagementPermissionGroup.setName(savedUser.getUsername() + " User Management");
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(
                 Set.of(
@@ -816,6 +816,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setEmptyInstance(isUsersEmpty);
                     profile.setAnonymous(userFromDb.isAnonymous());
                     profile.setEnabled(userFromDb.isEnabled());
+                    profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());

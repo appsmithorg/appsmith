@@ -117,7 +117,6 @@ function SetupForm(props: SetupFormProps) {
   const [isFirstPage, setIsFirstPage] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
   const isAirgappedFlag = isAirgapped();
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const onSubmit = () => {
     const form: HTMLFormElement = formRef.current as HTMLFormElement;
@@ -185,7 +184,7 @@ function SetupForm(props: SetupFormProps) {
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [props, isSubmitted]);
+  }, [props]);
 
   const toggleFormPage = () => {
     setIsFirstPage(!isFirstPage);
@@ -199,10 +198,8 @@ function SetupForm(props: SetupFormProps) {
           // instead we move the user to the next page
           toggleFormPage();
         } else {
-          // If we are on the second page we submit the form if not submitted already
-          if (!isSubmitted) onSubmit();
-          //if form is already submitted once do not submit it again
-          setIsSubmitted(true);
+          // If we are on the second page we submit the form
+          onSubmit();
         }
       } else {
         // The fields to be marked as touched so that we can display the errors

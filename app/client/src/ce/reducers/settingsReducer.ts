@@ -4,8 +4,6 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import type { TenantReduxState } from "./tenantReducer";
-import { tenantConfigConnection } from "@appsmith/utils/adminSettingsHelpers";
 
 export const initialState: SettingsReduxState = {
   isLoading: false,
@@ -43,46 +41,6 @@ export const handlers = {
       ...action.payload,
     },
   }),
-  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
-    state: SettingsReduxState & TenantReduxState<any>,
-    action: ReduxAction<TenantReduxState<any>>,
-  ) => {
-    const configs: any = {};
-    Object.keys(tenantConfigConnection).forEach((key) => {
-      if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
-        configs[tenantConfigConnection[key]] =
-          action.payload?.tenantConfiguration?.[key];
-      }
-    });
-    return {
-      ...state,
-      isLoading: false,
-      config: {
-        ...state.config,
-        ...configs,
-      },
-    };
-  },
-  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
-    state: SettingsReduxState & TenantReduxState<any>,
-    action: ReduxAction<TenantReduxState<any>>,
-  ) => {
-    const configs: any = {};
-    Object.keys(tenantConfigConnection).forEach((key) => {
-      if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
-        configs[tenantConfigConnection[key]] =
-          action.payload?.tenantConfiguration?.[key];
-      }
-    });
-    return {
-      ...state,
-      isLoading: false,
-      config: {
-        ...state.config,
-        ...configs,
-      },
-    };
-  },
   [ReduxActionTypes.FETCH_ADMIN_SETTINGS_ERROR]: (
     state: SettingsReduxState,
   ) => ({

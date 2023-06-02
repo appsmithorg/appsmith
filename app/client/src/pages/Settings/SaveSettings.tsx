@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  RESET_BUTTON,
-  SAVE_AND_RESTART_BUTTON,
-  SAVE_BUTTON,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 import { Button } from "design-system";
 import styled from "styled-components";
 
@@ -35,12 +30,10 @@ type SaveAdminSettingsProps = {
   onClear?: () => void;
   settings: Record<string, string>;
   valid: boolean;
-  updatedTenantSettings?: string[];
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
-  const { isSaving, onClear, onSave, settings, updatedTenantSettings, valid } =
-    props;
+  const { isSaving, onClear, onSave, settings, valid } = props;
 
   return (
     <SettingsButtonWrapper>
@@ -51,12 +44,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onSave}
         size="md"
       >
-        {createMessage(
-          updatedTenantSettings?.length === Object.keys(settings).length &&
-            updatedTenantSettings?.length !== 0
-            ? SAVE_BUTTON
-            : SAVE_AND_RESTART_BUTTON,
-        )}
+        {createMessage(() => "Save & Restart")}
       </Button>
       <Button
         className="t--admin-settings-reset-button"
@@ -65,7 +53,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onClear}
         size="md"
       >
-        {createMessage(RESET_BUTTON)}
+        {createMessage(() => "Reset")}
       </Button>
     </SettingsButtonWrapper>
   );

@@ -44,7 +44,7 @@ import {
   MenuTrigger,
   Tooltip,
 } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
@@ -64,7 +64,6 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
-import { getCurrentUser } from "actions/authActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -371,7 +370,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
@@ -727,7 +725,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
           params,
         }),
       );
-      dispatch(getCurrentUser());
     },
     [props.application.defaultPageId],
   );
@@ -743,7 +740,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
           params,
         }),
       );
-      dispatch(getCurrentUser());
     },
     [props.application.defaultPageId],
   );

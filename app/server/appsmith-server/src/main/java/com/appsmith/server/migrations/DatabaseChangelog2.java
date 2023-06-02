@@ -2344,7 +2344,7 @@ public class DatabaseChangelog2 {
 
         // Assign the user to the default permissions
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
+        userManagementPermissionGroup.setName(user.getUsername() + " User Management");
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(
                 Set.of(
