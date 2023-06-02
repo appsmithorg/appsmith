@@ -1138,6 +1138,7 @@ export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
 export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
   `Shared with ${length} other`;
 export const DEBUGGER_TOOLTIP = () => "Open debugger";
+export const DEBUGGER_TOOLTIP = () => "Open Debugger";
 export const PAGE_PROPERTIES_TOOLTIP = () => "Page properties";
 export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
