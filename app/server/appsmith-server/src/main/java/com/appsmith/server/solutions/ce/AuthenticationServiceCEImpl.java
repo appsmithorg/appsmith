@@ -56,6 +56,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
 import static com.appsmith.external.constants.Authentication.AUDIENCE;
@@ -509,11 +510,19 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 // for specific sheets, it needs to remain in as in progress until files are selected
                                 // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
                                 // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
-                                if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
-                                    datasource
+                                Set<String> oauth2Scopes = oAuth2.getScope();
+                                if (oauth2Scopes != null) {
+                                    if (oauth2Scopes.contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                        datasource
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS_PERMISSIONS_GRANTED);
+                                    } else {
+                                        datasource
                                             .getDatasourceConfiguration()
                                             .getAuthentication()
                                             .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+                                    }
                                 }
 
                                 Mono<String> accessTokenMono = Mono.just(accessToken);
