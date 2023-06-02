@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-describe("Check Suggested Widgets Feature in Auto Layout", function () {
+describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
     cy.get(commonlocators.autoConvert).click({
       force: true,

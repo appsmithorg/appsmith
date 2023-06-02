@@ -30,7 +30,7 @@ import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /**
- * This method is used to convert from auto-layout to Fixed layout
+ * This method is used to convert from auto-layout to fixed layout
  * @param action
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
@@ -61,7 +61,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 
     const pageLayouts = [];
 
-    //Convert all the pages into Fixed layout by iterating over the list
+    //Convert all the pages into fixed layout by iterating over the list
     for (const page of pageList) {
       const pageId = page?.pageId;
       const { dsl: normalizedDSL, layoutId } = pageWidgetsList[pageId];
@@ -121,7 +121,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 }
 
 /**
- * This method is used to convert from Fixed layout to auto-layout
+ * This method is used to convert from fixed layout to auto-layout
  * @param action
  */
 function* convertFromFixedToAutoSaga() {
