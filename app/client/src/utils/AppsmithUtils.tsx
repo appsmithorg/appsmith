@@ -218,12 +218,13 @@ export const stopEventPropagation = (e: any) => {
 export const createNewQueryName = (
   queries: ActionDataState,
   pageId: string,
+  prefix = "Query",
 ) => {
   const pageApiNames = queries
     .filter((a) => a.config.pageId === pageId)
     .map((a) => a.config.name);
-  const newName = getNextEntityName("Query", pageApiNames);
-  return newName;
+
+  return getNextEntityName(prefix, pageApiNames);
 };
 
 export const convertToString = (value: any): string => {

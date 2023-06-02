@@ -577,6 +577,7 @@ abstract class BaseWidget<
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile || false}
+        isResizeDisabled={this.props.resizeDisabled}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         renderMode={this.props.renderMode}
@@ -732,6 +733,12 @@ abstract class BaseWidget<
       default:
         throw Error("RenderMode not defined");
     }
+  }
+
+  updateOneClickBindingOptionsVisibility(visibility: boolean) {
+    const { updateOneClickBindingOptionsVisibility } = this.context;
+
+    updateOneClickBindingOptionsVisibility?.(visibility);
   }
 
   abstract getPageView(): ReactNode;
