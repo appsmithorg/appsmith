@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-describe("Validate Postgres Generate CRUD with JSON Form", () => {
+describe("Postgres Generate CRUD with JSON Form", () => {
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
