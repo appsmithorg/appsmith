@@ -103,6 +103,10 @@ server {
     proxy_pass http://localhost:8080;
   }
 
+  location /actuator {
+    proxy_pass http://localhost:8080;
+  }
+
   location /rts {
     proxy_pass http://localhost:${APPSMITH_RTS_PORT:-8091};
     proxy_http_version 1.1;

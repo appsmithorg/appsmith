@@ -330,6 +330,10 @@ $(if [[ $use_https == 1 ]]; then echo "
             proxy_set_header Upgrade \$http_upgrade;
         }
 
+        location /actuator {
+            proxy_pass $backend;
+        }
+
         location /auth {
             proxy_pass $backend;
             proxy_set_header Host \$host;
