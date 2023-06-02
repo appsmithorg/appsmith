@@ -40,6 +40,7 @@ import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { useLocation } from "react-router";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -69,6 +70,9 @@ export const useDynamicAppLayout = () => {
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const [isCanvasResizing, setIsCanvasResizing] = useState<boolean>(false);
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const isEmbed = queryParams.get("embed");
 
   // /**
   //  * calculates min height
@@ -147,7 +151,8 @@ export const useDynamicAppLayout = () => {
      * If there is
      * 1. a sidebar for navigation,
      * 2. it is pinned,
-     * 3. and device is not mobile
+     * 3. device is not mobile
+     * 4. and it is not an embedded app
      * we need to subtract the sidebar width as well in the following modes -
      * 1. Preview
      * 2. App settings open with navigation tab
@@ -158,6 +163,7 @@ export const useDynamicAppLayout = () => {
         isPreviewMode ||
         isAppSettingsPaneWithNavigationTabOpen) &&
       !isMobile &&
+      !isEmbed &&
       sidebarWidth
     ) {
       calculatedWidth -= sidebarWidth;
