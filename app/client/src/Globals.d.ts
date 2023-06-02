@@ -5,5 +5,3 @@ declare module "*.txt" {
   const filePath: string;
   export default filePath;
 }
-
-declare var CDN_URL: string;
