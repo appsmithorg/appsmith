@@ -622,7 +622,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: "array",
         },
         setSelectedOption: {
-          path: "selectedOptionLabel",
+          path: "defaultOptionValue",
           type: "string",
         },
       },
