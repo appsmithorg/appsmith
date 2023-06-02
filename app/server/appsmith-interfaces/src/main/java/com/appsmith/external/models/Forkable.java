@@ -1,6 +1,10 @@
 package com.appsmith.external.models;
 
-public interface Forkable {
+public interface Forkable<T> {
+
+    // checkNameClash
+
+    // checkGitConnectionExists
 
     /**
      * This method defines the behaviour of an object when the application is forked from one workspace to another.
@@ -13,5 +17,5 @@ public interface Forkable {
      * @param toWorkspaceId             : Target workspaceId
      * @return
      */
-    Datasource fork(Boolean forkWithConfiguration, String toWorkspaceId);
+    T fork(Boolean forkWithConfiguration, String toWorkspaceId);
 }

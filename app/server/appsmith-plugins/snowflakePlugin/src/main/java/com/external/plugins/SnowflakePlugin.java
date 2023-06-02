@@ -22,6 +22,7 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -51,6 +52,11 @@ public class SnowflakePlugin extends BasePlugin {
     private static final int MINIMUM_POOL_SIZE = 1;
 
     private static final int MAXIMUM_POOL_SIZE = 5;
+    private static final int CONNECTION_TIMEOUT_MILLISECONDS = 25000;
+
+    private static final String SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY = "loginTimeout";
+
+    private static final int SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC = 15;
 
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -133,16 +139,68 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            try {
-                Class.forName(JDBC_DRIVER);
-            } catch (ClassNotFoundException ex) {
-                log.debug("Driver not found");
-                return Mono.error(new AppsmithPluginException(SnowflakePluginError.SNOWFLAKE_PLUGIN_ERROR, SnowflakeErrorMessages.DRIVER_NOT_FOUND_ERROR_MSG, ex.getMessage()));
-            }
+        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return Mono.fromCallable(() -> {
+                HikariConfig config = new HikariConfig();
 
+                config.setDriverClassName(properties.getProperty("driver_name"));
+
+                config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
+                config.setMaximumPoolSize(Integer.parseInt(properties.get("maximunPoolSize").toString()));
+
+                config.setInitializationFailTimeout(Long.parseLong(properties.get("initializationFailTimeout").toString()));
+                config.setConnectionTimeout(Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
+
+                // Set authentication properties
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (authentication.getUsername() != null) {
+                    config.setUsername(authentication.getUsername());
+                }
+                if (authentication.getPassword() != null) {
+                    config.setPassword(authentication.getPassword());
+                }
+
+                // Set up the connection URL
+                StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" +
+                        datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
+                config.setJdbcUrl(urlBuilder.toString());
+
+                config.setDataSourceProperties(properties);
+
+                // Now create the connection pool from the configuration
+                HikariDataSource datasource = null;
+                try {
+                    datasource = new HikariDataSource(config);
+                } catch (HikariPool.PoolInitializationException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            e.getMessage()
+                    );
+                }
+
+                return datasource;
+            }).subscribeOn(scheduler);
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            properties.setProperty("driver_name", JDBC_DRIVER);
+            properties.setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
+            properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
+            properties.setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
+            /**
+             * Setting the value for setInitializationFailTimeout to -1 to
+             * bypass any connection attempt and validation during startup
+             * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
+             */
+            properties.setProperty("initializationFailTimeout", String.valueOf(-1));
+            properties.setProperty("connectionTimeoutMillis", String.valueOf(CONNECTION_TIMEOUT_MILLISECONDS));
+            return properties;
+        }
+
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            Properties properties = new Properties();
             properties.setProperty("user", authentication.getUsername());
             properties.setProperty("password", authentication.getPassword());
             properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
@@ -151,57 +209,7 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
             /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
             properties.setProperty("jdbc_query_result_format", "json");
-
-            return Mono
-                    .fromCallable(() -> {
-                        log.debug("Connecting to Snowflake");
-                        return createConnectionPool(datasourceConfiguration,properties);
-                    })
-                    .subscribeOn(scheduler);
-        }
-
-        /**
-         * This function is blocking in nature which connects to the database and creates a connection pool
-         *
-         * @param datasourceConfiguration
-         * @return connection pool
-         */
-        private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration,Properties properties) throws AppsmithPluginException {
-
-            HikariConfig config = new HikariConfig();
-
-            config.setDriverClassName(JDBC_DRIVER);
-
-            config.setMinimumIdle(MINIMUM_POOL_SIZE);
-            config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-
-            // Set authentication properties
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication.getUsername() != null) {
-                config.setUsername(authentication.getUsername());
-            }
-            if (authentication.getPassword() != null) {
-                config.setPassword(authentication.getPassword());
-            }
-
-            // Set up the connection URL
-            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
-            config.setJdbcUrl(urlBuilder.toString());
-
-            config.setDataSourceProperties(properties);
-
-            // Now create the connection pool from the configuration
-            HikariDataSource datasource = null;
-            try {
-                datasource = new HikariDataSource(config);
-            } catch (HikariPool.PoolInitializationException e) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        e.getMessage()
-                );
-            }
-
-            return datasource;
+            return properties;
         }
 
         @Override
@@ -262,26 +270,36 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
 
-            return Mono.fromCallable(() -> {
+            return Mono.just(connection)
+                    .flatMap(connectionPool -> {
 
                         Connection connectionFromPool;
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection);
-                        } catch (SQLException | StaleConnectionException e) {
+                            connectionFromPool = getConnectionFromConnectionPool(connectionPool);
+                            return Mono.just(validateWarehouseDatabaseSchema(connectionFromPool));
+                        } catch (SQLException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            if (e instanceof StaleConnectionException) {
-                                throw e;
-                            } else {
-                                throw new StaleConnectionException();
-                            }
+
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    SnowflakeErrorMessages.UNABLE_TO_CREATE_CONNECTION_ERROR_MSG));
+
+                        } catch (StaleConnectionException e) {
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR,
+                                    e.getMessage()));
+                        }
+                    })
+                    .map(errorSet ->{
+                        if (!errorSet.isEmpty()) {
+                            return new DatasourceTestResult(errorSet);
                         }
 
-                        return validateWarehouseDatabaseSchema(connectionFromPool);
+                        return new DatasourceTestResult();
                     })
-                    .map(DatasourceTestResult::new);
+                    .subscribeOn(scheduler);
         }
 
         @Override

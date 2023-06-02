@@ -7,7 +7,6 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -21,14 +20,14 @@ const VariableWrapper = styled.div`
     border: 0px;
   }
   &&& .CodeMirror-gutters {
-    background: ${Colors.GRAY_50};
+    background: var(--ads-v2-color-bg-subtle);
   }
 `;
 
 const VariableHeader = styled.div`
   display: flex;
   width: 100%;
-  background: ${Colors.SEA_SHELL};
+  background: var(--ads-v2-color-bg-subtle);
   padding: 8px 16px;
 `;
 
@@ -55,14 +54,15 @@ function VariableEditor(props: VariableProps) {
   return (
     <VariableWrapper className="t--graphql-variable-editor">
       <VariableHeader>
-        <Text color={Colors.GRAY_700} type={TextType.H6}>
-          Query Variables
+        <Text color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
+          Query variables
         </Text>
       </VariableHeader>
       <DynamicTextField
-        border={CodeEditorBorder.ALL_SIDE}
+        border={CodeEditorBorder.NONE}
+        borderLess
         dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
-        evaluatedPopUpLabel={"Query Variables"}
+        evaluatedPopUpLabel={"Query variables"}
         expected={EXPECTED_VARIABLE}
         height="100%"
         mode={EditorModes.JSON_WITH_BINDING}

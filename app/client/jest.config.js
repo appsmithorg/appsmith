@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
+    "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -28,24 +28,26 @@ module.exports = {
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
-    "design-system-old": "<rootDir>/../node_modules/design-system-old/build",
-    "^proxy-memoize$":
-      "<rootDir>/../node_modules/proxy-memoize/dist/wrapper.cjs",
+    "design-system-old": "<rootDir>/node_modules/design-system-old/build",
+    "@design-system/widgets-old":
+      "<rootDir>/node_modules/@design-system/widgets-old",
+    "design-system": "<rootDir>/node_modules/design-system/build",
+    "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
     // contains sources that are transpiled to ES5. As Jest does not transpile our sources to ES5,
     // this results in mixing ES6 and ES5 code and causes errors like:
     //   Class constructor GlobalHotKeys cannot be invoked without 'new'
     // Note: this isn’t issue in the live app because we transpile *everything* down to ES5 there.
     "^@blueprintjs/core$":
-      "<rootDir>/../node_modules/@blueprintjs/core/lib/esnext",
+      "<rootDir>/node_modules/@blueprintjs/core/lib/esnext",
     "^@blueprintjs/datetime$":
-      "<rootDir>/../node_modules/@blueprintjs/datetime/lib/esnext",
+      "<rootDir>/node_modules/@blueprintjs/datetime/lib/esnext",
     "^@blueprintjs/icons$":
-      "<rootDir>/../node_modules/@blueprintjs/icons/lib/esnext",
+      "<rootDir>/node_modules/@blueprintjs/icons/lib/esnext",
     "^@blueprintjs/popover2$":
-      "<rootDir>/../node_modules/@blueprintjs/popover2/lib/esnext",
+      "<rootDir>/node_modules/@blueprintjs/popover2/lib/esnext",
     "^@blueprintjs/select$":
-      "<rootDir>/../node_modules/@blueprintjs/select/lib/esnext",
+      "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
   },
   globals: {
     "ts-jest": {
@@ -71,8 +73,6 @@ module.exports = {
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
-      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),

@@ -19,7 +19,7 @@ public class MongoPluginErrorMessages {
 
     public static final String FIELD_WITH_NO_CONFIGURATION_ERROR_MSG = "Try again after configuring the fields : %s";
 
-    public static final String PIPELINE_ARRAY_PARSING_FAILED_ERROR_MSG =  "Array of Pipelines could not be parsed into expected Mongo BSON Array format.";
+    public static final String PIPELINE_ARRAY_PARSING_FAILED_ERROR_MSG =  "Array of pipelines could not be parsed into expected Mongo BSON Array format.";
 
     public static final String PIPELINE_STAGE_NOT_VALID_ERROR_MSG = "Pipeline stage is not a valid JSON object.";
 
@@ -47,16 +47,16 @@ public class MongoPluginErrorMessages {
     public static final String DS_GET_STRUCTURE_ERROR_MSG = "Appsmith has failed to get database structure. Please provide read permission on" +
             " the database to fix this.";
 
-    public static final String DS_DEFAULT_DATABASE_NAME_INVALID_ERROR_MSG = "Default Database Name is invalid, no database found with this name.";
+    public static final String DS_DEFAULT_DATABASE_NAME_INVALID_ERROR_MSG = "Default database name is invalid, no database found with this name.";
 
-    public static final String DS_EMPTY_CONNECTION_URI_ERROR_MSG = "'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
+    public static final String DS_EMPTY_CONNECTION_URI_ERROR_MSG = "'Mongo Connection string URI' field is empty. Please edit the 'Mongo Connection " +
             "URI' field to provide a connection uri to connect with.";
 
-    public static final String DS_INVALID_CONNECTION_STRING_URI_ERROR_MSG = "Mongo Connection String URI does not seem to be in the correct format. Please " +
+    public static final String DS_INVALID_CONNECTION_STRING_URI_ERROR_MSG = "Mongo Connection string URI does not seem to be in the correct format. Please " +
             "check the URI once.";
 
     public static final String DS_MISSING_DEFAULT_DATABASE_NAME_ERROR_MSG = "Missing default database name.";
-    public static final String DS_INVALID_AUTH_DATABASE_NAME = "Authentication Database Name is invalid, no database found with this name.";
+    public static final String DS_INVALID_AUTH_DATABASE_NAME = "Authentication database name is invalid, no database found with this name.";
     public static final String DS_MISSING_ENDPOINTS_ERROR_MSG = "Missing endpoint(s).";
     public static final String DS_NO_PORT_EXPECTED_IN_REPLICA_SET_CONNECTION_ERROR_MSG = "REPLICA_SET connections should not be given a port." +
             " If you are trying to specify all the shards, please add more than one.";
@@ -64,8 +64,8 @@ public class MongoPluginErrorMessages {
     public static final String DS_USING_URI_BUT_EXPECTED_FORM_FIELDS_ERROR_MSG = "It seems that you are trying to use a mongo connection string URI. Please " +
             "extract relevant fields and fill the form with extracted values. For " +
             "details, please check out the Appsmith's documentation for Mongo database. " +
-            "Alternatively, you may use 'Import from Connection String URI' option from the " +
-            "dropdown labelled 'Use Mongo Connection String URI' to use the URI connection string" +
+            "Alternatively, you may use 'Import from connection string URI' option from the " +
+            "dropdown labelled 'Use mongo connection string URI' to use the URI connection string" +
             " directly.";
 
     public static final String DS_INVALID_AUTH_TYPE_ERROR_MSG = "Invalid authType. Must be one of %s";

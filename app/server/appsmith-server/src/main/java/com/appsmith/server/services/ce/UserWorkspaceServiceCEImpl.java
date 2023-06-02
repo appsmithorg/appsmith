@@ -5,9 +5,9 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
@@ -178,7 +178,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Unassigned old permission group from user
         Mono<PermissionGroup> permissionGroupUnassignedMono = userMono
                 .zipWhen(user -> oldDefaultPermissionGroupMono)
-                .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT2(), pair.getT1()));
+                .flatMap(pair -> permissionGroupService.unAssignFromUserAndSendEvent(pair.getT2(), pair.getT1()));
 
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
@@ -196,7 +196,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMap(newPermissionGroup -> {
                     return permissionGroupUnassignedMono
                             .then(userMono)
-                            .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
+                            .flatMap(user -> permissionGroupService.assignToUserAndSendEvent(newPermissionGroup, user));
                 });
 
         /*
@@ -258,7 +258,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                 userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                 userAndPermissionGroupDTO.setUsername(user.getUsername());
-                if(userData != null) {
+                if (userData != null) {
                     userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
                 }
             });
@@ -333,7 +333,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                     UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                                     userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
-                                    if(userData != null) {
+                                    if (userData != null) {
                                         userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
                                     }
                                 });

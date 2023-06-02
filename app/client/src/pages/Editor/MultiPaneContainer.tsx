@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import SideNav from "pages/common/SideNav";
 import classNames from "classnames";
-import BottomBar from "pages/Editor/BottomBar";
 import { useDispatch, useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import TabsPane from "pages/Editor/TabsPane";
@@ -16,6 +15,7 @@ import {
 import { setTabsPaneWidth } from "actions/multiPaneActions";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import BottomBar from "components/BottomBar";
 
 const Container = styled.div`
   height: calc(

@@ -103,6 +103,7 @@
   -->
   <div id="header-root"></div>
   <div id="root"></div>
+  <div id="date-picker-control" style="position: relative; z-index: 1000;"></div>
   <script type="text/javascript">
     // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
     const getIsLocalStorageSupported = () => {
@@ -187,8 +188,6 @@
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
-      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
