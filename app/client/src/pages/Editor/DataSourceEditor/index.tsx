@@ -59,7 +59,10 @@ import {
 import { toast } from "design-system";
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
@@ -76,7 +79,6 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 
 interface ReduxStateProps {
@@ -743,11 +745,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
 
-  const isPluginAuthorized =
-    pluginPackageName === PluginPackageName.GOOGLE_SHEETS
-      ? plugin &&
-        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
-      : true;
+  const isPluginAuthorized = isGoogleSheetPluginDS(pluginPackageName)
+    ? plugin &&
+      isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+    : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,

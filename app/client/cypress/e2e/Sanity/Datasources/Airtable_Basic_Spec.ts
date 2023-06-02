@@ -18,7 +18,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "Please select an option",
-      "List Records",
+      "List records",
     );
 
     _.agHelper.EnterValue(datasourceFormData.AirtableBase, {
@@ -29,7 +29,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     _.agHelper.EnterValue(datasourceFormData.AirtableTable, {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Table Name",
+      inputFieldName: "Table name",
     });
 
     _.dataSources.RunQuery();
@@ -70,12 +70,12 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     _.agHelper.EnterValue("11", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Max Records",
+      inputFieldName: "Max records",
     });
     _.agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Page Size",
+      inputFieldName: "Page size",
     });
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
@@ -87,7 +87,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     _.agHelper.EnterValue("6", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Page Size",
+      inputFieldName: "Page size",
     });
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
@@ -119,7 +119,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     _.agHelper.EnterValue('NOT({Taxa} = "Rodent")', {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Filter by Formula",
+      inputFieldName: "Filter by formula",
     });
     _.dataSources.RunQuery();
 
@@ -137,17 +137,17 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     _.agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Page Size",
+      inputFieldName: "Page size",
     }); //Removing Page Size
     _.agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Filter by Formula",
+      inputFieldName: "Filter by formula",
     }); //Removing Filter by Formula
     _.agHelper.EnterValue("10", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Max Records",
+      inputFieldName: "Max records",
     });
     _.agHelper.EnterValue("sort%5B0%5D%5Bfield%5D=Species_ID", {
       propFieldName: "",
@@ -256,8 +256,8 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     //Create
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
-      "List Records",
-      "Create Records",
+      "List records",
+      "Create records",
     );
     _.agHelper.EnterValue(createReq, {
       propFieldName: "",
@@ -277,8 +277,8 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       insertedRecordId = jsonSpecies.records[0].id;
       _.dataSources.ValidateNSelectDropdown(
         "Commands",
-        "Create Records",
-        "Retrieve A Record",
+        "Create records",
+        "Retrieve a record",
       );
       _.agHelper.EnterValue(insertedRecordId, {
         propFieldName: "",
@@ -304,8 +304,8 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       //Update Records
       _.dataSources.ValidateNSelectDropdown(
         "Commands",
-        "Retrieve A Record",
-        "Update Records",
+        "Retrieve a record",
+        "Update records",
       );
       _.agHelper.EnterValue(
         `[{ "id" : ${insertedRecordId},
@@ -341,8 +341,8 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       //insertedRecordId = jsonSpecies.id;
       _.dataSources.ValidateNSelectDropdown(
         "Commands",
-        "Update Records",
-        "Delete A Record",
+        "Update records",
+        "Delete a record",
       );
 
       _.dataSources.RunQuery();
