@@ -188,14 +188,10 @@ export const getFilterListSelector = createSelector(
       });
     };
 
-    templates.map((template) => {
+    templates.forEach((template) => {
       filterFilters(FUNCTIONS_FILTER, allFunctions, template);
     });
-
-    const updatedFilters: Record<string, Filter[]> = {
-      teams: filters[FUNCTIONS_FILTER],
-    };
-    return updatedFilters;
+    return filters;
   },
 );
 
