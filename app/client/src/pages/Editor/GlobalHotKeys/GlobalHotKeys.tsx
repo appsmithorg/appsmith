@@ -12,7 +12,10 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import {
+  canvasCodeToggle,
+  setGlobalSearchCategory,
+} from "actions/globalSearchActions";
 import { getSelectedText, isMacOrIOS } from "utils/helpers";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -47,6 +50,7 @@ import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { isCanvasCodeActive } from "selectors/canvasCodeSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -76,6 +80,7 @@ type Props = {
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
+  canvasCodeToggle: () => void;
 };
 
 @HotkeysTarget
@@ -368,6 +373,16 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.showCommitModal();
           }}
         />
+        <Hotkey
+          allowInInput
+          combo="mod + b"
+          disabled={!this.props.canvasCodeToggle}
+          global
+          label="Toggle context switcher"
+          onKeyDown={() => {
+            this.props.canvasCodeToggle();
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -384,6 +399,7 @@ const mapStateToProps = (state: AppState) => ({
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
+  canvasCodeActive: isCanvasCodeActive(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -407,6 +423,7 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
+    canvasCodeToggle: () => dispatch(canvasCodeToggle()),
     setPreviewModeAction: (shouldSet: boolean) =>
       dispatch(setPreviewModeAction(shouldSet)),
     setExplorerPinnedAction: (shouldSet: boolean) =>

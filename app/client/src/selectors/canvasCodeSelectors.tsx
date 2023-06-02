@@ -5,3 +5,5 @@ export const isCanvasCodeActive = (state: AppState) =>
 
 export const getCodeTabPath = (state: AppState) =>
   state.ui.editorContext.codeTabPath;
+
+export const getSelectedTab = (state: AppState) => state.ui.canvasCode.tab;

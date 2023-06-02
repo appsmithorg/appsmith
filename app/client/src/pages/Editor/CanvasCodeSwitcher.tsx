@@ -9,6 +9,8 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setCodeTabPath } from "actions/editorContextActions";
 import { shouldStoreURLForFocus } from "navigation/FocusEntity";
+import { getSelectedTab } from "selectors/canvasCodeSelectors";
+import { canvasCodeToggle } from "actions/globalSearchActions";
 
 type CanvasCodeSwitcherProps = {
   pageId: string;
@@ -27,16 +29,16 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
     {
       label: "Canvas",
       value: "CANVAS",
-      shortcut: "⌘ + J",
+      shortcut: "⌘ + B",
     },
     {
       label: "Code",
       value: "CODE",
-      shortcut: "⌘ + J",
+      shortcut: "⌘ + B",
     },
   ];
   const [optionsState, setOptionsState] = useState(options);
-  const [switcher, setSwitcher] = useState("CANVAS");
+  const selectedTab = useSelector(getSelectedTab);
 
   const handleMouseOver = (node: any) => {
     const childNode = node.children[0];
@@ -79,9 +81,9 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
 
   useEffect(() => {
     if (matchBuilderPath(location.pathname)) {
-      setSwitcher("CANVAS");
+      dispatch(canvasCodeToggle("CANVAS"));
     } else {
-      setSwitcher("CODE");
+      dispatch(canvasCodeToggle("CODE"));
       if (shouldStoreURLForFocus(location.pathname)) {
         dispatch(setCodeTabPath(location.pathname));
       }
@@ -89,8 +91,12 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
     setOptionsState(options);
   }, [location]);
 
-  const onChange = (value: string) => {
-    if (value === switcher) return;
+  useEffect(() => {
+    navigate(selectedTab);
+  }, [selectedTab]);
+
+  const navigate = (value: string) => {
+    if (!props.pageId) return;
 
     if (value === "CANVAS") {
       history.push(
@@ -103,8 +109,12 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
         type: "NAVIGATE_MOST_RECENT",
       });
     }
+  };
 
-    setSwitcher(value);
+  const onChange = (value: string) => {
+    if (value === selectedTab) return;
+
+    navigate(value);
   };
 
   if (!isEditorInitialized) return null;
@@ -115,7 +125,7 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
       onChange={onChange}
       options={optionsState}
       ref={ref}
-      value={switcher}
+      value={selectedTab}
     />
   );
 }

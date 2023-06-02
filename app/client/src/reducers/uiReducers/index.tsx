@@ -48,6 +48,7 @@ import appSettingsPaneReducer from "./appSettingsPaneReducer";
 import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
+import canvasCodeReducer from "./canvasCodeReducer";
 
 const uiReducer = combineReducers({
   analytics: analyticsReducer,
@@ -99,6 +100,7 @@ const uiReducer = combineReducers({
   autoHeightUI: autoHeightUIReducer,
   layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
+  canvasCode: canvasCodeReducer,
 });
 
 export default uiReducer;

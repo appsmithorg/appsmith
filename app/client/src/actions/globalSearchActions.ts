@@ -90,3 +90,8 @@ export const setRecentEntities = (payload: Array<RecentEntity>) => ({
   type: ReduxActionTypes.SET_RECENT_ENTITIES,
   payload,
 });
+
+export const canvasCodeToggle = (payload?: "CODE" | "CANVAS") => ({
+  type: ReduxActionTypes.CANVAS_CODE_TOGGLE,
+  payload,
+});
