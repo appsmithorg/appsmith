@@ -7,8 +7,11 @@ import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.MergeOperation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 
@@ -31,20 +34,30 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
 
     @Execution
     public void defaultWorkspaceIdMigration() {
-        Query defaultWorkspaceIdExistsQuery = query(where(
+        AggregationOperation matchDocWithWorkspaceIDField = Aggregation.match(where(
                 fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
-        UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
-                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
-        UpdateDefinition addWorkspaceAsDomainType = AggregationUpdate.update()
-                .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .toValue(Workspace.class.getSimpleName());
-        UpdateDefinition makeWorkspaceIdNull = AggregationUpdate.update()
-                .set(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
-                        .toValue(null);
+        AggregationOperation wholeProjection = Aggregation.project(PermissionGroup.class);
+        AggregationOperation defaultWorkSpaceIDAdd = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).
+                withValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))).build();
+        AggregationOperation defaultDomainTypeAdd = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)).
+                withValueOf(Workspace.class.getSimpleName()).build();
+        AggregationOperation defaultWorkspaceIDToNull = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).
+                withValue(null).build();
 
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, copyWorkspaceIdToDomainId, PermissionGroup.class);
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainType, PermissionGroup.class);
-        mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, makeWorkspaceIdNull, PermissionGroup.class);
+        AggregationOperation merge = Aggregation.merge()
+                .intoCollection("permissionGroup")
+                .on("_id")
+                .whenMatched(MergeOperation.WhenDocumentsMatch.mergeDocuments())
+                .build();
+
+        Aggregation combinedAggregation = Aggregation.newAggregation(
+                matchDocWithWorkspaceIDField,
+                wholeProjection,
+                defaultWorkSpaceIDAdd,
+                defaultDomainTypeAdd,
+                defaultWorkspaceIDToNull,
+                merge);
+
+        mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
     }
 }
