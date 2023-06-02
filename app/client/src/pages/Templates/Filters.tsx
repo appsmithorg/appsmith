@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Checkbox, Text } from "design-system";
@@ -110,9 +110,12 @@ function FilterCategory({
   label,
   selectedFilters,
 }: FilterCategoryProps) {
-  const filterLabelsToDisplay: Record<string, string> = {
-    functions: "teams",
-  };
+  const filterLabelsToDisplay: Record<string, string> = useMemo(
+    () => ({
+      functions: "teams",
+    }),
+    [],
+  );
   // const [expand, setExpand] = useState(!!selectedFilters.length);
   const dispatch = useDispatch();
   // This indicates how many filter items do we want to show, the rest are hidden
