@@ -119,6 +119,7 @@ export function SettingsForm(
       dispatch(
         updateTenantConfig({
           tenantConfiguration: config,
+          isOnlyTenantSettings: !isEnvAndTenantSettings,
         }),
       );
       // both env and tenant settings

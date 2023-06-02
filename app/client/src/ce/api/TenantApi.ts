@@ -14,6 +14,7 @@ export type UpdateTenantConfigResponse = ApiResponse<{
 
 export type UpdateTenantConfigRequest = {
   tenantConfiguration: Record<string, string>;
+  isOnlyTenantSettings: boolean;
 };
 
 export class TenantApi extends Api {
