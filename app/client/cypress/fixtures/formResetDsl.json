@@ -188,7 +188,7 @@
                 "verticalAlignment": "CENTER",
                 "totalRecordsCount": 0,
                 "defaultPageSize": 0,
-                "dynamicPropertyPathList": [],
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "borderColor": "#E0DEDE",
                 "borderWidth": "1",
                 "dynamicBindingPathList": [

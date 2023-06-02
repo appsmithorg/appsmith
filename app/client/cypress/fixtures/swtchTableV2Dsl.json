@@ -146,7 +146,7 @@
                 "bottomRow": 40,
                 "parentId": "0",
                 "dynamicTriggerPathList": [],
-                "dynamicPropertyPathList": [],
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "multiRowSelection": true
             },
             {

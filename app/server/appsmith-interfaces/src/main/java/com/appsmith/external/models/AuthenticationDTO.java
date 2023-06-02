@@ -37,7 +37,10 @@ public class AuthenticationDTO implements AppsmithDomain {
         NONE,
         IN_PROGRESS,
         SUCCESS,
-        FAILURE
+        FAILURE,
+        FAILURE_ACCESS_DENIED,
+        FAILURE_FILE_NOT_SELECTED,
+        IN_PROGRESS_PERMISSIONS_GRANTED
     };
 
     @JsonView(Views.Public.class)
