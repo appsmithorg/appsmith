@@ -7,7 +7,6 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -55,12 +54,13 @@ function VariableEditor(props: VariableProps) {
   return (
     <VariableWrapper className="t--graphql-variable-editor">
       <VariableHeader>
-        <Text color={Colors.GRAY_700} type={TextType.H6}>
+        <Text color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
           Query variables
         </Text>
       </VariableHeader>
       <DynamicTextField
-        border={CodeEditorBorder.ALL_SIDE}
+        border={CodeEditorBorder.NONE}
+        borderLess
         dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
         evaluatedPopUpLabel={"Query variables"}
         expected={EXPECTED_VARIABLE}
