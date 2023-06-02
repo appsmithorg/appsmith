@@ -390,8 +390,11 @@ function* switchBranch(action: ReduxAction<string>) {
         );
       }
     }
+
+    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
   } catch (e) {
     // non api error
+    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR });
     if (!response || response?.responseMeta?.success) {
       throw e;
     }
