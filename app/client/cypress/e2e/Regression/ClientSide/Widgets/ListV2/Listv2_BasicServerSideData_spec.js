@@ -395,11 +395,7 @@ describe("List widget v2 - Basic server side data tests", () => {
     "airgap",
     "6. no of items rendered should be equal to page size - airgap",
     () => {
-      cy.NavigateToDatasourceEditor();
-
-      cy.get(datasource.PostgreSQL).click();
-      cy.fillPostgresDatasourceForm();
-      cy.testSaveDatasource();
+      _.dataSources.CreateDataSource("Postgres");
       cy.wait(1000);
       cy.get(datasource.createQuery).click();
       // Click the editing field

@@ -54,11 +54,8 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     "airgap",
     "1. Create Users Sample DB Query & Simulate cyclic depedency - airgap",
     () => {
-      //Step1 : Create Users DB
-      cy.NavigateToDatasourceEditor();
-      cy.get(datasource.PostgreSQL).click();
-      cy.fillPostgresDatasourceForm();
-      cy.testSaveDatasource();
+      //Step1 : Create postgres DB
+      _.dataSources.CreateDataSource("Postgres");
       cy.get("@saveDatasource").then((httpResponse) => {
         dsname = httpResponse.response.body.data.name;
       });
