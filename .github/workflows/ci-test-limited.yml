@@ -9,6 +9,10 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      previous-workflow-run-id:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
         default: 0
 
 jobs:
@@ -60,8 +64,82 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+        
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        id: cache-appsmith
+        uses: martijnhols/actions-cache@v3.0.2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
       
+      - name: Get the previous run result
+        if: steps.cache-appsmith.outputs.cache-hit == 'true'
+        id: run_result
+        run: |
+          run_result_env=$(cat ~/run_result)
+          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          
+      # Download failed_spec list for all jobs in case of rerun
+      - uses: actions/download-artifact@v3
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        with:
+          name: failed-spec-ci
+          path: ~/failed_spec_ci
+          
+      # In case of rerun combine all the failed specs and set it in env
+      - name: combine all specs for CI in case of rerun
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: |
+          failed_spec_env=$(cat ~/failed_spec_ci/failed_spec_ci* | sort -u)
+          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # Get specs to run
+      - name: Get specs to run
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          specs_to_run=$(cat app/client/cypress/limited-tests.txt)
+          echo "specs_to_run<<EOF" >> $GITHUB_ENV
+          echo "$specs_to_run" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # In case of run-id provided download the artifact from the previous run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id != 0
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: cicontainer
+          run_id: ${{ github.event.inputs.previous-workflow-run-id }}
+      
+      # In case of run-id is 0 download the artifact from the current run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id == 0
+        uses: actions/download-artifact@v3
+        with:
+          name: cicontainer
+
+      - name: Load Docker image from tar file
+        run: |
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
+
+      - name: Create folder
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          mkdir -p cicontainerlocal/stacks/configuration/
+
       - name: Run Appsmith & TED docker image
+        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
@@ -70,13 +148,25 @@ jobs:
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
           -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 -p 6001:6001 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+          cd cicontainerlocal
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
+            cicontainer
 
       - name: Setup MSSQL & Arango docker & ElasticSearch containers
-        working-directory : app/client/cypress
-        run : |
+        working-directory: app/client/cypress
+        run: |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
           docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
+        # docker restart mssqldb
+        # sudo ufw allow 1433/tcp
+        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
+        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
 
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v3
@@ -101,6 +191,58 @@ jobs:
         run: |
           yarn install --immutable
 
+      - name: Setting up the cypress tests
+        if: steps.run_result.outputs.run_result != 'success'
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
+          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_AIRGAPPED: false
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+          CYPRESS_VERIFY_TIMEOUT: 100000
+        run: |
+          cd app/client
+          chmod a+x ./cypress/setup-test-ci.sh
+          ./cypress/setup-test-ci.sh
+
       - uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: stable
@@ -108,13 +250,14 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Run the cypress test
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_USERNAME: saroj@appsmith.com
-          CYPRESS_PASSWORD: abcd12345
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
@@ -161,12 +304,88 @@ jobs:
           parallel: true
           config-file: cypress_ci.config.ts
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/e2e/**/**/*"
+          spec: ${{ env.specs_to_run }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
           
+      # In case of second attempt only run failed specs
+      - name: Run the cypress test with failed tests
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
+          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_EXCLUDE_TAGS: "airgap"
+          CYPRESS_AIRGAPPED: false
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          CYPRESS_VERIFY_TIMEOUT: 100000
+        with:
+          browser: ${{ env.BROWSER_PATH }}
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          config-file: cypress_ci.config.ts
+          group: "Electrons on Github Action Fat Container"
+          spec: ${{ env.failed_spec_env }}
+          working-directory: app/client
+          # tag will be either "push" or "pull_request"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+          
+      - name: Collect CI container logs
+        if: always()
+        working-directory: "."
+        run: |
+          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+      
+      # Upload docker logs
+      - name: Upload docker logs on failure
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: dockerlogs-${{ matrix.job }}
+          path: ~/dockerlogs.txt
+      
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
@@ -186,6 +405,13 @@ jobs:
           cd ${{ github.workspace }}/app/client/cypress/
           find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/e2e/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
+      # reset the failed_spec_ci file in case of success
+      - name: In case of test success reset the failed_spec_ci file
+        if: success()
+        run: |
+          rm -f ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          touch ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
@@ -193,6 +419,40 @@ jobs:
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
+          
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: failure()
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
+      # Upload the screenshots as artifacts if there's a failure
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.job }}
+          path: app/client/cypress/screenshots/
+
+      # Upload the snapshots as artifacts for layout validation
+      - name: Upload snapshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-snapshots-visualRegression
+          path: app/client/cypress/snapshots/
+
+      # Upload the log artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server logs bundle on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: server-logs-${{ matrix.job }}
+          path: app/server/server-logs.log
 
       # Set status = success
       - name: Save the status of the run
