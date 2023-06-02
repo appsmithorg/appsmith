@@ -97,9 +97,8 @@ function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
       let result: Record<string, unknown> = {};
       try {
         result = JSON.parse(reader.result as string);
-      } catch {
-        resolve(result);
-      }
+      } catch {}
+      resolve(result);
     };
     reader.readAsText(data);
   });
@@ -141,9 +140,8 @@ function parseCSVBlob(
       let result: CSVRowData[] = [];
       try {
         result = parseCSVString(reader.result as string, dynamicTyping);
-      } catch {
-        resolve(result);
-      }
+      } catch {}
+      resolve(result);
     };
     reader.readAsText(data);
   });

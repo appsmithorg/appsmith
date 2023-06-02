@@ -19,11 +19,11 @@ describe("File picker widget v2", () => {
     ).should("not.exist");
     cy.selectDropdownValue(
       commonlocators.filePickerDataFormat,
-      "Array of Objects (CSV, XLSX(X), JSON, TSV)",
+      "Array of Objects (CSV, XLS(X), JSON, TSV)",
     );
     cy.get(commonlocators.filePickerDataFormat)
       .last()
-      .should("have.text", "Array of Objects (CSV, XLSX(X), JSON, TSV)");
+      .should("have.text", "Array of Objects (CSV, XLS(X), JSON, TSV)");
     cy.get(
       `.t--property-control-dataformat ${commonlocators.helperText}`,
     ).should("exist");
