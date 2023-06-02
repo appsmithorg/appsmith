@@ -19,8 +19,13 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
+
 setAutoFreeze(shouldAutoFreeze);
+runSagaMiddleware();
+
+appInitializer();
 
 function App() {
   return (

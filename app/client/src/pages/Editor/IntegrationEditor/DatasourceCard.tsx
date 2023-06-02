@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { debounce, isNil } from "lodash";
+import { debounce, isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
@@ -366,7 +366,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           </ButtonsWrapper>
         </DatasourceCardHeader>
       </DatasourceCardMainBody>
-      {!isNil(currentFormConfig) && (
+      {!isEmpty(currentFormConfig) && (
         <CollapseComponentWrapper
           onClick={(e) => {
             e.stopPropagation();

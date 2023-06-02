@@ -516,12 +516,14 @@ export function* setWidgetDynamicPropertySaga(
         dynamicBindingPathList,
       );
     }
+
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
       propertyValue,
       widget,
     );
+
     widget = set(widget, propertyPath, parsed);
   }
 
@@ -627,7 +629,7 @@ export function* getPropertiesUpdatedWidget(
 ) {
   const { dynamicUpdates, updates, widgetId } = updatesObj;
 
-  const { modify = {}, remove = [], postUpdateAction, triggerPaths } = updates;
+  const { modify = {}, postUpdateAction, remove = [], triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
