@@ -3,16 +3,22 @@ package com.appsmith.server.migrations.db.ce;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Workspace;
+import com.mongodb.bulk.BulkWriteUpsert;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.MergeOperation;
+import org.springframework.data.mongodb.core.aggregation.OutOperation;
+import org.springframework.data.mongodb.core.aggregation.SetOperation;
+import org.springframework.data.mongodb.core.aggregation.SetOperators;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -44,11 +50,13 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
         AggregationOperation defaultWorkspaceIDToNull = Aggregation.addFields().addField(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).
                 withValue(null).build();
 
-        AggregationOperation merge = Aggregation.merge()
-                .intoCollection("permissionGroup")
-                .on("_id")
-                .whenMatched(MergeOperation.WhenDocumentsMatch.mergeDocuments())
-                .build();
+        AggregationOperation out = Aggregation.out("permissionGroup");
+
+        AggregationOperation matchDocWithOutWorkspaceIDField = Aggregation.match(where(
+                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(false));
+        Aggregation combinedAggregationWithMissedEntries = Aggregation.newAggregation(
+                matchDocWithOutWorkspaceIDField,
+                wholeProjection);
 
         Aggregation combinedAggregation = Aggregation.newAggregation(
                 matchDocWithWorkspaceIDField,
@@ -56,8 +64,10 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
                 defaultWorkSpaceIDAdd,
                 defaultDomainTypeAdd,
                 defaultWorkspaceIDToNull,
-                merge);
+                out);
 
+        AggregationResults<PermissionGroup> missingResults = mongoTemplate.aggregate(combinedAggregationWithMissedEntries, PermissionGroup.class, PermissionGroup.class);
         mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
+        mongoTemplate.insertAll(missingResults.getMappedResults());
     }
 }
