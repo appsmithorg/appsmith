@@ -282,7 +282,7 @@
         "bottomRow": 10,
         "parentId": "0",
         "widgetId": "tmkhgmgtzp",
-        "dynamicBindingPathList": []
+        "dynamicPropertyPathList": [{"key": "tableData"}]
       }
     ]
   }
