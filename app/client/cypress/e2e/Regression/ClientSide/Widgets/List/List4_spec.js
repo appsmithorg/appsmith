@@ -3,7 +3,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Container Widget Functionality", function () {
@@ -119,8 +118,7 @@ describe("Container Widget Functionality", function () {
 
   it("9. it checks onListItem click action", function () {
     // Verify Clicking on list item shows message of first name
-    cy.get(publishPage.backToEditor).click({ force: true });
-    // Open property pane
+    _.deployMode.NavigateBacktoEditor(); // Open property pane
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
     // Verify Action type and Message of List Item

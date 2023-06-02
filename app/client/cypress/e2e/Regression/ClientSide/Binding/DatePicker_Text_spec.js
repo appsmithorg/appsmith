@@ -98,7 +98,7 @@ describe("Binding the Datepicker and Text Widget", function () {
     cy.get(publishPage.datepickerWidget + commonlocators.inputField)
       .eq(1)
       .should("have.value", dateDp2);
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. DatePicker-Text, Validate Multiple Binding", function () {
@@ -113,7 +113,7 @@ describe("Binding the Datepicker and Text Widget", function () {
     cy.get(commonlocators.labelTextStyle).should("contain.text", "DatePicker");
     _.deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle).should("contain.text", "DatePicker");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it.skip("5. Checks if on deselection of date triggers the onDateSelected action or not.", function () {

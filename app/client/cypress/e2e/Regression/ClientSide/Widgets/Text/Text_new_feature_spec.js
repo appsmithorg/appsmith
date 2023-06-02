@@ -1,6 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../../fixtures/textDsl.json");
 
 describe("Text Widget color/font/alignment Functionality", function () {
@@ -61,7 +61,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.data.TextLabelValueScrollable)
       .should("have.css", "font-size", "16px");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("Test to validate text format", function () {

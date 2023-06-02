@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -69,7 +68,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("4. Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function () {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.get(".t--entity-name").contains("Table1").click({ force: true });
@@ -93,7 +92,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("5. Test_Add Paginate with Response URL and Execute the Api", function () {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     /** Create Api2 of Paginate with Response URL*/
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
@@ -135,7 +134,7 @@ describe("Test Create Api and Bind to Table widget", function () {
       );
       cy.ValidatePaginationInputData(valueToTest);
     });
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 

@@ -1,12 +1,8 @@
-const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Generate New CRUD Page Inside from entity explorer", function () {
   let datasourceName;
@@ -175,7 +171,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     );
 
     cy.get("@dSName").then((dbName) => {
-      ee.AddNewPage("Generate page with data");
+      _.entityExplorer.AddNewPage("Generate page with data");
       cy.get(generatePage.selectDatasourceDropdown).click();
       cy.get(generatePage.datasourceDropdownOption).contains(dbName).click();
     });
@@ -235,7 +231,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
 
     // .should("contain.text", 'The action "ListFiles" has failed.');
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.wait(2000);
 
     //cy.VerifyErrorMsgAbsence('The action "ListFiles" has failed.')

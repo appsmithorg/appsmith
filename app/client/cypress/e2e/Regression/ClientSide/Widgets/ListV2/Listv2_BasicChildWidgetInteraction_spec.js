@@ -1,8 +1,8 @@
 const emptyListDSL = require("../../../../../fixtures/Listv2/emptyList.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -106,8 +106,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     // Assert if the select widget has Red as the selected value
     cy.get(publishLocators.selectwidget).contains("Red");
-    cy.get(publishPage.backToEditor).click({ force: true });
-
+    _.deployMode.NavigateBacktoEditor();
     deleteAllWidgetsInContainer();
 
     // Drop Checkbox widget
@@ -149,7 +148,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
       .contains("Blue")
       .siblings("input")
       .should("be.checked");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     deleteAllWidgetsInContainer();
 
     // Drop Switch widget
@@ -193,7 +192,7 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
       .wait(500)
       .should("not.be.checked");
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     deleteAllWidgetsInContainer();
 
     // Drop Radio widget
@@ -232,6 +231,6 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Check option 2 and then check it's value:
     cy.get(`${publishLocators.radioWidget} input`).check("N", { force: true });
     checkSelectedRadioValue(publishLocators.radioWidget, "N");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

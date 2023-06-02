@@ -7,7 +7,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.addDsl(dsl);
   });
 
-  it("Verify dropdown width of Select widgets and menu button", function () {
+  it("1. Verify dropdown width of Select widgets and menu button", function () {
     // Select
     cy.wait(450);
     cy.get(formWidgetsPage.selectwidget)
@@ -26,9 +26,9 @@ describe("Dropdown Widget Functionality", function () {
     // Menu button
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
-      .invoke("outerWidth")
-      .then((width) => {
-        expect(parseInt(width)).to.equal(188);
+      .then(($menuButton) => {
+        const outerWidth = Cypress.$($menuButton).outerWidth();
+        expect(parseInt(outerWidth)).to.equal(188);
       });
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
@@ -96,7 +96,7 @@ describe("Dropdown Widget Functionality", function () {
       });
   });
 
-  it("Verify dropdown width of Select widgets with Label", function () {
+  it("2. Verify dropdown width of Select widgets with Label", function () {
     // Select
     cy.openPropertyPane("selectwidget");
     cy.testJsontext("text", "Label");

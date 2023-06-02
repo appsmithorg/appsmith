@@ -1,10 +1,8 @@
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-let agHelper = ObjectsRegistry.AggregateHelper;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 const widgetPrefix = ".t--widget-";
@@ -66,11 +64,11 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.addDsl(dsl);
   });
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. using client side data", () => {
@@ -373,6 +371,6 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("inputwidgetv2", "Sixth", 2);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

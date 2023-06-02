@@ -1,6 +1,7 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Property pane tests with js bindings", function () {
   before(() => {
@@ -32,7 +33,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
       "contain.value",
       "14/02/2021",
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
       "14/02/2021",
@@ -40,6 +41,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formdsl1.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 /**
  * A function to set the content inside an RTE widget
@@ -80,7 +81,7 @@ describe("RichTextEditor Widget Functionality", function () {
       publishPage.richTextEditorWidget,
       commonlocators.disabledBtn,
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("richtexteditorwidget");
 
     //Check the Disabled checkbox
@@ -103,7 +104,7 @@ describe("RichTextEditor Widget Functionality", function () {
     cy.PublishtheApp();
     cy.get(publishPage.richTextEditorWidget).should("not.exist");
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("richtexteditorwidget");
 
     // RichTextEditor-uncheck Visible field validation
@@ -125,7 +126,7 @@ describe("RichTextEditor Widget Functionality", function () {
       commonlocators.rteToolbar,
     );
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("richtexteditorwidget");
 
     //RichTextEditor-uncheck Hide toolbar field validation - // Uncheck the Hide toolbar checkbox

@@ -2,23 +2,21 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
 const backBtn = "[data-testid='t--property-pane-back-btn']";
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =
   ".t--property-pane-section-submitbuttonstyles";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/Registry";
 
 describe("JSON Form Widget Form Bindings", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
@@ -137,7 +135,7 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("7. Should set isValid to false on reset when form is invalid", () => {
@@ -173,7 +171,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get("button").contains("Reset").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("8. Form value should contain hidden fields value if useSourceData is set to true", () => {

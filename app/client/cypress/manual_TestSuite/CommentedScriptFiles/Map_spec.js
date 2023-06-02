@@ -2,6 +2,7 @@ const commonlocators = require("../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../locators/ViewWidgets.json");
 const dsl = require("../../fixtures/Mapdsl.json");
 const publishPage = require("../../locators/publishWidgetspage.json");
+import * as _ from "../../support/Objects/ObjectsCore";
 
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
   describe("excludeForAirgap", "Map Widget Functionality", function () {
@@ -73,7 +74,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
         .invoke("attr", "placeholder")
         .should("contain", "Enter location to search");
       cy.get(publishPage.pickMyLocation).should("exist");
-      cy.get(publishPage.backToEditor).click();
+      _.deployMode.NavigateBacktoEditor();
     });
 
     it("Map-Disable Location, Mapsearch and Create Marker Property Validation", function () {
@@ -103,7 +104,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
        */
       cy.get(publishPage.mapSearch).should("not.exist");
       cy.get(publishPage.pickMyLocation).should("not.exist");
-      cy.get(publishPage.backToEditor).click();
+      _.deployMode.NavigateBacktoEditor();
     });
 
     it("Map-Initial location should work", function () {
@@ -128,7 +129,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
       cy.PublishtheApp();
       cy.get(publishPage.mapWidget).should("be.visible");
-      cy.get(publishPage.backToEditor).click();
+      _.deployMode.NavigateBacktoEditor();
     });
 
     it("Map-Unckeck Visible field Validation", function () {

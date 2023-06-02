@@ -52,8 +52,7 @@ describe("Switch column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector).should("not.exist");
     });
-    cy.get(publishPage.backToEditor).click();
-
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("completed");
     _.propPane.ToggleOnOrOff("Visible");

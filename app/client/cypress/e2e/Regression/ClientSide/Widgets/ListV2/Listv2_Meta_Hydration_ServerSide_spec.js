@@ -1,6 +1,5 @@
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
@@ -475,6 +474,6 @@ describe("List widget v2 - meta hydration tests", () => {
     verifyValueOfWidget("inputwidgetv2", "Sixth", 2);
     verifyValueOfWidget("multiselectwidgetv2", ["Green"], 2);
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

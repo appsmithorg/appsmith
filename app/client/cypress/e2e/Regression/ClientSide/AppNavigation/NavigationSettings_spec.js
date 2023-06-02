@@ -19,7 +19,7 @@ describe("Test app's navigation settings", function () {
     cy.get(appNavigationLocators.navigationSettings.showNavbar).click({
       force: true,
     });
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._emptyPageTxt);
     cy.get(appNavigationLocators.header).should("not.exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.go("back");

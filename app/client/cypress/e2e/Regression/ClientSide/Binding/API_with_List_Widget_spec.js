@@ -1,7 +1,6 @@
 /// <reference types="Cypress" />
 
 const dsl = require("../../../../fixtures/listwidgetdsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiLocators from "../../../../locators/ApiEditor";
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -66,7 +65,7 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("3. Test_Validate the list widget ", function () {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

@@ -1,7 +1,5 @@
 const dsl = require("../../../../../fixtures/Listv2/ListV2_Reset_dsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -159,7 +157,7 @@ describe("List widget v2 defaultSelectedItem", () => {
       const data = JSON.parse(val.text());
       cy.wrap(data?.id).should("deep.equal", 4);
     });
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });
 

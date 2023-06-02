@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/buttonApiDsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -42,7 +41,7 @@ describe("Test Create Api and Bind to Button widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
