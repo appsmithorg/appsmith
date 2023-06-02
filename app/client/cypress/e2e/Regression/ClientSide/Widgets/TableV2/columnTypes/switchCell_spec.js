@@ -1,10 +1,7 @@
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");
 import widgetsJson from "../../../../../../locators/Widgets.json";
-
-const propPane = ObjectsRegistry.PropertyPane;
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 const tableData = `[
     {
@@ -37,9 +34,10 @@ describe("Switch column type funtionality test", () => {
       x: 150,
       y: 300,
     });
+    _.propPane.ToggleJsMode("Table data");
     cy.openPropertyPane("tablewidgetv2");
-    propPane.RemoveText("tabledata");
-    propPane.UpdatePropertyFieldValue("Table data", tableData);
+    _.propPane.RemoveText("tabledata");
+    _.propPane.UpdatePropertyFieldValue("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Switch");
   });
@@ -49,7 +47,7 @@ describe("Switch column type funtionality test", () => {
       cy.get(selector + switchSelector).should("exist");
     });
     // Toggle visiblity
-    propPane.ToggleOnOrOff("Visible", "off");
+    _.propPane.ToggleOnOrOff("Visible", "off");
     cy.PublishtheApp();
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector).should("not.exist");
@@ -58,7 +56,7 @@ describe("Switch column type funtionality test", () => {
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("completed");
-    propPane.ToggleOnOrOff("Visible");
+    _.propPane.ToggleOnOrOff("Visible");
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + switchSelector).should("exist");
     });
@@ -87,7 +85,7 @@ describe("Switch column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + " div").should("have.css", "align-items", "flex-end");
       // Set and check the cell background color
-      propPane.EnterJSContext("Cell Background", "purple");
+      _.propPane.EnterJSContext("Cell Background", "purple");
       cy.wait("@updateLayout");
       cy.get(selector + " div").should(
         "have.css",
@@ -103,11 +101,11 @@ describe("Switch column type funtionality test", () => {
       const selector = $elemClass + switchSelector;
 
       // Verify if switch is disabled when Editable is off
-      propPane.ToggleOnOrOff("Editable", "off");
+      _.propPane.ToggleOnOrOff("Editable", "off");
       cy.get(selector).should("be.disabled");
 
       // Verify if switch is enabled when Editable is on
-      propPane.ToggleOnOrOff("Editable");
+      _.propPane.ToggleOnOrOff("Editable");
       cy.get(selector).should("be.enabled");
 
       // Verify checked and unchecked
@@ -119,13 +117,13 @@ describe("Switch column type funtionality test", () => {
 
       // Check if onCheckChange is availabe when Editable is true and hidden on false
       cy.get(".t--add-action-onChange").should("be.visible");
-      propPane.ToggleOnOrOff("Editable", "off");
+      _.propPane.ToggleOnOrOff("Editable", "off");
       cy.get(".t--add-action-onChange").should("not.exist");
 
       // Verify on check change handler
-      propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPlatformFunction("onChange", "Show alert");
-      agHelper.EnterActionValue("Message", "This is a test message");
+      _.propPane.ToggleOnOrOff("Editable");
+      _.propPane.SelectPlatformFunction("onChange", "Show alert");
+      _.agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
       cy.get("div.Toastify__toast")
@@ -169,7 +167,7 @@ describe("Switch column type funtionality test", () => {
     cy.get(widgetsJson.addColumn).click();
     cy.editColumn("customColumn1");
     cy.changeColumnType("Switch");
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Computed value",
       '{{currentRow["completed"]}}',
     );
