@@ -105,7 +105,7 @@ export function isDatasourceAuthorizedForQueryCreation(
  * @param pluginPackageName string
  * @returns boolean
  */
-export function isGoogleSheetPluginDS(pluginPackageName: string) {
+export function isGoogleSheetPluginDS(pluginPackageName?: string) {
   return pluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 }
 
