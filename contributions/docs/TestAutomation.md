@@ -12,7 +12,7 @@
 
 1. Directory name under `app/client/cypress/integration` suggests the specific area the test belongs to. Example: All our [Regression tests](<https://en.wikipedia.org/wiki/Smoke_testing_(software)>) are in `app/client/cypress/integration/Regression_TestSuite`
 
-1. For default settings, check the `app/client/cypress.json` file.
+1. For default settings, check the `app/client/cypress.config.ts` file.
 
 1. You can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
@@ -32,7 +32,7 @@
 
 1. Command to open cypress client `$(npm bin)/cypress open` Cypress supports Chrome/Firefox/electron browsers. Select a suitable browser and check the status of your tests.
 
-1. For run mode, you can use CLI args. Example: To run the entire `Regression_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Regression_TestSuite/*/*"`
+1. For run mode, you can use CLI args. Example: To run the entire `Regression_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/e2e/Regression/*/*"`
 
 1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/core-concepts/introduction-to-cypress#What-you-ll-learn) is a great starting point.
 
