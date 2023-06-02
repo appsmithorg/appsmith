@@ -45,6 +45,7 @@
                 "parentColumnSpace": 74,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "dynamicBindingPathList": [
                     {
                         "key": "tableData"
