@@ -48,11 +48,10 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("5. Delete the applications & workspace - Success/failing JSObj", () => {
     _.homePage.NavigateToHome();
     _.homePage.DeleteApplication("JSOnloadImportTest");
+    _.agHelper.AssertContains("Deleting application...");
     _.homePage.DeleteApplication("JSOnloadImportTest (1)");
-
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.agHelper.AssertContains("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });
 

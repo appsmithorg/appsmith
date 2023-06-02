@@ -518,6 +518,11 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
+    cy.wait("@deleteApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   }
 
   //Maps to leaveworkspace in command.js
