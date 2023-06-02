@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Field } from "redux-form";
 import { DropdownWrapper, FormBodyWrapper, withDropdown } from "./common";
@@ -55,13 +55,11 @@ const StyledFormGroup = styled(FormGroup)`
 `;
 
 export default function DetailsForm(
-  props: SetupFormProps & { onNext?: () => void },
+  props: SetupFormProps & { isFirstPage: boolean } & {
+    toggleFormPage: () => void;
+  },
 ) {
   const ref = React.createRef<HTMLDivElement>();
-
-  const [formState, setFormState] = useState(0);
-
-  const isFirstPage = useMemo(() => formState === 0, [formState]);
 
   useEffect(() => {
     const setTelemetryVisibleFalse = async () => {
@@ -74,14 +72,18 @@ export default function DetailsForm(
     <DetailsFormWrapper ref={ref}>
       <StyledTabIndicatorWrapper>
         <StyledTabIndicator />
-        <StyledTabIndicator isFirstPage={isFirstPage} />
+        <StyledTabIndicator isFirstPage={props.isFirstPage} />
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
-        <div className={isFirstPage ? "block" : "hidden"}>
+        <div
+          className={props.isFirstPage ? "block" : "hidden"}
+          data-testid="formPage"
+        >
           <div className="flex flex-row justify-between w-100">
             <StyledFormGroup className="!w-52 t--welcome-form-first-name">
               <FormTextField
                 autoFocus
+                data-testid="firstName"
                 label={createMessage(WELCOME_FORM_FIRST_NAME)}
                 name="firstName"
                 placeholder="John"
@@ -91,6 +93,7 @@ export default function DetailsForm(
 
             <StyledFormGroup className="!w-52 t--welcome-form-last-name">
               <FormTextField
+                data-testid="lastName"
                 label={createMessage(WELCOME_FORM_LAST_NAME)}
                 name="lastName"
                 placeholder="Doe"
@@ -100,6 +103,7 @@ export default function DetailsForm(
           </div>
           <StyledFormGroup className="t--welcome-form-email">
             <FormTextField
+              data-testid="email"
               label={createMessage(WELCOME_FORM_EMAIL_ID)}
               name="email"
               placeholder="How can we reach you?"
@@ -108,6 +112,7 @@ export default function DetailsForm(
           </StyledFormGroup>
           <StyledFormGroup className="t--welcome-form-password">
             <FormTextField
+              data-testid="password"
               label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
               name="password"
               placeholder="Make it strong!"
@@ -125,7 +130,7 @@ export default function DetailsForm(
           </StyledFormGroup>
         </div>
 
-        {!isFirstPage && (
+        {!props.isFirstPage && (
           <div>
             <DropdownWrapper
               className="t--welcome-form-role-dropdown"
@@ -134,6 +139,7 @@ export default function DetailsForm(
               <Field
                 asyncControl
                 component={withDropdown(roleOptions)}
+                data-testid="role"
                 name="role"
                 placeholder={createMessage(
                   WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
@@ -159,6 +165,7 @@ export default function DetailsForm(
               <Field
                 asyncControl
                 component={withDropdown(useCaseOptions)}
+                data-testid="useCase"
                 name="useCase"
                 placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
                 type="text"
@@ -182,14 +189,14 @@ export default function DetailsForm(
             )}
           </div>
         )}
-        {isFirstPage && (
+        {props.isFirstPage && (
           <ButtonWrapper>
             <Button
               className="t--welcome-form-continue-button w-100"
               isDisabled={props.invalid}
               kind="primary"
               onClick={() => {
-                setFormState(1);
+                props.toggleFormPage();
               }}
               size="md"
               type="button"
@@ -198,7 +205,7 @@ export default function DetailsForm(
             </Button>
           </ButtonWrapper>
         )}
-        {!isFirstPage && (
+        {!props.isFirstPage && (
           <ButtonWrapper>
             <Button
               className="t--welcome-form-submit-button w-100"
