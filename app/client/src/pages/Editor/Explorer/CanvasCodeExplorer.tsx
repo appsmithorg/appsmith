@@ -121,6 +121,11 @@ export const QUERIES_JS_ROUTES = [
     path: GENERATE_TEMPLATE_FORM_PATH,
     prefixCurrentPath: true,
   },
+  {
+    key: "BLANK_PAGE",
+    path: "/blank",
+    prefixCurrentPath: true,
+  },
   ...SaaSEditorPaths,
   ...DatasourceEditorPaths,
 ];
