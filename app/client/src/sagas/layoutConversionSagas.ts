@@ -96,10 +96,10 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   } catch (e: any) {
     let error: Error = e;
     if (error) {
-      error.message = `Layout Conversion Error - while Converting from Auto to Fixed Layout: ${error.message}`;
+      error.message = `Layout conversion error - while converting from auto-layout to fixed layout: ${error.message}`;
     } else {
       error = new Error(
-        "Layout Conversion Error - while Converting from Auto to Fixed Layout",
+        "Layout conversion error - while converting from auto-layout to fixed layout",
       );
     }
 
@@ -180,10 +180,10 @@ function* convertFromFixedToAutoSaga() {
   } catch (e: any) {
     let error: Error = e;
     if (error) {
-      error.message = `Layout Conversion Error - while Converting from Fixed to Auto Layout: ${error.message}`;
+      error.message = `Layout conversion error - while converting from fixed layout to auto-layout: ${error.message}`;
     } else {
       error = new Error(
-        "Layout Conversion Error - while Converting from Fixed to Auto Layout",
+        "Layout conversion error - while converting from fixed layout to auto-layout",
       );
     }
 
