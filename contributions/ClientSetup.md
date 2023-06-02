@@ -138,7 +138,7 @@ On your development machine, please ensure that:
             docker logs -f appsmith;
 
             ./start-https.sh http://localhost:8000 // if nginx is installed locally 
-            ./start-https.sh http://host.docker.internal // if nginx is running on docker
+            ./start-https.sh http://host.docker.internal:8000 // if nginx is running on docker
             
             ```
     
@@ -153,7 +153,7 @@ On your development machine, please ensure that:
             docker run -d --name appsmith -p 8000:80 -p 9001:9001 appsmith/appsmith-ce:local-testing;
             
             ./start-https.sh http://localhost:8000 // if nginx is installed locally 
-            ./start-https.sh http://host.docker.internal // if nginx is running on docker
+            ./start-https.sh http://host.docker.internal:8000 // if nginx is running on docker
 
             ```
 - Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
