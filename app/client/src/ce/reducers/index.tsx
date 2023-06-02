@@ -76,6 +76,7 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { CanvasCodeState } from "reducers/uiReducers/canvasCodeReducer";
+import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -139,6 +140,7 @@ export interface AppState {
     layoutConversion: layoutConversionReduxState;
     actionSelector: ActionSelectorReduxState;
     canvasCode: CanvasCodeState;
+    oneClickBinding: OneClickBindingState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

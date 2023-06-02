@@ -51,6 +51,7 @@ export interface TableWidgetProps
     WithMeta,
     TableStyles,
     AddNewRowProps {
+  pristine: boolean;
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
