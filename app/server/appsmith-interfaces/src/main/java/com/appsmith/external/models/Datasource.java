@@ -124,6 +124,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
         this.isRecentlyCreated = datasourceStorage.getIsRecentlyCreated();
         this.isTemplate = datasourceStorage.getIsTemplate();
         this.isMock = datasourceStorage.getIsMock();
+        this.gitSyncId = datasourceStorage.getGitSyncId();
 
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         this.datasourceStorages = storages;
