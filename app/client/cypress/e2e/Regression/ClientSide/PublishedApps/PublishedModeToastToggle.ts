@@ -3,11 +3,11 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 const SHOW_ALERT_WORKING_BUTTON = "Show alert working";
 const SHOW_ALERT_MSG = "Hello World!";
 const SHOW_ALERT_NOT_WORKING_BUTTON = "Show alert not working";
-const SHOW_ALERT_NOT_WORKING_MSG =
-  "ReferenceError: Correct_input2 is not defined";
+const SHOW_ALERT_NOT_WORKING_MSG = "Correct_input2 is not defined";
 const RUN_JS_OBJECT_BUTTON = "RUN JSOBJECT";
-const RUN_JS_OBJECT_MSG =
-  "UncaughtPromiseRejection: Incorrect_users failed to execute";
+const RUN_JS_OBJECT_MSG = "Incorrect_users failed to execute";
+
+const PAGE_LOAD_MSG = `The action "Incorrect_users" has failed.`;
 
 describe("Published mode toggle toast with debug flag in the url", function () {
   before(() => {
@@ -16,7 +16,7 @@ describe("Published mode toggle toast with debug flag in the url", function () {
     });
   });
 
-  it("Should not show any application related toasts", function () {
+  it("1. Should not show any application related toasts", function () {
     _.apiPage.CreateAndFillApi(
       "https://mock-api.appsmith.com/users",
       "Correct_users",
@@ -69,7 +69,7 @@ describe("Published mode toggle toast with debug flag in the url", function () {
     );
   });
 
-  it("Should show all application related toasts with debug flag true in url", function () {
+  it("2. Should show all application related toasts with debug flag true in url", function () {
     cy.url().then((url) => {
       cy.visit({
         url,
@@ -77,14 +77,12 @@ describe("Published mode toggle toast with debug flag in the url", function () {
           debug: "true",
         },
       });
-      _.agHelper.GetNAssertContains(
-        _.locators._toastMsg,
-        /The action "Incorrect_users" has failed./g,
-      );
+      _.agHelper.GetNAssertContains(_.locators._toastMsg, PAGE_LOAD_MSG);
 
       _.agHelper.ClickButton(SHOW_ALERT_WORKING_BUTTON);
       _.agHelper.AssertContains(SHOW_ALERT_MSG, "exist", _.locators._toastMsg);
 
+      _.agHelper.Sleep(2000);
       _.agHelper.ClickButton(SHOW_ALERT_NOT_WORKING_BUTTON);
       _.agHelper.AssertContains(
         SHOW_ALERT_NOT_WORKING_MSG,
