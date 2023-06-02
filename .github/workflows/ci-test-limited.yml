@@ -255,8 +255,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          COMMIT_INFO_BRANCH=$COMMIT_INFO_BRANCH
-          echo COMMIT_INFO_MESSAGE=Cypress Tests run on $COMMIT_INFO_BRANCH >> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=Cypress Tests run on ${{ env.COMMIT_INFO_BRANCH }} >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV

@@ -36,6 +36,5 @@ describe("Navigate To feature", () => {
       expect($url).to.contain("test=123");
     });
     //cy.location().its('href').should('include', 'test=123')//both are same
-    _.deployMode.NavigateBacktoEditor();
   });
 });
