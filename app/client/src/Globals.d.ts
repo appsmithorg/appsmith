@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 declare module "*.module.css";
 
 declare module "*.txt" {
