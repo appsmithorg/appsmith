@@ -38,7 +38,7 @@ def check_health_endpoint(url,sleep_sec = 3,timeout_sec = 180):
                 logging.info('Backend health check successful.')
                 break
         except ImportError as e:
-            logging.error("Import Error:  " + e)
+            logging.error("Import Error:  ", e)
             sys.exit(1)
         except requests.RequestException:
             pass # retry after sleep_sec
@@ -72,13 +72,9 @@ def failsafe():
     remove_loading_page()
     
 def main():
-    try:
-      add_loading_page()
-      check_health_endpoint(BACKEND_HEALTH_ENDPOINT)
-      remove_loading_page()
-    except Exception:
-      logging.error(traceback.format_exc())
-      
+    add_loading_page()
+    check_health_endpoint(BACKEND_HEALTH_ENDPOINT)
+    remove_loading_page()
 
 if __name__ == '__main__':
     main()
