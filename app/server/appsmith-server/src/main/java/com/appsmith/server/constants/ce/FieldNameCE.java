@@ -175,8 +175,5 @@ public class FieldNameCE {
 
     public static final String ENVIRONMENT = "environment";
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
-    public static String SPACE = " ";
-    public static String COLUMN = ":";
-    public static String FOR = "for";
-    public static String IN = "in";
+
 }
