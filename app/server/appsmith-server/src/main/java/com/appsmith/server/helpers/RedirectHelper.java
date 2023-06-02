@@ -4,18 +4,24 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 
 @Component
@@ -30,8 +36,9 @@ public class RedirectHelper {
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
     public static final String FIRST_TIME_USER_EXPERIENCE_PARAM = "enableFirstTimeUserExperience";
 
-    private final ApplicationService applicationService;
+    private final ApplicationRepository applicationRepository;
     private final ApplicationPermission applicationPermission;
+    private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     /**
      * This function determines the redirect url that the browser should redirect to post-login. The priority order
@@ -55,7 +62,7 @@ public class RedirectHelper {
         } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
             final String defaultRedirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
-            return applicationService.findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
+            return applicationRepository.findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
                     .map(application -> {
                         // Get the default page in the application, or if there's no default page, get the first page
                         // in the application and redirect to edit that page.
@@ -175,5 +182,60 @@ public class RedirectHelper {
             redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
         }
         return fulfillRedirectUrl(redirectUrl, httpHeaders);
+    }
+
+
+
+
+    /**
+     * Checks if the provided url is default redirect url
+     *
+     * @param url which needs to be checked
+     * @return true if default url. false otherwise
+     */
+    public boolean isDefaultRedirectUrl(String url) {
+        if (StringUtils.isEmpty(url)) {
+            return true;
+        }
+        try {
+            return URI.create(url).getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+        ServerWebExchange exchange = webFilterExchange.getExchange();
+
+        // On authentication success, we send a redirect to the client's home page. This ensures that the session
+        // is set in the cookie on the browser.
+        return Mono.just(exchange.getRequest())
+                .flatMap(this::getRedirectUrl)
+                .map(s -> {
+                    String url = s;
+                    if (isFromSignup) {
+                        boolean addFirstTimeExperienceParam = false;
+
+                        // only redirect to default application if the redirectUrl contains no other url
+                        if (isDefaultRedirectUrl(url) && defaultApplication != null) {
+                            addFirstTimeExperienceParam = true;
+                            HttpHeaders headers = exchange.getRequest().getHeaders();
+                            url = this.buildApplicationUrl(defaultApplication, headers);
+                        }
+                        // This redirectUrl will be used by the client to redirect after showing a welcome page.
+                        url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
+                    }
+                    return url;
+                })
+                .map(URI::create)
+                .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
+    }
+
+    public String buildSignupSuccessUrl(String redirectUrl, boolean enableFirstTimeUserExperience) {
+        String url = SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
+        if (enableFirstTimeUserExperience) {
+            url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
+        }
+        return url;
     }
 }
