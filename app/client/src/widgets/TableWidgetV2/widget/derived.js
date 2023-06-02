@@ -821,6 +821,7 @@ export default {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)
       : [];
+
     return columns
       .sort((a, b) => a.index - b.index)
       .map((column) => ({

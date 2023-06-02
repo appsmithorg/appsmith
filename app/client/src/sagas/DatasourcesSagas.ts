@@ -41,7 +41,9 @@ import {
   getDatasourceActionRouteInfo,
   getPlugin,
   getEditorConfig,
+  getPluginByPackageName,
 } from "selectors/entitiesSelector";
+import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import type {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
@@ -60,7 +62,11 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
-import type { Datasource, TokenResponse } from "entities/Datasource";
+import type {
+  Datasource,
+  MockDatasource,
+  TokenResponse,
+} from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
 import { FilePickerActionStatus } from "entities/Datasource";
 import {
@@ -133,7 +139,11 @@ import { toast } from "design-system";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
-import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
+import {
+  getFormDiffPaths,
+  getFormName,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -182,6 +192,7 @@ interface addMockDb
       workspaceId: string;
       pluginId: string;
       packageName: string;
+      skipRedirection?: boolean;
     },
     unknown,
     unknown
@@ -191,7 +202,8 @@ interface addMockDb
 
 export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
-    const { name, packageName, pluginId, workspaceId } = actionPayload.payload;
+    const { name, packageName, pluginId, skipRedirection, workspaceId } =
+      actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
@@ -216,7 +228,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
+
       const isInGuidedTour: boolean = yield select(inGuidedTour);
+
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
@@ -228,7 +242,10 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
-        if (isInGuidedTour) return;
+        if (isInGuidedTour || skipRedirection) {
+          return;
+        }
+
         history.push(
           integrationEditorURL({
             pageId,
@@ -367,7 +384,7 @@ function* updateDatasourceSaga(
     // When importing app with google sheets with specific sheets scope
     // We do not want to set isConfigured to true immediately on save
     // instead we want to wait for authorisation as well as file selection to be complete
-    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+    if (isGoogleSheetPluginDS(pluginPackageName)) {
       const scopeString: string = (
         datasourcePayload?.datasourceConfiguration?.authentication as any
       )?.scopeString;
@@ -1168,6 +1185,36 @@ function* fetchDatasourceStructureSaga(
   }
 }
 
+function* addAndFetchDatasourceStructureSaga(
+  action: ReduxAction<MockDatasource>,
+) {
+  const plugin: Plugin = yield select((state: AppState) =>
+    getPluginByPackageName(state, action.payload.packageName),
+  );
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+
+  yield put(
+    addMockDatasourceToWorkspace(
+      action.payload.name,
+      workspaceId,
+      plugin.id,
+      plugin.packageName,
+      "",
+      true,
+    ),
+  );
+
+  const result: ReduxAction<Datasource> = yield take([
+    ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
+    ReduxActionErrorTypes.ADD_MOCK_DATASOURCES_ERROR,
+  ]);
+
+  if (result.type === ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS) {
+    yield put(fetchDatasourceStructure(result.payload.id, true));
+  }
+}
+
 function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
@@ -1746,6 +1793,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
       datasourceDiscardActionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
+      addAndFetchDatasourceStructureSaga,
     ),
   ]);
 }
