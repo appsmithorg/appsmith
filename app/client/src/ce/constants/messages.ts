@@ -1147,7 +1147,7 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
-export const CONNECT_TO_GIT_OPTION = () => "Connect to git repository";
+export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
 //
 export const GO_TO_PAGE = () => "Go to page";
 export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
