@@ -41,7 +41,7 @@ export class DeployMode {
       });
     });
     this.agHelper.AssertDocumentReady();
-    cy.get(this.locator._publishButton).click();
+    this.agHelper.GetNClick(this.locator._publishButton);
     this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
     this.agHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));

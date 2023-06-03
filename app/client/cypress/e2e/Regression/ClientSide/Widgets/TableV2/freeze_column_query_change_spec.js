@@ -24,7 +24,7 @@ describe("1. Check frozen common and/or custom columns retain position on query 
 
     //Change the table data:
     cy.openPropertyPane(WIDGET.TABLE);
-    _.propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);
+    _.propPane.EnterJSContext("Table data", TABLE_DATA_DYNAMIC);
 
     //Check the id column is still frozen to the right:
     cy.wait(500);

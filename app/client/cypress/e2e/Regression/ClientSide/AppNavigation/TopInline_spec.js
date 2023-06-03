@@ -1,26 +1,24 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const deployMode = ObjectsRegistry.DeployMode;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const homePage = ObjectsRegistry.HomePage;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Top + Inline navigation style", function () {
   before(() => {
     // Import an application
-    homePage.NavigateToHome();
-    homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
+    _.homePage.NavigateToHome();
+    _.homePage.ImportApp(
+      "appNavigationTestingAppWithLongPageNamesAndTitle.json",
+    );
 
     cy.wait("@importNewApplication").then((interception) => {
-      agHelper.Sleep();
+      _.agHelper.Sleep();
 
       const { isPartialImport } = interception.response.body.data;
 
       if (isPartialImport) {
-        homePage.AssertNCloseImport();
+        _.homePage.AssertNCloseImport();
       } else {
-        homePage.AssertImportToast();
+        _.homePage.AssertImportToast();
       }
     });
   });
@@ -38,7 +36,7 @@ describe("Test Top + Inline navigation style", function () {
     ).click({
       force: true,
     });
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should("exist");
     cy.get(appNavigationLocators.topStacked).should("not.exist");
     cy.get(appNavigationLocators.topInline).should("exist");
@@ -114,7 +112,7 @@ describe("Test Top + Inline navigation style", function () {
     );
 
     // Changing color style to theme should change navigation's background color
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     cy.get(
@@ -122,7 +120,7 @@ describe("Test Top + Inline navigation style", function () {
     ).click({
       force: true,
     });
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     cy.get(appNavigationLocators.header).should(
       "have.css",
       "background-color",
@@ -153,11 +151,8 @@ describe("Test Top + Inline navigation style", function () {
     cy.get(commonLocators.canvas).should("exist");
 
     // User profile dropdown
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     cy.get(appNavigationLocators.userProfileDropdownButton).click();
     cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
-
-    // Back to editor
-    deployMode.NavigateBacktoEditor();
   });
 });
