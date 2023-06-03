@@ -1,20 +1,18 @@
-const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSONForm Footer spec", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. sticks to the bottom when fixed footer is true and content is less", () => {
-    cy.addDsl(dslWithoutSchema);
+    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     // add small source data
     const sourceData = {
       name: "John",
@@ -52,8 +50,9 @@ describe("JSONForm Footer spec", () => {
   });
 
   it("3. floats to the bottom when fixed footer is true and content overflows", () => {
-    cy.addDsl(dslWithSchema);
-    cy.addDsl(dslWithSchema);
+    cy.fixture("jsonFormDslWithSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(3000); //for dsl to settle
 
     cy.openPropertyPane("jsonformwidget");

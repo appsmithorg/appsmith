@@ -1237,22 +1237,14 @@ export class AggregateHelper {
   }
 
   public GetWidgetWidth(widgetSelector: string) {
-    let width: number;
-    return new Promise<number>((resolve) => {
-      this.GetElement(widgetSelector).then(($element) => {
-        width = Number($element.width());
-        resolve(width);
-      });
+    this.GetElement(widgetSelector).then(($element) => {
+      cy.wrap(Number($element.width())).as("widgetWidth");
     });
   }
 
   public GetWidgetHeight(widgetSelector: string) {
-    let height: number;
-    return new Promise<number>((resolve) => {
-      this.GetElement(widgetSelector).then(($element) => {
-        height = Number($element.height());
-        resolve(height);
-      });
+    this.GetElement(widgetSelector).then(($element) => {
+      cy.wrap(Number($element.height())).as("widgetHeight");
     });
   }
 

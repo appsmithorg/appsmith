@@ -16,7 +16,10 @@ describe("Currency input widget - ", () => {
       .last()
       .click({ force: true });
     // Click on the currency change option
-    cy.get(".t--input-currency-change").first().click();
+    cy.get(".t--input-currency-change")
+      .first()
+      .click({ force: true })
+      .wait(200);
     // Search with a typo
     cy.get(".t--search-input input").type("gdp");
     cy.wait(500);
@@ -25,7 +28,10 @@ describe("Currency input widget - ", () => {
 
     _.deployMode.DeployApp();
     // Click on the currency change option
-    cy.get(".t--input-currency-change").first().click();
+    cy.get(".t--input-currency-change")
+      .first()
+      .click({ force: true })
+      .wait(200);
     // Search with a typo
     cy.get(".t--search-input input").type("gdp");
     cy.wait(500);
@@ -41,7 +47,10 @@ describe("Currency input widget - ", () => {
       "contain",
       "{{appsmith.store.test}}",
     );
-    cy.get(".t--input-currency-change").first().click();
+    cy.get(".t--input-currency-change")
+      .first()
+      .click({ force: true })
+      .wait(200);
     cy.get(".t--search-input input").type("gbp");
     cy.wait(500);
     cy.get(".t--dropdown-option").last().click();
