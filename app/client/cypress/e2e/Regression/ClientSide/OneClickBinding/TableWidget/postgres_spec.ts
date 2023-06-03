@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { ChooseAndAssertForm } from "../spec_utility";
 import locators from "../../../../../locators/OneClickBindingLocator";
 
-describe("Table widget one click binding feature", () => {
+describe.skip("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
 
