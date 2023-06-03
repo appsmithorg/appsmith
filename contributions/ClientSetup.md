@@ -95,12 +95,7 @@ On your development machine, please ensure that:
 ### Running Tests on Client
 
 #### Integration Tests
-- Integration tests use cypress. To run cypress application for running tests, use these commands below,
-    ```bash
-      cd app/client
-      yarn run cytest
-    ```
-- To pass credentials for logging in in your cypress tests, you can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
+- To pass credentials for logging in your cypress tests, you can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
   ```json
   {
@@ -108,6 +103,12 @@ On your development machine, please ensure that:
     "PASSWORD": "Enter password"
   }
   ```
+- To run cypress application for running tests, use these commands below,
+  ```bash
+    cd app/client
+    yarn run cytest
+  ```
+
 - In order to run cypress tests which use datasources/rest api, you will need to have TED (Test Event Driver) container running: (It bundles multiple services together along with fake data for testing)
   ``` 
   docker pull appsmith/test-event-driver
