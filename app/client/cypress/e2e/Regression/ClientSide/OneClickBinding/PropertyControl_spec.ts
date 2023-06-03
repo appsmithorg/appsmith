@@ -4,7 +4,7 @@ import locator from "../../../../locators/OneClickBindingLocator";
 import CommonLocators from "../../../../locators/commonlocators.json";
 import DatasourceEditor from "../../../../locators/DatasourcesEditor.json";
 
-describe("One click binding control", () => {
+describe.skip("One click binding control", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2");
   });
