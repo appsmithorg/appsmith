@@ -16,16 +16,8 @@ import { Toast } from "design-system";
 import "./assets/styles/index.css";
 import "./polyfills";
 import GlobalStyles from "globalStyles";
-// enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
-
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
-
-setAutoFreeze(shouldAutoFreeze);
-runSagaMiddleware();
-
-appInitializer();
 
 function App() {
   return (
@@ -61,6 +53,10 @@ const mapStateToProps = (state: AppState) => ({
 const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 
 const initAndRenderApp = () => {
+  const shouldAutoFreeze = process.env.NODE_ENV === "development";
+
+  setAutoFreeze(shouldAutoFreeze);
+
   runSagaMiddleware();
 
   appInitializer();
