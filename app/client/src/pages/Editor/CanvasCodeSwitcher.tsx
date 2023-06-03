@@ -4,11 +4,15 @@ import history from "utils/history";
 import { builderURL } from "RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import { matchBuilderPath, matchDatasourcePath } from "constants/routes";
+import { matchBuilderPath } from "constants/routes";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setCodeTabPath } from "actions/editorContextActions";
-import { shouldStoreURLForFocus } from "navigation/FocusEntity";
+import {
+  FocusEntity,
+  identifyEntityFromPath,
+  shouldStoreURLForFocus,
+} from "navigation/FocusEntity";
 import { getSelectedTab } from "selectors/canvasCodeSelectors";
 import { canvasCodeToggle } from "actions/globalSearchActions";
 
@@ -80,7 +84,11 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
   }, [isEditorInitialized]);
 
   useEffect(() => {
-    if (matchDatasourcePath(location.pathname)) return;
+    if (
+      identifyEntityFromPath(location.pathname).entity ===
+      FocusEntity.DATASOURCE
+    )
+      return;
 
     if (matchBuilderPath(location.pathname)) {
       dispatch(canvasCodeToggle("CANVAS"));
