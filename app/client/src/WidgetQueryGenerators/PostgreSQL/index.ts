@@ -1,5 +1,5 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
-import { format } from "sql-formatter";
+import { formatDialect, postgresql } from "sql-formatter";
 import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
@@ -82,9 +82,9 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
         { template: "", params: {} },
       );
     //formats sql string
-    const res = format(template, {
+    const res = formatDialect(template, {
       params,
-      language: "postgresql",
+      dialect: postgresql,
     });
 
     return {
