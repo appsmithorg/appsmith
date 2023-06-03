@@ -5,9 +5,9 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/multiSelectDsl.json");
 import data from "../../../../../fixtures/example.json";
+
 import {
   PROPERTY_SELECTOR,
-  WIDGET,
   getWidgetSelector,
 } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -19,8 +19,11 @@ describe("MultiSelect Widget Functionality", function () {
 
   it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
-    cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultselectedvalues", "{{ undefined }}");
+    _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(data.input));
+    _.propPane.UpdatePropertyFieldValue(
+      "Default selected values",
+      "{{ undefined }}",
+    );
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
       .first()
@@ -124,9 +127,7 @@ describe("MultiSelect Widget Functionality", function () {
   it("5. Dropdown Functionality To Validate Options", function () {
     cy.get(".rc-select-selector").last().click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
-  });
-
-  it("6. Dropdown Functionality To Check Allow select all option", function () {
+    // Dropdown Functionality To Check Allow select all option
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -155,8 +156,8 @@ describe("MultiSelect Widget Functionality", function () {
       .should("have.text", "Option 2");
   });
 
-  it("7. Check isDirty meta property", function () {
-    cy.openPropertyPane(WIDGET.TEXT);
+  it("6. Check isDirty meta property", function () {
+    cy.openPropertyPane(_.draggableWidgets.TEXT);
     cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
     cy.openPropertyPane("multiselectwidgetv2");
@@ -164,19 +165,25 @@ describe("MultiSelect Widget Functionality", function () {
       PROPERTY_SELECTOR.defaultValue,
       '[\n  {\n    "label": "Option 1",\n    "value": "1"\n  }\n]',
     );
-    cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "false");
+    cy.get(getWidgetSelector(_.draggableWidgets.TEXT))
+      .eq(0)
+      .should("contain", "false");
     // Interact with UI
     cy.get(".rc-select-selector").last().click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
     // Check if isDirty is set to true
-    cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "true");
+    cy.get(getWidgetSelector(_.draggableWidgets.TEXT))
+      .eq(0)
+      .should("contain", "true");
     // Reset isDirty by changing defaultOptionValue
     cy.updateCodeInput(
       PROPERTY_SELECTOR.defaultValue,
       '[\n  {\n    "label": "Option 2",\n    "value": "2"\n  }\n]',
     );
     // Check if isDirty is set to false
-    cy.get(getWidgetSelector(WIDGET.TEXT)).eq(0).should("contain", "false");
+    cy.get(getWidgetSelector(_.draggableWidgets.TEXT))
+      .eq(0)
+      .should("contain", "false");
   });
 
   const resetTestCases = [
