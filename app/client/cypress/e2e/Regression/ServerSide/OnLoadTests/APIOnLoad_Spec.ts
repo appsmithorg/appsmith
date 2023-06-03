@@ -1,23 +1,20 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let dataSet: any;
-
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
     cy.fixture("tableWidgetDsl").then((val: any) => {
       _.agHelper.AddDsl(val);
     });
-    cy.fixture("testdata").then(function (data: any) {
-      dataSet = data;
-    });
   });
 
   it("1. Api mapping on page load", function () {
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.apiPage.CreateAndFillApi(
-      dataSet.baseUrl + dataSet.methods,
-      "PageLoadApi",
-    );
+    cy.fixture("testdata").then(function (dataSet: any) {
+      _.entityExplorer.NavigateToSwitcher("Explorer");
+      _.apiPage.CreateAndFillApi(
+        dataSet.baseUrl + dataSet.methods,
+        "PageLoadApi",
+      );
+    });
     _.agHelper.PressEscape();
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
@@ -33,10 +30,12 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("2. Shows when API failed to load on page load.", function () {
-    _.apiPage.CreateAndFillApi(
-      "https://abc.com/" + dataSet.methods,
-      "PageLoadApi2",
-    );
+    cy.fixture("testdata").then(function (dataSet: any) {
+      _.apiPage.CreateAndFillApi(
+        "https://abc.com/" + dataSet.methods,
+        "PageLoadApi2",
+      );
+    });
     _.apiPage.ToggleOnPageLoadRun(true);
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");

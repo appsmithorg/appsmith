@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   propPane = ObjectsRegistry.PropertyPane,
@@ -12,29 +11,27 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     cy.fixture("inputBindingdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-
-    cy.fixture("testdata").then(function (data: any) {
-      dataSet = data;
-    });
   });
 
   it("1. Input widget test with default value for atob method", () => {
-    ee.SelectEntityByName("Input1", "Widgets");
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      dataSet.atobInput + "}}",
-    );
-    agHelper.ValidateNetworkStatus("@updateLayout");
-    cy.get(locator._inputWidget)
-      .first()
-      .invoke("attr", "value")
-      .should("equal", "A"); //Before mapping JSObject value of input
-    //Input widget test with default value for btoa method"
-    ee.SelectEntityByName("Input2");
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      dataSet.btoaInput + "}}",
-    );
+    cy.fixture("testdata").then(function (dataSet: any) {
+      ee.SelectEntityByName("Input1", "Widgets");
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        dataSet.atobInput + "}}",
+      );
+      agHelper.ValidateNetworkStatus("@updateLayout");
+      cy.get(locator._inputWidget)
+        .first()
+        .invoke("attr", "value")
+        .should("equal", "A"); //Before mapping JSObject value of input
+      //Input widget test with default value for btoa method"
+      ee.SelectEntityByName("Input2");
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        dataSet.btoaInput + "}}",
+      );
+    });
     agHelper.ValidateNetworkStatus("@updateLayout");
     cy.get(locator._inputWidget)
       .last()
