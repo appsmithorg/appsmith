@@ -108,7 +108,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
     ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("serversidepagination", "Off");
+    propPane.TogglePropertyState("Server side pagination", "Off");
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
     table.AssertPageNumber(1, "Off", "v2");
@@ -116,7 +116,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
     ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("serversidepagination", "On");
+    propPane.TogglePropertyState("Server side pagination", "On");
   });
 
   it("4. Change Default selected row in table and verify", () => {
@@ -185,7 +185,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
 
     ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
+    propPane.TogglePropertyState("Client side search", "Off");
 
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -201,7 +201,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
     ee.SelectEntityByName("Table1", "Widgets");
-    propPane.ToggleOnOrOff("enableclientsidesearch", "On");
+    propPane.TogglePropertyState("Client side search", "On");
   });
 
   it("7. Validate Filter table", () => {

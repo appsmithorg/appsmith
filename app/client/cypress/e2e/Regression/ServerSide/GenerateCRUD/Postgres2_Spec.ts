@@ -729,7 +729,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Shipname");
-    propPane.ToggleOnOrOff("Required");
+    propPane.TogglePropertyState("Required", "On");
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Vessel Type", "Select");
@@ -753,7 +753,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Eta Updated", "Datepicker");
-    propPane.ToggleOnOrOff("Close On Selection", "On");
+    propPane.TogglePropertyState("Close On Selection", "On");
     propPane.NavigateBackToPropertyPane();
   }
 });

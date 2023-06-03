@@ -111,7 +111,7 @@ describe("Property Pane Search", function () {
     propPane.Search("pagination");
     propPane.AssertIfPropertyOrSectionExists("pagination", "CONTENT");
     // Do the operation so that the dymnamic property is visible
-    propPane.ToggleOnOrOff("Server side pagination", "On");
+    propPane.TogglePropertyState("Server side pagination", "On");
     // Verify if the property is visible
     propPane.AssertIfPropertyOrSectionExists(
       "pagination",
@@ -120,7 +120,7 @@ describe("Property Pane Search", function () {
     );
 
     // Do the operation so that the dymnamic property is hidden again
-    propPane.ToggleOnOrOff("Server side pagination", "Off");
+    propPane.TogglePropertyState("Server side pagination", "Off");
     // Verify whether the property is hidden
     agHelper.AssertElementAbsence(".t--property-control-onpagechange");
   });

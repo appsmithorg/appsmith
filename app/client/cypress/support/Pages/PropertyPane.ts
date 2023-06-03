@@ -188,7 +188,10 @@ export class PropertyPane {
     });
   }
 
-  public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off" = "On") {
+  public TogglePropertyState(
+    propertyName: string,
+    toggle: "On" | "Off" = "On",
+  ) {
     if (toggle == "On") {
       cy.get(this._propertyToggle(propertyName))
         .check({ force: true })
