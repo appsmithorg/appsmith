@@ -32,7 +32,9 @@ describe("Embed settings options", function () {
     _.deployMode.DeployApp();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
-    ).click();
+    )
+      .click()
+      .wait(1000);
     cy.get("[data-testid='copy-application-url']").last().click();
     _.agHelper.GiveChromeCopyPermission();
 
@@ -55,7 +57,9 @@ describe("Embed settings options", function () {
     _.deployMode.DeployApp();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
-    ).click();
+    )
+      .click()
+      .wait(1000);
     cy.get("[data-testid='copy-application-url']").last().click();
     cy.window()
       .its("navigator.clipboard")
@@ -64,7 +68,7 @@ describe("Embed settings options", function () {
         cy.wrap(text).as("deployUrl");
       });
     cy.enablePublicAccess();
-    cy.wait(6000);
+    cy.wait(4000);
     getIframeBody().contains("Submit").should("exist");
     _.deployMode.NavigateBacktoEditor();
   });

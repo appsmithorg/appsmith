@@ -32,14 +32,13 @@ export class DeployMode {
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
-    this.agHelper.Sleep(2000); //wait for elements settle!
+    this.agHelper.Sleep(3000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
     this.agHelper.AssertDocumentReady();
     this.StubbingDeployPage();
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
-    this.agHelper.Sleep(4000);
     cy.get("@windowDeployStub").should("be.calledOnce");
     this.agHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
@@ -70,7 +69,7 @@ export class DeployMode {
   }
 
   public StubbingDeployPage() {
-    cy.window().then((window) => {
+    cy.window({ timeout: 30000 }).then((window) => {
       cy.stub(window, "open")
         .as("windowDeployStub")
         .callsFake((url) => {

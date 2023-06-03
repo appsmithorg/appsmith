@@ -418,11 +418,11 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? this.hp.postgres_databaseName + "  "
       : this.hp.postgres_databaseName;
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.hp.postgres_port.toString(),
     );
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
