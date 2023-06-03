@@ -22,4 +22,7 @@ public class TestEmailConfigRequestDTO {
     @NotEmpty
     @Email
     private String fromEmail;
+
+    @NotNull
+    private Boolean starttlsEnabled;
 }
