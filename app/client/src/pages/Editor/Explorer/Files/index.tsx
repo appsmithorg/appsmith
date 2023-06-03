@@ -25,6 +25,7 @@ import ExplorerSubMenu from "./Submenu";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
 import styled from "styled-components";
+import { isCanvasCodeActive } from "selectors/canvasCodeSelectors";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -36,9 +37,17 @@ function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectFilesForExplorer);
+  const canvasCodeActive = useSelector(isCanvasCodeActive);
   const dispatch = useDispatch();
   const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);
+  const isDefaultExpanded = () => {
+    if (isFilesOpen === null || isFilesOpen === undefined) {
+      if (canvasCodeActive) return true;
+      return false;
+    }
+    return isFilesOpen;
+  };
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -120,9 +129,7 @@ function Files() {
       }
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded={
-        isFilesOpen === null || isFilesOpen === undefined ? false : isFilesOpen
-      }
+      isDefaultExpanded={isDefaultExpanded()}
       isSticky
       key={pageId + "_widgets"}
       name="Queries/JS"
