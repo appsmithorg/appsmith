@@ -502,6 +502,7 @@ export class PropertyPane {
       .type(newName, { force: true })
       .should("have.value", newName)
       .blur();
+    this.agHelper.PressEnter();
     this.agHelper.ValidateNetworkStatus("@updateWidgetName");
     this.agHelper.Sleep();
   }
