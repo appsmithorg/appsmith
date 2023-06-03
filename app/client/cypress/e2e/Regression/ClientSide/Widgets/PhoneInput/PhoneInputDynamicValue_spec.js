@@ -10,7 +10,7 @@ describe("Phone input widget - ", () => {
   it("1. Should show empty dropdown for a typo", () => {
     _.entityExplorer.SelectEntityByName("PhoneInput1");
     // Turn on changecountrycode
-    _.propPane.ToggleOnOrOff("Change country code");
+    _.propPane.TogglePropertyState("Change country code");
 
     // Click on the country code change option
     cy.get(".t--input-country-code-change").first().click().wait(200);

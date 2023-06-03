@@ -432,7 +432,7 @@ export class HomePage {
   }
 
   // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
-  public InviteUserToWorkspaceFromApp(
+  private InviteUserToWorkspaceFromApp(
     email: string,
     role: string,
     validate = true,

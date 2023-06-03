@@ -1,18 +1,16 @@
 const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const propPane = ObjectsRegistry.PropertyPane;
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget Add new row feature's", () => {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   describe("Basic flow ", () => {
     before(() => {
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
 
@@ -24,9 +22,9 @@ describe("Table widget Add new row feature's", () => {
 
     it("1.2. should test that Add new row link appears on the UI when the allow add new row property is enabled", () => {
       cy.get(".t--add-new-row").should("not.exist");
-      propPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".t--add-new-row").should("exist");
-      propPane.ToggleOnOrOff("Allow adding a row", "Off");
+      _.propPane.TogglePropertyState("Allow adding a row", "Off");
       cy.get(".t--add-new-row").should("not.exist");
     });
 
@@ -34,7 +32,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--property-control-onsave").should("not.exist");
       cy.get(".t--property-control-ondiscard").should("not.exist");
       cy.get(".t--property-control-defaultvalues").should("not.exist");
-      propPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".t--property-control-onsave").should("exist");
       cy.get(".t--property-control-ondiscard").should("exist");
       cy.get(".t--property-control-defaultvalues").should("exist");
@@ -169,22 +167,22 @@ describe("Table widget Add new row feature's", () => {
         "Allow filtering",
         "Allow adding a row",
       ].forEach((val) => {
-        propPane.ToggleOnOrOff(val, "Off");
+        _.propPane.TogglePropertyState(val, "Off");
       });
       cy.wait(1000);
 
       //intially enable 2 sections to show pagination and "add new row" button to the header section
-      propPane.ToggleOnOrOff("Show pagination", "On");
-      propPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.TogglePropertyState("Show pagination", "On");
+      _.propPane.TogglePropertyState("Allow adding a row", "On");
 
       //"add new row" button should be present
       cy.get(".t--add-new-row").should("exist");
       //turn off pagination and now the "add new row" button should be the only component left in the header section
-      propPane.ToggleOnOrOff("Show pagination", "Off");
+      _.propPane.TogglePropertyState("Show pagination", "Off");
       //"add new row" should continue to be present
       cy.get(".t--add-new-row").should("exist");
       //finally turn off allow adding a row then the "add new row" button should be removed from the header section
-      propPane.ToggleOnOrOff("Allow adding a row", "Off");
+      _.propPane.TogglePropertyState("Allow adding a row", "Off");
       cy.get(".t--add-new-row").should("not.exist");
     });
   });
@@ -192,18 +190,18 @@ describe("Table widget Add new row feature's", () => {
   describe("Validation flow", () => {
     before(() => {
       cy.startServerAndRoutes();
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
 
     it("2.1. should test that validation is working for a new row cell", () => {
       cy.openPropertyPane("tablewidgetv2");
-      propPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".t--add-new-row").click();
       cy.makeColumnEditable("step");
       cy.editColumn("step");
 
-      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
+      _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
@@ -212,9 +210,9 @@ describe("Table widget Add new row feature's", () => {
       cy.enterTableCellValue(0, 0, "#1");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
-      propPane.UpdatePropertyFieldValue("Valid", "");
+      _.propPane.UpdatePropertyFieldValue("Valid", "");
 
-      propPane.UpdatePropertyFieldValue("Regex", "^#1$");
+      _.propPane.UpdatePropertyFieldValue("Regex", "^#1$");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
@@ -223,9 +221,9 @@ describe("Table widget Add new row feature's", () => {
       cy.enterTableCellValue(0, 0, "#1");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
-      propPane.UpdatePropertyFieldValue("Regex", "");
+      _.propPane.UpdatePropertyFieldValue("Regex", "");
 
-      propPane.ToggleOnOrOff("Required", "On");
+      _.propPane.TogglePropertyState("Required", "On");
       cy.enterTableCellValue(0, 0, "22");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
@@ -240,7 +238,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--dropdown-option").children().contains("Number").click();
       cy.wait("@updateLayout");
 
-      propPane.UpdatePropertyFieldValue("Min", "5");
+      _.propPane.UpdatePropertyFieldValue("Min", "5");
       cy.enterTableCellValue(0, 0, "6");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
@@ -256,9 +254,9 @@ describe("Table widget Add new row feature's", () => {
       cy.enterTableCellValue(0, 0, "8");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
-      propPane.UpdatePropertyFieldValue("Min", "");
+      _.propPane.UpdatePropertyFieldValue("Min", "");
 
-      propPane.UpdatePropertyFieldValue("Max", "5");
+      _.propPane.UpdatePropertyFieldValue("Max", "5");
       cy.enterTableCellValue(0, 0, "6");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
@@ -274,13 +272,13 @@ describe("Table widget Add new row feature's", () => {
       cy.enterTableCellValue(0, 0, "8");
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
-      propPane.UpdatePropertyFieldValue("Max", "");
+      _.propPane.UpdatePropertyFieldValue("Max", "");
 
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
     it("2.2. should test that validation variable isNewRow is working", () => {
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Valid",
         "{{isNewRow ? (editedValue === 1) : (editedValue === 2)}}",
       );
@@ -309,17 +307,17 @@ describe("Table widget Add new row feature's", () => {
     });
 
     it("2.3. should test that validation is working for more than one add new row cell at a time", () => {
-      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
+      _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
       cy.get("[data-testid='t--property-pane-back-btn']").click();
       cy.wait(500);
       cy.makeColumnEditable("task");
       cy.editColumn("task");
       cy.wait(500);
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Valid",
         "{{editedValue === 'invalid'}}",
       );
-      propPane.ToggleOnOrOff("Required", "On");
+      _.propPane.TogglePropertyState("Required", "On");
       cy.get(".t--add-new-row").click();
       cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 2);
     });
@@ -350,13 +348,13 @@ describe("Table widget Add new row feature's", () => {
   describe("Actions flow (save, discard)", () => {
     before(() => {
       cy.startServerAndRoutes();
-      agHelper.RestoreLocalStorageCache();
+      _.agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
 
     it("3.1. should test that discard button is undoing the add new feature", () => {
       cy.openPropertyPane("tablewidgetv2");
-      propPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".tableWrap .new-row").should("not.exist");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
@@ -369,7 +367,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--discard-new-row").click({ force: true });
       cy.get(widgetsPage.toastAction).should("be.visible");
-      agHelper.AssertContains("discarded!!");
+      _.agHelper.AssertContains("discarded!!");
       cy.get(".tableWrap .new-row").should("not.exist");
     });
 
@@ -379,7 +377,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--save-new-row").click({ force: true });
       cy.get(widgetsPage.toastAction).should("be.visible");
-      agHelper.AssertContains("saved!!");
+      _.agHelper.AssertContains("saved!!");
       cy.get(".tableWrap .new-row").should("not.exist");
     });
   });

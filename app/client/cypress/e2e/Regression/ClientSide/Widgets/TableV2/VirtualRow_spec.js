@@ -18,8 +18,8 @@ describe("Table Widget Virtualized Row", function () {
     }));
 
     _.propPane.EnterJSContext("Table data", JSON.stringify(rows));
-    _.propPane.ToggleOnOrOff("Server side pagination", "On");
-    _.propPane.ToggleOnOrOff("Show pagination", "Off");
+    _.propPane.TogglePropertyState("Server side pagination", "On");
+    _.propPane.TogglePropertyState("Show pagination", "Off");
   });
 
   it("1. should check that row is getting rendered", () => {
@@ -44,7 +44,7 @@ describe("Table Widget Virtualized Row", function () {
   it("3. should check that virtual rows feature is turned off when cell wrapping is enabled", () => {
     cy.editColumn("step");
     cy.wait(500);
-    _.propPane.ToggleOnOrOff("Cell wrapping", "On");
+    _.propPane.TogglePropertyState("Cell wrapping", "On");
     cy.get(".tr[data-rowindex]").should("have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
@@ -60,12 +60,12 @@ describe("Table Widget Virtualized Row", function () {
   });
 
   it("4. should check that virtual rows feature is turned off when server side pagination is disabled", () => {
-    _.propPane.ToggleOnOrOff("Cell wrapping", "Off");
+    _.propPane.TogglePropertyState("Cell wrapping", "Off");
     _.propPane.NavigateBackToPropertyPane();
     cy.wait(500);
-    _.propPane.ToggleOnOrOff("Show pagination", "On");
+    _.propPane.TogglePropertyState("Show pagination", "On");
     cy.wait(500);
-    _.propPane.ToggleOnOrOff("Server side pagination", "Off");
+    _.propPane.TogglePropertyState("Server side pagination", "Off");
     cy.get(".tr[data-rowindex]").should("have.length", 5);
     cy.get(".t--virtual-row").should("not.exist");
   });

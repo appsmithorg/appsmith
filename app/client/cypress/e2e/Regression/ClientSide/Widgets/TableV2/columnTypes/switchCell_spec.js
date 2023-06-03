@@ -44,7 +44,7 @@ describe("Switch column type funtionality test", () => {
       cy.get(selector + switchSelector).should("exist");
     });
     // Toggle visiblity
-    _.propPane.ToggleOnOrOff("Visible", "off");
+    _.propPane.TogglePropertyState("Visible", "off");
     _.deployMode.DeployApp();
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector).should("not.exist");
@@ -52,7 +52,7 @@ describe("Switch column type funtionality test", () => {
     _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("completed");
-    _.propPane.ToggleOnOrOff("Visible");
+    _.propPane.TogglePropertyState("Visible");
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + switchSelector).should("exist");
     });
@@ -97,11 +97,11 @@ describe("Switch column type funtionality test", () => {
       const selector = $elemClass + switchSelector;
 
       // Verify if switch is disabled when Editable is off
-      _.propPane.ToggleOnOrOff("Editable", "off");
+      _.propPane.TogglePropertyState("Editable", "off");
       cy.get(selector).should("be.disabled");
 
       // Verify if switch is enabled when Editable is on
-      _.propPane.ToggleOnOrOff("Editable");
+      _.propPane.TogglePropertyState("Editable");
       cy.get(selector).should("be.enabled");
 
       // Verify checked and unchecked
@@ -113,11 +113,11 @@ describe("Switch column type funtionality test", () => {
 
       // Check if onCheckChange is availabe when Editable is true and hidden on false
       cy.get(".t--add-action-onChange").should("be.visible");
-      _.propPane.ToggleOnOrOff("Editable", "off");
+      _.propPane.TogglePropertyState("Editable", "off");
       cy.get(".t--add-action-onChange").should("not.exist");
 
       // Verify on check change handler
-      _.propPane.ToggleOnOrOff("Editable");
+      _.propPane.TogglePropertyState("Editable");
       _.propPane.SelectPlatformFunction("onChange", "Show alert");
       _.agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
