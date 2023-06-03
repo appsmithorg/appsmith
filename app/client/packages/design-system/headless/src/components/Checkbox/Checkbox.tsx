@@ -1,15 +1,21 @@
 import { mergeProps } from "@react-aria/utils";
 import { useFocusRing } from "@react-aria/focus";
 import { useHover } from "@react-aria/interactions";
-import CheckIcon from "remixicon-react/CheckLineIcon";
 import { useToggleState } from "@react-stately/toggle";
 import { useFocusableRef } from "@react-spectrum/utils";
-import SubtractIcon from "remixicon-react/SubtractLineIcon";
 import React, { forwardRef, useContext, useRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
 import type { FocusableRef, StyleProps } from "@react-types/shared";
 import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
+import { importRemixIcon } from "@design-system/widgets-old";
+
+const CheckIcon = importRemixIcon(
+  () => import("remixicon-react/CheckLineIcon"),
+);
+const SubtractIcon = importRemixIcon(
+  () => import("remixicon-react/SubtractLineIcon"),
+);
 
 import { CheckboxGroupContext } from "./context";
 

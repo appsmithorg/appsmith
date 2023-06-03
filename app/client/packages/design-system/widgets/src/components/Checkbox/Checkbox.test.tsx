@@ -3,9 +3,13 @@ import "@testing-library/jest-dom";
 import { Icon } from "@design-system/headless";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+import { importRemixIcon } from "@design-system/widgets-old";
 
 import { Checkbox } from "./Checkbox";
+
+const EmotionHappyLineIcon = importRemixIcon(
+  () => import("remixicon-react/EmotionHappyLineIcon"),
+);
 
 describe("@design-system/widgets/Checkbox", () => {
   const onChangeSpy = jest.fn();

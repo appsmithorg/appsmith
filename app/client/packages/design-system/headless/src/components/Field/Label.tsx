@@ -2,8 +2,12 @@ import React, { forwardRef } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
 import { filterDOMProps } from "@react-aria/utils";
-import AsteriskIcon from "remixicon-react/AsteriskIcon";
 import type { SpectrumLabelProps } from "@react-types/label";
+import { importRemixIcon } from "@design-system/widgets-old";
+
+const AsteriskIcon = importRemixIcon(
+  () => import("remixicon-react/AsteriskIcon"),
+);
 
 export interface LabelProps extends SpectrumLabelProps {
   isEmphasized?: boolean;

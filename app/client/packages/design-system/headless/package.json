@@ -9,6 +9,7 @@
     "prettier": "yarn g:prettier"
   },
   "dependencies": {
+    "@design-system/widgets-old": "workspace:^",
     "@floating-ui/react": "^0.24.0",
     "@react-aria/button": "^3.7.0",
     "@react-aria/checkbox": "^3.9.0",

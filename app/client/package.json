@@ -305,6 +305,7 @@
     "jest-canvas-mock": "^2.3.1",
     "jest-environment-jsdom": "^27.4.1",
     "jest-styled-components": "^7.0.8",
+    "json5": "^2.2.3",
     "lint-staged": "^13.2.0",
     "msw": "^0.28.0",
     "plop": "^3.1.1",

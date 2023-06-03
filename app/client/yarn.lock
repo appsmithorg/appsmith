@@ -2186,6 +2186,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@design-system/headless@workspace:packages/design-system/headless"
   dependencies:
+    "@design-system/widgets-old": "workspace:^"
     "@floating-ui/react": ^0.24.0
     "@react-aria/button": ^3.7.0
     "@react-aria/checkbox": ^3.9.0
@@ -2294,6 +2295,7 @@ __metadata:
     "@capsizecss/metrics": ^1.0.1
     "@design-system/headless": "workspace:^"
     "@design-system/theming": "workspace:^"
+    "@design-system/widgets-old": "workspace:^"
     "@react-aria/utils": ^3.16.0
     "@react-aria/visually-hidden": ^3.8.0
     colorjs.io: ^0.4.3
@@ -9616,6 +9618,7 @@ __metadata:
     js-regex-pl: ^1.0.1
     js-sha256: ^0.9.0
     jshint: ^2.13.4
+    json5: ^2.2.3
     klona: ^2.0.5
     libphonenumber-js: ^1.9.44
     linkedom: ^0.14.20

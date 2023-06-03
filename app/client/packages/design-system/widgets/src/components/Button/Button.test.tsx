@@ -2,9 +2,13 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { Icon } from "@design-system/headless";
 import { render, screen } from "@testing-library/react";
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+import { importRemixIcon } from "@design-system/widgets-old";
 
 import { Button } from "./";
+
+const EmotionHappyLineIcon = importRemixIcon(
+  () => import("remixicon-react/EmotionHappyLineIcon"),
+);
 
 describe("@design-system/widgets/Button", () => {
   it("renders children when passed", () => {
