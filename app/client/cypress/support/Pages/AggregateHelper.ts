@@ -74,7 +74,10 @@ export class AggregateHelper {
 
   public AssertDocumentReady() {
     cy.waitUntil(() =>
-      cy.document().then((doc) => doc.readyState === "complete"),
+      //cy.document().then((doc) => doc.readyState === "complete"),
+      cy.document().should((doc) => {
+        expect(doc.readyState).to.equal("complete");
+      }),
     );
     cy.window().should("have.property", "onload");
   }

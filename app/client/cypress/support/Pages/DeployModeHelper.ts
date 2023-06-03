@@ -35,10 +35,11 @@ export class DeployMode {
     this.agHelper.Sleep(2000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    this.StubbingDeployPage();
     this.agHelper.AssertDocumentReady();
+    this.StubbingDeployPage();
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
+    this.agHelper.Sleep(4000);
     cy.get("@windowDeployStub").should("be.calledOnce");
     this.agHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));

@@ -1,6 +1,5 @@
 import commonlocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const locator = ObjectsRegistry.CommonLocators;
 
 let logString;
 
@@ -17,7 +16,6 @@ describe("Debugger logs", function () {
 
   it("1. Console log on text widget with normal moustache binding", function () {
     _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.agHelper.TypeText(locator._entityExplorersearch, "Text");
     _.entityExplorer.DragDropWidgetNVerify("textwidget", 400, 400);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
@@ -287,7 +285,7 @@ describe("Debugger logs", function () {
     });
 
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    _.agHelper.GetNClick(locator._errorTab);
+    _.agHelper.GetNClick(_.locators._errorTab);
 
     _.debuggerHelper.ClicklogEntityLink(0);
 
