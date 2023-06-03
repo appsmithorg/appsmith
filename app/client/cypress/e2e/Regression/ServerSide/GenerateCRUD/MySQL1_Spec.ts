@@ -47,7 +47,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
       _.agHelper.RefreshPage();
     });
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(_.locators._emptyPageTxt);
     _.deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

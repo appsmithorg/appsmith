@@ -39,6 +39,7 @@ export class DeployMode {
     this.agHelper.AssertDocumentReady();
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
+    cy.get("@windowDeployStub").should("be.calledOnce");
     this.agHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
@@ -69,9 +70,11 @@ export class DeployMode {
 
   public StubbingDeployPage() {
     cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = Cypress.config().baseUrl + url.substring(1);
-      });
+      cy.stub(window, "open")
+        .as("windowDeployStub")
+        .callsFake((url) => {
+          window.location.href = Cypress.config().baseUrl + url.substring(1);
+        });
     });
   }
 
@@ -81,6 +84,7 @@ export class DeployMode {
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
     this.agHelper.AssertDocumentReady();
+    cy.wait("@getWorkspace");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
   }
 
