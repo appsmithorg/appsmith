@@ -1,5 +1,8 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { OneClickBinding } from "../spec_utility";
+
+const oneClickBinding = new OneClickBinding();
 
 describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
@@ -14,7 +17,7 @@ describe("Table widget one click binding feature", () => {
 
       (cy as any).openPropertyPane(WIDGET.TABLE);
 
-      _.oneClickBinding.ChooseAndAssertForm(
+      oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
         dsName,
         "public.users",
@@ -22,7 +25,7 @@ describe("Table widget one click binding feature", () => {
       );
     });
 
-    _.agHelper.GetNClick(_.oneClickBinding.locator.connectData);
+    _.agHelper.GetNClick(oneClickBinding.locator.connectData);
 
     cy.wait("@postExecute");
 
@@ -46,9 +49,9 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).enterTableCellValue(3, 0, " 2016-06-22 19:10:25-07");
 
-    _.agHelper.GetNClick(_.oneClickBinding.locator.dateInput, 0, true);
+    _.agHelper.GetNClick(oneClickBinding.locator.dateInput, 0, true);
 
-    _.agHelper.GetNClick(_.oneClickBinding.locator.dayViewFromDate, 0, true);
+    _.agHelper.GetNClick(oneClickBinding.locator.dayViewFromDate, 0, true);
 
     (cy as any).wait(2000);
 

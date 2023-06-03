@@ -1,5 +1,8 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { OneClickBinding } from "../spec_utility";
+
+const oneClickBinding = new OneClickBinding();
 
 describe("one click binding mongodb datasource", function () {
   before(() => {
@@ -17,7 +20,7 @@ describe("one click binding mongodb datasource", function () {
 
       (cy as any).openPropertyPane(WIDGET.TABLE);
 
-      _.oneClickBinding.ChooseAndAssertForm(
+      oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
         dsName,
         "netflix",
@@ -25,7 +28,7 @@ describe("one click binding mongodb datasource", function () {
       );
     });
 
-    _.agHelper.GetNClick(_.oneClickBinding.locator.connectData);
+    _.agHelper.GetNClick(oneClickBinding.locator.connectData);
 
     cy.wait("@postExecute");
 
@@ -39,7 +42,7 @@ describe("one click binding mongodb datasource", function () {
     _.agHelper.Sleep();
     // check if the table rows are present for the given search entry
     _.agHelper.GetNAssertContains(
-      _.oneClickBinding.locator.validTableRowData,
+      oneClickBinding.locator.validTableRowData,
       rowWithAValidText,
     );
     //#endregion
@@ -92,7 +95,7 @@ describe("one click binding mongodb datasource", function () {
 
     //check if that row is present
     _.agHelper.GetNAssertContains(
-      _.oneClickBinding.locator.validTableRowData,
+      oneClickBinding.locator.validTableRowData,
       someText,
     );
     //#endregion
