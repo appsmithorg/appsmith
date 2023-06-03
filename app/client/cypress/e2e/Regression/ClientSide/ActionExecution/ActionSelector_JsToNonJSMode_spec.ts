@@ -7,7 +7,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     });
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.EnterJSContext("onClick", `{{}}`, true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.AssertElementAbsence(".action");
   });
 
@@ -16,7 +16,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.EnterJSContext("onClick", `{{Api1.run()}}`, true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
       "GETExecute a queryApi1.run",
@@ -34,7 +34,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
       "GETExecute a queryApi1.run",
@@ -49,7 +49,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
       "GETExecute a queryApi1.run+2",
@@ -90,7 +90,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
       "GETExecute a queryApi1.run+3",
@@ -158,7 +158,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       true,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -195,7 +195,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -231,7 +231,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -287,7 +287,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -305,7 +305,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -335,7 +335,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -353,7 +353,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -410,7 +410,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -428,7 +428,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -446,7 +446,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -464,7 +464,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -482,7 +482,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -506,7 +506,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -529,7 +529,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -552,7 +552,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{navigateTo()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -591,7 +591,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       true,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -630,7 +630,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       true,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -669,7 +669,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{showAlert()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -699,7 +699,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -732,7 +732,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{showModal()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -755,7 +755,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -778,7 +778,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{closeModal()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -801,7 +801,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -824,7 +824,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{storeValue()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -853,7 +853,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -864,7 +864,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.propPane.EnterJSContext("onClick", "{{storeValue('a', 1)}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -877,7 +877,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "a{{1}}");
 
     _.propPane.EnterJSContext("onClick", "{{storeValue('', 1)}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -893,7 +893,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{removeValue()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -911,7 +911,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.propPane.EnterJSContext("onClick", "{{removeValue('a')}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -929,7 +929,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{download()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -969,7 +969,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -984,7 +984,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -999,7 +999,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1023,7 +1023,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{copyToClipboard()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1046,7 +1046,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1063,7 +1063,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
       true,
     );
-    _.propPane.EnableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick");
     _.propPane.ValidatePropertyFieldValue(
       "onClick",
       `{{copyToClipboard('line1\\nline2\\nline3a');}}`,
@@ -1075,7 +1075,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{resetWidget()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1119,7 +1119,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1149,7 +1149,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1179,7 +1179,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1209,7 +1209,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{setInterval()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1246,7 +1246,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1262,7 +1262,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1278,7 +1278,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{clearInterval()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1301,7 +1301,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       true,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1319,7 +1319,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     _.propPane.EnterJSContext("onClick", "{{clearStore()}}", true, false);
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1343,7 +1343,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1367,7 +1367,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1391,7 +1391,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1416,7 +1416,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       true,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
@@ -1438,7 +1438,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
@@ -1473,7 +1473,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       true,
       false,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,

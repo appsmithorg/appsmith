@@ -14,7 +14,7 @@ describe("UI to Code", () => {
   beforeEach(() => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext("onClick", "");
-    propPane.DisableJSMode("onClick");
+    propPane.ToggleJSMode("onClick", false);
   });
 
   it("1. adds an action", () => {
@@ -316,7 +316,7 @@ describe("UI to Code", () => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    propPane.DisableJSMode("onClick");
+    propPane.ToggleJSMode("onClick", false);
 
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
@@ -358,7 +358,7 @@ describe("UI to Code", () => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    propPane.DisableJSMode("onClick");
+    propPane.ToggleJSMode("onClick", false);
 
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
@@ -392,7 +392,7 @@ describe("UI to Code", () => {
        })
        `,
     );
-    propPane.DisableJSMode("onClick");
+    propPane.ToggleJSMode("onClick", false);
 
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");

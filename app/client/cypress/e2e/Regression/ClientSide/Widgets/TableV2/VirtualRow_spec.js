@@ -5,7 +5,6 @@ const totalRows = 100;
 describe("Table Widget Virtualized Row", function () {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });
-    _.propPane.ToggleJsMode("Table data");
     const row = {
       step: "#3",
       task: "Bind the query using => fetch_users.data",
@@ -18,7 +17,7 @@ describe("Table Widget Virtualized Row", function () {
       step: i,
     }));
 
-    _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(rows));
+    _.propPane.EnterJSContext("Table data", JSON.stringify(rows));
     _.propPane.ToggleOnOrOff("Server side pagination", "On");
     _.propPane.ToggleOnOrOff("Show pagination", "Off");
   });

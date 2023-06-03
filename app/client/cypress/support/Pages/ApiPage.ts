@@ -82,8 +82,8 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      cy.get(this.locator._createNew).click();
-      cy.get(this._blankAPI).eq(0).click({ force: true });
+      this.agHelper.GetNClick(this.locator._createNew);
+      this.agHelper.GetNClick(this._blankAPI, 0, true);
     }
     this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
 

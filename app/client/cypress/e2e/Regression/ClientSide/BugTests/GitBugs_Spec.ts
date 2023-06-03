@@ -46,7 +46,7 @@ describe("Git Bugs", function () {
       true,
       true,
     );
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");

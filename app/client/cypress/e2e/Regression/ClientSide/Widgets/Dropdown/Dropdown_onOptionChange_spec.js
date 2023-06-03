@@ -188,7 +188,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(_.locators._jsToggle("onoptionchange")).click();
 
     // Dropdown On Option Change
-    _.propPane.DisableJSMode("onOptionChange");
+    _.propPane.ToggleJSMode("onOptionChange", false);
     cy.getAlert("onOptionChange", "Option Changed");
     _.deployMode.DeployApp();
     // Change the Option

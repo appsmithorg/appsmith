@@ -276,8 +276,8 @@ export class EntityExplorer {
 
   public DragDropWidgetNVerify(
     widgetType: string,
-    x = 200,
-    y = 200,
+    x = 100,
+    y = 100,
     dropTargetId = "",
   ) {
     this.NavigateToSwitcher("Widgets");

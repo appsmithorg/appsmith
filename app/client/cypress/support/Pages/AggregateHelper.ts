@@ -82,30 +82,38 @@ export class AggregateHelper {
   public AddDsl(
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
+    reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
-    const appId: string | null = localStorage.getItem("applicationId");
+    let appId: string | null = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url.split("/")[5]?.split("-").pop() as string;
       cy.log(pageid + "page id");
       //Fetch the layout id
-      cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
+      cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
         const respBody = JSON.stringify(response.body);
-        layoutId = JSON.parse(respBody).data.layouts[0].id;
+        const parsedData = JSON.parse(respBody).data;
+        layoutId = parsedData.layouts[0].id;
+        appId = parsedData.applicationId;
+
         // Dumping the DSL to the created page
-        cy.request(
-          "PUT",
-          "api/v1/layouts/" +
+        cy.request({
+          method: "PUT",
+          url:
+            "api/v1/layouts/" +
             layoutId +
             "/pages/" +
             pageid +
             "?applicationId=" +
             appId,
-          dsl,
-        ).then((dslDumpResp) => {
+          body: dsl,
+          headers: {
+            "X-Requested-By": "Appsmith",
+          },
+        }).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
           expect(dslDumpResp.status).equal(200);
-          this.RefreshPage();
+          this.RefreshPage(reloadWithoutCache);
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
           this.Sleep(); //settling time for dsl
@@ -781,13 +789,13 @@ export class AggregateHelper {
     cy.wait(timeout);
   }
 
-  public RefreshPage() {
+  public RefreshPage(reloadWithoutCache = true) {
     this.AssertDocumentReady();
     // cy.window()
     //   .then((win) => {
     //     win.location.reload();
     //   })
-    cy.reload(true).then(() => {
+    cy.reload(reloadWithoutCache).then(() => {
       this.AssertDocumentReady();
     });
     this.Sleep(2000);

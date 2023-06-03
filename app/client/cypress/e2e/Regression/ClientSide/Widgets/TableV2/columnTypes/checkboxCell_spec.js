@@ -35,10 +35,7 @@ describe("Checkbox column type funtionality test", () => {
       x: 150,
       y: 300,
     });
-    _.propPane.ToggleJsMode("Table data");
-    cy.openPropertyPane("tablewidgetv2");
-    _.propPane.RemoveText("tabledata");
-    _.propPane.UpdatePropertyFieldValue("Table data", tableData);
+    _.propPane.EnterJSContext("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Checkbox");
   });
@@ -47,9 +44,7 @@ describe("Checkbox column type funtionality test", () => {
     cy.getTableV2DataSelector("0", "4").then((selector) => {
       cy.get(selector + checkboxSelector).should("exist");
     });
-  });
-
-  it("2. Toggle visiblity", () => {
+    // Toggle visiblity
     _.propPane.ToggleOnOrOff("Visible", "off");
     _.deployMode.DeployApp();
     cy.getTableV2DataSelector("0", "4").then((selector) => {
@@ -64,7 +59,7 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("3. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
+  it("2. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
     cy.moveToStyleTab();
     // Check horizontal alignment
     cy.get("[data-value='CENTER']").first().click();
@@ -90,7 +85,7 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("4. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
+  it("3. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
     cy.moveToContentTab();
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + checkboxSelector;
@@ -127,7 +122,7 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("5. Verify filter condition", () => {
+  it("4. Verify filter condition", () => {
     cy.get(widgetsJson.tableFilterPaneToggle).click();
     cy.get(publishPage.attributeDropdown).click();
     cy.get(".t--dropdown-option").contains("completed").click();
@@ -157,7 +152,7 @@ describe("Checkbox column type funtionality test", () => {
     });
   });
 
-  it("6. Verify if onCheckChange is hidden on custom columns", () => {
+  it("5. Verify if onCheckChange is hidden on custom columns", () => {
     cy.get(commonLocators.editPropBackButton).click();
     cy.get(widgetsJson.addColumn).click();
     cy.editColumn("customColumn1");

@@ -135,10 +135,10 @@ describe("Theme validation usecases", function () {
           );
         });
     });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Validate Default Theme change across application", function () {
-    _.deployMode.NavigateBacktoEditor();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
@@ -175,7 +175,6 @@ describe("Theme validation usecases", function () {
   });
 
   it("3. Validate Theme change across application", function () {
-    _.deployMode.NavigateBacktoEditor();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",

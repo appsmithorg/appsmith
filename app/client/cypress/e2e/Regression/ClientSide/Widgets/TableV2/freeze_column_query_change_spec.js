@@ -15,8 +15,7 @@ describe("1. Check frozen common and/or custom columns retain position on query 
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });
     cy.wait(2000);
     cy.openPropertyPane(WIDGET.TABLE);
-    _.propPane.ToggleJsMode("Table data");
-    cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
+    _.propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);
   });
 
   it("1.1 Check if common frozen columns retain position", () => {
@@ -25,7 +24,7 @@ describe("1. Check frozen common and/or custom columns retain position on query 
 
     //Change the table data:
     cy.openPropertyPane(WIDGET.TABLE);
-    cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_DYNAMIC);
+    _.propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);
 
     //Check the id column is still frozen to the right:
     cy.wait(500);

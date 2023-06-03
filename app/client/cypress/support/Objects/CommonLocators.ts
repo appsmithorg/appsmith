@@ -37,6 +37,8 @@ export class CommonLocators {
   _widgetInputSelector = (widgetType: string) =>
     this._widgetInDeployed(widgetType) + " input";
   _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span";
+  _textWidgetStyleInDeployed =
+    this._widgetInDeployed("textwidget") + " .bp3-ui-text";
   _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input";
   _textAreainputWidgetv1InDeployed =
     this._widgetInDeployed("inputwidget") + " textarea";

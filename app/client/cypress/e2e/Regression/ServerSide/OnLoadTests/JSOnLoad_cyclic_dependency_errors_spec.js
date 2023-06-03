@@ -140,7 +140,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     let entityName = "gender";
     let newEntityName = "newInput";
     _.propPane.RenameWidget(entityName, newEntityName);
-    cy.wait("@updateWidgetName").should(
+    cy.get("@updateWidgetName").should(
       "have.nested.property",
       "response.body.data.layoutOnLoadActionErrors.length",
       0,

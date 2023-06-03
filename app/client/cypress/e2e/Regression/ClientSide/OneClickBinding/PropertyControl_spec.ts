@@ -77,7 +77,7 @@ describe.skip("One click binding control", () => {
 
     _.propPane.UpdatePropertyFieldValue("Table data", "");
 
-    _.propPane.EnableJSMode("Table data");
+    _.propPane.ToggleJSMode("Table data");
 
     _.agHelper.GetNClick(locator.datasourceDropdownSelector);
 
@@ -89,13 +89,13 @@ describe.skip("One click binding control", () => {
 
     _.agHelper.AssertElementExist(locator.dropdownOptionSelector("Query1"));
 
-    _.propPane.EnableJSMode("Table data");
+    _.propPane.ToggleJSMode("Table data");
 
     _.propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
     _.propPane.UpdatePropertyFieldValue("Table data", "");
 
-    _.propPane.EnableJSMode("Table data");
+    _.propPane.ToggleJSMode("Table data");
 
     ChooseAndAssertForm("New from Users", "Users", "public.users", "gender");
 

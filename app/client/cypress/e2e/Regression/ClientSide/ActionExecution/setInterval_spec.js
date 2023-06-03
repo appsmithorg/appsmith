@@ -46,13 +46,13 @@ describe("Test Create Api and Bind to Button widget", function () {
 
   it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.DisableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick", false);
     cy.get(".action-block-tree").click({ force: true });
     cy.get(".t--action-selector-popup .t--delete").click({ force: true });
     _.propPane.SelectPlatformFunction("onClick", "Clear interval");
     _.agHelper.EnterActionValue("Id", "myInterval");
 
-    _.propPane.EnableJSMode("onClick");
+    _.propPane.ToggleJSMode("onClick");
     _.propPane.ValidatePropertyFieldValue(
       "onClick",
       `{{clearInterval('myInterval');}}`,

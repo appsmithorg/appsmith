@@ -88,11 +88,15 @@ export class PropertyPane {
   _textView = ".text-view";
   _selectorView = ".selector-view";
   _dropDownValue = (dropdownOption: string) =>
-    `.rc-virtual-list .rc-select-item-option span:contains('${dropdownOption}')`;
+    `//div[@class='rc-virtual-list']//div[contains(@class, 'rc-select-item-option')]//span[text()='${dropdownOption}']`;
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']";
+  _selectPropDropdownValue = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
 
@@ -215,7 +219,27 @@ export class PropertyPane {
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    cy.get(this._dropDownValue(dropdownOption)).click();
+    this.agHelper.GetNClick(this._dropDownValue(dropdownOption));
+  }
+
+  public AssertPropertiesDropDownCurrentValue(
+    endpoint: string,
+    dropdownExpectedSelection: string,
+  ) {
+    this.agHelper
+      .GetElement(this._selectPropDropdownValue(endpoint))
+      .then(($ddVisibleTexts: any) => {
+        let found = false;
+        $ddVisibleTexts.each((index: any, element: any) => {
+          const spanText = Cypress.$(element).text().trim();
+          if (spanText === dropdownExpectedSelection) {
+            found = true;
+            cy.log("selected dropdown text is " + spanText);
+            return false; // Exit the loop if the expected text is found
+          }
+        });
+        expect(found).to.be.true;
+      });
   }
 
   public SelectJSFunctionToExecuteInExistingActionBlock(
@@ -223,9 +247,13 @@ export class PropertyPane {
     funcName: string,
   ) {
     cy.get(".t--action-selector-popup .bp3-button").click({ force: true });
-    cy.get(this.locator._dropDownValue("Execute a JS function")).click();
-    cy.get(this.locator._dropDownValue(jsName)).click();
-    cy.get(this.locator._dropDownValue(funcName)).click();
+    this.agHelper.GetNClick(
+      this.locator._dropDownValue("Execute a JS function"),
+      0,
+      true,
+    );
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();
   }
 
@@ -275,26 +303,22 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
   }
 
-  public EnableJSMode(endp: string) {
+  public ToggleJSMode(endp: string, toToggleOnJS: true | false = true) {
     cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
       .invoke("attr", "class")
       .then((classes: any) => {
-        if (!classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
-  }
-
-  public DisableJSMode(endp: string) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
+        if (toToggleOnJS && !classes.includes("is-active"))
+          this.agHelper.GetNClick(
+            this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            0,
+            true,
+          );
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          this.agHelper.GetNClick(
+            this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            0,
+            true,
+          );
         else this.agHelper.Sleep(500);
       });
   }
@@ -439,12 +463,12 @@ export class PropertyPane {
   }
 
   public AddAction(property: string) {
-    cy.get(this._addAction(property)).scrollIntoView().click({ force: true });
+    this.agHelper.GetNClick(this._addAction(property), 0, true);
   }
 
   public SelectPlatformFunction(eventName: string, dropdownValue: string) {
     this.AddAction(eventName);
-    cy.get(this.locator._dropDownValue(dropdownValue)).click();
+    this.agHelper.GetNClick(this.locator._dropDownValue(dropdownValue));
   }
 
   public SelectActionByTitleAndValue(title: string, value: string) {

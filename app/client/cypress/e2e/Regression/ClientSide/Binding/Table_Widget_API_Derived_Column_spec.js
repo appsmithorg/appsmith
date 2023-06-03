@@ -42,29 +42,26 @@ describe("Test Create Api and Bind to Table widget", function () {
         cy.log("computed value of plain text " + tabData);
       });
     });
-    cy.closePropertyPane();
+    _.propPane.NavigateBackToPropertyPane();
   });
 
   it("2. Check Image alignment is working as expected", function () {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.editColumn("avatar");
     cy.changeColumnType("Image", false);
-    cy.closePropertyPane();
+    _.propPane.NavigateBackToPropertyPane();
     _.entityExplorer.SelectEntityByName("Table1");
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
-    cy.closePropertyPane();
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "50% 50%");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
-    cy.closePropertyPane();
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "100% 50%");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
-    cy.closePropertyPane();
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "0% 50%");
@@ -102,7 +99,7 @@ describe("Test Create Api and Bind to Table widget", function () {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
       });
-      cy.closePropertyPane();
+      //_.propPane.NavigateBackToPropertyPane();
     });
   });
 });

@@ -34,10 +34,7 @@ describe("Switch column type funtionality test", () => {
       x: 150,
       y: 300,
     });
-    _.propPane.ToggleJsMode("Table data");
-    cy.openPropertyPane("tablewidgetv2");
-    _.propPane.RemoveText("tabledata");
-    _.propPane.UpdatePropertyFieldValue("Table data", tableData);
+    _.propPane.EnterJSContext("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Switch");
   });

@@ -23,7 +23,7 @@ describe("Switch Group Widget Functionality", function () {
 
   it("2. Property: options", function () {
     // Add a new option
-    _.ee.SelectEntityByName("SwitchGroupTest");
+    _.entityExplorer.SelectEntityByName("SwitchGroupTest");
 
     const optionToAdd = `[
       {

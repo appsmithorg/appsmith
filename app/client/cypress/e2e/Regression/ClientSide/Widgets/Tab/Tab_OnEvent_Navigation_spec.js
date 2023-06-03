@@ -10,7 +10,7 @@ describe("Tabs widget on change of selection navigation usecases", function () {
     cy.openPropertyPane("tabswidget");
     _.propPane.SelectPlatformFunction("onTabSelected", "Navigate to");
     cy.wait(1000);
-    _.agHelper.GetNClick(propPane._navigateToType("URL"));
+    _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
     _.agHelper.EnterActionValue("Enter URL", "www.appsmith.com");
     cy.wait(1000);
     //Publish the app and validate the navigation change on tab selection

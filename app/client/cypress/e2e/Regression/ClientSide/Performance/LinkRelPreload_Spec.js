@@ -1,5 +1,5 @@
-import emptyDSL from "../../../../fixtures/emptyDSL.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import emptyDSL from "../../../../fixtures/emptyDSL.json";
 
 // Hi, developer!
 //
@@ -33,10 +33,14 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
   });
 
   it("1. In edit & View mode", function () {
+    // cy.fixture("emptyDSL").then((val) => {
+    //   _.agHelper.AddDsl(val);
+    // });
     testLinkRelPreloads();
+    _.agHelper.Sleep(5000);
     //In view mode", function () {
     _.deployMode.DeployApp();
-
+    _.agHelper.Sleep(5000);
     testLinkRelPreloads();
   });
 });
