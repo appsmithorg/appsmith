@@ -501,7 +501,7 @@ export class Table {
       .then(($cellData) => {
         //Cypress.$($cellData).trigger('click');
         cy.url().should("eql", expectedURL);
-        this.agHelper.Sleep();
+        this.agHelper.Sleep(2000);
         cy.go(-1);
         this.WaitUntilTableLoad(0, 0, tableVersion);
       });

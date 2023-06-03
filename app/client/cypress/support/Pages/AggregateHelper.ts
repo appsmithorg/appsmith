@@ -139,8 +139,8 @@ export class AggregateHelper {
       .clear({ force: true })
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
-      .focus()
       .blur();
+    this.PressEnter();
     this.AssertElementAbsence(this.locator._runBtnSpinner, 10000);
     this.Sleep(300); //allow lil more time for new name to settle
   }

@@ -37,31 +37,27 @@ describe("Validating use cases for Auto Dimension", () => {
 
       // Add multi-line text & verify if the container's height increases
 
-      _.agHelper
-        .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-        .then(($initialHeight) => {
-          _.propPane.UpdatePropertyFieldValue(
-            "Text",
-            "hello\nWorld\nThis\nis\na\nMulti-line\nText",
-          );
-          _.agHelper
-            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-            .then((height: any) => {
-              expect(height).to.be.greaterThan($initialHeight);
-            });
+      _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+      cy.get("@widgetHeight").then(($initialHeight) => {
+        _.propPane.UpdatePropertyFieldValue(
+          "Text",
+          "hello\nWorld\nThis\nis\na\nMulti-line\nText",
+        );
+        _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+        cy.get("@widgetHeight").then((height: any) => {
+          expect(height).to.be.greaterThan(Number($initialHeight));
         });
+      });
 
       // Remove some lines & verify if the container's height decreases
-      _.agHelper
-        .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-        .then(($initialHeight) => {
-          _.propPane.UpdatePropertyFieldValue("Text", "hello");
-          _.agHelper
-            .GetWidgetHeight(_.autoLayout._containerWidgetSelector)
-            .then((height: any) => {
-              expect(height).to.be.equal($initialHeight);
-            });
+      _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+      cy.get("@widgetHeight").then(($initialHeight) => {
+        _.propPane.UpdatePropertyFieldValue("Text", "hello");
+        _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+        cy.get("@widgetHeight").then((height: any) => {
+          expect(height).to.be.equal($initialHeight);
         });
+      });
     });
 
     it("2. Check if widget's bounding box fits on widget shrink", () => {
