@@ -1,68 +1,66 @@
+import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import OnboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
 
-export function ChooseAndAssertForm(source, selectedSource, table, column) {
-  _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+export class OneClickBinding {
+  public agHelper = ObjectsRegistry.AggregateHelper;
+  public locator = OneClickBindingLocator;
+  public onboardingLocator = OnboardingLocator;
 
-  _.agHelper.AssertElementAbsence(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+  public ChooseAndAssertForm(
+    source?: string,
+    selectedSource?: any,
+    table?: string,
+    column?: string,
+  ) {
+    this.agHelper.GetNClick(this.locator.datasourceDropdownSelector);
 
-  _.agHelper.GetNClick(
-    `[data-testid="t--one-click-binding-datasource-selector--datasource"]:contains(${source})`,
-  );
+    this.agHelper.AssertElementAbsence(this.locator.connectData);
 
-  cy.wait("@getDatasourceStructure").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    this.agHelper.GetNClick(this.locator.datasourceSelector(source));
 
-  _.agHelper.Sleep(500);
-  _.agHelper.AssertElementExist(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-  _.agHelper.AssertElementEnabledDisabled(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    this.agHelper.Sleep(500);
+    this.agHelper.AssertElementExist(this.locator.connectData);
 
-  _.agHelper.AssertElementExist(
-    '[data-testid="t--one-click-binding-table-selector"]',
-  );
+    this.agHelper.AssertElementEnabledDisabled(this.locator.connectData);
 
-  _.agHelper.GetNClick('[data-testid="t--one-click-binding-table-selector"]');
+    this.agHelper.AssertElementExist(this.locator.tableOrSpreadsheetDropdown);
 
-  _.agHelper.GetNClick(
-    `.t--one-click-binding-table-selector--table:contains(${table})`,
-  );
+    this.agHelper.GetNClick(this.locator.tableOrSpreadsheetDropdown);
 
-  _.agHelper.AssertElementExist(
-    `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item:contains(${table})`,
-  );
+    this.agHelper.GetNClick(
+      `.t--one-click-binding-table-selector--table:contains(${table})`,
+    );
 
-  _.agHelper.AssertElementExist(
-    '[data-testid="t--one-click-binding-column-searchableColumn"]',
-  );
+    this.agHelper.AssertElementExist(
+      `${this.locator.tableOrSpreadsheetDropdown} .rc-select-selection-item:contains(${table})`,
+    );
 
-  _.agHelper.GetNClick(
-    '[data-testid="t--one-click-binding-column-searchableColumn"]',
-  );
+    this.agHelper.AssertElementExist(this.locator.searchableColumn);
 
-  _.agHelper.GetNClick(
-    `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
-  );
+    this.agHelper.GetNClick(this.locator.searchableColumn);
 
-  _.agHelper.AssertElementExist(
-    `[data-testid="t--one-click-binding-column-searchableColumn"] .rc-select-selection-item:contains(${column})`,
-  );
+    this.agHelper.GetNClick(
+      `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
+    );
 
-  _.agHelper.AssertElementExist(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    this.agHelper.AssertElementExist(
+      `${this.locator.searchableColumn} .rc-select-selection-item:contains(${column})`,
+    );
 
-  _.agHelper.AssertElementEnabledDisabled(
-    '[data-testId="t--one-click-binding-connect-data"]',
-    0,
-    false,
-  );
+    this.agHelper.AssertElementExist(this.locator.connectData);
+
+    this.agHelper.AssertElementEnabledDisabled(
+      this.locator.connectData,
+      0,
+      false,
+    );
+  }
 }

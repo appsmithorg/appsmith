@@ -20,8 +20,14 @@ export default {
     `.t--one-click-binding-datasource-selector--other-action${
       action ? `:contains(${action})` : ""
     }`,
-  datasourcePage: ".t--integrationsHomePage",
-  backButton: ".t--back-button",
+  tableOrSpreadsheetDropdown:
+    '[data-testid="t--one-click-binding-table-selector"]',
+  searchableColumn:
+    '[data-testid="t--one-click-binding-column-searchableColumn"]',
+  validTableRowData:
+    '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
   tableError: (error: string) =>
     `[data-testId="t--one-click-binding-table-selector--error"]:contains(${error})`,
+  dateInput: `[data-testid="datepicker-container"] input`,
+  dayViewFromDate: ".DayPicker-Day",
 };

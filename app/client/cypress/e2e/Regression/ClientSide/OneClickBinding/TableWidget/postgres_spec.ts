@@ -1,7 +1,5 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "../spec_utility";
-import locators from "../../../../../locators/OneClickBindingLocator";
 
 describe.skip("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
@@ -16,10 +14,15 @@ describe.skip("Table widget one click binding feature", () => {
 
       (cy as any).openPropertyPane(WIDGET.TABLE);
 
-      ChooseAndAssertForm(`New from ${dsName}`, dsName, "public.users", "name");
+      _.oneClickBinding.ChooseAndAssertForm(
+        `New from ${dsName}`,
+        dsName,
+        "public.users",
+        "name",
+      );
     });
 
-    _.agHelper.GetNClick(locators.connectData);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.connectData);
 
     cy.wait("@postExecute");
 
@@ -43,9 +46,9 @@ describe.skip("Table widget one click binding feature", () => {
 
     (cy as any).enterTableCellValue(3, 0, " 2016-06-22 19:10:25-07");
 
-    _.agHelper.GetNClick(`[data-testid="datepicker-container"] input`, 0, true);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.dateInput, 0, true);
 
-    _.agHelper.GetNClick(".DayPicker-Day", 0, true);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.dayViewFromDate, 0, true);
 
     (cy as any).wait(2000);
 

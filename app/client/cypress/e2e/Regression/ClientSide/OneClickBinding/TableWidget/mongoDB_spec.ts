@@ -1,7 +1,5 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "../spec_utility";
-import locators from "../../../../../locators/OneClickBindingLocator";
 
 describe.skip("one click binding mongodb datasource", function () {
   before(() => {
@@ -19,10 +17,15 @@ describe.skip("one click binding mongodb datasource", function () {
 
       (cy as any).openPropertyPane(WIDGET.TABLE);
 
-      ChooseAndAssertForm(`New from ${dsName}`, dsName, "netflix", "creator");
+      _.oneClickBinding.ChooseAndAssertForm(
+        `New from ${dsName}`,
+        dsName,
+        "netflix",
+        "creator",
+      );
     });
 
-    _.agHelper.GetNClick(locators.connectData);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.connectData);
 
     cy.wait("@postExecute");
 
@@ -36,7 +39,7 @@ describe.skip("one click binding mongodb datasource", function () {
     _.agHelper.Sleep();
     // check if the table rows are present for the given search entry
     _.agHelper.GetNAssertContains(
-      '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
+      _.oneClickBinding.locator.validTableRowData,
       rowWithAValidText,
     );
     //#endregion
@@ -89,7 +92,7 @@ describe.skip("one click binding mongodb datasource", function () {
 
     //check if that row is present
     _.agHelper.GetNAssertContains(
-      '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
+      _.oneClickBinding.locator.validTableRowData,
       someText,
     );
     //#endregion

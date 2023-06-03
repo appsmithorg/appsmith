@@ -1,8 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { ChooseAndAssertForm } from "./spec_utility";
-import locator from "../../../../locators/OneClickBindingLocator";
 import CommonLocators from "../../../../locators/commonlocators.json";
 import DatasourceEditor from "../../../../locators/DatasourcesEditor.json";
+import { Onboarding } from "../../../../support/Pages/Onboarding";
 
 describe.skip("One click binding control", () => {
   before(() => {
@@ -10,11 +9,19 @@ describe.skip("One click binding control", () => {
   });
 
   it("1.should check the datasource selector and the form", () => {
-    _.agHelper.AssertElementExist(locator.datasourceDropdownSelector);
-    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
-    _.agHelper.AssertElementAbsence(locator.datasourceQueryBindHeaderSelector);
-    _.agHelper.AssertElementExist(locator.datasourceGenerateAQuerySelector);
-    _.agHelper.AssertElementExist(locator.datasourceOtherActionsSelector);
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.datasourceDropdownSelector,
+    );
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceDropdownSelector);
+    _.agHelper.AssertElementAbsence(
+      _.oneClickBinding.locator.datasourceQueryBindHeaderSelector,
+    );
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.datasourceGenerateAQuerySelector,
+    );
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.datasourceOtherActionsSelector,
+    );
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(500);
@@ -29,49 +36,70 @@ describe.skip("One click binding control", () => {
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
-    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
-
-    _.agHelper.AssertElementExist(locator.datasourceQueryBindHeaderSelector);
-
-    _.agHelper.AssertElementLength(locator.datasourceQuerySelector, 1);
-
-    _.agHelper.AssertElementExist(locator.datasourceGenerateAQuerySelector);
-
-    _.agHelper.AssertElementExist(locator.datasourceSelector());
-
-    _.agHelper.AssertElementExist(locator.datasourceOtherActionsSelector);
-
-    _.agHelper.AssertElementExist(locator.otherActionSelector());
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      locator.otherActionSelector("Connect new datasource"),
+      _.oneClickBinding.locator.datasourceQueryBindHeaderSelector,
     );
 
-    _.agHelper.GetNClick(locator.otherActionSelector("Connect new datasource"));
-
-    _.agHelper.AssertElementExist(locator.datasourcePage);
-
-    _.agHelper.GetNClick(locator.backButton);
-
-    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
+    _.agHelper.AssertElementLength(
+      _.oneClickBinding.locator.datasourceQuerySelector,
+      1,
+    );
 
     _.agHelper.AssertElementExist(
-      locator.otherActionSelector("Insert snippet"),
+      _.oneClickBinding.locator.datasourceGenerateAQuerySelector,
     );
 
-    _.agHelper.GetNClick(locator.otherActionSelector("Insert snippet"));
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.datasourceSelector(),
+    );
+
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.datasourceOtherActionsSelector,
+    );
+
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.otherActionSelector(),
+    );
+
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.otherActionSelector("Connect new datasource"),
+    );
+
+    _.agHelper.GetNClick(
+      _.oneClickBinding.locator.otherActionSelector("Connect new datasource"),
+    );
+
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.onboardingLocator.datasourcePage,
+    );
+
+    _.agHelper.GetNClick(_.oneClickBinding.onboardingLocator.datasourceBackBtn);
+
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceDropdownSelector);
+
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.otherActionSelector("Insert snippet"),
+    );
+
+    _.agHelper.GetNClick(
+      _.oneClickBinding.locator.otherActionSelector("Insert snippet"),
+    );
 
     _.agHelper.AssertElementExist(CommonLocators.globalSearchModal);
 
     _.agHelper.TypeText(CommonLocators.globalSearchInput, "{esc}", 0, true);
 
-    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementExist(
-      locator.otherActionSelector("Insert binding"),
+      _.oneClickBinding.locator.otherActionSelector("Insert binding"),
     );
 
-    _.agHelper.GetNClick(locator.otherActionSelector("Insert binding"));
+    _.agHelper.GetNClick(
+      _.oneClickBinding.locator.otherActionSelector("Insert binding"),
+    );
 
     _.propPane.ValidatePropertyFieldValue("Table data", "{{}}");
 
@@ -79,15 +107,17 @@ describe.skip("One click binding control", () => {
 
     _.propPane.ToggleJsMode("Table data");
 
-    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceDropdownSelector);
 
     _.agHelper.AssertElementAbsence(
-      locator.datasourceDropdownOptionSelector("Query1"),
+      _.oneClickBinding.locator.datasourceDropdownOptionSelector("Query1"),
     );
 
-    _.agHelper.GetNClick(locator.datasourceQuerySelector, 0);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceQuerySelector, 0);
 
-    _.agHelper.AssertElementExist(locator.dropdownOptionSelector("Query1"));
+    _.agHelper.AssertElementExist(
+      _.oneClickBinding.locator.dropdownOptionSelector("Query1"),
+    );
 
     _.propPane.ToggleJsMode("Table data");
 
@@ -97,13 +127,23 @@ describe.skip("One click binding control", () => {
 
     _.propPane.ToggleJsMode("Table data");
 
-    ChooseAndAssertForm("New from Users", "Users", "public.users", "gender");
+    _.oneClickBinding.ChooseAndAssertForm(
+      "New from Users",
+      "Users",
+      "public.users",
+      "gender",
+    );
 
     _.propPane.MoveToTab("Style");
 
     _.propPane.MoveToTab("Content");
 
-    ChooseAndAssertForm("New from sample Movies", "movies", "movies", "status");
+    _.oneClickBinding.ChooseAndAssertForm(
+      "New from sample Movies",
+      "movies",
+      "movies",
+      "status",
+    );
 
     _.entityExplorer.NavigateToSwitcher("Explorer");
 
@@ -130,14 +170,16 @@ describe.skip("One click binding control", () => {
 
     _.entityExplorer.NavigateToSwitcher("Widgets");
 
-    _.agHelper.GetNClick(locator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(_.oneClickBinding.locator.datasourceDropdownSelector);
 
-    _.agHelper.GetNClick(locator.datasourceSelector("myinvalidds"));
+    _.agHelper.GetNClick(
+      _.oneClickBinding.locator.datasourceSelector("myinvalidds"),
+    );
 
     cy.wait("@getDatasourceStructure", { timeout: 20000 });
 
     _.agHelper.AssertElementExist(
-      locator.tableError(
+      _.oneClickBinding.locator.tableError(
         "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",
       ),
     );

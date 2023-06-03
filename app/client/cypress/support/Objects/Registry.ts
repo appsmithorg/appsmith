@@ -23,6 +23,7 @@ import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
+import { OneClickBinding } from "../../e2e/Regression/ClientSide/OneClickBinding/spec_utility";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -216,7 +217,13 @@ export class ObjectsRegistry {
     }
     return ObjectsRegistry.onboarding__;
   }
-
+  private static oneclickbinding__: OneClickBinding;
+  static get OneClickBinding(): OneClickBinding {
+    if (ObjectsRegistry.oneclickbinding__ === undefined) {
+      ObjectsRegistry.oneclickbinding__ = new OneClickBinding();
+    }
+    return ObjectsRegistry.oneclickbinding__;
+  }
   private static autoLayout__: AutoLayout;
   static get AutoLayout(): AutoLayout {
     if (ObjectsRegistry.autoLayout__ === undefined) {
