@@ -57,15 +57,38 @@ describe("Embed settings options", function () {
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
     cy.get("[data-testid='copy-application-url']").last().click();
-    cy.window().its("navigator.clipboard").invoke("readText").as("deployUrl");
+    cy.window()
+      .its("navigator.clipboard")
+      .invoke("readText")
+      .then((text) => {
+        cy.wrap(text).as("deployUrl");
+      });
     cy.enablePublicAccess();
     cy.wait(6000);
     getIframeBody().contains("Submit").should("exist");
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("1. Allow embedding everywhere", function () {
-    cy.log(this.deployUrl);
+  it("1. Limit embedding", function () {
+    _.homePage.NavigateToHome();
+    cy.get(".admin-settings-menu-option").click();
+    cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
+      cy.get("input").eq(1).click();
+      cy.get(".bp3-input-ghost").type(window.location.origin).blur();
+    });
+    cy.get(adminSettings.saveButton).click();
+    cy.waitForServerRestart();
+    cy.get(adminSettings.restartNotice).should("not.exist");
+    cy.get("@deployUrl").then((deployUrl) => {
+      cy.log("deployUrl is " + deployUrl);
+      cy.visit(deployUrl);
+    });
+    getIframeBody().contains("Submit").should("exist");
+
+    ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
+  });
+
+  it("2. Allow embedding everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
@@ -81,29 +104,15 @@ describe("Embed settings options", function () {
     //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("*");
     // });
     cy.get(adminSettings.restartNotice).should("not.exist");
-    cy.visit(this.deployUrl);
+    cy.get("@deployUrl").then((deployUrl) => {
+      cy.log("deployUrl is " + deployUrl);
+      cy.visit(deployUrl);
+    });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
   });
 
-  it("2. Limit embedding", function () {
-    cy.log(this.deployUrl);
-    _.homePage.NavigateToHome();
-    cy.get(".admin-settings-menu-option").click();
-    cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
-      cy.get("input").eq(1).click();
-      cy.get(".bp3-input-ghost").type(window.location.origin).blur();
-    });
-    cy.get(adminSettings.saveButton).click();
-    cy.waitForServerRestart();
-    cy.get(adminSettings.restartNotice).should("not.exist");
-    cy.visit(this.deployUrl);
-    getIframeBody().contains("Submit").should("exist");
-
-    ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
-  });
   it("3. Disable everywhere", function () {
-    cy.log(this.deployUrl);
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
@@ -112,7 +121,10 @@ describe("Embed settings options", function () {
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
     cy.get(adminSettings.restartNotice).should("not.exist");
-    cy.visit(this.deployUrl);
+    cy.get("@deployUrl").then((deployUrl) => {
+      cy.log("deployUrl is " + deployUrl);
+      cy.visit(deployUrl);
+    });
     // TODO: Commented out as it is flaky
     // cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
     //   const {
