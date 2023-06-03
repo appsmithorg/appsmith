@@ -20,7 +20,8 @@
     "colorjs.io": "^0.4.3"
   },
   "devDependencies": {
-    "eslint-plugin-storybook": "^0.6.10"
+    "eslint-plugin-storybook": "^0.6.10",
+    "identity-obj-proxy": "^3.0.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
