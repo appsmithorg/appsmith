@@ -93,12 +93,12 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-            
+
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
-        working-directory : app/client
+        working-directory: app/client
         run: |
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           while IFS= read -r line
@@ -154,16 +154,16 @@ jobs:
             cicontainer
 
       - name: Setup MSSQL & Arango docker & ElasticSearch containers
-        working-directory : app/client/cypress
-        run : |
+        working-directory: app/client/cypress
+        run: |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
           docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-       # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
-       # docker restart mssqldb
-       # sudo ufw allow 1433/tcp
-       # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
-       # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
+        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
+        # docker restart mssqldb
+        # sudo ufw allow 1433/tcp
+        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
+        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -186,7 +186,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory : app/client
+        working-directory: app/client
         run: |
           yarn install --immutable
 
@@ -254,7 +254,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          echo COMMIT_INFO_MESSAGE=Cypress tests run on $(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=Tests run from branch $(git rev-parse --abbrev-ref HEAD) on commit $(git show -s --pretty=%H | cut -c 1-7)>> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
