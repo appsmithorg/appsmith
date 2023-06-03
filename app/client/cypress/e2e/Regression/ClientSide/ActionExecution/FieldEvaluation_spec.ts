@@ -1,22 +1,17 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const { agHelper, entityExplorer, propPane } = _;
-
 describe("Field value evaluation", () => {
   before(() => {
-    cy.fixture("buttondsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
   });
 
   it("1. Evaluation works for fields", () => {
-    propPane.SelectPlatformFunction("onClick", "Show alert");
-    agHelper.TypeText(
-      propPane._actionSelectorFieldByLabel("Message"),
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.SelectPlatformFunction("onClick", "Show alert");
+    _.agHelper.TypeText(
+      _.propPane._actionSelectorFieldByLabel("Message"),
       "{{Button1.text}}",
     );
-
-    agHelper.VerifyEvaluatedValue("Submit");
+    _.agHelper.VerifyEvaluatedValue("Submit");
   });
 });
