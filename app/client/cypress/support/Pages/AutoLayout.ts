@@ -156,11 +156,11 @@ export class AutoLayout {
   ) {
     // TODO(aswathkk): Delta should be made 0.5 once the issue with list widget in mobile view is fixed.
     const DELTA = 1;
-    this.agHelper.GetElement(widgetSelector).then((widget) => {
-      const widgetRect = widget.get(0).getBoundingClientRect();
+    this.agHelper.GetElement(widgetSelector).then(($widget) => {
+      const widgetRect = $widget[0].getBoundingClientRect();
       cy.log("widgetRect.x is " + widgetRect.x);
-      this.agHelper.GetElement(componentSelector).then((component) => {
-        const componentRect = component.get(0).getBoundingClientRect();
+      this.agHelper.GetElement(componentSelector).then(($component) => {
+        const componentRect = $component[0].getBoundingClientRect();
         expect(widgetRect.x).to.be.closeTo(componentRect.x - 2, DELTA);
         expect(widgetRect.y).to.be.closeTo(componentRect.y - 2, DELTA);
         expect(widgetRect.top).to.be.closeTo(componentRect.top - 2, DELTA);
