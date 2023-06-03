@@ -1,16 +1,8 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import adminSettings from "../../../../locators/AdminsSettings";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Embed settings options", function () {
-  const {
-    AggregateHelper: agHelper,
-    DeployMode: deployMode,
-    EmbedSettings: embedSettings,
-    EntityExplorer: ee,
-    HomePage: homePage,
-  } = ObjectsRegistry;
-
   const getIframeBody = () => {
     // get the iframe > document > body
     // and retry until the body element is not empty
@@ -27,37 +19,40 @@ describe("Embed settings options", function () {
   };
 
   function ValidateEditModeSetting(setting) {
-    deployMode.NavigateBacktoEditor();
-    embedSettings.OpenEmbedSettings();
-    agHelper.GetNAssertElementText(
-      embedSettings.locators._frameAncestorsSetting,
+    _.deployMode.NavigateBacktoEditor();
+    _.embedSettings.OpenEmbedSettings();
+    _.agHelper.GetNAssertElementText(
+      _.embedSettings.locators._frameAncestorsSetting,
       setting,
     );
   }
 
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    deployMode.DeployApp();
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
+    _.deployMode.DeployApp();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
     cy.get("[data-testid='copy-application-url']").last().click();
-    agHelper.GiveChromeCopyPermission();
+    _.agHelper.GiveChromeCopyPermission();
+
     cy.window()
       .its("navigator.clipboard")
       .invoke("readText")
-      .as("embeddedAppUrl");
+      .then((text) => {
+        cy.wrap(text).as("embeddedAppUrl");
+      });
+
     cy.enablePublicAccess();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.backToAppsButton}`,
     ).click();
-    homePage.CreateNewApplication();
-    ee.DragDropWidgetNVerify("iframewidget", 100, 100);
+    _.homePage.CreateNewApplication();
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.IFRAME);
     cy.get("@embeddedAppUrl").then((url) => {
       cy.testJsontext("url", url);
     });
-    // cy.testJsontext("url", this.embeddedAppUrl);
-    deployMode.DeployApp();
+    _.deployMode.DeployApp();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
@@ -66,12 +61,12 @@ describe("Embed settings options", function () {
     cy.enablePublicAccess();
     cy.wait(6000);
     getIframeBody().contains("Submit").should("exist");
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it.only("1. Allow embedding everywhere", function () {
+  it("1. Allow embedding everywhere", function () {
     cy.log(this.deployUrl);
-    homePage.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(0).click();
@@ -88,12 +83,12 @@ describe("Embed settings options", function () {
     cy.get(adminSettings.restartNotice).should("not.exist");
     cy.visit(this.deployUrl);
     getIframeBody().contains("Submit").should("exist");
-    ValidateEditModeSetting(embedSettings.locators._allowAllText);
+    ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
   });
 
   it("2. Limit embedding", function () {
     cy.log(this.deployUrl);
-    homePage.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(1).click();
@@ -105,11 +100,11 @@ describe("Embed settings options", function () {
     cy.visit(this.deployUrl);
     getIframeBody().contains("Submit").should("exist");
 
-    ValidateEditModeSetting(embedSettings.locators._restrictedText);
+    ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
   });
   it("3. Disable everywhere", function () {
     cy.log(this.deployUrl);
-    homePage.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").last().click();
@@ -127,6 +122,6 @@ describe("Embed settings options", function () {
     // });
     getIframeBody().contains("Submit").should("not.exist");
 
-    ValidateEditModeSetting(embedSettings.locators._disabledText);
+    ValidateEditModeSetting(_.embedSettings.locators._disabledText);
   });
 });

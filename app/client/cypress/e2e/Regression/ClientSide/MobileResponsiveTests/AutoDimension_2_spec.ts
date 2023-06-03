@@ -17,11 +17,7 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.entityExplorer.DragDropWidgetNVerify(
-        _.draggableWidgets.CONTAINER,
-        100,
-        30,
-      );
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.CONTAINER);
       _.agHelper
         .GetWidgetByName("Container1")
         .invoke("attr", "id")
@@ -41,21 +37,18 @@ describe("Validating use cases for Auto Dimension", () => {
       cy.get("@widgetHeight").then(($initialHeight) => {
         _.propPane.UpdatePropertyFieldValue(
           "Text",
-          "hello\nWorld\nThis\nis\na\nMulti-line\nText",
+          "hello\nWorld\nThis\nis\na\nMulti-line\nTexthello\nWorld\nThis\nis\na\nMulti-line\nText",
         );
         _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
-        cy.get("@widgetHeight").then((height: any) => {
-          expect(height).to.be.greaterThan(Number($initialHeight));
-        });
-      });
+        cy.get("@widgetHeight").then(($longTextheight: any) => {
+          expect($longTextheight).to.be.greaterThan(Number($initialHeight));
 
-      // Remove some lines & verify if the container's height decreases
-      _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
-      cy.get("@widgetHeight").then(($initialHeight) => {
-        _.propPane.UpdatePropertyFieldValue("Text", "hello");
-        _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
-        cy.get("@widgetHeight").then((height: any) => {
-          expect(height).to.be.equal($initialHeight);
+          // Remove some lines & verify if the container's height decreases
+          _.propPane.UpdatePropertyFieldValue("Text", "hello");
+          _.agHelper.GetWidgetHeight(_.autoLayout._containerWidgetSelector);
+          cy.get("@widgetHeight").then((height: any) => {
+            expect(height).to.be.lessThan(Number($longTextheight));
+          });
         });
       });
     });

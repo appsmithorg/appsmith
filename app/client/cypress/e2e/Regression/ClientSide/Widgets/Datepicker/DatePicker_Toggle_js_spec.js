@@ -1,18 +1,16 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("DatePicker Widget Property pane tests with js bindings", function () {
+describe("DatePicker", function () {
   before(() => {
-    cy.addDsl(dsl);
-  });
-
-  beforeEach(() => {
+    cy.fixture("newFormDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("datepickerwidget");
   });
 
-  it("Datepicker default date validation with js binding", function () {
+  it("1. Datepicker default date validation with js binding", function () {
     cy.get(".t--property-control-defaultdate input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext(
