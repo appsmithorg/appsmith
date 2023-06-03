@@ -1,7 +1,7 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe.skip("Table widget one click binding feature", () => {
+describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
 

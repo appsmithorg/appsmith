@@ -1,7 +1,7 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe.skip("one click binding mongodb datasource", function () {
+describe("one click binding mongodb datasource", function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 400);
   });

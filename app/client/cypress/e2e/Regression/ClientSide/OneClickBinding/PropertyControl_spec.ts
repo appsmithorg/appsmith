@@ -1,9 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import CommonLocators from "../../../../locators/commonlocators.json";
 import DatasourceEditor from "../../../../locators/DatasourcesEditor.json";
-import { Onboarding } from "../../../../support/Pages/Onboarding";
 
-describe.skip("One click binding control", () => {
+describe("One click binding control", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2");
   });
