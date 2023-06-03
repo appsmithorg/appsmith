@@ -8,6 +8,7 @@ import {
   getOAuthAccessToken,
   createDatasourceFromForm,
   toggleSaveActionFlag,
+  updateDatasourceAuthState,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -63,6 +64,7 @@ export type DatasourceFormButtonTypes = Record<string, string[]>;
 export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
+  ACCESS_DENIED = "access_denied",
 }
 
 export enum DatasourceButtonTypeEnum {
@@ -196,6 +198,15 @@ function DatasourceAuth({
             datasourceName: datasource?.name,
             pluginName: pluginName,
           });
+
+          if (status === AuthorizationStatus.ACCESS_DENIED) {
+            dispatch(
+              updateDatasourceAuthState(
+                datasource,
+                AuthenticationStatus.FAILURE_ACCESS_DENIED,
+              ),
+            );
+          }
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
