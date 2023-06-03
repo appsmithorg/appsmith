@@ -40,9 +40,10 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
-      _.agHelper.RefreshPage();
+      _.agHelper.WaitUntilAllToastsDisappear();
     });
     _.deployMode.DeployApp(_.locators._emptyPageTxt);
+    _.agHelper.Sleep(3000);
     _.deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

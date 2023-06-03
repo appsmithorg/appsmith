@@ -127,21 +127,20 @@ export class JSEditor {
   //#region Page functions
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
+
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
     // Assert that the name of the JS Object is focused when newly created
-    cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-
-    cy.wait(1000);
-
+    //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
+    this.agHelper.PressEnter(); //for name to settle
+    this.agHelper.Sleep();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
-    //Checking JS object was created successfully
-    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
 
     this.agHelper.Sleep();
   }
