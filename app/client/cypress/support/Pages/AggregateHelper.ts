@@ -730,12 +730,11 @@ export class AggregateHelper {
     selector: string,
     attribName: string,
     attribValue: string,
+    index = 0,
   ) {
-    return this.GetElement(selector).should(
-      "have.attr",
-      attribName,
-      attribValue,
-    );
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.attr", attribName, attribValue);
   }
 
   public ToggleSwitch(

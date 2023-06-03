@@ -121,7 +121,7 @@ describe("MySQL Datatype tests", function () {
       _.entityExplorer.SelectEntityByName("dropTable");
       _.dataSources.RunQuery();
       _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped _.table!
+        expect($cellData).to.eq("0"); //Success response for dropped table!
       });
       _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
       _.entityExplorer.ExpandCollapseEntity("Datasources");

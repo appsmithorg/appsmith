@@ -35,11 +35,7 @@ export class DeployMode {
     this.agHelper.Sleep(2000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = Cypress.config().baseUrl + url.substring(1);
-      });
-    });
+    this.StubbingDeployPage();
     this.agHelper.AssertDocumentReady();
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
@@ -67,6 +63,14 @@ export class DeployMode {
       cy.stub(window, "open").callsFake((url) => {
         window.location.href = url;
         window.location.target = "_self";
+      });
+    });
+  }
+
+  public StubbingDeployPage() {
+    cy.window().then((window) => {
+      cy.stub(window, "open").callsFake((url) => {
+        window.location.href = Cypress.config().baseUrl + url.substring(1);
       });
     });
   }

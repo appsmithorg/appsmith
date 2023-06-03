@@ -70,32 +70,11 @@ describe("Button Widget Functionality", function () {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
-    let postgresDatasourceName;
-
-    cy.startRoutesForDatasource();
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.generateUUID().then((uid) => {
-      postgresDatasourceName = uid;
-
-      cy.get(".t--edit-datasource-name").click();
-      cy.get(".t--edit-datasource-name input")
-        .clear()
-        .type(postgresDatasourceName, { force: true })
-        .should("have.value", postgresDatasourceName)
-        .blur();
-
-      cy.fillPostgresDatasourceForm();
-      cy.saveDatasource();
-      cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
-    });
-
-    cy.CreateMockQuery("Query1");
-
+    _.dataSources.CreateDataSource("Postgres");
+    _.entityExplorer.ActionTemplateMenuByEntityName("public.film", "SELECT");
     // Going to HomePage where the button widget is located and opeing it's property pane.
-    cy.get(widgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
-    cy.openPropertyPane("buttonwidget");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
+    _.entityExplorer.SelectEntityByName("Button1");
 
     // Adding the query in the onClickAction of the button widget.
     cy.executeDbQuery("Query1", "onClick");

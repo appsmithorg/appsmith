@@ -20,13 +20,9 @@ describe("Text Widget Functionality", function () {
       widgetsPage.widgetNameSpan,
     );
     //Changing the text label
-    cy.testCodeMirror(this.data.TextLabelValue);
-    cy.moveToStyleTab();
-    cy.ChangeTextStyle(
-      this.data.TextHeading,
-      commonlocators.headingTextStyle,
-      this.data.TextLabelValue,
-    );
+    _.propPane.UpdatePropertyFieldValue("Text", this.data.TextLabelValue);
+    _.propPane.MoveToTab("Style");
+    _.propPane.SelectPropertiesDropDown("Font size", "M");
     cy.wait("@updateLayout");
     _.deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)

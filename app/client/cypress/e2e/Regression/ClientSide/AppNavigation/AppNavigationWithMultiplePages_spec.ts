@@ -1,5 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-let currentUrl: string | null = null;
+let currentUrl: string;
 
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
@@ -12,7 +12,9 @@ describe("Page orientation and navigation related usecases ", function () {
       _.appSettings.locators._navigationMenuItem,
       "Page1",
     );
+    _.agHelper.AssertElementVisible(_.locators._sidebar); //Page is loaded
   });
+
   it("2. Validate change with height width for fill widget - Input widget", function () {
     _.autoLayout.ConvertToAutoLayout();
     _.entityExplorer.DragDropWidgetNVerify(
@@ -20,7 +22,7 @@ describe("Page orientation and navigation related usecases ", function () {
       100,
       200,
     );
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.INPUT_V2, 10, 20);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.INPUT_V2);
     _.agHelper.Sleep();
     cy.url().then((url) => {
       currentUrl = url;
@@ -28,7 +30,7 @@ describe("Page orientation and navigation related usecases ", function () {
     for (let i = 0; i < 25; i++) {
       _.entityExplorer.AddNewPage();
     }
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 10, 20);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
     //_.propPane.navigateToPage("Page1", "onClick");
     _.propPane.NavigateToPage("Page1", "onClick");
     //cy.navigateOnClick("Page1", "onClick");
@@ -46,24 +48,22 @@ describe("Page orientation and navigation related usecases ", function () {
       .should("have.class", "is-active");
     _.deployMode.NavigateBacktoEditor();
   });
+
   it("3. Navigate to widget url and validate", () => {
-    if (currentUrl !== null) {
-      _.agHelper.visitURL(currentUrl);
-      _.agHelper.Sleep();
-      _.agHelper.AssertElementExist(
-        _.locators._widgetInCanvas("inputwidgetv2"),
-      );
-      _.agHelper.AssertElementExist(
-        _.locators._widgetInCanvas("inputwidgetv2"),
-        1,
-      );
-      _.agHelper.AssertAttribute(
-        _.locators._widgetInCanvas("inputwidgetv2"),
-        "data-testid",
-        "t--selected",
-      );
-    } else {
-      cy.log("URL is NULL check previous test");
-    }
+    _.agHelper.visitURL(currentUrl);
+    _.agHelper.Sleep();
+    _.agHelper.AssertElementExist(
+      _.locators._widgetInCanvas(_.draggableWidgets.INPUT_V2),
+    );
+    _.agHelper.AssertElementExist(
+      _.locators._widgetInCanvas(_.draggableWidgets.INPUT_V2),
+      1,
+    );
+    _.agHelper.AssertAttribute(
+      _.locators._widgetInCanvas(_.draggableWidgets.INPUT_V2),
+      "data-testid",
+      "t--selected",
+      1,
+    );
   });
 });
