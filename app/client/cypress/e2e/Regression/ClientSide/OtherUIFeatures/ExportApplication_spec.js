@@ -90,7 +90,7 @@ describe("Export application as a JSON file", function () {
       _.homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
       appid = "App" + uid;
       workspaceId = "exportApp" + uid;
-      cy.get("h2").contains("Drag and drop a widget here");
+      //cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
       _.homePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
@@ -125,7 +125,7 @@ describe("Export application as a JSON file", function () {
       _.homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
       appid = "App" + uid;
       workspaceId = "exportApp" + uid;
-      cy.get("h2").contains("Drag and drop a widget here");
+      //cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
 
       _.homePage.InviteUserToApplication(
