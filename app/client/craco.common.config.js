@@ -1,3 +1,4 @@
+const assert = require("assert");
 const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
@@ -99,6 +100,37 @@ module.exports = {
             path.resolve(__dirname, "src"),
             ...webpackConfig.resolve.modules,
           ];
+          return webpackConfig;
+        },
+      },
+    },
+    // Emit the main `script` without a `defer` attribute. This increases its priority
+    // from Low to High (doc: https://addyosmani.com/blog/script-priorities/) and prevents it
+    // from competing with `<link rel="preload"`>s in `index.html`, which are also Low.
+    {
+      plugin: {
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          const htmlWebpackPlugin = webpackConfig.plugins.find(
+            (plugin) => plugin.constructor.name === "HtmlWebpackPlugin",
+          );
+
+          // CRA must include HtmlWebpackPlugin: https://github.com/facebook/create-react-app/blob/d960b9e38c062584ff6cfb1a70e1512509a966e7/packages/react-scripts/config/webpack.config.js#L608-L632
+          // If it doesn’t, perhaps the version of CRA has changed, or plugin names got mangled?
+          assert(
+            htmlWebpackPlugin,
+            "Cannot find HtmlWebpackPlugin in webpack config",
+          );
+
+          // HtmlWebpackPlugin must have the userOptions field: https://github.com/jantimon/html-webpack-plugin/blob/d5ce5a8f2d12a2450a65ec51c285dd54e36cd921/index.js#L34.
+          // If it doesn’t, perhaps the version of HtmlWebpackPlugin has changed?
+          assert(
+            htmlWebpackPlugin.userOptions,
+            "htmlWebpackPlugin.userOptions must be defined",
+          );
+
+          htmlWebpackPlugin.userOptions.inject = "head";
+          htmlWebpackPlugin.userOptions.scriptLoading = "blocking";
+
           return webpackConfig;
         },
       },
