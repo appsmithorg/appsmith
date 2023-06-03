@@ -327,13 +327,15 @@ export class AggregateHelper {
     aliasName: string,
     expectedRes = true,
   ) {
-    cy.wait(aliasName)
+    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
+    cy.get(aliasName)
       .its("response.body.data.isExecutionSuccess")
       .should("eq", expectedRes);
   }
 
   public ValidateNetworkDataSuccess(aliasName: string, expectedRes = true) {
-    cy.wait(aliasName)
+    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
+    cy.get(aliasName)
       .its("response.body.data.success")
       .should("eq", expectedRes);
   }
@@ -348,7 +350,8 @@ export class AggregateHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    cy.wait(aliasName)
+    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
+    cy.get(aliasName)
       .its("response.body.responseMeta.status")
       .should("eq", expectedStatus);
 
@@ -363,11 +366,8 @@ export class AggregateHelper {
     expectedPath: string,
     expectedRes: any,
   ) {
-    cy.wait(aliasName).should(
-      "have.nested.property",
-      expectedPath,
-      expectedRes,
-    );
+    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
+    cy.get(aliasName).should("have.nested.property", expectedPath, expectedRes);
   }
 
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
