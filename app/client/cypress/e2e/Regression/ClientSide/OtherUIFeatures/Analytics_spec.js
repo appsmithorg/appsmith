@@ -1,4 +1,5 @@
 let appId;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "excludeForAirgap",
@@ -22,7 +23,7 @@ describe(
 
     it("1. Should check analytics is not initialised when enableTelemtry is false", function () {
       cy.visit("/applications");
-      // cy.reload();
+      // _.agHelper.RefreshPage();
       // cy.wait(3000);
       // cy.wait("@getMe")
       //   //.wait("@getMe")
@@ -53,7 +54,7 @@ describe(
 
     it("2. Should check smartlook is not initialised when enableTelemtry is false", function () {
       cy.visit("/applications");
-      cy.reload();
+      _.agHelper.RefreshPage();
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
@@ -77,7 +78,7 @@ describe(
 
     it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
       cy.visit("/applications");
-      cy.reload();
+      _.agHelper.RefreshPage();
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
