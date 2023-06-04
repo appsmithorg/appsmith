@@ -3,6 +3,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
+let api = ObjectsRegistry.ApiPage;
 
 describe("API Panel Test Functionality ", function () {
   it("1. Test API copy/Move/delete feature", function () {
@@ -14,10 +15,8 @@ describe("API Panel Test Functionality ", function () {
     cy.get("body").click(0, 0);
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Copy to page", "SecondPage");
-    ObjectsRegistry.AggregateHelper.AssertNewTabOpened(() => {
-      // click on learn how link
-      cy.get(".ads-v2-link span").contains("Learn how").click();
-    });
+    // assert GET API is present.
+    api.AssertAPIVerb("GET");
     cy.get("body").click(0, 0);
     ee.ActionContextMenuByEntityName("FirstAPICopy", "Move to page", "Page1");
     cy.wait(2000);
