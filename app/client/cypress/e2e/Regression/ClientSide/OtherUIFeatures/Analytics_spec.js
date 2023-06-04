@@ -54,7 +54,7 @@ describe(
 
     it("2. Should check smartlook is not initialised when enableTelemtry is false", function () {
       cy.visit("/applications");
-      _.agHelper.RefreshPage(true, "releaseItems");
+      _.agHelper.RefreshPage(true, "getReleaseItems");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
@@ -78,7 +78,7 @@ describe(
 
     it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
       cy.visit("/applications");
-      _.agHelper.RefreshPage(true, "releaseItems");
+      _.agHelper.RefreshPage(true, "getReleaseItems");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
