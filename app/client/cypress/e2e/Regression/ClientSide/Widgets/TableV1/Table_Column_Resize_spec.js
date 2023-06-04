@@ -1,10 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const dsl = require("../../../../../fixtures/tableResizedColumnsDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Functionality with Hidden and Resized Columns", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableResizedColumnsDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Table Widget Functionality with Hidden and Resized Columns", function () {
