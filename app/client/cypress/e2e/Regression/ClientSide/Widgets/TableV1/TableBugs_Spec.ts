@@ -1,12 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-let dataSet: any;
-
 describe("Verify various Table property bugs", function () {
   before(() => {
-    cy.fixture("example").then(function (data: any) {
-      dataSet = data;
-    });
     cy.fixture("tablev1NewDsl").then((val: any) => {
       _.agHelper.AddDsl(val);
     });
@@ -16,7 +11,7 @@ describe("Verify various Table property bugs", function () {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(
       "Table data",
-      JSON.stringify(dataSet.TableURLColumnType),
+      JSON.stringify(this.dataSet.TableURLColumnType),
     );
     _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
     _.agHelper.PressEscape();

@@ -1,6 +1,4 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
-
-const dsl = require("../../../fixtures/PgAdmindsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
@@ -8,7 +6,10 @@ describe("PgAdmin Clone App", function () {
   let datasourceName, tableName;
 
   before("Add dsl and create datasource", () => {
-    cy.addDsl(dsl);
+    cy.fixture("PgAdmindsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
+
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;

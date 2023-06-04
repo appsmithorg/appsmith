@@ -1,17 +1,13 @@
-const dsl = require("../../../../fixtures/buttonApiDsl.json");
-
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Button widget", function () {
-  let dataSet;
   before("Test_Add users api and execute api", () => {
-    cy.addDsl(dsl);
-
-    cy.fixture("example").then(function (data) {
-      dataSet = data;
-      cy.createAndFillApi(dataSet.userApi, "/users");
-      cy.RunAPI();
+    cy.fixture("buttonApiDsl").then((val) => {
+      _.agHelper.AddDsl(val);
     });
+
+    cy.createAndFillApi(this.dataSet.userApi, "/users");
+    cy.RunAPI();
   });
 
   it("1. Selects set interval function, Fill setInterval action creator and test code generated ", () => {

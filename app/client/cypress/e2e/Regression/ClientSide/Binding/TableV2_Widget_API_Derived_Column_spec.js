@@ -10,9 +10,10 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("1. Validate TableV2 with API data and then add a column", function () {
-    cy.fixture("example").then(function (data) {
-      _.apiPage.CreateAndFillApi(data.paginationUrl + data.paginationParam);
-    });
+    _.apiPage.CreateAndFillApi(
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+
     cy.RunAPI();
     _.entityExplorer.SelectEntityByName("Table1");
     _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");

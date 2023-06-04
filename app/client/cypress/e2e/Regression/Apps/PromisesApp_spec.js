@@ -1,11 +1,12 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
 import homePage from "../../../locators/HomePage";
-const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("promisesStoreValueDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
