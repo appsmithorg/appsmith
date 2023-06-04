@@ -1,24 +1,19 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const dsl = require("../../../../fixtures/formWidgetdsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const _ = require("../../../../support/Objects/ObjectsCore");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
-  cy.addDsl(dsl);
+  cy.fixture("formWidgetdsl").then((val) => {
+    _.agHelper.AddDsl(val);
+  });
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
-    cy.openPropertyPane("formwidget");
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    _.entityExplorer.SelectEntityByName("Form1", "Widgets");
+    _.propPane.RenameWidget("Form1", "FormTest");
     cy.get(commonlocators.copyWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
