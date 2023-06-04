@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/TextTableV2dsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table v2 Binding Functionality", function () {
@@ -11,7 +10,9 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TextTableV2dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   afterEach(() => {
     _.deployMode.NavigateBacktoEditor();

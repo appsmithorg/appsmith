@@ -1,11 +1,13 @@
-const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("MultipleWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Input widget test with default value from table widget", function () {

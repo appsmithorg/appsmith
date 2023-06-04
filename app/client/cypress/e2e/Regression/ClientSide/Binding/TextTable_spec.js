@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/TextTabledsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Table Binding Functionality", function () {
@@ -11,7 +10,9 @@ describe("Text-Table Binding Functionality", function () {
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TextTabledsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Text-Table Binding Functionality For Id", function () {
     cy.openPropertyPane("tablewidget");

@@ -1,12 +1,13 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/MultipleInput.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("MultipleInput").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   Cypress.on("uncaught:exception", (err, runnable) => {

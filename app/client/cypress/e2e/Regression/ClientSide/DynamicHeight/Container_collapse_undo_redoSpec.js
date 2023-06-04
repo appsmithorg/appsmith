@@ -1,9 +1,11 @@
-const dsl = require("../../../../fixtures/DynamicHeightDefaultHeightdsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.addDsl(dsl);
+    cy.fixture("DynamicHeightDefaultHeightdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
     cy.get(".t--widget-containerwidget")
