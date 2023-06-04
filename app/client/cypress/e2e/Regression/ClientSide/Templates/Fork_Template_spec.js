@@ -41,7 +41,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     cy.intercept("/api/v1/applications/new", {
       fixture: "Templates/MockAppViewerUser.json",
     });
-    _.agHelper.RefreshPage();
+    _.agHelper.RefreshPage(true, "releaseItems");
     _.homePage.SwitchToTemplatesTab();
     _.agHelper.Sleep(2000);
     _.agHelper.CheckForErrorToast(
