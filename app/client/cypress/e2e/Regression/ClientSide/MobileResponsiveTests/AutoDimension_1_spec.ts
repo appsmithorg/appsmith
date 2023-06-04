@@ -17,8 +17,8 @@ describe("Validating use cases for Auto Dimension", () => {
       if (viewport === "MOBILE") {
         _.agHelper.SetCanvasViewportWidth(375);
       }
-      _.autoLayout.DropButtonAndTestForAutoDimension(100, 30);
-      _.autoLayout.DropTextAndTestForAutoDimension(100, 60);
+      _.autoLayout.DropButtonAndTestForAutoDimension(100, 100);
+      _.autoLayout.DropTextAndTestForAutoDimension(100, 200);
     });
 
     it(`2. [${viewport}] Verify if Auto dimension works for widgets in a Container`, () => {
