@@ -12,6 +12,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 10, 20);
     _.propPane.NavigateToPage("Page1", "onClick");
   });
+
   it("2. Change App navigation settings and valdiate the layout settings", () => {
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.agHelper.GetNClick(_.appSettings.locators._appSettings);
@@ -23,8 +24,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
       _.appSettings.locators._navigationMenuItem,
       "Page1",
     );
-    _.agHelper.Sleep();
-    _.agHelper.Sleep();
+    _.agHelper.AssertElementVisible(_.locators._sidebar); //Page is loaded
     _.agHelper.AssertElementExist(_.locators._widgetInCanvas("inputwidgetv2"));
     _.agHelper.AssertElementExist(
       _.locators._widgetInCanvas("inputwidgetv2"),
