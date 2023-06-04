@@ -1,11 +1,12 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import data from "../../../../fixtures/TestDataSet1.json";
 
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
     _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.apiPage.CreateAndFillApi(this.dataSet.userApi + "/random");
+    _.apiPage.CreateAndFillApi(data.userApi + "/random");
   });
 
   it("1. Call the api with & without error handling", () => {
