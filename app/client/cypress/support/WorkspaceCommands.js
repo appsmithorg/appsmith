@@ -5,8 +5,11 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
-const generatePage = require("../locators/GeneratePage.json");
 import explorer from "../locators/explorerlocators";
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+const homePageOR = ObjectsRegistry.HomePage;
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -268,6 +271,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  homePageOR.RemoveAppRenameTooltip();
 });
 
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
@@ -299,12 +303,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     200,
   );
   // Remove tooltip on the Application Name
-  cy.xpath(
-    '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]',
-  ).then(($tooltipElement) => {
-    $tooltipElement.remove();
-    cy.log("Rename application tooltip removed");
-  });
+  homePageOR.RemoveAppRenameTooltip();
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

@@ -101,6 +101,8 @@ export class HomePage {
   _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
   _workspaceSettingOption = "[data-testid=t--workspace-setting]";
   _inviteUserMembersPage = "[data-testid=t--page-header-input]";
+  _appRenameTooltip =
+    '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -539,6 +541,13 @@ export class HomePage {
         this.agHelper.GetNClick(this._skiptoApplicationBtn);
         this.NavigateToHome();
       }
+    });
+  }
+
+  public RemoveAppRenameTooltip() {
+    this.agHelper.GetElement(this._appRenameTooltip).then(($tooltipElement) => {
+      $tooltipElement.remove();
+      cy.log("Rename application tooltip removed");
     });
   }
 }
