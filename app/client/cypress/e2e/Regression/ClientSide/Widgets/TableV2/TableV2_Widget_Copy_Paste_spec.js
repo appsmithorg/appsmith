@@ -1,12 +1,13 @@
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Suite to validate copy/paste table Widget V2", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Copy paste table widget and valdiate application status", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
