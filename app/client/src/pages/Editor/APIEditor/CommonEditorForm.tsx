@@ -572,6 +572,13 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     getPlugin(state, pluginId ?? ""),
   );
 
+  // this gets the url of the current action
+  const actionUrl =
+    currentActionConfig?.datasource?.datasourceConfiguration?.url || "";
+
+  // if the url is empty or the user does not have permission, block action execution.
+  const blockExecution = !actionUrl || !isExecutePermitted;
+
   // Debugger render flag
   const showDebugger = useSelector(showDebuggerFlag);
 
@@ -621,7 +628,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
-                isDisabled={!isExecutePermitted}
+                isDisabled={blockExecution}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();

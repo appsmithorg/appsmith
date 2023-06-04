@@ -13,11 +13,6 @@ export enum PluginType {
   REMOTE = "REMOTE",
 }
 
-// more can be added subsequently.
-export enum PluginName {
-  MONGO = "MongoDB",
-}
-
 export enum PluginPackageName {
   POSTGRES = "postgres-plugin",
   MONGO = "mongo-plugin",
@@ -28,6 +23,17 @@ export enum PluginPackageName {
   GRAPHQL = "graphql-plugin",
   JS = "js-plugin",
   ORACLE = "oracle-plugin",
+}
+
+// more can be added subsequently.
+export enum PluginName {
+  MONGO = "MongoDB",
+  POSTGRES = "PostgreSQL",
+  MY_SQL = "MySQL",
+  MS_SQL = "Microsoft SQL Server",
+  GOOGLE_SHEETS = "Google Sheets",
+  FIRESTORE = "Firestore",
+  ORACLE = "Oracle",
 }
 
 export enum PaginationType {
