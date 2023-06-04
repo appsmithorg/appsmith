@@ -47,6 +47,7 @@ Cypress.on("fail", (error) => {
 });
 
 Cypress.env("MESSAGES", MESSAGES);
+let dataSet; // Declare a variable to hold the test data
 
 before(function () {
   if (RapidMode.config.enabled) {
@@ -126,8 +127,8 @@ before(function () {
     localStorage.setItem("AppName", id);
   });
 
-  cy.fixture("example").then(function (data) {
-    this.data = data;
+  cy.fixture("TestDataSet1").then(function (data) {
+    this.dataSet = data;
   });
 });
 

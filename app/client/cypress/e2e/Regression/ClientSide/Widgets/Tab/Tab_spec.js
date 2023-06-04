@@ -52,7 +52,7 @@ describe("Tab widget test", function () {
 
   it("2. Tab Widget Functionality To Select Tabs", function () {
     cy.get(publish.tabWidget)
-      .contains(this.data.tabName)
+      .contains(this.dataSet.tabName)
       .last()
       .click({ force: true })
       .should("have.class", "is-selected");

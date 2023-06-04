@@ -43,23 +43,23 @@ describe("Text Widget color/font/alignment Functionality", function () {
   it("2. Text-TextStyle Heading, Text Name Validation", function () {
     //changing the Text Name and verifying
     cy.widgetText(
-      this.data.TextName,
+      this.dataSet.TextName,
       widgetsPage.textWidget,
       widgetsPage.widgetNameSpan,
     );
 
     //Changing the text label
-    cy.testCodeMirror(this.data.TextLabelValueScrollable);
+    cy.testCodeMirror(this.dataSet.TextLabelValueScrollable);
     cy.moveToStyleTab();
     cy.ChangeTextStyle(
-      this.data.TextHeading,
+      this.dataSet.TextHeading,
       commonlocators.headingTextStyle,
-      this.data.TextLabelValueScrollable,
+      this.dataSet.TextLabelValueScrollable,
     );
     cy.wait("@updateLayout");
     _.deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)
-      .should("have.text", this.data.TextLabelValueScrollable)
+      .should("have.text", this.dataSet.TextLabelValueScrollable)
       .should("have.css", "font-size", "16px");
     _.deployMode.NavigateBacktoEditor();
   });

@@ -16,14 +16,14 @@ describe("Button Widget Functionality", function () {
 
   it("1. Button-Modal Validation", function () {
     //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onClick");
+    cy.createModal(this.dataSet.ModalName, "onClick");
     _.deployMode.DeployApp();
     cy.wait(5000); //for page to load fully - for CI exclusively
     cy.get(publishPage.buttonWidget).should("be.visible");
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
   });
 
@@ -35,7 +35,7 @@ describe("Button Widget Functionality", function () {
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
     cy.enterDatasourceAndPath(
-      this.data.paginationUrl,
+      this.dataSet.paginationUrl,
       "mock-api?records=20&page=4&size=3",
     );
     cy.SaveAndRunAPI();

@@ -25,12 +25,12 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.get(viewWidgetsPage.mapinitialloc)
         .click({ force: true })
         .clear()
-        .type(this.data.country)
+        .type(this.dataSet.country)
         .type("{enter}");
       cy.get(viewWidgetsPage.mapInput)
         .click({ force: true })
-        .type(this.data.command)
-        .type(JSON.stringify(this.data.marker), {
+        .type(this.dataSet.command)
+        .type(JSON.stringify(this.dataSet.marker), {
           parseSpecialCharSequences: false,
         });
       cy.get(viewWidgetsPage.zoomLevel).eq(0).click({ force: true });
@@ -38,7 +38,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.get(viewWidgetsPage.mapSearch)
         .click({ force: true })
         .clear()
-        .type(this.data.location2)
+        .type(this.dataSet.location2)
         .type("{enter}");
     });
 
@@ -112,7 +112,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
 
       cy.get(viewWidgetsPage.mapinitialloc).should(
         "have.value",
-        this.data.country,
+        this.dataSet.country,
       );
 
       /**

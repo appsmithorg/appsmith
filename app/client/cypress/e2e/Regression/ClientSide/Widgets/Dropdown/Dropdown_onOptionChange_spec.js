@@ -2,7 +2,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
-const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -17,7 +16,7 @@ describe("Dropdown Widget Functionality", function () {
     _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
     cy.EnableAllCodeEditors();
-    cy.testJsontext("options", JSON.stringify(data.input));
+    cy.testJsontext("options", JSON.stringify(this.dataSet.input));
     //creating the Modal and verify Modal name //to fix below
     // cy.createModal("Modal1", false);
     // _.deployMode.DeployApp();
@@ -42,7 +41,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.CreateAPI("dropdownApi");
     cy.log("Creation of buttonApi Action successful");
     cy.enterDatasourceAndPath(
-      this.data.paginationUrl,
+      this.dataSet.paginationUrl,
       "mock-api?records=20&page=4&size=3",
     );
     cy.SaveAndRunAPI();

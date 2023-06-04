@@ -24,7 +24,7 @@ describe("Switch Widget Functionality", function () {
     /**
      * @param{Text} Random Value
      */
-    cy.testCodeMirror(this.data.switchInputName);
+    cy.testCodeMirror(this.dataSet.switchInputName);
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     /**
      * @param{toggleButton Css} Assert to be checked
@@ -40,7 +40,7 @@ describe("Switch Widget Functionality", function () {
   it("2. Switch Functionality To Switch Label", function () {
     cy.get(publish.switchwidget + " " + "label").should(
       "have.text",
-      this.data.switchInputName,
+      this.dataSet.switchInputName,
     );
     _.deployMode.NavigateBacktoEditor();
 

@@ -25,7 +25,7 @@ describe("DatePicker Widget Functionality", function () {
 
     //changing the Button Name
     cy.widgetText(
-      this.data.Datepickername,
+      this.dataSet.Datepickername,
       formWidgetsPage.datepickerWidget,
       widgetsPage.widgetNameSpan,
     );

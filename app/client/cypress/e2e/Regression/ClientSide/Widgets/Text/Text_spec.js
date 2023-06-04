@@ -15,18 +15,18 @@ describe("Text Widget Functionality", function () {
   it("1. Text-TextStyle Heading, Text Name Validation", function () {
     //changing the Text Name and verifying
     cy.widgetText(
-      this.data.TextName,
+      this.dataSet.TextName,
       widgetsPage.textWidget,
       widgetsPage.widgetNameSpan,
     );
     //Changing the text label
-    _.propPane.UpdatePropertyFieldValue("Text", this.data.TextLabelValue);
+    _.propPane.UpdatePropertyFieldValue("Text", this.dataSet.TextLabelValue);
     _.propPane.MoveToTab("Style");
     _.propPane.SelectPropertiesDropDown("Font size", "M");
     cy.wait("@updateLayout");
     _.deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)
-      .should("have.text", this.data.TextLabelValue)
+      .should("have.text", this.dataSet.TextLabelValue)
       .should("have.css", "font-size", "16px");
   });
 
@@ -42,40 +42,40 @@ describe("Text Widget Functionality", function () {
   });
 
   it("3. Text-TextStyle Label Validation", function () {
-    cy.testCodeMirror(this.data.TextLabelValue);
+    cy.testCodeMirror(this.dataSet.TextLabelValue);
     cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.ChangeTextStyle(
-      this.data.TextLabel,
+      this.dataSet.TextLabel,
       commonlocators.labelTextStyle,
-      this.data.TextLabelValue,
+      this.dataSet.TextLabelValue,
     );
     _.deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle)
-      .should("have.text", this.data.TextLabelValue)
+      .should("have.text", this.dataSet.TextLabelValue)
       .should("have.css", "font-size", "14px");
   });
 
   it("4. Text-TextStyle Body Validation", function () {
     cy.moveToStyleTab();
     cy.ChangeTextStyle(
-      this.data.TextBody,
+      this.dataSet.TextBody,
       commonlocators.bodyTextStyle,
-      this.data.TextLabelValue,
+      this.dataSet.TextLabelValue,
     );
     _.deployMode.DeployApp();
     cy.get(commonlocators.bodyTextStyle)
-      .should("have.text", this.data.TextLabelValue)
+      .should("have.text", this.dataSet.TextLabelValue)
       .should("have.css", "font-size", "20px");
   });
 
   it("5. Text widget depends on itself", function () {
-    cy.testJsontext("text", `{{${this.data.TextName}}}`);
+    cy.testJsontext("text", `{{${this.dataSet.TextName}}}`);
     cy.get(commonlocators.toastBody).first().contains("Cyclic");
     _.deployMode.DeployApp();
     cy.get(commonlocators.bodyTextStyle).should(
       "have.text",
-      `{{${this.data.TextName}}}`,
+      `{{${this.dataSet.TextName}}}`,
     );
   });
 

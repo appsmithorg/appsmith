@@ -14,7 +14,7 @@ describe("Bind a button and Api usecase", function () {
   });
 
   it("1. Add an API by binding a button in its header", function () {
-    _.apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    _.apiPage.CreateAndFillApi(this.dataSet.userApi + "/mock-api?records=10");
     cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })

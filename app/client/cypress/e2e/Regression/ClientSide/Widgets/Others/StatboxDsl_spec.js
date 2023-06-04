@@ -1,9 +1,9 @@
 const dsl = require("../../../../../fixtures/StatboxDsl.json");
-const data = require("../../../../../fixtures/example.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+const data = require("../../../../../fixtures/TestDataSet1.json");
 
-describe("Statbox Widget Functionality", function () {
+describe("Statbox Widget", function () {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();
   });
@@ -19,9 +19,7 @@ describe("Statbox Widget Functionality", function () {
       .get(".entity-context-menu")
       .last()
       .click({ force: true });
-  });
-
-  it("2. Open Existing Statbox, change background color and verify", () => {
+    // Open Existing Statbox, change background color and verify
     cy.openPropertyPane("statboxwidget");
     // changing the background color of statbox and verying it
     cy.get(".t--property-pane-section-general").then(() => {
@@ -38,7 +36,7 @@ describe("Statbox Widget Functionality", function () {
     });
   });
 
-  it("3. Verify Statbox icon button's onClick action and change the icon", () => {
+  it("2. Verify Statbox icon button's onClick action and change the icon", () => {
     cy.openPropertyPane("iconbuttonwidget");
     cy.get(".t--property-pane-section-general").then(() => {
       //cy.moveToStyleTab();
@@ -58,14 +56,12 @@ describe("Statbox Widget Functionality", function () {
     cy.get("span:contains('Close')").closest("div").last().click();
   });
 
-  it("4. Bind datasource to multiple components in statbox", () => {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("MockApi");
-    cy.enterDatasourceAndPath(
-      data.paginationUrl,
-      "mock-api?records=20&page=4&size=3",
+  it("3. Bind datasource to multiple components in statbox", () => {
+    _.apiPage.CreateAndFillApi(
+      data.userApi + "/mock-api?records=20&page=4&size=3",
+      "MockApi",
     );
-    cy.SaveAndRunAPI();
+    _.apiPage.RunAPI();
     // going to HomePage where the button widget is located and opening it's property pane.
     // binding datasource to text widget in statbox
     _.entityExplorer.SelectEntityByName("Text1", "Statbox1");

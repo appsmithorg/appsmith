@@ -114,7 +114,7 @@ describe("Text-Table v2 Binding Functionality", function () {
      */
     cy.isSelectRow(1);
     cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", JSON.stringify(this.data.textfun));
+    cy.testJsontext("text", JSON.stringify(this.dataSet.textfun));
     /**
      * @param{Row Index} Provide the row index
      * @param(Column Index) Provide column index

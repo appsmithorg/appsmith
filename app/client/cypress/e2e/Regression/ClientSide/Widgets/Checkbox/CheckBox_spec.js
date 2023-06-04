@@ -24,7 +24,7 @@ describe("Checkbox Widget Functionality", function () {
     /**
      * @param{Text} Random Value
      */
-    cy.testCodeMirror(this.data.checkbocInputName);
+    cy.testCodeMirror(this.dataSet.checkbocInputName);
     cy.get(widgetsPage.checkboxLabel).should("have.text", "value");
     /**
      * @param{toggleButton Css} Assert to be checked
@@ -38,7 +38,7 @@ describe("Checkbox Widget Functionality", function () {
     //Checkbox Functionality To Check Label
     cy.get(publish.checkboxWidget + " " + "label").should(
       "have.text",
-      this.data.checkbocInputName,
+      this.dataSet.checkbocInputName,
     );
   });
   it("Checkbox Functionality To Check Disabled Widget", function () {

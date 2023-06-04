@@ -23,7 +23,7 @@ describe("Table Widget Functionality", function () {
       widgetsPage.tableWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInput));
     cy.wait("@updateLayout");
     //cy.get(widgetsPage.ColumnAction).click({ force: true });
     // cy.get(widgetsPage.tableOnRowSelected)
@@ -57,7 +57,7 @@ describe("Table Widget Functionality", function () {
     cy.isSelectRow(1);
 
     const index = 1;
-    const imageVal = this.data.TableInput[index].image;
+    const imageVal = this.dataSet.TableInput[index].image;
     cy.readTableLinkPublish(index, "1").then((hrefVal) => {
       expect(hrefVal).to.contain(imageVal);
     });

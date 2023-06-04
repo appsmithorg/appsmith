@@ -17,7 +17,7 @@ describe("Switch Widget within Form widget Functionality", function () {
       widgetsPage.widgetNameSpan,
     );
     // Change the widget label name
-    cy.testCodeMirror(this.data.switchInputName);
+    cy.testCodeMirror(this.dataSet.switchInputName);
     // Verify widget label name is verified
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     // Check the toggler button

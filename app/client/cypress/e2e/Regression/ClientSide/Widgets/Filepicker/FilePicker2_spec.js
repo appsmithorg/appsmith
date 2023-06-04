@@ -19,8 +19,8 @@ describe("FilePicker Widget Functionality", function () {
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(
-      this.data.paginationUrl,
-      this.data.paginationParam,
+      this.dataSet.paginationUrl,
+      this.dataSet.paginationParam,
     );
     cy.SaveAndRunAPI();
   });

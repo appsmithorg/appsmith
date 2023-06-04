@@ -28,18 +28,18 @@ describe("Checkbox Group Widget Functionality", function () {
      * @param{Text} Index Text Value.
      *
      */
-    cy.radioInput(0, this.data.radio1);
+    cy.radioInput(0, this.dataSet.radio1);
     cy.get(formWidgetsPage.labelCheckboxGroup)
       .eq(1)
       .should("have.text", "test1");
     cy.radioInput(1, "1");
-    cy.radioInput(2, this.data.radio2);
+    cy.radioInput(2, this.dataSet.radio2);
     cy.get(formWidgetsPage.labelCheckboxGroup)
       .eq(2)
-      .should("have.text", this.data.radio2);
+      .should("have.text", this.dataSet.radio2);
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
-    cy.radioInput(4, this.data.radio4);
+    cy.radioInput(4, this.dataSet.radio4);
     cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
     cy.wait(200);
     cy.get(formWidgetsPage.labelCheckboxGroup).should(

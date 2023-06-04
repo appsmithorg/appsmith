@@ -28,7 +28,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testJsontext("title", this.data.chartIndata);
+    cy.testJsontext("title", this.dataSet.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
@@ -36,7 +36,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     //Entering the Chart data
     cy.testJsontext(
       "chart-series-data-control",
-      JSON.stringify(this.data.chartInput),
+      JSON.stringify(this.dataSet.chartInput),
     );
     cy.get(".t--propertypane").click("right");
 
@@ -50,14 +50,14 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     //Entring the label of x-axis
     cy.get(viewWidgetsPage.xlabel)
       .click({ force: true })
-      .type(this.data.command)
-      .type(this.data.plan);
+      .type(this.dataSet.command)
+      .type(this.dataSet.plan);
     //Entring the label of y-axis
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
-      .type(this.data.command)
+      .type(this.dataSet.command)
       .click({ force: true })
-      .type(this.data.ylabel);
+      .type(this.dataSet.ylabel);
 
     //Close edit prop
 
@@ -71,7 +71,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
 
     cy.testJsontext(
       "customfusionchart",
-      `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
+      `{{${JSON.stringify(this.dataSet.ChartCustomConfig)}}}`,
     );
 
     //Verifying X-axis labels

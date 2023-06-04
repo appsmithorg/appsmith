@@ -10,7 +10,7 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("1. Create an API and Execute the API and bind with Table & Validate Table with API data and then add a column", function () {
     _.apiPage.CreateAndFillApi(
-      this.data.paginationUrl + this.data.paginationParam,
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
     cy.RunAPI();
     _.entityExplorer.SelectEntityByName("Table1");

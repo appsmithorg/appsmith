@@ -9,7 +9,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.addDsl(dsl);
   });
   it("1. Test_Add users api and execute api", function () {
-    cy.createAndFillApi(this.data.userApi, "/mock-api?records=100");
+    cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=100");
     cy.RunAPI();
     cy.get(apiPage.jsonResponseTab).click();
     cy.get(apiPage.responseBody)

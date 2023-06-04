@@ -32,7 +32,7 @@ describe("Chart Widget Functionality", function () {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testJsontext("title", this.data.chartIndata);
+    cy.testJsontext("title", this.dataSet.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .click()
       .contains("App Sign Up")
@@ -41,7 +41,7 @@ describe("Chart Widget Functionality", function () {
     //Entering the Chart data
     cy.testJsontext(
       "chart-series-data-control",
-      JSON.stringify(this.data.chartInput),
+      JSON.stringify(this.dataSet.chartInput),
     );
     cy.get(".t--propertypane").click("right");
 
@@ -55,14 +55,14 @@ describe("Chart Widget Functionality", function () {
     //Entring the label of x-axis
     cy.get(viewWidgetsPage.xlabel)
       .click({ force: true })
-      .type(this.data.command)
-      .type(this.data.plan);
+      .type(this.dataSet.command)
+      .type(this.dataSet.plan);
     //Entring the label of y-axis
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
-      .type(this.data.command)
+      .type(this.dataSet.command)
       .click({ force: true })
-      .type(this.data.ylabel);
+      .type(this.dataSet.ylabel);
 
     _.deployMode.DeployApp();
   });
@@ -234,12 +234,12 @@ describe("Chart Widget Functionality", function () {
 
   it("12. Chart - Modal", function () {
     //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onDataPointClick");
+    cy.createModal(this.dataSet.ModalName, "onDataPointClick");
     _.deployMode.DeployApp();
     cy.get(widgetsPage.chartPlotGroup).children().first().click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
   });
 

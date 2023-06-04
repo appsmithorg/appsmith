@@ -74,13 +74,13 @@ describe("Button Widget Functionality", function () {
   it("3. Button-Name validation", function () {
     //changing the Button Name
     cy.widgetText(
-      this.data.ButtonName,
+      this.dataSet.ButtonName,
       widgetsPage.buttonWidget,
       widgetsPage.widgetNameSpan,
     );
 
     //Changing the text on the Button
-    cy.testJsontext("label", this.data.ButtonLabel);
+    cy.testJsontext("label", this.dataSet.ButtonLabel);
 
     cy.assertPageSave();
 
@@ -88,12 +88,12 @@ describe("Button Widget Functionality", function () {
     cy.get(widgetsPage.buttonWidget).trigger("mouseover");
     cy.get(widgetsPage.buttonWidget + " span.bp3-button-text").should(
       "have.text",
-      this.data.ButtonLabel,
+      this.dataSet.ButtonLabel,
     );
     _.deployMode.DeployApp();
     cy.get(publishPage.buttonWidget + " span.bp3-button-text").should(
       "have.text",
-      this.data.ButtonLabel,
+      this.dataSet.ButtonLabel,
     );
     _.deployMode.NavigateBacktoEditor();
   });

@@ -85,7 +85,7 @@ describe("Switch Group Widget Functionality", function () {
 
   it("6. Property: onSelectionChange", function () {
     // create an alert modal and verify its name
-    cy.createModal(this.data.ModalName, "onSelectionChange");
+    cy.createModal(this.dataSet.ModalName, "onSelectionChange");
     /*
     _.deployMode.DeployApp();
     cy.get(publish.switchGroupWidget + " " + "label.bp3-switch")
@@ -94,7 +94,7 @@ describe("Switch Group Widget Functionality", function () {
       .click({ force: true });
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
     */
   });

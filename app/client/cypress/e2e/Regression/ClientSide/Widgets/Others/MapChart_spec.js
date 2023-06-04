@@ -18,7 +18,7 @@ describe("Map Chart Widget Functionality", function () {
   });
 
   it("1. Change Title", function () {
-    cy.testJsontext("title", this.data.chartIndata);
+    cy.testJsontext("title", this.dataSet.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
@@ -111,7 +111,7 @@ describe("Map Chart Widget Functionality", function () {
 
   it("12. Action: onDataPointClick, Open modal", function () {
     // Create the Alert Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onDataPointClick");
+    cy.createModal(this.dataSet.ModalName, "onDataPointClick");
     _.deployMode.DeployApp();
     /*
     cy.get(widgetsPage.mapChartPlot)
@@ -120,7 +120,7 @@ describe("Map Chart Widget Functionality", function () {
       .click({ force: true });
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
     */
   });

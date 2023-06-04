@@ -223,7 +223,7 @@ describe("Container Widget Functionality", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
 
     //Add the new item in the list
-    cy.testJsontext("items", JSON.stringify(this.data.ListItems));
+    cy.testJsontext("items", JSON.stringify(this.dataSet.ListItems));
     cy.wait(2000);
     _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();

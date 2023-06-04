@@ -22,16 +22,16 @@ describe("Image Widget Functionality", function () {
       viewWidgetsPage.imageWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.testJsontext("defaultimage", this.data.defaultimage);
+    cy.testJsontext("defaultimage", this.dataSet.defaultimage);
     cy.wait(1000);
     cy.focused().blur();
     /**
      * @param{URL} ImageUrl
      */
-    cy.testCodeMirror(this.data.NewImage);
+    cy.testCodeMirror(this.dataSet.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.validateImage);
+      .should("contain", this.dataSet.validateImage);
     cy.closePropertyPane();
   });
 
@@ -47,7 +47,7 @@ describe("Image Widget Functionality", function () {
     // Image Widget Functionality To Validate Image
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
-      .should("contain", this.data.NewImage);
+      .should("contain", this.dataSet.NewImage);
   });
 
   it("3. Image Widget Functionality To Unchecked Visible Widget", function () {
@@ -74,7 +74,7 @@ describe("Image Widget Functionality", function () {
     cy.get(`${publish.imageWidget} a[data-testid=t--image-download]`).should(
       "have.attr",
       "href",
-      this.data.NewImage,
+      this.dataSet.NewImage,
     );
   });
 

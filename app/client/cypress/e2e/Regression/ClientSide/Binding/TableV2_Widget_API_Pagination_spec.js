@@ -8,7 +8,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
   it("1. Create an API and Execute the API and bind with Table", function () {
     _.apiPage.CreateAndFillApi(
-      this.data.paginationUrl + this.data.paginationParam,
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
     _.apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column

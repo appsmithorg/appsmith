@@ -99,7 +99,7 @@ describe("Menu button Widget Functionality", () => {
     // Add sample source data
     cy.testJsontext(
       "sourcedata",
-      JSON.stringify(this.data.MenuButtonSourceData),
+      JSON.stringify(this.dataSet.MenuButtonSourceData),
     );
 
     // Open configure array item panel

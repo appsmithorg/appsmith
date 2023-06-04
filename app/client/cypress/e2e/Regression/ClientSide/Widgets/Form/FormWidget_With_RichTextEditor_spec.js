@@ -14,7 +14,7 @@ describe("RichTextEditor Widget Functionality in Form", function () {
   it("RichTextEditor required functionality", function () {
     //changing the Text Name
     cy.widgetText(
-      this.data.RichTextEditorName,
+      this.dataSet.RichTextEditorName,
       formWidgetsPage.richTextEditorWidget,
       widgetsPage.widgetNameSpan,
     );

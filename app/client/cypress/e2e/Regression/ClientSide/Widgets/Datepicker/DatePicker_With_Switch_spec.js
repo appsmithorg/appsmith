@@ -15,7 +15,7 @@ describe("Switch Widget within Form widget Functionality", function () {
       formWidgetsPage.switchWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.testCodeMirror(this.data.switchInputName);
+    cy.testCodeMirror(this.dataSet.switchInputName);
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     cy.togglebar(widgetsPage.defaultcheck);
     cy.getAlert("onChange");

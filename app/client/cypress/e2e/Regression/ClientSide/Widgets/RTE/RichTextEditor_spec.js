@@ -46,13 +46,13 @@ describe("RichTextEditor Widget Functionality", function () {
   it("1. RichTextEditor-Edit Text area with HTML body functionality", function () {
     //changing the Text Name
     cy.widgetText(
-      this.data.RichTextEditorName,
+      this.dataSet.RichTextEditorName,
       formWidgetsPage.richTextEditorWidget,
       widgetsPage.widgetNameSpan,
     );
 
     //Edit the text area with Html
-    cy.testJsontext("defaultvalue", this.data.HtmlText);
+    cy.testJsontext("defaultvalue", this.dataSet.HtmlText);
 
     //Validate Html
     cy.validateHTMLText(

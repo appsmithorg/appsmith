@@ -7,15 +7,14 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(3000);
   });
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {
-    cy.wait(3000);
-    /**Create an Api1 of Paginate with Table Page No */
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
-    cy.RunAPI();
-  });
-
-  it("2. Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function () {
+    /**Create an Api1 of Paginate with Table Page No */ _.apiPage.CreateAndFillApi(
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    _.apiPage.RunAPI();
+    // Table-Text, Validate Server Side Pagination of Paginate with Table Page No
     _.entityExplorer.SelectEntityByName("Table1");
 
     cy.EnableAllCodeEditors();
@@ -95,30 +94,32 @@ describe("Test Create Api and Bind to Table widget", function () {
     _.deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     /** Create Api2 of Paginate with Response URL*/
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
-    cy.RunAPI();
+
+    _.apiPage.CreateAndFillApi(
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    _.apiPage.RunAPI();
     _.apiPage.SelectPaneTab("Pagination");
     _.agHelper.GetNClick(apiPage.apiPaginationTab);
     cy.get(apiPage.apiPaginationNextText).type(
-      this.data.paginationUrl + testdata.nextUrl,
+      this.dataSet.paginationUrl + testdata.nextUrl,
       {
         parseSpecialCharSequences: false,
       },
     );
     cy.get(apiPage.apiPaginationPrevText).type(
-      this.data.paginationUrl + testdata.prevUrl,
+      this.dataSet.paginationUrl + testdata.prevUrl,
       {
         parseSpecialCharSequences: false,
       },
     );
-    cy.WaitAutoSave();
-    cy.CheckAndUnfoldEntityItem("Widgets");
+
     //cy.get(".t--entity-name:contains(Text1)").click({ force: true });
     //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
     //cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
-    cy.get(".t--entity-name:contains(Table1)").click({ force: true });
-    cy.testJsontext("tabledata", "{{Api2.data}}");
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api2.data}}");
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
@@ -137,7 +138,6 @@ describe("Test Create Api and Bind to Table widget", function () {
     _.deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest, true);
   });
 });

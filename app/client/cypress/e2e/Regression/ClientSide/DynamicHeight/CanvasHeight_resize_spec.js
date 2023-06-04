@@ -22,7 +22,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
                 cy.testCodeMirror(textMsg);
                 cy.moveToStyleTab();
                 cy.ChangeTextStyle(
-                  this.data.TextHeading,
+                  this.dataSet.TextHeading,
                   commonlocators.headingTextStyle,
                   textMsg,
                 );

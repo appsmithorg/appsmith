@@ -22,7 +22,7 @@ describe("Table Widget V2 Functionality", function () {
       widgetsPage.tableWidgetV2,
       widgetsPage.widgetNameSpan,
     );
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInput));
     cy.wait("@updateLayout");
   });
 
@@ -41,7 +41,7 @@ describe("Table Widget V2 Functionality", function () {
     cy.isSelectRow(1);
 
     const index = 1;
-    const imageVal = this.data.TableInput[index].image;
+    const imageVal = this.dataSet.TableInput[index].image;
     cy.readTableV2LinkPublish(index, "1").then((hrefVal) => {
       expect(hrefVal).to.contain(imageVal);
     });
