@@ -1,12 +1,13 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 import apiPage from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2WidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Test_Add users api and execute api", function () {
     cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=100");
