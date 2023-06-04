@@ -1,32 +1,30 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
-
 describe("Table Widget V2 and Navigate to functionality validation", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2WidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(2000); //dsl to settle!
   });
 
   it("1. Create MyPage and validate if its successfully created", function () {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -43,7 +41,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();
-    propPane.SelectPlatformFunction("onRowSelected", "Navigate to");
+    _.propPane.SelectPlatformFunction("onRowSelected", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)

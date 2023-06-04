@@ -1,6 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
-const dsl = require("../../../fixtures/SMTPTestdsl.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
 let datasourceName;
 
 describe("SMTP datasource test cases using ted", function () {
@@ -9,7 +9,9 @@ describe("SMTP datasource test cases using ted", function () {
     cy.startRoutesForDatasource();
   });
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("SMTPTestdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create and configure smtp datasource and query, binding widgets to query fields", function () {

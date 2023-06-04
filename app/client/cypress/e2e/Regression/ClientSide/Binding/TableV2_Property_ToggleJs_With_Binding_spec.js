@@ -1,13 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
 const widgetsPage = require("../../../../locators/Widgets.json");
-const dsl = require("../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";

@@ -2,7 +2,6 @@
 // const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 // const widgetLocators = require("../../../../locators/Widgets.json");
 // const publish = require("../../../../locators/publishWidgetspage.json");
-// const dsl = require("../../../../fixtures/newFormDsl.json");
 // const data = require("../../../../fixtures/TestDataSet1.json");
 // const apiPage = require("../../../../locators/ApiEditor.json");
 // const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -10,7 +9,9 @@
 
 // describe("Dropdown Widget Functionality", function() {
 //   before(() => {
-//     cy.addDsl(dsl);
+//     cy.fixture("newFormDsl").then((val) => {
+//      _.agHelper.AddDsl(val);
+//    });
 //   });
 
 //   it("Verify Search box for selecting drop-down options", function() {

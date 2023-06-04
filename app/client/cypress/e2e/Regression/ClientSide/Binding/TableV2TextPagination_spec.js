@@ -1,12 +1,13 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableV2TextPaginationDsl.json");
 import apiPage from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2TextPaginationDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {

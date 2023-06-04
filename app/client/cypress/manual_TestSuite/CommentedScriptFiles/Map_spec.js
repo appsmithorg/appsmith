@@ -1,13 +1,14 @@
 const commonlocators = require("../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../locators/ViewWidgets.json");
-const dsl = require("../../fixtures/Mapdsl.json");
 const publishPage = require("../../locators/publishWidgetspage.json");
 import * as _ from "../../support/Objects/ObjectsCore";
 
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
   describe("excludeForAirgap", "Map Widget Functionality", function () {
     before(() => {
-      cy.addDsl(dsl);
+      cy.fixture("Mapdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
 
     it("Map Widget Functionality", function () {
