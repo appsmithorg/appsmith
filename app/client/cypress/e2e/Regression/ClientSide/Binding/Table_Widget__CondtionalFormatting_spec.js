@@ -1,9 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const dsl = require("../../../../fixtures/tableWidgetCondnFormatDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget condtional formatting to remain consistent", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableWidgetCondnFormatDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("check the cell styles before and after sorting", function () {

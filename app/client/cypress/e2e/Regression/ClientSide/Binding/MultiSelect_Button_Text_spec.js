@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
 
-const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -36,7 +35,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       _.agHelper.SaveLocalStorageCache();
     });
     before(() => {
-      cy.addDsl(dsl);
+      cy.fixture("defaultMetadataDsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, function () {

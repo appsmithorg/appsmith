@@ -1,6 +1,5 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
-const dsl = require("../../../../fixtures/inputdsl.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -13,7 +12,9 @@ describe("Addwidget from Query and bind with other widgets", function () {
   });
 
   it("1. Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {
-    cy.addDsl(dsl);
+    cy.fixture("inputdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.createPostgresDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
