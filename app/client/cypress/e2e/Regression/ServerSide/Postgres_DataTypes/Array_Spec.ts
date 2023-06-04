@@ -563,7 +563,7 @@ describe("Array Datatype tests", function () {
     query = `SELECT ARRAY[1, 2] || '7';`;
     _.dataSources.EnterQuery(query);
     _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
-    _.dataSources.RunQuery({ toValidateResponse: false });
+    _.dataSources.RunQuery({ expectedStatus: false });
     _.agHelper
       .GetText(_.dataSources._queryError)
       .then(($errorText) =>
