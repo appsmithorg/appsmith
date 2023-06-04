@@ -1,11 +1,12 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

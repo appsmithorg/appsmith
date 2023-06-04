@@ -1,8 +1,10 @@
-const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("JS Toggle tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Js_toggle_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. switches the toggle to Button widget", () => {

@@ -1,33 +1,32 @@
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableInputDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-const propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(5000); //dsl to settle!
+    cy.fixture("tableInputDsl").then((val) => {
+      _._.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _._.agHelper.AddDsl(val);
+    });
     cy.wait(5000); //dsl to settle!
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
@@ -41,7 +40,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .click({ force: true });
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
+    _.propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)

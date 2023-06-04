@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const dsl = require("../../../../fixtures/uiBindDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -9,7 +8,9 @@ describe("Binding the Datepicker and Text Widget", function () {
   let dateDp2;
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("uiBindDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
   it.skip("1. DatePicker-Text, Validate selectedDate functionality", function () {
