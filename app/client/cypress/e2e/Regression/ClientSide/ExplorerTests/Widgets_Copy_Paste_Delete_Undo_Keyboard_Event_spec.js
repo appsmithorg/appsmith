@@ -1,25 +1,18 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const dsl = require("../../../../fixtures/formWithInputdsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
-  cy.addDsl(dsl);
+  cy.fixture("formWithInputdsl").then((val) => {
+    _.agHelper.AddDsl(val);
+  });
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.openPropertyPane("formwidget");
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    _.entityExplorer.SelectEntityByName("Form1", "Widgets");
+    _.propPane.RenameWidget("Form1", "FormTest");
     cy.get("body").click();
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -32,19 +25,22 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       200,
     );
     cy.wait(1000);
-    ee.SelectEntityByName("FormTestCopy");
+    _.entityExplorer.ExpandCollapseEntity("FormTest");
+    _.entityExplorer.SelectEntityByName("FormTestCopy");
     cy.get("body").type("{del}", { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    agHelper.WaitUntilAllToastsDisappear();
-    agHelper.Sleep(1000);
+    _.agHelper.Sleep();
     cy.get("body").type(`{${modifierKey}}z`, { force: true });
-    ee.ExpandCollapseEntity("Widgets");
-    ee.ExpandCollapseEntity("FormTest");
-    ee.ActionContextMenuByEntityName("FormTestCopy", "Show bindings");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("FormTest");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "FormTestCopy",
+      "Show bindings",
+    );
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
