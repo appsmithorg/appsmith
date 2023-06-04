@@ -21,6 +21,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
+    cy.wait(1000);
 
     //verify button widget pastes inside the container, in layer index 3 and is center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
@@ -52,6 +53,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
+    cy.wait(1000);
 
     //verify button widget pastes inside selected the container, in layer index 4 and is end aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
@@ -85,6 +87,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     cy.get(_.locators._selectedWidget).should("have.length", 0);
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
+    cy.wait(1000);
 
     //verify button widget pastes in main canvas, in layer index 1 and is center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
@@ -130,6 +133,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     cy.get(_.locators._selectedWidget).should("have.length", 0);
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
+    cy.wait(1000);
 
     //verify widgets paste in copied orientation,
     // button in layer index 2, end aligned
