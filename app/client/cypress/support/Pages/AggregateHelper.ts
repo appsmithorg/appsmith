@@ -317,15 +317,18 @@ export class AggregateHelper {
   }
 
   public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
-    cy.wait(aliasName).then(($apiCall: any) => {
-      expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
-    });
+    // cy.wait(aliasName).then(($apiCall: any) => {
+    //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
+    // });
 
     // should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
+    cy.wait(aliasName)
+      .its("response.body.responseMeta.status")
+      .should("eq", expectedStatus);
 
     //To improve below:
     // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
