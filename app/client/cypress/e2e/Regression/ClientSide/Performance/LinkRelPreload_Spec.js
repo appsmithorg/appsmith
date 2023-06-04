@@ -37,7 +37,7 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
     //   _.agHelper.AddDsl(val);
     // });
     testLinkRelPreloads();
-    _.agHelper.Sleep(5000);
+    _.agHelper.Sleep(15000);
     //In view mode", function () {
     _.deployMode.DeployApp();
     _.agHelper.Sleep(5000);
