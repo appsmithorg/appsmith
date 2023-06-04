@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
 
-const dsl = require("../../../../fixtures/listwidgetdsl.json");
 import apiLocators from "../../../../locators/ApiEditor";
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -8,7 +7,9 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Test Create Api and Bind to List widget", function () {
   let valueToTest;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("listwidgetdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test_Add users api and execute api", function () {

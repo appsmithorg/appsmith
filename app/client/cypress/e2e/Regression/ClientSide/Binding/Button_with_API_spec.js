@@ -1,5 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -10,7 +8,9 @@ describe("Bind a button and Api usecase", function () {
   let apiData;
   let valueToTest;
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttonApiDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Add an API by binding a button in its header", function () {

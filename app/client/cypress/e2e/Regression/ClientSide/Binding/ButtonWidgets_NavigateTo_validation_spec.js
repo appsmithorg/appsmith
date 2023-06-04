@@ -1,11 +1,12 @@
-const dsl = require("../../../../fixtures/buttondsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttondsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Button widget with action navigate to page", function () {

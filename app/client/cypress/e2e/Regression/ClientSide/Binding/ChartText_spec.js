@@ -1,12 +1,13 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/ChartTextDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Text-Chart Binding Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("ChartTextDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Text-Chart Binding Functionality View", function () {
