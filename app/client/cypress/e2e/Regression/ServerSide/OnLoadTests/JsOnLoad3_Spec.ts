@@ -130,7 +130,7 @@ describe("JSObjects OnLoad Actions tests", function () {
         _.jsEditor._dialogBody("WhatTrumpThinks"),
       ); //Since JS call is NO, dependent API confirmation should not appear
 
-      _.agHelper.RefreshPage();
+      _.agHelper.RefreshPage(true, false);
       // _.agHelper.AssertElementVisible(
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );

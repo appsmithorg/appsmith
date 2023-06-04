@@ -496,15 +496,17 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
   ) {
     this.deployMode.StubbingWindow();
-    this.agHelper
-      .GetNClick(this._tableRowColumnData(row, col, tableVersion))
-      .then(($cellData) => {
-        //Cypress.$($cellData).trigger('click');
-        cy.url().should("eql", expectedURL);
-        this.agHelper.Sleep(2000);
-        cy.go(-1);
-        this.WaitUntilTableLoad(0, 0, tableVersion);
-      });
+    cy.url().then(($currentUrl) => {
+      this.agHelper
+        .GetNClick(this._tableRowColumnData(row, col, tableVersion))
+        .then(($cellData) => {
+          //Cypress.$($cellData).trigger('click');
+          cy.url().should("eql", expectedURL);
+          this.agHelper.Sleep(2000);
+          cy.visit($currentUrl);
+          this.WaitUntilTableLoad(0, 0, tableVersion);
+        });
+    });
   }
 
   public AddColumn(colId: string) {

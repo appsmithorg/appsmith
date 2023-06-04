@@ -1,16 +1,14 @@
-const dsl = require("../../../../../fixtures/listRegression2Dsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Binding the list widget with text widget", function () {
-  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
+describe("Binding - List widget to text widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("listRegression2Dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
-  it("Validate text widget data based on changes in list widget Data2", function () {
+  it("1. Validate text widget data based on changes in list widget data", function () {
     _.deployMode.DeployApp();
-    cy.wait(5000);
     cy.get(".t--widget-textwidget span:contains('pawan,Vivek')").should(
       "have.length",
       1,

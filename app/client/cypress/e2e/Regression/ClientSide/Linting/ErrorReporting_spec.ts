@@ -1,20 +1,11 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators,
-  ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  table = ObjectsRegistry.Table,
-  apiPage = ObjectsRegistry.ApiPage,
-  propPane = ObjectsRegistry.PropertyPane,
-  debuggerHelper = ObjectsRegistry.DebuggerHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Lint error reporting", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
-    table.AddSampleTableData();
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("Explorer");
+    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
+    _.table.AddSampleTableData();
+    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
+    _.entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
@@ -30,24 +21,24 @@ describe("Lint error reporting", () => {
           }
       }`;
 
-    jsEditor.CreateJSObject(JS_OBJECT_WITH_LINT_WARNING, {
+    _.jsEditor.CreateJSObject(JS_OBJECT_WITH_LINT_WARNING, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
-    agHelper.PressEscape();
-    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
-    agHelper.GetNClick(locator._errorTab);
-    debuggerHelper.DebuggerListDoesnotContain(
+    _.agHelper.PressEscape();
+    _.agHelper.GetNClick(_.debuggerHelper.locators._debuggerIcon);
+    _.agHelper.GetNClick(_.locators._errorTab);
+    _.debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
     );
 
-    agHelper.RefreshPage();
-    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
-    agHelper.GetNClick(locator._errorTab);
-    debuggerHelper.DebuggerListDoesnotContain(
+    _.agHelper.RefreshPage();
+    _.agHelper.GetNClick(_.debuggerHelper.locators._debuggerIcon);
+    _.agHelper.GetNClick(_.locators._errorTab);
+    _.debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
     );
   });
@@ -63,9 +54,9 @@ describe("Lint error reporting", () => {
     }`;
 
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.EnterJSContext(
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.EnterJSContext(
       "onClick",
       `{{
         () => {
@@ -77,10 +68,10 @@ describe("Lint error reporting", () => {
       "await",
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
     );
-    agHelper.AssertContains("'await' is not defined", "not.exist");
+    _.agHelper.AssertContains("'await' is not defined", "not.exist");
 
     // Test in JS Object
-    jsEditor.CreateJSObject(JS_OBJECT_WITH_WRONG_AWAIT_KEYWORD, {
+    _.jsEditor.CreateJSObject(JS_OBJECT_WITH_WRONG_AWAIT_KEYWORD, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -90,11 +81,11 @@ describe("Lint error reporting", () => {
       "await",
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
     );
-    agHelper.AssertContains("'await' is not defined", "not.exist");
+    _.agHelper.AssertContains("'await' is not defined", "not.exist");
 
     // Test in Api
-    apiPage.CreateApi();
-    apiPage.EnterParams(
+    _.apiPage.CreateApi();
+    _.apiPage.EnterParams(
       "test",
       `{{function(){
         await Promise.all([])
@@ -104,7 +95,7 @@ describe("Lint error reporting", () => {
       "await",
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
     );
-    agHelper.AssertContains("'await' is not defined", "not.exist");
+    _.agHelper.AssertContains("'await' is not defined", "not.exist");
   });
 
   it("3. TC. 1940 - Shows correct error when no comma is used to separate object properties + Bug 8659", () => {
@@ -116,9 +107,9 @@ describe("Lint error reporting", () => {
     }`;
 
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.EnterJSContext(
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.EnterJSContext(
       "onClick",
       `{{ {
           myVar2: {}
@@ -132,7 +123,7 @@ describe("Lint error reporting", () => {
     );
 
     // Test in JS Object
-    jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
+    _.jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -144,8 +135,8 @@ describe("Lint error reporting", () => {
     );
 
     // Test in Api
-    apiPage.CreateApi();
-    apiPage.EnterParams(
+    _.apiPage.CreateApi();
+    _.apiPage.EnterParams(
       "test",
       `{{ {
         myVar2: {}
@@ -169,9 +160,9 @@ describe("Lint error reporting", () => {
     }`;
 
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.EnterJSContext(
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.EnterJSContext(
       "onClick",
       `{{ {
           myVar2: {};
@@ -185,7 +176,7 @@ describe("Lint error reporting", () => {
     );
 
     // Test in JS Object
-    jsEditor.CreateJSObject(JS_OBJECT_WITH_SEMICOLON_SEPARATOR, {
+    _.jsEditor.CreateJSObject(JS_OBJECT_WITH_SEMICOLON_SEPARATOR, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -197,8 +188,8 @@ describe("Lint error reporting", () => {
     );
 
     // Test in Api
-    apiPage.CreateApi();
-    apiPage.EnterParams(
+    _.apiPage.CreateApi();
+    _.apiPage.EnterParams(
       "test",
       `{{ {
         myVar2: {};
@@ -224,41 +215,41 @@ describe("Lint error reporting", () => {
     }
     `;
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
-    propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
-    propPane.UpdatePropertyFieldValue("onClick", "");
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
+    _.propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
+    _.propPane.UpdatePropertyFieldValue("onClick", "");
 
-    agHelper.AssertElementLength(locator._lintErrorElement, 2);
+    _.agHelper.AssertElementLength(_.locators._lintErrorElement, 2);
 
     //Test in Table for no error when using {{currentRow}}
-    ee.SelectEntityByName("Table1", "Widgets");
-    agHelper.GetNClick(table._columnSettings("step"));
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    _.agHelper.GetNClick(_.table._columnSettings("step"));
+    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
 
-    propPane.UpdatePropertyFieldValue("Computed value", "{{currentRow}}");
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    _.propPane.UpdatePropertyFieldValue("Computed value", "{{currentRow}}");
+    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
 
     // Test in JSObject for lint error
-    jsEditor.CreateJSObject(JSOBJECT_WITH_INVALID_IDENTIFIER, {
+    _.jsEditor.CreateJSObject(JSOBJECT_WITH_INVALID_IDENTIFIER, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.AssertElementLength(locator._lintErrorElement, 2);
+    _.agHelper.AssertElementLength(_.locators._lintErrorElement, 2);
 
     // test in Api
-    apiPage.CreateApi();
-    apiPage.EnterParams(
+    _.apiPage.CreateApi();
+    _.apiPage.EnterParams(
       "test",
       `{{function(){
         currentItem
         currentRow
     }()}}`,
     );
-    agHelper.AssertElementLength(locator._lintErrorElement, 2);
+    _.agHelper.AssertElementLength(_.locators._lintErrorElement, 2);
   });
 
   it("6. Bug 15156 - Doesn't show error for 'unneccessary semi-colon'", () => {
@@ -272,10 +263,10 @@ describe("Lint error reporting", () => {
     }
     `;
     // Test in PropertyPane
-    ee.SelectEntityByName("Button1", "Queries/JS");
-    propPane.UpdatePropertyFieldValue("Tooltip", "");
-    propPane.UpdatePropertyFieldValue("Label", "");
-    propPane.UpdatePropertyFieldValue(
+    _.entityExplorer.SelectEntityByName("Button1", "Queries/JS");
+    _.propPane.UpdatePropertyFieldValue("Tooltip", "");
+    _.propPane.UpdatePropertyFieldValue("Label", "");
+    _.propPane.UpdatePropertyFieldValue(
       "onClick",
       `{{
         function example(a) {
@@ -285,16 +276,16 @@ describe("Lint error reporting", () => {
         };
         }}`,
     );
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
 
     // Test in JS Object
-    ee.SelectEntityByName("JSObject1", "Queries/JS");
-    jsEditor.EditJSObj(JSOBJECT_WITH_UNNECCESARY_SEMICOLON);
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    _.jsEditor.EditJSObj(JSOBJECT_WITH_UNNECCESARY_SEMICOLON);
+    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
 
     // Test in API
-    apiPage.CreateApi();
-    apiPage.EnterParams(
+    _.apiPage.CreateApi();
+    _.apiPage.EnterParams(
       "test",
       `{{function(){
         if (1) {
@@ -302,29 +293,69 @@ describe("Lint error reporting", () => {
         };
     }()}}`,
     );
-    agHelper.AssertElementAbsence(locator._lintErrorElement);
+    _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
   });
 
   function MouseHoverNVerify(lintOn: string, debugMsg: string, isError = true) {
-    agHelper.Sleep();
+    _.agHelper.Sleep();
     const element = isError
-      ? cy.get(locator._lintErrorElement)
-      : cy.get(locator._lintWarningElement);
+      ? cy.get(_.locators._lintErrorElement)
+      : cy.get(_.locators._lintWarningElement);
     element.contains(lintOn).should("exist").first().trigger("mouseover");
-    agHelper.AssertContains(debugMsg);
+    _.agHelper.AssertContains(debugMsg);
   }
 
   after(() => {
     //deleting all test data
-    ee.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("Api2", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("Api3", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("Api4", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("Api5", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject2", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject3", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject4", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject5", "Delete", "Are you sure?");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Api1",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Api2",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Api3",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Api4",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Api5",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "JSObject1",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "JSObject2",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "JSObject3",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "JSObject4",
+      "Delete",
+      "Are you sure?",
+    );
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "JSObject5",
+      "Delete",
+      "Are you sure?",
+    );
   });
 });

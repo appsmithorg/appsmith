@@ -118,7 +118,6 @@ export class AggregateHelper {
           expect(dslDumpResp.status).equal(200);
           this.Sleep(3000); //for dsl to settle in layouts api & then refresh
           this.RefreshPage(reloadWithoutCache);
-          this.ValidateNetworkStatus("@getWorkspace");
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
           this.Sleep(); //settling time for dsl
@@ -765,12 +764,6 @@ export class AggregateHelper {
       });
   }
 
-  // public NavigateBacktoEditor() {
-  //   cy.get(this.locator._backToEditor).click();
-  //   this.Sleep(2000);
-  //   localStorage.setItem("inDeployedMode", "false");
-  // }
-
   public GenerateUUID() {
     let id = uuid.v4();
     id = id.split("-")[0];
@@ -793,7 +786,7 @@ export class AggregateHelper {
     cy.wait(timeout);
   }
 
-  public RefreshPage(reloadWithoutCache = true) {
+  public RefreshPage(reloadWithoutCache = true, isEdit = true) {
     this.AssertDocumentReady();
     // cy.window()
     //   .then((win) => {
@@ -803,6 +796,8 @@ export class AggregateHelper {
       this.AssertDocumentReady();
     });
     this.Sleep(2000);
+    isEdit && this.ValidateNetworkStatus("@getWorkspace");
+    !isEdit && this.ValidateNetworkStatus("@viewPage");
   }
 
   public ActionContextMenuWithInPane(
