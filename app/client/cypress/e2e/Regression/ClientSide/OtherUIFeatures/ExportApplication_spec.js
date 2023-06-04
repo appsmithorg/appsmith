@@ -1,5 +1,4 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -11,7 +10,9 @@ describe("Export application as a JSON file", function () {
   let appname;
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(5000);
   });
 

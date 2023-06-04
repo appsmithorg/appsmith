@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
 import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
@@ -12,7 +11,9 @@ let forkableAppUrl;
 
 describe("Fork application across workspaces", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("basicDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check if the forked application has the same dsl as the original", function () {

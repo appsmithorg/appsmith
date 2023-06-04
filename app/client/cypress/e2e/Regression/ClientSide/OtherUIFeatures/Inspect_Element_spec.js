@@ -1,9 +1,10 @@
-const dsl = require("../../../../fixtures/debuggerDependencyDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Inspect Entity", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("debuggerDependencyDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Check whether depedencies and references are shown correctly", function () {
     cy.openPropertyPane("inputwidgetv2");
