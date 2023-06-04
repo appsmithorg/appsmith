@@ -1,9 +1,10 @@
-const dsl = require("../../../../fixtures/jsonFormDslWithSchema.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane js enabled field", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("jsonFormDslWithSchema").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Ensure text is visible for js enabled field when a section is collapsed by default", function () {

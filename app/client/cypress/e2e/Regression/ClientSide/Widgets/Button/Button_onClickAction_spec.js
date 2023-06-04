@@ -1,13 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("newFormDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
