@@ -118,7 +118,7 @@ export class AggregateHelper {
           expect(dslDumpResp.status).equal(200);
           this.Sleep(3000); //for dsl to settle in layouts api & then refresh
           this.RefreshPage(reloadWithoutCache);
-          this.Sleep(1500);
+          this.ValidateNetworkStatus("@getWorkspace");
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
           this.Sleep(); //settling time for dsl

@@ -1,4 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import data from "../../../../fixtures/TestDataSet1.json";
 
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
@@ -6,7 +7,7 @@ describe("Test Create Api and Bind to Button widget", function () {
       _.agHelper.AddDsl(val);
     });
 
-    cy.createAndFillApi(this.dataSet.userApi, "/users");
+    cy.createAndFillApi(data.userApi, "/mock-api?records=10");
     cy.RunAPI();
   });
 
