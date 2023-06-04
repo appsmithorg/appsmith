@@ -207,10 +207,8 @@ describe("Table widget Add new row feature's", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       propPane.UpdatePropertyFieldValue("Valid", "");
 
@@ -218,22 +216,17 @@ describe("Table widget Add new row feature's", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       propPane.UpdatePropertyFieldValue("Regex", "");
 
       propPane.ToggleOnOrOff("Required", "On");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
 
       cy.get(commonlocators.changeColType).last().click();
@@ -242,37 +235,27 @@ describe("Table widget Add new row feature's", () => {
 
       propPane.UpdatePropertyFieldValue("Min", "5");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       propPane.UpdatePropertyFieldValue("Min", "");
 
       propPane.UpdatePropertyFieldValue("Max", "5");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       propPane.UpdatePropertyFieldValue("Max", "");
 
@@ -287,23 +270,18 @@ describe("Table widget Add new row feature's", () => {
 
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "2");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.discardTableCellValue(0, 0);
       cy.wait(500);
       cy.get(".t--add-new-row").click();
       cy.wait(1000);
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "2");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.get(".t--discard-new-row").click({ force: true });
     });
@@ -338,10 +316,8 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--save-new-row").should("be.disabled");
       cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 2);
       cy.enterTableCellValue(0, 0, "1");
-      cy.wait(1000);
       cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 1);
       cy.enterTableCellValue(1, 0, "invalid");
-      cy.wait(1000);
       cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 0);
       cy.get(".t--save-new-row").should("not.be.disabled");
     });

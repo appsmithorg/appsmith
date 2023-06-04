@@ -1479,6 +1479,7 @@ Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
     )
       .focus()
       .type(text);
+    cy.wait(500);
   }
 });
 
