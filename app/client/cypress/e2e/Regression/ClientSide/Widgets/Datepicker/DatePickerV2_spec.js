@@ -1,5 +1,4 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/datePicker2dsl.json");
 const datedsl = require("../../../../../fixtures/datePickerdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -15,7 +14,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("datePicker2dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Datepicker default date validation with js binding", function () {

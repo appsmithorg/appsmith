@@ -1,12 +1,13 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/datepicker_switchDsl.json");
 const dayjs = require("dayjs");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("datepicker_switchDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("Switch Widget Functionality check with success message", function () {
     cy.openPropertyPane("switchwidget");

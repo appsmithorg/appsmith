@@ -2,13 +2,14 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-const dsl = require("../../../../../fixtures/checkboxgroupDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Group Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("checkboxgroupDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Checkbox Group Widget Functionality", function () {

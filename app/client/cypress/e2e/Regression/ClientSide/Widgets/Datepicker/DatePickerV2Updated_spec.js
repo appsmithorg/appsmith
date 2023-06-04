@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/datePickerV2Updated_dsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -12,7 +11,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("datePickerV2Updated_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Datepicker tooltip renders if tooltip prop is not empty", () => {

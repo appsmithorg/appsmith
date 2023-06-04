@@ -1,14 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(3000);
+    cy.fixture("newFormDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Dropdown-Modal Validation", function () {

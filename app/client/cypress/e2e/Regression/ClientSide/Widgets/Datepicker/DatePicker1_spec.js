@@ -1,10 +1,11 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/datePicker2dsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Property pane tests with js bindings", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("datePicker2dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Datepicker default date validation with js binding and default date", function () {

@@ -1,12 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/filePickerTableDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "filepickerwidgetv2";
 const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value`;
 
 describe("File picker widget v2", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("filePickerTableDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Parse CSV data to table Widget", () => {
