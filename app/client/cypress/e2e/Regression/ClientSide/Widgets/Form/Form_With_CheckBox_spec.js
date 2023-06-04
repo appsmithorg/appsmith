@@ -1,12 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/formWidgetdsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formWidgetdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Checkbox Functionality To Check required toggle for form", function () {

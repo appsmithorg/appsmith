@@ -1,5 +1,4 @@
 const omnibar = require("../../../../locators/Omnibar.json");
-const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -8,7 +7,9 @@ describe("Omnibar functionality test cases", () => {
   const jsObjectName = "Omnibar2";
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("omnibarDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
@@ -121,12 +122,15 @@ describe("Omnibar functionality test cases", () => {
           win.location.href = "https://discord.com/invite/rBTTVJp";
         }).as("discordLink");
       });
-      // clicking on discord link should open discord
-      cy.get(omnibar.discordLink).click();
-      cy.get("@discordLink").should("be.called");
-      cy.wait(500);
-      cy.go(-1);
-      cy.wait(2000);
+      cy.url().then(($urlBeforeDiscord) => {
+        // clicking on discord link should open discord
+        cy.get(omnibar.discordLink).click();
+        cy.get("@discordLink").should("be.called");
+        cy.wait(2000);
+        //cy.go(-1);
+        cy.visit($urlBeforeDiscord);
+        cy.wait(4000); //for page to load
+      });
     },
   );
 
@@ -171,15 +175,20 @@ describe("Omnibar functionality test cases", () => {
       cy.get(omnibar.categoryTitle)
         .contains("Search documentation")
         .click({ force: true });
-      cy.get(omnibar.openDocumentationLink)
-        .invoke("removeAttr", "target")
-        .click()
-        .wait(2000);
-      cy.url().should(
-        "contain",
-        "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
-      ); // => true
-      cy.go(-1);
+      cy.url().then(($urlBeforeDocu) => {
+        cy.get(omnibar.openDocumentationLink)
+          .invoke("removeAttr", "target")
+          .click()
+          .wait(2000);
+        cy.url().should(
+          "contain",
+          "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+        ); // => true
+        cy.wait(2000);
+        //cy.go(-1);
+        cy.visit($urlBeforeDocu);
+        cy.wait(2000);
+      });
     },
   );
 });
