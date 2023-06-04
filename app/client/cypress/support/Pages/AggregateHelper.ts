@@ -786,7 +786,8 @@ export class AggregateHelper {
     cy.wait(timeout);
   }
 
-  public RefreshPage(reloadWithoutCache = true, isEdit = true) {
+  public RefreshPage(reloadWithoutCache = true, networkCall = "getWorkspace") {
+    this.Sleep(2000);
     this.AssertDocumentReady();
     // cy.window()
     //   .then((win) => {
@@ -796,8 +797,7 @@ export class AggregateHelper {
       this.AssertDocumentReady();
     });
     this.Sleep(2000);
-    isEdit && this.ValidateNetworkStatus("@getWorkspace");
-    !isEdit && this.ValidateNetworkStatus("@viewPage");
+    this.ValidateNetworkStatus("@" + networkCall);
   }
 
   public ActionContextMenuWithInPane(
