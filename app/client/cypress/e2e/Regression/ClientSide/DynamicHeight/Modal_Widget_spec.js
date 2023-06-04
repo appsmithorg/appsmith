@@ -1,11 +1,13 @@
-const dsl = require("../../../../fixtures/DynamicHeightModalDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt heightDynamic panel validation for text widget wrt height Dynamic panel validation for text widget Dynamic panel validation for text widget Dynamic panel validation for text widget";
-    cy.addDsl(dsl);
+    cy.fixture("DynamicHeightModalDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(3000); //for dsl to settle
     cy.selectEntityByName("Modal1");
     cy.get(".t--modal-widget")

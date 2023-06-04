@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/alignmentWithDynamicHeightDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
   function validateCssProperties(property) {
@@ -128,7 +128,9 @@ describe("Dynamic Height Width validation", function () {
       });
   }
   it("1. Validate change with auto height width for text widgets", function () {
-    cy.addDsl(dsl);
+    cy.fixture("alignmentWithDynamicHeightDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(30000); //for dsl to settled
     validateCssProperties("height");
     //validateCssProperties("top");

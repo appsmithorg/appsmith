@@ -1,10 +1,11 @@
-const dsl = require("../../../../fixtures/dynamicTabWidgetdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for Tab widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("dynamicTabWidgetdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   function validateHeight() {

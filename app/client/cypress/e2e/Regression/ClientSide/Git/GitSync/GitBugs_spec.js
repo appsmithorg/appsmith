@@ -1,5 +1,4 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-const dsl = require("../../../../../fixtures/JsObjecWithGitdsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -72,7 +71,9 @@ describe("Git sync Bug #10773", function () {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.addDsl(dsl);
+      cy.fixture("JsObjecWithGitdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
     // connect app to git
     _.gitSync.CreateNConnectToGit(repoName);
@@ -156,7 +157,9 @@ describe("Git sync Bug #10773", function () {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.addDsl(dsl);
+      cy.fixture("JsObjecWithGitdsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1

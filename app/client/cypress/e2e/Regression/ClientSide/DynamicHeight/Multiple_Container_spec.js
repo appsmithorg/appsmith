@@ -1,9 +1,11 @@
-const dsl = require("../../../../fixtures/multipleContainerdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for multiple container", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("multipleContainerdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Validate change in auto height width with multiple containers", function () {
     cy.wait(3000); //for dsl to settle

@@ -1,16 +1,15 @@
-const dsl = require("../../../../fixtures/DynamicHeightListTextDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const explorer = require("../../../../locators/explorerlocators.json");
-
-const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic Height Width validation list widget", function () {
   it("1. Validate change with auto height width for list widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     const textMsg = "Dynamic panel validation for text widget wrt height";
-    cy.addDsl(dsl);
+    cy.fixture("DynamicHeightListTextDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(3000); //for dsl to settle
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("multiselecttreewidget", { x: 300, y: 500 });
@@ -68,7 +67,7 @@ describe("Dynamic Height Width validation list widget", function () {
           200,
         );
         cy.wait(2000);
-        entityExplorer.NavigateToSwitcher("Explorer");
+        _.entityExplorer.NavigateToSwitcher("Explorer");
         cy.selectEntityByName("Text3Copy");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.get("body").type(`{${modifierKey}}c`);
