@@ -18,14 +18,14 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
 
   before(() => {
     cy.fixture("tableInputDsl").then((val) => {
-      _._.agHelper.AddDsl(val);
+      _.agHelper.AddDsl(val);
     });
   });
 
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     cy.fixture("displayWidgetDsl").then((val) => {
-      _._.agHelper.AddDsl(val);
+      _.agHelper.AddDsl(val);
     });
     cy.wait(5000); //dsl to settle!
     // eslint-disable-next-line cypress/no-unnecessary-waiting
