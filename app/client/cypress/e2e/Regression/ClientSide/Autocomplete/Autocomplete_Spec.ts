@@ -163,17 +163,20 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it("11. Bug #23641 Verifies if 'children' shows up in autocomplete list", function () {
+    _.entityExplorer.NavigateToSwitcher("Widgets");
+    _.agHelper.SelectAllWidgets();
+    _.agHelper.PressDelete();
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.MULTITREESELECT,
-      400,
-      400,
+      200,
+      200,
     );
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.TREESELECT,
-      600,
-      600,
+      200,
+      400,
     );
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 600);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 200, 600);
     _.entityExplorer.SelectEntityByName("Text1");
     _.propPane.TypeTextIntoField("Text", "{{TreeSelect1.options[0].c");
     _.agHelper.AssertElementExist(_.locators._hints);
