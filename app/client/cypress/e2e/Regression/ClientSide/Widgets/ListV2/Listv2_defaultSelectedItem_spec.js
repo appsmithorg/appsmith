@@ -55,7 +55,9 @@ function setUpDataSource() {
 
 describe("List widget v2 defaultSelectedItem", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/ListV2_Reset_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Loads the Page with the default Selected Item", () => {

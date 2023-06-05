@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -61,7 +60,9 @@ function verifyValueOfWidget(widgetType, value, index) {
 
 describe("List widget v2 - meta hydration tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/MetaHydrationDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();

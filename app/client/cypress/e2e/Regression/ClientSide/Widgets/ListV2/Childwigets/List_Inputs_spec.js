@@ -4,27 +4,27 @@ const publish = require("../../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
 describe("Input Widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. Input Widgets default value", function () {

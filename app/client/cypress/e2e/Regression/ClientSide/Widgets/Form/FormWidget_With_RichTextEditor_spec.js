@@ -1,10 +1,12 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/formWithRTEDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("RichTextEditor Widget Functionality in Form", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formWithRTEDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

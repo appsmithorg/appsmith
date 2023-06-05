@@ -1,11 +1,12 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/formSwitchDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formSwitchDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("Switch Widget Functionality check with success message", function () {
     //Open switch widget

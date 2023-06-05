@@ -1,10 +1,12 @@
-const dsl = require("../../../../../fixtures/listRegressionDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Binding the list widget with text widget", function () {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Validate delete widget action from side bar", function () {
-    cy.addDsl(dsl);
+    cy.fixture("listRegressionDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("listwidget");
     cy.verifyUpdatedWidgetName("Test");

@@ -1,11 +1,12 @@
-const dsl = require("../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("List Widget V2 Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   const allowed = [

@@ -1,12 +1,10 @@
-const dsl = require("../../../../../fixtures/Listv2/copy_paste_listv2_dsl.json");
 const nestedSiblingDsl = require("../../../../../fixtures/Listv2/ListV2_nested_sibling_listwidget_dsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 function checkAutosuggestion(label, type) {
   cy.get(".CodeMirror-hints")
@@ -20,15 +18,17 @@ function checkAutosuggestion(label, type) {
 describe(" Nested List Widgets ", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("a. Pasting - should show toast when nesting is greater than 3", function () {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/copy_paste_listv2_dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
     cy.get(widgetsPage.copyWidget).click({ force: true });

@@ -1,9 +1,11 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const dsl = require("../../../../../fixtures/base64imagedsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Functionality with base64", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("base64imagedsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Image Widget Functionality Base64 validation", function () {

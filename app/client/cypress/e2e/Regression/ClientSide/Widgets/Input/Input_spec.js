@@ -1,12 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Input Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("newFormDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   // Note: commenting it out because Drag/Drop feature is not stable on cypress.
@@ -25,7 +26,9 @@ describe("Input Widget Functionality", function () {
   //     .invoke("attr", "value")
   //     .should("not.contain", this.dataSet.defaultdata);
 
-  //   cy.addDsl(dsl);
+  //   cy.fixture("tableV2NewDsl").then((val) => {
+  //   _.agHelper.AddDsl(val);
+  // });
   //   cy.reload();
   // });
 

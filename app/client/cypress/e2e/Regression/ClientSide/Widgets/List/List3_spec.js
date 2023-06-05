@@ -1,9 +1,10 @@
-const dsl = require("../../../../../fixtures/listRegression3Dsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Binding the list widget with text widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("listRegression3Dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Validate text widget data based on changes in list widget Data3", function () {

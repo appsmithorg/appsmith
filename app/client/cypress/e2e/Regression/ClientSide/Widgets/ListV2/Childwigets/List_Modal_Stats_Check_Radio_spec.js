@@ -1,11 +1,13 @@
-const dsl = require("../../../../../../fixtures/Listv2/ListWithModalStatCheckboxAndRadio.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe("Modal, Radio, Checkbox widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("Listv2/ListWithModalStatCheckboxAndRadio").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. CurrentView Works in modal", function () {
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)

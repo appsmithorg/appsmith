@@ -1,14 +1,15 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/formdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Default Form text,  Reset and Close button Validation", function () {
     cy.get(widgetsPage.textWidget).should("be.visible");

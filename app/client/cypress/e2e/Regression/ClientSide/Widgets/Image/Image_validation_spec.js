@@ -1,9 +1,11 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Validation Image Urls", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check default image src", function () {
