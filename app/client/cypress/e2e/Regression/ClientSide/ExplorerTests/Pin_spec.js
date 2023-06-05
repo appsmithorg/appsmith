@@ -10,7 +10,7 @@ const ExplorerMenu = {
 const OpenExplorerMenu = (menu) => {
   switch (menu) {
     case ExplorerMenu.ADD_PAGE:
-      _.agHelper.GetNClick(_.entityExplorer._.locators._newPage);
+      _.agHelper.GetNClick(_.locators._newPage);
       cy.get(_.locators._canvas).trigger("mousemove", 500, 400, {
         force: true,
       });
@@ -24,9 +24,7 @@ const OpenExplorerMenu = (menu) => {
       });
       break;
     case ExplorerMenu.ADD_QUERY_JS:
-      cy.get(_.entityExplorer._.locators._createNew)
-        .last()
-        .click({ force: true });
+      cy.get(_.locators._createNew).last().click({ force: true });
       cy.get(_.locators._canvas).trigger("mousemove", 500, 300, {
         force: true,
       });
