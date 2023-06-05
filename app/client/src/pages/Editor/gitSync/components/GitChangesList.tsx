@@ -49,6 +49,8 @@ export enum Kind {
   PAGE = "PAGE",
   QUERY = "QUERY",
   JS_LIB = "JS_LIB",
+  THEME = "THEME",
+  SETTINGS = "SETTINGS",
 }
 
 type GitStatusProps = {
@@ -71,6 +73,16 @@ const STATUS_MAP: GitStatusMap = {
     message: behindCommitMessage(status),
     iconName: "git-commit",
     hasValue: (status?.behindCount || 0) > 0,
+  }),
+  [Kind.SETTINGS]: (status: GitStatusData) => ({
+    message: `Application settings updated`,
+    iconName: "settings-2-line",
+    hasValue: (status?.modified || []).includes("application.json"),
+  }),
+  [Kind.THEME]: (status: GitStatusData) => ({
+    message: `Theme updated`,
+    iconName: "sip-line",
+    hasValue: (status?.modified || []).includes("theme.json"),
   }),
   [Kind.DATA_SOURCE]: (status: GitStatusData) => ({
     message: `${status?.modifiedDatasources || 0} ${
@@ -168,6 +180,8 @@ export function gitChangeListData(
   status: GitStatusData = defaultStatus,
 ): JSX.Element[] {
   const changeKind = [
+    Kind.SETTINGS,
+    Kind.THEME,
     Kind.PAGE,
     Kind.QUERY,
     Kind.JS_OBJECT,
@@ -185,6 +199,7 @@ export function gitChangeListData(
 
 export default function GitChangesList() {
   const status = useSelector(getGitStatus);
+  console.log({ status });
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
   const currentApplication = useSelector(getCurrentApplication);
