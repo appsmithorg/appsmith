@@ -7,7 +7,6 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
-import { Toaster, Variant } from "design-system-old";
 import { flushErrors, safeCrashApp } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
@@ -30,9 +29,10 @@ import {
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "api/ApiUtils";
+import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
+import { toast } from "design-system";
 
 /**
  * making with error message with action name
@@ -253,7 +253,7 @@ function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
 }
 
 function showAlertAboutError(message: string) {
-  Toaster.show({ text: message, variant: Variant.danger });
+  toast.show(message, { kind: "error" });
 }
 
 /**

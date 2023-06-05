@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { GPTTask } from "./utils";
 // import { UserPromptWrapper } from "./GPTPrompt";
 import { Collapse } from "@blueprintjs/core";
-import { AppIcon } from "design-system-old";
+import { Icon } from "design-system";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export const examplePrompts: Record<string, any> = {
@@ -28,9 +28,9 @@ export function GettingStarted() {
         onClick={() => toggleExamplePrompt(!showExamplePrompt)}
       >
         {showExamplePrompt ? (
-          <AppIcon name="arrow-down" size={12} />
+          <Icon name="arrow-down-s-line" size="sm" />
         ) : (
-          <AppIcon name="arrow-right" size={12} />
+          <Icon name="arrow-right-s-line" size="sm" />
         )}
         Example Prompts
       </div>

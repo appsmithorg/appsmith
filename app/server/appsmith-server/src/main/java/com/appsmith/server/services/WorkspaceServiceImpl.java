@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
@@ -19,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -115,6 +117,20 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
                     return isAllowed.get();
                 });
+    }
+
+    @Override
+    public Mono<String> getDefaultEnvironmentId(String workspaceId) {
+        return environmentService.findByWorkspaceId(workspaceId)
+                .filter(Environment::getIsDefault)
+                .next()
+                .map(Environment::getId);
+    }
+
+    @Override
+    public Flux<Environment> getDefaultEnvironment(String workspaceId) {
+        return environmentService.findByWorkspaceId(workspaceId)
+                .filter(Environment::getIsDefault);
     }
 
     @Override

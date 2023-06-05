@@ -9,14 +9,14 @@ export const KeycloakSocialLoginButtonProps: SocialLoginButtonProps = {
   url: KeycloakOAuthURL,
   name: "SAML",
   logo: KeyLogo,
-  label: "Sign In with SAML SSO",
+  label: "Sign in with SAML SSO",
 };
 
 export const OidcSocialLoginButtonProps: SocialLoginButtonProps = {
   url: OIDCOAuthURL,
   name: "OIDC",
   logo: KeyLogo,
-  label: "Sign In with OIDC SSO",
+  label: "Sign in with OIDC SSO",
 };
 
 export const SocialLoginButtonPropsList: Record<

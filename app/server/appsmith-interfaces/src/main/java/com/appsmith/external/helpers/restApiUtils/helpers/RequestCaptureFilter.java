@@ -51,7 +51,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         return next.exchange(request);
     }
 
-    public ActionExecutionRequest populateRequestFields(ActionExecutionRequest existing) {
+    public ActionExecutionRequest populateRequestFields(ActionExecutionRequest existing, boolean isBodySentWithApiRequest) {
         final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
         if (request == null) {
@@ -82,7 +82,9 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
 
         // Apart from multipart, refer to the request that was actually sent
         if (!isMultipart.get()) {
-            actionExecutionRequest.setBody(bodyReceiver.receiveValue(this.request.body()));
+            if (isBodySentWithApiRequest) {
+                actionExecutionRequest.setBody(bodyReceiver.receiveValue(this.request.body()));
+            }
         } else {
             actionExecutionRequest.setBody(existing.getBody());
         }

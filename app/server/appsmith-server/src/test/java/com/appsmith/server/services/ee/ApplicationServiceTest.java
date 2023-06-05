@@ -4,6 +4,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
@@ -61,6 +63,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -173,6 +176,11 @@ public class ApplicationServiceTest {
             datasourceConfiguration.setUrl("http://test.com");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setWorkspaceId(workspaceId);
+            String environmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+            storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+            datasource.setDatasourceStorages(storages);
             testDatasource = datasourceService.create(datasource).block();
 
             gitConnectedApp = new Application();
@@ -211,6 +219,12 @@ public class ApplicationServiceTest {
             datasourceConfiguration1.setUrl("http://test.com");
             datasource1.setDatasourceConfiguration(datasourceConfiguration);
             datasource1.setWorkspaceId(workspaceId);
+
+            DatasourceStorage datasourceStorage1 = new DatasourceStorage(datasource1, environmentId);
+            HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+            storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+            datasource1.setDatasourceStorages(storages1);
+
             testDatasource1 = datasourceService.create(datasource1).block();
             gitConnectedApp = applicationService.findById(gitConnectedApp.getId()).block();
 

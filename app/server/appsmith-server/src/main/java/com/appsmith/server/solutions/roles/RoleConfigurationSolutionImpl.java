@@ -2,7 +2,9 @@ package com.appsmith.server.solutions.roles;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -22,6 +24,7 @@ import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -92,6 +95,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
+    private final EnvironmentRepository environmentRepository;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
@@ -105,7 +109,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                          ActionCollectionRepository actionCollectionRepository,
                                          AnalyticsService analyticsService,
                                          NewPageRepository newPageRepository,
-                                         DatasourceRepository datasourceRepository) {
+                                         DatasourceRepository datasourceRepository, EnvironmentRepository environmentRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -120,6 +124,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
+        this.environmentRepository = environmentRepository;
     }
 
     @Override
@@ -473,7 +478,91 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             // associated actions the same permission as the entity.
             sideEffectOnActionsGivenActionCollectionUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
                     sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == RoleTab.DATASOURCES_QUERIES && Workspace.class.equals(aClazz)) {
+            sideEffectOnEnvironmentsGivenWorkspaceUpdate(sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == RoleTab.DATASOURCES_QUERIES && Datasource.class.equals(aClazz)) {
+            sideEffectOnEnvironmentsGivenDatasourceUpdate(sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
         }
+    }
+
+    private void sideEffectOnEnvironmentsGivenWorkspaceUpdate(List<Mono<Long>> sideEffects,
+                                                                String workspaceId,
+                                                                List<AclPermission> added,
+                                                                List<AclPermission> removed,
+                                                                ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                                ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        List<String> includedFields = List.of(fieldName(QEnvironment.environment.id));
+        Flux<String> envIdFlux = environmentRepository
+                .findByWorkspaceId(workspaceId)
+                .map(Environment::getId);
+
+        boolean executeWorkspaceAdded = added.stream().anyMatch(permission -> AclPermission.WORKSPACE_EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
+        boolean executeWorkspaceRemoved = removed.stream().anyMatch(permission -> AclPermission.WORKSPACE_EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
+        List<AclPermission> envAdded = new ArrayList<>();
+        List<AclPermission> envRemoved = new ArrayList<>();
+
+        if (executeWorkspaceAdded) {
+            envAdded.add(AclPermission.EXECUTE_ENVIRONMENTS);
+        }
+
+        if (executeWorkspaceRemoved) {
+            envRemoved.add(AclPermission.EXECUTE_ENVIRONMENTS);
+        }
+
+        Mono<Long> environmentsUpdated = Mono.just(1L);
+
+        if (executeWorkspaceAdded || executeWorkspaceRemoved) {
+            environmentsUpdated = envIdFlux.map(envId -> {
+                sideEffectsClassMap.put(envId, Environment.class);
+                sideEffectsAddedMap.merge(envId, envAdded, ListUtils::union);
+                sideEffectsRemovedMap.merge(envId, envRemoved, ListUtils::union);
+                return 1L;
+            }).reduce(0L, Long::sum);
+        }
+        sideEffects.add(environmentsUpdated);
+    }
+
+    private void sideEffectOnEnvironmentsGivenDatasourceUpdate(List<Mono<Long>> sideEffects,
+                                                              String datasourceId,
+                                                              List<AclPermission> added,
+                                                              List<AclPermission> removed,
+                                                              ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                              ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                              ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        List<String> includedFields = List.of(fieldName(QEnvironment.environment.id));
+        Flux<String> envIdFlux = datasourceRepository.findById(datasourceId)
+                .map(Datasource::getWorkspaceId)
+                .flatMapMany(workspaceId -> environmentRepository
+                        .findByWorkspaceId(workspaceId)
+                        .map(Environment::getId));
+
+
+        boolean executeDatasourceAdded = added.stream().anyMatch(permission -> AclPermission.EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
+        boolean executeDatasourceRemoved = removed.stream().anyMatch(permission -> AclPermission.EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
+        List<AclPermission> envAdded = new ArrayList<>();
+        List<AclPermission> envRemoved = new ArrayList<>();
+
+        if (executeDatasourceAdded) {
+            envAdded.add(AclPermission.EXECUTE_ENVIRONMENTS);
+        }
+
+        if (executeDatasourceRemoved) {
+            envRemoved.add(AclPermission.EXECUTE_ENVIRONMENTS);
+        }
+
+        Mono<Long> environmentsUpdated = Mono.just(1L);
+
+        if (executeDatasourceAdded || executeDatasourceRemoved) {
+            environmentsUpdated = envIdFlux.map(envId -> {
+                sideEffectsClassMap.put(envId, Environment.class);
+                sideEffectsAddedMap.merge(envId, envAdded, ListUtils::union);
+                sideEffectsRemovedMap.merge(envId, envRemoved, ListUtils::union);
+                return 1L;
+            }).reduce(0L, Long::sum);
+        }
+        sideEffects.add(environmentsUpdated);
     }
 
     private void sideEffectOnActionsGivenActionCollectionUpdate(List<Mono<Long>> sideEffects,

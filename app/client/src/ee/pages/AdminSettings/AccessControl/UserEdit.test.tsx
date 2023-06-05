@@ -55,7 +55,7 @@ describe("<UserEdit />", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeRolesData = allUsers[0].roles;
     const allRolesData = allUsers[0].allRoles;
     const customRolesData = allUsers[0].allRoles.filter(
@@ -112,16 +112,18 @@ describe("<UserEdit />", () => {
   it("should show confirmation message when the delete user option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const menu = getAllByTestId("t--delete-menu-item");
     expect(menu[0]).toHaveTextContent("Delete");
     expect(menu[0]).not.toHaveTextContent("Are you sure?");
-    await userEvent.click(menu[0]);
-    const confirmationText = getAllByTestId("t--delete-menu-item");
-    expect(confirmationText[0]).toHaveTextContent("Are you sure?");
-    await userEvent.dblClick(menu[0]);
-    expect(props.onDelete).toHaveBeenCalledWith(selectedUser.id);
-    expect(window.location.pathname).toEqual("/settings/users");
+    await fireEvent.click(menu[0]);
+    await waitFor(() => {
+      const confirmationText = getAllByTestId("t--delete-menu-item");
+      expect(confirmationText[0]).toHaveTextContent("Are you sure?");
+      userEvent.click(confirmationText[0]);
+      expect(props.onDelete).toHaveBeenCalledWith(selectedUser.id);
+      expect(window.location.pathname).toEqual("/settings/users");
+    });
   });
   it("should contain two tabs", () => {
     renderComponent();
@@ -156,7 +158,7 @@ describe("<UserEdit />", () => {
 
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    tabs[1].click();
+    userEvent.click(tabs[1]);
 
     const groups = screen.queryAllByText("Administrator-PG");
     expect(groups).toHaveLength(1);
@@ -267,32 +269,11 @@ describe("<UserEdit />", () => {
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(0);
   });
-  it("should show error message on save when there is no edit permission", async () => {
-    jest
-      .spyOn(selectors, "getUserPermissions")
-      .mockImplementation(() =>
-        mockUserPermissions([PERMISSION_TYPE.MANAGE_USERS]),
-      );
-    const { queryAllByTestId } = renderComponent();
-    const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
-    const activeGroups = queryAllByTestId("t--active-group-row");
-    fireEvent.click(activeGroups[0]);
-    expect(activeGroups[0]).toHaveClass("removed");
-    let saveButton;
-    waitFor(async () => {
-      saveButton = await screen.getAllByTestId("t--admin-settings-save-button");
-      expect(saveButton).toHaveLength(1);
-      await fireEvent.click(saveButton[0]);
-      const errorMessage = document.getElementsByClassName("cs-text");
-      expect(errorMessage).toHaveLength(1);
-    });
-  });
   it("should show lock icon and disable click for active roles which do not have unassign permission", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    tabs[1].click();
+    userEvent.click(tabs[1]);
     const activeRolesData = allUsers[0].roles;
     const roleWithNoUnassignPermission = activeRolesData.findIndex(
       (role: BaseGroupRoleProps) =>

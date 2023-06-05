@@ -18,11 +18,10 @@ import {
   updatedApplicationPayload,
   updatedPagePayload,
 } from "./mockData";
-import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
+import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import { Icon, IconSize } from "design-system-old";
-import { Colors } from "constants/Colors";
+import { Button } from "design-system";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -130,11 +129,12 @@ describe("URL slug names", () => {
     });
     const component = render(
       <ManualUpgrades showTooltip>
-        <Icon
+        <Button
           className="t--upgrade"
-          fillColor={Colors.SCORPION}
-          name="upgrade"
-          size={IconSize.XXXL}
+          isIconButton
+          kind="tertiary"
+          size="md"
+          startIcon="upgrade"
         />
       </ManualUpgrades>,
     );

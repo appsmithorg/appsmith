@@ -1,31 +1,19 @@
 import React, { useEffect, useState } from "react";
-import type { MenuItemProps, TabProp } from "design-system-old";
-import {
-  Button,
-  HighlightText,
-  Icon,
-  IconSize,
-  Menu,
-  MenuItem,
-  TabComponent,
-  Table,
-} from "design-system-old";
+import { HighlightText, Table } from "design-system-old";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";
-import ProfileImage from "pages/common/ProfileImage";
-import { HelpPopoverStyle, SaveButtonBar, TabsWrapper } from "./components";
+import { SaveButtonBar, StyledTabs } from "./components";
 import { debounce } from "lodash";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory, useParams } from "react-router";
 import type {
   BaseAclProps,
   GroupEditProps,
   Permissions,
+  TabProps,
   UsersInGroup,
 } from "./types";
-import { Position } from "@blueprintjs/core";
 import {
   ACL_INVITE_MODAL_MESSAGE,
   ACL_INVITE_MODAL_TITLE,
@@ -63,6 +51,22 @@ import {
 } from "@appsmith/selectors/aclSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tab,
+  TabPanel,
+  TabsList,
+  Text,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "design-system";
+import { AvatarComponent } from "pages/common/AvatarComponent";
 
 const ListUsers = styled.div`
   margin-top: 4px;
@@ -74,19 +78,12 @@ const ListUsers = styled.div`
   tbody {
     tr {
       td {
+        &:last-child {
+          text-align: right;
+        }
+
         .actions-icon {
           visibility: hidden;
-          justify-content: end;
-          > svg {
-            path {
-              fill: var(--appsmith-color-black-400);
-            }
-            &:hover {
-              path {
-                fill: var(--appsmith-color-black-700);
-              }
-            }
-          }
           &.active {
             visibility: visible;
           }
@@ -109,11 +106,11 @@ const EachUser = styled.div`
   align-items: center;
 
   .user-icons {
-    margin-right 8px;
+    margin-right: 8px;
     cursor: initial;
 
     span {
-      color: var(--appsmith-color-black-0);
+      color: var(--ads-v2-color-fg);
     }
   }
 `;
@@ -128,20 +125,11 @@ const NoUsersWrapper = styled.div`
 const StyledButton = styled(Button)`
   flex: 1 0 auto;
   margin: 16px 12px 0 0;
-  min-width: 88px;
-`;
-
-const NoUsersText = styled.div`
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--appsmith-color-black-700);
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
   const { selected } = props;
   const { isNew = false } = selected;
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [users, setUsers] = useState<UsersInGroup[]>(selected.users || []);
@@ -338,9 +326,9 @@ export function GroupAddEdit(props: GroupEditProps) {
         const user = props.cell.row.original;
         return (
           <EachUser>
-            <ProfileImage
+            <AvatarComponent
               className="user-icons"
-              size={20}
+              size="sm"
               source={
                 user.photoId
                   ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
@@ -369,58 +357,56 @@ export function GroupAddEdit(props: GroupEditProps) {
             setUsers(updatedData);
             dispatch(removeUsersFromGroup([data.username], selected.id));
           } else {
-            setShowOptions(true);
-            setShowConfirmationText(true);
+            setTimeout(() => {
+              setShowOptions(true);
+              setShowConfirmationText(true);
+            }, 0);
           }
         };
 
         return (
           <Menu
-            canEscapeKeyClose
-            canOutsideClickClose
-            className="t--menu-actions-icon"
-            data-testid="actions-cell-menu-options"
-            isOpen={showOptions}
-            menuItemWrapperWidth={"auto"}
-            onClose={() => setShowOptions(false)}
-            onClosing={() => {
-              setShowConfirmationText(false);
-              setShowOptions(false);
+            onOpenChange={(open: boolean) => {
+              if (showOptions) {
+                setShowOptions(open);
+                showConfirmationText && setShowConfirmationText(false);
+              }
             }}
-            onOpening={() => setShowOptions(true)}
-            position={Position.BOTTOM_RIGHT}
-            target={
-              <Icon
+            open={showOptions}
+          >
+            <MenuTrigger>
+              <Button
                 className={`actions-icon ${showOptions && "active"}`}
                 data-testid="actions-cell-menu-icon"
-                name="more-2-fill"
+                isIconButton
+                kind="tertiary"
                 onClick={() => setShowOptions(!showOptions)}
-                size={IconSize.XXL}
+                size="sm"
+                startIcon="more-2-fill"
               />
-            }
-          >
-            <HelpPopoverStyle />
-            <MenuItem
-              className={"delete-menu-item"}
-              icon={"delete-blank"}
-              key={createMessage(REMOVE_USER)}
-              onSelect={() => {
-                onOptionSelect();
-              }}
-              text={
-                showConfirmationText
+            </MenuTrigger>
+            <MenuContent align="end">
+              <MenuItem
+                className={"delete-menu-item error-menuitem"}
+                data-testid={`t--delete-menu-item`}
+                key={createMessage(REMOVE_USER)}
+                onClick={() => {
+                  onOptionSelect();
+                }}
+                startIcon={"delete-bin-line"}
+              >
+                {showConfirmationText
                   ? createMessage(ARE_YOU_SURE)
-                  : createMessage(REMOVE_USER)
-              }
-              {...(showConfirmationText ? { type: "warning" } : {})}
-            />
+                  : createMessage(REMOVE_USER)}
+              </MenuItem>
+            </MenuContent>
           </Menu>
         );
       },
     },
   ].filter(Boolean);
 
-  const tabs: TabProp[] = [
+  const tabs: TabProps[] = [
     {
       key: "users",
       title: "Users",
@@ -431,17 +417,17 @@ export function GroupAddEdit(props: GroupEditProps) {
             <Table columns={columns} data={users} data-testid="listing-table" />
           ) : (
             <NoUsersWrapper>
-              <NoUsersText data-testid="t--no-users-msg">
+              <Text data-testid="t--no-users-msg" kind="action-l" renderAs="p">
                 {createMessage(NO_USERS_MESSAGE)}
-              </NoUsersText>
+              </Text>
               <StyledButton
                 data-testid="t--add-users-button"
-                disabled={!canAddUsersToGroup}
-                height="36"
+                isDisabled={!canAddUsersToGroup}
                 onClick={() => onButtonClick(false)}
-                tag="button"
-                text={createMessage(ADD_USERS)}
-              />
+                size="md"
+              >
+                {createMessage(ADD_USERS)}
+              </StyledButton>
             </NoUsersWrapper>
           )}
         </ListUsers>
@@ -466,22 +452,28 @@ export function GroupAddEdit(props: GroupEditProps) {
     },
   ];
 
-  const menuItems: MenuItemProps[] = [
+  const [selectedTab, setSelectedTab] = useState<string>(tabs[0].key);
+
+  const onTabChange = (value: string) => {
+    setSelectedTab(value);
+  };
+
+  const menuItems: any[] = [
     canManageGroup && {
       className: "rename-menu-item",
-      icon: "edit-underline",
+      icon: "pencil-line",
       text: createMessage(ACL_RENAME),
       label: "rename",
     },
     canManageGroup && {
       className: "rename-desc-menu-item",
-      icon: "edit-underline",
+      icon: "pencil-line",
       text: createMessage(ACL_EDIT_DESC),
       label: "rename-desc",
     },
     canDeleteGroup && {
       className: "delete-menu-item",
-      icon: "delete-blank",
+      icon: "delete-bin-line",
       onSelect: () => onDeleteHandler(),
       text: createMessage(ACL_DELETE),
       label: "delete",
@@ -492,7 +484,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <PageHeader
-        buttonText={selected.users.length > 0 ? createMessage(ADD_USERS) : ""}
+        buttonText={selected?.users?.length > 0 ? createMessage(ADD_USERS) : ""}
         description={selected.description}
         disableButton={!canAddUsersToGroup}
         isEditingTitle={isNew}
@@ -506,37 +498,61 @@ export function GroupAddEdit(props: GroupEditProps) {
         searchValue={searchValue}
         title={selected?.name || ""}
       />
-      <TabsWrapper
+      <StyledTabs
         data-testid="t--user-edit-tabs-wrapper"
-        isEditing={isEditing}
+        defaultValue={selectedTab}
+        onValueChange={onTabChange}
       >
-        <TabComponent
-          onSelect={setSelectedTabIndex}
-          selectedIndex={selectedTabIndex}
-          tabs={tabs}
-        />
-      </TabsWrapper>
+        <TabsList>
+          {tabs.map((tab) => {
+            return (
+              <Tab
+                data-testid={`t--tab-${tab.key}`}
+                key={tab.key}
+                notificationCount={tab.count}
+                value={tab.key}
+              >
+                {tab.title}
+              </Tab>
+            );
+          })}
+        </TabsList>
+        {tabs.map((tab) => {
+          return (
+            <TabPanel
+              className={`tab-panel ${isEditing ? "is-editing" : ""}`}
+              key={tab.key}
+              value={tab.key}
+            >
+              {tab.panelComponent}
+            </TabPanel>
+          );
+        })}
+      </StyledTabs>
       {isEditing && (
         <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
       )}
-      <FormDialogComponent
-        Form={WorkspaceInviteUsersForm}
-        canOutsideClickClose
-        customProps={{
-          isAclFlow: true,
-          disableEmailSetup: true,
-          disableManageUsers: true,
-          disableUserList: true,
-          disableDropdown: true,
-          message: createMessage(ACL_INVITE_MODAL_MESSAGE),
-          onSubmitHandler: onFormSubmitHandler,
-        }}
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        selected={selected}
-        title={createMessage(ACL_INVITE_MODAL_TITLE)}
-        trigger
-      />
+      <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
+        <ModalContent
+          data-testid="t--dialog-component"
+          style={{ width: "640px" }}
+        >
+          <ModalHeader>{createMessage(ACL_INVITE_MODAL_TITLE)}</ModalHeader>
+          <ModalBody>
+            <WorkspaceInviteUsersForm
+              customProps={{
+                isAclFlow: true,
+                disableManageUsers: true,
+                disableUserList: true,
+                disableDropdown: true,
+                message: createMessage(ACL_INVITE_MODAL_MESSAGE),
+                onSubmitHandler: onFormSubmitHandler,
+              }}
+              selected={selected}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

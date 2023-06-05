@@ -30,24 +30,27 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import {
+  OIDC_AUTH_DESC,
+  SAML_AUTH_DESC,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
   controlType: SettingTypes.PAGE,
   title: "SAML 2.0",
   component: Saml,
-  subText:
-    "Enable your workspace to sign in with your preferred SAML2 compliant provider.",
+  subText: createMessage(SAML_AUTH_DESC),
   canSave: true,
 };
 
 const OidcAuth: AdminConfigType = {
   type: SettingCategories.OIDC_AUTH,
   controlType: SettingTypes.PAGE,
-  title: "OpenID Connect",
+  title: "OpenID connect",
   component: Oidc,
-  subText:
-    "Enable your workspace to sign in with your preferred OIDC compliant provider.",
+  subText: createMessage(OIDC_AUTH_DESC),
   canSave: true,
   settings: [
     {
@@ -84,7 +87,7 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
     {
@@ -111,7 +114,7 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "User Info URL",
+      label: "User info URL",
       isRequired: true,
     },
     {
@@ -120,7 +123,7 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "JWK Set URL",
+      label: "JWK set URL",
       isRequired: true,
     },
     {
@@ -130,7 +133,7 @@ const OidcAuth: AdminConfigType = {
       controlType: SettingTypes.TAGINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Scope",
-      subText: "It accepts multiple values",
+      subText: "* It accepts multiple values",
       isRequired: true,
     },
     {
@@ -139,8 +142,8 @@ const OidcAuth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Username Attribute",
-      subText: "Name of the claim which represents the email of the user",
+      label: "Username attribute",
+      subText: "* Name of the claim which represents the email of the user",
       isRequired: true,
     },
     {
@@ -155,7 +158,7 @@ const OidcAuth: AdminConfigType = {
           category: SettingCategories.OIDC_AUTH,
           subCategory: SettingSubCategories.OIDC,
           controlType: SettingTypes.DROPDOWN,
-          label: "Token Signing Algorithm",
+          label: "Token signing algorithm",
           dropdownOptions: [
             { id: "RS256", value: "RS256" },
             { id: "RS384", value: "RS384" },
@@ -184,18 +187,16 @@ export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   category: SettingCategories.SAML_AUTH,
   label: "SAML 2.0",
-  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
+  subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
-  type: "LINK",
 };
 
 export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: SettingCategories.OIDC_AUTH,
   label: "OIDC",
-  subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
+  subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
-  type: "LINK",
 };
 
 const isAirgappedInstance = isAirgapped();

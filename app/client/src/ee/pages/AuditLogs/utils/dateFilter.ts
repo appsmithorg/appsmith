@@ -28,19 +28,11 @@ export const parseDateFilterInput = ([start, end]: DateRange): [
   let startDate = initial.startDate;
   let endDate = initial.endDate;
 
-  if (start === null) {
-    if (end !== null) {
-      startDate = getStartOfDayUnix(end);
-    }
-  } else {
+  if (start !== null) {
     startDate = getStartOfDayUnix(start);
   }
 
-  if (end === null) {
-    if (start !== null) {
-      endDate = getEndOfDayUnix(start);
-    }
-  } else {
+  if (end !== null) {
     endDate = getEndOfDayUnix(end);
   }
 

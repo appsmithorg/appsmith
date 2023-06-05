@@ -10,12 +10,12 @@ import { thinScrollbar } from "constants/DefaultTheme";
 export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_ID} {
     width: 0.5em;
-    background: #f0f0f0;
+    background: var(--ads-v2-color-bg-subtle);
     margin-left: 5px;
   }
   .${RUN_GUTTER_CLASSNAME} {
     cursor: pointer;
-    color: #f86a2b;
+    color: var(--ads-v2-color-fg-brand);
   }
   .CodeMirror-linenumbers {
     width: max-content;
@@ -72,15 +72,7 @@ export const ActionButtons = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-
-  & > div {
-    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
-  }
-
-  button:last-child {
-    margin-left: ${(props) => props.theme.spaces[7]}px;
-    height: 30px;
-  }
+  gap: var(--ads-v2-spaces-3);
 `;
 
 export const SecondaryWrapper = styled.div`
@@ -94,7 +86,9 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   flex: 1;
   overflow: auto;
   position: relative;
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: 0px ${(props) => props.theme.spaces[11]}px;
+
   ${thinScrollbar}
   ${FormRow} {
     min-height: auto;
@@ -103,16 +97,17 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
       margin-right: 0px;
     }
   }
-  &&& {
-    ul.react-tabs__tab-list {
+  &&&& {
+    ul.ads-v2-tabs__list {
       padding: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
-    .react-tabs__tab-panel {
-      ${CodeEditorWithGutterStyles}
-      height: calc(100% - 32px);
-      background-color: ${(props) => props.theme.colors.apiPane.bg};
+    .ads-v2-tabs__panel {
+      ${CodeEditorWithGutterStyles};
+      height: calc(100% - 40px);
+      margin-top: 0px;
+      background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {
         outline: none;
       }
@@ -123,6 +118,12 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
         cursor: progress;
       }
       `}
+      ${CodeEditorWithGutterStyles}
+    }
+
+    .ads-v2-tabs,
+    .js-editor-tab {
+      height: 100%;
     }
   }
 `;

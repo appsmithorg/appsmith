@@ -1,34 +1,14 @@
 import React from "react";
-import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Category, Size } from "design-system-old";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-
-const StyledPropertyPaneButtonWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 10px;
-`;
-
-const MenuItemsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const AddMenuItemButton = styled(StyledPropertyPaneButton)`
-  justify-content: center;
-  flex-grow: 1;
-`;
+import { Button } from "design-system";
 
 type State = {
   focusedIndex: number | null;
@@ -93,7 +73,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
 
   render() {
     return (
-      <MenuItemsWrapper>
+      <div className="flex flex-col gap-1">
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
@@ -114,19 +94,16 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <StyledPropertyPaneButtonWrapper>
-          <AddMenuItemButton
-            category={Category.secondary}
-            className="t--add-menu-item-btn"
-            icon="plus"
-            onClick={this.addOption}
-            size={Size.medium}
-            tag="button"
-            text="Add a new Menu Item"
-            type="button"
-          />
-        </StyledPropertyPaneButtonWrapper>
-      </MenuItemsWrapper>
+
+        <Button
+          className="self-end t--add-menu-item-btn"
+          kind="tertiary"
+          onClick={this.addOption}
+          startIcon="plus"
+        >
+          Add new menu item
+        </Button>
+      </div>
     );
   }
 

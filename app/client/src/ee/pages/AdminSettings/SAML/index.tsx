@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import ReadMetadata from "./ReadMetadata";
-import { RaisedCard, HeaderSecondary } from "./components";
+import { RaisedCard } from "./components";
 import {
   Wrapper,
   BottomSpace,
@@ -10,7 +10,6 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-  MaxWidthWrapper,
 } from "pages/Settings/components";
 import { BackButton } from "components/utils/helperComponents";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
@@ -23,7 +22,7 @@ import {
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
+import { Text, toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getIsFormLoginEnabled,
@@ -41,7 +40,9 @@ export function getSettingDetail(category: string, subCategory: string) {
 export function SamlAuthTest() {
   return (
     <RaisedCard>
-      <HeaderSecondary>Authentication Successful!</HeaderSecondary>
+      <Text kind="heading-m" renderAs="h3">
+        Authentication successful!
+      </Text>
     </RaisedCard>
   );
 }
@@ -62,9 +63,8 @@ export function Saml() {
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
       error: createMessage(DISCONNECT_AUTH_ERROR),
     });
-    Toaster.show({
-      text: createMessage(DISCONNECT_AUTH_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(DISCONNECT_AUTH_ERROR), {
+      kind: "error",
     });
   };
 
@@ -85,28 +85,36 @@ export function Saml() {
     <Wrapper>
       {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <MaxWidthWrapper>
-          <HeaderWrapper>
-            <SettingsHeader>{pageTitle}</SettingsHeader>
-            {details?.subText && (
-              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
-            )}
-          </HeaderWrapper>
-          {!isConnected && <ReadMetadata />}
-          {isConnected && (
-            <>
-              <SamlAuthTest />
-              <DisconnectService
-                disconnect={() => disconnect()}
-                subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-                warning={`SAML 2.0 ${createMessage(
-                  DISCONNECT_SERVICE_WARNING,
-                )}`}
-              />
-            </>
+        <HeaderWrapper>
+          <SettingsHeader
+            color="var(--ads-v2-color-fg-emphasis-plus)"
+            kind="heading-l"
+            renderAs="h1"
+          >
+            {pageTitle}
+          </SettingsHeader>
+          {details?.subText && (
+            <SettingsSubHeader
+              color="var(--ads-v2-color-fg-emphasis)"
+              kind="body-m"
+              renderAs="h2"
+            >
+              {details.subText}
+            </SettingsSubHeader>
           )}
-          <BottomSpace />
-        </MaxWidthWrapper>
+        </HeaderWrapper>
+        {!isConnected && <ReadMetadata />}
+        {isConnected && (
+          <>
+            <SamlAuthTest />
+            <DisconnectService
+              disconnect={() => disconnect()}
+              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+              warning={`SAML 2.0 ${createMessage(DISCONNECT_SERVICE_WARNING)}`}
+            />
+          </>
+        )}
+        <BottomSpace />
       </SettingsFormWrapper>
       <RestartBanner />
     </Wrapper>

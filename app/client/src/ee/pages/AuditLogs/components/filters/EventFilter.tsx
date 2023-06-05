@@ -1,6 +1,4 @@
 import React from "react";
-import type { DropdownOption } from "design-system-old";
-import { Dropdown } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAuditLogsData,
@@ -11,29 +9,29 @@ import {
   replaceAuditLogsEvents,
   setEventJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
-import {
-  AUDIT_LOGS_FILTER_HEIGHT,
-  AUDIT_LOGS_FILTER_WIDTH,
-} from "../../config/audit-logs-config";
-import { LabelRenderer } from "./LabelRenderer";
 import { toEvent } from "../../utils/toDropdownOption";
 import { useGoToTop } from "../../hooks/useGoToTop";
 import { StyledFilterContainer as Container } from "../../styled-components/container";
 import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system-old/build/constants/messages";
-import { EVENTS_LABEL, EVENTS_PLACEHOLDER } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  EVENTS_LABEL,
+  EVENTS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
+import { Checkbox, Option, Select } from "design-system";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 export default function EventFilter() {
   const data = useSelector(selectAuditLogsData);
   const { events } = data;
-  const selectedEvents = data?.searchFilters?.selectedEvents;
   const searchFilters = useSelector(selectAuditLogsSearchFilters);
+  const selectedEvents = searchFilters?.selectedEvents;
   const dispatch = useDispatch();
 
   const { goToTop } = useGoToTop();
 
-  function handleSelection(value?: string, dropdownOption?: DropdownOption) {
+  function handleSelection(value?: string, dropdownOption?: DefaultOptionType) {
     const adding = !selectedEvents.find((event) => event.value === value);
     if (adding) {
       const event = dropdownOption || toEvent(value || "");
@@ -66,34 +64,40 @@ export default function EventFilter() {
     });
   }
 
-  function removeSelectedOption(value: string, option: DropdownOption) {
+  function removeSelectedOption(value: string, option: DefaultOptionType) {
     handleSelection(value, option);
   }
 
   return (
     <Container data-testid="t--audit-logs-event-type-filter-container">
-      <Label>{createMessage(EVENTS_LABEL)}</Label>
-      <Dropdown
-        boundary="viewport"
+      <Label renderAs="label">{createMessage(EVENTS_LABEL)}</Label>
+      <Select
         className="audit-logs-filter audit-logs-filter-dropdown audit-logs-event-filter-dropdown"
         data-testid="t--audit-logs-event-type-filter"
-        defaultIcon="downArrow"
-        dropdownMaxHeight={"500px"}
-        enableSearch
-        height={AUDIT_LOGS_FILTER_HEIGHT}
         isMultiSelect
-        labelRenderer={LabelRenderer}
+        maxTagTextLength={selectedEvents.length === 1 ? 20 : 5}
+        onDeselect={removeSelectedOption}
         onSelect={handleSelection}
-        optionWidth={AUDIT_LOGS_FILTER_WIDTH}
-        options={events}
+        optionLabelProp="label"
         placeholder={createMessage(EVENTS_PLACEHOLDER)}
-        removeSelectedOption={removeSelectedOption}
-        searchAutoFocus
-        selected={selectedEvents}
-        showEmptyOptions
-        showLabelOnly
-        width={AUDIT_LOGS_FILTER_WIDTH}
-      />
+        showSearch
+        size="md"
+        value={selectedEvents}
+        virtual={false}
+      >
+        {events.length > 0 &&
+          events.map((obj) => (
+            <Option key={obj.key} label={obj.label} value={obj.value}>
+              <Checkbox
+                isSelected={Boolean(
+                  selectedEvents.find((v) => v.value == obj.value),
+                )}
+              >
+                {obj.label}
+              </Checkbox>
+            </Option>
+          ))}
+      </Select>
     </Container>
   );
 }

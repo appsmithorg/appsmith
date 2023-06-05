@@ -1,61 +1,64 @@
 import React from "react";
-import { Category, Text, TextType } from "design-system-old";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   ACTIVATE,
-  ACTIVE,
   ADMIN_BILLING_SETTINGS_TITLE,
   BILLING_AND_USAGE,
   createMessage,
   LICENSE_EXPIRY_DATE,
   PASTE_LICENSE_KEY,
   PORTAL,
-  TRIAL,
   UPDATE,
   UPDATE_LICENSE,
   LICENSE_KEY,
+  SELF_SERVE,
+  ENTERPRISE,
+  AIRGAPPED,
 } from "@appsmith/constants/messages";
 import { BillingPageHeader } from "./Header";
-import {
-  BillingPageWrapper,
-  StyledDialog,
-  DialogWrapper,
-  FlexWrapper,
-  DialogHeaderImg,
-} from "./styles";
+import { BillingPageWrapper, FlexWrapper, StyledImage } from "./styles";
 import { BillingPageContent } from "./BillingPageContent";
-import { CtaText } from "./CTAText";
-import {
-  getDateString,
-  goToCustomerPortal,
-} from "@appsmith/utils/billingUtils";
+import { getDateString } from "@appsmith/utils/billingUtils";
 import type { BillingDashboardCard, CTAButtonType } from "./types";
-import { StatusBadge, Status } from "./StatusBadge";
+import { LICENSE_ORIGIN } from "./types";
 import {
   getLicenseKey,
   isTrialLicense,
-  getLicenseStatus,
   isLicenseModalOpen,
   getExpiry,
+  getLicenseOrigin,
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 import { showLicenseModal } from "@appsmith/actions/tenantActions";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  Button,
+  Link,
+  Modal,
+  ModalHeader,
+  ModalContent,
+  ModalBody,
+  Text,
+  Tag,
+} from "design-system";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const appsmithConfigs = getAppsmithConfigs();
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
 };
 
 const CtaConfig: CTAButtonType = {
-  action: goToCustomerPortal,
-  text: createMessage(PORTAL).toLocaleUpperCase(),
+  action: `${appsmithConfigs.customerPortalUrl}/plans`,
+  text: createMessage(PORTAL),
 };
 
-const statusTextMap: Partial<Record<Status, string>> = {
-  [Status.ACTIVE]: createMessage(ACTIVE),
-  [Status.TRIAL]: createMessage(TRIAL),
+const getLicenseOriginText = (licenseOrigin: string) => {
+  if (licenseOrigin === LICENSE_ORIGIN.SELF_SERVE) return SELF_SERVE;
+  else if (licenseOrigin === LICENSE_ORIGIN.ENTERPRISE) return ENTERPRISE;
+  else return AIRGAPPED;
 };
 
 export function Billing() {
@@ -63,7 +66,7 @@ export function Billing() {
   const isTrial = useSelector(isTrialLicense);
   const expiry = useSelector(getExpiry);
   const expiryDate = getDateString(expiry * 1000);
-  const licenseStatus = useSelector(getLicenseStatus);
+  const licenseOrigin = useSelector(getLicenseOrigin);
 
   const isOpen = useSelector(isLicenseModalOpen);
   const dispatch = useDispatch();
@@ -75,22 +78,25 @@ export function Billing() {
       icon: "money-dollar-circle-line",
       title: (
         <Text
-          color={Colors.SCORPION}
+          color="var(--ads-v2-color-fg)"
           data-testid="t--card-title"
-          type={TextType.P0}
-          weight="500"
+          kind="heading-s"
+          renderAs="p"
         >
           {createMessage(BILLING_AND_USAGE)}
         </Text>
       ),
       action: (
-        <CtaText
-          category={Category.tertiary}
+        <Link
           className="portal-btn"
-          icon="share-2"
-          tag={"a"}
-          {...CtaConfig}
-        />
+          endIcon="share-2"
+          kind={"secondary"}
+          rel="noopener,noreferrer"
+          target="_blank"
+          to={CtaConfig.action}
+        >
+          {CtaConfig.text}
+        </Link>
       ),
     },
     {
@@ -99,32 +105,33 @@ export function Billing() {
       title: (
         <FlexWrapper align="center" dir="row">
           <Text
-            color={Colors.SCORPION}
+            color="var(--ads-v2-color-fg)"
             data-testid="t--card-title"
-            type={TextType.P0}
-            weight="500"
+            kind="heading-s"
+            renderAs="p"
           >
             {createMessage(LICENSE_KEY)}
           </Text>
-          <StatusBadge status={licenseStatus} statusTextMap={statusTextMap} />
+          <Tag data-testid="t--status-text" isClosable={false} size="md">
+            {createMessage(getLicenseOriginText(licenseOrigin))}
+          </Tag>
         </FlexWrapper>
       ),
       content: (
         <FlexWrapper dir="column">
           <Text
-            color={Colors.GRAY_500}
+            color="var(--ads-v2-color-fg)"
             data-testid="t--license-key"
-            type={TextType.P3}
-            weight="500"
+            renderAs="span"
           >
             {licenseKey}
           </Text>
           {isTrial && (
             <Text
-              color={Colors.GREEN}
+              className="license-expiry-text"
+              color="var(--ads-v2-color-fg-success)"
               data-testid="t--license-expiry"
-              type={TextType.P3}
-              weight="500"
+              renderAs="span"
             >
               {createMessage(() => LICENSE_EXPIRY_DATE(expiryDate))}
             </Text>
@@ -132,13 +139,14 @@ export function Billing() {
         </FlexWrapper>
       ),
       action: (
-        <CtaText
-          action={() => dispatch(showLicenseModal(true))}
-          category={Category.secondary}
+        <Button
           className="update-license-btn"
-          tag={"button"}
-          text={createMessage(UPDATE)}
-        />
+          kind="secondary"
+          onClick={() => dispatch(showLicenseModal(true))}
+          size="md"
+        >
+          {createMessage(UPDATE)}
+        </Button>
       ),
     },
   ].filter((card) =>
@@ -149,26 +157,25 @@ export function Billing() {
     <BillingPageWrapper>
       <BillingPageHeader {...headerProps} />
       <BillingPageContent cards={cards} />
-      <StyledDialog
-        canOutsideClickClose
-        isOpen={isOpen}
-        onClose={() => dispatch(showLicenseModal(false))}
-        title=""
-        width="456px"
+      <Modal
+        onOpenChange={(open: boolean) => dispatch(showLicenseModal(open))}
+        open={isOpen}
       >
-        <DialogWrapper>
-          <DialogHeaderImg
-            className="no-sub-img"
-            loading="lazy"
-            src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
-          />
-          <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
-          <LicenseForm
-            actionBtnText={createMessage(ACTIVATE)}
-            placeholder={createMessage(PASTE_LICENSE_KEY)}
-          />
-        </DialogWrapper>
-      </StyledDialog>
+        <ModalContent style={{ width: "640px" }}>
+          <ModalHeader>{createMessage(UPDATE_LICENSE)}</ModalHeader>
+          <ModalBody>
+            <StyledImage
+              className="no-sub-img"
+              loading="lazy"
+              src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
+            />
+            <LicenseForm
+              actionBtnText={createMessage(ACTIVATE)}
+              placeholder={createMessage(PASTE_LICENSE_KEY)}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </BillingPageWrapper>
   );
 }

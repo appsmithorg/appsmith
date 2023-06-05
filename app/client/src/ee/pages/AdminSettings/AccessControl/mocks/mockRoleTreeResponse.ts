@@ -7535,7 +7535,7 @@ export const response1: RoleProps = {
           },
           {
             id: "633ae5c9174013666db9738c",
-            name: "Audit Logs",
+            name: "Audit logs",
             enabled: [-1, -1, -1, 1],
           },
         ],
@@ -9709,7 +9709,7 @@ export const defaultUserResponse: RoleProps = {
           },
           {
             id: "633ae5c9174013666db9738c",
-            name: "Audit Logs",
+            name: "Audit logs",
             enabled: [-1, -1, -1, 1],
           },
         ],

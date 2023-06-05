@@ -1,6 +1,4 @@
 import React from "react";
-import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
 import {
   CardLeftContent,
   CardRightContent,
@@ -9,6 +7,7 @@ import {
   StyledCard,
 } from "./styles";
 import type { BillingDashboardCard } from "./types";
+import { Icon } from "design-system";
 
 export function DashboardCard(props: BillingDashboardCard) {
   const { action, content, icon, subtitle, title } = props;
@@ -16,7 +15,7 @@ export function DashboardCard(props: BillingDashboardCard) {
     <StyledCard data-testid="t--dashboard-card">
       <CardLeftContent data-testid="t--dashboard-card-left-content">
         <IconBadge>
-          <Icon fillColor={Colors.SCORPION} name={icon} size={IconSize.XXXXL} />
+          <Icon name={icon} size="lg" />
         </IconBadge>
         <CardTextWrapper>
           {title}

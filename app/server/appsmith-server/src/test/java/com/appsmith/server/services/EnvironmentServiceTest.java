@@ -3,8 +3,11 @@ package com.appsmith.server.services;
 import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,7 @@ import java.util.Map;
 
 import static com.appsmith.external.constants.CommonFieldName.PRODUCTION_ENVIRONMENT;
 import static com.appsmith.external.constants.CommonFieldName.STAGING_ENVIRONMENT;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -186,5 +190,114 @@ public class EnvironmentServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifySetStagingAsDefault() {
+
+        doReturn(Mono.just(Boolean.TRUE))
+                .when(featureFlagService)
+                .check(Mockito.any());
+
+        Map<String, Environment> environmentMap =
+                environmentService.findByWorkspaceId(workspace.getId())
+                        .collectMap(Environment::getName)
+                        .block();
+
+        assertThat(environmentMap.get(PRODUCTION_ENVIRONMENT).getIsDefault()).isEqualTo(TRUE);
+
+        String stagingEnvironmentId = environmentMap.get(STAGING_ENVIRONMENT).getId();
+
+        Mono<EnvironmentDTO> environmentDTOMono =
+                environmentService
+                        .setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId(),
+                                FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
+
+        StepVerifier.create(environmentDTOMono)
+                .assertNext(environmentDTO -> {
+                    assertThat(environmentDTO.getName()).isEqualTo(STAGING_ENVIRONMENT);
+                    assertThat(stagingEnvironmentId).isEqualTo(environmentDTO.getId());
+                    assertThat(environmentDTO.getIsDefault()).isEqualTo(TRUE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyErrorWhenNoPermissionForWorkspace() {
+        doReturn(Mono.just(Boolean.TRUE))
+                .when(featureFlagService)
+                .check(Mockito.any());
+        
+        doReturn(Mono.empty())
+                .when(workspaceService)
+                .findById(any(), Mockito.<AclPermission>any());
+
+        Map<String, Environment> environmentMap =
+                environmentService.findByWorkspaceId(workspace.getId())
+                        .collectMap(Environment::getName)
+                        .block();
+
+        assertThat(environmentMap.get(PRODUCTION_ENVIRONMENT).getIsDefault()).isEqualTo(TRUE);
+
+        String stagingEnvironmentId = environmentMap.get(STAGING_ENVIRONMENT).getId();
+
+        Mono<EnvironmentDTO> environmentDTOMono =
+                environmentService
+                        .setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId(),
+                                FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
+
+        StepVerifier.create(environmentDTOMono)
+                .verifyErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).isEqualTo("Unauthorized access");
+                });
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyErrorWhenWorkspaceIdOrEnvironmentIdIsGiven() {
+        doReturn(Mono.just(Boolean.TRUE))
+                .when(featureFlagService)
+                .check(Mockito.any());
+
+        doReturn(Mono.empty())
+                .when(workspaceService)
+                .findById(any(), Mockito.<AclPermission>any());
+
+        Map<String, Environment> environmentMap =
+                environmentService.findByWorkspaceId(workspace.getId())
+                        .collectMap(Environment::getName)
+                        .block();
+
+        assertThat(environmentMap.get(PRODUCTION_ENVIRONMENT).getIsDefault()).isEqualTo(TRUE);
+
+        String stagingEnvironmentId = environmentMap.get(STAGING_ENVIRONMENT).getId();
+
+        Mono<EnvironmentDTO> environmentDTOWithoutWorkspaceIdMono =
+                environmentService
+                        .setEnvironmentToDefault(Map.of(FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
+
+        StepVerifier.create(environmentDTOWithoutWorkspaceIdMono)
+                .verifyErrorSatisfies(error -> {
+                    System.out.println(error.getMessage());
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
+                });
+
+        Mono<EnvironmentDTO> environmentDTOWithoutEnvironmentIdMono =
+                environmentService
+                        .setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId()));
+
+        StepVerifier.create(environmentDTOWithoutEnvironmentIdMono)
+                .verifyErrorSatisfies(error -> {
+
+                    System.out.println(error.getMessage());
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
+                });
+
+
+    }
 
 }

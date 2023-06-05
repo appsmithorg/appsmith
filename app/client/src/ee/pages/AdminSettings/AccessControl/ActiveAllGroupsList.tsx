@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
-import { Colors } from "constants/Colors";
-import { ContentWrapper, DefaultRolesToggle, MoreInfoPill } from "./components";
+import { DefaultRolesToggle, MoreInfoPill } from "./components";
 import { HighlightText } from "design-system-old";
 import {
   createMessage,
@@ -21,6 +19,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import { Icon, Text, Tooltip } from "design-system";
 
 const ActiveGroups = styled.div``;
 
@@ -31,22 +30,19 @@ const AllGroups = styled.div`
 const HeadingWrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid var(--appsmith-color-black-200);
+  border-bottom: 1px solid var(--ads-v2-color-border);
   align-items: center;
+  padding: 0 8px 12px 8px;
 `;
 
-const Title = styled.span`
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 19px;
-  letter-spacing: -0.461538px;
-  color: var(--appsmith-color-black-700);
+const Title = styled(Text)`
+  color: var(--ads-v2-color-fg);
   margin: 0 8px;
 `;
 
 const EachGroup = styled.div`
-  border-bottom: 1px solid var(--appsmith-color-black-200);
-  color: var(--appsmith-color-black-800);
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  color: var(--ads-v2-color-fg);
   font-weight: 400;
   font-size: 13px;
   line-height: 17px;
@@ -69,7 +65,7 @@ const EachGroup = styled.div`
   }
 
   &.added {
-    background: #e5f6ec;
+    background: var(--ads-v2-color-bg-success);
 
     .remixicon-icon {
       visibility: visible;
@@ -77,7 +73,7 @@ const EachGroup = styled.div`
   }
 
   &.removed {
-    background: #ffe9e9;
+    background: var(--ads-v2-color-bg-error);
 
     .remixicon-icon {
       visibility: visible;
@@ -97,17 +93,14 @@ const EachGroup = styled.div`
   }
 `;
 
-const EmptyActiveGroups = styled.div`
+const EmptyActiveGroups = styled(Text)`
   text-align: center;
   margin: 32px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--appsmith-color-black-700);
+  color: var(--ads-v2-color-fg);
 `;
 
 const TitleWrapper = styled.div`
   display: flex;
-  padding: 0 8px 12px 8px;
   align-items: center;
 `;
 
@@ -149,17 +142,20 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
   };
 
   return (
-    <ContentWrapper>
+    <div>
       <ActiveGroups data-testid="t--active-groups">
         <HeadingWrapper>
           <TitleWrapper>
             <Icon
-              clickable={false}
-              fillColor={Colors.GREEN}
+              color="var(--ads-v2-color-fg-success)"
               name="oval-check"
-              size={IconSize.XXXL}
+              size="md"
             />
-            <Title data-testid="t--active-groups-title">
+            <Title
+              data-testid="t--active-groups-title"
+              kind="heading-s"
+              renderAs="span"
+            >
               {props.title ?? createMessage(ACTIVE_ENTITIES, entityName)}
             </Title>
           </TitleWrapper>
@@ -185,30 +181,29 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 onClick={() => hasPermission && handleOnRemoveRoles(group)}
               >
                 {hasPermission ? (
-                  <Icon fillColor={Colors.ERROR_600} name="minus" />
-                ) : (
                   <Icon
-                    clickable={false}
-                    data-testid="t--lock-icon"
-                    name="lock-2-line"
+                    color="var(--ads-v2-color-fg-error)"
+                    name="subtract-line"
                   />
+                ) : (
+                  <Icon data-testid="t--lock-icon" name="lock-2-line" />
                 )}
-                <TooltipComponent
+                <Tooltip
                   content={
                     hasPermission
                       ? createMessage(REMOVE_ENTITY, entityName)
                       : createMessage(NO_PERMISSION_TO_UNASSIGN)
                   }
-                  disabled={removedGroup}
-                  hoverOpenDelay={0}
-                  minWidth={"180px"}
-                  openOnTargetFocus={false}
-                  position="right"
+                  isDisabled={removedGroup}
+                  placement="right"
                 >
                   <HighlightText highlight={searchValue} text={group.name} />
-                </TooltipComponent>
+                </Tooltip>
                 {group.autoCreated && (
-                  <MoreInfoPill data-testid="t--default-role">
+                  <MoreInfoPill
+                    data-testid="t--default-role"
+                    isClosable={false}
+                  >
                     {createMessage(DEFAULT_ROLES_PILL)}
                   </MoreInfoPill>
                 )}
@@ -216,7 +211,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             );
           })
         ) : (
-          <EmptyActiveGroups>
+          <EmptyActiveGroups kind="action-l" renderAs="p">
             {createMessage(NO_ACTIVE_ENTITIES_MESSAGE, entityName)}
           </EmptyActiveGroups>
         )}
@@ -225,13 +220,10 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
         <AllGroups data-testid="t--all-groups">
           <HeadingWrapper>
             <TitleWrapper>
-              <Icon
-                clickable={false}
-                fillColor={Colors.GREY_7}
-                name="group-2-line"
-                size={IconSize.XXXXL}
-              />
-              <Title>{createMessage(ALL_ENTITIES, entityName)}</Title>
+              <Icon name="group-2-line" size="md" />
+              <Title kind="heading-s" renderAs="span">
+                {createMessage(ALL_ENTITIES, entityName)}
+              </Title>
             </TitleWrapper>
             {showToggle && (
               <DefaultRolesToggle
@@ -252,19 +244,22 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                   key={`group-${group.id}`}
                   onClick={() => handleOnAddRoles(group)}
                 >
-                  <Icon fillColor={Colors.GREEN} name="plus" />
-                  <TooltipComponent
+                  <Icon
+                    color="var(--ads-v2-color-fg-success)"
+                    name="add-line"
+                  />
+                  <Tooltip
                     content={createMessage(ADD_ENTITY, entityName)}
-                    disabled={addedGroup}
-                    hoverOpenDelay={0}
-                    minWidth={"180px"}
-                    openOnTargetFocus={false}
-                    position="right"
+                    isDisabled={addedGroup}
+                    placement="right"
                   >
                     <HighlightText highlight={searchValue} text={group.name} />
-                  </TooltipComponent>
+                  </Tooltip>
                   {group.autoCreated && (
-                    <MoreInfoPill data-testid="t--default-role">
+                    <MoreInfoPill
+                      data-testid="t--default-role"
+                      isClosable={false}
+                    >
                       {createMessage(DEFAULT_ROLES_PILL)}
                     </MoreInfoPill>
                   )}
@@ -272,12 +267,12 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               );
             })
           ) : (
-            <EmptyActiveGroups>
+            <EmptyActiveGroups kind="action-l" renderAs="p">
               {createMessage(EMPTY_ENTITIES_MESSAGE, entityName)}
             </EmptyActiveGroups>
           )}
         </AllGroups>
       )}
-    </ContentWrapper>
+    </div>
   );
 }

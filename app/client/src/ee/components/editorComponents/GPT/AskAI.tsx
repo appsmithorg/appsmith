@@ -1,4 +1,3 @@
-import { Button, Icon, IconSize, Spinner, importSvg } from "design-system-old";
 import React, { useCallback, useEffect, useRef, useMemo } from "react";
 import { useState } from "react";
 import styled from "styled-components";
@@ -12,23 +11,31 @@ import { GPTTask } from "./utils";
 import { useTextAutocomplete } from "./utils";
 import { useGPTTask } from "./utils";
 import { useGPTContextGenerator } from "./utils";
-import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ErrorPrompt, UserPrompt } from "./GPTPrompt";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { examplePrompts } from "./GetStarted";
-
-const EnterIcon = importSvg(() => import("assets/icons/ads/enter.svg"));
+import BetaCard from "components/editorComponents/BetaCard";
+import { Button, Spinner } from "design-system";
+import { usePrevious } from "@mantine/hooks";
 
 const QueryForm = styled.form`
-  > div:focus-within {
-    border-color: var(--appsmith-color-black-900);
-  }
-  > div.disabled {
-    background-color: ${Colors.GRAY_100};
+  > div {
+    border-radius: var(--ads-v2-border-radius);
+    border: 1px solid var(--ads-v2-color-border);
+    color: var(--ads-v2-color-fg-muted);
+    &:focus-within {
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
+    }
+    &.disabled {
+      opacity: var(--ads-v2-opacity-disabled);
+    }
   }
   textarea {
-    color: ${Colors.GREY_10};
+    color: var(--ads-v2-color-fg);
     background: transparent;
     z-index: 2;
     font-size: 13px;
@@ -42,9 +49,6 @@ const QueryForm = styled.form`
     left: 8px;
     padding-right: 20px;
   }
-  svg:hover {
-    fill: ${Colors.GRAY_800};
-  }
 `;
 
 const resizeTextArea = (el: React.RefObject<HTMLTextAreaElement>) => {
@@ -56,34 +60,123 @@ const resizeTextArea = (el: React.RefObject<HTMLTextAreaElement>) => {
 const CHARACTER_LIMIT = 500;
 
 type TAskAIProps = {
-  updateResponse: (val: TAssistantPrompt) => void;
-  acceptResponse: (query: string) => void;
-  rejectResponse: (query: string, implicit?: boolean) => void;
+  update?: (...args: any) => void;
   close: () => void;
   triggerContext?: CodeEditorExpected;
-  response: TAssistantPrompt | null;
   dataTreePath?: string;
+  isOpen?: boolean;
+  currentValue: string;
 };
 
 export function AskAI(props: TAskAIProps) {
-  const { close, triggerContext, updateResponse } = props;
-  const [query, setQuery] = useState("");
+  const { close, currentValue, dataTreePath, triggerContext } = props;
   const ref = useRef<HTMLDivElement>(null);
   const contextGenerator = useGPTContextGenerator(
     props.dataTreePath,
     props.triggerContext,
   );
   const task = useGPTTask();
+
   const [isLoading, setIsLoading] = useState(false);
-  const queryContainerRef = useTextAutocomplete(query, setQuery);
   const [error, setError] = useState<string>("");
-  const queryCache = useRef<string>("");
+  /**
+   * Store the AI response
+   * `null` value represents the state when AI response is either not generated or rejected.
+   */
+  const [response, setResponse] = React.useState<TAssistantPrompt | null>(null);
+  const [query, setQuery] = useState("");
+  const queryContainerRef = useTextAutocomplete(query, setQuery);
+
+  /**
+   * Called when AI response is received
+   * Stores the response and calls the update method
+   * @param value
+   */
+  const updateResponse = (value: TAssistantPrompt | null) => {
+    setResponse(value);
+    const responseContent =
+      task.id === GPTTask.JS_EXPRESSION
+        ? `{{${value?.content}}}`
+        : value?.content;
+    props.update?.(responseContent || "");
+  };
+
+  const prevOpen = usePrevious(props.isOpen);
+
+  /**
+   * Holds the default value of the property
+   */
+  const defaultValue = React.useRef<string>(currentValue);
+
+  useEffect(() => {
+    // Popover close -> open
+    if (prevOpen !== props.isOpen && props.isOpen) {
+      defaultValue.current = currentValue;
+      setQuery("");
+      setResponse(null);
+    }
+  }, [props.isOpen, currentValue, prevOpen]);
+
+  /**
+   * When this is invoked the field should already be updated.
+   * Logs analytics and closes the popover.
+   * @param query
+   * @param task
+   */
+  const acceptResponse = useCallback(
+    (implicit = false) => {
+      if (response) {
+        AnalyticsUtil.logEvent("AI_RESPONSE_FEEDBACK", {
+          responseId: response.messageId,
+          requestedOutputType: task.id,
+          liked: true,
+          generatedCode: response.content,
+          userQuery: query,
+          implicit,
+          property: dataTreePath,
+        });
+      }
+      defaultValue.current = currentValue;
+      setResponse(null);
+      close();
+    },
+    [currentValue, close, response, query, task, dataTreePath, setResponse],
+  );
+
+  useEffect(() => {
+    acceptResponseRef.current = acceptResponse;
+  }, [acceptResponse]);
 
   useEffect(() => {
     return () => {
-      props.rejectResponse(queryCache.current, true);
+      acceptResponseRef.current?.(true);
     };
   }, []);
+
+  /** To hold the latest reference of props.acceptResponse,
+   * It needs to be fired when the component unmounts */
+  const acceptResponseRef = useRef(acceptResponse);
+
+  /**
+   * Sets the AI response to null and restore the property to its default value.
+   * @param query
+   * @param task
+   */
+  const rejectResponse = () => {
+    // If response is empty, all changes are committed.
+    if (!response) return;
+    if (!query) return;
+    AnalyticsUtil.logEvent("AI_RESPONSE_FEEDBACK", {
+      responseId: response.messageId,
+      requestedOutputType: task.id,
+      liked: false,
+      generatedCode: response.content,
+      userQuery: query,
+      property: props.dataTreePath,
+    });
+    setResponse(null);
+    props.update?.(defaultValue.current || "");
+  };
 
   const sendQuery = useCallback(() => {
     if (isLoading) return;
@@ -99,7 +192,6 @@ export function AskAI(props: TAskAIProps) {
 
   useEffect(() => {
     resizeTextArea(queryContainerRef);
-    queryCache.current = query;
   }, [query]);
 
   useEffect(() => {
@@ -121,6 +213,7 @@ export function AskAI(props: TAskAIProps) {
       userQuery: query,
       enhancedQuery,
       context,
+      property: props.dataTreePath,
     });
     const start = performance.now();
     try {
@@ -144,9 +237,16 @@ export function AskAI(props: TAskAIProps) {
           result?.responseMeta?.error?.message || "Something went wrong",
         );
       }
+      const content = result.data.response || "";
+      // If the response starts with Error: then we throw an error
+      // This is a temp hack to get around the fact that the API doesn't return
+      // a 500 when there is an error.
+      if (content.startsWith("Error:")) {
+        throw new Error(content);
+      }
       const message: TChatGPTPrompt = {
         role: "assistant",
-        content: result.data.response,
+        content,
         messageId: result.data.messageId,
         task: task,
         query,
@@ -159,6 +259,7 @@ export function AskAI(props: TAskAIProps) {
         userQuery: query,
         context,
         timeTaken: performance.now() - start,
+        property: props.dataTreePath,
       });
       updateResponse(message);
     } catch (e) {
@@ -168,6 +269,8 @@ export function AskAI(props: TAskAIProps) {
         requestedOutputType: task,
         timeTaken: performance.now() - start,
         userQuery: query,
+        context,
+        property: props.dataTreePath,
       });
     }
     setIsLoading(false);
@@ -202,22 +305,23 @@ export function AskAI(props: TAskAIProps) {
     >
       <div
         className={classNames(
-          "flex flex-col flex-shrink-0 p-2 pb-1 gap-1 bg-gray-50",
+          "flex flex-col flex-shrink-0 pt-2 px-3 pb-1 gap-1",
           !task && "hidden",
         )}
       >
         <div className="flex flex-row justify-between">
           <div className="flex items-center gap-1">
-            <p className="text-xs font-medium">{task.desc}</p>
-            <div className="px-1 text-[11px] font-semibold text-gray-700 uppercase border border-gray-700">
-              beta
-            </div>
+            <p className="text-xs font-medium text-[color:var(--ads-v2\-color-fg-emphasis)]">
+              {task.desc}
+            </p>
+            <BetaCard />
           </div>
-          <Icon
-            fillColor={Colors.GRAY}
-            name="close-modal"
+          <Button
+            isIconButton
+            kind="tertiary"
             onClick={close}
-            size={IconSize.XXL}
+            size="sm"
+            startIcon="close-line"
           />
         </div>
         {error && (
@@ -228,14 +332,14 @@ export function AskAI(props: TAskAIProps) {
         <QueryForm
           className={classNames(
             "flex w-full relative items-center justify-between",
-            props.response && "hidden",
+            response && "hidden",
           )}
         >
           <div
             className={classNames({
               "bg-white relative flex items-center w-full overflow-hidden":
                 true,
-              "border border-gray-300 py-[4px]": true,
+              "py-[4px]": true,
               disabled: isLoading,
             })}
           >
@@ -257,30 +361,29 @@ export function AskAI(props: TAskAIProps) {
             </div>
           </div>
           {isLoading ? (
-            <div className="!h-9 absolute right-2 flex items-center">
-              <Spinner size={IconSize.LARGE} />
-            </div>
+            <Spinner className="absolute right-2" size="sm" />
           ) : (
-            <EnterIcon
-              className="!h-9 z-10 absolute right-2 cursor-pointer"
-              fill={Colors.GRAY_500}
-              height={16}
-              onClick={() => {
-                sendQuery();
-              }}
-              width={16}
+            <Button
+              className="!absolute !z-2 !right-1"
+              color="red"
+              isIconButton
+              kind="tertiary"
+              onClick={sendQuery}
+              startIcon="enter-line"
             />
           )}
         </QueryForm>
         <div
           className={classNames(
-            props.response && "hidden",
-            "flex items-center justify-end gap-[2px] text-[11px] text-[#777777]",
+            response && "hidden",
+            "flex items-center justify-end gap-[2px] text-[11px]",
           )}
         >
-          Powered by{" "}
+          <span className="text-[color:var(--ads-v2\-color-fg-muted)]">
+            Powered by{" "}
+          </span>
           <a
-            className="text-[#F86A2B]"
+            className="text-[color:var(--ads-v2\-color-fg-brand)]"
             href="https://appsmith.notion.site/AI-features-in-Appsmith-fd22891eb9b946e4916995cecf97a9ad"
             rel="noreferrer"
             target="_blank"
@@ -289,25 +392,26 @@ export function AskAI(props: TAskAIProps) {
           </a>
         </div>
         <div
-          className={classNames(
-            "flex flex-col gap-2",
-            !props.response && "hidden",
-          )}
+          className={classNames("flex flex-col gap-1", !response && "hidden")}
         >
           <UserPrompt
             prompt={{ content: query, task: task.id, role: "user" }}
           />
-          <div className="flex flex-row justify-between items-center pb-1">
+          <div className="flex flex-row justify-end items-center pb-1 gap-2">
             <Button
-              category="secondary"
-              onClick={() => props.acceptResponse(query)}
-              text="Accept"
-            />
+              kind="secondary"
+              onClick={() => acceptResponse()}
+              startIcon="check-line"
+            >
+              Accept
+            </Button>
             <Button
-              category="secondary"
-              onClick={() => props.rejectResponse(query)}
-              text="Reject"
-            />
+              kind="secondary"
+              onClick={() => rejectResponse()}
+              startIcon="close"
+            >
+              Reject
+            </Button>
           </div>
         </div>
       </div>

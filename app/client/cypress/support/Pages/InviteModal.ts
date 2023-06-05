@@ -9,11 +9,11 @@ export class InviteModal {
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   public locators = {
-    _inviteTab: "[data-cy='t--tab-INVITE']",
-    _embedTab: "[data-cy='t--tab-EMBED']",
+    _inviteTab: "[data-testid='t--tab-INVITE']",
+    _embedTab: "[data-testid='t--tab-EMBED']",
     _shareButton: ".t--application-share-btn",
-    _closeButton: ".t--close-form-dialog",
-    _previewEmbed: "[data-cy='preview-embed']",
+    _closeButton: ".ads-v2-modal__content-header-close-button",
+    _previewEmbed: "[data-testid='preview-embed']",
     _shareSettingsButton: "[data-testid='t--share-settings-btn']",
     _upgradeButton: "[data-testid='t--upgrade-btn']",
     _upgradeContent: "[data-testid='t--upgrade-content']",
@@ -33,11 +33,11 @@ export class InviteModal {
   }
 
   public SelectEmbedTab() {
-    this.agHelper.GetNClick(this.locators._embedTab);
+    this.agHelper.ClickButton("Embed");
   }
 
   public OpenShareModal() {
-    this.agHelper.GetNClick(this.locators._shareButton);
+    this.agHelper.GetNClick(this.locators._shareButton, 0, true);
   }
 
   public CloseModal() {
@@ -62,7 +62,7 @@ export class InviteModal {
         );
       }
     });
-    cy.wait(10000);
+    cy.wait(5000);
     cy.get(HomePage.editModeInviteModalCloseBtn).first().click({ force: true });
   }
 

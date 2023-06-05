@@ -1,10 +1,6 @@
 import React from "react";
 import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
-import {
-  StyledPill,
-  StyledPillLabel,
-  StyledPillValue,
-} from "../styled-components/pill";
+import { StyledPill } from "../styled-components/pill";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAuditLogsLogsInit,
@@ -12,7 +8,6 @@ import {
   setOnlyEventJsonFilter,
   setResourceIdJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
-import { Icon, IconSize } from "design-system-old";
 import {
   selectAuditLogsLogById,
   selectAuditLogsSearchFilters,
@@ -21,6 +16,7 @@ import { getJsonFilterData, JSON_FILTER_KEYS_ENUM } from "../utils/jsonFilter";
 import type { AppState } from "@appsmith/reducers";
 import { toEvent, toUserEmail } from "../utils/toDropdownOption";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Text } from "design-system";
 
 interface JsonFiltersProps {
   logId: string;
@@ -98,21 +94,16 @@ export default function JsonFilters({ logId }: JsonFiltersProps) {
       <StyledPill
         data-testid="t--audit-logs-json-filter-pill"
         key={`jsonFilterKey-${index}`}
+        kind="secondary"
         onClick={() => handleFilterClick(key, value)}
+        startIcon="search"
       >
-        <StyledPillLabel>
-          <Icon
-            name={"search"}
-            size={IconSize.XL}
-            style={{
-              display: "inline-block",
-              position: "relative",
-              top: "4px",
-            }}
-          />
-          <span className="pill-key">{key}</span>
-        </StyledPillLabel>
-        <StyledPillValue>{value}</StyledPillValue>
+        <Text className="pill-key" kind="body-m">
+          {key}
+        </Text>
+        <Text className="pill-value" kind="body-m">
+          {value}
+        </Text>
       </StyledPill>
     );
   });

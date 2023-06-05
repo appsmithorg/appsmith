@@ -40,10 +40,15 @@ export const updateDatasource = (
   payload: Datasource,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
-): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
+  isInsideReconnectModal?: boolean,
+): ReduxActionWithCallbacks<
+  Datasource & { isInsideReconnectModal: boolean },
+  unknown,
+  unknown
+> => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload,
+    payload: { ...payload, isInsideReconnectModal: !!isInsideReconnectModal },
     onSuccess,
     onError,
   };
@@ -429,6 +434,15 @@ export const updateDatasourceAuthState = (
     payload: {
       datasource: datasource,
       authStatus: authStatus,
+    },
+  };
+};
+
+export const datasourceDiscardAction = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
+    payload: {
+      pluginId: pluginId,
     },
   };
 };

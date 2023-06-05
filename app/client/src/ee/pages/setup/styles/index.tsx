@@ -1,7 +1,5 @@
 import styled from "styled-components";
-import { Button, TextInput } from "design-system-old";
-import { IntentColors } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
+import { Input, Text } from "design-system";
 
 export const StyledPageWrapper = styled.div`
   display: flex;
@@ -29,8 +27,8 @@ export const StyledCard = styled.div<{ noField?: boolean }>`
   justify-content: center;
   width: 500px;
   height: 260px;
-  border: 1px solid var(--appsmith-color-black-400);
-  border-radius: 8px;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   padding: 20px;
   gap: 24px;
 `;
@@ -38,18 +36,17 @@ export const StyledCard = styled.div<{ noField?: boolean }>`
 export const StyledForm = styled.form<{ showError?: boolean }>`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  border-radius: var(--ads-v2-border-radius);
   .ur--has-border {
     width: 100%;
     border: ${(props) =>
-      props.showError && `1.2px solid ${IntentColors.danger}`};
+      props.showError && `1.2px solid var(--ads-v2-color-fg-error)`};
   }
   .license-input-label {
     margin-bottom: 8px;
   }
   .input-error-msg {
     margin-top: 4px;
-    color: ${IntentColors.danger};
   }
 `;
 
@@ -60,28 +57,20 @@ export const IconBadge = styled.div`
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: var(--appsmith-color-black-100);
+  background-color: var(--ads-v2-color-bg-muted);
   pointer-events: none;
 
   svg {
-    fill: var(--appsmith-color-black-700);
+    fill: var(--ads-v2-color-fg-emphasis-plus);
   }
 `;
 
-export const StyledContent = styled.div`
+export const StyledContent = styled(Text)`
   width: 100%;
   height: 60px;
   text-align: center;
   .license-input {
     width: 100%;
-  }
-`;
-
-export const StyledButton = styled(Button)`
-  width: 100%;
-  gap: 10px;
-  svg path {
-    fill: ${Colors.GRAY};
   }
 `;
 
@@ -100,6 +89,4 @@ export const InputWrapper = styled.div`
   margin-bottom: 20px;
 `;
 
-export const StyledInput = styled(TextInput)`
-  width: 100%;
-`;
+export const StyledInput = styled(Input)``;

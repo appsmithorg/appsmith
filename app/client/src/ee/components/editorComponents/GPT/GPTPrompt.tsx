@@ -16,27 +16,15 @@ import type {
 import { GPTTask } from "./utils";
 import { isGPTErrorPrompt } from "./utils";
 import { isUserPrompt, isAssistantPrompt } from "./utils";
-import { Spinner, AppIcon, importRemixIcon } from "design-system-old";
 import { selectEvaluatedResult } from "./utils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { isEmpty } from "lodash";
 import classNames from "classnames";
-import { Colors } from "constants/Colors";
 import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
+import { Icon, Spinner } from "design-system";
 SyntaxHighlighter.registerLanguage("sql", sql);
-
-const Play = importRemixIcon(() => import("remixicon-react/PlayLineIcon"));
-const LikeIcon = importRemixIcon(
-  () => import("remixicon-react/ThumbUpLineIcon"),
-);
-const DislikeIcon = importRemixIcon(
-  () => import("remixicon-react/ThumbDownLineIcon"),
-);
-const CopyIcon = importRemixIcon(
-  () => import("remixicon-react/ClipboardLineIcon"),
-);
 
 const ResponseContainer = styled.div`
   background: #f5f5f5;
@@ -69,15 +57,16 @@ const ResultContainer = styled.div`
 `;
 
 export const UserPromptWrapper = styled.div`
-  background: white;
   font-size: 12px;
-  font-weight: 400;
+  color: var(--ads-v2-color-fg);
   padding: 8px;
+  margin-bottom: 2px;
   font-style: normal;
   display: flex;
   align-items: center;
   position: relative;
   width: 100%;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 type TGPTPromptProps = {
@@ -99,20 +88,16 @@ export function GPTPrompt(props: TGPTPromptProps) {
 export function UserPrompt(props: { prompt: TUserPrompt }) {
   const { content } = props.prompt;
   return (
-    <div className="flex w-full justify-start items-center">
-      <UserPromptWrapper>{content}</UserPromptWrapper>
-    </div>
+    <UserPromptWrapper className="bg-gray-100">{content}</UserPromptWrapper>
   );
 }
 
 export function ErrorPrompt(props: { prompt: TErrorPrompt }) {
   const { content } = props.prompt;
   return (
-    <div className="flex w-full justify-end items-center pb-[2px]">
-      <UserPromptWrapper className="!bg-red-100 gap-2 items-center !text-red-600">
-        {content}
-      </UserPromptWrapper>
-    </div>
+    <UserPromptWrapper className="!bg-red-100 !text-red-600">
+      {content}
+    </UserPromptWrapper>
   );
 }
 
@@ -210,7 +195,7 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
               className=" hover:bg-[#cfcfcf] p-1 gap-[2px] flex text-[10px] items-center cursor-pointer"
               onClick={handleCopy}
             >
-              <CopyIcon size={13} />
+              <Icon name="duplicate" size="sm" />
               {copyIconClicked ? "Copied!" : "Copy"}
             </div>
             {task !== GPTTask.SQL_QUERY && (
@@ -218,7 +203,7 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
                 className="hover:bg-[#cfcfcf] p-1 gap-[2px] flex text-[10px] items-center cursor-pointer"
                 onClick={handlePlay}
               >
-                <Play size={15} />
+                <Icon name="play-line" size="md" />
                 Run code
               </div>
             )}
@@ -242,7 +227,15 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
               })}
               onClick={() => logFeedback(true)}
             >
-              <LikeIcon color={liked === true ? "green" : "black"} size={13} />
+              <Icon
+                color={
+                  liked === true
+                    ? "var(--ads-v2-color-fg-success)"
+                    : "var(--ads-v2-color-fg)"
+                }
+                name="thumb-up-line"
+                size="sm"
+              />
             </div>
             <div
               className={classNames({
@@ -252,10 +245,15 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
               })}
               onClick={() => logFeedback(false)}
             >
-              <DislikeIcon
+              <Icon
                 className="cursor-pointer"
-                color={`${liked === false ? Colors.DANGER_SOLID : "black"}`}
-                size={13}
+                color={`${
+                  liked === false
+                    ? "var(--ads-v2-color-fg-error)"
+                    : "var(--ads-v2-color-fg)"
+                }`}
+                name="thumb-down-line"
+                size="sm"
               />
             </div>
           </div>
@@ -284,9 +282,9 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
                 ref={evaluatedExpressionRef}
               >
                 {resultsOpen ? (
-                  <AppIcon name="arrow-down" size={12} />
+                  <Icon name="arrow-down-s-line" size="sm" />
                 ) : (
-                  <AppIcon name="arrow-right" size={12} />
+                  <Icon name="arrow-right-s-line" size="sm" />
                 )}
                 {resultsOpen ? "Hide result" : "Show result"}
               </div>

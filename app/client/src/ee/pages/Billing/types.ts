@@ -1,4 +1,4 @@
-import type { ButtonProps, IconProps, Text } from "design-system-old";
+import type { ButtonProps, IconProps, Text } from "design-system";
 import type { ReactComponentElement, ReactNode } from "react";
 
 export type Header = {
@@ -16,18 +16,20 @@ export type BillingDashboardCard = {
 };
 
 export type CTAButtonType = {
-  action?: () => void;
+  action?: string;
   text: string;
   icon?: IconProps;
 };
 
 export type HeaderProps = Header;
 export type BillingDashboardProps = { cards: BillingDashboardCard[] };
+// TODO (tanvi): we need to expose all component types from the system (and replace button props here)
 export type CTAButtonProps = CTAButtonType & ButtonProps;
 
 export enum LICENSE_ORIGIN {
   SELF_SERVE = "SELF_SERVE",
   ENTERPRISE = "ENTERPRISE",
+  AIRGAPPED = "AIR_GAP",
 }
 
 export enum LICENSE_TYPE {

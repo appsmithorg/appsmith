@@ -8,9 +8,9 @@ import WidgetFactory from "utils/WidgetFactory";
 
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
+import { toast } from "design-system";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
@@ -75,6 +75,7 @@ export type BlueprintOperationChildOperationsFn = (
   widgetPropertyMaps: {
     defaultPropertyMap: Record<string, string>;
   },
+  isAutoLayout?: boolean,
 ) => ChildOperationFnResponse;
 
 export type BlueprintBeforeOperationsFn = (
@@ -156,6 +157,7 @@ export function* executeWidgetBlueprintChildOperations(
 
   let widgets = canvasWidgets,
     message;
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
 
   for (const widgetId of widgetIds) {
     // Get the default properties map of the current widget
@@ -171,17 +173,15 @@ export function* executeWidgetBlueprintChildOperations(
 
     ({ message: currMessage, widgets } = (
       operation.fn as BlueprintOperationChildOperationsFn
-    )(widgets, widgetId, parentId, widgetPropertyMaps));
+    )(widgets, widgetId, parentId, widgetPropertyMaps, isAutoLayout));
     //set message if one of the widget has any message to show
     if (currMessage) message = currMessage;
   }
 
   // If something odd happens show the message related to the odd scenario
   if (message) {
-    Toaster.show({
-      text: message,
-      hideProgressBar: false,
-      variant: Variant.info,
+    toast.show(message, {
+      kind: "info",
     });
   }
 

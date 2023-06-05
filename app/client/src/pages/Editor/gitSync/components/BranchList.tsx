@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey, TextInput } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import styled, { useTheme } from "styled-components";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -28,10 +27,15 @@ import {
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
-import { Space } from "./StyledComponents";
-import { Icon, IconSize, IconWrapper } from "design-system-old";
+import {
+  Icon,
+  Spinner,
+  Tooltip,
+  Button,
+  SearchInput,
+  Text,
+} from "design-system";
 import { get } from "lodash";
-import { Spinner, TooltipComponent as Tooltip } from "design-system-old";
 import {
   isLocalBranch,
   isRemoteBranch,
@@ -43,6 +47,7 @@ import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
 import type { Theme } from "constants/DefaultTheme";
+import { Space } from "./StyledComponents";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -56,9 +61,10 @@ const BranchDropdownContainer = styled.div`
   display: flex;
   flex-direction: column;
 
-  & .title {
-    ${getTypographyByKey("p1")};
-  }
+  // & .title {
+  //   ${getTypographyByKey("h3")};
+  //   color: var(--ads-v2-color-fg-emphasis-plus);
+  // }
 
   padding: ${(props) => props.theme.spaces[5]}px;
   min-height: 0;
@@ -73,10 +79,7 @@ const CreateNewBranchContainer = styled.div`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-
-  & ${IconWrapper} {
-    display: inline;
-  }
+  margin-right: 4px;
 
   & div {
     margin-left: ${(props) => props.theme.spaces[4]}px;
@@ -86,20 +89,19 @@ const CreateNewBranchContainer = styled.div`
 
   & .large-text {
     ${getTypographyByKey("p1")};
-    color: ${Colors.BLACK};
+    color: var(--ads-v2-color-fg);
   }
 
   & .small-text {
     ${getTypographyByKey("p3")};
-    color: ${Colors.GREY_7};
+    color: var(--ads-v2-color-fg-muted);
   }
 `;
 
-const SpinnerContainer = styled.div`
+const SpinnerContainer = styled.div<{ isCreatingNewBranch: boolean }>`
   align-self: center;
   width: 12px;
-  position: absolute;
-  right: 16px;
+  visibility: ${(props) => (props.isCreatingNewBranch ? "visible" : "hidden")};
 `;
 
 function CreateNewBranch({
@@ -129,20 +131,27 @@ function CreateNewBranch({
         alignItems: "flex-start",
         cursor: isCreatingNewBranch ? "not-allowed" : "pointer",
         display: "flex",
-        background: hovered ? Colors.GREY_3 : "unset",
+        justifyContent: "space-between",
+        background: hovered ? "var(--ads-v2-color-bg-muted)" : "unset",
         padding: get(theme, "spaces[5]"),
+        borderRadius: "var(--ads-v2-border-radius)",
       }}
     >
-      <Icon
-        fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-        name="git-branch"
-        size={IconSize.XXXL}
-      />
-      <CreateNewBranchContainer className={className} ref={itemRef}>
-        <div className="large-text">{`Create branch: ${branch} `}</div>
-        <div className="small-text">{`from '${currentBranch}'`}</div>
-      </CreateNewBranchContainer>
-      <SpinnerContainer>{isCreatingNewBranch && <Spinner />}</SpinnerContainer>
+      <div className="flex">
+        <Icon
+          color={get(theme, "colors.gitSyncModal.closeIcon")}
+          name="git-branch"
+          size="lg"
+        />
+        <CreateNewBranchContainer className={className} ref={itemRef}>
+          <div className="large-text">{`Create branch: ${branch} `}</div>
+          <div className="small-text">{`from '${currentBranch}'`}</div>
+        </CreateNewBranchContainer>
+      </div>
+
+      <SpinnerContainer isCreatingNewBranch={isCreatingNewBranch}>
+        <Spinner data-testid={"t--branch-creating-spinner"} size="sm" />
+      </SpinnerContainer>
     </div>
   );
 }
@@ -185,39 +194,36 @@ export function Header({
       }}
     >
       <div style={{ display: "flex", alignItems: "center" }}>
-        <span className="title">{title}</span>
+        <Text color={"var(--ads-v2-color-fg-emphasis-plus)"} kind="heading-s">
+          {title}
+        </Text>
         <span
           style={{
             display: "inline-block",
             marginLeft: get(theme, "spaces[1]"),
           }}
         >
-          <Tooltip
-            content={createMessage(SYNC_BRANCHES)}
-            hoverOpenDelay={10}
-            modifiers={{
-              flip: { enabled: false },
-            }}
-            position="top"
-          >
-            <Icon
+          <Tooltip content={createMessage(SYNC_BRANCHES)} placement="top">
+            <Button
               className="t--sync-branches"
-              fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-              hoverFillColor={Colors.BLACK}
-              name="refresh"
+              color={get(theme, "colors.gitSyncModal.closeIcon")}
+              isIconButton
+              kind="tertiary"
               onClick={fetchBranches}
-              size={IconSize.XXXL}
+              size="md"
+              startIcon="refresh"
             />
           </Tooltip>
         </span>
       </div>
-      <Icon
+      <Button
         className="t--close-branch-list"
-        fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-        hoverFillColor={Colors.BLACK}
-        name="close-modal"
+        color={get(theme, "colors.gitSyncModal.closeIcon")}
+        isIconButton
+        kind="tertiary"
         onClick={closePopup}
-        size={IconSize.XXXXL}
+        size="md"
+        startIcon="close-modal"
       />
     </div>
   );
@@ -341,7 +347,7 @@ export default function BranchList(props: {
           }}
           fetchBranches={pruneAndFetchBranches}
         />
-        <Space size={4} />
+        <Space size={3} />
         <div style={{ width: 300 }}>
           {fetchingBranches && (
             <div style={{ width: "100%", height: textInputHeight }}>
@@ -349,7 +355,7 @@ export default function BranchList(props: {
             </div>
           )}
           {!fetchingBranches && (
-            <TextInput
+            <SearchInput
               autoFocus
               className="branch-search t--branch-search-input"
               fill
@@ -359,6 +365,7 @@ export default function BranchList(props: {
             />
           )}
         </div>
+        <Space size={3} />
         {fetchingBranches && <BranchesLoading />}
         {!fetchingBranches && (
           <ListContainer>

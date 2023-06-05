@@ -51,7 +51,7 @@ function* fetchWorkspaceIdandInitSaga() {
 export default function* EnvironmentSagas() {
   yield all([
     takeLatest(
-      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
       fetchWorkspaceIdandInitSaga,
     ),
     takeLatest(

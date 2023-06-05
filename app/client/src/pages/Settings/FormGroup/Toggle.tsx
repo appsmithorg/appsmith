@@ -3,24 +3,21 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Toggle } from "design-system-old";
 import { createMessage } from "@appsmith/constants/messages";
+import { Switch, Text } from "design-system";
 
 const ToggleWrapper = styled.div`
-  display: flex;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 `;
 
-const ToggleStatus = styled.span`
-  margin-left: 64px;
-`;
+const ToggleStatus = styled(Text)``;
 
 function FieldToggleWithToggleText(
   toggleText?: (value: boolean) => string,
   id?: string,
   isPropertyDisabled?: boolean,
+  label?: string,
 ) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
@@ -39,20 +36,21 @@ function FieldToggleWithToggleText(
     /* Value = !ENV_VARIABLE
     This has been done intentionally as naming convention used contains the word disabled but the UI should show the button enabled by default.
     */
+
+    //TODO: This should be refactored to utilize the functionality of the switch component for state
     return (
       <ToggleWrapper>
-        <Toggle
-          cypressSelector={id}
-          onToggle={onToggle}
-          value={isPropertyDisabled ? !val : val}
-        />
-        <ToggleStatus>
-          {typeof toggleText == "function"
-            ? createMessage(() => toggleText(val))
-            : val
-            ? createMessage(() => "Enabled")
-            : createMessage(() => "Disabled")}
-        </ToggleStatus>
+        <Switch
+          data-testid={id}
+          isSelected={isPropertyDisabled ? !val : val}
+          onChange={onToggle}
+        >
+          <ToggleStatus>
+            {typeof toggleText == "function"
+              ? createMessage(() => toggleText(val))
+              : createMessage(() => `${label ? `Enable ${label}` : "Enable"}`)}
+          </ToggleStatus>
+        </Switch>
       </ToggleWrapper>
     );
   };
@@ -64,17 +62,16 @@ const StyledFieldToggleGroup = styled.div`
 
 export function ToggleComponent({ setting }: SettingComponentProps) {
   return (
-    <StyledFieldToggleGroup>
-      <FormGroup setting={setting}>
-        <Field
-          component={FieldToggleWithToggleText(
-            setting.toggleText,
-            setting.id,
-            !setting.name?.toLowerCase().includes("enable"),
-          )}
-          name={setting.name}
-        />
-      </FormGroup>
+    <StyledFieldToggleGroup className="t--admin-settings-toggle">
+      <Field
+        component={FieldToggleWithToggleText(
+          setting.toggleText,
+          setting.id,
+          !setting.name?.toLowerCase().includes("enable"),
+          setting.label,
+        )}
+        name={setting.name}
+      />
     </StyledFieldToggleGroup>
   );
 }

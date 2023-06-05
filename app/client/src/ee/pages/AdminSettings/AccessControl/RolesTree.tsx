@@ -2,30 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import type { Column } from "react-table";
 import { useTable, useExpanded } from "react-table";
-import type { TabProp } from "design-system-old";
-import {
-  Checkbox,
-  Icon,
-  IconSize,
-  Spinner,
-  TabComponent,
-} from "design-system-old";
 import { HighlightText } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
-import { Colors } from "constants/Colors";
-import {
-  ApiMethodIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import type { RoleProps, RoleTreeProps } from "./types";
+import type { RoleProps, RoleTreeProps, TabProps } from "./types";
 import {
   EmptyDataState,
   EmptySearchResult,
   SaveButtonBar,
-  TabsWrapper,
+  StyledTabs,
 } from "./components";
-import isEqual from "lodash/isEqual";
-import unionWith from "lodash/unionWith";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAclIsEditing,
@@ -36,17 +21,32 @@ import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import SaveOrDiscardRoleModal from "./SaveOrDiscardRoleModal";
-import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  Checkbox,
+  Icon,
+  Tab,
+  TabPanel,
+  TabsList,
+  Spinner,
+} from "design-system";
+import { usePrevious } from "@mantine/hooks";
 
 let dataToBeSent: any[] = [];
 
 const CheckboxWrapper = styled.div`
   width: 100%;
   height: 36px;
+  display: flex;
+  justify-content: center;
+
+  .checkbox-parent {
+    position: relative;
+  }
+
   &.hover-state {
     .design-system-checkbox {
       span {
-        opacity: 0.4;
+        border: 1px solid var(--ads-v2-color-border-emphasis-plus);
       }
     }
   }
@@ -62,11 +62,6 @@ const CheckboxWrapper = styled.div`
       width: 16px;
       height: 16px;
       transform: translate(-50%, 0);
-
-      &:after {
-        width: 5px;
-        height: 10px;
-      }
     }
   }
 `;
@@ -81,13 +76,12 @@ const StyledTable = styled.table`
   thead {
     position: sticky;
     top: 0;
-    background: var(--appsmith-color-black-0);
+    background: var(--ads-v2-color-bg);
     z-index: 1;
     height: 40px;
 
     th {
-      color: var(--appsmith-color-black-700);
-      text-transform: capitalize;
+      color: var(--ads-v2-color-fg-emphasis-plus);
       font-size: 16px;
       font-weight: 500;
       line-height: 1.5;
@@ -107,24 +101,16 @@ const StyledTable = styled.table`
     tr {
       height: 44px;
       td {
-        color: var(--appsmith-color-black-800);
-        font-size: 14px;
-        font-weight: normal;
-        line-height: 1.31;
-        letter-spacing: -0.24px;
+        color: var(--ads-v2-color-fg-emphasis);
         padding: 0;
         text-align: center;
 
         label {
           padding: 0;
-          top: 8px;
+          top: 10px;
 
           input {
             display: none;
-          }
-
-          .bp3-control-indicator {
-            margin: auto;
           }
         }
       }
@@ -132,7 +118,7 @@ const StyledTable = styled.table`
       &:hover {
         td {
           div {
-            background: var(--appsmith-color-black-100);
+            background: var(--ads-v2-color-bg-subtle);
           }
           &:first-child {
             background: none;
@@ -140,7 +126,7 @@ const StyledTable = styled.table`
             div {
               background: none;
               .text-wrapper {
-                background: var(--appsmith-color-black-100);
+                background: var(--ads-v2-color-bg-subtle);
               }
             }
           }
@@ -191,7 +177,7 @@ const ResourceCellWrapper = styled.div`
 `;
 
 const Delimeter = styled.div`
-  border-left: 1px solid var(--appsmith-color-black-200);
+  border-left: 1px solid var(--ads-v2-color-border);
   line-height: 24px;
   padding-right: 12px;
   text-align: center;
@@ -209,26 +195,24 @@ const CentralizedWrapper = styled.div`
 `;
 
 const TableWrapper = styled.div<{ isEditing?: boolean }>`
-  overflow-y: scroll;
-  ${({ isEditing }) =>
-    isEditing
-      ? `height: calc(100% - 84px - 24px); margin-bottom: 16px;`
-      : `height: calc(100% - 24px)`}
+  ${({ isEditing }) => (isEditing ? `margin-bottom: 16px;` : ``)}
 `;
 
 const IconTypes: any = {
   HomePage: (
     <MenuIcons.DEFAULT_HOMEPAGE_ICON
-      color={Colors.GREEN_1}
+      color="var(--ads-v2-color-fg-success)"
       height="16"
       width="16"
     />
   ),
   NewPage: (
-    <MenuIcons.PAGE_ICON color={Colors.GRAY_700} height="16" width="16" />
+    <MenuIcons.PAGE_ICON
+      color="var(--ads-v2-color-fg)"
+      height="16"
+      width="16"
+    />
   ),
-  NewAction: ApiMethodIcon(HTTP_METHOD.GET),
-  ActionCollection: JsFileIconV2(),
 };
 
 function Table({
@@ -317,11 +301,7 @@ function Table({
           <tr>
             <td className="no-border" colSpan={columns?.length}>
               <CentralizedWrapper>
-                {loaderComponent ? (
-                  loaderComponent
-                ) : (
-                  <Spinner size={IconSize.XXL} />
-                )}
+                {loaderComponent ? loaderComponent : <Spinner size="lg" />}
               </CentralizedWrapper>
             </td>
           </tr>
@@ -446,16 +426,17 @@ export function getEntireHoverMap(hoverMap: any, key: string) {
     },
   ];
   for (const map of currentKeyMap) {
-    finalMap = unionWith(
-      finalMap,
-      getEntireHoverMap(
-        hoverMap,
-        `${map?.id}_${map?.p}${
-          type && map.id === keySplit[0] ? `_${type}` : ``
-        }`,
-      ),
-      isEqual,
+    const more = getEntireHoverMap(
+      hoverMap,
+      `${map?.id}_${map?.p}${type && map.id === keySplit[0] ? `_${type}` : ``}`,
     );
+    finalMap = Array.from(
+      new Set(
+        [...finalMap, ...(more.length > 0 ? more : [map])].map((object) =>
+          JSON.stringify(object),
+        ),
+      ),
+    ).map((string) => JSON.parse(string));
   }
   return finalMap;
 }
@@ -703,19 +684,21 @@ export const getExtendedId = (rowData: any, type: string) => {
     : ``;
 };
 
-export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
+export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {
   const {
-    dataFromProps,
     searchValue = "",
+    selectedTab,
     setShowSaveModal,
     showSaveModal,
     tabData,
   } = props;
   const { id: roleId, isSaving, userPermissions } = props.selected;
   const [filteredData, setFilteredData] = useState([]);
-  const [data, setData] = useState(dataFromProps);
+  const [data, setData] = useState<any[]>([]);
+  const [dataFromProps, setDataFromProps] = useState<any[]>([]);
   const iconLocations = useSelector(getIconLocations);
   const isEditing = useSelector(getAclIsEditing);
+  const prevValues = usePrevious({ searchValue });
   const dispatch = useDispatch();
 
   const canEditRole = isPermitted(
@@ -728,18 +711,27 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
   }, []);
 
   useEffect(() => {
-    setData(dataFromProps);
-  }, [tabData]);
+    if (selectedTab) {
+      const calculatedData =
+        makeData({
+          data: [tabData?.data],
+          hoverMap: tabData.hoverMap,
+          permissions: tabData.permissions,
+        }) || [];
+      setData(calculatedData);
+      setDataFromProps(calculatedData);
+    }
+  }, [tabData, selectedTab]);
 
   useEffect(() => {
     if (searchValue && searchValue.trim().length > 0) {
       const currentData = JSON.parse(JSON.stringify(data));
       const result = getSearchData(currentData, searchValue);
       setFilteredData(result);
-    } else {
+    } else if (prevValues?.searchValue !== searchValue) {
       setFilteredData([]);
     }
-  }, [searchValue]);
+  }, [searchValue, data]);
 
   useEffect(() => {
     if (JSON.stringify(data) === JSON.stringify(dataFromProps)) {
@@ -752,7 +744,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
 
   const columns: Array<Column> = [
     {
-      Header: "Resource Permissions",
+      Header: "Resource permissions",
       accessor: "name",
       Cell: function CellContent(cellProps: any) {
         const row = cellProps.cell.row.original;
@@ -777,9 +769,13 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           >
             {cellProps.row.depth ? del : null}
             {cellProps.row.isExpanded ? (
-              <Icon name="down-arrow" size={IconSize.XL} />
+              <Icon name="down-arrow" size="md" />
             ) : (
-              <Icon name="right-arrow-2" size={IconSize.XL} />
+              <Icon
+                data-testid="right-arrow-2"
+                name="right-arrow-2"
+                size="md"
+              />
             )}
             <div className="text-wrapper">
               {icon}
@@ -807,9 +803,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           value,
         } = cellProps;
         const rowData = cellProps.cell.row.original;
-        const [isChecked, setIsChecked] = React.useState(
-          value === 1 ? true : false,
-        );
+        const [isChecked, setIsChecked] = useState(value === 1 ? true : false);
         const disableMap = useMemo(
           () =>
             isChecked && canEditRole && tabData.disableHelperMap
@@ -886,13 +880,18 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
             data-rowid={parseInt(rowId.split(".")[0])}
             data-testid={checkboxId}
           >
-            <div onMouseOut={removeHoverClass} onMouseOver={addHoverClass}>
+            <div
+              className="checkbox-parent"
+              onMouseOut={removeHoverClass}
+              onMouseOver={addHoverClass}
+            >
               <Checkbox
+                aria-label="check-permission"
                 className="design-system-checkbox"
-                disabled={!canEditRole || isDisabled}
+                defaultSelected={isChecked}
+                isDisabled={!canEditRole || isDisabled}
                 /* indeterminate={row.permissions[i] === 3 ? true : false} */
-                isDefaultChecked={isChecked}
-                onCheckChange={(value: boolean) =>
+                onChange={(value: boolean) =>
                   onChangeHandler(value, checkboxId)
                 }
                 value={checkboxId}
@@ -960,9 +959,9 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
     });
   };
 
-  const onCloseModal = () => {
+  const onChangeModal = (open: boolean) => {
     if (showSaveModal) {
-      setShowSaveModal(false);
+      setShowSaveModal(open);
       setData(data);
     }
   };
@@ -990,7 +989,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
         <SaveOrDiscardRoleModal
           disabledButtons={!canEditRole}
           isOpen={showSaveModal}
-          onClose={onCloseModal}
+          onChangeModal={onChangeModal}
           onDiscard={onClearChanges}
           onSave={onSaveChanges}
         />
@@ -998,7 +997,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
     </>
   ) : (
     <CentralizedWrapper>
-      <Spinner size={IconSize.XXL} />
+      <Spinner size="lg" />
     </CentralizedWrapper>
   );
 }
@@ -1010,17 +1009,9 @@ export function EachTab(
   selected: RoleProps,
   showSaveModal: boolean,
   setShowSaveModal: (val: boolean) => void,
+  selectedTab: string,
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
-  const dataFromProps = useMemo(() => {
-    return (
-      makeData({
-        data: [tabs?.data],
-        hoverMap: tabs.hoverMap,
-        permissions: tabs.permissions,
-      }) || []
-    );
-  }, [tabs]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -1032,18 +1023,21 @@ export function EachTab(
     key,
     title: key,
     count: tabCount,
-    panelComponent: (
-      <RolesTree
-        currentTabName={key}
-        dataFromProps={dataFromProps}
-        searchValue={searchValue}
-        selected={selected}
-        setShowSaveModal={setShowSaveModal}
-        showSaveModal={showSaveModal}
-        tabData={tabs}
-        updateTabCount={(n) => setTabCount(n)}
-      />
-    ),
+    panelComponent:
+      selectedTab === key ? (
+        <RolesTree
+          currentTabName={key}
+          searchValue={searchValue}
+          selected={selected}
+          selectedTab={selectedTab === key}
+          setShowSaveModal={setShowSaveModal}
+          showSaveModal={showSaveModal}
+          tabData={tabs}
+          updateTabCount={(n) => setTabCount(n)}
+        />
+      ) : (
+        <div />
+      ),
   };
 }
 
@@ -1053,38 +1047,60 @@ export default function RoleTabs(props: {
 }) {
   const { searchValue, selected } = props;
   const isEditing = useSelector(getAclIsEditing);
-  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
+  const [selectedTab, setSelectedTab] = useState<string>(
+    Object.keys(selected?.tabs)?.[0] || "",
+  );
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  const tabs: TabProp[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value]) =>
-        EachTab(
-          key,
-          searchValue,
-          value,
-          selected,
-          showSaveModal,
-          setShowSaveModal,
-        ),
-      )
-    : [];
+  const tabs: TabProps[] = Object.entries(selected?.tabs || {}).map(
+    ([key, value]) =>
+      EachTab(
+        key,
+        searchValue,
+        value,
+        selected,
+        showSaveModal,
+        setShowSaveModal,
+        selectedTab,
+      ),
+  );
 
-  const onTabChange = (index: number) => {
-    if (isEditing && selectedTabIndex !== index) {
+  const onTabChange = (value: string) => {
+    if (isEditing && selectedTab !== value) {
       setShowSaveModal(true);
-      setSelectedTabIndex(selectedTabIndex);
+      setSelectedTab(selectedTab);
     } else {
-      setSelectedTabIndex(index);
+      setSelectedTab(value);
     }
   };
 
   return tabs.length > 0 ? (
-    <TabsWrapper>
-      <TabComponent
-        onSelect={onTabChange}
-        selectedIndex={selectedTabIndex}
-        tabs={tabs}
-      />
-    </TabsWrapper>
+    <StyledTabs onValueChange={onTabChange} value={selectedTab}>
+      <TabsList>
+        {tabs.map((tab) => {
+          return (
+            <Tab
+              data-testid={`t--tab-${tab.key}`}
+              key={tab.key}
+              notificationCount={tab.count}
+              value={tab.key}
+            >
+              {tab.title}
+            </Tab>
+          );
+        })}
+      </TabsList>
+      {tabs.map((tab) => {
+        return (
+          <TabPanel
+            className={`tab-panel ${isEditing ? "is-editing" : ""}`}
+            key={tab.key}
+            value={tab.key}
+          >
+            {tab.panelComponent}
+          </TabPanel>
+        );
+      })}
+    </StyledTabs>
   ) : null;
 }

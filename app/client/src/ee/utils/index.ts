@@ -17,9 +17,10 @@ export const addItemsInContextMenu = (
     updatedActionItems.push({
       onSelect: () =>
         history.push(`/workspace/${workspaceId}/settings/members`),
-      text: "Members",
-      icon: "member",
-      cypressSelector: "t--app-members",
+      children: "Members",
+      key: "members",
+      startIcon: "member",
+      "data-testid": "t--app-members",
     });
   }
   return updatedActionItems;

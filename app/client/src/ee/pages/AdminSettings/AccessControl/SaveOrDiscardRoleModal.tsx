@@ -5,58 +5,60 @@ import {
 } from "@appsmith/constants/messages";
 import {
   Button,
-  Category,
-  DialogComponent as Dialog,
-  Size,
-} from "design-system-old";
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalContent,
+  ModalFooter,
+  Text,
+} from "design-system";
 
 interface SaveOrDiscardModalProps {
   isOpen: boolean;
+  onChangeModal(val: boolean): void;
   onDiscard(): void;
   onSave?(): void;
-  onClose(): void;
   disabledButtons: boolean;
 }
 
 function SaveOrDiscardRoleModal(props: SaveOrDiscardModalProps) {
-  const { disabledButtons, isOpen, onClose, onDiscard, onSave } = props;
+  const { disabledButtons, isOpen, onChangeModal, onDiscard, onSave } = props;
 
   const disableSaveButton = disabledButtons;
 
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
-      width={"596px"}
-    >
-      <div className="pb-8 space-y-3 ">
-        <p>
-          Unsaved changes will be lost if you switch tab, save the changes
-          before exiting.
-        </p>
-      </div>
+    <Modal onOpenChange={(open: boolean) => onChangeModal(open)} open={isOpen}>
+      <ModalContent style={{ width: "640px" }}>
+        <ModalHeader>
+          {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
+        </ModalHeader>
+        <ModalBody>
+          <Text renderAs="p">
+            Unsaved changes will be lost if you switch tab, save the changes
+            before exiting.
+          </Text>
+        </ModalBody>
 
-      <div className="">
-        <div className="flex items-center justify-end space-x-3">
+        <ModalFooter>
           <Button
-            category={Category.secondary}
             className="t--role-modal-do-not-save"
+            kind="secondary"
             onClick={onDiscard}
-            size={Size.medium}
-            text="DON'T SAVE"
-          />
+            size="md"
+          >
+            {"Don't save"}
+          </Button>
           <Button
-            category={Category.primary}
             className="t--role-modal-save"
-            disabled={disableSaveButton}
-            onClick={!disableSaveButton && onSave}
-            size={Size.medium}
-            text="SAVE"
-          />
-        </div>
-      </div>
-    </Dialog>
+            isDisabled={disableSaveButton}
+            onClick={onSave}
+            size="md"
+          >
+            Save
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

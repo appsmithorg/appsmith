@@ -24,7 +24,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import history from "utils/history";
 
 export function* fetchInviteGroupsSuggestionsSaga() {
@@ -75,12 +75,14 @@ export function* deleteWorkspaceUserSaga(
           },
         });
       }
-      Toaster.show({
-        text: `${
+      toast.show(
+        `${
           response.data?.username || response.data?.name
         } has been removed successfully`,
-        variant: Variant.success,
-      });
+        {
+          kind: "success",
+        },
+      );
     }
   } catch (error) {
     yield put({

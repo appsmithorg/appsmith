@@ -32,16 +32,16 @@ public class NetworkUtils {
             return Mono.just(cachedAddress);
         }
 
-        return WebClientUtils
-                .create()
-                .get()
-                .uri(GET_IP_URI)
-                .retrieve()
-                .bodyToMono(String.class)
-                .map(address -> {
-                    cachedAddress = address;
-                    return address;
-                });
+       return WebClientUtils
+               .create()
+               .get()
+               .uri(GET_IP_URI)
+               .retrieve()
+               .bodyToMono(String.class)
+               .map(address -> {
+                   cachedAddress = address;
+                   return address;
+               });
     }
 
 }

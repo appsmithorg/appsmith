@@ -7,6 +7,7 @@ import {
   UserCard,
   UserCardContainer,
   DeleteIcon,
+  StyledText,
   RowWrapper,
 } from "ce/pages/workspace/Members";
 import React, { useEffect, useMemo, useState } from "react";
@@ -25,20 +26,10 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
-import {
-  Dropdown,
-  HighlightText,
-  Icon,
-  IconSize,
-  Table,
-  Text,
-  TextType,
-} from "design-system-old";
+import { HighlightText, Table } from "design-system-old";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
-import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { Colors } from "constants/Colors";
 import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
 import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
@@ -61,15 +52,31 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import type { SelectOptionProps } from "design-system";
+import { Avatar, Button, Icon, Option, Select, Text } from "design-system";
+import { getInitials } from "utils/AppsmithUtils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const Delimeter = styled.div`
-  border-left: 1px solid var(--appsmith-color-black-200);
-  line-height: 24px;
+  border-left: 1px solid var(--ads-v2-color-border);
+  height: 100%;
   padding-right: 8px;
   text-align: center;
   margin: 0 4px 0 12px;
+`;
+
+const StyledSelect = styled(Select)`
+  .rc-select-selection-item {
+    .ads-v2-text {
+      color: var(--ads-v2-color-fg);
+      font-weight: normal;
+
+      &.description {
+        display: none;
+      }
+    }
+  }
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -268,23 +275,24 @@ export default function MemberSettings(props: PageProps) {
             {isUserGroup ? (
               <>
                 <Icon
-                  className="user-icons"
+                  className="user-group-icons"
                   name="group-line"
-                  size={IconSize.XXL}
+                  size="md"
                 />
                 <HighlightText highlight={searchValue} text={member.name} />
               </>
             ) : (
               <>
-                <ProfileImage
+                <Avatar
                   className="user-icons"
-                  size={20}
-                  source={
+                  firstLetter={getInitials(member.username)}
+                  image={
                     member.photoId
                       ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                       : undefined
                   }
-                  userName={member.username}
+                  label={member.username}
+                  size="sm"
                 />
                 <HighlightText highlight={searchValue} text={member.username} />
               </>
@@ -307,9 +315,9 @@ export default function MemberSettings(props: PageProps) {
             {...cellProps.row.getToggleRowExpandedProps({ title: undefined })}
           >
             {cellProps.row.isExpanded ? (
-              <Icon name="arrow-down-s-fill" size={IconSize.XL} />
+              <Icon className="expand-more" name="expand-more" size="md" />
             ) : (
-              <Icon name="arrow-right-s-fill" size={IconSize.XL} />
+              <Icon className="right-arrow-2" name="right-arrow-2" size="md" />
             )}
             <div className="resource-name">
               {(cellProps.cell.row.original?.entityType ===
@@ -343,35 +351,42 @@ export default function MemberSettings(props: PageProps) {
         const roles = allRoles
           ? allRoles.map((role: any) => {
               return {
-                id: role.id,
+                key:
+                  entityId && entityType && entityType !== ENTITY_TYPE.WORKSPACE
+                    ? role.name?.split(" - ")[0]
+                    : role.id,
                 value: role.name?.split(" - ")[0],
-                label: role.description,
+                description: role.description,
               };
             })
           : [];
         if (!cloudHosting && showAdminSettings(currentUser)) {
           roles.push({
-            id: "custom-pg",
+            key: "custom-pg",
             value: "Assign Custom Role",
             link: "/settings/groups",
             icon: "right-arrow",
           });
         }
         const selectedRole = roles.find(
-          (role: { id: string; value: string; label: string }) =>
+          (role: { key: string; value: string; description: string }) =>
             role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
         if (username === currentUser?.username) {
-          return cellProps.cell.value?.split(" - ")[0];
+          return (
+            <StyledText renderAs="p">
+              {cellProps.cell.value?.split(" - ")[0]}
+            </StyledText>
+          );
         }
         if (entityType === ENTITY_TYPE.WORKSPACE && !selectedRole) {
-          return "No Access";
+          return <StyledText renderAs="p">No Access</StyledText>;
         }
 
         const onSelectHandler = (_value: string, option: any) => {
-          if (option.link) {
-            history.push(option.link);
+          if (option.value === "custom-pg") {
+            history.push("/settings/groups");
           } else {
             entityId && entityType && entityType !== ENTITY_TYPE.WORKSPACE
               ? dispatch(
@@ -385,7 +400,7 @@ export default function MemberSettings(props: PageProps) {
               : dispatch(
                   changeWorkspaceUserRole(
                     workspaceId,
-                    option.id,
+                    option.key,
                     username,
                     userGroupId,
                   ),
@@ -394,21 +409,41 @@ export default function MemberSettings(props: PageProps) {
         };
 
         return (
-          <Dropdown
-            boundary="viewport"
+          <StyledSelect
             className="t--user-status"
-            defaultIcon="downArrow"
-            dontUsePortal
-            height="31px"
+            dropdownMatchSelectWidth={false}
+            dropdownStyle={{ width: "400px" }}
             isLoading={
               roleChangingUserInfo && roleChangingUserInfo.username === username
             }
-            onSelect={(_value: string, option: any) =>
-              onSelectHandler(_value, option)
-            }
-            options={roles}
-            selected={selectedRole}
-          />
+            listHeight={300}
+            onSelect={(_value: string, option: any) => {
+              onSelectHandler(_value, option);
+            }}
+            size="md"
+            value={selectedRole}
+          >
+            {roles.map((role: Partial<SelectOptionProps>) => (
+              <Option key={role.key} label={role.value} value={role.key}>
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-1">
+                    {role.icon && <Icon name={role.icon} size="md" />}
+                    <Text
+                      color="var(--ads-v2-color-fg-emphasis)"
+                      kind={role.description && "heading-xs"}
+                    >
+                      {role.value}
+                    </Text>
+                  </div>
+                  {role.description && (
+                    <Text className="description" kind="body-s">
+                      {role.description}
+                    </Text>
+                  )}
+                </div>
+              </Option>
+            ))}
+          </StyledSelect>
         );
       },
     },
@@ -429,15 +464,15 @@ export default function MemberSettings(props: PageProps) {
         }
 
         return (
-          <Icon
+          <Button
             className="t--deleteUser"
-            cypressSelector="t--deleteUser"
-            fillColor="#FF6786"
-            hoverFillColor="#FF6786"
+            data-testid="t--deleteUser"
+            isIconButton
             isLoading={
-              deletingUserInfo && deletingUserInfo.username === username
+              deletingUserInfo &&
+              deletingUserInfo.username === cellProps.cell.row.original.username
             }
-            name="trash-outline"
+            kind="error"
             onClick={() => {
               onConfirmMemberDeletion(
                 username,
@@ -448,7 +483,8 @@ export default function MemberSettings(props: PageProps) {
                 entityType,
               );
             }}
-            size={IconSize.LARGE}
+            size="sm"
+            startIcon="delete-bin-line"
           />
         );
       },
@@ -459,9 +495,14 @@ export default function MemberSettings(props: PageProps) {
   const roles = allRoles
     ? allRoles.map((role: any) => {
         return {
-          id: role.id,
+          key:
+            role.entityId &&
+            role.entityType &&
+            role.entityType !== ENTITY_TYPE.WORKSPACE
+              ? role.name?.split(" - ")[0]
+              : role.id,
           value: role.name?.split(" - ")[0],
-          label: role.description,
+          description: role.description,
         };
       })
     : [];
@@ -480,7 +521,7 @@ export default function MemberSettings(props: PageProps) {
             data-testid="listing-table"
             isLoading={isFetchingAllUsers && isFetchingAllRoles}
             noDataComponent={
-              <NoResultsText>
+              <NoResultsText kind="heading-s">
                 {createMessage(NO_SEARCH_DATA_TEXT)}
               </NoResultsText>
             }
@@ -500,9 +541,9 @@ export default function MemberSettings(props: PageProps) {
                   {isUserGroup ? (
                     <>
                       <Icon
-                        className="user-icons"
+                        className="user-group-icons"
                         name="group-line"
-                        size={IconSize.XXL}
+                        size="md"
                       />
                       <HighlightText
                         highlight={searchValue}
@@ -511,54 +552,77 @@ export default function MemberSettings(props: PageProps) {
                     </>
                   ) : (
                     <>
-                      <ProfileImage
+                      <Avatar
                         className="avatar"
-                        size={71}
-                        source={
+                        firstLetter={getInitials(member.username)}
+                        image={
                           member.photoId
                             ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                             : undefined
                         }
-                        userName={member.username}
+                        label={member.username}
+                        size="sm"
                       />
                       <HighlightText
                         highlight={searchValue}
                         text={member.username}
                       />
-                      <Text className="user-email" type={TextType.P1}>
+                      <Text
+                        className="user-email"
+                        color="var(--ads-v2-color-fg-muted)"
+                        renderAs="p"
+                      >
                         {member.username}
                       </Text>
                     </>
                   )}
                   {isOwner && (
-                    <Text className="user-role" type={TextType.P1}>
+                    <Text className="user-role" renderAs="p">
                       {member.permissionGroupName?.split(" - ")[0]}
                     </Text>
                   )}
                   {!isOwner && !role && (
-                    <Text className="user-role" type={TextType.P1}>
+                    <Text className="user-role" renderAs="p">
                       No Access
                     </Text>
                   )}
                   {!isOwner && role && (
-                    <Dropdown
-                      boundary="viewport"
+                    <Select
                       className="t--user-status"
-                      defaultIcon="downArrow"
-                      height="31px"
-                      onSelect={(value: any, option: any) => {
-                        selectRole(option.id, member.username);
+                      isLoading={
+                        roleChangingUserInfo &&
+                        roleChangingUserInfo.username === member.username
+                      }
+                      onSelect={(_value: string, option: any) => {
+                        selectRole(option.key, member.username);
                       }}
-                      options={roles}
-                      selected={role}
-                    />
+                      size="md"
+                      value={role}
+                    >
+                      {roles.map((role: Partial<SelectOptionProps>) => (
+                        <Option
+                          key={role.key}
+                          label={role.value}
+                          value={role.key}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <Text
+                              color="var(--ads-v2-color-fg-emphasis)"
+                              kind={role.description && "heading-xs"}
+                            >
+                              {role.value}
+                            </Text>
+                            <Text kind="body-s">{role.description}</Text>
+                          </div>
+                        </Option>
+                      ))}
+                    </Select>
                   )}
                   <DeleteIcon
                     className="t--deleteUser"
-                    cypressSelector="t--deleteUser"
-                    fillColor={Colors.DANGER_SOLID}
-                    hoverFillColor={Colors.DANGER_SOLID_HOVER}
-                    name="trash-outline"
+                    data-testid="t--deleteUser"
+                    isIconButton
+                    kind="error"
                     onClick={() => {
                       onConfirmMemberDeletion(
                         member.username,
@@ -567,7 +631,8 @@ export default function MemberSettings(props: PageProps) {
                         member?.userGroupId || "",
                       );
                     }}
-                    size={IconSize.LARGE}
+                    size="sm"
+                    startIcon="delete-bin-line"
                   />
                 </UserCard>
               );

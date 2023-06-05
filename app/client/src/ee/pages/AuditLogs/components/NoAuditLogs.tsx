@@ -1,12 +1,12 @@
 import React from "react";
 import { StyledNoAuditLogsContainer } from "../styled-components/container";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import EmptyState3x from "assets/images/empy-state-3x.png";
 import {
+  createMessage,
   NO_SEARCH_DATA_TEXT,
   TRY_AGAIN_WITH_YOUR_FILTER,
 } from "@appsmith/constants/messages";
-import { createMessage } from "design-system-old/build/constants/messages";
 
 export default function NoAuditLogs() {
   return (
@@ -16,8 +16,10 @@ export default function NoAuditLogs() {
         className="no-result-found-image"
         src={EmptyState3x}
       />
-      <Text type={TextType.P0}>{createMessage(NO_SEARCH_DATA_TEXT)}</Text>
-      <Text type={TextType.P1}>
+      <Text kind="heading-s" renderAs="p">
+        {createMessage(NO_SEARCH_DATA_TEXT)}
+      </Text>
+      <Text color="var(--ads-v2-color-fg)" renderAs="span">
         {createMessage(TRY_AGAIN_WITH_YOUR_FILTER)}
       </Text>
     </StyledNoAuditLogsContainer>

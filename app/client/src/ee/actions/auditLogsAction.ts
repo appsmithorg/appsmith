@@ -1,10 +1,12 @@
-import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
+import type {
+  AuditLogType,
+  DropdownOptionProps,
+} from "@appsmith/pages/AuditLogs/types";
 import type {
   DATE_SORT_ORDER,
   AuditLogsFiltersReduxState,
   AuditLogsDateFilter,
 } from "@appsmith/reducers/auditLogsReducer";
-import type { DropdownOption } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const setUserCanAccessAuditLogs = () => ({
@@ -30,22 +32,30 @@ export const setResourceIdJsonFilter = (payload: { resourceId: string }) => ({
   payload,
 });
 
-export const setOnlyEmailJsonFilter = (payload: { email: DropdownOption }) => ({
+export const setOnlyEmailJsonFilter = (payload: {
+  email: DropdownOptionProps;
+}) => ({
   type: ReduxActionTypes.SET_ONLY_EMAIL_JSON_FILTER,
   payload,
 });
 
-export const setEmailJsonFilter = (payload: { email: DropdownOption }) => ({
+export const setEmailJsonFilter = (payload: {
+  email: DropdownOptionProps;
+}) => ({
   type: ReduxActionTypes.ADD_EMAIL_JSON_FILTER,
   payload,
 });
 
-export const setEventJsonFilter = (payload: { event: DropdownOption }) => ({
+export const setEventJsonFilter = (payload: {
+  event: DropdownOptionProps;
+}) => ({
   type: ReduxActionTypes.ADD_EVENT_JSON_FILTER,
   payload,
 });
 
-export const setOnlyEventJsonFilter = (payload: { event: DropdownOption }) => ({
+export const setOnlyEventJsonFilter = (payload: {
+  event: DropdownOptionProps;
+}) => ({
   type: ReduxActionTypes.SET_ONLY_EVENT_JSON_FILTER,
   payload,
 });
@@ -81,8 +91,8 @@ export const setAuditLogsOnUrlLoadFilters = (
     sort,
     startDate,
   }: {
-    emails: DropdownOption[];
-    events: DropdownOption[];
+    emails: DropdownOptionProps[];
+    events: DropdownOptionProps[];
     startDate: number;
     endDate: number;
     resourceId: string;
@@ -127,14 +137,14 @@ export const fetchAuditLogsLogsInit = (
 });
 
 export const replaceAuditLogsEmails = (payload: {
-  emails: DropdownOption[];
+  emails: DropdownOptionProps[];
 }) => ({
   type: ReduxActionTypes.REPLACE_AUDIT_LOGS_SELECTED_EMAILS,
   payload: { emails: payload.emails },
 });
 
 export const replaceAuditLogsEvents = (payload: {
-  events: DropdownOption[];
+  events: DropdownOptionProps[];
 }) => ({
   type: ReduxActionTypes.REPLACE_AUDIT_LOGS_SELECTED_EVENTS,
   payload: { events: payload.events },
