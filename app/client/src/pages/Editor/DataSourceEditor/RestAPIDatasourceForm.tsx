@@ -345,22 +345,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
-          {this.renderDropdownControlViaFormControl(
+          {this.renderCheckboxViaFormControl(
             "isSendSessionEnabled",
-            [
-              {
-                label: "Yes",
-                value: true,
-              },
-              {
-                label: "No",
-                value: false,
-              },
-            ],
             "Send Appsmith signature header",
             "",
             true,
-            "Header key: X-APPSMITH-SIGNATURE",
           )}
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
