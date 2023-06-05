@@ -1302,7 +1302,7 @@ export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Branding
 export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
-  "Custom branding for your workspaces";
+  "Custom Branding for your workspaces";
 export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
@@ -1334,7 +1334,7 @@ export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
 export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
   `Used as background color for disabled buttons.`;
 export const ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE = () =>
-  `I would like to enable custom branding for my workspace and am interested in Appsmith Business.`;
+  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business.`;
 
 // Guided tour
 // -- STEPS ---
