@@ -7,7 +7,6 @@ describe("Binding the list widget with text widget", function () {
     cy.fixture("listRegressionDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
   });
 
   it("1. Validate text widget data based on changes in list widget Data1", function () {

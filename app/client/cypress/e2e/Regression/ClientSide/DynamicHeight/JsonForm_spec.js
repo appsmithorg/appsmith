@@ -6,7 +6,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("jsonFormDynamicHeightDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("jsonformwidget");
     cy.get(".t--widget-jsonformwidget")
       .invoke("css", "height")

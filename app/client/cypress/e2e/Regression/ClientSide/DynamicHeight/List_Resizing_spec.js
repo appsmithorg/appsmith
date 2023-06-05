@@ -6,7 +6,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("ResizeListDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(5000); //for dsl to settle
     cy.get(".t--entity-collapse-toggle").eq(2).click({ force: true });
     cy.get(".t--entity-collapse-toggle").eq(3).click({ force: true });
     cy.get(".t--entity-collapse-toggle").eq(4).click({ force: true });

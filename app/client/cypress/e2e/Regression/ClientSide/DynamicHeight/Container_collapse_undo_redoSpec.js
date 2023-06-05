@@ -6,7 +6,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("DynamicHeightDefaultHeightdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")

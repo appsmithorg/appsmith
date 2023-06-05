@@ -7,7 +7,6 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;

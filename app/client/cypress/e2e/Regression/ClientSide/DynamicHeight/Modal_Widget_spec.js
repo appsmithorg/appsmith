@@ -8,7 +8,6 @@ describe("Dynamic Height Width validation with limits", function () {
     cy.fixture("DynamicHeightModalDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.selectEntityByName("Modal1");
     cy.get(".t--modal-widget")
       .invoke("css", "height")

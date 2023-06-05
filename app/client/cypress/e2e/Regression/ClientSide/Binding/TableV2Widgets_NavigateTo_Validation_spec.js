@@ -17,7 +17,6 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     cy.fixture("tableV2WidgetDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(2000); //dsl to settle!
   });
 
   it("1. Create MyPage and validate if its successfully created", function () {

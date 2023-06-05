@@ -131,7 +131,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("alignmentWithDynamicHeightDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(30000); //for dsl to settled
     validateCssProperties("height");
     //validateCssProperties("top");
     validateCssProperties("left");

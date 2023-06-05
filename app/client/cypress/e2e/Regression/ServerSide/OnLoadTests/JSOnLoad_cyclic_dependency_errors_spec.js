@@ -24,7 +24,6 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     cy.fixture("inputdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //dsl to settle!
   });
 
   it(

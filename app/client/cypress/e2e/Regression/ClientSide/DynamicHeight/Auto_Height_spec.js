@@ -1,4 +1,3 @@
-const cdsl = require("../../../../fixtures/dynamicHeigthContainerFixedDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -16,7 +15,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("dynamicHeightContainerCheckboxdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");
@@ -91,8 +89,9 @@ describe("Dynamic Height Width validation", function () {
   });
 
   it("2. Validate container with auto height and child widgets with fixed height", function () {
-    cy.addDsl(cdsl);
-    cy.wait(3000); //for dsl to settle
+    cy.fixture("dynamicHeigthContainerFixedDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     //cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");

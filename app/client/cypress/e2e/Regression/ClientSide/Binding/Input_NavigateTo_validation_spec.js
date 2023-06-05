@@ -27,7 +27,6 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.fixture("displayWidgetDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(5000); //dsl to settle!
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");

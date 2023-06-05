@@ -8,7 +8,6 @@ describe("Dynamic Height Width validation with multiple containers and text widg
     cy.fixture("dynamicHeightCanvasResizeDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.get(".t--widget-containerwidget")
       .eq(0)
       .invoke("css", "height")

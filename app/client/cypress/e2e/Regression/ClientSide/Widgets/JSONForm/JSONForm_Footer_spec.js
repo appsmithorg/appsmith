@@ -53,7 +53,6 @@ describe("JSONForm Footer spec", () => {
     cy.fixture("jsonFormDslWithSchema").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
 
     cy.openPropertyPane("jsonformwidget");
     // check if fixed footer enabled

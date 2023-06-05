@@ -10,7 +10,6 @@ describe("Dynamic Height Width validation list widget", function () {
     cy.fixture("DynamicHeightListTextDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("multiselecttreewidget", { x: 300, y: 500 });
     cy.openPropertyPane("listwidget");

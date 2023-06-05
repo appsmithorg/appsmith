@@ -7,7 +7,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("dynamicHeightListDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("listwidget");
     cy.get(".t--widget-listwidget")
       .invoke("css", "height")

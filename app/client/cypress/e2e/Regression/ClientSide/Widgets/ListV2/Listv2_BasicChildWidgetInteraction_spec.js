@@ -1,4 +1,3 @@
-const emptyListDSL = require("../../../../../fixtures/Listv2/emptyList.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -48,9 +47,10 @@ function checkSelectedRadioValue(selector, value) {
 
 describe("List widget v2 - Basic Child Widget Interaction", () => {
   before(() => {
-    cy.addDsl(emptyListDSL);
+    cy.fixture("Listv2/emptyList").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.get(publishLocators.containerWidget).should("have.length", 3);
-    cy.wait(3000); // for dsl to settle
   });
 
   it("1. Child widgets", () => {

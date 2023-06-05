@@ -6,7 +6,6 @@ describe("Dynamic Height Width validation", function () {
     cy.fixture("dynamicHeightFormSwitchdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("formwidget");
     cy.get(".t--widget-formwidget")
       .invoke("css", "height")

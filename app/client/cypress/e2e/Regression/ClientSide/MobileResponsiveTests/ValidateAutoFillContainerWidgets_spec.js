@@ -5,7 +5,6 @@ describe("Validating Mobile Views", function () {
     cy.fixture("AutolayoutWidgetsDsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
     cy.get(".t--entity-name:contains('Container1')").click({ force: true });
     cy.get(".t--widget-containerwidget")

@@ -14,7 +14,6 @@ describe("Container Widget Functionality", function () {
     cy.fixture("containerdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.wait(4000); //for dsl to settle!
   });
 
   it("Container Widget Functionality", function () {
