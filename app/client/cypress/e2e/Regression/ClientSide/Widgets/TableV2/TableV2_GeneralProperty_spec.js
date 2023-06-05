@@ -2,14 +2,14 @@
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(4000); //wait for dsl to load!
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test to validate table pagination is disabled", function () {

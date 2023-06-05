@@ -1,9 +1,11 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2ColumnOrderDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 column order maintained on column change validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2ColumnOrderDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Table widget V2 column order should be maintained after reorder and new column should be at the end", function () {

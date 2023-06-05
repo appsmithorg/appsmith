@@ -1,5 +1,4 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
@@ -12,7 +11,9 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Test to validate text color and text background", function () {

@@ -1,11 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2TextPaginationDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Create an API and Execute the API and bind with Table V2", function () {

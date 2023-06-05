@@ -1,13 +1,15 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDslWithPagination").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   // To be done:
@@ -373,7 +375,9 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("14. It provides currentRow and currentIndex properties in min validation field", function () {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");

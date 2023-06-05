@@ -1,13 +1,14 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const color = "rgb(151, 0, 0)";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Table widget V2 with with modal popup", function () {

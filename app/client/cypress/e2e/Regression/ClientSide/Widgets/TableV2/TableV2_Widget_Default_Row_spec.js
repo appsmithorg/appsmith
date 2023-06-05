@@ -1,10 +1,11 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/defaultTableV2Dsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane deafult feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("defaultTableV2Dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Verify default table row Data", function () {
