@@ -1,9 +1,10 @@
-const dsl = require("../../../../../fixtures/CameraDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Camera Widget", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("CameraDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

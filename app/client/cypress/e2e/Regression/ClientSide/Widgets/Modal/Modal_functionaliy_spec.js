@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/ModalDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
@@ -11,7 +10,9 @@ describe("Modal Widget Functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    cy.fixture("ModalDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Add new Modal", () => {

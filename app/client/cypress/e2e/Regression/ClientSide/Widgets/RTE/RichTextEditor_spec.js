@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/formdsl1.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -35,7 +34,9 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
 
 describe("RichTextEditor Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formdsl1").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

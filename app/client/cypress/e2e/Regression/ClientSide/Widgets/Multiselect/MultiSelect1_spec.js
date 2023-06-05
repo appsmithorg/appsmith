@@ -1,10 +1,11 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("emptyDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
     cy.wait(3000);

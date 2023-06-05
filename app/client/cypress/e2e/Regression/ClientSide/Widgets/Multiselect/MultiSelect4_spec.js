@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -11,7 +10,9 @@ const defaultValue = `[
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("emptyDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   beforeEach(() => {
     cy.wait(3000);

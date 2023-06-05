@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/StatboxDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const data = require("../../../../../fixtures/TestDataSet1.json");
@@ -10,7 +9,9 @@ describe("Statbox Widget", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    cy.fixture("StatboxDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Open Existing Statbox from created Widgets list", () => {

@@ -3,7 +3,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/multiSelectDsl.json");
 import data from "../../../../../fixtures/TestDataSet1.json";
 
 import {
@@ -14,7 +13,9 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("multiSelectDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Selects value with invalid default value", () => {
