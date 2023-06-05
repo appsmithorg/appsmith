@@ -1,5 +1,19 @@
 {
   "rootUnit": 4,
+  "typography": {
+    "heading": {
+      "capHeight": 24,
+      "lineGap": 24
+    },
+    "body": {
+      "capHeight": 10,
+      "lineGap": 8
+    },
+    "footnote": {
+      "capHeight": 6,
+      "lineGap": 4
+    }
+  },
   "color": {
     "bg": {
       "value": "rgb(97.488% 97.871% 100%)",

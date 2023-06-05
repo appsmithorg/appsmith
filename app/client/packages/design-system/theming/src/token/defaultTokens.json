@@ -17,16 +17,16 @@
   },
   "typography": {
     "heading": {
-      "capHeight": 6,
-      "lineGap": 6
+      "capHeightRatio": 6,
+      "lineGapRatio": 6
     },
     "body": {
-      "capHeight": 2.5,
-      "lineGap": 2
+      "capHeightRatio": 2.5,
+      "lineGapRatio": 2
     },
     "footnote": {
-      "capHeight": 1.5,
-      "lineGap": 1
+      "capHeightRatio": 1.5,
+      "lineGapRatio": 1
     }
   }
 }

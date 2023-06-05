@@ -22,7 +22,7 @@ export const TooltipContent = forwardRef(
       BORDER_RADIUS_THRESHOLD;
 
     return (
-      <StyledTooltipContent isRounded={isRounded} ref={ref} {...rest}>
+      <StyledTooltipContent $isRounded={isRounded} ref={ref} {...rest}>
         {typeof children === "string" ? <Text>{children}</Text> : children}
       </StyledTooltipContent>
     );

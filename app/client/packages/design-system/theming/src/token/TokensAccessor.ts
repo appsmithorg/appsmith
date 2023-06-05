@@ -2,14 +2,18 @@ import kebabCase from "lodash/kebabCase";
 import range from "lodash/range";
 import type { ColorMode, ColorTypes } from "../color";
 import { DarkModeTheme, LightModeTheme } from "../color";
-import type { FontFamilyTypes, Typography } from "../typography";
+import type {
+  FontFamilyTypes,
+  Typography,
+  TypographySource,
+} from "../typography";
 
 import type { ThemeTokens, TokenObj, TokenSource, TokenType } from "./types";
 
 const DEFAULT_TYPOGRAPHY = {
   body: {
-    capHeight: 2.5,
-    lineGap: 2,
+    capHeightRatio: 2.5,
+    lineGapRatio: 2,
   },
 };
 
@@ -21,7 +25,7 @@ export class TokensAccessor {
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
-  private typography?: Typography;
+  private typography?: TypographySource;
   private fontFamily?: FontFamilyTypes;
 
   constructor({
@@ -54,7 +58,7 @@ export class TokensAccessor {
     this.fontFamily = fontFamily;
   };
 
-  updateTypography = (typography: Typography) => {
+  updateTypography = (typography: TypographySource) => {
     this.typography = typography;
   };
 
@@ -99,13 +103,25 @@ export class TokensAccessor {
     return this.rootUnit;
   };
 
-  getTypography = () => {
+  getTypography = (): { typography: Typography } => {
+    const typography = this.typography ?? DEFAULT_TYPOGRAPHY;
+
     return {
-      typography: this.updateTypographySizes(
-        this.rootUnit,
-        this.typography ?? DEFAULT_TYPOGRAPHY,
-        this.fontFamily,
-      ),
+      typography: Object.keys(typography).reduce((prev, current) => {
+        const {
+          capHeightRatio,
+          fontFamily: fontFamily1,
+          lineGapRatio,
+        } = typography[current as keyof TypographySource];
+        return {
+          ...prev,
+          [current]: {
+            capHeight: capHeightRatio * this.rootUnit,
+            lineGap: lineGapRatio * this.rootUnit,
+            fontFamily: fontFamily1 ?? this.fontFamily,
+          },
+        };
+      }, {} as Typography),
     };
   };
 
@@ -176,27 +192,27 @@ export class TokensAccessor {
     return this.colorMode === "dark";
   }
 
-  private updateTypographySizes(
-    rootUnit: number,
-    typography: Typography,
-    fontFamily?: FontFamilyTypes,
-  ) {
-    return Object.keys(typography).reduce((prev, current) => {
-      const {
-        capHeight,
-        fontFamily: fontFamily1,
-        lineGap,
-      } = typography[current as keyof Typography];
-      return {
-        ...prev,
-        [current]: {
-          capHeight: capHeight * rootUnit,
-          lineGap: lineGap * rootUnit,
-          fontFamily: fontFamily1 ?? fontFamily,
-        },
-      };
-    }, {} as Typography);
-  }
+  // private updateTypography(
+  //   rootUnit: number,
+  //   typography: Typography,
+  //   fontFamily?: FontFamilyTypes,
+  // ) {
+  //   return Object.keys(typography).reduce((prev, current) => {
+  //     const {
+  //       capHeight,
+  //       fontFamily: fontFamily1,
+  //       lineGap,
+  //     } = typography[current as keyof Typography];
+  //     return {
+  //       ...prev,
+  //       [current]: {
+  //         capHeight: capHeight * rootUnit,
+  //         lineGap: lineGap * rootUnit,
+  //         fontFamily: fontFamily1 ?? fontFamily,
+  //       },
+  //     };
+  //   }, {} as Typography);
+  // }
 
   private createTokenObject = (
     tokenObj: TokenObj,

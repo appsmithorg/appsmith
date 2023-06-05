@@ -121,8 +121,8 @@ export const ColorComponent = (props: any) => {
               rootUnit: 4,
               typography: {
                 footnote: {
-                  capHeight: 1.4,
-                  lineGap: 1,
+                  capHeightRatio: 1.4,
+                  lineGapRatio: 1,
                 },
               },
               seedColor,

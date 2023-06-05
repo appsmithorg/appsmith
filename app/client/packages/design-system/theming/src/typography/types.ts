@@ -11,13 +11,24 @@ export type TypographyTypes =
 
 export type FontFamilyTypes = keyof typeof fontMetrics;
 
-export type TypographyVariantStyles = {
+export type TypographyVariantSource = {
+  capHeightRatio: number;
+  lineGapRatio: number;
+  fontFamily?: FontFamilyTypes;
+};
+
+export type TypographySource =
+  | { body: TypographyVariantSource }
+  | { footnote: TypographyVariantSource }
+  | { heading: TypographyVariantSource };
+
+export type TypographyVariant = {
   capHeight: number;
   lineGap: number;
   fontFamily?: FontFamilyTypes;
 };
 
 export type Typography =
-  | { body: TypographyVariantStyles }
-  | { footnote: TypographyVariantStyles }
-  | { heading: TypographyVariantStyles };
+  | { body: TypographyVariant }
+  | { footnote: TypographyVariant }
+  | { heading: TypographyVariant };

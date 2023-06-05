@@ -1,10 +1,11 @@
 import styled, { css } from "styled-components";
-import type { TooltipContentProps as HeadlessTooltipContentProps } from "@design-system/headless";
 import { TooltipContent as HeadlessTooltipContent } from "@design-system/headless";
 import { TooltipTrigger as HeadlessTooltipTrigger } from "@design-system/headless";
 
+import type { TooltipContentProps as HeadlessTooltipContentProps } from "@design-system/headless";
+
 type StyledTooltipContentProps = HeadlessTooltipContentProps & {
-  isRounded?: boolean;
+  $isRounded?: boolean;
 };
 
 export const StyledTooltipContent = styled(
@@ -19,8 +20,8 @@ export const StyledTooltipContent = styled(
     fill: var(--color-bg-assistive);
   }
 
-  ${({ isRounded }) =>
-    isRounded &&
+  ${({ $isRounded }) =>
+    $isRounded &&
     css`
       &:is(
           [data-tooltip-placement="left-start"],
