@@ -964,6 +964,8 @@ function* runActionSaga(
 
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId = pageAction.collectionId;
+  const pageId: string | undefined = yield select(getCurrentPageId);
+
   if (collectionId) {
     const collection: JSCollection = yield select(
       getJSCollection,
@@ -978,6 +980,8 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         {
           extra: {
             collectionId,
+            actionId: pageAction.id,
+            pageId,
           },
         },
       );
