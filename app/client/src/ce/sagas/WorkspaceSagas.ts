@@ -41,6 +41,7 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
+import { resetCurrentWorkspace } from "../actions/workspaceActions";
 
 export function* fetchRolesSaga() {
   try {
@@ -234,6 +235,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
     yield put({
       type: ReduxActionTypes.SAVING_WORKSPACE_INFO,
     });
+    yield put(resetCurrentWorkspace());
     const workspaceId: string = action.payload;
     const response: ApiResponse = yield call(
       WorkspaceApi.deleteWorkspace,

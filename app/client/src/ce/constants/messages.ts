@@ -1184,6 +1184,9 @@ export const SAML_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred SAML2 compliant provider.";
 export const OIDC_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred OIDC compliant provider.";
+export const SAVE_BUTTON = () => "Save";
+export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
+export const RESET_BUTTON = () => "Reset";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
