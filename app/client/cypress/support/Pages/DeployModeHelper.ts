@@ -61,10 +61,12 @@ export class DeployMode {
   // Stubbing window.open to open in the same tab
   public StubbingWindow() {
     cy.window().then((window: any) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = url;
-        window.location.target = "_self";
-      });
+      cy.stub(window, "open")
+        .as("windowStub")
+        .callsFake((url) => {
+          window.location.href = url;
+          window.location.target = "_self";
+        });
     });
   }
 
