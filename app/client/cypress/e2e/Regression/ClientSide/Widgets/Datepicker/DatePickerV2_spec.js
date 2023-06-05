@@ -1,5 +1,4 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const datedsl = require("../../../../../fixtures/datePickerdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -20,7 +19,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("1. Datepicker default date validation with js binding", function () {
-    cy.wait(7000);
     cy.openPropertyPane("datepickerwidget2");
     cy.get(
       ".t--property-control-defaultdate .ads-v2-input__input-section-input",
@@ -81,7 +79,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("5. Datepicker should not change the display data unless user selects the date", () => {
-    cy.addDsl(datedsl);
+    cy.fixture("datePickerdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     cy.openPropertyPane("datepickerwidget2");
 
@@ -115,7 +115,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("6. Datepicker default date validation with strings", function () {
-    cy.addDsl(datedsl);
+    cy.fixture("datePicker2dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("datepickerwidget2");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.get(
@@ -171,7 +173,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("8. Check isDirty meta property", function () {
-    cy.addDsl(datedsl);
+    cy.fixture("datePicker2dsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{DatePicker1.isDirty}}`);
     // Init isDirty

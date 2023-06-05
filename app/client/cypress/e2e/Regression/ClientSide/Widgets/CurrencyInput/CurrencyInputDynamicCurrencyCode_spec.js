@@ -1,11 +1,12 @@
-const dynamicDSL = require("../../../../../fixtures/CurrencyInputDynamic.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "currencyinputwidget";
 
 describe("Currency input widget - ", () => {
   before(() => {
-    cy.addDsl(dynamicDSL);
+    cy.fixture("CurrencyInputDynamic").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Should show empty dropdown for a typo", () => {

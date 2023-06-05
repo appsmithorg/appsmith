@@ -1,5 +1,3 @@
-const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
-const simpleListWithInputAndButtonDSL = require("../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
@@ -38,7 +36,9 @@ describe("List widget v2 - Basic client side data tests", () => {
   });
 
   it("1. shows correct number of items", () => {
-    cy.addDsl(simpleListDSL);
+    cy.fixture("Listv2/simpleList").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.get(publishLocators.containerWidget).should("have.length", 3);
     cy.get(publishLocators.imageWidget).should("have.length", 3);
     cy.get(publishLocators.textWidget).should("have.length", 6);
@@ -58,7 +58,9 @@ describe("List widget v2 - Basic client side data tests", () => {
   });
 
   it("3. retains input values when pages are switched", () => {
-    cy.addDsl(simpleListWithInputAndButtonDSL);
+    cy.fixture("Listv2/simpleListWithInputAndButton").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     cy.get(publishLocators.inputWidget).should("have.length", 2);
 

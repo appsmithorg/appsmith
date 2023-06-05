@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
 const addButton = ".t--jsonformfield-array-add-btn";
@@ -17,7 +16,9 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("1. can remove default items when default value changes from undefined to an array", () => {
-    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
+    cy.fixture("jsonFormDslWithSchemaAndWithoutSourceData").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     const sourceData = {
       name: "John",
