@@ -130,7 +130,20 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
       if (subType && subTypes && subType in subTypes) {
         yield put(selectorInfo.setter(subTypes[subType].defaultValue));
       } else if (defaultValue !== undefined) {
-        yield put(selectorInfo.setter(defaultValue));
+        if (selectorInfo.featureFlag) {
+          const featureFlagEnabled: boolean = yield select(
+            selectorInfo.featureFlag?.selector,
+          );
+          if (featureFlagEnabled) {
+            yield put(
+              selectorInfo.setter(selectorInfo.featureFlag.defaultValue),
+            );
+          } else {
+            yield put(selectorInfo.setter(defaultValue));
+          }
+        } else {
+          yield put(selectorInfo.setter(defaultValue));
+        }
       }
     }
   }

@@ -54,7 +54,7 @@ const initialState: EditorContextState = {
   propertyPanelState: {},
   entityCollapsibleFields: {},
   subEntityCollapsibleFields: {},
-  explorerSwitchIndex: 1,
+  explorerSwitchIndex: 0,
 };
 
 const entitySections = {

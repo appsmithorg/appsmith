@@ -68,7 +68,10 @@ import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
-import { getCodeTabPath } from "selectors/canvasCodeSelectors";
+import {
+  getCodeTabPath,
+  isCanvasCodeActive,
+} from "selectors/canvasCodeSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -100,6 +103,10 @@ type Config = {
   setter: (payload: any) => ReduxAction<any>;
   defaultValue?: unknown;
   subTypes?: Record<string, { defaultValue: unknown }>;
+  featureFlag?: {
+    selector: (state: AppState) => unknown;
+    defaultValue: unknown;
+  };
 };
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
@@ -133,8 +140,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ExplorerSwitchIndex,
       selector: getExplorerSwitchIndex,
       setter: setExplorerSwitchIndex,
-      //TODO: use feature flag
-      defaultValue: 1,
+      defaultValue: 0,
+      featureFlag: {
+        selector: isCanvasCodeActive,
+        defaultValue: 1,
+      },
     },
     {
       name: FocusElement.PropertyPanelContext,
