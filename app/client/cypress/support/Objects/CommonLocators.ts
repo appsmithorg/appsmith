@@ -218,4 +218,5 @@ export class CommonLocators {
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
+  _sqlKeyword = ".cm-m-sql.cm-keyword";
 }
