@@ -109,16 +109,6 @@ const ContentWrapper = styled.div`
       }
     }
 
-    .t--collapse-top-border {
-      height: 1px;
-      margin-top: ${(props) => props.theme.spaces[10]}px;
-      margin-bottom: ${(props) => props.theme.spaces[10]}px;
-
-      &:first-child {
-        display: none;
-      }
-    }
-
     .t--collapse-section-container {
       width: 100%;
 
@@ -162,10 +152,6 @@ const ListContainer = styled.div`
   overflow: auto;
   width: 256px;
   padding-right: 8px;
-
-  .t--collapse-top-border {
-    display: none;
-  }
 
   .t--collapse-section-container {
     width: 90%;
