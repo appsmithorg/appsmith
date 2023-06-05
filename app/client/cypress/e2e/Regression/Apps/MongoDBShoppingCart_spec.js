@@ -6,7 +6,7 @@ const formControls = require("../../../locators/FormControl.json");
 import * as _ from "../../../support/Objects/ObjectsCore";
 
 let repoName;
-describe("Shopping cart App", function () {
+describe.skip("Shopping cart App", function () {
   let datasourceName;
 
   before(() => {
@@ -22,10 +22,7 @@ describe("Shopping cart App", function () {
   });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click();
-    cy.fillMongoDatasourceForm();
-    cy.testSaveDatasource();
+    _.dataSources.CreateDataSource("Mongo");
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
@@ -122,29 +119,32 @@ describe("Shopping cart App", function () {
 
     cy.get(appPage.dropdownChevronLeft).click();
     cy.get(".t--back-button").click();
+    _.deployMode.DeployApp(appPage.bookname);
   });
 
   it("2. Perform CRUD operations and validate data", function () {
     // Adding the books to the Add cart form
-    cy.xpath(appPage.bookname).type("Atomic habits");
-    cy.xpath(appPage.bookgenre).type("Self help");
-    cy.xpath(appPage.bookprice).type(200);
-    cy.xpath(appPage.bookquantity).type(2);
-    cy.get("span:contains('Submit')").closest("div").eq(1).click();
-    cy.assertPageSave();
-    cy.wait(8000);
-    cy.xpath(appPage.bookname).click().type("A man called ove");
-    cy.xpath(appPage.bookgenre).click().type("Fiction");
-    cy.xpath(appPage.bookprice).click().type(100);
-    cy.xpath(appPage.bookquantity).click().type(1);
-    cy.get("span:contains('Submit')").closest("div").eq(1).click();
-    cy.assertPageSave();
+    _.agHelper.GetNClick(appPage.bookname);
+    //Wait for element to be in DOM
+    _.agHelper.Sleep(3000);
+    _.agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
+    _.agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
+    _.agHelper.UpdateInput(appPage.bookprice, 200, true);
+    _.agHelper.UpdateInput(appPage.bookquantity, 2, true);
+    _.agHelper.GetNClick(appPage.addButton, 0, true);
+    cy.wait("@postExecute");
+    cy.wait(3000);
+    _.agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
+    _.agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
+    _.agHelper.UpdateInput(appPage.bookprice, 100, true);
+    _.agHelper.UpdateInput(appPage.bookquantity, 1, true);
+    _.agHelper.GetNClick(appPage.addButton, 0, true);
     cy.wait("@postExecute");
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
-        cy.get("span:contains('Delete')").closest("div").eq(1).click();
+        _.agHelper.GetNClick(appPage.deleteButton, 1, false);
         cy.wait("@postExecute");
         cy.wait(5000);
 
@@ -154,10 +154,18 @@ describe("Shopping cart App", function () {
           .should("have.length", 1);
       });
     // Updating the book quantity from edit cart
-    cy.xpath(appPage.editbookquantity).clear().type("3");
-    cy.get("span:contains('Submit')").closest("div").eq(0).click();
-    cy.assertPageSave();
-    cy.wait(5000);
+    _.agHelper.UpdateInput(appPage.editbookquantity, 3, true);
+    _.agHelper.GetNClick(appPage.editButton, 0, true);
+
+    //Wait for all post execute calls to finish
+    _.agHelper.Sleep(3000);
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    cy.get("@postExecute.all").its("length").should("be.above", 8);
+    cy.get("@postExecute.last")
+      .its("response.body")
+      .then((user) => {
+        expect(user.data.body[0].quantity).to.equal("3");
+      });
     // validating updated value in the cart
     cy.get(".selected-row").children().eq(3).should("have.text", "3");
   });

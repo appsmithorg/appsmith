@@ -7,11 +7,9 @@ import {
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import {
-  NAVIGATION_CLASSNAME,
-  PEEKABLE_CLASSNAME,
-  PEEK_STYLE_PERSIST_CLASS,
-} from "./MarkHelpers/entityMarker";
+import { NAVIGATION_CLASSNAME } from "./MarkHelpers/entityMarker";
+
+export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -241,7 +239,6 @@ export const EditorWrapper = styled.div<{
       /* some sql fixes */
       .cm-m-sql.cm-keyword {
         font-weight: 400;
-        text-transform: uppercase;
       }
 
       .CodeMirror-activeline-background {
@@ -263,7 +260,7 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
 
-    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
+    .${PEEK_STYLE_PERSIST_CLASS} {
       border-color: var(--ads-v2-color-border-emphasis);
       background-color: #ededed;
     }
@@ -375,6 +372,15 @@ export const EditorWrapper = styled.div<{
     text-shadow: none;
     font: inherit;
   }
+
+  ${(props) =>
+    props.isReadOnly &&
+    `
+  &&&&&&&& .CodeMirror-scroll {
+    width: 100%;
+  }
+  `}
+
   .CodeEditorTarget {
     width: 100%;
 

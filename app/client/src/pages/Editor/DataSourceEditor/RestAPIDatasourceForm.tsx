@@ -1,25 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
-import FormTitle from "./FormTitle";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
-import { getFormMeta, getFormValues, reduxForm } from "redux-form";
+import { getFormMeta, reduxForm } from "redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Callout, toast } from "design-system";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { createActionRequest } from "actions/pluginActionActions";
+import { Button, Callout } from "design-system";
 import {
   createDatasourceFromForm,
-  deleteDatasource,
   redirectAuthorizationCode,
   toggleSaveActionFlag,
   updateDatasource,
@@ -29,7 +22,11 @@ import {
   datasourceToFormValues,
   formValuesToDatasource,
 } from "transformers/RestAPIDatasourceFormTransformer";
-import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import type {
+  ApiDatasourceForm,
+  AuthorizationCode,
+  ClientCredentials,
+} from "entities/Datasource/RestAPIForm";
 import {
   ApiKeyAuthType,
   AuthType,
@@ -41,33 +38,11 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
-  FormContainer,
-  FormContainerBody,
-  FormTitleContainer,
-  Header,
-  PluginImage,
-} from "./JSONtoForm";
-import DatasourceAuth, {
-  DatasourceButtonType,
-} from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import type {
-  ClientCredentials,
-  AuthorizationCode,
-} from "entities/Datasource/RestAPIForm";
-import { getPlugin } from "../../../selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
-import Debugger, {
-  ResizerContentContainer,
-  ResizerMainContainer,
-} from "./Debugger";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { Form } from "./DBForm";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -75,35 +50,28 @@ interface DatasourceRestApiEditorProps {
     formValues: Datasource,
     onSuccess?: ReduxAction<unknown>,
   ) => void;
-  deleteDatasource: (id: string) => void;
   isSaving: boolean;
-  isDeleting: boolean;
   applicationId: string;
   datasourceId: string;
   pageId: string;
-  isNewDatasource: boolean;
-  pluginImage: string;
   location: {
     search: string;
   };
   datasource: Datasource;
-  plugin: Plugin | undefined;
   formData: ApiDatasourceForm;
-  actions: ActionDataState;
+  formName: string;
+  pluginName: string;
+  pluginPackageName: string;
   formMeta: any;
   messages?: Array<string>;
-  hiddenHeader?: boolean;
-  showDebugger: boolean;
-  responseStatus?: string;
-  responseMessage?: string;
   datasourceName: string;
+  showFilterComponent: boolean;
   createDatasource: (
     data: Datasource,
     onSuccess?: ReduxAction<unknown>,
   ) => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   triggerSave?: boolean;
-  isFormDirty: boolean;
   datasourceDeleteTrigger: () => void;
 }
 
@@ -117,13 +85,9 @@ const FormInputContainer = styled.div`
   }
 `;
 
-class DatasourceRestAPIEditor extends React.Component<
-  Props,
-  { confirmDelete: boolean }
-> {
+class DatasourceRestAPIEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
-    this.state = { confirmDelete: false };
   }
   componentDidMount() {
     // set replay data
@@ -135,14 +99,6 @@ class DatasourceRestAPIEditor extends React.Component<
 
   componentDidUpdate(prevProps: Props) {
     if (!this.props.formData) return;
-
-    if (this.state.confirmDelete) {
-      const delayConfirmDeleteToFalse = _.debounce(() => {
-        if (!this.props.isDeleting) this.setState({ confirmDelete: false });
-      }, 2200);
-
-      delayConfirmDeleteToFalse();
-    }
 
     const { authType } = this.props.formData;
 
@@ -252,8 +208,8 @@ class DatasourceRestAPIEditor extends React.Component<
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
-      pluginName: this.props?.plugin?.name || "",
-      pluginPackageName: this?.props?.plugin?.packageName || "",
+      pluginName: this.props.pluginName || "",
+      pluginPackageName: this.props.pluginPackageName || "",
     });
 
     if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
@@ -266,49 +222,6 @@ class DatasourceRestAPIEditor extends React.Component<
         name: this.props.datasourceName,
       },
       onSuccess,
-    );
-  };
-
-  createApiAction = () => {
-    const { actions, datasource, pageId } = this.props;
-    if (
-      !datasource ||
-      !datasource.datasourceConfiguration ||
-      !datasource.datasourceConfiguration.url
-    ) {
-      toast.show("Unable to create API. Try adding a url to the datasource", {
-        kind: "error",
-      });
-      return;
-    }
-    const newApiName = createNewApiName(actions, pageId || "");
-
-    const headers =
-      this.props.datasource?.datasourceConfiguration?.headers ?? [];
-    const queryParameters =
-      this.props.datasource?.datasourceConfiguration?.queryParameters ?? [];
-    const defaultApiActionConfig: ApiActionConfig = {
-      ...DEFAULT_API_ACTION_CONFIG,
-      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
-      queryParameters: queryParameters.length
-        ? queryParameters
-        : DEFAULT_API_ACTION_CONFIG.queryParameters,
-    };
-
-    this.save(
-      createActionRequest({
-        name: newApiName,
-        pageId: pageId,
-        pluginId: datasource.pluginId,
-        datasource: {
-          id: datasource.id,
-        },
-        eventData: {
-          actionType: "API",
-          from: "datasource-pane",
-        },
-        actionConfiguration: defaultApiActionConfig,
-      }),
     );
   };
 
@@ -329,69 +242,16 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, hiddenHeader, pageId, showDebugger } =
-      this.props;
-
     return (
-      <FormContainer>
-        {/* this is true during import flow */}
-        {!hiddenHeader && <CloseEditor />}
-        <FormContainerBody>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            {this.renderHeader()}
-            <ResizerMainContainer>
-              <ResizerContentContainer className="api-datasource-content-container">
-                {this.renderEditor()}
-                <DatasourceAuth
-                  datasource={datasource}
-                  datasourceButtonConfiguration={[
-                    DatasourceButtonType.DELETE,
-                    DatasourceButtonType.SAVE,
-                  ]}
-                  datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
-                  formData={formData}
-                  getSanitizedFormData={this.getSanitizedFormData}
-                  isFormDirty={this.props.isFormDirty}
-                  isInvalid={this.validate()}
-                  pageId={pageId}
-                  shouldRender
-                />
-              </ResizerContentContainer>
-              {showDebugger && <Debugger />}
-            </ResizerMainContainer>
-          </form>
-        </FormContainerBody>
-      </FormContainer>
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+        showFilterComponent={this.props.showFilterComponent}
+      >
+        {this.renderEditor()}
+      </Form>
     );
-  };
-
-  renderHeader = () => {
-    const {
-      datasource,
-      datasourceId,
-      hiddenHeader,
-      isNewDatasource,
-      pluginImage,
-    } = this.props;
-    const createMode = datasourceId === TEMP_DATASOURCE_ID;
-    const canManageDatasource = hasManageDatasourcePermission(
-      datasource?.userPermissions || [],
-    );
-    return !hiddenHeader ? (
-      <Header>
-        <FormTitleContainer>
-          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
-          <FormTitle
-            disabled={!createMode && !canManageDatasource}
-            focusOnMount={isNewDatasource}
-          />
-        </FormTitleContainer>
-      </Header>
-    ) : null;
   };
 
   renderEditor = () => {
@@ -1058,11 +918,11 @@ class DatasourceRestAPIEditor extends React.Component<
           label: label,
           conditionals: {},
           placeholderText: placeholderText,
-          formName: DATASOURCE_REST_API_FORM,
+          formName: this.props.formName,
           validator: fieldValidator,
           isSecretExistsPath,
         }}
-        formName={DATASOURCE_REST_API_FORM}
+        formName={this.props.formName}
         multipleConfig={[]}
       />
     );
@@ -1091,13 +951,13 @@ class DatasourceRestAPIEditor extends React.Component<
       label: label,
       conditionals: {},
       placeholderText: placeholderText,
-      formName: DATASOURCE_REST_API_FORM,
+      formName: this.props.formName,
       initialValue: initialValue,
     };
     return (
       <FormControl
         config={config}
-        formName={DATASOURCE_REST_API_FORM}
+        formName={this.props.formName}
         multipleConfig={[]}
       />
     );
@@ -1117,13 +977,13 @@ class DatasourceRestAPIEditor extends React.Component<
       placeholderText: placeholderText,
       label: label,
       conditionals: {},
-      formName: DATASOURCE_REST_API_FORM,
+      formName: this.props.formName,
       isRequired: isRequired,
     };
     return (
       <FormControl
         config={config}
-        formName={DATASOURCE_REST_API_FORM}
+        formName={this.props.formName}
         multipleConfig={[]}
       />
     );
@@ -1145,13 +1005,13 @@ class DatasourceRestAPIEditor extends React.Component<
       encrypted: encrypted,
       label: label,
       conditionals: {},
-      formName: DATASOURCE_REST_API_FORM,
+      formName: this.props.formName,
       isRequired: isRequired,
     };
     return (
       <FormControl
         config={config}
-        formName={DATASOURCE_REST_API_FORM}
+        formName={this.props.formName}
         multipleConfig={[]}
       />
     );
@@ -1174,38 +1034,23 @@ class DatasourceRestAPIEditor extends React.Component<
           label: label,
           conditionals: {},
           placeholderText: placeholderText,
-          formName: DATASOURCE_REST_API_FORM,
+          formName: this.props.formName,
         }}
-        formName={DATASOURCE_REST_API_FORM}
+        formName={this.props.formName}
       />
     );
   }
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
-  const datasource = state.entities.datasources.list.find(
-    (e) => e.id === props.datasourceId,
-  ) as Datasource;
-
-  // Debugger render flag
-  const showDebugger = showDebuggerFlag(state);
-
-  const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
-
+  const { datasource, formName } = props;
   const hintMessages = datasource && datasource.messages;
 
   return {
     initialValues: datasourceToFormValues(datasource),
-    datasource: datasource,
-    actions: state.entities.actions,
-    plugin,
-    formData: getFormValues(DATASOURCE_REST_API_FORM)(
-      state,
-    ) as ApiDatasourceForm,
-    formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
+    formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
-    showDebugger,
   };
 };
 
@@ -1215,9 +1060,6 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    deleteDatasource: (id: string) => {
-      dispatch(deleteDatasource({ id }));
-    },
     createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(createDatasourceFromForm(formData, onSuccess)),
     toggleSaveActionFlag: (flag: boolean) =>

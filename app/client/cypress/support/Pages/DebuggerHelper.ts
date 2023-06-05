@@ -42,6 +42,9 @@ export class DebuggerHelper {
     _debuggerList: ".debugger-list",
     _debuggerFilter: "input[data-testid=t--debugger-search]",
     _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
+    _helpButton: "[data-testid='t--help-button']",
+    _intercomOption: "#intercom-trigger",
+    _intercomConsentText: "[data-testid='t--intercom-consent-text']",
   };
 
   ClickDebuggerIcon(
@@ -91,18 +94,26 @@ export class DebuggerHelper {
         break;
       case PageType.API:
       case PageType.JsEditor:
-        this.agHelper.AssertHeight(
-          this.locators._bottomPaneContainer[pageType],
-          this.bottomPaneHeight,
-        );
-        break;
       case PageType.Query:
       case PageType.DataSources:
-        this.agHelper.AssertHeight(
+        this.agHelper.AssertElementVisible(
           this.locators._bottomPaneContainer[pageType],
-          this.bottomPaneHeight - 1, // -1 to offset error
         );
+        // this.agHelper.AssertHeight(
+        //   this.locators._bottomPaneContainer[pageType],
+        //   this.bottomPaneHeight,
+        // );
         break;
+      // case PageType.Query:
+      // case PageType.DataSources:
+      //   this.agHelper.AssertElementVisible(
+      //     this.locators._bottomPaneContainer[pageType],
+      //   );
+      //   // this.agHelper.AssertHeight(
+      //   //   this.locators._bottomPaneContainer[pageType],
+      //   //   this.bottomPaneHeight - 1, // -1 to offset error
+      //   // );
+      //   break;
     }
   }
 

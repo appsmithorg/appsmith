@@ -59,6 +59,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Slf4j
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
 
@@ -220,9 +222,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     /**
      * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
      * if the error is because of a name clash.
+     *
      * @param application Application to create.
-     * @param name Name of the application, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @param name        Name of the application, to which numbered suffixes will be appended.
+     * @param suffix      Suffix used for appending, recursion artifact. Usually set to 0.
      * @return A Mono that yields the created application.
      */
     private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
@@ -236,11 +239,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return super.create(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
-                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                        if (suffix > MAX_RETRIES){
+                            // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
+                            && error.getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
+                        if (suffix > MAX_RETRIES) {
                             return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
-                        }else {
+                        } else {
                             // The duplicate key error is because of the `name` field.
                             return createSuffixedApplication(application, name, suffix + 1);
                         }
@@ -252,6 +255,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     /**
      * A public method which creates a default application by calling createSuffixedApplication which will retry with
      * incremental suffix if there is name clash.
+     *
      * @param application Application to create.
      * @return A Mono that yields the created application.
      */
@@ -291,9 +295,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         .onErrorResume(error -> {
                             if (error instanceof DuplicateKeyException) {
                                 // Error message : E11000 duplicate key error collection: appsmith.application index:
-                                // workspace_application_deleted_gitApplicationMetadata_compound_index dup key:
+                                // workspace_app_deleted_gitApplicationMetadata dup key:
                                 // { organizationId: "******", name: "AppName", deletedAt: null }
-                                if (error.getCause().getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                                if (error.getCause().getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
                                     );
@@ -336,7 +340,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                      */
                     if (application.getUnpublishedApplicationDetail() != null) {
                         ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
-                        if (branchedApplication.getUnpublishedApplicationDetail() == null){
+                        if (branchedApplication.getUnpublishedApplicationDetail() == null) {
                             branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                         }
                         Application.NavigationSetting requestNavSetting = application.getUnpublishedApplicationDetail().getNavigationSetting();
@@ -349,7 +353,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         }
 
                         Application.AppPositioning requestAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null){
+                        if (requestAppPositioning != null) {
                             presetApplicationDetail.setAppPositioning(requestAppPositioning);
                         }
 
@@ -862,7 +866,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId){
+    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
                     branchedApplication.setUnpublishedApplicationDetail(ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail(), new ApplicationDetail()));
@@ -875,5 +879,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return repository.save(branchedApplication).thenReturn(navLogoAssetId);
                 })
                 .flatMap(assetService::remove);
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(Application savedApplication) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("appName", ObjectUtils.defaultIfNull(savedApplication.getName(), ""));
+        analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
+        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
+        return analyticsProperties;
     }
 }

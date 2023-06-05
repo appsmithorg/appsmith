@@ -1,43 +1,35 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
-  homePage = ObjectsRegistry.HomePage,
-  dataSources = ObjectsRegistry.DataSources,
-  deployMode = ObjectsRegistry.DeployMode,
-  table = ObjectsRegistry.Table,
-  appSettings = ObjectsRegistry.AppSettings;
-
 describe("Validate Mongo Query Pane Validations", () => {
   before(() => {
-    //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
+    //_.dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
   });
 
   beforeEach(function () {
     if (INTERCEPT.MONGO) {
       cy.log("Mongo DB is not found. Using intercept");
-      dataSources.StartInterceptRoutesForMongo();
+      _.dataSources.StartInterceptRoutesForMongo();
     } else cy.log("Mongo DB is found, hence using actual DB");
   });
 
   it("1. Create Mongo Datasource & verify it has collections", () => {
-    homePage.NavigateToHome();
-    homePage.CreateNewApplication();
-    agHelper.GetNClick(homePage._buildFromDataTableActionCard);
-    agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-    agHelper.GetNClickByContains(
-      dataSources._dropdownOption,
+    _.homePage.NavigateToHome();
+    _.homePage.CreateNewApplication();
+    _.entityExplorer.AddNewPage("Generate page with data");
+    //_.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);//Commenting this since this is not always available in new app
+    _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
+    _.agHelper.GetNClickByContains(
+      _.dataSources._dropdownOption,
       "Connect new datasource",
     );
-    dataSources.CreateDataSource("Mongo", false);
+    _.dataSources.CreateDataSource("Mongo", false);
 
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
+    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
+    _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "friends");
 
     GenerateCRUDNValidateDeployPage(
       "58f56189ee9d4bd5e610d6db",
@@ -46,11 +38,11 @@ describe("Validate Mongo Query Pane Validations", () => {
       0,
     );
 
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    appSettings.OpenPaneAndChangeTheme("Sunrise");
+    _.appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
   it("2. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new collection", () => {
@@ -274,61 +266,66 @@ describe("Validate Mongo Query Pane Validations", () => {
       ]
   }]`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    _.dataSources.NavigateFromActiveDS(dsName, true);
 
-    dataSources.ValidateNSelectDropdown(
+    _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "Find document(s)",
       "Insert document(s)",
     );
 
-    agHelper.EnterValue("AuthorNAwards", {
+    _.agHelper.EnterValue("AuthorNAwards", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection",
     });
 
-    agHelper.EnterValue(authorNAwardsArray, {
+    _.agHelper.EnterValue(authorNAwardsArray, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Documents",
     });
 
-    agHelper.AssertAutoSave();
-    agHelper.Sleep(2000); //for documents value to settle!
-    dataSources.RunQuery();
-    agHelper.Sleep(4000); //for capturing right response!
+    _.agHelper.AssertAutoSave();
+    _.agHelper.Sleep(2000); //for documents value to settle!
+    _.dataSources.RunQuery();
+    _.agHelper.Sleep(4000); //for capturing right response!
     cy.get("@postExecute").then((resObj: any) => {
       //cy.log("response is " + JSON.stringify(resObj));
       expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
         7,
       );
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ExpandCollapseEntity(dsName);
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+    _.agHelper.AssertElementVisible(
+      _.entityExplorer._entityNameInExplorer("AuthorNAwards"),
+    );
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
-    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-    dataSources.RunQueryNVerifyResponseViews(1, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+    _.dataSources.RunQueryNVerifyResponseViews(1, false);
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find by ID");
-    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-    agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      "AuthorNAwards",
+      "Find by ID",
+    );
+    _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+    _.agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
-    dataSources.RunQueryNVerifyResponseViews(1, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.dataSources.RunQueryNVerifyResponseViews(1, false);
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("5. Validate 'Insert' record from new collection & verify query response", () => {
@@ -385,54 +382,54 @@ describe("Validate Mongo Query Pane Validations", () => {
   ]
 }]`;
 
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Insert");
-    dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
-    agHelper.EnterValue(insertauthorNAwards, {
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Insert");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
+    _.agHelper.EnterValue(insertauthorNAwards, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Documents",
     });
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
         3,
       );
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("6. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
-    dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
-    agHelper.EnterValue(`{"_id": 3}`, {
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
+    _.agHelper.EnterValue(`{"_id": 3}`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
 
-    agHelper.EnterValue(`{ "$set": { "birth": "1906-12-09T06:00:00Z" } }`, {
+    _.agHelper.EnterValue(`{ "$set": { "birth": "1906-12-09T06:00:00Z" } }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Update",
     });
-    dataSources.ValidateNSelectDropdown("Limit", "All matching documents");
-    dataSources.RunQuery();
+    _.dataSources.ValidateNSelectDropdown("Limit", "All matching documents");
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
         parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
       ).to.eq(0);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("7. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
-    dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
-    agHelper.EnterValue(
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
+    _.agHelper.EnterValue(
       `{
       "name.first": "John",
       "awards": {
@@ -448,142 +445,148 @@ describe("Validate Mongo Query Pane Validations", () => {
       },
     );
 
-    agHelper.EnterValue(`{ "$set": { "year": "1988" } }`, {
+    _.agHelper.EnterValue(`{ "$set": { "year": "1988" } }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Update",
     });
-    dataSources.ValidateNSelectDropdown("Limit", "All matching documents");
-    dataSources.RunQuery();
+    _.dataSources.ValidateNSelectDropdown("Limit", "All matching documents");
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
         parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
       ).to.eq(2);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("8. Validate 'Update' record from new collection & verify query response - Record present - Single document", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
-    dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
-    agHelper.EnterValue(`{"_id": 4}`, {
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
+    _.agHelper.EnterValue(`{"_id": 4}`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
 
-    agHelper.EnterValue(`{ "$set": { "birth": "1926-08-27T05:00:00Z" } }`, {
+    _.agHelper.EnterValue(`{ "$set": { "birth": "1926-08-27T05:00:00Z" } }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Update",
     });
-    dataSources.ValidateNSelectDropdown(
+    _.dataSources.ValidateNSelectDropdown(
       "Limit",
       "All matching documents",
       "Single document",
     );
 
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
         parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
       ).to.eq(1);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("9. Validate 'Delete' record from new collection & verify query response - Record not present - Single document", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
-    dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
-    agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
+    _.agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
-    dataSources.ValidateNSelectDropdown("Limit", "Single document");
-    dataSources.RunQuery();
+    _.dataSources.ValidateNSelectDropdown("Limit", "Single document");
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
         0,
       );
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single document", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
-    dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
-    agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
+    _.agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
 
-    dataSources.ValidateNSelectDropdown("Limit", "Single document");
+    _.dataSources.ValidateNSelectDropdown("Limit", "Single document");
 
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
         1,
       );
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("11. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
-    dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
-    agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
+    _.agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
 
-    dataSources.ValidateNSelectDropdown(
+    _.dataSources.ValidateNSelectDropdown(
       "Limit",
       "Single document",
       "All matching documents",
     );
 
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(2);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("12. Validate 'Count' record from new collection & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Count");
-    dataSources.ValidateNSelectDropdown("Commands", "Count");
-    dataSources.RunQuery();
+    _.entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Count");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Count");
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(7);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("13. Validate 'Distinct' record from new collection & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Distinct");
-    dataSources.ValidateNSelectDropdown("Commands", "Distinct");
-    agHelper.EnterValue(`{ "awards.award": "National Medal of Technology" }`, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Query",
-    });
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      "AuthorNAwards",
+      "Distinct",
+    );
+    _.dataSources.ValidateNSelectDropdown("Commands", "Distinct");
+    _.agHelper.EnterValue(
+      `{ "awards.award": "National Medal of Technology" }`,
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Query",
+      },
+    );
 
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
         JSON.parse(JSON.stringify(resObj.response.body.data.body.values[0])),
@@ -592,72 +595,92 @@ describe("Validate Mongo Query Pane Validations", () => {
         JSON.parse(JSON.stringify(resObj.response.body.data.body.values[1])),
       ).to.eql("51e062189c6ae665454e301d");
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("JSON"));
+    _.agHelper.AssertElementVisible(_.dataSources._queryResponse("RAW"));
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
-    dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
-    dataSources.RunQueryNVerifyResponseViews(7, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      "AuthorNAwards",
+      "Aggregate",
+    );
+    _.dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
+    _.dataSources.RunQueryNVerifyResponseViews(7, false);
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "AuthorNAwards");
+    _.dataSources.NavigateFromActiveDS(dsName, false);
+    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
+    _.agHelper.GetNClickByContains(
+      _.dataSources._dropdownOption,
+      "AuthorNAwards",
+    );
     GenerateCRUDNValidateDeployPage("6", `1956-01-31T05:00:00Z`, "", 3);
     // agHelper.NavigateBacktoEditor();
     // table.WaitUntilTableLoad();
   });
 
   it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
-    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    _.deployMode.NavigateBacktoEditor();
+    _.table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
-    ee.ExpandCollapseEntity("Pages");
-    ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ExpandCollapseEntity("Pages");
+    _.entityExplorer.ActionContextMenuByEntityName(
       "AuthorNAwards",
       "Delete",
       "Are you sure?",
     );
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
   it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
-    dataSources.NavigateFromActiveDS(dsName, true);
+    _.dataSources.NavigateFromActiveDS(dsName, true);
 
-    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
-    agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
-    agHelper.GetNClick(dataSources._templateMenu);
-    dataSources.EnterQuery(dropCollection);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
-    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Find document(s)",
+      "Raw",
+    );
+    _.agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.dataSources.EnterQuery(dropCollection);
+    _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
+    //_.agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    dataSources.RunQuery();
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
+    _.dataSources.RunQuery();
+    _.agHelper.ActionContextMenuWithInPane("Delete");
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ExpandCollapseEntity(dsName);
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+    _.agHelper.AssertElementAbsence(
+      _.entityExplorer._entityNameInExplorer("AuthorNAwards"),
+    );
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("DropAuthorNAwards");
-    dataSources.EnterQuery(dropCollection);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
-    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
-    dataSources.RunQuery({ expectedStatus: false });
-    agHelper.AssertContains("ns not found.", "exist", dataSources._queryError);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.dataSources.NavigateFromActiveDS(dsName, true);
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Find document(s)",
+      "Raw",
+    );
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.agHelper.RenameWithInPane("DropAuthorNAwards");
+    _.dataSources.EnterQuery(dropCollection);
+    _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
+    //_.agHelper.VerifyEvaluatedValue(tableCreateQuery);
+    _.dataSources.RunQuery({ expectedStatus: false });
+    _.agHelper.AssertContains(
+      "ns not found.",
+      "exist",
+      _.dataSources._queryError,
+    );
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
@@ -700,74 +723,82 @@ describe("Validate Mongo Query Pane Validations", () => {
     }
   ]`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    _.dataSources.NavigateFromActiveDS(dsName, true);
 
-    dataSources.ValidateNSelectDropdown(
+    _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "Find document(s)",
       "Insert document(s)",
     );
 
-    agHelper.RenameWithInPane("InsertBirthNDeath");
-    agHelper.EnterValue("BirthNDeath", {
+    _.agHelper.RenameWithInPane("InsertBirthNDeath");
+    _.agHelper.EnterValue("BirthNDeath", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection",
     });
 
-    agHelper.EnterValue(birthNDeathArray, {
+    _.agHelper.EnterValue(birthNDeathArray, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Documents",
     });
 
-    agHelper.AssertAutoSave();
-    agHelper.Sleep(2000); //for documents value to settle!
-    dataSources.RunQuery();
-    agHelper.Sleep(4000); //for capturing right response!
+    _.agHelper.AssertAutoSave();
+    _.agHelper.Sleep(2000); //for documents value to settle!
+    _.dataSources.RunQuery();
+    _.agHelper.Sleep(4000); //for capturing right response!
     cy.get("@postExecute").then((resObj: any) => {
       expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
         4,
       );
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.agHelper.ActionContextMenuWithInPane("Delete");
 
     //Execute a find query on this collection to see if dates are fetched properly
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer("BirthNDeath"));
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ExpandCollapseEntity(dsName);
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+    _.agHelper.AssertElementVisible(
+      _.entityExplorer._entityNameInExplorer("BirthNDeath"),
+    );
 
-    ee.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
-    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-    dataSources.RunQueryNVerifyResponseViews(4, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    _.entityExplorer.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
+    _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+    _.dataSources.RunQueryNVerifyResponseViews(4, false);
+    _.agHelper.ActionContextMenuWithInPane("Delete");
 
     //Drop the collection `BirthNDeath`
     const dropCollection = `{ "drop": "BirthNDeath" }`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("DropBirthNDeath");
-    dataSources.EnterQuery(dropCollection);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
-    dataSources.RunQuery();
+    _.dataSources.NavigateFromActiveDS(dsName, true);
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Find document(s)",
+      "Raw",
+    );
+    _.agHelper.GetNClick(_.dataSources._templateMenu);
+    _.agHelper.RenameWithInPane("DropBirthNDeath");
+    _.dataSources.EnterQuery(dropCollection);
+    _.agHelper.FocusElement(_.locators._codeMirrorTextArea);
+    _.dataSources.RunQuery();
 
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("BirthNDeath"));
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ExpandCollapseEntity(dsName);
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+    _.agHelper.AssertElementAbsence(
+      _.entityExplorer._entityNameInExplorer("BirthNDeath"),
+    );
   });
 
   it("20. Verify Deletion of the datasource", () => {
     //Delete the test data
-    // ee.expandCollapseEntity("Pages")
-    // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
-    // agHelper.ValidateNetworkStatus("@deletePage", 200);
-    deployMode.DeployApp();
-    deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
+    // _.entityExplorer.expandCollapseEntity("Pages")
+    // _.entityExplorer.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
+    // _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
+    _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(
@@ -776,30 +807,30 @@ describe("Validate Mongo Query Pane Validations", () => {
     col3Text: string,
     idIndex: number,
   ) {
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertContains("Successfully generated a page");
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.GetNClick(_.dataSources._generatePageBtn);
+    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    _.agHelper.AssertContains("Successfully generated a page");
+    _.agHelper.ValidateNetworkStatus("@getActions", 200);
+    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    deployMode.DeployApp();
+    _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
+    _.deployMode.DeployApp();
 
     //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
+    _.agHelper.AssertElementExist(_.dataSources._selectedRow);
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
     //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
+    cy.xpath(_.locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -807,6 +838,6 @@ describe("Validate Mongo Query Pane Validations", () => {
           expect(classes).not.contain("bp3-disabled");
         });
     });
-    dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
+    _.dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
   }
 });

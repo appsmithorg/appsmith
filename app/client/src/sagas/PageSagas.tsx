@@ -142,6 +142,8 @@ import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -707,8 +709,18 @@ export function* createNewPageFromEntity(
     const { applicationId, blockNavigation, name } =
       createPageAction?.payload || {};
 
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const instanceId: string | undefined = yield select(getInstanceId);
+
     yield put(
-      createPage(applicationId, name, defaultPageLayouts, blockNavigation),
+      createPage(
+        applicationId,
+        name,
+        defaultPageLayouts,
+        workspaceId,
+        blockNavigation,
+        instanceId,
+      ),
     );
   } catch (error) {
     yield put({

@@ -1,7 +1,7 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
-  // watchForFileChanges: false,
+  watchForFileChanges: false,
   defaultCommandTimeout: 30000,
   requestTimeout: 21000,
   responseTimeout: 30000,
@@ -32,5 +32,6 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
+    excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
   },
 });

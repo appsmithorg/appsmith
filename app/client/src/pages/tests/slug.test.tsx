@@ -18,7 +18,7 @@ import {
   updatedApplicationPayload,
   updatedPagePayload,
 } from "./mockData";
-import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
+import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { Button } from "design-system";
