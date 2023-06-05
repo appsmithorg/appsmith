@@ -23,6 +23,7 @@ import ContainerWidget from "widgets/ContainerWidget/widget";
 import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -30,6 +31,10 @@ class CanvasWidget extends ContainerWidget {
   }
   static getWidgetType() {
     return "CANVAS_WIDGET";
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {};
   }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
@@ -52,6 +57,7 @@ class CanvasWidget extends ContainerWidget {
     return (
       <DropTargetComponent
         bottomRow={this.props.bottomRow}
+        isListWidgetCanvas={this.props.isListWidgetCanvas}
         isMobile={this.props.isMobile}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         mobileBottomRow={this.props.mobileBottomRow}
@@ -229,6 +235,7 @@ export const CONFIG = {
     default: CanvasWidget.getDefaultPropertiesMap(),
     meta: CanvasWidget.getMetaPropertiesMap(),
     config: CanvasWidget.getPropertyPaneConfig(),
+    autocompleteDefinitions: CanvasWidget.getAutocompleteDefinitions(),
   },
 };
 
