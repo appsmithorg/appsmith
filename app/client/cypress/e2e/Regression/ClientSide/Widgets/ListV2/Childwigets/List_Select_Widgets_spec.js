@@ -19,8 +19,8 @@ describe("Select Widgets", function () {
   it("1. Select Widgets default value", function () {
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.MULTISELECT,
-      150,
-      50,
+      250,
+      100,
     );
 
     _.propPane.UpdatePropertyFieldValue(
@@ -41,7 +41,7 @@ describe("Select Widgets", function () {
       "{{showAlert('Row ' + currentIndex + ' Option Changed')}}",
     );
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 150, 120);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 250, 300);
 
     _.propPane.UpdatePropertyFieldValue(
       "Options",
@@ -93,7 +93,7 @@ describe("Select Widgets", function () {
   it("2. Select Widgets isValid", function () {
     // Test for isValid === True
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 350, 250);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 550, 300);
     _.propPane.RenameWidget("Text1", "Select_Widget");
     _.propPane.UpdatePropertyFieldValue(
       "Text",
@@ -104,7 +104,7 @@ describe("Select Widgets", function () {
       .first()
       .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 450, 350);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 550, 100);
 
     _.propPane.RenameWidget("Text1", "MultiSelect_Widget");
 
@@ -119,7 +119,8 @@ describe("Select Widgets", function () {
       .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
 
     // Test for isValid === false
-    _.agHelper.RemoveMultiSelectItems([`${items[0].name}`]);
+    _.entityExplorer.SelectEntityByName("MultiSelect1");
+    _.agHelper.SelectFromMultiSelect([`${items[0].name}`], 0, false);
     cy.get(
       `${widgetSelector("MultiSelect_Widget")} ${commonlocators.bodyTextStyle}`,
     )
