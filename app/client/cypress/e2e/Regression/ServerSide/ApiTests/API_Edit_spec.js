@@ -1,11 +1,12 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const dsl = require("../../../../fixtures/uiBindDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel Test Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("uiBindDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");

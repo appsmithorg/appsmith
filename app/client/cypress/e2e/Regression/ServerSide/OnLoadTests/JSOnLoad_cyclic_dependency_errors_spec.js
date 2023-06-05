@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -22,7 +21,9 @@ describe("Cyclic Dependency Informational Error Messages", function () {
   before(() => {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
-    cy.addDsl(dsl);
+    cy.fixture("inputdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.wait(3000); //dsl to settle!
   });
 

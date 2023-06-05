@@ -1,5 +1,4 @@
 const queryEditor = require("../../../../locators/QueryEditor.json");
-const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -7,7 +6,9 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Addwidget from Query and bind with other widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("inputdsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   beforeEach(() => {

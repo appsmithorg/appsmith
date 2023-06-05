@@ -1,5 +1,5 @@
 import homePage from "../../../../locators/HomePage";
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Workspace Import Application", function () {
   let workspaceId;
@@ -7,7 +7,9 @@ describe("Workspace Import Application", function () {
   let appname;
 
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("displayWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Can Import Application from json", function () {

@@ -151,7 +151,7 @@ describe("Rest Bugs tests", function () {
 
   it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
     cy.fixture("apiTableDsl").then((val) => {
-      _._.agHelper.AddDsl(val);
+      _.agHelper.AddDsl(val);
     });
     cy.wait(5000); //settling time for dsl!
     cy.get(".ads-v2-spinner").should("not.exist");

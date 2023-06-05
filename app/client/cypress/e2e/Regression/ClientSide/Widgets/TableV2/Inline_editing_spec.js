@@ -1,18 +1,18 @@
-const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/Registry";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    cy.fixture("Table/InlineEditingDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";
@@ -636,7 +636,9 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);

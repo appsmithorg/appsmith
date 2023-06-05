@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -10,7 +9,9 @@ describe("Table widget inline editing validation functionality", () => {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    cy.fixture("Table/InlineEditingDSL").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. should check that validation only appears when editable enabled", () => {
