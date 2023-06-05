@@ -134,6 +134,12 @@ export class AggregateHelper {
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
   }
 
+  public AssertErrorTooltip(expectedError: string) {
+    this.GetText(this.locator._errorToolTip, "text").then(($error) =>
+      expect($error).to.eq(expectedError),
+    );
+  }
+
   public RenameWithInPane(renameVal: string, IsQuery = true) {
     const name = IsQuery ? this.locator._queryName : this.locator._dsName;
     const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;

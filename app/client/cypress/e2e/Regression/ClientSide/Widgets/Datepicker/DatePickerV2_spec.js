@@ -114,66 +114,40 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     );
   });
 
-  it("6. Datepicker default date validation with strings", function () {
-    cy.fixture("datePicker2dsl").then((val) => {
+  it("6. Datepicker input value changes to work with selected date formats", function () {
+    cy.fixture("datePickerdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
-    cy.openPropertyPane("datepickerwidget2");
-    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
-    cy.get(
-      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
-    ).clear();
-    cy.get(
-      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
-    ).type("2020-02-01");
-    cy.closePropertyPane();
-    cy.openPropertyPane("datepickerwidget2");
-    cy.get(formWidgetsPage.toggleJsMinDate).click({ force: true });
-    cy.get(
-      ".t--property-control-mindate .ads-v2-input__input-section-input",
-    ).type("2020-01-01");
-    cy.get(formWidgetsPage.toggleJsMaxDate).click({ force: true });
-    cy.get(
-      ".t--property-control-maxdate .ads-v2-input__input-section-input",
-    ).type("2020-02-10");
-    cy.closePropertyPane();
-  });
-
-  it("7. Datepicker input value changes to work with selected date formats", function () {
-    cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-mindate .ads-v2-input__input-section-input")
-      .clear()
-      .type("2021-01-01");
-    cy.closePropertyPane();
-    cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-maxdate .ads-v2-input__input-section-input")
-      .clear()
-      .type("2021-10-10");
-    cy.closePropertyPane();
-    cy.openPropertyPane("datepickerwidget2");
-    cy.get(
-      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
-    ).clear();
+    _.entityExplorer.SelectEntityByName("DatePicker1");
+    _.propPane.EnterJSContext("Min Date", "2021-01-01");
+    _.propPane.EnterJSContext("Max Date", "2021-10-10");
+    _.propPane.EnterJSContext("Default Date", "");
     cy.selectDateFormat("DD/MM/YYYY HH:mm");
-    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
-    cy.testJsontext(
-      "defaultdate",
-      '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
+    _.propPane.EnterJSContext(
+      "Default Date",
+      `{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}`,
     );
     cy.get(".t--draggable-datepickerwidget2 .bp3-input")
       .clear({
         force: true,
       })
-      .type("04/05/2021 06:25");
+      .type("04/05/2021 06:25")
+      .wait(2000);
     cy.selectDateFormat("LLL");
     cy.wait("@updateLayout");
     cy.get(".t--draggable-textwidget .bp3-ui-text")
       .first()
       .should("contain.text", "May 4, 2021 6:25 AM");
+
+    _.propPane.EnterJSContext("Default Date", "2020-02-01");
+    _.propPane.EnterJSContext("Min Date", "2020-01-01");
+    _.propPane.EnterJSContext("Max Date", "2020-02-10");
+
+    _.agHelper.AssertErrorTooltip("Date out of range");
   });
 
-  it("8. Check isDirty meta property", function () {
-    cy.fixture("datePicker2dsl").then((val) => {
+  it("7. Check isDirty meta property", function () {
+    cy.fixture("datePickerdsl").then((val) => {
       _.agHelper.AddDsl(val);
     });
     cy.openPropertyPane("textwidget");
@@ -218,9 +192,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.get(".t--widget-textwidget").first().should("contain", "false");
   });
 
-  it("9. Datepicker default date validation with js binding", function () {
+  it("8. Datepicker default date validation with js binding", function () {
     _.deployMode.DeployApp(); // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(10000);
     _.deployMode.NavigateBacktoEditor();
   });
 });
