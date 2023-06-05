@@ -162,7 +162,7 @@ describe("Autocomplete bug fixes", function () {
     );
   });
 
-  it("2. Bug #13983 Verifies if 'children' shows up in autocomplete list", function () {
+  it("2. Bug #23641 Verifies if 'children' shows up in autocomplete list", function () {
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.MULTITREESELECT,
       200,
