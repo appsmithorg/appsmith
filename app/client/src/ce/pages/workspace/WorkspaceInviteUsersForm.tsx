@@ -471,7 +471,7 @@ function WorkspaceInviteUsersForm(props: any) {
             ...(cloudHosting ? { users: usersAsStringsArray } : {}),
             role: roles,
             numberOfUsersInvited: usersAsStringsArray.length,
-            workspaceId: props.workspaceId,
+            orgId: props.workspaceId,
             instanceId,
           });
           return inviteUsersToWorkspace(
