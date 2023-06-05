@@ -1287,16 +1287,6 @@ export class AggregateHelper {
     });
   }
 
-  public GetNAssertElementTextLast(
-    selector: string,
-    text: string,
-    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
-    index = 0,
-  ) {
-    if (index >= 0) this.GetElement(selector).last().should(textPresence, text);
-    else this.GetElement(selector).last().should(textPresence, text);
-  }
-
   public GetNMouseover(selector: string, index = 0) {
     cy.get(selector).eq(index).trigger("mouseover", { force: true }).wait(500);
   }

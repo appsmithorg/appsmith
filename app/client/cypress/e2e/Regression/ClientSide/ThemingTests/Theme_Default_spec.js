@@ -28,19 +28,19 @@ describe("Theme validation for default data", function () {
     _.appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    _.theme.validateBorderTypeCount(3);
-    _.theme.validateBorderPopoverText(0, "none");
-    _.theme.validateBorderPopoverText(1, "M");
-    _.theme.validateBorderPopoverText(2, "L");
+    _.theme.AssertBorderTypeCount(3);
+    _.theme.AssertBorderPopoverText(0, "none", 1);
+    _.theme.AssertBorderPopoverText(1, "M", 2);
+    _.theme.AssertBorderPopoverText(2, "L", 3);
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    _.theme.validateShadowPopoverText(0, "none");
-    _.theme.validateShadowPopoverText(1, "S");
-    _.theme.validateShadowPopoverText(2, "M");
-    _.theme.validateShadowPopoverText(3, "L");
+    _.theme.AssertShadowPopoverText(0, "none", 1);
+    _.theme.AssertShadowPopoverText(1, "S", 2);
+    _.theme.AssertShadowPopoverText(2, "M", 3);
+    _.theme.AssertShadowPopoverText(3, "L", 4);
     cy.contains("Shadow").click({ force: true });
 
     //Font
