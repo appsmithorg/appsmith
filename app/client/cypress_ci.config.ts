@@ -22,7 +22,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://12345.test.ansible.appsmith.com/",
+    baseUrl: "http://12345.test.ansible.appsmith.com/",
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
