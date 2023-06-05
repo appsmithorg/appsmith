@@ -66,6 +66,7 @@ import SearchSnippets from "../../common/SearchSnippets";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { noop } from "lodash";
+import { getFormValues } from "redux-form";
 
 const Form = styled.form`
   position: relative;
@@ -554,6 +555,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (state: AppState) => state.entities.actions.map((action) => action.config),
     equal,
   );
+
+  const formData: Action = useSelector(
+    (state) => getFormValues(formName)(state) as Action,
+  );
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -573,8 +578,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   );
 
   // this gets the url of the current action
-  const actionUrl =
-    currentActionConfig?.datasource?.datasourceConfiguration?.url || "";
+  const actionUrl = formData?.datasource?.datasourceConfiguration?.url || "";
 
   // if the url is empty or the user does not have permission, block action execution.
   const blockExecution = !actionUrl || !isExecutePermitted;
