@@ -59,10 +59,10 @@ describe("Theme validation for default data", function () {
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
     _.theme.ChooseColorType("Primary");
-    _.agHelper.AssertElementValue(themelocator.inputColor, "#553DE9");
+    _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#553DE9");
     _.agHelper.Sleep();
     _.theme.ChooseColorType("Background");
-    _.agHelper.AssertElementValue(themelocator.inputColor, "#F8FAFC");
+    _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#F8FAFC");
     _.agHelper.Sleep();
     _.appSettings.ClosePane();
   });

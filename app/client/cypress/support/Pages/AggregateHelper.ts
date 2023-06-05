@@ -1132,17 +1132,6 @@ export class AggregateHelper {
       .should("be.visible");
   }
 
-  public AssertElementValue(
-    selector: ElementType,
-    text: string,
-    index = 0,
-    timeout = 20000,
-  ) {
-    return this.GetElement(selector, timeout)
-      .eq(index)
-      .should("have.value", text);
-  }
-
   public CheckForErrorToast(error: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length) {

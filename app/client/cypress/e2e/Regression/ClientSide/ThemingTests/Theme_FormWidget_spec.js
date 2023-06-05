@@ -92,10 +92,11 @@ describe("Theme validation usecases", function () {
           // cy.colorMouseover(0, "Primary color");
           // cy.validateColor("Primary", "#553DE9");
           _.theme.ChooseColorType("Primary");
-          _.agHelper.AssertElementValue(themelocator.inputColor, "#553DE9");
+          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#553DE9");
           _.agHelper.Sleep();
           _.theme.ChooseColorType("Background");
-          _.agHelper.AssertElementValue(themelocator.inputColor, "#F8FAFC");
+          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#F8FAFC");
+
           _.agHelper.Sleep();
 
           cy.get(themelocator.inputColor).click({ force: true });
