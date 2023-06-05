@@ -1,12 +1,13 @@
 const Layoutpage = require("../../../../../locators/Layout.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tabsWithWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tabsWithWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function () {
     cy.openPropertyPane("tabswidget");

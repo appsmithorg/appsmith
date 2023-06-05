@@ -1,9 +1,10 @@
-const dsl = require("../../../../../fixtures/tabsWidgetReset.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget on change of selection navigation usecases", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tabsWidgetReset").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1.On change of tab selection Navigate to a URL", function () {

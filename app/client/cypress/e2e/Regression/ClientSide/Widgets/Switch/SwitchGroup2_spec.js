@@ -1,11 +1,12 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/SwitchGroupWidgetDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Group Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("SwitchGroupWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   /*
   afterEach(() => {

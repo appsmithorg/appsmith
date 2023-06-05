@@ -1,10 +1,11 @@
-const dsl = require("../../../../../fixtures/selectMultiSelectTreeSelectWidgetDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("selectMultiSelectTreeSelectWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. onDropdownOpen and onDropdownClose should be triggered from the select widget", () => {

@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/TreeSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -9,7 +8,9 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Single Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("TreeSelectDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Check isDirty meta property", function () {

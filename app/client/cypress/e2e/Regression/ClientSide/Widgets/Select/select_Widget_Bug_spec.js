@@ -1,13 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/formSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("formSelectDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Select Widget name update", function () {
