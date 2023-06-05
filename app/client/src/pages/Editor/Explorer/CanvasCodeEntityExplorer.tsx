@@ -23,6 +23,7 @@ import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { importSvg } from "design-system-old";
 import { getSelectedTab } from "selectors/canvasCodeSelectors";
+import { Divider } from "design-system";
 
 const NoEntityFoundSvg = importSvg(
   () => import("assets/svg/no_entities_found.svg"),
@@ -95,13 +96,17 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       ref={explorerRef}
     >
       {canvasCodeTab === "CANVAS" ? (
-        <ExplorerWidgetGroup
-          addWidgetsFn={showWidgetsSidebar}
-          searchKeyword=""
-          step={0}
-        />
+        <>
+          <ExplorerWidgetGroup
+            addWidgetsFn={showWidgetsSidebar}
+            searchKeyword=""
+            step={0}
+          />
+          <Divider />
+        </>
       ) : (
         <>
+          <Divider />
           <Files />
           {noResults && (
             <NoResult
@@ -111,6 +116,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
               title="No entities found"
             />
           )}
+          <Divider />
         </>
       )}
 
