@@ -6,7 +6,8 @@ type DSDataFilterProps = {
     showFilterPane: boolean,
   ) => void;
   pluginType: string;
-  showFilterComponent: boolean;
+  isInsideReconnectModal: boolean;
+  viewMode: boolean;
 };
 
 function DSDataFilter({}: DSDataFilterProps) {
