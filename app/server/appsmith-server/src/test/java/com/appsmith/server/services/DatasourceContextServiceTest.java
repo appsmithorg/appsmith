@@ -172,11 +172,15 @@ public class DatasourceContextServiceTest {
         authenticationDTO.setUsername(username);
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
+        DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO();
+        datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration);
+        datasourceStorageDTO.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorageDTO.setIsConfigured(Boolean.TRUE);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, datasourceStorageDTO);
         datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
@@ -198,9 +202,9 @@ public class DatasourceContextServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
 
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
+                    DatasourceStorageDTO savedDatasourceStorageDTO = createdDatasource.getDatasourceStorages()
                             .get(defaultEnvironmentId);
-                    DBAuth encryptedAuthentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                    DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();

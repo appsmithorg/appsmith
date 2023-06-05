@@ -155,6 +155,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
         }
 
+        // Set this to null, datasource configuration has moved to datasourceStorage, we will stop storing this.
+        datasource.setDatasourceConfiguration(null);
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         // First check if this is an existing datasource or whether we need to create one
@@ -187,12 +189,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         return datasourceMono
-                .flatMap(datasource1 -> {
+                .flatMap(savedDatasource -> {
                     // In case this was a newly created datasource, we need to update datasource reference first
                     return Flux.fromIterable(datasource.getDatasourceStorages().values())
                             .flatMap(datasourceStorageDTO -> {
                                 DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
-                                datasourceStorage.prepareTransientFields(datasource1);
+                                datasourceStorage.prepareTransientFields(savedDatasource);
                                 return getTrueEnvironmentId(workspaceId, datasourceStorageDTO.getEnvironmentId())
                                         .map(trueEnvironmentId -> {
                                             datasourceStorage.setEnvironmentId(trueEnvironmentId);
@@ -209,8 +211,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .map(DatasourceStorageDTO::new)
                             .collectMap(DatasourceStorageDTO::getEnvironmentId)
                             .map(storages -> {
-                                datasource1.setDatasourceStorages(storages);
-                                return datasource1;
+                                savedDatasource.setDatasourceStorages(storages);
+                                return savedDatasource;
                             });
                 });
     }
