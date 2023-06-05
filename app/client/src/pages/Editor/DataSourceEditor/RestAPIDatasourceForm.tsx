@@ -414,7 +414,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { connection } = this.props.formData;
     if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
       return (
-        <Collapsible defaultIsOpen title="Certificate Details">
+        <Collapsible title="Certificate Details">
           <div style={{ marginTop: "16px" }}>
             {this.renderFilePickerControlViaFormControl(
               "connection.ssl.certificateFile",
@@ -443,11 +443,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       content = this.renderBearerToken();
     }
     if (content) {
-      return (
-        <Collapsible defaultIsOpen title="Authentication">
-          {content}
-        </Collapsible>
-      );
+      return <Collapsible title="Authentication">{content}</Collapsible>;
     }
   };
 

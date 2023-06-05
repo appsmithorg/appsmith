@@ -74,10 +74,8 @@ export class JSONtoForm<
       return null;
     return (
       <Collapsible
-        defaultIsOpen={index === 0 || section?.isDefaultOpen}
         key={section.sectionName}
-        showSection={index !== 0 && !section?.isDefaultOpen}
-        showTopBorder={index !== 0 && !section?.isDefaultOpen}
+        showSectionHeader={index !== 0}
         title={section.sectionName}
       >
         {this.renderEachConfig(section)}
