@@ -1,4 +1,3 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
@@ -66,11 +65,11 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     _.entityExplorer.NavigateToSwitcher("Widgets");
     _.agHelper.ScrollTo(_.locators._widgetPane, "bottom");
     _.agHelper.AssertElementVisible(
-      _.entityExplorer._.locators._widgetPageIcon(WIDGET.VIDEO),
+      _.locators._widgetPageIcon(_.draggableWidgets.VIDEO),
     );
     _.entityExplorer.PinUnpinEntityExplorer(true);
     _.agHelper.AssertElementVisible(
-      _.entityExplorer._.locators._widgetPageIcon(WIDGET.VIDEO),
+      _.locators._widgetPageIcon(_.draggableWidgets.VIDEO),
     );
     _.entityExplorer.PinUnpinEntityExplorer(false);
     _.entityExplorer.NavigateToSwitcher("Explorer");
