@@ -1114,7 +1114,7 @@ public class CreateDBTablePageSolutionTests {
                         if (queryType.equals("UPDATE")) {
                             Map<String, Object> updateMany = (Map<String, Object>) formData.get("updateMany");
                             assertThat(((Map<String, String>) updateMany.get("query")).get(DATA).replaceAll(specialCharactersRegex, ""))
-                                    .isEqualTo("{ id: ObjectId('{{data_table.selectedRow.id}}') }".replaceAll(specialCharactersRegex, ""));
+                                    .isEqualTo("{ _id: ObjectId('{{data_table.selectedRow._id}}') }".replaceAll(specialCharactersRegex, ""));
 
                             assertThat(((Map<String, Object>) updateMany.get("update")).get(DATA))
                                     .isEqualTo("{\n" +
