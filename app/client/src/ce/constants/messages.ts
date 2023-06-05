@@ -1573,7 +1573,7 @@ export const UPDATE_VIA_IMPORT_SETTING = {
     "This action will override your existing application. Please exercise caution while selecting the file to import.",
   settingActionButtonTxt: () => "Import",
   disabledForGit: () =>
-    "This feature is not supported for apps connected to git version control. Please use git pull to update and sync your app.",
+    "This feature is not supported for apps connected to Git version control. Please use git pull to update and sync your app.",
 };
 
 export const IN_APP_EMBED_SETTING = {
@@ -1584,8 +1584,8 @@ export const IN_APP_EMBED_SETTING = {
   forkApplicationConfirmation: {
     title: () => "Allow developers to fork this app to their workspace?",
     body: () => "Forking allows developers to copy your app to their workspace",
-    cancel: () => "CANCEL",
-    confirm: () => "ALLOW FORKING",
+    cancel: () => "Cancel",
+    confirm: () => "Allow forking",
   },
   copy: () => "Copy",
   copied: () => "Copied",
