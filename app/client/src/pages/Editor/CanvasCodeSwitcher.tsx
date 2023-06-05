@@ -7,7 +7,10 @@ import { useLocation } from "react-router";
 import { matchBuilderPath } from "constants/routes";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { setCodeTabPath } from "actions/editorContextActions";
+import {
+  setCodeTabPath,
+  setExplorerSwitchIndex,
+} from "actions/editorContextActions";
 import {
   FocusEntity,
   identifyEntityFromPath,
@@ -15,6 +18,7 @@ import {
 } from "navigation/FocusEntity";
 import { getSelectedTab } from "selectors/canvasCodeSelectors";
 import { canvasCodeToggle } from "actions/globalSearchActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 type CanvasCodeSwitcherProps = {
   pageId: string;
@@ -43,6 +47,13 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
   ];
   const [optionsState, setOptionsState] = useState(options);
   const selectedTab = useSelector(getSelectedTab);
+
+  useEffect(() => {
+    if (selectedTab === "CANVAS") {
+      dispatch(forceOpenWidgetPanel(true));
+      dispatch(setExplorerSwitchIndex(1));
+    }
+  }, []);
 
   const handleMouseOver = (node: any) => {
     const childNode = node.children[0];

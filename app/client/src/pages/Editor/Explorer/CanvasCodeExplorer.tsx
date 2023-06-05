@@ -202,22 +202,28 @@ function ExplorerContent() {
               path={routepath}
               render={() => {
                 return (
-                  <div className={`flex-shrink-0 px-2 mt-1 py-2 border-t`}>
-                    <SegmentedControl
-                      onChange={onChange}
-                      options={options}
-                      value={activeOption}
-                    />
-                  </div>
+                  <>
+                    <div className={`flex-shrink-0 px-2 mt-1 py-2 border-t`}>
+                      <SegmentedControl
+                        onChange={onChange}
+                        options={options}
+                        value={activeOption}
+                      />
+                    </div>
+                    <WidgetSidebar isActive={activeOption === "widgets"} />
+                    <EntityExplorer isActive={activeOption === "explorer"} />
+                  </>
                 );
               }}
             />
           );
         })}
+        <Route
+          render={() => {
+            return <EntityExplorer isActive />;
+          }}
+        />
       </Switch>
-
-      <WidgetSidebar isActive={activeOption === "widgets"} />
-      <EntityExplorer isActive={activeOption === "explorer"} />
     </div>
   );
 }
