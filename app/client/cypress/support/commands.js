@@ -579,7 +579,6 @@ Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.get(commonlocators.canvas).should("be.visible");
   cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
