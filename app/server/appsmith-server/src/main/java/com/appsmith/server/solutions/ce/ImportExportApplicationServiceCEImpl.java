@@ -11,6 +11,7 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DecryptedSensitiveFields;
@@ -2289,6 +2290,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return dsDecryptedFields;
         }
         return null;
+    }
+
+    @Override
+    public Mono<List<DatasourceDTO>> findDatasourceDTOByApplicationId(String applicationId, String workspaceId) {
+        return findDatasourceByApplicationId(applicationId, workspaceId)
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(datasourceService::convertToDatasourceDTO)
+                .collectList();
     }
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
