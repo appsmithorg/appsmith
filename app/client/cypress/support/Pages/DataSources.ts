@@ -240,13 +240,14 @@ export class DataSources {
   public GeneratePageWithMockDB() {
     this.ee.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
-    this.agHelper.GetNClick(this.locator._dropdownText, 0);
-    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      "Connect new datasource",
+    );
+    this.agHelper.GetNClick(this._mockDB("Users"));
     this.agHelper.Sleep(500);
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
-    cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("public.users")`,
-    ).click();
+    this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
