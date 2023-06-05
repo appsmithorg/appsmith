@@ -16,15 +16,15 @@ type filterTypes =
   | "less than"
   | "less than or equal to";
 type columnTypeValues =
-  | "Plain Text"
+  | "Plain text"
   | "URL"
   | "Number"
   | "Image"
   | "Video"
   | "Date"
   | "Button"
-  | "Menu Button"
-  | "Icon Button";
+  | "Menu button"
+  | "Icon button";
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -105,9 +105,9 @@ export class Table {
   private _downloadBtn = ".t--table-download-btn";
   private _downloadOption = ".t--table-download-data-option";
   _columnSettings = (columnName: string) =>
-    "//input[@placeholder='Column Title'][@value='" +
+    "//input[@placeholder='Column title'][@value='" +
     columnName +
-    "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
+    "']/parent::div/parent::div/parent::div/parent::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
   _columnSettingsV2 = (columnName: string) =>
     `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
@@ -456,7 +456,7 @@ export class Table {
         : this._columnSettingsV2(columnName);
 
     this.agHelper.GetNClick(colSettings);
-    this.agHelper.SelectDropdownList("Column Type", newDataType);
+    this.agHelper.SelectDropdownList("Column type", newDataType);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }

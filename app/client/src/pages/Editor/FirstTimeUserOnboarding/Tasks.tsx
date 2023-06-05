@@ -1,6 +1,6 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { Button } from "design-system-old";
+import { Button, Link } from "design-system";
 import {
   ONBOARDING_TASK_DATASOURCE_BODY,
   ONBOARDING_TASK_DATASOURCE_HEADER,
@@ -21,7 +21,7 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -33,13 +33,25 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserOnboardingModal } from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
-import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import AnonymousDataPopup from "./AnonymousDataPopup";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getFirstTimeUserOnboardingModal,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
+  setFirstTimeUserOnboardingTelemetryCalloutVisibility,
+} from "utils/storage";
+import { ANONYMOUS_DATA_POPOP_TIMEOUT } from "./constants";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import IntroductionModal from "./IntroductionModal";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -57,7 +69,7 @@ const CenteredContainer = styled.div`
 `;
 
 const TaskImageContainer = styled.div`
-  width: 220px;
+  width: 180px;
   margin: 0 auto;
 `;
 
@@ -66,7 +78,8 @@ const TaskImage = styled.img`
 `;
 
 const TaskHeader = styled.h5`
-  font-size: 24px;
+  font-size: 20px;
+  margin-top: 16px;
   margin-bottom: 16px;
 `;
 
@@ -78,19 +91,10 @@ const TaskButtonWrapper = styled.div`
   margin-top: 30px;
 `;
 
-const StyledButton = styled(Button)`
-  width: 208px;
-  margin: 0 auto;
-  height: 38px;
-`;
-
 const Taskfootnote = styled.p`
   margin-top: 30px;
-  & span {
-    color: ${(props) => props.theme.colors.welcomeTourStickySidebarBackground};
-    font-weight: 600;
-    cursor: pointer;
-  }
+  display: flex;
+  justify-content: center;
 `;
 
 const getOnboardingDatasourceImg = () =>
@@ -99,6 +103,12 @@ const getOnboardingQueryImg = () => `${ASSETS_CDN_URL}/onboarding-query.svg`;
 const getOnboardingWidgetImg = () => `${ASSETS_CDN_URL}/onboarding-widget.svg`;
 
 export default function OnboardingTasks() {
+  const [isAnonymousDataPopupOpen, setisAnonymousDataPopupOpen] =
+    useState(false);
+
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   let content;
@@ -106,7 +116,44 @@ export default function OnboardingTasks() {
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser);
+  const isAdmin = user?.isSuperUser || false;
+  const isOnboardingCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const showModal = useSelector(getFirstTimeUserOnboardingModal);
+
+  const hideAnonymousDataPopup = () => {
+    setisAnonymousDataPopupOpen(false);
+    setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+  };
+
+  const showShowAnonymousDataPopup = async () => {
+    const shouldPopupShow =
+      !isAirgapped() &&
+      isFirstTimeUserOnboardingEnabled &&
+      isAdmin &&
+      !isOnboardingCompleted;
+    if (shouldPopupShow) {
+      const isAnonymousDataPopupAlreadyOpen =
+        await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
+      //true if the modal was already shown else show the modal and set to already shown, also hide the modal after 10 secs
+      if (isAnonymousDataPopupAlreadyOpen) {
+        setisAnonymousDataPopupOpen(false);
+      } else {
+        setisAnonymousDataPopupOpen(true);
+        setTimeout(() => {
+          hideAnonymousDataPopup();
+        }, ANONYMOUS_DATA_POPOP_TIMEOUT);
+        await setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+      }
+    } else {
+      setisAnonymousDataPopupOpen(shouldPopupShow);
+    }
+  };
+
+  useEffect(() => {
+    showShowAnonymousDataPopup();
+  }, []);
+
   if (!datasources.length && !actions.length) {
     content = (
       <CenteredContainer>
@@ -123,7 +170,7 @@ export default function OnboardingTasks() {
           {createMessage(ONBOARDING_TASK_DATASOURCE_BODY)}
         </TaskSubText>
         <TaskButtonWrapper>
-          <StyledButton
+          <Button
             className="t--tasks-datasource-button"
             data-testid="onboarding-tasks-datasource-button"
             onClick={() => {
@@ -136,17 +183,24 @@ export default function OnboardingTasks() {
                   selectedTab: INTEGRATION_TABS.NEW,
                 }),
               );
+              // Event for datasource creation click
+              const entryPoint = DatasourceCreateEntryPoints.ONBOARDING;
+              AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+                entryPoint,
+              });
             }}
-            tag="button"
-            text={createMessage(ONBOARDING_TASK_DATASOURCE_BUTTON)}
-            type="button"
-          />
+            size="md"
+            startIcon="plus"
+          >
+            {createMessage(ONBOARDING_TASK_DATASOURCE_BUTTON)}
+          </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
-          <span
+          <Link
             className="t--tasks-datasource-alternate-button"
             data-testid="onboarding-tasks-datasource-alt"
+            kind="primary"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -156,7 +210,7 @@ export default function OnboardingTasks() {
             }}
           >
             {createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION)}
-          </span>
+          </Link>
           &nbsp;{createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER)}
         </Taskfootnote>
       </CenteredContainer>
@@ -175,7 +229,7 @@ export default function OnboardingTasks() {
         </TaskHeader>
         <TaskSubText>{createMessage(ONBOARDING_TASK_QUERY_BODY)}</TaskSubText>
         <TaskButtonWrapper>
-          <StyledButton
+          <Button
             className="t--tasks-action-button"
             data-testid="onboarding-tasks-action-button"
             onClick={() => {
@@ -189,16 +243,18 @@ export default function OnboardingTasks() {
                 }),
               );
             }}
-            tag="button"
-            text={createMessage(ONBOARDING_TASK_QUERY_BUTTON)}
-            type="button"
-          />
+            size="md"
+            startIcon="plus"
+          >
+            {createMessage(ONBOARDING_TASK_QUERY_BUTTON)}
+          </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
-          <span
+          <Link
             className="t--tasks-action-alternate-button"
             data-testid="onboarding-tasks-action-alt"
+            kind="primary"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -208,7 +264,7 @@ export default function OnboardingTasks() {
             }}
           >
             {createMessage(ONBOARDING_TASK_QUERY_FOOTER_ACTION)}
-          </span>
+          </Link>
         </Taskfootnote>
       </CenteredContainer>
     );
@@ -226,7 +282,7 @@ export default function OnboardingTasks() {
         </TaskHeader>
         <TaskSubText>{createMessage(ONBOARDING_TASK_WIDGET_BODY)}</TaskSubText>
         <TaskButtonWrapper>
-          <StyledButton
+          <Button
             className="t--tasks-widget-button"
             data-testid="onboarding-tasks-widget-button"
             onClick={() => {
@@ -236,16 +292,18 @@ export default function OnboardingTasks() {
               dispatch(toggleInOnboardingWidgetSelection(true));
               dispatch(forceOpenWidgetPanel(true));
             }}
-            tag="button"
-            text={createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}
-            type="button"
-          />
+            size="md"
+            startIcon="plus"
+          >
+            {createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}
+          </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
-          <span
+          <Link
             className="t--tasks-widget-alternate-button"
             data-testid="onboarding-tasks-widget-alt"
+            kind="primary"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
                 from: "CANVAS",
@@ -259,7 +317,7 @@ export default function OnboardingTasks() {
             }}
           >
             {createMessage(ONBOARDING_TASK_WIDGET_FOOTER_ACTION)}
-          </span>
+          </Link>
           .
         </Taskfootnote>
       </CenteredContainer>
@@ -268,7 +326,10 @@ export default function OnboardingTasks() {
   return (
     <Wrapper data-testid="onboarding-tasks-wrapper">
       {content}
-      {showModal && (
+      {isAnonymousDataPopupOpen && (
+        <AnonymousDataPopup onCloseCallout={hideAnonymousDataPopup} />
+      )}
+      {!isAdmin && showModal && (
         <IntroductionModal
           close={() => {
             dispatch({

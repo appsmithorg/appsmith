@@ -9,6 +9,7 @@ export const SUPPORTED_EXTENSIONS = [
   "ppt",
   "pptx",
   "xlsx",
+  "xls",
 ];
 
 export const Renderers = {

@@ -1,31 +1,23 @@
 import React from "react";
 import styled from "styled-components";
+import { Button } from "design-system";
 
-import { ControlIcons } from "icons/ControlIcons";
-import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
-import { Colors } from "constants/Colors";
+const Wrapper = styled.div`
+  height: 36px;
+  width: 30px;
 
-const Wrapper = styled(EntityTogglesWrapper)`
-  &&& {
-    width: 30px;
-    & svg {
-      cursor: ${(props) => (props.onClick ? "pointer" : "initial")};
-      path {
-        fill: ${Colors.CODE_GRAY};
-      }
-    }
-  }
   &.selected {
-    background: ${Colors.SHARK2} !important;
-    svg {
-      path {
-        fill: ${Colors.WHITE} !important;
-      }
-    }
+    background-color: var(--ads-v2-color-bg-muted);
+    border-radius: var(--ads-v2-border-radius);
   }
 `;
 
-const PlusIcon = ControlIcons.INCREASE_CONTROL_V2;
+const StyledButton = styled(Button)`
+  && {
+    height: 100%;
+    width: 100%;
+  }
+`;
 
 export const EntityAddButton = (props: {
   onClick?: () => void;
@@ -38,8 +30,13 @@ export const EntityAddButton = (props: {
   if (!props.onClick) return null;
   else {
     return (
-      <Wrapper className={props.className} onClick={handleClick}>
-        <PlusIcon height={16} width={16} />
+      <Wrapper className={props.className}>
+        <StyledButton
+          isIconButton
+          kind="tertiary"
+          onClick={handleClick}
+          startIcon="plus"
+        />
       </Wrapper>
     );
   }

@@ -1,7 +1,5 @@
-import React from "react";
 import type { SendTestEmailPayload } from "@appsmith/api/UserApi";
 import UserApi from "@appsmith/api/UserApi";
-import { Toaster, Variant } from "design-system-old";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -24,7 +22,8 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { getCurrentTenant } from "@appsmith/actions/tenantActions";
+import { getCurrentTenant } from "ce/actions/tenantActions";
+import { toast } from "design-system";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -82,9 +81,8 @@ export function* SaveAdminSettingsSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      Toaster.show({
-        text: "Successfully Saved",
-        variant: Variant.success,
+      toast.show("Successfully saved", {
+        kind: "success",
       });
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
@@ -150,28 +148,23 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      let actionElement;
       if (response.data) {
-        actionElement = (
-          <>
-            <br />
-            <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
-              {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
-            </span>
-          </>
-        );
       }
-      Toaster.show({
-        actionElement,
-        text: createMessage(
+      toast.show(
+        createMessage(
           response.data
             ? // @ts-expect-error: currentUser can be undefined
               TEST_EMAIL_SUCCESS(currentUser?.email)
             : TEST_EMAIL_FAILURE,
         ),
-        hideProgressBar: true,
-        variant: response.data ? Variant.info : Variant.danger,
-      });
+        {
+          kind: response.data ? "info" : "error",
+          action: {
+            text: createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT),
+            effect: () => window.open(EMAIL_SETUP_DOC, "blank"),
+          },
+        },
+      );
     }
   } catch (e) {}
 }

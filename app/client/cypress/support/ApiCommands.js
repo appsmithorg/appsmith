@@ -5,9 +5,12 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import ApiEditor from "../locators/ApiEditor";
 const pages = require("../locators/Pages.json");
-const commonlocators = require("../locators/commonlocators.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
+import { ObjectsRegistry } from "./Objects/Registry";
+
+let dataSources = ObjectsRegistry.DataSources;
+let apiPage = ObjectsRegistry.ApiPage;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -47,25 +50,12 @@ Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
   cy.get("#loading").should("not.exist");
 });
 
 Cypress.Commands.add("CreateAPI", (apiname) => {
-  cy.get(explorer.createNew).click({ force: true });
-  cy.get(explorer.blankAPI).click({ force: true });
-  cy.wait("@createNewApi");
-  cy.get(apiwidget.resourceUrl).should("be.visible");
-  if (apiname) {
-    cy.renameWithInPane(apiname);
-    cy.WaitAutoSave();
-  }
-  // Added because api name edit takes some time to
-  // reflect in api sidebar after the call passes.
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  apiPage.CreateApi(apiname);
 });
 
 Cypress.Commands.add("CreateSubsequentAPI", (apiname) => {
@@ -117,15 +107,15 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
 Cypress.Commands.add(
   "validateRequest",
   (apiName, baseurl, path, verb, error = false) => {
-    cy.get(".react-tabs__tab").contains("Logs").click();
-    cy.get("[data-cy=t--debugger-search]").clear().type(apiName);
+    cy.get(".ads-v2-tabs__list").contains("Logs").click();
+    cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
 
     if (!error) {
       cy.get(".object-key").last().contains("request").click();
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.get("[data-cy=t--tab-response]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-response]").first().click({ force: true });
   },
 );
 
@@ -206,9 +196,8 @@ Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(pages.addEntityAPI).click();
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
+
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
@@ -279,11 +268,7 @@ Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
   }
 
   cy.get(apiwidget.renameEntity).click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
   cy.get(explorer.editEntity).last().type(value, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(3000);
 });
 
 Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
@@ -303,7 +288,7 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
-  cy.get(".bp3-popover-content").should(($x) => {
+  cy.get(".rc-tooltip-inner").should(($x) => {
     expect($x).contain(value.concat(" is already being used."));
   });
 });
@@ -379,9 +364,7 @@ Cypress.Commands.add("testCreateApiButton", () => {
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.NavigateToApiEditor();
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");

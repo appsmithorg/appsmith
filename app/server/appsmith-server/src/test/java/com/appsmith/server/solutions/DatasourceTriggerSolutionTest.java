@@ -3,11 +3,13 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.ClientDataDisplayType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.domains.DatasourceContextIdentifier;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -72,6 +74,7 @@ public class DatasourceTriggerSolutionTest {
     FeatureFlagService featureFlagService;
 
     String workspaceId;
+    String defaultEnvironmentId;
 
     String datasourceId;
 
@@ -83,6 +86,7 @@ public class DatasourceTriggerSolutionTest {
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
+        defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
@@ -92,6 +96,10 @@ public class DatasourceTriggerSolutionTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
         datasource = datasourceService.create(datasource).block();
 
         datasourceId = datasource.getId();
@@ -139,25 +147,20 @@ public class DatasourceTriggerSolutionTest {
 
         Datasource datasource = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission()).block();
         Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
-        Mockito
-                .doReturn(Mono.zip(Mono.justOrEmpty(datasource),
-                        Mono.just(new DatasourceContextIdentifier(datasourceId, null)),
-                        Mono.just(new HashMap<>())))
-                .when(datasourceService).getEvaluatedDSAndDsContextKeyWithEnvMap(Mockito.any(Datasource.class), Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                new TriggerRequestDTO(
+                null, new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of(),
-                        ClientDataDisplayType.DROP_DOWN), null);
+                        ClientDataDisplayType.DROP_DOWN));
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                new TriggerRequestDTO(
+                null, new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of("tableName", "Table1"),
-                        ClientDataDisplayType.DROP_DOWN), null);
+                        ClientDataDisplayType.DROP_DOWN));
 
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {

@@ -82,7 +82,7 @@
         "labelAlignment": "left",
         "renderMode": "CANVAS",
         "isLoading": false,
-        "showMarksLabel": false
+        "showMarksLabel": true
       },
       {
         "widgetName": "Text1",

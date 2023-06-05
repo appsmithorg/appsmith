@@ -49,7 +49,6 @@ import {
   safeCrashAppRequest,
 } from "actions/errorActions";
 import localStorage from "utils/localStorage";
-import { Toaster, Variant } from "design-system-old";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -72,6 +71,7 @@ import {
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
+import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
 import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
@@ -331,7 +331,7 @@ export function* inviteUsers(
       usernames: data.usernames,
       permissionGroupId: data.permissionGroupId,
     });
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);
@@ -357,12 +357,6 @@ export function* inviteUsers(
     yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
-    yield put({
-      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
-      payload: {
-        error,
-      },
-    });
   }
 }
 
@@ -555,9 +549,8 @@ export function* leaveWorkspaceSaga(
       yield put({
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       });
-      Toaster.show({
-        text: `You have successfully left the workspace`,
-        variant: Variant.success,
+      toast.show(`You have successfully left the workspace`, {
+        kind: "success",
       });
     }
   } catch (error) {

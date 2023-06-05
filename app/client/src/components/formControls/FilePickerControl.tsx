@@ -4,52 +4,24 @@ import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
 import type { SetProgress } from "design-system-old";
 import { FilePickerV2, FileType } from "design-system-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { DialogComponent } from "design-system-old";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
+import { Button, Modal, ModalBody, ModalContent } from "design-system";
 
 const StyledDiv = styled.div`
   flex: 1;
-  border: 1px solid #d3dee3;
+  border: 1px solid var(--ads-v2-color-border);
   border-right: none;
   padding: 6px 12px;
   font-size: 14px;
-  color: #768896;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-`;
-
-const SelectButton = styled(BaseButton)`
-  &&&& {
-    max-width: 59px;
-    margin: 0 0px;
-    min-height: 32px;
-    border-radius: 0px;
-    font-weight: bold;
-    background-color: #fff;
-    border-color: ${Colors.PRIMARY_ORANGE} !important;
-    font-size: 14px;
-    &.bp3-button {
-      padding: 6px 0px;
-      flex-shrink: 0;
-    }
-    span {
-      color: ${Colors.PRIMARY_ORANGE} !important;
-      font-weight: 400;
-    }
-    &:hover:enabled,
-    &:active:enabled {
-      background: rgba(248, 106, 43, 0.1) !important;
-    }
-  }
+  border-radius: var(--ads-v2-border-radius) 0 0 var(--ads-v2-border-radius);
 `;
 
 const FilePickerWrapper = styled.div`
@@ -59,6 +31,14 @@ const FilePickerWrapper = styled.div`
   justify-content: center;
 `;
 
+const FilePickerContainer = styled.div`
+  flex-direction: row;
+  display: flex;
+  width: 270px;
+  .btn-select {
+    border-radius: 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 !important;
+  }
+`;
 type RenderFilePickerProps = FilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
@@ -73,6 +53,7 @@ function RenderFilePicker(props: RenderFilePickerProps) {
     setProgress: SetProgress;
   } | null>(null);
 
+  // const changeOpenState = (state: boolean) => setIsOpen(state);
   const FileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {
       if (!!file) {
@@ -105,39 +86,42 @@ function RenderFilePicker(props: RenderFilePickerProps) {
 
   return (
     <>
-      <div
-        className={replayHighlightClass}
-        style={{ flexDirection: "row", display: "flex", width: "20vw" }}
-      >
+      <FilePickerContainer className={replayHighlightClass}>
         <StyledDiv title={props?.input?.value?.name}>
           {props?.input?.value?.name}
         </StyledDiv>
-        <SelectButton
-          buttonStyle="PRIMARY"
-          buttonVariant={ButtonVariantTypes.SECONDARY}
+        <Button
+          className="btn-select"
           disabled={props.disabled}
+          kind="secondary"
           onClick={() => {
             setIsOpen(true);
           }}
-          text={"Select"}
-        />
-      </div>
-      {isOpen ? (
-        <DialogComponent
-          canOutsideClickClose
-          isOpen={isOpen}
-          maxHeight={"540px"}
-          setModalClose={() => setIsOpen(false)}
+          size="md"
         >
-          <FilePickerWrapper>
-            <FilePickerV2
-              delayedUpload
-              fileType={FileType.ANY}
-              fileUploader={FileUploader}
-              onFileRemoved={onRemoveFile}
-            />
-          </FilePickerWrapper>
-        </DialogComponent>
+          Select
+        </Button>
+      </FilePickerContainer>
+      {isOpen ? (
+        <Modal
+          onOpenChange={() => {
+            setIsOpen(false);
+          }}
+          open={isOpen}
+        >
+          <ModalContent style={{ width: "640px" }}>
+            <ModalBody>
+              <FilePickerWrapper>
+                <FilePickerV2
+                  delayedUpload
+                  fileType={FileType.ANY}
+                  fileUploader={FileUploader}
+                  onFileRemoved={onRemoveFile}
+                />
+              </FilePickerWrapper>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       ) : null}
     </>
   );
