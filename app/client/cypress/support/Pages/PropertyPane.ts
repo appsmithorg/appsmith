@@ -101,6 +101,13 @@ export class PropertyPane {
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
 
+  private getWidgetSelector = (widgetType: string) =>
+    `div.t--widget-${widgetType}`;
+
+  public openWidgetPropertyPane(widgetType: string) {
+    this.agHelper.GetNClick(this.getWidgetSelector(widgetType));
+  }
+
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
   }
@@ -266,6 +273,12 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
     this.ValidatePropertyFieldValue(fieldName, valueToValidate);
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
+  }
+
+  public ToggleJsMode(fieldName: string) {
+    this.agHelper.GetNClick(
+      this.locator._jsToggle(fieldName.toLowerCase().replaceAll(" ", "")),
+    );
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
@@ -436,21 +449,23 @@ export class PropertyPane {
     this.agHelper.AssertElementExist(this.locator._selectByValue(value));
   }
 
-  public createModal(modalName: string, property: string) {
-    ObjectsRegistry.PropertyPane.AddAction(property);
-    cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();
+  public CreateModal(modalName: string, property: string) {
+    this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
     this.agHelper.AssertAutoSave();
   }
 
-  public navigateToPage(pageName: string, property: string) {
-    ObjectsRegistry.PropertyPane.AddAction(property);
-    cy.get(
-      ObjectsRegistry.CommonLocators._dropDownValue("Navigate to"),
-    ).click();
+  public NavigateToPage(pageName: string, property: string) {
+    this.SelectPlatformFunction(property, "Navigate to");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
-    cy.xpath(this._pageName(pageName)).click({ force: true });
+    this.agHelper.GetNClick(this._pageName(pageName));
     this.agHelper.AssertAutoSave();
+  }
+
+  public DeleteWidget() {
+    ObjectsRegistry.AggregateHelper.GetNClick(
+      `[data-testid="t--delete-widget"]`,
+    );
   }
 }
