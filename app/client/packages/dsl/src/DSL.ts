@@ -23,7 +23,7 @@ export type FlattenedDSLByName<DSLWidget> = {
   result: string;
 };
 
-// schema by widgetId
+// Schema by widgetId
 const schemaById = new schema.Entity(
   "canvasWidgets",
   {},
@@ -31,7 +31,7 @@ const schemaById = new schema.Entity(
 );
 schemaById.define({ children: [schemaById] });
 
-// schema by widgetName
+// Schema by widgetName
 const schemaByName = new schema.Entity(
   "canvasWidgets",
   {},
@@ -39,12 +39,14 @@ const schemaByName = new schema.Entity(
 );
 schemaByName.define({ children: [schemaByName] });
 
+// Normalising using widgetId
 export function flattenDSLById<DSLWidget>(
   nestedDSL: NestedDSL<DSLWidget>,
 ): FlattenedDSL<DSLWidget> {
   return normalize(nestedDSL, schemaById);
 }
 
+// Denormalising using widgetId
 export function unflattenDSLById<DSLWidget>(
   widgetId: string,
   entities: FlattenedDSLEntities<DSLWidget>,
@@ -52,53 +54,17 @@ export function unflattenDSLById<DSLWidget>(
   return denormalize(widgetId, schemaById, entities);
 }
 
+// Normalising using widgetName
 export function flattenDSLByName<DSLWidget>(
   nestedDSL: NestedDSL<DSLWidget>,
 ): FlattenedDSL<DSLWidget> {
   return normalize(nestedDSL, schemaById);
 }
 
+// Denormalising using widgetName
 export function unflattenDSLByName<DSLWidget>(
   widgetId: string,
   entities: FlattenedDSLEntities<DSLWidget>,
 ): NestedDSL<DSLWidget> {
   return denormalize(widgetId, schemaById, entities);
 }
-
-// class DSL<DSLWidget> {
-//   private rawDSL: NestedDSL<DSLWidget>;
-//   private widgetSchemaById: schema.Entity<NestedDSL<DSLWidget>>;
-//   private widgetSchemaByName: schema.Entity<NestedDSL<DSLWidget>>;
-
-//   constructor(rawDSL: NestedDSL<DSLWidget>) {
-//     this.rawDSL = rawDSL;
-//   }
-
-//   asNestedDSL(): NestedDSL<DSLWidget> {
-//     return this.rawDSL;
-//   }
-
-//   asFlatDSL(): FlattenedDSL<DSLWidget> {
-//     return normalize(this.rawDSL, this.widgetSchemaById);
-//   }
-
-//   asNestedDSLFromFlat(
-//     widgetId: string,
-//     entities: FlattenedDSLEntities<DSLWidget>,
-//   ): NestedDSL<DSLWidget> {
-//     return denormalize(widgetId, this.widgetSchemaById, entities);
-//   }
-
-//   asGitDSL(): GitFlattenedDSL<DSLWidget> {
-//     return normalize(this.rawDSL, this.widgetSchemaByName);
-//   }
-
-//   asNestedDSLFromGit(
-//     widgetName: string,
-//     entities: GitFlattenedDSLEntities<DSLWidget>,
-//   ): NestedDSL<DSLWidget> {
-//     return denormalize(widgetName, this.widgetSchemaByName, entities);
-//   }
-// }
-
-// export default DSL;
