@@ -1660,6 +1660,8 @@ export const DATASOURCE_SCHEMA_NOT_AVAILABLE = () => "Schema is not available";
 export const DATASOURCE_INTERCOM_TEXT = () =>
   "Do you need help setting up a Google Sheets datasource?";
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask For Support";
+export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
+  "Select Google Sheets to Query";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
