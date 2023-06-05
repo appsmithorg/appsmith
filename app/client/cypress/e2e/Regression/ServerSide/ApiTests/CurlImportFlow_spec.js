@@ -66,17 +66,9 @@ describe("Test curl import flow", function () {
 
   it("3. Bug:19214 Test curl import flow for request without any headers", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      cy.NavigateToApiEditor();
-      _.dataSources.NavigateToDSCreateNew();
-      cy.get(ApiEditor.curlImage).click({ force: true });
-      cy.get("textarea").type(
-        "curl -X POST " + datasourceFormData["echoApiUrl"],
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
+      _.dataSources.FillCurlNImport(
+        "curl -X GET " + datasourceFormData["echoApiUrl"],
       );
-      cy.importCurl();
       _.apiPage.AssertEmptyHeaderKeyValuePairsPresent(0);
       _.apiPage.AssertEmptyHeaderKeyValuePairsPresent(1);
     });
