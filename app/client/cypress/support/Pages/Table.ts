@@ -498,8 +498,12 @@ export class Table {
   ) {
     this.deployMode.StubbingWindow();
     cy.url().then(($currentUrl) => {
-      this.agHelper.GetNClick(this._tableRowColumnData(row, col, tableVersion));
-      this.agHelper.Sleep(4000); //for new url to settle loading
+      this.agHelper.GetNClick(
+        this._tableRowColumnData(row, col, tableVersion),
+        0,
+        false,
+        4000,
+      ); //timeout new url to settle loading
       cy.get("@windowStub").should("be.calledOnce");
       cy.url().should("eql", expectedURL);
       this.agHelper.AssertDocumentReady();
