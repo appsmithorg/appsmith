@@ -115,7 +115,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_validLicenseKey_Success() {
+    public void updateTenantLicenseKey_validLicenseKey_Success() {
         String licenseKey = "sample-license-key";
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(true);
@@ -129,7 +129,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
                 .thenReturn(Mono.just(license));
 
-        StepVerifier.create(tenantService.setTenantLicenseKey(licenseKey))
+        StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
@@ -160,7 +160,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_licenseInGracePeriod_Success() {
+    public void updateTenantLicenseKey_licenseInGracePeriod_Success() {
         String licenseKey = UUID.randomUUID().toString();
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(true);
@@ -174,7 +174,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
             .thenReturn(Mono.just(license));
 
-        StepVerifier.create(tenantService.setTenantLicenseKey(licenseKey))
+        StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
             .assertNext(tenant -> {
                 TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                 TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
@@ -206,7 +206,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void setTenantLicenseKey_Invalid_LicenseKey() {
+    public void updateTenantLicenseKey_Invalid_LicenseKey() {
         String licenseKey = UUID.randomUUID().toString();
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(false);
@@ -216,7 +216,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
             .thenReturn(Mono.just(license));
 
-        Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
+        Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                     throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY_ENTERED.getMessage()))
@@ -225,7 +225,7 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("usertest@usertest.com")
-    public void setTenantLicenseKey_missingManageTenantPermission_throwsException() {
+    public void updateTenantLicenseKey_missingManageTenantPermission_throwsException() {
         String licenseKey = "SOME-INVALID-LICENSE-KEY";
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setActive(false);
@@ -235,7 +235,7 @@ public class TenantServiceTest {
         Mockito.when(licenseValidator.licenseCheck(any()))
             .thenReturn(Mono.just(license));
 
-        Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
+        Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                 && throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, FieldName.DEFAULT)))

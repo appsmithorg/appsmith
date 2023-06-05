@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.services.ce.TenantServiceCE;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public interface TenantService extends TenantServiceCE {
@@ -14,12 +15,22 @@ public interface TenantService extends TenantServiceCE {
     Mono<Tenant> getDefaultTenant(AclPermission aclPermission);
 
     /**
-     * To set a license key to the default tenant
-     * Only valid license key will get added to the tenant
-     * @param licenseKey
+     * To add a license key to the default tenant and redirect user with 3xx
+     * If the license key is being added for the first time. ie super-user signup -> Redirect to first application
+     * page, else -> Redirect to applications page.
+     * @param licenseKey License key received from client
+     * @param exchange ServerWebExchange
+     * @return Mono of Void - User is redirected
+     */
+    Mono<Void> addTenantLicenseKey(String licenseKey, ServerWebExchange exchange);
+
+    /**
+     * To update the default tenant's license key
+     * Response will be status of update with 2xx
+     * @param licenseKey License key received from client
      * @return Mono of Tenant
      */
-    Mono<Tenant> setTenantLicenseKey(String licenseKey);
+    Mono<Tenant> updateTenantLicenseKey(String licenseKey);
 
     /**
      * To refresh the current license status in the DB by making a license validation request to Cloud Services and
@@ -38,7 +49,7 @@ public interface TenantService extends TenantServiceCE {
     /**
      * To check whether a tenant have valid license configuration
      * @param tenant Tenant
-     * @return
+     * @return Boolean
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
 
