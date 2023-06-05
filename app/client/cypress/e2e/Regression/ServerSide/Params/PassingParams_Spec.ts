@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let jsName: any, dsName: any;
 
-describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
+describe("Bug #10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 100, 100);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 500, 100);
@@ -15,12 +15,11 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       `{\n    \"label\": \"8\",\n    \"value\": \"8\"\n  }`,
     );
     _.propPane.RenameWidget("Select1", "selRecordFilter");
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 500);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 500, 300);
     _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.table.AddSampleTableData();
   });
 
-  it("1. With Optional chaining : {{ this?.params?.condition }}", function () {
+  it("1.{{ this?.params?.condition }}", function () {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -50,7 +49,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       );
     });
     _.entityExplorer.SelectEntityByName("Table1");
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{ParamsTest.data}}");
+    _.propPane.EnterJSContext("Table data", "{{ParamsTest.data}}");
 
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.apiPage.ToggleOnPageLoadRun(false); //Bug 12476
@@ -59,12 +58,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 3000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function () {
+  it("2.{{ (function() { return this?.params?.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -75,12 +74,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 3000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function () {
+  it("3.{{ (() => { return this?.params?.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -91,12 +90,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("4. With Optional chaining : {{ this?.params.condition }}", function () {
+  it("4.{{ this?.params.condition }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -107,12 +106,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function () {
+  it("5.{{ (function() { return this?.params.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -123,12 +122,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function () {
+  it("6.{{ (() => { return this?.params.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -139,7 +138,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -155,7 +154,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -171,7 +170,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("8");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -187,12 +186,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function () {
+  it("10.{{ this.params.condition }} && direct paramter passed", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -207,12 +206,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     );
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function () {
+  it("11.{{ this.params.condition }} && no optional paramter passed", function () {
     _.deployMode.NavigateBacktoEditor();
     _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
@@ -222,7 +221,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
