@@ -427,9 +427,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             }
         }
 
-        if (!headers.isEmpty()) {
-            actionConfiguration.setHeaders(headers);
-        }
+        actionConfiguration.setHeaders(headers);
 
         if (!dataParts.isEmpty()) {
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType)) {
