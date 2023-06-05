@@ -52,7 +52,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     _.homePage.DeleteApplication("JSOnLoadFailureTest");
     _.homePage.DeleteApplication("JSOnLoadFailureTest (1)");
-    _.agHelper.AssertContains("Deleting application...");
+    _.agHelper.WaitUntilToastDisappear("Deleting application...");
     //_.homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
