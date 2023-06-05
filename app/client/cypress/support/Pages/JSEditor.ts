@@ -132,7 +132,7 @@ export class JSEditor {
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
     //Checking JS object was created successfully
-    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
+    this.agHelper.ValidateNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
     this.agHelper.PressEnter(); //for name to settle

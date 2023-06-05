@@ -457,7 +457,8 @@ export class AggregateHelper {
             force: true,
           },
         );
-      });
+      })
+      .wait(500); //for dropdown options to settle
 
     if (check) {
       options.forEach(($each) => {
