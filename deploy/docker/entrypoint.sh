@@ -383,6 +383,7 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
+  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-enabled/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
   local editor_load_page="/opt/appsmith/editor/loading.html" 
