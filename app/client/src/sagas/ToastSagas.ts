@@ -3,6 +3,7 @@ import { toast } from "design-system";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
+import log from "loglevel";
 
 type ExtraOptions = {
   // This enables showing of toast no matter the conditions
@@ -26,7 +27,7 @@ export default function* showToast(
   const debugFlag = urlObject?.searchParams?.get("debug");
   const debug = debugFlag === "true" || debugFlag;
   if (appMode === APP_MODE.PUBLISHED && !debug && !extraOtions?.forceDisplay) {
-    console.error(message);
+    log.error(message);
     return;
   }
 

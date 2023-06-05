@@ -46,7 +46,7 @@ describe("Published mode toggle toast with debug flag in the url", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    _.deployMode.DeployApp();
+    _.deployMode.DeployApp(undefined, true, false);
 
     _.agHelper.AssertElementAbsence(_.locators._toastMsg);
 
