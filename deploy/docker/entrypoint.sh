@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
+
 set -e
-
-if [[ -n "$FILESTORE_IP_ADDRESS" ]]; then
-
-        ## Trim APPSMITH_FILESTORE_IP and FILE_SHARE_NAME
-        FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
-        FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
-
-        echo "Running appsmith for cloudRun"
-        echo "Mounting File Sytem"
-        mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
-        echo "Mounted File Sytem"
-        echo "Setting HOSTNAME for Cloudrun"
-        export HOSTNAME="cloudrun"
-fi
-
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
@@ -33,6 +19,20 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
     }' \
     https://api.segment.io/v1/track \
     || true
+fi
+
+if [[ -n "$FILESTORE_IP_ADDRESS" ]]; then
+
+  ## Trim APPSMITH_FILESTORE_IP and FILE_SHARE_NAME
+  FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
+  FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
+
+  echo "Running appsmith for cloudRun"
+  echo "Mounting File Sytem"
+  mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
+  echo "Mounted File Sytem"
+  echo "Setting HOSTNAME for Cloudrun"
+  export HOSTNAME="cloudrun"
 fi
 
 stacks_path=/appsmith-stacks
