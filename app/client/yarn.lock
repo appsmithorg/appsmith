@@ -2186,7 +2186,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@design-system/headless@workspace:packages/design-system/headless"
   dependencies:
-    "@design-system/widgets-old": "workspace:^"
     "@floating-ui/react": ^0.24.0
     "@react-aria/button": ^3.7.0
     "@react-aria/checkbox": ^3.9.0

@@ -8,16 +8,25 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
 import type { FocusableRef, StyleProps } from "@react-types/shared";
 import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
-import { importRemixIcon } from "@design-system/widgets-old";
-
-const CheckIcon = importRemixIcon(
-  () => import("remixicon-react/CheckLineIcon"),
-);
-const SubtractIcon = importRemixIcon(
-  () => import("remixicon-react/SubtractLineIcon"),
-);
-
 import { CheckboxGroupContext } from "./context";
+
+// Adapted from remixicon-react/CheckLineIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/System/check-line.svg)
+const CheckIcon = ({ size }: { size: number }) => {
+  return (
+    <svg fill="currentColor" height={size} viewBox="0 0 24 24" width={size}>
+      <path d="m10 15.17 9.193-9.191 1.414 1.414-10.606 10.606-6.364-6.364 1.414-1.414 4.95 4.95Z" />
+    </svg>
+  );
+};
+
+// Adapted from remixicon-react/SubtractLineIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/System/subtract-line.svg)
+const SubtractIcon = ({ size }: { size: number }) => {
+  return (
+    <svg fill="currentColor" height={size} viewBox="0 0 24 24" width={size}>
+      <path d="M5 11V13H19V11H5Z" />
+    </svg>
+  );
+};
 
 export interface CheckboxProps
   extends Omit<SpectrumCheckboxProps, keyof StyleProps> {
