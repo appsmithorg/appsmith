@@ -19,7 +19,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.entityExplorer.AddNewPage("Generate page with data");
-    //_.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);
+    //_.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);//Commenting this since this is not always available in new app
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
