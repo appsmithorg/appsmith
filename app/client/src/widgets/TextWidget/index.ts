@@ -19,7 +19,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   searchTags: ["typography", "paragraph", "label"],
   defaults: {
-    text: "Label",
+    text: "Hello {{appsmith.user.name || appsmith.user.email}}!",
     fontSize: DEFAULT_FONT_SIZE,
     fontStyle: "BOLD",
     textAlign: "LEFT",
@@ -33,6 +33,11 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    dynamicBindingPathList: [
+      {
+        key: "text",
+      },
+    ],
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
