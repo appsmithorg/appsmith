@@ -99,12 +99,10 @@ export interface DeleteApplicationRequest {
   applicationId: string;
 }
 
-export interface DuplicateApplicationRequest {
-  applicationId: string;
-}
 export interface ForkApplicationRequest {
   applicationId: string;
   workspaceId: string;
+  editMode?: boolean;
 }
 
 export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
@@ -121,6 +119,7 @@ export type UpdateApplicationPayload = {
     navigationSetting?: NavigationSetting;
     appPositioning?: AppPositioningTypeConfig;
   };
+  forkingEnabled?: boolean;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -206,6 +205,7 @@ export interface UpdateApplicationResponse {
   evaluationVersion: number;
   applicationVersion: number;
   isManualUpdate: boolean;
+  forkingEnabled: boolean;
   appLayout: AppLayoutConfig;
   new: boolean;
   modifiedAt: Date;
@@ -325,12 +325,6 @@ export class ApplicationApi extends Api {
     request: DeleteApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.delete(ApplicationApi.baseURL + "/" + request.applicationId);
-  }
-
-  static duplicateApplication(
-    request: DuplicateApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/clone/" + request.applicationId);
   }
 
   static forkApplication(

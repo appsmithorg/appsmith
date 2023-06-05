@@ -37,8 +37,11 @@ describe("Checkbox Widget Functionality", function () {
 
     // Check the border radius of close button top right
     cy.get(".uppy-Dashboard-close").should("have.css", "border-radius", "24px");
-
-    cy.get(commonlocators.filePickerInput).first().attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .selectFile("cypress/fixtures/testFile.mov", {
+        force: true,
+      });
     cy.get(".uppy-StatusBar-actionBtn--upload").should(
       "have.css",
       "border-radius",

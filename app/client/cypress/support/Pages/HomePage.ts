@@ -45,13 +45,14 @@ export class HomePage {
   public _closeBtn = ".ads-v2-modal__content-header-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
+  _appEditIcon = ".t--application-edit-link";
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
-  private _applicationName = ".t--application-name";
+  _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".ads-v2-menu__menu-item-children";
   _buildFromDataTableActionCard = "[data-testid='generate-app']";
@@ -84,7 +85,6 @@ export class HomePage {
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//button[@aria-haspopup='menu']";
   private _forkApp = '[data-testid="t--fork-app"]';
-  private _duplicateApp = '[data-testid="t--duplicate"]';
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
@@ -324,10 +324,10 @@ export class HomePage {
         .should("be.enabled");
   }
 
-  public FilterApplication(appName: string, workspaceId: string) {
+  public FilterApplication(appName: string, workspaceId?: string) {
     cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
-    cy.get(this._appContainer).contains(workspaceId);
+    workspaceId && cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
   }
 
@@ -425,18 +425,27 @@ export class HomePage {
     else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
-    cy.xpath(this._uploadFile).attachFile(fixtureJson);
+    cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
+      force: true,
+    });
     this.agHelper.Sleep(3500);
   }
-  public InviteUserToWorkspaceFromApp(email: string, role: string) {
+
+  // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
+  public InviteUserToWorkspaceFromApp(
+    email: string,
+    role: string,
+    validate = true,
+  ) {
     const successMessage =
       CURRENT_REPO === REPO.CE
         ? "The user has been invited successfully"
         : "The user/group have been invited successfully";
     this.StubPostHeaderReq();
     this.agHelper.AssertElementExist(
-      "//span[text()='Users will have access to all applications in this workspace']",
+      "//span[text()='Users will have access to all applications in the workspace. For application-level access, try out our ']",
     );
+    this.agHelper.AssertElementExist("//span[text()='business edition']");
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
@@ -446,7 +455,9 @@ export class HomePage {
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
     // cy.contains(email, { matchCase: false });
-    cy.contains(successMessage);
+    if (validate) {
+      cy.contains(successMessage);
+    }
   }
 
   public InviteUserToApplicationFromApp(email: string, role: string) {
@@ -503,16 +514,11 @@ export class HomePage {
     this.agHelper.ClickButton("Fork");
   }
 
-  public DuplicateApplication(appliName: string) {
-    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
-    this.agHelper.GetNClick(this._duplicateApp);
-    this.agHelper.AssertContains("Duplicating application...");
-  }
-
   public DeleteApplication(appliName: string) {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
+    this.agHelper.AssertContains("Deleting application...");
   }
 
   //Maps to leaveworkspace in command.js

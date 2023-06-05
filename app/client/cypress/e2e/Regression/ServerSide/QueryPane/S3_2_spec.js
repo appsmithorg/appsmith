@@ -75,7 +75,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     let fixturePath = "AAAGlobeChristmas.jpeg";
     cy.wait(3000);
     cy.clickButton("Select Files"); //1 files selected
-    cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
+    cy.get(generatePage.uploadFilesS3)
+      .first()
+      .selectFile("cypress/fixtures/AAAGlobeChristmas.jpeg", {
+        force: true,
+      });
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
     cy.wait(3000);
@@ -130,7 +134,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     fixturePath = "AAAFlowerVase.jpeg";
     cy.wait(3000);
     cy.clickButton("Select Files"); //1 files selected
-    cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
+    cy.get(generatePage.uploadFilesS3)
+      .first()
+      .selectFile("cypress/fixtures/AAAFlowerVase.jpeg", {
+        force: true,
+      });
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
     cy.wait(3000);
@@ -182,59 +190,74 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     //verify Deletion of file is success from UI also
 
-    //Deleting the page:
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Assets-test.appsmith.com",
-      "Delete",
-    );
+    //Deleting the page://Commenting below since during re-runs the page name can be com2, com3 etc
+    // _.entityExplorer.ActionContextMenuByEntityName(
+    //   "Assets-test.appsmith.com",
+    //   "Delete",
+    // );
   });
 
   it("3. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+    _.entityExplorer.SelectEntityByName("Page1");
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.ValidateAndSelectDropdownOption(
-      formControls.commandDropdown,
-      "List files in bucket",
-    );
-    cy.typeValueNValidate(
-      "assets-test.appsmith.com",
-      formControls.s3BucketName,
-    );
-    // cy.getEntityName().then((entity) => {
-    //   cy.wrap(entity).as("entity");
-    // });
-    cy.runQuery();
-    cy.xpath(queryLocators.suggestedWidgetDropdown).click().wait(1000);
-    cy.get(".t--draggable-selectwidget").validateWidgetExists();
 
-    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    //cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
-    cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
-    cy.get(commonlocators.TableV2Row).validateWidgetExists();
+    _.agHelper.GetObjectName().then(($queryName) => {
+      _.dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+      cy.typeValueNValidate(
+        "assets-test.appsmith.com",
+        formControls.s3BucketName,
+      );
+      cy.runQuery();
+      cy.xpath(queryLocators.suggestedWidgetDropdown).click().wait(1000);
+      cy.get(".t--draggable-selectwidget").validateWidgetExists();
 
-    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    cy.xpath(queryLocators.suggestedWidgetText).click().wait(1000);
-    cy.get(commonlocators.textWidget).validateWidgetExists();
+      _.entityExplorer.SelectEntityByName("Select1", "Widgets");
+      _.agHelper.GetNClick(_.propPane._deleteWidget);
 
-    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
+      cy.get(commonlocators.TableV2Row).validateWidgetExists();
+      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+      _.agHelper.GetNClick(_.propPane._deleteWidget);
+
+      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      cy.xpath(queryLocators.suggestedWidgetText).click().wait(1000);
+      cy.get(commonlocators.textWidget).validateWidgetExists();
+      _.entityExplorer.SelectEntityByName("Text1", "Widgets");
+      _.agHelper.GetNClick(_.propPane._deleteWidget);
+
+      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+    });
   });
 
   it("4. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
-    cy.addDsl(dsl);
-    cy.wait(3000); //dsl to settle!    cy.NavigateToActiveDSQueryPane(datasourceName);
-    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    cy.runQuery();
-    cy.clickButton("Select widget");
-    cy.xpath(queryLocators.snipeableTable).click().wait(1500); //wait for table to load!
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
+    _.table.AddSampleTableData();
+    cy.NavigateToActiveDSQueryPane(datasourceName);
+    _.agHelper.GetObjectName().then(($queryName) => {
+      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      _.dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+      cy.typeValueNValidate(
+        "assets-test.appsmith.com",
+        formControls.s3BucketName,
+      );
+      cy.runQuery();
+      cy.clickButton("Select widget");
+      cy.xpath(queryLocators.snipeableTable).click().wait(1500); //wait for table to load!
 
-    cy.get(commonlocators.TableRow).validateWidgetExists();
-    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
-    cy.wait(3000); //waiting for deletion to complete! - else next case fails
+      cy.get(commonlocators.TableV2Row).validateWidgetExists();
+
+      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+      _.agHelper.GetNClick(_.propPane._deleteWidget);
+      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+
+      cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+      cy.wait(3000); //waiting for deletion to complete! - else after hook fails
+    });
   });
 
-  it("5. Deletes the datasource", () => {
+  after("Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });

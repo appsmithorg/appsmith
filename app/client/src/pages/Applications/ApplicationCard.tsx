@@ -44,7 +44,7 @@ import {
   MenuTrigger,
   Tooltip,
 } from "design-system";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
@@ -64,6 +64,7 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
+import { getCurrentUser } from "actions/authActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -250,7 +251,6 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
-  duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
@@ -371,6 +371,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
@@ -393,19 +394,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
         key: "share",
         startIcon: "share",
         "data-testid": "t--share",
-      });
-    }
-    if (
-      props.duplicate &&
-      props.permissions?.hasCreateNewApplicationPermission &&
-      hasEditPermission
-    ) {
-      moreActionItems.push({
-        onSelect: duplicateApp,
-        children: "Duplicate",
-        key: "duplicate",
-        startIcon: "duplicate",
-        "data-testid": "t--duplicate",
       });
     }
     // add fork app option to menu
@@ -473,9 +461,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
       props.update(applicationId, {
         icon: icon,
       });
-  };
-  const duplicateApp = () => {
-    props.duplicate && props.duplicate(applicationId);
   };
   const shareApp = () => {
     props.share && props.share(applicationId);
@@ -742,6 +727,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           params,
         }),
       );
+      dispatch(getCurrentUser());
     },
     [props.application.defaultPageId],
   );
@@ -757,6 +743,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           params,
         }),
       );
+      dispatch(getCurrentUser());
     },
     [props.application.defaultPageId],
   );

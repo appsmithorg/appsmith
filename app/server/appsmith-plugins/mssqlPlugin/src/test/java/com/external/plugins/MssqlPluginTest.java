@@ -28,14 +28,11 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,120 +45,67 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
+import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
+import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 public class MssqlPluginTest {
 
-    MssqlPlugin.MssqlPluginExecutor pluginExecutor = new MssqlPlugin.MssqlPluginExecutor();
-
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
-    public static final MSSQLServerContainer container =
-            new MSSQLServerContainer<>(
-                    DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:1.0.3").asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
-                    .acceptLicense()
-                    .withExposedPorts(1433)
-                    .withPassword("Mssql123");
+    public static final MSSQLServerContainer container = MssqlTestDBContainerManager.getMssqlDBForTest();
 
-    private static String address;
-    private static Integer port;
-    private static String username, password;
+    private static HikariDataSource sharedConnectionPool = null;
+
+    private static final String CREATE_USER_TABLE_QUERY = "CREATE TABLE users (\n" +
+            "    id int identity (1, 1) NOT NULL,\n" +
+            "    username VARCHAR (50),\n" +
+            "    password VARCHAR (50),\n" +
+            "    email VARCHAR (355),\n" +
+            "    spouse_dob DATE,\n" +
+            "    dob DATE NOT NULL,\n" +
+            "    time1 TIME NOT NULL,\n" +
+            "    constraint pk_users_id primary key (id)\n" +
+            ")";
+
+    private static final String SET_IDENTITY_INSERT_USERS_QUERY = "SET IDENTITY_INSERT users ON;";
+
+    private static final String INSERT_USER1_QUERY = "INSERT INTO users (id, username, password, email, spouse_dob, dob, time1) VALUES (" +
+            "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31'," +
+            " '18:32:45'" +
+            ")";
+
+    private static final String INSERT_USER2_QUERY = "INSERT INTO users (id, username, password, email, spouse_dob, dob, time1) VALUES (" +
+            "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31'," +
+            " '15:45:30'" +
+            ")";
+
+    private static final String INSERT_USER3_QUERY = "INSERT INTO users (id, username, password, email, spouse_dob, dob, time1) VALUES (" +
+            "3, 'JackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
+            " '15:45:30'" +
+            ")";
 
     @BeforeAll
     public static void setUp() throws SQLException {
-        address = container.getContainerIpAddress();
-        port = container.getMappedPort(1433);
-        username = container.getUsername();
-        password = container.getPassword();
-
-        try (Connection connection = DriverManager.getConnection(
-                "jdbc:sqlserver://" + address + ":" + port + ";user=" + username + ";password=" + password + ";trustServerCertificate=true"
-        )) {
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("CREATE TABLE users (\n" +
-                        "    id int identity (1, 1) NOT NULL,\n" +
-                        "    username VARCHAR (50),\n" +
-                        "    password VARCHAR (50),\n" +
-                        "    email VARCHAR (355),\n" +
-                        "    spouse_dob DATE,\n" +
-                        "    dob DATE NOT NULL,\n" +
-                        "    time1 TIME NOT NULL,\n" +
-                        "    constraint pk_users_id primary key (id)\n" +
-                        ")");
-
-                statement.execute("CREATE TABLE possessions (\n" +
-                        "    id int identity (1, 1) not null,\n" +
-                        "    title VARCHAR (50) NOT NULL,\n" +
-                        "    user_id int NOT NULL,\n" +
-                        "    constraint pk_possessions_id primary key (id),\n" +
-                        "    constraint user_fk foreign key (user_id) references users(id)\n" +
-                        ")");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("SET identity_insert users ON;");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users (id, username, password, email, spouse_dob, dob, time1) VALUES (" +
-                                "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31'," +
-                                " '18:32:45'" +
-                                ")");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users (id, username, password, email, spouse_dob, dob, time1) VALUES (" +
-                                "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31'," +
-                                " '15:45:30'" +
-                                ")");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users (id, username, password, email, spouse_dob, dob, time1) VALUES (" +
-                                "3, 'JackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
-                                " '15:45:30'" +
-                                ")");
-            }
-
-        }
+        sharedConnectionPool = mssqlPluginExecutor.datasourceCreate(createDatasourceConfiguration(container)).block();
+        createTablesForTest();
     }
 
-    private DatasourceConfiguration createDatasourceConfiguration() {
-        DBAuth authDTO = new DBAuth();
-        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
-        authDTO.setUsername(username);
-        authDTO.setPassword(password);
-
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address);
-        endpoint.setPort(port.longValue());
-
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setAuthentication(authDTO);
-        dsConfig.setEndpoints(List.of(endpoint));
-
-        /* set ssl mode */
-        dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        dsConfig.getConnection().setSsl(new SSLDetails());
-        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.NO_VERIFY);
-
-        return dsConfig;
+    private static void createTablesForTest() throws SQLException {
+        runSQLQueryOnMssqlTestDB(CREATE_USER_TABLE_QUERY, sharedConnectionPool);
+        runSQLQueryOnMssqlTestDB(SET_IDENTITY_INSERT_USERS_QUERY, sharedConnectionPool);
+        runSQLQueryOnMssqlTestDB(INSERT_USER1_QUERY, sharedConnectionPool);
+        runSQLQueryOnMssqlTestDB(INSERT_USER2_QUERY, sharedConnectionPool);
+        runSQLQueryOnMssqlTestDB(INSERT_USER3_QUERY, sharedConnectionPool);
     }
 
     @Test
     public void testDefaultPort() {
 
         Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address);
+        endpoint.setHost(container.getHost());
 
         long defaultPort = MssqlPlugin.getPort(endpoint);
 
@@ -171,9 +115,9 @@ public class MssqlPluginTest {
     @Test
     public void testConnectMsSqlContainer() {
 
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assertions::assertNotNull)
@@ -182,9 +126,9 @@ public class MssqlPluginTest {
 
     @Test
     public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
-        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+        final Mono<DatasourceTestResult> testDatasourceMono = mssqlPluginExecutor.testDatasource(dsConfig);
 
         StepVerifier.create(testDatasourceMono)
                 .assertNext(datasourceTestResult -> {
@@ -198,14 +142,14 @@ public class MssqlPluginTest {
 
     @Test
     public void testAliasColumnNames() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+                .flatMap(conn -> mssqlPluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -225,14 +169,14 @@ public class MssqlPluginTest {
 
     @Test
     public void testExecute() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+                .flatMap(conn -> mssqlPluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -277,13 +221,13 @@ public class MssqlPluginTest {
     @Test
     public void invalidTestConnectMsSqlContainer() {
 
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
         // Set up random username and password and try to connect
         DBAuth auth = (DBAuth) dsConfig.getAuthentication();
         auth.setUsername(new ObjectId().toString());
         auth.setPassword(new ObjectId().toString());
 
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException)
@@ -292,7 +236,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testPreparedStatementWithoutQuotes() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         // First test with the binding not surrounded with quotes
@@ -311,10 +255,10 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -358,7 +302,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testPreparedStatementWithDoubleQuotes() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users where id = \"{{binding1}}\";");
@@ -376,10 +320,10 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -433,7 +377,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testPreparedStatementWithSingleQuotes() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users where id = '{{binding1}}';");
@@ -451,10 +395,10 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -491,7 +435,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testPreparedStatementWithNullStringValue() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("UPDATE users set " +
@@ -513,10 +457,10 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -526,7 +470,7 @@ public class MssqlPluginTest {
 
         actionConfiguration.setBody("SELECT * FROM users where id = 2;");
         resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -542,7 +486,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testPreparedStatementWithNullValue() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -565,10 +509,10 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -578,7 +522,7 @@ public class MssqlPluginTest {
 
         actionConfiguration.setBody("SELECT * FROM users where id = 3;");
         resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -594,14 +538,14 @@ public class MssqlPluginTest {
 
     @Test
     public void testDuplicateColumnNames() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+                .flatMap(conn -> mssqlPluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -633,7 +577,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testLimitQuery() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         // First test with the binding not surrounded with quotes
@@ -647,10 +591,10 @@ public class MssqlPluginTest {
         List<Param> params = new ArrayList<>();
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -661,7 +605,7 @@ public class MssqlPluginTest {
 
     @Test
     public void testNumericStringHavingLeadingZeroWithPreparedStatement() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT {{binding1}} as numeric_string;");
@@ -679,10 +623,10 @@ public class MssqlPluginTest {
         params.add(param1);
         executeActionDTO.setParams(params);
 
-        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig,
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig,
                         actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -715,4 +659,77 @@ public class MssqlPluginTest {
                 .collect(Collectors.toList()).size() == 0);
 
     }
+
+    @Test
+    public void testSSLNoVerifyConnectionIsEncrypted() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String queryToFetchEncryptionStatusOfSelfConnection =
+                "SELECT   \n" +
+                "    c.encrypt_option \n" +
+                "FROM sys.dm_exec_connections AS c  \n" +
+                "JOIN sys.dm_exec_sessions AS s  \n" +
+                "    ON c.session_id = s.session_id  \n" +
+                "WHERE c.session_id = @@SPID;";
+        actionConfiguration.setBody(queryToFetchEncryptionStatusOfSelfConnection);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        executeActionDTO.setParams(params);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.NO_VERIFY);
+
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    String expectedResultString = "[{\"encrypt_option\":\"TRUE\"}]";
+                    assertEquals(expectedResultString, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSSLDisabledConnectionIsNotEncrypted() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String queryToFetchEncryptionStatusOfSelfConnection =
+                "SELECT   \n" +
+                        "    c.encrypt_option \n" +
+                        "FROM sys.dm_exec_connections AS c  \n" +
+                        "JOIN sys.dm_exec_sessions AS s  \n" +
+                        "    ON c.session_id = s.session_id  \n" +
+                        "WHERE c.session_id = @@SPID;";
+        actionConfiguration.setBody(queryToFetchEncryptionStatusOfSelfConnection);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        executeActionDTO.setParams(params);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLE);
+
+        Mono<HikariDataSource> connectionCreateMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> mssqlPluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    String expectedResultString = "[{\"encrypt_option\":\"FALSE\"}]";
+                    assertEquals(expectedResultString, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
 }

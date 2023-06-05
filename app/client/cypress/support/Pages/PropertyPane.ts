@@ -76,9 +76,9 @@ export class PropertyPane {
   _actionCallbackTitle = ".action-callback-add";
   _actionTreeCollapse = ".callback-collapse";
   _actionPopupTextLabel = '[data-testid="text-view-label"]';
-  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
+  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-modal";
   _selectorViewButton = ".selector-view .bp3-button-text";
-  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
+  _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-page";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
   _navigateToType = (type: string) =>
     "div.tab-view span:contains('" + type + "')";
@@ -93,11 +93,20 @@ export class PropertyPane {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']";
+  private _createModalButton = ".t--create-modal-btn";
+  _pageName = (option: string) => "//a/div[text()='" + option + "']";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+
+  private getWidgetSelector = (widgetType: string) =>
+    `div.t--widget-${widgetType}`;
+
+  public openWidgetPropertyPane(widgetType: string) {
+    this.agHelper.GetNClick(this.getWidgetSelector(widgetType));
+  }
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
@@ -266,6 +275,12 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
   }
 
+  public ToggleJsMode(fieldName: string) {
+    this.agHelper.GetNClick(
+      this.locator._jsToggle(fieldName.toLowerCase().replaceAll(" ", "")),
+    );
+  }
+
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
     let val: any;
     if (fieldName) {
@@ -422,5 +437,35 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+  }
+
+  public AssertJSToggleDisabled(property: string) {
+    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
+      "be.disabled",
+    );
+  }
+
+  public AssertSelectValue(value: string) {
+    this.agHelper.AssertElementExist(this.locator._selectByValue(value));
+  }
+
+  public CreateModal(modalName: string, property: string) {
+    this.SelectPlatformFunction(property, "Show modal");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
+    this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public NavigateToPage(pageName: string, property: string) {
+    this.SelectPlatformFunction(property, "Navigate to");
+    this.agHelper.GetNClick(this._actionOpenDropdownSelectPage);
+    this.agHelper.GetNClick(this._pageName(pageName));
+    this.agHelper.AssertAutoSave();
+  }
+
+  public DeleteWidget() {
+    ObjectsRegistry.AggregateHelper.GetNClick(
+      `[data-testid="t--delete-widget"]`,
+    );
   }
 }

@@ -19,10 +19,17 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     });
   });
 
-  it("2. Create & runs existing table data and deletes the query", () => {
+  it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
+    _.entityExplorer.NavigateToSwitcher("Widgets");
+    cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
-    cy.typeValueNValidate("select * from users limit 10");
+    _.agHelper.TypeDynamicInputValueNValidate(
+      "select * from users limit {{Table1.pageSize}} OFFSET {{((Table1.pageNo - 1)*Table1.pageSize)}}",
+      ".CodeEditorTarget",
+      true,
+      "select * from users limit $1 OFFSET $2",
+    );
     cy.runAndDeleteQuery();
   });
 

@@ -16,7 +16,6 @@ import type {
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DeleteNavigationLogoRequest,
-  DuplicateApplicationRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
@@ -56,13 +55,13 @@ import {
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
+  updateCurrentApplicationForkingEnabled,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   DELETING_APPLICATION,
   DISCARD_SUCCESS,
-  DUPLICATING_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import { APP_MODE } from "entities/App";
@@ -414,6 +413,13 @@ export function* updateApplicationSaga(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
           );
         }
+        if ("forkingEnabled" in request) {
+          yield put(
+            updateCurrentApplicationForkingEnabled(
+              response.data.forkingEnabled,
+            ),
+          );
+        }
         if (
           request.applicationDetail?.navigationSetting &&
           response.data.applicationDetail?.navigationSetting
@@ -457,44 +463,6 @@ export function* deleteApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* duplicateApplicationSaga(
-  action: ReduxAction<DeleteApplicationRequest>,
-) {
-  try {
-    toast.show(createMessage(DUPLICATING_APPLICATION));
-    const request: DuplicateApplicationRequest = action.payload;
-    const response: ApiResponse = yield call(
-      ApplicationApi.duplicateApplication,
-      request,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      const application: ApplicationPayload = {
-        // @ts-expect-error: response is of type unknown
-        ...response.data,
-        // @ts-expect-error: response is of type unknown
-        defaultPageId: getDefaultPageId(response.data.pages),
-      };
-      yield put({
-        type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
-        payload: response.data,
-      });
-
-      const pageURL = builderURL({
-        pageId: application.defaultPageId,
-      });
-      history.push(pageURL);
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR,
       payload: {
         error,
       },
@@ -657,7 +625,10 @@ export function* forkApplicationSaga(
       application: ApplicationResponsePayload;
       isPartialImport: boolean;
       unConfiguredDatasourceList: Datasource[];
-    }> = yield call(ApplicationApi.forkApplication, action.payload);
+    }> = yield call(ApplicationApi.forkApplication, {
+      applicationId: action.payload.applicationId,
+      workspaceId: action.payload.workspaceId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
@@ -676,12 +647,24 @@ export function* forkApplicationSaga(
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          id: action.payload.workspaceId,
+          workspaceId: action.payload.workspaceId,
         },
       });
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });
+
+      if (action.payload.editMode) {
+        const appId = application.id;
+        const pageId = application.defaultPageId;
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+          payload: {
+            applicationId: appId,
+            pageId,
+          },
+        });
+      }
       history.push(pageURL);
 
       const isEditorInitialized: boolean = yield select(getIsEditorInitialized);

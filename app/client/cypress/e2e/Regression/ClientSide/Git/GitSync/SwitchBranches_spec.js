@@ -220,6 +220,7 @@ describe("Git sync:", function () {
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
+      _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.get(`.t--entity.page`)
         .contains("Page1")
         .closest(".t--entity")
@@ -232,6 +233,7 @@ describe("Git sync:", function () {
 
   it("7. branch list search", function () {
     cy.get(".ads-v2-spinner").should("not.exist");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     _.gitSync.CreateGitBranch("parentBranch", true);

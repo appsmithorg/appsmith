@@ -8,7 +8,7 @@ export function KeyValueView(props: KeyValueViewProps) {
   return (
     <ControlWrapper className="key-value-view" isAction key={props.label}>
       <KeyValueComponent
-        addLabel={"Query Params"}
+        addLabel={"Query params"}
         pairs={props.get(props.value, false) as SegmentedControlOption[]}
         updatePairs={(pageParams: SegmentedControlOption[]) =>
           props.set(pageParams)

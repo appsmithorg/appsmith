@@ -12,6 +12,7 @@ public enum GitDefaultCommitMessage {
     GitDefaultCommitMessage(String reason) {
         this.reason = reason;
     }
+
     public String getReason() {
         return this.reason;
     }

@@ -33,12 +33,13 @@ describe("Dynamic Height Width validation for multiple container", function () {
                   .invoke("css", "height")
                   .then((checkboxheight) => {
                     cy.get(commonlocators.addOption).click({ force: true });
+                    cy.get(commonlocators.addOption).click({ force: true });
                     cy.wait("@updateLayout").should(
                       "have.nested.property",
                       "response.body.responseMeta.status",
                       200,
                     );
-                    cy.wait(5000); //allow for container to adjust height for new option added
+                    cy.wait(3000);
                     cy.get(".t--widget-checkboxgroupwidget")
                       .invoke("css", "height")
                       .then((newcheckboxheight) => {

@@ -60,9 +60,6 @@ export const StyledLink = styled.a`
 
 const DROPDOWN_CLASSNAME = "setup-dropdown";
 export const DropdownWrapper = styled(StyledFormGroup)`
-  && {
-    margin-bottom: 33px;
-  }
   && .cs-text {
     width: 100%;
   }

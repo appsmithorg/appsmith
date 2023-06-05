@@ -73,7 +73,9 @@ describe("Test Top + Stacked navigation style", function () {
       .should("be.visible");
     cy.get(appNavigationLocators.scrollArrows).last().trigger("mousedown");
     cy.wait(3000);
-    cy.get(appNavigationLocators.scrollArrows).last().trigger("mouseup");
+    cy.get(appNavigationLocators.scrollArrows)
+      .last()
+      .trigger("mouseup", { force: true });
     cy.get(appNavigationLocators.navigationMenuItem)
       .contains(pageName)
       .should("not.be.visible");
@@ -84,7 +86,9 @@ describe("Test Top + Stacked navigation style", function () {
       .should("not.be.visible");
     cy.get(appNavigationLocators.scrollArrows).first().trigger("mousedown");
     cy.wait(3000);
-    cy.get(appNavigationLocators.scrollArrows).first().trigger("mouseup");
+    cy.get(appNavigationLocators.scrollArrows)
+      .first()
+      .trigger("mouseup", { force: true });
     cy.get(appNavigationLocators.navigationMenuItem)
       .contains(pageName)
       .should("be.visible");

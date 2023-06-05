@@ -44,6 +44,7 @@ describe("WidgetBlueprintSagas", () => {
       "parentId",
     );
 
+    generator.next();
     expect(generator.next().value).toStrictEqual({});
   });
 });

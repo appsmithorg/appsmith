@@ -1,30 +1,21 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
-  table = ObjectsRegistry.Table,
-  homePage = ObjectsRegistry.HomePage,
-  dataSources = ObjectsRegistry.DataSources,
-  deployMode = ObjectsRegistry.DeployMode,
-  appSettings = ObjectsRegistry.AppSettings;
-
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    dataSources.CreateDataSource("Postgres");
+    _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      ee.AddNewPage();
-      ee.AddNewPage("Generate page with data");
-      agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
+      _.entityExplorer.AddNewPage();
+      _.entityExplorer.AddNewPage("Generate page with data");
+      _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
+      _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, dsName);
     });
 
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "film");
+    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
+    _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "film");
 
     GenerateCRUDNValidateDeployPage(
       "ACADEMY DINOSAUR",
@@ -33,38 +24,43 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "film_id",
     );
 
-    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    _.deployMode.NavigateBacktoEditor();
+    _.table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ExpandCollapseEntity("Pages");
-    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.entityExplorer.ExpandCollapseEntity("Pages");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Page2",
+      "Delete",
+      "Are you sure?",
+    );
+    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
-      agHelper.RefreshPage();
-      deployMode.DeployApp();
-      deployMode.NavigateBacktoEditor();
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+      _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      _.agHelper.RefreshPage();
+      _.deployMode.DeployApp();
+      _.deployMode.NavigateBacktoEditor();
+      _.dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
     });
   });
 
   it("2. Create new app and Generate CRUD page using a new datasource", () => {
-    homePage.NavigateToHome();
-    homePage.CreateNewApplication();
-    agHelper.GetNClick(homePage._buildFromDataTableActionCard);
-    agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-    agHelper.GetNClickByContains(
-      dataSources._dropdownOption,
+    _.homePage.NavigateToHome();
+    _.homePage.CreateNewApplication();
+    _.entityExplorer.AddNewPage("Generate page with data");
+    //_.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);
+    _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
+    _.agHelper.GetNClickByContains(
+      _.dataSources._dropdownOption,
       "Connect new datasource",
     );
-    dataSources.CreateDataSource("Postgres", false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
+    _.dataSources.CreateDataSource("Postgres", false);
+    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
+    _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "suppliers");
 
     GenerateCRUDNValidateDeployPage(
       "Exotic Liquids",
@@ -73,18 +69,18 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "supplier_id",
     );
 
-    deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    appSettings.OpenPaneAndChangeTheme("Sunrise");
+    _.appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure");
-    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
+    _.dataSources.NavigateFromActiveDS(dsName, false);
+    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
+    _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "orders");
 
     GenerateCRUDNValidateDeployPage(
       "VINET",
@@ -93,22 +89,22 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "order_id",
     );
 
-    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    _.deployMode.NavigateBacktoEditor();
+    _.table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ExpandCollapseEntity("Pages");
-    ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ExpandCollapseEntity("Pages");
+    _.entityExplorer.ActionContextMenuByEntityName(
       "Public.orders",
       "Delete",
       "Are you sure?",
     );
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
   it("4. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-    deployMode.DeployApp();
-    deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Suppliers Page - 1 still using this ds
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
+    _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Suppliers Page - 1 still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(
@@ -117,30 +113,29 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     col3Text: string,
     jsonFromHeader: string,
   ) {
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertContains("Successfully generated a page");
-    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    deployMode.DeployApp();
+    _.agHelper.GetNClick(_.dataSources._generatePageBtn);
+    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    _.agHelper.AssertContains("Successfully generated a page");
+    //_.agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
+    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
+    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.deployMode.DeployApp();
 
     //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
+    _.agHelper.AssertElementExist(_.dataSources._selectedRow);
+    _.table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
+    _.table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
     //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
+    cy.xpath(_.locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -148,6 +143,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
           expect(classes).not.contain("bp3-disabled");
         });
     });
-    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
+    _.dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
   }
 });
