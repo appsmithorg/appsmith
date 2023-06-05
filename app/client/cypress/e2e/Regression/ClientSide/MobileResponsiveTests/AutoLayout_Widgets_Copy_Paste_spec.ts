@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/autoLayoutCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Copy paste widget related tests for Auto layout", () => {
@@ -6,21 +5,26 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
   before(() => {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
-    cy.addDsl(dsl);
+    cy.fixture("autoLayoutCopyPaste").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. Should paste at the bottom of the canvas that contains the selected widget", () => {
-    cy.get(_.locators._widgetInDeployed("buttonwidget")).first().click({
-      ctrlKey: true,
-    });
-    cy.get(_.locators._selectedWidget).should("have.length", 1);
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
+      .first()
+      .click({
+        ctrlKey: true,
+      });
+    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 1);
 
     //copying first button in first layer, which is center aligned
-    cy.get("body").type(`{${modifierKey}}{c}`);
-    cy.get(_.locators._toastMsg).contains("Copied");
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
+    _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
     //paste
-    cy.get("body").type(`{${modifierKey}}{v}`);
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
 
     //verify button widget pastes inside the container, in layer index 3 and is center aligned
@@ -32,27 +36,33 @@ describe("Copy paste widget related tests for Auto layout", () => {
     );
 
     //unselect all widgets
-    cy.get(_.locators._selectionCanvas("0")).click({
+    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
       force: true,
     });
   });
 
   it("2. Should paste at the bottom of the canvas of the selected Container", () => {
-    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(1).click({
-      ctrlKey: true,
-    });
-    cy.get(_.locators._selectedWidget).should("have.length", 1);
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
+      .eq(1)
+      .click({
+        ctrlKey: true,
+      });
+    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 1);
 
     //copying second button in first layer, which is end aligned
-    cy.get("body").type(`{${modifierKey}}{c}`);
-    cy.get(_.locators._toastMsg).contains("Copied");
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
+    _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
-    cy.get(_.locators._widgetInDeployed("containerwidget")).first().click({
-      ctrlKey: true,
-    });
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("containerwidget"))
+      .first()
+      .click({
+        ctrlKey: true,
+      });
 
     //paste
-    cy.get("body").type(`{${modifierKey}}{v}`);
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
 
     //verify button widget pastes inside selected the container, in layer index 4 and is end aligned
@@ -64,29 +74,32 @@ describe("Copy paste widget related tests for Auto layout", () => {
     );
 
     //unselect all widgets
-    cy.get(_.locators._selectionCanvas("0")).click({
+    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
       force: true,
     });
   });
 
   it("3. Should paste at the bottom of the main canvas when no widget is selected", () => {
-    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(0).click({
-      ctrlKey: true,
-    });
-    cy.get(_.locators._selectedWidget).should("have.length", 1);
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
+      .eq(0)
+      .click({
+        ctrlKey: true,
+      });
+    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 1);
 
     //copying first button in first layer, which is center aligned
-    cy.get("body").type(`{${modifierKey}}{c}`);
-    cy.get(_.locators._toastMsg).contains("Copied");
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
+    _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
     //unselect all widgets
-    cy.get(_.locators._selectionCanvas("0")).click({
+    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
       force: true,
     });
 
-    cy.get(_.locators._selectedWidget).should("have.length", 0);
+    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 0);
     //paste
-    cy.get("body").type(`{${modifierKey}}{v}`);
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
 
     //verify button widget pastes in main canvas, in layer index 1 and is center aligned
@@ -98,7 +111,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     );
 
     //unselect all widgets
-    cy.get(_.locators._selectionCanvas("0")).click({
+    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
       force: true,
     });
   });
@@ -106,33 +119,45 @@ describe("Copy paste widget related tests for Auto layout", () => {
   it("4. Should paste widgets in copied orientation, when multiple widgets are copied", () => {
     //Select and copy widgets in,
     // button in layer index 0, end aligned
-    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(1).click({
-      ctrlKey: true,
-    });
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
+      .eq(1)
+      .click({
+        ctrlKey: true,
+      });
     // button in layer index 1, start aligned
-    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(2).click({
-      ctrlKey: true,
-    });
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
+      .eq(2)
+      .click({
+        ctrlKey: true,
+      });
     // icon button in layer index 1, end aligned
-    cy.get(_.locators._widgetInDeployed("iconbuttonwidget")).eq(0).click({
-      ctrlKey: true,
-    });
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("iconbuttonwidget"))
+      .eq(0)
+      .click({
+        ctrlKey: true,
+      });
     // button in layer index 2, center aligned
-    cy.get(_.locators._widgetInDeployed("buttonwidget")).eq(3).click({
-      ctrlKey: true,
-    });
-    cy.get(_.locators._selectedWidget).should("have.length", 4);
-    cy.get("body").type(`{${modifierKey}}{c}`);
-    cy.get(_.locators._toastMsg).contains("Copied");
+    _.agHelper
+      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
+      .eq(3)
+      .click({
+        ctrlKey: true,
+      });
+    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 4);
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
+    _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
     //unselect all widgets
-    cy.get(_.locators._selectionCanvas("0")).click({
+    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
       force: true,
     });
 
-    cy.get(_.locators._selectedWidget).should("have.length", 0);
+    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 0);
     //paste
-    cy.get("body").type(`{${modifierKey}}{v}`);
+    _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
 
     //verify widgets paste in copied orientation,
@@ -166,7 +191,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     );
 
     //unselect all widgets
-    cy.get(_.locators._selectionCanvas("0")).click({
+    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
       force: true,
     });
   });

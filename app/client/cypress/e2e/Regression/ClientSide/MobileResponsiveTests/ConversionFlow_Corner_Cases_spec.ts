@@ -2,9 +2,6 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import template from "../../../../locators/TemplatesLocators.json";
 import widgetLocators from "../../../../locators/Widgets.json";
 
-const templatePageWithNullBindings = require("../../../../fixtures/templatePageWithNullbindings.json");
-const conversionDslWithDynamicBindings = require("../../../../fixtures/conversionDslWithDynamicBindings.json");
-
 describe("Handle Cases while conversion", () => {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
     _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 200);
@@ -38,7 +35,9 @@ describe("Handle Cases while conversion", () => {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
 
-    cy.addDsl(templatePageWithNullBindings);
+    cy.fixture("templatePageWithNullbindings").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     _.autoLayout.ConvertToAutoLayoutAndVerify();
   });
@@ -47,7 +46,9 @@ describe("Handle Cases while conversion", () => {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
 
-    cy.addDsl(conversionDslWithDynamicBindings);
+    cy.fixture("conversionDslWithDynamicBindings").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
 
     _.autoLayout.ConvertToAutoLayoutAndVerify();
     _.autoLayout.UseSnapshotFromBanner();
@@ -55,18 +56,17 @@ describe("Handle Cases while conversion", () => {
 
   it("5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load", () => {
     _.entityExplorer.AddNewPage("Add page from template");
-    cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath("//h1[text()='Marketing Dashboard']").click();
+    _.agHelper.GetElement(template.templateDialogBox).should("be.visible");
+    _.agHelper.GetElement("//h1[text()='Marketing Dashboard']").click();
     cy.wait(10000); // for templates page to load fully
-    cy.get(template.selectCheckbox).first().click();
+    _.agHelper.GetElement(template.selectCheckbox).first().click();
     cy.wait(1000);
-    cy.get(template.selectCheckbox).eq(1).click();
-    cy.get(template.templateViewForkButton).click();
+    _.agHelper.GetElement(template.selectCheckbox).eq(1).click();
+    _.agHelper.GetElement(template.templateViewForkButton).click();
     cy.wait(5000);
-    cy.get(widgetLocators.toastAction, { timeout: 40000 }).should(
-      "contain",
-      "template added successfully",
-    );
+    _.agHelper
+      .GetElement(widgetLocators.toastAction, 40000)
+      .should("contain", "template added successfully");
 
     _.autoLayout.ConvertToAutoLayoutAndVerify();
   });
