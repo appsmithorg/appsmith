@@ -409,4 +409,9 @@ export class ApiPage {
     if (apiName) this.agHelper.RenameWithInPane(apiName);
     cy.get(this._resourceUrl).should("be.visible");
   }
+
+  AssertEmptyHeaderKeyValuePairsPresent(index: number) {
+    this.agHelper.AssertElementVisible(this._headerKey(index));
+    this.agHelper.AssertElementVisible(this._headerValue(index));
+  }
 }
