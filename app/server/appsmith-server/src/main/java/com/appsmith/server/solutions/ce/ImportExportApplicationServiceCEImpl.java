@@ -662,6 +662,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
+    private Mono<ImportApplicationPermissionProvider> getPermissionProviderForUpdateNonGitConnectedAppFromJson() {
+        return permissionGroupRepository.getCurrentUserPermissionGroups()
+                .map(permissionGroups -> {
+                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
+                            .workspacePermission(workspacePermission.getReadPermission())
+                            .editDatasourcePermission(datasourcePermission.getEditPermission())
+                            .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
+                            .applicationPermission(applicationPermission.getEditPermission())
+                            .editPagePermission(pagePermission.getEditPermission())
+                            .editActionPermission(actionPermission.getEditPermission())
+                            .editActionCollectionPermission(actionPermission.getEditPermission())
+                            .createActionPermission(pagePermission.getActionCreatePermission())
+                            .createPagePermission(applicationPermission.getPageCreatePermission())
+                            .createActionCollectionPermission(pagePermission.getActionCreatePermission())
+                            .userPermissionGroups(permissionGroups)
+                            .build();
+                    return permissionProvider;
+                });
+    }
+
     /**
      * This function will take the Json filepart and updates/creates the application in workspace depending on presence
      * of applicationId field
@@ -698,22 +718,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (isConnectedToGit) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
                     } else {
-                        return permissionGroupRepository.getCurrentUserPermissionGroups()
-                                .flatMap(permissionGroups -> {
-                                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                                            .workspacePermission(workspacePermission.getReadPermission())
-                                            .editDatasourcePermission(datasourcePermission.getEditPermission())
-                                            .createDatasourcePermission(workspacePermission.getDatasourceCreatePermission())
-                                            .applicationPermission(applicationPermission.getEditPermission())
-                                            .editPagePermission(pagePermission.getEditPermission())
-                                            .editActionPermission(actionPermission.getEditPermission())
-                                            .editActionCollectionPermission(actionPermission.getEditPermission())
-                                            .createActionPermission(pagePermission.getActionCreatePermission())
-                                            .createPagePermission(applicationPermission.getPageCreatePermission())
-                                            .createActionCollectionPermission(pagePermission.getActionCreatePermission())
-                                            .userPermissionGroups(permissionGroups)
-                                            .build();
-
+                        return getPermissionProviderForUpdateNonGitConnectedAppFromJson()
+                                .flatMap(permissionProvider -> {
                                     if (!StringUtils.isEmpty(applicationId) && applicationJson.getExportedApplication() != null) {
                                         // Remove the application name from JSON file as updating the application name is not supported
                                         // via JSON import. This is to avoid name conflict during the import flow within the workspace
@@ -776,6 +782,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<Application> importApplicationInWorkspaceFromGit(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
         return permissionGroupRepository.getCurrentUserPermissionGroups()
                 .flatMap(userPermissionGroups -> {
+                    /**
+                     * If the application is connected to git, then the user must have edit permission on the application.
+                     * If user is importing application from Git, create application permission is clready checked by the
+                     * caller method so it's not required here.
+                     * Other permissions are not required because Git is the source of truth for the application and Git
+                     * Sync is a system level operation to get latest code from Git. If the user does not have some
+                     * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
+                     */
                     ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
                             .applicationPermission(applicationPermission.getEditPermission())
                             .userPermissionGroups(userPermissionGroups)
@@ -1681,28 +1695,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         return saveNewActionAndUpdateDefaultResources(newAction, branchName);
                                     }))
                                     .flatMap(branchedAction -> {
-                                        DefaultResources defaultResources = branchedAction.getDefaultResources();
-                                        // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
-                                        defaultResources.setBranchName(branchName);
-                                        newAction.setDefaultResources(defaultResources);
-
-                                        String defaultPageId = branchedAction.getUnpublishedAction() != null
-                                                ? branchedAction.getUnpublishedAction().getDefaultResources().getPageId()
-                                                : branchedAction.getPublishedAction().getDefaultResources().getPageId();
-                                        DefaultResources defaultsDTO = new DefaultResources();
-                                        defaultsDTO.setPageId(defaultPageId);
-                                        if (newAction.getUnpublishedAction() != null) {
-                                            newAction.getUnpublishedAction().setDefaultResources(defaultsDTO);
-                                        }
-                                        if (newAction.getPublishedAction() != null) {
-                                            newAction.getPublishedAction().setDefaultResources(defaultsDTO);
-                                        }
-
-                                        newAction.getUnpublishedAction().setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
-                                        newAction.setDeletedAt(branchedAction.getDeletedAt());
-                                        newAction.setDeleted(branchedAction.getDeleted());
-                                        // Set policies from existing branch object
-                                        newAction.setPolicies(branchedAction.getPolicies());
+                                        newActionService.populateDefaultResources(newAction, branchedAction, branchName);
                                         return newActionService.save(newAction);
                                     });
                         }
@@ -1850,28 +1843,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         return saveNewCollectionAndUpdateDefaultResources(actionCollection, branchName);
                                     }))
                                     .flatMap(branchedActionCollection -> {
-                                        DefaultResources defaultResources = branchedActionCollection.getDefaultResources();
-                                        // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
-                                        defaultResources.setBranchName(branchName);
-                                        actionCollection.setDefaultResources(defaultResources);
-
-                                        String defaultPageId = branchedActionCollection.getUnpublishedCollection() != null
-                                                ? branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId()
-                                                : branchedActionCollection.getPublishedCollection().getDefaultResources().getPageId();
-                                        DefaultResources defaultsDTO = new DefaultResources();
-                                        defaultsDTO.setPageId(defaultPageId);
-                                        if (actionCollection.getUnpublishedCollection() != null) {
-                                            actionCollection.getUnpublishedCollection().setDefaultResources(defaultsDTO);
-                                        }
-                                        if (actionCollection.getPublishedCollection() != null) {
-                                            actionCollection.getPublishedCollection().setDefaultResources(defaultsDTO);
-                                        }
-                                        actionCollection.getUnpublishedCollection()
-                                                .setDeletedAt(branchedActionCollection.getUnpublishedCollection().getDeletedAt());
-                                        actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
-                                        actionCollection.setDeleted(branchedActionCollection.getDeleted());
-                                        // Set policies from existing branch object
-                                        actionCollection.setPolicies(branchedActionCollection.getPolicies());
+                                        actionCollectionService.populateDefaultResources(actionCollection, branchedActionCollection, branchName);
                                         return Mono.zip(
                                                 Mono.just(importedActionCollectionId),
                                                 actionCollectionService.save(actionCollection)
