@@ -1,38 +1,25 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.fixture("formSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT);
   });
 
-  it("Select Widget name update", function () {
-    cy.openPropertyPane("selectwidget");
-    cy.widgetText(
-      "Select1",
-      widgetsPage.selectwidget,
-      widgetsPage.widgetNameSpan,
-    );
-  });
-
-  it("Disable the widget and check in publish mode", function () {
-    cy.get(widgetsPage.disable).scrollIntoView({ force: true });
-    cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
+  it("1. Select Widget name update/Disabeld state", function () {
+    _.propPane.RenameWidget("Select1", "SelectRenamed");
+    // Disable the widget and check visibility in publish mode
+    _.propPane.TogglePropertyState("Disabled", "On");
     cy.get(".bp3-disabled").should("be.visible");
     _.deployMode.DeployApp();
     cy.get(".bp3-disabled").should("be.visible");
     _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("enable the widget and check in publish mode", function () {
+    //Enable the widget and check in publish mode", function () {
     cy.openPropertyPane("selectwidget");
+    _.entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
     cy.get(".bp3-disabled").should("be.visible");
-    cy.get(widgetsPage.disable).scrollIntoView({ force: true });
-    cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
+    _.propPane.TogglePropertyState("Disabled", "Off");
     cy.get(".t--widget-selectwidget .bp3-button").should("be.visible");
     _.deployMode.DeployApp();
     cy.get(".t--widget-selectwidget .bp3-button")
