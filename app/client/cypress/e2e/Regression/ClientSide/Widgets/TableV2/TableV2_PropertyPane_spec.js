@@ -3,7 +3,6 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
@@ -375,7 +374,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("14. It provides currentRow and currentIndex properties in min validation field", function () {
-    cy.fixture("tableV2NewDsl").then((val) => {
+    cy.fixture("tableV2NewDslWithPagination").then((val) => {
       _.agHelper.AddDsl(val);
     });
     cy.openPropertyPane("tablewidgetv2");
