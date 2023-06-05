@@ -77,14 +77,16 @@ export class AggregateHelper {
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
     let pageid: string, layoutId;
-    const appId: string | null = localStorage.getItem("applicationId");
+    let appId: string | null;
     cy.url().then((url) => {
       pageid = url.split("/")[5]?.split("-").pop() as string;
       cy.log(pageid + "page id");
       //Fetch the layout id
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
-        layoutId = JSON.parse(respBody).data.layouts[0].id;
+        const data = JSON.parse(respBody).data;
+        layoutId = data.layouts[0].id;
+        appId = data.applicationId;
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
