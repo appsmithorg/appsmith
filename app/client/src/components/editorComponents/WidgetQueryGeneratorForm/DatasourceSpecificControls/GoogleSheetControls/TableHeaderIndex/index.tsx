@@ -4,13 +4,9 @@ import {
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import {
-  Icon,
-  IconSize,
-  TextInput,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import React from "react";
+import { Icon } from "design-system";
+import { Tooltip } from "design-system";
+import React, { memo } from "react";
 import {
   Row,
   RowHeading,
@@ -19,6 +15,7 @@ import {
 } from "../../../styles";
 import styled from "styled-components";
 import { useTableHeaderIndex } from "./useTableHeader";
+import { Input } from "design-system";
 
 const RoundBg = styled.div`
   width: 16px;
@@ -30,7 +27,7 @@ const RoundBg = styled.div`
   align-items: center;
 `;
 
-export function TableHeaderIndex() {
+export default memo(function TableHeaderIndex() {
   const { error, onChange, show, value } = useTableHeaderIndex();
 
   if (show) {
@@ -41,31 +38,22 @@ export function TableHeaderIndex() {
           <TooltipWrapper>
             <Tooltip
               content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
-              hoverOpenDelay={200}
             >
               <RoundBg>
-                <Icon
-                  fillColor={Colors.WHITE}
-                  hoverFillColor={Colors.WHITE}
-                  name="help"
-                  size={IconSize.XXS}
-                />
+                <Icon name="help" />
               </RoundBg>
             </Tooltip>
           </TooltipWrapper>
         </Row>
-        <TextInput
-          data-testid="t--tableHeaderIndex"
-          dataType="text"
-          errorMsg={error}
-          fill
+        <Input
+          errorMessage={error}
           onChange={onChange}
           placeholder="Table Header Index"
-          value={value}
+          value={value.toString()}
         />
       </SelectWrapper>
     );
   } else {
     return null;
   }
-}
+});
