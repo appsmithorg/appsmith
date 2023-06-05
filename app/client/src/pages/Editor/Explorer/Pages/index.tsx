@@ -177,6 +177,7 @@ function Pages() {
 
   const canvasCodeProps = isCanvasCodeActive
     ? {
+        alwaysShowRightIcon: true,
         onClickRightIcon,
         rightIcon: <Icon name="search-line" />,
       }

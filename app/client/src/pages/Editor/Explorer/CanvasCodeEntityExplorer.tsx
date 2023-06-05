@@ -1,6 +1,5 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Route, Switch, useRouteMatch } from "react-router";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {
@@ -23,7 +22,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { importSvg } from "design-system-old";
-import { CANVAS_ROUTES, QUERIES_JS_ROUTES } from "./CanvasCodeExplorer";
+import { getSelectedTab } from "selectors/canvasCodeSelectors";
 
 const NoEntityFoundSvg = importSvg(
   () => import("assets/svg/no_entities_found.svg"),
@@ -63,7 +62,6 @@ const NoResult = styled(NonIdealState)`
 
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
-  const { path } = useRouteMatch();
   PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -72,6 +70,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const canvasCodeTab = useSelector(getSelectedTab);
   const noResults = false;
   const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
@@ -95,54 +94,26 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       }`}
       ref={explorerRef}
     >
-      <Switch>
-        {CANVAS_ROUTES.map((route) => {
-          let routepath = route.prefixCurrentPath ? path : "";
-          routepath += route.path;
-          return (
-            <Route
-              exact
-              key={route.key}
-              path={routepath}
-              render={() => {
-                return (
-                  <ExplorerWidgetGroup
-                    addWidgetsFn={showWidgetsSidebar}
-                    searchKeyword=""
-                    step={0}
-                  />
-                );
-              }}
+      {canvasCodeTab === "CANVAS" ? (
+        <ExplorerWidgetGroup
+          addWidgetsFn={showWidgetsSidebar}
+          searchKeyword=""
+          step={0}
+        />
+      ) : (
+        <>
+          <Files />
+          {noResults && (
+            <NoResult
+              className={Classes.DARK}
+              description="Try modifying the search keyword."
+              icon={<NoEntityFoundSvg />}
+              title="No entities found"
             />
-          );
-        })}
-        {QUERIES_JS_ROUTES.map((route) => {
-          let routepath = route.prefixCurrentPath ? path : "";
-          routepath += route.path;
-          return (
-            <Route
-              exact
-              key={route.key}
-              path={routepath}
-              render={() => {
-                return (
-                  <>
-                    <Files />
-                    {noResults && (
-                      <NoResult
-                        className={Classes.DARK}
-                        description="Try modifying the search keyword."
-                        icon={<NoEntityFoundSvg />}
-                        title="No entities found"
-                      />
-                    )}
-                  </>
-                );
-              }}
-            />
-          );
-        })}
-      </Switch>
+          )}
+        </>
+      )}
+
       <Datasources />
       <JSDependencies />
     </Wrapper>
