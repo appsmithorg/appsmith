@@ -12,7 +12,7 @@ const SectionHeader = styled.div`
   cursor: default;
   font-weight: 500;
   line-height: 19px;
-  color: #4c5664;
+  color: var(--ads-v2-color-gray-600);
 `;
 
 function DatasourceDropdown() {

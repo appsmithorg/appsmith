@@ -1478,8 +1478,8 @@ Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
       `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
     )
       .focus()
-      .type(text);
-    cy.wait(500);
+      .type(text)
+      .wait(500);
   }
 });
 
