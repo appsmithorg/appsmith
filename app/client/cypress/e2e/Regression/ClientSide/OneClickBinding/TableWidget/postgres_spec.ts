@@ -1,4 +1,3 @@
-import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
 
@@ -15,7 +14,7 @@ describe("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       _.entityExplorer.NavigateToSwitcher("Widgets");
 
-      (cy as any).openPropertyPane(WIDGET.TABLE);
+      (cy as any).openPropertyPane(_.draggableWidgets.TABLE);
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,

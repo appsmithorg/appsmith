@@ -1,10 +1,8 @@
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import OnboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
 
 export class OneClickBinding {
-  public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = OneClickBindingLocator;
   public onboardingLocator = OnboardingLocator;
 
@@ -14,11 +12,11 @@ export class OneClickBinding {
     table?: string,
     column?: string,
   ) {
-    this.agHelper.GetNClick(this.locator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(this.locator.datasourceDropdownSelector);
 
-    this.agHelper.AssertElementAbsence(this.locator.connectData);
+    _.agHelper.AssertElementAbsence(this.locator.connectData);
 
-    this.agHelper.GetNClick(this.locator.datasourceSelector(source));
+    _.agHelper.GetNClick(this.locator.datasourceSelector(source));
 
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -26,41 +24,37 @@ export class OneClickBinding {
       200,
     );
 
-    this.agHelper.Sleep(500);
-    this.agHelper.AssertElementExist(this.locator.connectData);
+    _.agHelper.Sleep(500);
+    _.agHelper.AssertElementExist(this.locator.connectData);
 
-    this.agHelper.AssertElementEnabledDisabled(this.locator.connectData);
+    _.agHelper.AssertElementEnabledDisabled(this.locator.connectData);
 
-    this.agHelper.AssertElementExist(this.locator.tableOrSpreadsheetDropdown);
+    _.agHelper.AssertElementExist(this.locator.tableOrSpreadsheetDropdown);
 
-    this.agHelper.GetNClick(this.locator.tableOrSpreadsheetDropdown);
+    _.agHelper.GetNClick(this.locator.tableOrSpreadsheetDropdown);
 
-    this.agHelper.GetNClick(
+    _.agHelper.GetNClick(
       `.t--one-click-binding-table-selector--table:contains(${table})`,
     );
 
-    this.agHelper.AssertElementExist(
+    _.agHelper.AssertElementExist(
       `${this.locator.tableOrSpreadsheetDropdown} .rc-select-selection-item:contains(${table})`,
     );
 
-    this.agHelper.AssertElementExist(this.locator.searchableColumn);
+    _.agHelper.AssertElementExist(this.locator.searchableColumn);
 
-    this.agHelper.GetNClick(this.locator.searchableColumn);
+    _.agHelper.GetNClick(this.locator.searchableColumn);
 
-    this.agHelper.GetNClick(
+    _.agHelper.GetNClick(
       `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
     );
 
-    this.agHelper.AssertElementExist(
+    _.agHelper.AssertElementExist(
       `${this.locator.searchableColumn} .rc-select-selection-item:contains(${column})`,
     );
 
-    this.agHelper.AssertElementExist(this.locator.connectData);
+    _.agHelper.AssertElementExist(this.locator.connectData);
 
-    this.agHelper.AssertElementEnabledDisabled(
-      this.locator.connectData,
-      0,
-      false,
-    );
+    _.agHelper.AssertElementEnabledDisabled(this.locator.connectData, 0, false);
   }
 }
