@@ -11,7 +11,7 @@ describe("Table Widget property pane feature validation", function () {
     });
   });
 
-  it("Table widget with with modal popup", function () {
+  it("1. Table widget with with modal popup", function () {
     cy.openPropertyPane("tablewidget");
     //update Table name with _
     cy.widgetText(
@@ -26,7 +26,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(".bp3-overlay-backdrop").click({ force: true });
   });
 
-  it("Table widget with button colour change validation", function () {
+  it("2. Table widget with button colour change validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.editColumn("id");
@@ -44,7 +44,7 @@ describe("Table Widget property pane feature validation", function () {
     });
   });
 
-  it("Table widget icon type and colour validation", function () {
+  it("3. Table widget icon type and colour validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.get(commonlocators.editPropBackButton).click({ force: true });
@@ -62,7 +62,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(".bp3-overlay-backdrop").click({ force: true });
   });
 
-  it("Table widget validation of a field without js ", function () {
+  it("4. Table widget validation of a field without js ", function () {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("email");
     cy.clearPropertyValue(0);
@@ -72,7 +72,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.clearPropertyValue(1);
   });
 
-  it("Table widget column reorder and reload function", function () {
+  it("5. Table widget column reorder and reload function", function () {
     cy.openPropertyPane("tablewidget");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.hideColumn("email");
@@ -82,8 +82,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataPublish("2", "2").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Tobias Funke");
-      cy.reload();
-      cy.wait(3000);
+      _.agHelper.RefreshPage();
       cy.readTabledataPublish("2", "2").then((tabDataNew) => {
         expect(tabDataNew).to.be.equal("Tobias Funke");
       });
