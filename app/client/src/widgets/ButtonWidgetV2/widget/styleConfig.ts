@@ -67,11 +67,11 @@ export const propertyPaneStyleConfig = [
         options: [
           {
             startIcon: "skip-left-line",
-            value: "left",
+            value: "start",
           },
           {
             startIcon: "skip-right-line",
-            value: "right",
+            value: "end",
           },
         ],
         isBindProperty: false,
@@ -79,7 +79,7 @@ export const propertyPaneStyleConfig = [
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ["center", "left", "right"],
+            allowedValues: ["start", "end"],
           },
         },
       },

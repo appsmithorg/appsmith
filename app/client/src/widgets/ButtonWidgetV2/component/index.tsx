@@ -1,45 +1,47 @@
 import React from "react";
+import { Icon as BIcon } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { MaybeElement, Alignment } from "@blueprintjs/core";
 
-import type { ComponentProps } from "widgets/BaseComponent";
-import type { ButtonPlacement, ButtonVariant } from "components/constants";
+import { Container } from "./Container";
+import { useRecaptcha } from "./useRecaptcha";
+import type { UseRecaptchaProps } from "./useRecaptcha";
+import type { ButtonVariant, ButtonProps } from "@design-system/widgets";
+import { Button, Text, Icon, WithTooltip } from "@design-system/widgets";
 
-import { DragContainer } from "./DragContainer";
-import { Button } from "@design-system/widgets";
-import { withRecaptcha } from "./withRecaptcha";
-import type { RecaptchaProps } from "./RecaptchaV2";
-
-interface ButtonComponentProps extends ComponentProps {
+export type ButtonComponentProps = {
   text?: string;
-  icon?: IconName | MaybeElement;
   tooltip?: string;
-  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
-  isDisabled?: boolean;
   isLoading: boolean;
-  rightIcon?: IconName | MaybeElement;
-  type: "button" | "submit" | "reset";
-  buttonColor?: string;
-  buttonVariant?: ButtonVariant;
-  borderRadius?: string;
-  boxShadow?: string;
-  boxShadowColor?: string;
   iconName?: IconName;
-  iconAlign?: Alignment;
-  placement?: ButtonPlacement;
-  className?: string;
-}
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  variant?: ButtonVariant;
+  type: ButtonProps["type"];
+  onClick?: ButtonProps["onPress"];
+  iconPosition?: ButtonProps["iconPosition"];
+};
 
-function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
-  const { text, ...rest } = props;
+function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
+  const { iconName, text, tooltip, ...rest } = props;
+
+  const icon = iconName && (
+    <Icon>
+      <BIcon icon={iconName} />
+    </Icon>
+  );
+
+  const { onClick, recpatcha } = useRecaptcha(props);
 
   return (
-    <DragContainer showInAllModes>
-      <Button isFitContainer {...rest}>
-        {text}
-      </Button>
-    </DragContainer>
+    <Container showInAllModes>
+      <WithTooltip tooltip={tooltip}>
+        <Button icon={icon} isFitContainer onPress={onClick} {...rest}>
+          <Text>{text}</Text>
+        </Button>
+      </WithTooltip>
+      {recpatcha}
+    </Container>
   );
 }
 
-export default withRecaptcha(ButtonComponent);
+export default ButtonComponent;

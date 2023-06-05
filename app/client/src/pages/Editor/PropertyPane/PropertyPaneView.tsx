@@ -22,6 +22,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { batchUpdateWidgetProperty } from "actions/controlActions";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
@@ -166,7 +167,7 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
-  const { isDeprecated, widgetReplacedWith } = isWidgetDeprecated(
+  const { isDeprecated, migration, widgetReplacedWith } = isWidgetDeprecated(
     widgetProperties.type,
   );
   // generate messages
@@ -181,9 +182,24 @@ function PropertyPaneView(
     widgetProperties.type,
   ).length;
 
+  const onMigrate = () => {
+    if (typeof migration !== "function") return;
+
+    const propertiesToUpdate = migration(widgetProperties);
+
+    if (propertiesToUpdate) {
+      dispatch(
+        batchUpdateWidgetProperty(
+          widgetProperties.widgetId,
+          propertiesToUpdate,
+        ),
+      );
+    }
+  };
+
   return (
     <div
-      className="w-full overflow-y-scroll h-full"
+      className="w-full h-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >
@@ -210,6 +226,7 @@ function PropertyPaneView(
         {isDeprecated && (
           <Callout data-testid="t--deprecation-warning" kind="warning">
             {deprecationMessage}
+            {migration && <Button onClick={onMigrate}>Migrate</Button>}
           </Callout>
         )}
       </div>

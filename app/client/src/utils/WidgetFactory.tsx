@@ -32,6 +32,7 @@ export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
 
 export enum NonSerialisableWidgetConfigs {
   CANVAS_HEIGHT_OFFSET = "canvasHeightOffset",
+  WIDGET_MIGRATION = "migration",
 }
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};

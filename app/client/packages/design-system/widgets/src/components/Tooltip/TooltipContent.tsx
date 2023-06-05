@@ -7,8 +7,6 @@ import type {
 } from "@design-system/headless";
 import { StyledTooltipContent } from "./index.styled";
 
-// (TODO) [Pawan] Move this constant to a common place
-
 export const TooltipContent = forwardRef(
   (props: HeadlessTooltipContentProps, ref: HeadlessTooltipContentRef) => {
     const { children, ...rest } = props;

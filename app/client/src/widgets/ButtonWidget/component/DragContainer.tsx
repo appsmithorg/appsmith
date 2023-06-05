@@ -55,6 +55,7 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
   }
 
   position: relative;
+
   &:after {
     content: "";
     top: 0;

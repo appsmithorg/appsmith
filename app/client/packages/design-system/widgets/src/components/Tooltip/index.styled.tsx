@@ -8,9 +8,11 @@ export const StyledTooltipContent = styled(HeadlessTooltipContent)`
   color: var(--color-fg-on-assistive);
   padding: var(--spacing-2) var(--spacing-3);
   border-radius: var(--border-radius-1);
+  z-index: 9999;
 
   [data-tooltip-trigger-arrow] {
     fill: var(--color-bg-assistive);
   }
 `;
+
 export const StyledTooltipTrigger = styled(HeadlessTooltipTrigger)``;

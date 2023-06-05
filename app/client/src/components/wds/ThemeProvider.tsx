@@ -10,12 +10,6 @@ import Color from "colorjs.io";
 import type { ColorMode } from "@design-system/theming/src/utils/TokensAccessor/types";
 
 const StyledThemeProvider = styled(WDSThemeProvider)`
-  display: inline-flex;
-  min-width: 100%;
-  min-height: 100%;
-  padding: 16px;
-  align-items: center;
-  justify-content: center;
   background: var(--color-bg);
   color: var(--color-fg);
 `;
@@ -57,6 +51,7 @@ export function ThemeProvider(props: ThemeProviderProps) {
       try {
         color = Color.parse(seedColor);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(error);
       }
 

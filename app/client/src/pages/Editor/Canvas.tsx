@@ -11,6 +11,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
+import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 interface CanvasProps {
@@ -65,11 +66,16 @@ const Canvas = (props: CanvasProps) => {
         ref={focusRef}
         width={canvasWidth}
       >
-        {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(
-            props.widgetsStructure,
-            RenderModes.CANVAS,
-          )}
+        <WDSThemeProvider
+          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+          seedColor={selectedTheme.properties.colors.primaryColor}
+        >
+          {props.widgetsStructure.widgetId &&
+            WidgetFactory.createWidget(
+              props.widgetsStructure,
+              RenderModes.CANVAS,
+            )}
+        </WDSThemeProvider>
       </Container>
     );
   } catch (error) {

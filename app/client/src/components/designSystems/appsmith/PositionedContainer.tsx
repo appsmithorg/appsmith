@@ -164,7 +164,6 @@ export function PositionedContainer(
       data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
       data-widgetname-cy={props.widgetName}
-      disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
       onClickCapture={clickToSelectWidget}

@@ -21,7 +21,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     height: 100%;
   }
 
-  &[data-variant="primary"] {
+  &[data-variant="primary" i] {
     background-color: var(--color-bg-accent);
     color: var(--color-fg-on-accent);
     border-color: transparent;
@@ -35,7 +35,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     }
   }
 
-  &[data-variant="secondary"] {
+  &[data-variant="secondary" i] {
     background-color: transparent;
     color: var(--color-fg-accent);
     border-color: var(--color-bd-accent);
@@ -50,7 +50,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     }
   }
 
-  &[data-variant="tertiary"] {
+  &[data-variant="tertiary" i] {
     background: transparent;
     color: var(--color-fg-accent);
     border-color: transparent;
@@ -80,12 +80,33 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     cursor: default;
   }
 
-  & [data-icon] {
-    height: calc(var(--sizing-root-unit) * 5);
-    width: calc(var(--sizing-root-unit) * 5);
+  /** Note: adding direct selector ">" here because blueprint also had data-icon attribute on their icons */
+  & > [data-icon] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(var(--sizing-root-unit) * 4);
+    width: calc(var(--sizing-root-unit) * 4);
   }
 
   &[data-icon-position="end"] {
     flex-direction: row-reverse;
+  }
+`;
+
+/**
+ * We have this Bug in Firefox where we are unable to drag
+ * buttons - https://bugzilla.mozilla.org/show_bug.cgi?id=568313
+ *
+ * We found a solution here - https://stackoverflow.com/a/43888410
+ */
+export const DragContainer = styled.div`
+  &:after {
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
   }
 `;

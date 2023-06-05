@@ -209,6 +209,7 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   displayName: true,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
+  migration: true,
 };
 
 /**

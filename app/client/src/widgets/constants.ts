@@ -15,6 +15,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -57,6 +58,7 @@ export interface WidgetConfiguration {
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
   needsHeightForContent?: boolean;
+  migration?: (props: WidgetProps) => BatchPropertyUpdatePayload;
   properties: {
     config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];

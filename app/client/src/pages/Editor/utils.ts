@@ -252,6 +252,9 @@ export const useQuery = () => {
  */
 export function isWidgetDeprecated(WidgetType: WidgetType) {
   const currentWidgetConfig = WidgetFactory.widgetConfigMap.get(WidgetType);
+  const nonSerialisableConfig =
+    WidgetFactory.nonSerialisableWidgetConfigMap.get(WidgetType);
+
   const isDeprecated = !!currentWidgetConfig?.isDeprecated;
   let widgetReplacedWith;
   if (isDeprecated && currentWidgetConfig?.replacement) {
@@ -260,10 +263,16 @@ export function isWidgetDeprecated(WidgetType: WidgetType) {
     )?.displayName;
   }
 
+  let migration;
+  if (isDeprecated && nonSerialisableConfig?.migration) {
+    migration = nonSerialisableConfig.migration;
+  }
+
   return {
     isDeprecated,
     currentWidgetName: currentWidgetConfig?.displayName,
     widgetReplacedWith,
+    migration,
   };
 }
 

@@ -3,6 +3,7 @@ import {
   ButtonVariantTypes,
   RecaptchaTypes,
 } from "components/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
@@ -15,6 +16,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["click", "submit"],
+  isDeprecated: true,
+  replacement: "BUTTON_WIDGET_V2",
   defaults: {
     animateLoading: true,
     text: "Submit",
@@ -66,6 +69,22 @@ export const CONFIG = {
       horizontal: true,
       vertical: true,
     },
+  },
+  migration: function (props: WidgetProps) {
+    const modifications: any = [];
+
+    modifications["type"] = "BUTTON_WIDGET_V2";
+
+    // iconAlign
+    if (props.iconAlignment === "LEFT") {
+      modifications["iconAlign"] = "start";
+    } else {
+      modifications["iconAlign"] = "end";
+    }
+
+    return {
+      modify: modifications,
+    };
   },
 };
 
