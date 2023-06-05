@@ -389,7 +389,7 @@ export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
-  "Create a new query, API or JS object";
+  "Create a new query, API or JS Object";
 export const HELPBAR_PLACEHOLDER = () => "Search";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -633,7 +633,7 @@ export const JS_FUNCTION_UPDATE_SUCCESS = () =>
   "JS Function updated successfully";
 export const JS_FUNCTION_DELETE_SUCCESS = () =>
   "JS function deleted successfully";
-export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
+export const JS_OBJECT_BODY_INVALID = () => "JS Object could not be parsed";
 export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
   `An error occured while trying to execute ${jsFunctionName}, please check error logs to debug`;
 //Editor Page
@@ -932,7 +932,7 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
-  `Create a new query, API or JS object`;
+  `Create a new query, API or JS Object`;
 export const TABLE_WIDGET_VALIDATION_ASSIST_PROMPT = () =>
   `Access the current cell using `;
 
@@ -1698,7 +1698,7 @@ export const CONVERSION_WARNING = () => "Conversion will change your layout";
 export const SNAPSHOT_LABEL = () =>
   "To revert back to the original state use this snapshot";
 export const USE_SNAPSHOT_TEXT = () =>
-  "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+  "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS Objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to fixed layout";
