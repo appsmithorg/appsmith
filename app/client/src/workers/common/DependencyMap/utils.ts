@@ -239,8 +239,8 @@ export function listEntityDependencies(
       });
     }
     const widgetDependencies = addWidgetPropertyDependencies({
-      entity: widgetConfig,
-      entityName,
+      widgetConfig,
+      widgetName: entityName,
     });
 
     dependencies = {

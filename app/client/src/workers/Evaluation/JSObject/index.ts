@@ -64,7 +64,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+export const validJSBodyRegex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
 /**
  * Here we parse the JSObject and then determine
@@ -86,7 +86,7 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
-  const correctFormat = regex.test(entity.body);
+  const correctFormat = validJSBodyRegex.test(entity.body);
   const isEmptyBody = entity.body.trim() === "";
 
   if (correctFormat || isEmptyBody) {
