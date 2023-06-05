@@ -3,6 +3,7 @@ const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../..//support/Objects/ObjectsCore";
 
 describe("Image Widget Functionality", function () {
   before(() => {
@@ -37,8 +38,8 @@ describe("Image Widget Functionality", function () {
   it("No Zoom functionality check", function () {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
-    cy.changeZoomLevel("1x (No Zoom)");
-
+    //cy.changeZoomLevel("1x (No Zoom)");
+    _.propPane.changeZoomLevel("1x (No Zoom)");
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");

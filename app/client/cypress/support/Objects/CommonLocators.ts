@@ -215,4 +215,6 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('Fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
+  _changeZoomlevel = ".t--property-control-maxzoomlevel input";
+  _selectedZoomlevel = ".t--property-control-maxzoomlevel .rc-select-selection-item span";
 }

@@ -2,6 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
@@ -111,10 +112,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     // click on Add new Column.
     //cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.get(".t--add-column-btn").click();
-    //Open New Custom Column
-    cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon button");
+    _.table.ChangeColumnType("customColumn1","Icon button","v2");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -142,10 +141,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
-    //Open New Custom Column
-    cy.editColumn("customColumn1");
-    // Change Column type to icon Button
-    cy.changeColumnType("Menu button");
+    //Edit New Custom Column type 
+    _.table.ChangeColumnType("customColumn1","Menu button","v2");
     //Changing the text on the Menu button
     cy.testJsontext("text", "Menu button");
     cy.moveToStyleTab();

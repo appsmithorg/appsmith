@@ -2,6 +2,7 @@ const dsl = require("../../../../../fixtures/Table/TextWrappingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget text wrapping functionality", function () {
   afterEach(() => {
@@ -128,11 +129,8 @@ describe("Table Widget text wrapping functionality", function () {
   it("5. should check that plain text, number and URL column is getting wrapped when cell wrapping is enabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("id");
-
     ["URL", "Number", "Plain text"].forEach((data, i) => {
-      cy.get(commonlocators.changeColType).last().click();
-      cy.get(".t--dropdown-option").children().contains(data).click();
-      cy.wait("@updateLayout");
+      _.table.ChangeColumnType("id", data, "v2");
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");
       });

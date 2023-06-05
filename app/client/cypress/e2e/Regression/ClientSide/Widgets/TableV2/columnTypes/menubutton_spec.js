@@ -8,8 +8,7 @@ describe("Custom column alias functionality", () => {
 
   it("1. should check that menuitems background color property has access to currentRow", () => {
     cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("task");
-    cy.changeColumnType("Menu button");
+    _.table.ChangeColumnType("task", "Menu button", "v2");
     cy.get(".t--add-menu-item-btn").click();
     cy.get(".t--edit-column-btn").click();
     cy.get("[data-colindex='1'][data-rowindex='0'] .bp3-button").click({

@@ -40,8 +40,7 @@ describe("Table Widget V2 Functionality", function () {
 
   it("3. Table Widget V2 Functionality To Show a Base64 Image", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("image");
-    cy.changeColumnType("Image");
+    table.ChangeColumnType("image", "Image", "v2");
     cy.isSelectRow(1);
 
     const index = 1;

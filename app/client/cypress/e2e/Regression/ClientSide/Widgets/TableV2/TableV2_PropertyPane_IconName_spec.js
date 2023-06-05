@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
@@ -9,9 +10,7 @@ describe("Table Widget property pane feature validation", function () {
   it("1. Verify table column type changes effect on menuButton and iconButton", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.addColumnV2("CustomColumn");
-    cy.editColumn("customColumn1");
-
-    cy.changeColumnType("Menu button");
+    _.table.ChangeColumnType("customColumn1","Menu button","v2")
     cy.wait(400);
     cy.moveToStyleTab();
     cy.get(commonlocators.selectedIcon).should("have.text", "(none)");

@@ -561,6 +561,18 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetNClickLastOccurance(
+    selector: string,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .last()
+      .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
   public GetSiblingNClick(
     selector: string,
     siblingSelector: string,
@@ -714,6 +726,16 @@ export class AggregateHelper {
       attribName,
       attribValue,
     );
+  }
+
+  public AssertSelectedOptionText(selector: string, expectedValue: string) {
+    this.GetElement(selector)
+      .last()
+      .invoke("text")
+      .then((text) => {
+        const someText = text;
+        expect(someText).to.equal(expectedValue);
+      });
   }
 
   public ToggleSwitch(

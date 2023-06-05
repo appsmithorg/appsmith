@@ -39,8 +39,7 @@ describe("Checkbox column type funtionality test", () => {
     cy.openPropertyPane("tablewidgetv2");
     _.propPane.RemoveText("tabledata");
     _.propPane.UpdatePropertyFieldValue("Table data", tableData);
-    cy.editColumn("completed");
-    cy.changeColumnType("Checkbox");
+    _.table.ChangeColumnType("completed","Checkbox","v2");
   });
 
   it("1. Check if the column type checkbox appears", () => {
@@ -161,8 +160,7 @@ describe("Checkbox column type funtionality test", () => {
   it("6. Verify if onCheckChange is hidden on custom columns", () => {
     cy.get(commonLocators.editPropBackButton).click();
     cy.get(widgetsJson.addColumn).click();
-    cy.editColumn("customColumn1");
-    cy.changeColumnType("Checkbox");
+    _.table.ChangeColumnType("customColumn1","Checkbox","v2")
     _.propPane.UpdatePropertyFieldValue(
       "Computed value",
       '{{currentRow["completed"]}}',

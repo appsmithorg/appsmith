@@ -468,4 +468,15 @@ export class PropertyPane {
       `[data-testid="t--delete-widget"]`,
     );
   }
+
+  public changeZoomLevel(zoomValue: string) {
+   this.agHelper.GetNClickLastOccurance(this.locator._changeZoomlevel,true);
+   this.agHelper.GetNClickByContains(this.locator._dropdownText,zoomValue);
+   cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  this.agHelper.AssertSelectedOptionText(this.locator._selectedZoomlevel,zoomValue);
+  }
 }

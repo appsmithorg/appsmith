@@ -9,12 +9,8 @@ describe("Table widget - Select column type functionality", () => {
 
   it("1. should check that select column is available in the column dropdown options", () => {
     cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("step");
-
-    cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Select").click();
+    _.table.ChangeColumnType("step", "Select", "v2");
     cy.wait("@updateLayout");
-
     //should check that edtiable option is present
     cy.get(".t--property-control-editable").should("exist");
     cy.get(".t--property-pane-section-collapse-events").should("not.exist");
