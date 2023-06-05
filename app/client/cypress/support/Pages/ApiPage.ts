@@ -385,7 +385,7 @@ export class ApiPage {
   }
 
   public AssertAPIVerb(verb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH") {
-    cy.get(this._apiVerbDropdown).should("have.text", verb);
+    this.agHelper.AssertText(this._apiVerbDropdown, "text", verb);
   }
 
   ResponseStatusCheck(statusCode: string) {
