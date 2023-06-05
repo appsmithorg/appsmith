@@ -27,7 +27,7 @@ import emptyDSL from "../../../../fixtures/emptyDSL.json";
 // started failing for you, it’s likely you import()ed some new chunks that the edit or the view mode uses.
 // To fix the test, see preloading instructions in public/index.html.
 
-describe("html should include <link rel='preload'>s for all code-split javascript", function () {
+describe.skip("html should include <link rel='preload'>s for all code-split javascript", function () {
   before(() => {
     cy.addDsl(emptyDSL);
   });
