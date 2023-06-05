@@ -664,31 +664,31 @@ export const isDynamicLeaf = (
 };
 
 export const addWidgetPropertyDependencies = ({
-  entity,
-  entityName,
+  widgetConfig,
+  widgetName,
 }: {
-  entity: WidgetEntityConfig;
-  entityName: string;
+  widgetConfig: WidgetEntityConfig;
+  widgetName: string;
 }) => {
   const dependencies: DependencyMap = {};
 
-  Object.entries(entity.propertyOverrideDependency).forEach(
+  Object.entries(widgetConfig.propertyOverrideDependency).forEach(
     ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
       const existingDependenciesSet = new Set(
-        dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
+        dependencies[`${widgetName}.${overriddenPropertyKey}`] || [],
       );
       // add meta dependency
       overridingPropertyKeyMap.META &&
         existingDependenciesSet.add(
-          `${entityName}.${overridingPropertyKeyMap.META}`,
+          `${widgetName}.${overridingPropertyKeyMap.META}`,
         );
       // add default dependency
       overridingPropertyKeyMap.DEFAULT &&
         existingDependenciesSet.add(
-          `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
+          `${widgetName}.${overridingPropertyKeyMap.DEFAULT}`,
         );
 
-      dependencies[`${entityName}.${overriddenPropertyKey}`] = [
+      dependencies[`${widgetName}.${overriddenPropertyKey}`] = [
         ...existingDependenciesSet,
       ];
     },
