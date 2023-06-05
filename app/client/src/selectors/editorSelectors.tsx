@@ -32,7 +32,6 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
@@ -60,6 +59,7 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { unflattenDSLById } from "@shared/dsl";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -524,8 +524,7 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
+    return unflattenDSLById<WidgetProps>(MAIN_CONTAINER_WIDGET_ID, {
       canvasWidgets: widgets,
     });
   },

@@ -1,9 +1,9 @@
+import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
 import {
   GridDefaults,
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
@@ -18,6 +18,7 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
 const deletedResponsiveProperties = [
@@ -41,20 +42,16 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets =
-    CanvasWidgetsNormalizer.normalize(dsl).entities.canvasWidgets;
+  const allWidgets = flattenDSLById<WidgetProps>(dsl).entities.canvasWidgets;
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,
     destinationLayout,
   );
 
-  const convertedDSL = CanvasWidgetsNormalizer.denormalize(
-    MAIN_CONTAINER_WIDGET_ID,
-    {
-      canvasWidgets: convertedWidgets,
-    },
-  );
+  const convertedDSL = unflattenDSLById<WidgetProps>(MAIN_CONTAINER_WIDGET_ID, {
+    canvasWidgets: convertedWidgets,
+  });
 
   return convertedDSL;
 }

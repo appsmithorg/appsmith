@@ -1,4 +1,3 @@
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { AppState } from "@appsmith/reducers";
 import type {
   Page,
@@ -144,6 +143,10 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { flattenDSLById, unflattenDSLById } from "@shared/dsl";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+// import type { DSLWidget } from "widgets/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -260,7 +263,7 @@ export const getCanvasWidgetsPayload = (
     isAutoLayout,
     mainCanvasWidth,
   ).dsl;
-  const normalizedResponse = CanvasWidgetsNormalizer.normalize(extractedDSL);
+  const normalizedResponse = flattenDSLById<WidgetProps>(extractedDSL);
   return {
     pageWidgetId: normalizedResponse.result,
     currentPageName: pageResponse.data.name,
@@ -517,7 +520,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
      * https://github.com/appsmithorg/appsmith/issues/20744
      */
     // captureInvalidDynamicBindingPath(
-    //   CanvasWidgetsNormalizer.denormalize("0", {
+    //   unflattenDSLById("0", {
     //     canvasWidgets: widgets,
     //   }),
     // );
@@ -601,14 +604,14 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         });
       } else {
         // Create a denormalized structure because the migration needs the children in the dsl form
-        const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
-          canvasWidgets: widgets,
-        });
+        const denormalizedWidgets = unflattenDSLById<WidgetProps>(
+          MAIN_CONTAINER_WIDGET_ID,
+          { canvasWidgets: widgets },
+        );
         const correctedWidgets =
           migrateIncorrectDynamicBindingPathLists(denormalizedWidgets);
         // Normalize the widgets because the save page needs it in the flat structure
-        const normalizedWidgets =
-          CanvasWidgetsNormalizer.normalize(correctedWidgets);
+        const normalizedWidgets = flattenDSLById<WidgetProps>(correctedWidgets);
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),
@@ -647,7 +650,7 @@ function getLayoutSavePayload(
   },
   editorConfigs: any,
 ) {
-  const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
+  const denormalizedDSL = unflattenDSLById<WidgetProps>(
     Object.keys(widgets)[0],
     { canvasWidgets: widgets },
   );
@@ -1078,11 +1081,11 @@ export function* updateWidgetNameSaga(
 }
 
 export function* updateCanvasWithDSL(
-  data: PageLayout,
+  data: PageLayout & { dsl: WidgetProps },
   pageId: string,
   layoutId: string,
 ) {
-  const normalizedWidgets = CanvasWidgetsNormalizer.normalize(data.dsl);
+  const normalizedWidgets = flattenDSLById<WidgetProps>(data.dsl);
   const currentPageName: string = yield select(getCurrentPageName);
 
   const applicationId: string = yield select(getCurrentApplicationId);
