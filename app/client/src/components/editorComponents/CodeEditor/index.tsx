@@ -1292,13 +1292,19 @@ class CodeEditor extends Component<Props, State> {
     }
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
+    const token = cm.getTokenAt(cursor);
     let showAutocomplete = false;
     const prevChar = line[cursor.ch - 1];
 
-    /* Check if the character before cursor is completable to show autocomplete which backspacing */
-    if (key === "/" && !isCtrlOrCmdPressed) {
+    // If the token is a comment or string, do not show autocomplete
+    if (token?.type && ["comment", "string"].includes(token.type)) return;
+    if (isCtrlOrCmdPressed) {
+      // If cmd or ctrl is pressed only show autocomplete for space key
+      showAutocomplete = key === " ";
+    } else if (key === "/") {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
+      /* Check if the character before cursor is completable to show autocomplete which backspacing */
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */

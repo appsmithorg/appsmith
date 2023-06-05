@@ -421,4 +421,54 @@ describe("Autocomplete tests", () => {
       );
     });
   });
+
+  it.only("10. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
+    // create js object
+    _.jsEditor.CreateJSObject(
+      `export default 
+      myFunc1() {
+        showAlert("Hello world");
+
+      }
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(4));
+
+    _.agHelper.Paste(_.jsEditor._lineinJsEditor(4), "showA");
+
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
+      "await",
+      "have.text",
+      0,
+    );
+
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "{ctrl}{backspace}");
+
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
+      "await",
+      "have.text",
+      0,
+    );
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
+  });
 });
