@@ -69,17 +69,27 @@ function* setSelectedPropertyTabIndexSaga(
 function* navigateToMostRecentEntity() {
   const codeTabPath: string | undefined = yield select(getCodeTabPath);
   const currentPageId: string = yield select(getCurrentPageId);
-  // hack: to be fixed
   const values = matchPath_BuilderSlug(codeTabPath ?? "");
   if (codeTabPath && values?.params.pageId === currentPageId) {
     const params = history.location.search;
-    history.push(`${codeTabPath}${params ?? ""}`);
+    if (
+      `${history.location.pathname}${params ?? ""}` !==
+      `${codeTabPath}${params ?? ""}`
+    ) {
+      history.push(`${codeTabPath}${params ?? ""}`);
+    }
   } else {
-    history.push(
+    if (
       blankPage({
         pageId: currentPageId,
-      }),
-    );
+      }) !== history.location.pathname
+    ) {
+      history.push(
+        blankPage({
+          pageId: currentPageId,
+        }),
+      );
+    }
   }
 }
 

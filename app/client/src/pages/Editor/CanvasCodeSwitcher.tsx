@@ -121,11 +121,13 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
     if (!props.pageId) return;
 
     if (value === "CANVAS") {
-      history.push(
-        builderURL({
-          pageId: props.pageId,
-        }),
-      );
+      if (!matchBuilderPath(location.pathname)) {
+        history.push(
+          builderURL({
+            pageId: props.pageId,
+          }),
+        );
+      }
     } else {
       dispatch({
         type: "NAVIGATE_MOST_RECENT",
