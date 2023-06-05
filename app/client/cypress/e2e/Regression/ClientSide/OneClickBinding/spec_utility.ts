@@ -1,22 +1,18 @@
-import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import OnboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
+import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 export class OneClickBinding {
-  public locator = OneClickBindingLocator;
-  public onboardingLocator = OnboardingLocator;
-
   public ChooseAndAssertForm(
     source?: string,
     selectedSource?: any,
     table?: string,
     column?: string,
   ) {
-    _.agHelper.GetNClick(this.locator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-    _.agHelper.AssertElementAbsence(this.locator.connectData);
+    _.agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
 
-    _.agHelper.GetNClick(this.locator.datasourceSelector(source));
+    _.agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
 
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -25,36 +21,42 @@ export class OneClickBinding {
     );
 
     _.agHelper.Sleep(500);
-    _.agHelper.AssertElementExist(this.locator.connectData);
+    _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertElementEnabledDisabled(this.locator.connectData);
+    _.agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertElementExist(this.locator.tableOrSpreadsheetDropdown);
+    _.agHelper.AssertElementExist(
+      oneClickBindingLocator.tableOrSpreadsheetDropdown,
+    );
 
-    _.agHelper.GetNClick(this.locator.tableOrSpreadsheetDropdown);
+    _.agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
     _.agHelper.GetNClick(
       `.t--one-click-binding-table-selector--table:contains(${table})`,
     );
 
     _.agHelper.AssertElementExist(
-      `${this.locator.tableOrSpreadsheetDropdown} .rc-select-selection-item:contains(${table})`,
+      `${oneClickBindingLocator.tableOrSpreadsheetDropdown} .rc-select-selection-item:contains(${table})`,
     );
 
-    _.agHelper.AssertElementExist(this.locator.searchableColumn);
+    _.agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
 
-    _.agHelper.GetNClick(this.locator.searchableColumn);
+    _.agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
 
     _.agHelper.GetNClick(
       `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
     );
 
     _.agHelper.AssertElementExist(
-      `${this.locator.searchableColumn} .rc-select-selection-item:contains(${column})`,
+      `${oneClickBindingLocator.searchableColumn} .rc-select-selection-item:contains(${column})`,
     );
 
-    _.agHelper.AssertElementExist(this.locator.connectData);
+    _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-    _.agHelper.AssertElementEnabledDisabled(this.locator.connectData, 0, false);
+    _.agHelper.AssertElementEnabledDisabled(
+      oneClickBindingLocator.connectData,
+      0,
+      false,
+    );
   }
 }

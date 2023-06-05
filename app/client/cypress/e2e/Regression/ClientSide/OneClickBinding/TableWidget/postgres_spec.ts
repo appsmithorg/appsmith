@@ -1,3 +1,4 @@
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
 
@@ -24,7 +25,7 @@ describe("Table widget one click binding feature", () => {
       );
     });
 
-    _.agHelper.GetNClick(oneClickBinding.locator.connectData);
+    _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
     cy.wait("@postExecute");
 
@@ -48,9 +49,9 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).enterTableCellValue(3, 0, " 2016-06-22 19:10:25-07");
 
-    _.agHelper.GetNClick(oneClickBinding.locator.dateInput, 0, true);
+    _.agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
 
-    _.agHelper.GetNClick(oneClickBinding.locator.dayViewFromDate, 0, true);
+    _.agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
 
     (cy as any).wait(2000);
 

@@ -1,7 +1,5 @@
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { OneClickBinding } from "../spec_utility";
-
-const oneClickBinding = new OneClickBinding();
 
 describe("Table widget one click binding feature", () => {
   it("1.should check that connect data overlay is shown on the table", () => {
@@ -12,7 +10,7 @@ describe("Table widget one click binding feature", () => {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     _.agHelper.AssertElementExist(
-      oneClickBinding.locator.datasourceDropdownSelector,
+      oneClickBindingLocator.datasourceDropdownSelector,
     );
   });
 });
