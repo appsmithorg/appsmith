@@ -29,6 +29,7 @@ export const Text = forwardRef(
       textAlign = "left",
       type = "default",
       variant = "body",
+      ...rest
     } = props;
 
     const theme = useThemeContext();
@@ -44,6 +45,7 @@ export const Text = forwardRef(
         type={type}
         typography={theme?.typography}
         variant={variant}
+        {...rest}
       >
         <span>{children}</span>
       </StyledText>
