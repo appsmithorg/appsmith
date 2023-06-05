@@ -47,6 +47,7 @@ import {
   updatePositionsOnTabChange,
   updateWidgetDimensionAction,
 } from "actions/autoLayoutActions";
+import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -97,6 +98,7 @@ export type EditorContextType<TCache = unknown> = {
   updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
   selectWidgetRequest?: WidgetSelectionRequest;
   updatePositionsOnTabChange?: (widgetId: string, selectedTab: string) => void;
+  updateOneClickBindingOptionsVisibility?: (visibility: boolean) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -134,6 +136,7 @@ const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   "disableDrag",
   "updateWidget",
   "updateWidgetProperty",
+  "updateOneClickBindingOptionsVisibility",
 ];
 
 const ApiMethodsListByRenderModes: Record<RenderMode, EditorContextTypeKey[]> =
@@ -225,6 +228,8 @@ const mapDispatchToProps = {
   deleteMetaWidgets,
   selectWidgetRequest: selectWidgetInitAction,
   updatePositionsOnTabChange: updatePositionsOnTabChange,
+  updateOneClickBindingOptionsVisibility:
+    updateOneClickBindingOptionsVisibility,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

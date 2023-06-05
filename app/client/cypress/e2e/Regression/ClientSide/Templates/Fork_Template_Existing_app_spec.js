@@ -34,6 +34,9 @@ describe(
         .scrollIntoView()
         .wait(500)
         .click();
+      _.agHelper.WaitUntilEleDisappear(
+        "//*[text()='Loading template details']",
+      );
       cy.wait(1000);
       _.agHelper.CheckForErrorToast(
         "Internal server error while processing request",
