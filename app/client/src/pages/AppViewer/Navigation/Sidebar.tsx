@@ -43,6 +43,7 @@ type SidebarProps = {
   pages: Page[];
   currentWorkspaceId: string;
   currentUser: User | undefined;
+  showUserSettings: boolean;
 };
 
 export function Sidebar(props: SidebarProps) {
@@ -210,40 +211,42 @@ export function Sidebar(props: SidebarProps) {
         })}
       </StyledMenuContainer>
 
-      <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
-        {currentApplicationDetails && (
-          <StyledCtaContainer>
-            <ShareButton
-              currentApplicationDetails={currentApplicationDetails}
-              currentWorkspaceId={currentWorkspaceId}
-              insideSidebar
-              isMinimal={isMinimal}
-            />
+      {props.showUserSettings && (
+        <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
+          {currentApplicationDetails && (
+            <StyledCtaContainer>
+              <ShareButton
+                currentApplicationDetails={currentApplicationDetails}
+                currentWorkspaceId={currentWorkspaceId}
+                insideSidebar
+                isMinimal={isMinimal}
+              />
 
-            <PrimaryCTA
-              className="t--back-to-editor"
-              insideSidebar
-              isMinimal={isMinimal}
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-              url={editorURL}
-            />
+              <PrimaryCTA
+                className="t--back-to-editor"
+                insideSidebar
+                isMinimal={isMinimal}
+                navColorStyle={navColorStyle}
+                primaryColor={primaryColor}
+                url={editorURL}
+              />
 
-            <BackToAppsButton
-              currentApplicationDetails={currentApplicationDetails}
-              insideSidebar
-              isMinimal={isMinimal}
-            />
-          </StyledCtaContainer>
-        )}
+              <BackToAppsButton
+                currentApplicationDetails={currentApplicationDetails}
+                insideSidebar
+                isMinimal={isMinimal}
+              />
+            </StyledCtaContainer>
+          )}
 
-        <SidebarProfileComponent
-          currentUser={currentUser}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-        />
-      </StyledFooter>
+          <SidebarProfileComponent
+            currentUser={currentUser}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
+        </StyledFooter>
+      )}
     </StyledSidebar>
   );
 }
