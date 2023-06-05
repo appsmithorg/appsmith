@@ -636,7 +636,7 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
-    cy.fixture("tableV2NewDsl").then((val) => {
+    cy.fixture("Table/InlineEditingDS").then((val) => {
       _.agHelper.AddDsl(val);
     });
     cy.openPropertyPane("tablewidgetv2");
