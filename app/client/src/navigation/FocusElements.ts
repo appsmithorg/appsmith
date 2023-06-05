@@ -133,7 +133,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ExplorerSwitchIndex,
       selector: getExplorerSwitchIndex,
       setter: setExplorerSwitchIndex,
-      defaultValue: 0,
+      //TODO: use feature flag
+      defaultValue: 1,
     },
     {
       name: FocusElement.PropertyPanelContext,
