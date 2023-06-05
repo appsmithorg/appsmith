@@ -11,6 +11,8 @@ import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
 
 export type EvalResult = {
   result: any;
@@ -315,14 +317,20 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
-    } catch (e) {
-      const error = e as Error;
-      const errorMessage = error.name
-        ? { name: error.name, message: error.message }
-        : {
-            name: "UncaughtPromiseRejection",
-            message: `${error.message}`,
-          };
+    } catch (e: any) {
+      let errorMessage;
+      if (e instanceof Error) {
+        errorMessage = { name: e.name, message: e.message };
+      } else {
+        // this covers cases where any primitive value is thrown
+        // for eg., throw "error";
+        // These types of errors might have a name/message but are not an instance of Error class
+        const message = convertAllDataTypesToString(e);
+        errorMessage = {
+          name: e?.name || "Error",
+          message: e?.message || message,
+        };
+      }
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -337,4 +345,21 @@ export async function evaluateAsync(
       };
     }
   })();
+}
+
+export function convertAllDataTypesToString(e: any) {
+  // Functions do not get converted properly with JSON.stringify
+  // So using String fot functions
+  // Types like [], {} get converted to "" using String
+  // hence using JSON.stringify for the rest
+  if (typeof e === "function") {
+    return String(e);
+  } else {
+    try {
+      return JSON.stringify(e);
+    } catch (error) {
+      log.debug(error);
+      Sentry.captureException(error);
+    }
+  }
 }

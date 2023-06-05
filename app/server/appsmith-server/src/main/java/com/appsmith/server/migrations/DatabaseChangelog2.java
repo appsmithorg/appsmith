@@ -812,6 +812,10 @@ public class DatabaseChangelog2 {
      */
     @ChangeSet(order = "007", id = "update-git-indexes", author = "")
     public void addIndexesForGit(MongoTemplate mongoTemplate) {
+        doAddIndexesForGit(mongoTemplate);
+    }
+
+    public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
         dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
@@ -823,7 +827,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted")
         );
 
         ensureIndexes(mongoTemplate, NewAction.class,
@@ -832,7 +836,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted")
         );
 
         ensureIndexes(mongoTemplate, NewPage.class,
@@ -841,7 +845,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted")
         );
     }
 
@@ -1021,11 +1025,11 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
     public void organizationToWorkspaceIndexesRecreate(MongoTemplate mongoTemplate) {
-        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_name_deleted_gitApplicationMetadata");
         dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
 
         //If this migration is re-run
-        dropIndexIfExists(mongoTemplate, Application.class, "workspace_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "workspace_app_deleted_gitApplicationMetadata");
         dropIndexIfExists(mongoTemplate, Datasource.class, "workspace_datasource_deleted_compound_index");
 
         ensureIndexes(mongoTemplate, Application.class,
@@ -1035,7 +1039,7 @@ public class DatabaseChangelog2 {
                         fieldName(QApplication.application.deletedAt),
                         "gitApplicationMetadata.remoteUrl",
                         "gitApplicationMetadata.branchName")
-                        .unique().named("workspace_application_deleted_gitApplicationMetadata_compound_index")
+                        .unique().named("workspace_app_deleted_gitApplicationMetadata")
         );
         ensureIndexes(mongoTemplate, Datasource.class,
                 makeIndex(fieldName(QDatasource.datasource.workspaceId),
@@ -2257,24 +2261,22 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "32", id = "create-indices-on-permissions-for-performance", author = "")
     public void addPermissionGroupIndex(MongoTemplate mongoTemplate) {
+        doAddPermissionGroupIndex(mongoTemplate);
+    }
+
+    public static void doAddPermissionGroupIndex(MongoTemplate mongoTemplate) {
 
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_workspace_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted_compound_index");
-
-        Index workspace_deleted_compound_index = makeIndex(
-                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId),
-                fieldName(QPermissionGroup.permissionGroup.deleted)
-        )
-                .named("permission_group_workspace_deleted_compound_index");
+        dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted");
 
         Index assignedToUserIds_deleted_compound_index = makeIndex(
                 fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
                 fieldName(QPermissionGroup.permissionGroup.deleted)
         )
-                .named("permission_group_assignedUserIds_deleted_compound_index");
+                .named("permission_group_assignedUserIds_deleted");
 
         ensureIndexes(mongoTemplate, PermissionGroup.class,
-                workspace_deleted_compound_index,
                 assignedToUserIds_deleted_compound_index
         );
     }
@@ -2344,7 +2346,7 @@ public class DatabaseChangelog2 {
 
         // Assign the user to the default permissions
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(user.getUsername() + " User Management");
+        userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(
                 Set.of(

@@ -28,6 +28,7 @@ import {
   migrateColumnFreezeAttributes,
   migrateTableSelectOptionAttributesForNewRow,
   migrateBindingPrefixSuffixForInlineEditValidationControl,
+  migrateTableWidgetTableDataJsMode,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -1181,6 +1182,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version == 78) {
     currentDSL =
       migrateBindingPrefixSuffixForInlineEditValidationControl(currentDSL);
+    currentDSL.version = 79;
+  }
+
+  if (currentDSL.version == 79) {
+    currentDSL = migrateTableWidgetTableDataJsMode(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

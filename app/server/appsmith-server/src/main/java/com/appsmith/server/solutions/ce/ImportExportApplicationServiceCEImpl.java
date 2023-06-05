@@ -11,6 +11,7 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DecryptedSensitiveFields;
@@ -833,6 +834,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
+        //re-setting the properties
+        importedApplication.setForkWithConfiguration(null);
+        importedApplication.setExportWithConfiguration(null);
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
 
@@ -2163,6 +2167,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return null;
     }
 
+    @Override
+    public Mono<List<DatasourceDTO>> findDatasourceDTOByApplicationId(String applicationId, String workspaceId) {
+        return findDatasourceByApplicationId(applicationId, workspaceId)
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(datasourceService::convertToDatasourceDTO)
+                .collectList();
+    }
+
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
@@ -2235,7 +2247,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
             applicationJson.getExportedApplication().setForkingEnabled(null);
+            applicationJson.getExportedApplication().setForkWithConfiguration(null);
             applicationJson.getExportedApplication().setClonedFromApplicationId(null);
+            applicationJson.getExportedApplication().setExportWithConfiguration(null);
         }
 
         // need to remove git sync id. Also filter pages if pageToImport is not empty

@@ -15,6 +15,11 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -68,7 +73,22 @@ export interface WidgetConfiguration {
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
   };
+  methods?: Record<string, WidgetMethods>;
 }
+
+export type WidgetMethods =
+  | GetQueryGenerationConfig
+  | GetPropertyUpdatesForQueryBinding;
+
+type GetQueryGenerationConfig = (
+  widgetProps: WidgetProps,
+) => WidgetQueryGenerationConfig;
+
+type GetPropertyUpdatesForQueryBinding = (
+  queryConfig: WidgetQueryConfig,
+  widget: WidgetProps,
+  formConfig: WidgetQueryGenerationFormConfig,
+) => Record<string, unknown>;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -121,6 +141,7 @@ export type CanvasWidgetStructure = Pick<
     children?: CanvasWidgetStructure[];
     selected?: boolean;
     onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
+    isListWidgetCanvas?: boolean;
   };
 
 export enum FileDataTypes {

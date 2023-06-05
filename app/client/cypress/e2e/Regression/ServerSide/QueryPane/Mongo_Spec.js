@@ -372,17 +372,12 @@ describe("Validate Mongo query commands", function () {
       "response.body.responseMeta.status",
       201,
     );
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click({ force: true });
-    cy.fillMongoDatasourceForm();
-
-    cy.CheckAndUnfoldEntityItem("Datasources");
+    _.dataSources.CreateDataSource("Mongo");
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo Documents ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
-    cy.testSaveDatasource();
 
     //Insert documents
     cy.get("@dSName").then((dbName) => {
