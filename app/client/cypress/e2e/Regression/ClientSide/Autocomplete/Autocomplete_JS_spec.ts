@@ -440,25 +440,52 @@ describe("Autocomplete tests", () => {
       },
     );
 
-    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(4));
+    //Paste the code and assert that the hints are not present
+    _.jsEditor.CreateJSObject(`const x = "Hello world;"`, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: false,
+      prettify: false,
+    });
 
-    _.agHelper.Paste(_.jsEditor._lineinJsEditor(4), "showA");
+    _.agHelper.AssertElementAbsence(_.locators._hints);
 
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
-      "await",
-      "have.text",
-      0,
+    //Paste the code and assert that the hints are not present
+    _.jsEditor.CreateJSObject(
+      `export default 
+      myFunc1() {
+        showAlert("Hello world");
+
+      }
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: false,
+        prettify: false,
+      },
     );
 
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "{ctrl}{backspace}");
+    _.agHelper.AssertElementAbsence(_.locators._hints);
 
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
-      "await",
-      "have.text",
-      0,
-    );
+    _.agHelper.GetElement(_.jsEditor._lineinJsEditor(4)).click();
+
+    //Assert that hints are not present inside the string
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, `const x = "`);
+
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    _.agHelper.SelectNRemoveLineText(_.jsEditor._lineinJsEditor(4));
+
+    //Assert that hints are not present when line is cleared with backspace
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    //Assert that hints are not present when token is a comment
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "// showA'");
+
+    _.agHelper.AssertElementAbsence(_.locators._hints);
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
