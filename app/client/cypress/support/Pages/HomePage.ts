@@ -546,8 +546,10 @@ export class HomePage {
 
   public RemoveAppRenameTooltip() {
     this.agHelper.GetElement(this._appRenameTooltip).then(($tooltipElement) => {
-      $tooltipElement.remove();
-      cy.log("Rename application tooltip removed");
+      if ($tooltipElement.length) {
+        $tooltipElement.remove();
+        cy.log("Rename application tooltip removed");
+      }
     });
   }
 }
