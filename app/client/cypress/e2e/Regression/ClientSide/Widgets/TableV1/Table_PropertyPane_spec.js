@@ -1,12 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableNewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDslWithPagination").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   // To be done:

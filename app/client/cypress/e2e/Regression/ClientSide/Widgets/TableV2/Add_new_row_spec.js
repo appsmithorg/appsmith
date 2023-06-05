@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -11,7 +10,9 @@ describe("Table widget Add new row feature's", () => {
   describe("Basic flow ", () => {
     before(() => {
       _.agHelper.RestoreLocalStorageCache();
-      cy.addDsl(dsl);
+      cy.fixture("InlineEditingDSL").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
 
     it("1.1. should test that allow Add new row property is present", () => {
@@ -191,7 +192,9 @@ describe("Table widget Add new row feature's", () => {
     before(() => {
       cy.startServerAndRoutes();
       _.agHelper.RestoreLocalStorageCache();
-      cy.addDsl(dsl);
+      cy.fixture("tableV2NewDsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
 
     it("2.1. should test that validation is working for a new row cell", () => {
@@ -349,7 +352,9 @@ describe("Table widget Add new row feature's", () => {
     before(() => {
       cy.startServerAndRoutes();
       _.agHelper.RestoreLocalStorageCache();
-      cy.addDsl(dsl);
+      cy.fixture("tableV2NewDsl").then((val) => {
+        _.agHelper.AddDsl(val);
+      });
     });
 
     it("3.1. should test that discard button is undoing the add new feature", () => {

@@ -1,13 +1,13 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableWidgetDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableWidgetDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("Table Widget Functionality", function () {

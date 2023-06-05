@@ -1,10 +1,11 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;

@@ -1,10 +1,12 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget row multi select validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
   it("1. Test multi select column shows when enable Multirowselection is true", function () {
     cy.openPropertyPane("tablewidget");

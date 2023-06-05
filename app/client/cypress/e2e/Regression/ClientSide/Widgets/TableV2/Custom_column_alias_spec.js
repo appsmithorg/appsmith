@@ -1,7 +1,6 @@
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const data = [
@@ -16,7 +15,9 @@ const data = [
 
 describe("Custom column alias functionality", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("tableV2NewDsl").then((val) => {
+      _.agHelper.AddDsl(val);
+    });
   });
 
   it("1. should test that custom column has alias property", () => {
