@@ -55,6 +55,7 @@ describe("Embed settings options", function () {
     cy.get("@embeddedAppUrl").then((url) => {
       cy.testJsontext("url", url);
     });
+    _.agHelper.Sleep(5000); //for Iframe to fully load with url data
     _.deployMode.DeployApp();
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
@@ -69,7 +70,7 @@ describe("Embed settings options", function () {
         cy.wrap(text).as("deployUrl");
       });
     cy.enablePublicAccess();
-    cy.wait(4000);
+    cy.wait(8000); //adding wait time for iframe to load fully!
     getIframeBody().contains("Submit").should("exist");
     _.deployMode.NavigateBacktoEditor();
   });
