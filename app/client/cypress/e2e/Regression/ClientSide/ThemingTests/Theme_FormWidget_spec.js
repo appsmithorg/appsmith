@@ -1,4 +1,3 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -6,11 +5,8 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
-
-const appSettings = ObjectsRegistry.AppSettings;
-const theme = ObjectsRegistry.ThemeSettings;
-
 let themeFont;
+let themeBackgroudColor;
 
 describe("Theme validation usecases", function () {
   it("1. Drag and drop form widget and validate Default font and list of font validation", function () {
@@ -29,14 +25,14 @@ describe("Theme validation usecases", function () {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    theme.validateBorderTypeCount(3);
-    theme.validateBorderPopoverText(0, "none");
-    theme.validateBorderPopoverText(1, "M");
-    theme.validateBorderPopoverText(2, "L");
+    _.theme.validateBorderTypeCount(3);
+    _.theme.validateBorderPopoverText(0, "none");
+    _.theme.validateBorderPopoverText(1, "M");
+    _.theme.validateBorderPopoverText(2, "L");
     cy.get(themelocator.border).eq(2).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -48,11 +44,11 @@ describe("Theme validation usecases", function () {
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
-    theme.validateShadowPopoverText(0, "none");
-    theme.validateShadowPopoverText(1, "S");
-    theme.validateShadowPopoverText(2, "M");
-    theme.validateShadowPopoverText(3, "L");
-    cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
+    _.theme.validateShadowPopoverText(0, "none");
+    _.theme.validateShadowPopoverText(1, "S");
+    _.theme.validateShadowPopoverText(2, "M");
+    _.theme.validateShadowPopoverText(3, "L");
+    cy.xpath(_.theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -95,16 +91,16 @@ describe("Theme validation usecases", function () {
           cy.wait(2000);
           // cy.colorMouseover(0, "Primary color");
           // cy.validateColor("Primary", "#553DE9");
-          theme.ChooseColorType("Primary");
+          _.theme.ChooseColorType("Primary");
           _.agHelper.AssertElementValue(themelocator.inputColor, "#553DE9");
           _.agHelper.Sleep();
-          theme.ChooseColorType("Background");
+          _.theme.ChooseColorType("Background");
           _.agHelper.AssertElementValue(themelocator.inputColor, "#F8FAFC");
           _.agHelper.Sleep();
 
           cy.get(themelocator.inputColor).click({ force: true });
           //cy.chooseColor(0, themelocator.greenColor);
-          theme.ChooseColorFromColorPicker(themelocator.greenColor);
+          _.theme.ChooseColorFromColorPicker(themelocator.greenColor);
 
           cy.get(themelocator.inputColor).should("have.value", "#15803d");
           cy.get(themelocator.inputColor).clear({ force: true });
@@ -127,7 +123,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).should("have.value", "Black");
           cy.wait(2000);
           cy.contains("Color").click({ force: true });
-          appSettings.ClosePane();
+          _.appSettings.ClosePane();
 
           //Publish the App and validate Font across the app
           cy.PublishtheApp();
@@ -162,8 +158,8 @@ describe("Theme validation usecases", function () {
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
@@ -177,7 +173,7 @@ describe("Theme validation usecases", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-            appSettings.ClosePane();
+            _.appSettings.ClosePane();
           });
       });
   });
@@ -200,8 +196,8 @@ describe("Theme validation usecases", function () {
 
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     // select a theme
@@ -247,7 +243,7 @@ describe("Theme validation usecases", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-            appSettings.ClosePane();
+            _.appSettings.ClosePane();
           });
       });
     cy.get(formWidgetsPage.formD).click();

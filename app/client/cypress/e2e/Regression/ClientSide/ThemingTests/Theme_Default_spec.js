@@ -1,4 +1,3 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -6,11 +5,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
-
-const appSettings = ObjectsRegistry.AppSettings;
-
 let themeBackgroudColor;
-let theme = ObjectsRegistry.ThemeSettings;
 
 describe("Theme validation for default data", function () {
   it("1. Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
@@ -29,23 +24,23 @@ describe("Theme validation for default data", function () {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    theme.validateBorderTypeCount(3);
-    theme.validateBorderPopoverText(0, "none");
-    theme.validateBorderPopoverText(1, "M");
-    theme.validateBorderPopoverText(2, "L");
+    _.theme.validateBorderTypeCount(3);
+    _.theme.validateBorderPopoverText(0, "none");
+    _.theme.validateBorderPopoverText(1, "M");
+    _.theme.validateBorderPopoverText(2, "L");
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    theme.validateShadowPopoverText(0, "none");
-    theme.validateShadowPopoverText(1, "S");
-    theme.validateShadowPopoverText(2, "M");
-    theme.validateShadowPopoverText(3, "L");
+    _.theme.validateShadowPopoverText(0, "none");
+    _.theme.validateShadowPopoverText(1, "S");
+    _.theme.validateShadowPopoverText(2, "M");
+    _.theme.validateShadowPopoverText(3, "L");
     cy.contains("Shadow").click({ force: true });
 
     //Font
@@ -63,13 +58,13 @@ describe("Theme validation for default data", function () {
     //Color
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
-    theme.ChooseColorType("Primary");
+    _.theme.ChooseColorType("Primary");
     _.agHelper.AssertElementValue(themelocator.inputColor, "#553DE9");
     _.agHelper.Sleep();
-    theme.ChooseColorType("Background");
+    _.theme.ChooseColorType("Background");
     _.agHelper.AssertElementValue(themelocator.inputColor, "#F8FAFC");
     _.agHelper.Sleep();
-    appSettings.ClosePane();
+    _.appSettings.ClosePane();
   });
 
   it("2. Validate Default Theme change across application", function () {
@@ -87,8 +82,8 @@ describe("Theme validation for default data", function () {
       .should("have.css", "background-color")
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });

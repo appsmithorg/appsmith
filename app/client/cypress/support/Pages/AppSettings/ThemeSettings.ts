@@ -26,6 +26,11 @@ export class ThemeSettings {
     _appliedThemecard: ".t--theme-card main > main",
     _testWidgetMutliSelect:
       ".t--draggable-multiselectwidgetv2:contains('more')",
+    _canvas: "#canvas-selection-0",
+    _shadow: ".t--theme-appBoxShadow",
+    _inputColor: ".t--colorpicker-v2-popover input",
+    _colorPicker: "[data-testid='color-picker']",
+    _currentTheme: ".cursor-pointer:contains('Applied Theme')",
   };
 
   public ChangeTheme(newTheme: string) {

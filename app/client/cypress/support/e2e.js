@@ -31,7 +31,6 @@ import RapidMode from "./RapidMode.ts";
 import "./WorkspaceCommands";
 import "./queryCommands";
 import "./widgetCommands";
-import "./themeCommands";
 import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
 /// <reference types="cypress-xpath" />
