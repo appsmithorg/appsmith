@@ -2295,6 +2295,7 @@ __metadata:
     "@design-system/headless": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@react-aria/utils": ^3.16.0
+    "@react-aria/visually-hidden": ^3.8.0
     colorjs.io: ^0.4.3
     eslint-plugin-storybook: ^0.6.10
   peerDependencies:
@@ -9595,7 +9596,7 @@ __metadata:
     cypress-xpath: ^1.6.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.10"
+    design-system: "npm:@appsmithorg/design-system@2.1.11"
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.8"
     diff: ^5.0.0
     dotenv: ^8.1.0
@@ -9729,6 +9730,7 @@ __metadata:
     simplebar-react: ^2.4.3
     smartlook-client: ^8.0.0
     socket.io-client: ^4.5.4
+    sql-formatter: 12.2.0
     styled-components: ^5.3.6
     tern: ^0.21.0
     tinycolor2: ^1.4.2
@@ -13629,9 +13631,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.10":
-  version: 2.1.10
-  resolution: "@appsmithorg/design-system@npm:2.1.10"
+"design-system@npm:@appsmithorg/design-system@2.1.11":
+  version: 2.1.11
+  resolution: "@appsmithorg/design-system@npm:2.1.11"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -13656,7 +13658,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: 3482df69c7e21de7aaa2423fc94a4574cb27aa245ea73da24af1c7237e5b98e89dc8db19336fb3a192c84f936c9e9ce7aba40cc415e88e49832f7a3641e21489
+  checksum: d2dab007f1a943067928dd019e64dd89648b94246320a3a54d1620d8b696baf74311e256e1176be9e2eef1b13f4f433549a023e8335c326c1438f3361bc76146
   languageName: node
   linkType: hard
 
@@ -13837,6 +13839,13 @@ __metadata:
   dependencies:
     path-type: ^4.0.0
   checksum: fa05e18324510d7283f55862f3161c6759a3f2f8dbce491a2fc14c8324c498286c54282c1f0e933cb930da8419b30679389499b919122952a4f8592362ef4615
+  languageName: node
+  linkType: hard
+
+"discontinuous-range@npm:1.0.0":
+  version: 1.0.0
+  resolution: "discontinuous-range@npm:1.0.0"
+  checksum: 8ee88d7082445b6eadc7c03bebe6dc978f96760c45e9f65d16ca66174d9e086a9e3855ee16acf65625e1a07a846a17de674f02a5964a6aebe5963662baf8b5c8
   languageName: node
   linkType: hard
 
@@ -21584,6 +21593,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moo@npm:^0.5.0":
+  version: 0.5.2
+  resolution: "moo@npm:0.5.2"
+  checksum: 5a41ddf1059fd0feb674d917c4774e41c877f1ca980253be4d3aae1a37f4bc513f88815041243f36f5cf67a62fb39324f3f997cf7fb17b6cb00767c165e7c499
+  languageName: node
+  linkType: hard
+
 "mrmime@npm:^1.0.0":
   version: 1.0.1
   resolution: "mrmime@npm:1.0.1"
@@ -21733,6 +21749,23 @@ __metadata:
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
   checksum: 23ad088b08f898fc9b53011d7bb78ec48e79de7627e01ab5518e806033861bef68d5b0cd0e2205c2f36690ac9571ff6bcb05eb777ced2eeda8d4ac5b44592c3d
+  languageName: node
+  linkType: hard
+
+"nearley@npm:^2.20.1":
+  version: 2.20.1
+  resolution: "nearley@npm:2.20.1"
+  dependencies:
+    commander: ^2.19.0
+    moo: ^0.5.0
+    railroad-diagrams: ^1.0.0
+    randexp: 0.4.6
+  bin:
+    nearley-railroad: bin/nearley-railroad.js
+    nearley-test: bin/nearley-test.js
+    nearley-unparse: bin/nearley-unparse.js
+    nearleyc: bin/nearleyc.js
+  checksum: 42c2c330c13c7991b48221c5df00f4352c2f8851636ae4d1f8ca3c8e193fc1b7668c78011d1cad88cca4c1c4dc087425420629c19cc286d7598ec15533aaef26
   languageName: node
   linkType: hard
 
@@ -24560,6 +24593,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"railroad-diagrams@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "railroad-diagrams@npm:1.0.0"
+  checksum: 9e312af352b5ed89c2118edc0c06cef2cc039681817f65266719606e4e91ff6ae5374c707cc9033fe29a82c2703edf3c63471664f97f0167c85daf6f93496319
+  languageName: node
+  linkType: hard
+
 "ramda@npm:^0.25.0":
   version: 0.25.0
   resolution: "ramda@npm:0.25.0"
@@ -24571,6 +24611,16 @@ __metadata:
   version: 0.28.0
   resolution: "ramda@npm:0.28.0"
   checksum: 44ea6e5010bba70151b6a92d8114a91915e8b5a16105cce65fae58c9d7386b812c429645e35f21141d7087568550ce383bc10ee1a65cdec951f4b69ea457e6a4
+  languageName: node
+  linkType: hard
+
+"randexp@npm:0.4.6":
+  version: 0.4.6
+  resolution: "randexp@npm:0.4.6"
+  dependencies:
+    discontinuous-range: 1.0.0
+    ret: ~0.1.10
+  checksum: 3c0d440a3f89d6d36844aa4dd57b5cdb0cab938a41956a16da743d3a3578ab32538fc41c16cc0984b6938f2ae4cbc0216967e9829e52191f70e32690d8e3445d
   languageName: node
   linkType: hard
 
@@ -27809,6 +27859,18 @@ __metadata:
   version: 1.0.3
   resolution: "sprintf-js@npm:1.0.3"
   checksum: 19d79aec211f09b99ec3099b5b2ae2f6e9cdefe50bc91ac4c69144b6d3928a640bb6ae5b3def70c2e85a2c3d9f5ec2719921e3a59d3ca3ef4b2fd1a4656a0df3
+  languageName: node
+  linkType: hard
+
+"sql-formatter@npm:12.2.0":
+  version: 12.2.0
+  resolution: "sql-formatter@npm:12.2.0"
+  dependencies:
+    argparse: ^2.0.1
+    nearley: ^2.20.1
+  bin:
+    sql-formatter: bin/sql-formatter-cli.cjs
+  checksum: 20e8c870a625a4160613ebb745347136ec6097b568ae44e8798d8b362a0e4123cfdb58fb401c80521720361b9d9deee6cb6fbdb2c63d43efd7982ef0a7f55d08
   languageName: node
   linkType: hard
 

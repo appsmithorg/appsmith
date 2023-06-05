@@ -102,6 +102,7 @@ export interface DeleteApplicationRequest {
 export interface ForkApplicationRequest {
   applicationId: string;
   workspaceId: string;
+  editMode?: boolean;
 }
 
 export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;

@@ -1,25 +1,20 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const locator = ObjectsRegistry.CommonLocators;
 let datasourceName;
 
 describe("SQL Autocompletion", function () {
   it("Shows autocompletion hints", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click({ force: true });
-    cy.fillPostgresDatasourceForm();
-
+    _.dataSources.CreateDataSource("Postgres");
     cy.generateUUID().then((uid) => {
       datasourceName = `Postgres CRUD ds ${uid}`;
       cy.renameDatasource(datasourceName);
-      cy.testSaveDatasource();
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.get(".CodeMirror textarea").focus().type("S");
-    cy.get(locator._hints).should("exist");
+    cy.get(_.locators._hints).should("exist");
     cy.deleteQueryUsingContext();
   });
 });

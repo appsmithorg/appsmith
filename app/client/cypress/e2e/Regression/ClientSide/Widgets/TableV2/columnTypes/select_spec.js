@@ -1,14 +1,10 @@
 const commonlocators = require("../../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
-
-let dataSources = ObjectsRegistry.DataSources;
-const propertyPane = ObjectsRegistry.PropertyPane;
-const agHelper = ObjectsRegistry.AggregateHelper;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget - Select column type functionality", () => {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
+    _.table.AddSampleTableData();
   });
 
   it("1. should check that select column is available in the column dropdown options", () => {
@@ -158,7 +154,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.editTableSelectCell(0, 0);
     cy.get(".menu-item-link").contains("#3").click();
 
-    agHelper.ValidateToastMessage("#3");
+    _.agHelper.ValidateToastMessage("#3");
 
     cy.get(".menu-virtual-list").should("not.exist");
     cy.readTableV2data(0, 0).then((val) => {
@@ -193,12 +189,12 @@ describe("Table widget - Select column type functionality", () => {
   });
 
   it("7. should check that 'same select option in new row' property is working", () => {
-    propertyPane.NavigateBackToPropertyPane();
+    _.propPane.NavigateBackToPropertyPane();
 
     const checkSameOptionsInNewRowWhileEditing = () => {
-      propertyPane.ToggleOnOrOff("Allow adding a row", "On");
+      _.propPane.ToggleOnOrOff("Allow adding a row", "On");
 
-      propertyPane.OpenTableColumnSettings("step");
+      _.propPane.OpenTableColumnSettings("step");
 
       cy.get(".t--property-control-sameoptionsinnewrow input").should(
         "have.attr",
@@ -261,7 +257,7 @@ describe("Table widget - Select column type functionality", () => {
   it("8. should check that 'new row select options' is working", () => {
     const checkNewRowOptions = () => {
       // New row select options should be visible when "Same options in new row" is turned off
-      propertyPane.ToggleOnOrOff("Same options in new row", "Off");
+      _.propPane.ToggleOnOrOff("Same options in new row", "Off");
       cy.get(".t--property-control-newrowoptions").should("exist");
 
       // New row select options should appear in table
@@ -287,7 +283,7 @@ describe("Table widget - Select column type functionality", () => {
         ".t--property-control-newrowoptions",
         "{{currentRow}}",
       );
-      agHelper.VerifyEvaluatedErrorMessage("currentRow is not defined");
+      _.agHelper.VerifyEvaluatedErrorMessage("currentRow is not defined");
     };
 
     const checkDynamicBindingSupport = () => {
@@ -324,15 +320,15 @@ describe("Table widget - Select column type functionality", () => {
   });
 
   it("9. should check that server side filering is working", () => {
-    dataSources.CreateDataSource("Postgres");
-    dataSources.CreateQueryAfterDSSaved(
+    _.dataSources.CreateDataSource("Postgres");
+    _.dataSources.CreateQueryAfterDSSaved(
       "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",
     );
-    dataSources.ToggleUsePreparedStatement(false);
+    _.dataSources.ToggleUsePreparedStatement(false);
     cy.wait("@saveAction");
     cy.get(".t--run-query").click();
     cy.wait("@postExecute");
-    entityExplorer.NavigateToSwitcher("Widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     cy.get(".t--property-control-serversidefiltering input").click();
