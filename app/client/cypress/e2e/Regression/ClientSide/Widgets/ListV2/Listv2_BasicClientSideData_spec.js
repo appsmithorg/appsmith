@@ -1,12 +1,10 @@
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 const simpleListData1 = [
   {
@@ -28,11 +26,11 @@ const simpleListData1 = [
 
 describe("List widget v2 - Basic client side data tests", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. shows correct number of items", () => {

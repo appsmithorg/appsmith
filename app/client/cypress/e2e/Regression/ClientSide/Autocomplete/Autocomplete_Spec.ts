@@ -99,9 +99,9 @@ describe("Autocomplete bug fixes", function () {
     "7. Installed library should show up in autocomplete",
     function () {
       _.entityExplorer.ExpandCollapseEntity("Libraries");
-      _.installer.openInstaller();
+      _.installer.OpenInstaller();
       _.installer.installLibrary("uuidjs", "UUID");
-      _.installer.closeInstaller();
+      _.installer.CloseInstaller();
       _.entityExplorer.SelectEntityByName("Text1");
       _.propPane.TypeTextIntoField("Text", "{{UUI");
       _.agHelper.GetNAssertElementText(_.locators._hints, "UUID");

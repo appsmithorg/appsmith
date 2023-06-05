@@ -2,7 +2,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-const propPane = ObjectsRegistry.PropertyPane;
 const data = [
   {
     "普通话 [普通話] ": "mandarin",
@@ -22,7 +21,7 @@ describe("Custom column alias functionality", () => {
 
   it("1. should test that custom column has alias property", () => {
     cy.openPropertyPane("tablewidgetv2");
-    propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
+    _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
     cy.wait("@updateLayout");
     cy.wait(1000);
     cy.addColumnV2("customColumn1");
@@ -38,10 +37,10 @@ describe("Custom column alias functionality", () => {
   it("2. should test that custom alias is used in the selectedRow", () => {
     cy.dragAndDropToCanvas("textwidget", { x: 200, y: 100 });
     cy.openPropertyPane("textwidget");
-    propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("customColumn1");
-    propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
+    _.propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
       `{  "普通话 [普通話] ": "",  "français": "",  "español": "",  "日本語": "",  "हिन्दी": "",  "columnAlias": ""}`,
@@ -55,7 +54,7 @@ describe("Custom column alias functionality", () => {
 
   it("3. should test that custom alias is used in the triggeredRow", () => {
     cy.openPropertyPane("textwidget");
-    propPane.UpdatePropertyFieldValue("Text", "{{Table1.triggeredRow}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.triggeredRow}}");
     cy.openPropertyPane("tablewidgetv2");
     cy.backFromPropertyPanel();
     cy.get(widgetsPage.addColumn).scrollIntoView();

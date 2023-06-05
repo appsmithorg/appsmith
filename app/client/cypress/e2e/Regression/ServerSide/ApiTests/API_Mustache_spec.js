@@ -1,7 +1,6 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Moustache test Functionality", function () {
   beforeEach(() => {

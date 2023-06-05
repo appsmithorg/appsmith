@@ -494,6 +494,7 @@ export class Table {
     col: number,
     expectedURL: string,
     tableVersion: "v1" | "v2" = "v1",
+    networkCall = "viewPage",
   ) {
     this.deployMode.StubbingWindow();
     cy.url().then(($currentUrl) => {
@@ -505,7 +506,7 @@ export class Table {
           this.agHelper.Sleep(4000); //for new url to settle loading
           this.agHelper.AssertDocumentReady();
           cy.visit($currentUrl);
-          this.agHelper.ValidateNetworkStatus("@viewPage");
+          this.agHelper.ValidateNetworkStatus("@" + networkCall);
           this.WaitUntilTableLoad(0, 0, tableVersion);
         });
     });

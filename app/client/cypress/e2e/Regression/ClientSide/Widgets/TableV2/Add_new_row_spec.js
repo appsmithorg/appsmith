@@ -10,7 +10,7 @@ describe("Table widget Add new row feature's", () => {
   describe("Basic flow ", () => {
     before(() => {
       _.agHelper.RestoreLocalStorageCache();
-      cy.fixture("InlineEditingDSL").then((val) => {
+      cy.fixture("Table/InlineEditingDSL").then((val) => {
         _.agHelper.AddDsl(val);
       });
     });

@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
+    _.installer.OpenInstaller();
     _.installer.installLibrary("uuidjs", "UUID");
     _.installer.uninstallLibrary("uuidjs");
     _.installer.assertUnInstall("uuidjs");
@@ -16,14 +16,14 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.entityExplorer.NavigateToSwitcher("Explorer");
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
+    _.installer.OpenInstaller();
     _.installer.installLibrary("jsonwebtoken", "jsonwebtoken", false);
     _.agHelper.AssertContains("Name collision detected: jsonwebtoken");
   });
 
   it("3. Checks jspdf library", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
+    _.installer.OpenInstaller();
     _.installer.installLibrary("jspdf", "jspdf");
     jsEditor.CreateJSObject(
       `export default {

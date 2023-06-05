@@ -331,9 +331,9 @@ describe("Linting", () => {
       _.agHelper.AssertElementExist(_.locators._lintErrorElement);
       _.entityExplorer.ExpandCollapseEntity("Libraries");
       // install the library
-      _.installer.openInstaller();
+      _.installer.OpenInstaller();
       _.installer.installLibrary("uuidjs", "UUID");
-      _.installer.closeInstaller();
+      _.installer.CloseInstaller();
 
       _.agHelper.AssertElementAbsence(_.locators._lintErrorElement);
 
@@ -341,9 +341,9 @@ describe("Linting", () => {
 
       _.agHelper.AssertElementExist(_.locators._lintErrorElement);
       _.agHelper.Sleep(2000);
-      _.installer.openInstaller();
+      _.installer.OpenInstaller();
       _.installer.installLibrary("uuidjs", "UUID");
-      _.installer.closeInstaller();
+      _.installer.CloseInstaller();
 
       _.homePage.NavigateToHome();
 

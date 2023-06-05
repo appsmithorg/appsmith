@@ -1,6 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe("Table widget inline editing functionality", () => {
