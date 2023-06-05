@@ -42,3 +42,11 @@ export const getLoginUrl = (method: string): string => {
 
   return urls[method];
 };
+
+export const isTenantConfig = (name: string): boolean => {
+  const fields: string[] = [];
+
+  return fields.includes(name);
+};
+
+export const tenantConfigConnection: any = {};
