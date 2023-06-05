@@ -86,6 +86,16 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
+  perf-test-v2:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test-v2.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
   ci-test-result:
     needs: [ci-test, perf-test ]
     # Only run if the ci-test with matrices step is successful
