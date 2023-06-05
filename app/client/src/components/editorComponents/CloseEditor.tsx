@@ -10,19 +10,39 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
 } from "RouteBuilder";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Link } from "design-system";
 import styled from "styled-components";
 import type { AppsmithLocationState } from "../../utils/history";
 import { NavigationMethod } from "../../utils/history";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
+import {
+  getSelectedTab,
+  isCanvasCodeActive,
+} from "selectors/canvasCodeSelectors";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 
 const StyledLink = styled(Link)`
   margin: var(--ads-v2-spaces-7) 0 0 var(--ads-v2-spaces-7);
   width: fit-content;
 `;
+
+function useShowCloseButton() {
+  const canvasCodeActive = useSelector(isCanvasCodeActive);
+  const location = useLocation();
+
+  if (canvasCodeActive) {
+    if (
+      identifyEntityFromPath(location.pathname).entity !==
+      FocusEntity.DATASOURCE
+    )
+      return false;
+  }
+
+  return true;
+}
 
 function CloseEditor() {
   const history = useHistory<AppsmithLocationState>();
@@ -30,6 +50,10 @@ function CloseEditor() {
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
   const pageId = useSelector(getCurrentPageId);
+  const canvasCodeActive = useSelector(isCanvasCodeActive);
+  const canvasCodeTab = useSelector(getSelectedTab);
+  const showCloseButton = useShowCloseButton();
+  const dispatch = useDispatch();
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;
@@ -68,8 +92,22 @@ function CloseEditor() {
       fromUrl: location.pathname,
       toUrl: URL,
     });
+
+    if (
+      canvasCodeActive &&
+      URL !== builderURL({ pageId }) &&
+      canvasCodeTab !== "CANVAS"
+    ) {
+      dispatch({
+        type: "NAVIGATE_MOST_RECENT",
+      });
+      return;
+    }
+
     history.push(URL, { invokedBy: NavigationMethod.ActionBackButton });
   };
+
+  if (!showCloseButton) return null;
 
   return (
     <StyledLink

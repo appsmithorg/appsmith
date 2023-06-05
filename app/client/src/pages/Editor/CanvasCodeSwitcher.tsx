@@ -4,7 +4,7 @@ import history from "utils/history";
 import { builderURL } from "RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import { matchBuilderPath } from "constants/routes";
+import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import styled from "styled-components";
 import {
@@ -97,7 +97,8 @@ function CanvasCodeSwitcher(props: CanvasCodeSwitcherProps) {
   useEffect(() => {
     if (
       identifyEntityFromPath(location.pathname).entity ===
-      FocusEntity.DATASOURCE
+        FocusEntity.DATASOURCE ||
+      matchGeneratePagePath(location.pathname)
     )
       return;
 
