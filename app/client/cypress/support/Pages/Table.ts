@@ -502,8 +502,10 @@ export class Table {
         .then(($cellData) => {
           //Cypress.$($cellData).trigger('click');
           cy.url().should("eql", expectedURL);
-          this.agHelper.Sleep(2000);
+          this.agHelper.Sleep(4000); //for new url to settle loading
+          this.agHelper.AssertDocumentReady();
           cy.visit($currentUrl);
+          this.agHelper.ValidateNetworkStatus("@viewPage");
           this.WaitUntilTableLoad(0, 0, tableVersion);
         });
     });
