@@ -33,6 +33,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     setterConfig: Widget.getSetterConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };
 

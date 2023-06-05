@@ -30,6 +30,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     setterConfig: Widget.getSetterConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
     widgetSize: [

@@ -135,7 +135,7 @@
                     "url",
                     "thumbnailUrl"
                 ],
-                "dynamicPropertyPathList": [],
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "displayName": "Table",
                 "bottomRow": 59,
                 "columnWidthMap": {

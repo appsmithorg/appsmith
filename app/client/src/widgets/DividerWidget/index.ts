@@ -34,6 +34,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     setterConfig: Widget.getSetterConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
     widgetSize: [

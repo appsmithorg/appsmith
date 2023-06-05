@@ -710,9 +710,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
     }
 
     // When Label changes but value doesnt change, Applies to serverside Filtering
