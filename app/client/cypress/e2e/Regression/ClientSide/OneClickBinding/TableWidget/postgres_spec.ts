@@ -15,7 +15,7 @@ describe("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       _.entityExplorer.NavigateToSwitcher("Widgets");
 
-      _.entityExplorer.SelectEntityByName(_.draggableWidgets.TABLE);
+      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
