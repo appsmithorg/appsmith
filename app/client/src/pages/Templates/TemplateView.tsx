@@ -213,10 +213,7 @@ function TemplateView() {
                 <div className="round yellow" />
                 <div className="round green" />
               </IframeTopBar>
-              <iframe
-                src={`${currentTemplate.appUrl}?embed=true`}
-                width={"100%"}
-              />
+              <iframe src={currentTemplate.appUrl} width={"100%"} />
             </IframeWrapper>
             <TemplateDescription template={currentTemplate} />
           </TemplateViewWrapper>

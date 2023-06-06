@@ -144,66 +144,81 @@ function Actions(props: ActionsPropsType) {
       )}
       {(props.isVisibleFilters ||
         props.isVisibleDownload ||
-        props.allowAddNewRow) && (
-        <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-          {props.isVisibleFilters && (
-            <TableFilters
+        props.allowAddNewRow) &&
+        !!props.columns.length && (
+          <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+            {props.isVisibleFilters && (
+              <TableFilters
+                accentColor={props.accentColor}
+                applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                columns={props.columns}
+                filters={props.filters}
+                widgetId={props.widgetId}
+              />
+            )}
+
+            {props.isVisibleDownload && (
+              <TableDataDownload
+                borderRadius={props.borderRadius}
+                columns={props.tableColumns}
+                data={props.tableData}
+                delimiter={props.delimiter}
+                widgetName={props.widgetName}
+              />
+            )}
+
+            {props.allowAddNewRow && (
+              <ActionItem
+                borderRadius={props.borderRadius}
+                className="t--add-new-row"
+                disabled={props.disableAddNewRow}
+                disabledMessage="Save or discard the unsaved row to add a new row"
+                icon="add"
+                selectMenu={props.onAddNewRow}
+                selected={false}
+                title="Add new row"
+                width={12}
+              />
+            )}
+          </CommonFunctionsMenuWrapper>
+        )}
+
+      {!!props.columns.length &&
+        props.isVisiblePagination &&
+        props.serverSidePaginationEnabled && (
+          <PaginationWrapper>
+            {props.totalRecordsCount ? (
+              <TableHeaderContentWrapper className="show-page-items">
+                {props.totalRecordsCount} Records
+              </TableHeaderContentWrapper>
+            ) : null}
+            <PaginationItemWrapper
               accentColor={props.accentColor}
-              applyFilter={props.applyFilter}
               borderRadius={props.borderRadius}
-              columns={props.columns}
-              filters={props.filters}
-              widgetId={props.widgetId}
-            />
-          )}
-
-          {props.isVisibleDownload && (
-            <TableDataDownload
-              borderRadius={props.borderRadius}
-              columns={props.tableColumns}
-              data={props.tableData}
-              delimiter={props.delimiter}
-              widgetName={props.widgetName}
-            />
-          )}
-
-          {props.allowAddNewRow && (
-            <ActionItem
-              borderRadius={props.borderRadius}
-              className="t--add-new-row"
-              disabled={props.disableAddNewRow}
-              disabledMessage="Save or discard the unsaved row to add a new row"
-              icon="add"
-              selectMenu={props.onAddNewRow}
-              selected={false}
-              title="Add new row"
-              width={12}
-            />
-          )}
-        </CommonFunctionsMenuWrapper>
-      )}
-
-      {props.isVisiblePagination && props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          {props.totalRecordsCount ? (
-            <TableHeaderContentWrapper className="show-page-items">
-              {props.totalRecordsCount} Records
-            </TableHeaderContentWrapper>
-          ) : null}
-          <PaginationItemWrapper
-            accentColor={props.accentColor}
-            borderRadius={props.borderRadius}
-            className="t--table-widget-prev-page"
-            disabled={props.pageNo === 0}
-            onClick={() => {
-              props.prevPageClick();
-            }}
-          >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
-          </PaginationItemWrapper>
-          {props.totalRecordsCount ? (
-            <TableHeaderContentWrapper>
-              Page&nbsp;
+              className="t--table-widget-prev-page"
+              disabled={props.pageNo === 0}
+              onClick={() => {
+                props.prevPageClick();
+              }}
+            >
+              <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
+            </PaginationItemWrapper>
+            {props.totalRecordsCount ? (
+              <TableHeaderContentWrapper>
+                Page&nbsp;
+                <PaginationItemWrapper
+                  accentColor={props.accentColor}
+                  borderRadius={props.borderRadius}
+                  className="page-item"
+                  selected
+                >
+                  {props.pageNo + 1}
+                </PaginationItemWrapper>
+                &nbsp;
+                <span>{`of ${props.pageCount}`}</span>
+              </TableHeaderContentWrapper>
+            ) : (
               <PaginationItemWrapper
                 accentColor={props.accentColor}
                 borderRadius={props.borderRadius}
@@ -212,83 +227,78 @@ function Actions(props: ActionsPropsType) {
               >
                 {props.pageNo + 1}
               </PaginationItemWrapper>
-              &nbsp;
-              <span>{`of ${props.pageCount}`}</span>
-            </TableHeaderContentWrapper>
-          ) : (
+            )}
             <PaginationItemWrapper
               accentColor={props.accentColor}
               borderRadius={props.borderRadius}
-              className="page-item"
-              selected
+              className="t--table-widget-next-page"
+              disabled={
+                !!props.totalRecordsCount &&
+                props.pageNo === props.pageCount - 1
+              }
+              onClick={() => {
+                props.nextPageClick();
+              }}
             >
-              {props.pageNo + 1}
+              <Icon
+                color={Colors.HIT_GRAY}
+                icon="chevron-right"
+                iconSize={16}
+              />
             </PaginationItemWrapper>
-          )}
-          <PaginationItemWrapper
-            accentColor={props.accentColor}
-            borderRadius={props.borderRadius}
-            className="t--table-widget-next-page"
-            disabled={
-              !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
-            }
-            onClick={() => {
-              props.nextPageClick();
-            }}
-          >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
-      {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <TableHeaderContentWrapper className="show-page-items">
-            {props.tableData?.length} Records
-          </TableHeaderContentWrapper>
-          <PaginationItemWrapper
-            accentColor={props.accentColor}
-            borderRadius={props.borderRadius}
-            className="t--table-widget-prev-page"
-            disabled={props.currentPageIndex === 0}
-            onClick={() => {
-              const pageNo =
-                props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
-              !(props.currentPageIndex === 0) &&
-                props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
-            }}
-          >
-            <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
-          </PaginationItemWrapper>
-          <TableHeaderContentWrapper>
-            Page{" "}
-            <PageNumberInput
+          </PaginationWrapper>
+        )}
+      {!!props.columns.length &&
+        props.isVisiblePagination &&
+        !props.serverSidePaginationEnabled && (
+          <PaginationWrapper>
+            <TableHeaderContentWrapper className="show-page-items">
+              {props.tableData?.length} Records
+            </TableHeaderContentWrapper>
+            <PaginationItemWrapper
               accentColor={props.accentColor}
               borderRadius={props.borderRadius}
-              disabled={props.pageCount === 1}
-              pageCount={props.pageCount}
-              pageNo={props.pageNo + 1}
-              updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
-          </TableHeaderContentWrapper>
-          <PaginationItemWrapper
-            accentColor={props.accentColor}
-            borderRadius={props.borderRadius}
-            className="t--table-widget-next-page"
-            disabled={props.currentPageIndex === props.pageCount - 1}
-            onClick={() => {
-              const pageNo =
-                props.currentPageIndex < props.pageCount - 1
-                  ? props.currentPageIndex + 1
-                  : 0;
-              !(props.currentPageIndex === props.pageCount - 1) &&
-                props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
-            }}
-          >
-            <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
+              className="t--table-widget-prev-page"
+              disabled={props.currentPageIndex === 0}
+              onClick={() => {
+                const pageNo =
+                  props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+                !(props.currentPageIndex === 0) &&
+                  props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
+              }}
+            >
+              <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
+            </PaginationItemWrapper>
+            <TableHeaderContentWrapper>
+              Page{" "}
+              <PageNumberInput
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                disabled={props.pageCount === 1}
+                pageCount={props.pageCount}
+                pageNo={props.pageNo + 1}
+                updatePageNo={props.updatePageNo}
+              />{" "}
+              of {props.pageCount}
+            </TableHeaderContentWrapper>
+            <PaginationItemWrapper
+              accentColor={props.accentColor}
+              borderRadius={props.borderRadius}
+              className="t--table-widget-next-page"
+              disabled={props.currentPageIndex === props.pageCount - 1}
+              onClick={() => {
+                const pageNo =
+                  props.currentPageIndex < props.pageCount - 1
+                    ? props.currentPageIndex + 1
+                    : 0;
+                !(props.currentPageIndex === props.pageCount - 1) &&
+                  props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
+              }}
+            >
+              <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
+            </PaginationItemWrapper>
+          </PaginationWrapper>
+        )}
     </>
   );
 }
