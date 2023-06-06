@@ -5,7 +5,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
@@ -122,14 +121,13 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             datasource.setWorkspaceId(mockDataSource.getWorkspaceId());
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName());
-            datasource.setIsConfigured(true);
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
 
             return datasourceService.getTrueEnvironmentId(mockDataSource.getWorkspaceId(), environmentId)
                     .flatMap(trueEnvironmentId -> {
-                        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, trueEnvironmentId);
-                        storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                        storages.put(trueEnvironmentId,
+                                new DatasourceStorageDTO(null, trueEnvironmentId, datasourceConfiguration));
                         datasource.setDatasourceStorages(storages);
 
                         return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())

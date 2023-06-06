@@ -40,6 +40,20 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
     }
 
     /**
+     * This constructor is used when we have datasource config readily available for creation of datasource.
+     * or, for updating the datasource storages.
+     * @param datasourceId
+     * @param environmentId
+     * @param datasourceConfiguration
+     */
+    public DatasourceStorageDTO(String datasourceId, String environmentId, DatasourceConfiguration datasourceConfiguration) {
+        this.datasourceId = datasourceId;
+        this.environmentId = environmentId;
+        this.datasourceConfiguration = datasourceConfiguration;
+        this.isConfigured = Boolean.TRUE;
+    }
+
+    /**
      * Intended to function like `.equals`, but only semantically significant fields, except for the ID. Semantically
      * significant just means that if two datasource have same values for these fields, actions against them will behave
      * exactly the same.

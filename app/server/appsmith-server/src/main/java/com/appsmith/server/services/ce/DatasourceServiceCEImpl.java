@@ -173,11 +173,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         });
             }
             datasourceMono = datasourceMono
-                    .map(datasource1 -> {
-                        // Everything we create needs to use configs from storage
-                        datasource1.setHasDatasourceStorage(true); // TODO: remove this after migration
-                        return datasource1;
-                    })
                     .flatMap(datasource1 -> {
                         Mono<User> userMono = sessionUserService.getCurrentUser();
                         return generateAndSetDatasourcePolicies(userMono, datasource1, permission);

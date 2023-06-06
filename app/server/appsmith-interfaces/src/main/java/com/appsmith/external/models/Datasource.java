@@ -86,7 +86,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
      * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's
      * which are not configured. This way user can configure those datasource, which may have been introduced as part of git import.
      */
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     Boolean isConfigured;
 
     @Transient
@@ -131,7 +131,6 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
         if (datasourceStorage.getEnvironmentId() != null) {
             storages.put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
         }
-        this.hasDatasourceStorage = true;
     }
 
     /**
