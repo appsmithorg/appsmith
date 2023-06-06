@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const listData = [
   {
@@ -85,19 +85,17 @@ const listData = [
   },
 ];
 
-let agHelper = ObjectsRegistry.AggregateHelper;
-
 describe("List widget V2 page number and page size", () => {
   before(() => {
     cy.addDsl(dsl);
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. List widget V2 with client side pagination", () => {
@@ -164,32 +162,11 @@ describe("List widget V2 page number and page size", () => {
       cy.addDsl(dslWithServerSide);
       // Open Datasource editor
       cy.wait(2000);
-      cy.NavigateToDatasourceEditor();
-
-      // Click on sample(mock) user database.
-      cy.get(datasource.mockUserDatabase).click();
-
-      // Choose the first data source which consists of users keyword & Click on the "New query +"" button
-      cy.get(`${datasource.datasourceCard}`)
-        .filter(":contains('Users')")
-        .first()
-        .within(() => {
-          cy.get(`${datasource.createQuery}`).click({ force: true });
-        });
-
-      // Click the editing field
-      cy.get(".t--action-name-edit-field").click({ force: true });
-
-      // Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query1");
-
-      // switching off Use Prepared Statement toggle
-      cy.get(queryLocators.switch).last().click({ force: true });
-
-      //.1: Click on Write query area
-      cy.get(queryLocators.templateMenu).click();
-      cy.xpath(queryLocators.query).click({ force: true });
-
+      _.dataSources.CreateMockDB("Users").then((dbName) => {
+        _.dataSources.CreateQueryFromActiveTab(dbName, false);
+        _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
+        _.dataSources.ToggleUsePreparedStatement(false);
+      });
       // writing query to get the schema
       cy.get(".CodeMirror textarea")
         .first()
@@ -232,12 +209,7 @@ describe("List widget V2 page number and page size", () => {
       cy.addDsl(dslWithServerSide);
       // Open Datasource editor
       cy.wait(2000);
-      cy.NavigateToDatasourceEditor();
-
-      cy.get(datasource.PostgreSQL).click();
-      cy.fillPostgresDatasourceForm();
-      cy.testSaveDatasource();
-      cy.wait(1000);
+      _.dataSources.CreateDataSource("Postgres");
       cy.get(datasource.createQuery).click();
 
       // Click the editing field

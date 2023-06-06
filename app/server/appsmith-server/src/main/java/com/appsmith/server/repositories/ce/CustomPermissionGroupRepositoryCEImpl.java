@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -70,5 +71,16 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
         return this.evictPermissionGroupsUser(email, tenantId);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
+        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(userIds);
+        return queryAll(List.of(assignedToUserIdCriteria),
+                includeFields,
+                permission,
+                Optional.empty(),
+                NO_RECORD_LIMIT
+        );
     }
 }
