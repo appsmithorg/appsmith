@@ -1217,6 +1217,10 @@ export class AggregateHelper {
     return this.GetElement(widgetSelector).invoke("height");
   }
 
+  GetWidgetCSSHeight(widgetSelector: string) {
+    return this.GetElement(widgetSelector).invoke("css", "height");
+  }
+
   GetWidgetByName(widgetName: string) {
     return this.GetElement(this.locator._widgetByName(widgetName));
   }

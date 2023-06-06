@@ -15,17 +15,17 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     });
 
     _.agHelper
-      .GetWidgetHeight(
+      .GetWidgetCSSHeight(
         _.locators._widgetInDeployed(_.draggableWidgets.AUDIORECORDER),
       )
       .then((aheight) => {
         _.agHelper
-          .GetWidgetHeight(
+          .GetWidgetCSSHeight(
             _.locators._widgetInDeployed(_.draggableWidgets.BUTTON_GROUP),
           )
           .then((bheight) => {
             _.agHelper
-              .GetWidgetHeight(
+              .GetWidgetCSSHeight(
                 _.locators._widgetInDeployed(
                   _.draggableWidgets.DOCUMENT_VIEWER,
                 ),
@@ -39,21 +39,21 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 _.agHelper
-                  .GetWidgetHeight(
+                  .GetWidgetCSSHeight(
                     _.locators._widgetInDeployed(
                       _.draggableWidgets.AUDIORECORDER,
                     ),
                   )
                   .then((a1height) => {
                     _.agHelper
-                      .GetWidgetHeight(
+                      .GetWidgetCSSHeight(
                         _.locators._widgetInDeployed(
                           _.draggableWidgets.BUTTON_GROUP,
                         ),
                       )
                       .then((b1height) => {
                         _.agHelper
-                          .GetWidgetHeight(
+                          .GetWidgetCSSHeight(
                             _.locators._widgetInDeployed(
                               _.draggableWidgets.DOCUMENT_VIEWER,
                             ),
@@ -66,21 +66,21 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             _.autoLayout.UseSnapshotFromBanner();
 
                             _.agHelper
-                              .GetWidgetHeight(
+                              .GetWidgetCSSHeight(
                                 _.locators._widgetInDeployed(
                                   _.draggableWidgets.AUDIORECORDER,
                                 ),
                               )
                               .then((raheight) => {
                                 _.agHelper
-                                  .GetWidgetHeight(
+                                  .GetWidgetCSSHeight(
                                     _.locators._widgetInDeployed(
                                       _.draggableWidgets.BUTTON_GROUP,
                                     ),
                                   )
                                   .then((rbheight) => {
                                     _.agHelper
-                                      .GetWidgetHeight(
+                                      .GetWidgetCSSHeight(
                                         _.locators._widgetInDeployed(
                                           _.draggableWidgets.DOCUMENT_VIEWER,
                                         ),
@@ -124,17 +124,17 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     );
 
     _.agHelper
-      .GetWidgetHeight(
+      .GetWidgetCSSHeight(
         _.locators._widgetInDeployed(_.draggableWidgets.INPUT_V2),
       )
       .then((aheight) => {
         _.agHelper
-          .GetWidgetHeight(
+          .GetWidgetCSSHeight(
             _.locators._widgetInDeployed(_.draggableWidgets.CURRENCY_INPUT),
           )
           .then((bheight) => {
             _.agHelper
-              .GetWidgetHeight(
+              .GetWidgetCSSHeight(
                 _.locators._widgetInDeployed(_.draggableWidgets.MULTISELECT),
               )
               .then((dheight) => {
@@ -146,19 +146,19 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 _.agHelper
-                  .GetWidgetHeight(
+                  .GetWidgetCSSHeight(
                     _.locators._widgetInDeployed(_.draggableWidgets.INPUT_V2),
                   )
                   .then((a1height) => {
                     _.agHelper
-                      .GetWidgetHeight(
+                      .GetWidgetCSSHeight(
                         _.locators._widgetInDeployed(
                           _.draggableWidgets.CURRENCY_INPUT,
                         ),
                       )
                       .then((b1height) => {
                         _.agHelper
-                          .GetWidgetHeight(
+                          .GetWidgetCSSHeight(
                             _.locators._widgetInDeployed(
                               _.draggableWidgets.MULTISELECT,
                             ),
@@ -171,21 +171,21 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             _.autoLayout.UseSnapshotFromBanner();
 
                             _.agHelper
-                              .GetWidgetHeight(
+                              .GetWidgetCSSHeight(
                                 _.locators._widgetInDeployed(
                                   _.draggableWidgets.INPUT_V2,
                                 ),
                               )
                               .then((raheight) => {
                                 _.agHelper
-                                  .GetWidgetHeight(
+                                  .GetWidgetCSSHeight(
                                     _.locators._widgetInDeployed(
                                       _.draggableWidgets.CURRENCY_INPUT,
                                     ),
                                   )
                                   .then((rbheight) => {
                                     _.agHelper
-                                      .GetWidgetHeight(
+                                      .GetWidgetCSSHeight(
                                         _.locators._widgetInDeployed(
                                           _.draggableWidgets.MULTISELECT,
                                         ),
