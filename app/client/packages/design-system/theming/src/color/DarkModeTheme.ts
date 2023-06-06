@@ -218,6 +218,10 @@ export class DarkModeTheme implements ColorModeTheme {
       }
     }
 
+    if (color.oklch.c < 0.19) {
+      color.oklch.c = 0.19;
+    }
+
     return color;
   }
   /*
@@ -354,6 +358,11 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.bdNegative.oklch.l >= 0.9) {
       color.oklch.l = color.oklch.l - 0.25;
     }
+
+    if (color.oklch.c < 0.19) {
+      color.oklch.c = 0.19;
+    }
+
     return color;
   }
 
