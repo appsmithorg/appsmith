@@ -419,4 +419,81 @@ describe("Autocomplete tests", () => {
       );
     });
   });
+
+  it("10. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
+    // create js object
+    _.jsEditor.CreateJSObject(
+      `export default 
+      myFunc1() {
+        showAlert("Hello world");
+
+      }
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+
+    //Paste the code and assert that the hints are not present
+    _.jsEditor.CreateJSObject(`const x = "Hello world;"`, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: false,
+      prettify: false,
+    });
+
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    //Paste the code and assert that the hints are not present
+    _.jsEditor.CreateJSObject(
+      `export default 
+      myFunc1() {
+        showAlert("Hello world");
+
+      }
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: false,
+        prettify: false,
+      },
+    );
+
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    _.agHelper.GetElement(_.jsEditor._lineinJsEditor(4)).click();
+
+    //Assert that hints are not present inside the string
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, `const x = "`);
+
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    _.agHelper.SelectNRemoveLineText(_.jsEditor._lineinJsEditor(4));
+
+    //Assert that hints are not present when line is cleared with backspace
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    //Assert that hints are not present when token is a comment
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "// showA'");
+
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
+  });
 });
