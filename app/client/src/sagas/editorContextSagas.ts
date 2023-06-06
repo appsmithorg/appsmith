@@ -15,7 +15,10 @@ import {
 } from "actions/editorContextActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, put, select, takeLatest } from "redux-saga/effects";
-import { getCodeTabPath } from "selectors/canvasCodeSelectors";
+import {
+  getCodeTabPath,
+  getIfCodeEntityExists,
+} from "selectors/canvasCodeSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { matchPath_BuilderSlug } from "utils/helpers";
 import history from "utils/history";
@@ -68,10 +71,14 @@ function* setSelectedPropertyTabIndexSaga(
 
 function* navigateToMostRecentEntity() {
   const codeTabPath: string | undefined = yield select(getCodeTabPath);
+  const entity = identifyEntityFromPath(codeTabPath ?? "");
+  // Check if the entity exists to avoid navigating to a 404 page
+  const entityExists: boolean = yield select(getIfCodeEntityExists, entity.id);
   const currentPageId: string = yield select(getCurrentPageId);
   const values = matchPath_BuilderSlug(codeTabPath ?? "");
-  if (codeTabPath && values?.params.pageId === currentPageId) {
+  if (codeTabPath && values?.params.pageId === currentPageId && entityExists) {
     const params = history.location.search;
+    // Temp fix to check if we are navigating to the same URL
     if (
       `${history.location.pathname}${params ?? ""}` !==
       `${codeTabPath}${params ?? ""}`
