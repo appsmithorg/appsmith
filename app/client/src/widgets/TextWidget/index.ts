@@ -19,7 +19,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   searchTags: ["typography", "paragraph", "label"],
   defaults: {
-    text: "Hello {{appsmith.user.name || appsmith.user.email}}!",
+    text: "Hello {{appsmith.user.name || appsmith.user.email}}",
     fontSize: DEFAULT_FONT_SIZE,
     fontStyle: "BOLD",
     textAlign: "LEFT",
