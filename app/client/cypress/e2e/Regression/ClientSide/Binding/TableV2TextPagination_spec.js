@@ -74,14 +74,10 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("3. Table-Text, Validate Server Side Pagination of Paginate with Total v2 Records Count", function () {
     _.deployMode.NavigateBacktoEditor();
-    cy.wait(3000);
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.get(".t--entity-name").contains("Table1").click({ force: true });
-    cy.testJsontext("totalrecords", 20);
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
+    _.propPane.UpdatePropertyFieldValue("Total Records", "20");
     _.deployMode.DeployApp();
-    cy.wait(500);
     cy.wait("@postExecute");
-    cy.wait(500);
     cy.get(".show-page-items").should("contain", "20 Records");
     cy.get(".page-item").next().should("contain", "of 2");
 
