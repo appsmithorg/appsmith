@@ -38,7 +38,6 @@ describe("Image Widget Functionality", function () {
   it("No Zoom functionality check", function () {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
-    //cy.changeZoomLevel("1x (No Zoom)");
     _.propPane.changeZoomLevel("1x (No Zoom)");
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
