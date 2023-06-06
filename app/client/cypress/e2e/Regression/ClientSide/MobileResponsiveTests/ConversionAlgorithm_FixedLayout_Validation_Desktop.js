@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let testHeight;
