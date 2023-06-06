@@ -31,7 +31,11 @@ describe("Git sync:", function () {
   });
 
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
-    _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 100);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CONTAINER,
+      100,
+      100,
+    );
 
     _.entityExplorer.AddNewPage("New blank page");
 

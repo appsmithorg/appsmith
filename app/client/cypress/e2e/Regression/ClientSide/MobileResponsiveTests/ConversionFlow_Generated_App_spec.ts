@@ -6,10 +6,10 @@ describe("Handle Conversion for Generated/Imported Pages", () => {
 
     //Converting generated CRUD app to Auto Layout and verify the canvases
     _.autoLayout.ConvertToAutoLayoutAndVerify();
-    _.autoLayout.VerifyCurrentWidgetIsAutolayout("containerwidget");
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.CONTAINER);
 
     //Add Generated CRUD from within the Auto Layout and verify the canvases
     _.dataSources.GeneratePageWithMockDB();
-    _.autoLayout.VerifyCurrentWidgetIsAutolayout("containerwidget");
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.CONTAINER);
   });
 });

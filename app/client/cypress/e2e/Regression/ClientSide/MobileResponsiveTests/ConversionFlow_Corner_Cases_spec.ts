@@ -4,7 +4,11 @@ import widgetLocators from "../../../../locators/Widgets.json";
 
 describe("Handle Cases while conversion", () => {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
-    _.entityExplorer.DragDropWidgetNVerify("containerwidget", 100, 200);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CONTAINER,
+      100,
+      200,
+    );
 
     _.entityExplorer.AddNewPage("New blank page");
 

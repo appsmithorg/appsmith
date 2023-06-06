@@ -11,13 +11,13 @@ describe("Copy paste widget related tests for Auto layout", () => {
   });
 
   it("1. Should paste at the bottom of the canvas that contains the selected widget", () => {
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
-      .first()
-      .click({
-        ctrlKey: true,
-      });
-    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 1);
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+      0,
+      true,
+    );
+
+    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(1);
 
     //copying first button in first layer, which is center aligned
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
@@ -29,37 +29,33 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //verify button widget pastes inside the container, in layer index 3 and is center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
-      _.locators._widgetInDeployed("containerwidget"),
-      _.locators._widgetInDeployed("buttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.CONTAINER),
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       3,
       "CENTER",
     );
 
     //unselect all widgets
-    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
-      force: true,
-    });
+    _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
   });
 
   it("2. Should paste at the bottom of the canvas of the selected Container", () => {
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
-      .eq(1)
-      .click({
-        ctrlKey: true,
-      });
-    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 1);
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+      1,
+      true,
+    );
+    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(1);
 
     //copying second button in first layer, which is end aligned
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
     _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("containerwidget"))
-      .first()
-      .click({
-        ctrlKey: true,
-      });
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.CONTAINER),
+      0,
+      true,
+    );
 
     //paste
     _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
@@ -67,37 +63,32 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //verify button widget pastes inside selected the container, in layer index 4 and is end aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
-      _.locators._widgetInDeployed("containerwidget"),
-      _.locators._widgetInDeployed("buttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.CONTAINER),
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       4,
       "END",
     );
 
     //unselect all widgets
-    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
-      force: true,
-    });
+    _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
   });
 
   it("3. Should paste at the bottom of the main canvas when no widget is selected", () => {
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
-      .eq(0)
-      .click({
-        ctrlKey: true,
-      });
-    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 1);
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+      0,
+      true,
+    );
+    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(1);
 
     //copying first button in first layer, which is center aligned
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
     _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
     //unselect all widgets
-    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
-      force: true,
-    });
+    _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
 
-    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 0);
+    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(0);
     //paste
     _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
@@ -105,57 +96,49 @@ describe("Copy paste widget related tests for Auto layout", () => {
     //verify button widget pastes in main canvas, in layer index 1 and is center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInDeployed("buttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       1,
       "CENTER",
     );
 
     //unselect all widgets
-    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
-      force: true,
-    });
+    _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
   });
 
   it("4. Should paste widgets in copied orientation, when multiple widgets are copied", () => {
     //Select and copy widgets in,
     // button in layer index 0, end aligned
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
-      .eq(1)
-      .click({
-        ctrlKey: true,
-      });
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+      1,
+      true,
+    );
     // button in layer index 1, start aligned
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
-      .eq(2)
-      .click({
-        ctrlKey: true,
-      });
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+      2,
+      true,
+    );
     // icon button in layer index 1, end aligned
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("iconbuttonwidget"))
-      .eq(0)
-      .click({
-        ctrlKey: true,
-      });
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.ICONBUTTON),
+      0,
+      true,
+    );
     // button in layer index 2, center aligned
-    _.agHelper
-      .GetElement(_.locators._widgetInDeployed("buttonwidget"))
-      .eq(3)
-      .click({
-        ctrlKey: true,
-      });
-    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 4);
+    _.agHelper.GetNClick(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+      3,
+      true,
+    );
+    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(4);
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
     _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
     //unselect all widgets
-    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
-      force: true,
-    });
+    _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
 
-    _.agHelper.GetElement(_.locators._selectedWidget).should("have.length", 0);
+    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(0);
     //paste
     _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
@@ -164,35 +147,33 @@ describe("Copy paste widget related tests for Auto layout", () => {
     // button in layer index 2, end aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInDeployed("buttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       2,
       "END",
     );
     // button in layer index 3, start aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInDeployed("buttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       3,
       "START",
     );
     // icon button in layer index 3, center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInDeployed("iconbuttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.ICONBUTTON),
       3,
       "CENTER",
     );
     // button in layer index 4, center aligned
     _.autoLayout.VerifyIfChildWidgetPositionInFlexContainer(
       _.locators._appsmithWidget("0"),
-      _.locators._widgetInDeployed("buttonwidget"),
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
       4,
       "CENTER",
     );
 
     //unselect all widgets
-    _.agHelper.GetElement(_.locators._selectionCanvas("0")).click({
-      force: true,
-    });
+    _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
   });
 });

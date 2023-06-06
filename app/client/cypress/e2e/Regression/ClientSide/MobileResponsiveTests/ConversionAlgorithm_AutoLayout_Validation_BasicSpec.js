@@ -9,23 +9,27 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
       _.agHelper.AddDsl(val);
     });
     cy.wait(5000); //for dsl to settle
-    //cy.openPropertyPane("containerwidget");
     _.agHelper.GetElement("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       testHeight = data.layouts[0].dsl.bottomRow;
-      //expect(testHeight).to.equal(380);
     });
+
     _.agHelper
-      .GetElement(_.locators._widgetInDeployed("audiorecorderwidget"))
-      .invoke("css", "height")
+      .GetWidgetHeight(
+        _.locators._widgetInDeployed(_.draggableWidgets.AUDIORECORDER),
+      )
       .then((aheight) => {
         _.agHelper
-          .GetElement(_.locators._widgetInDeployed("buttongroupwidget"))
-          .invoke("css", "height")
+          .GetWidgetHeight(
+            _.locators._widgetInDeployed(_.draggableWidgets.BUTTON_GROUP),
+          )
           .then((bheight) => {
             _.agHelper
-              .GetElement(_.locators._widgetInDeployed("documentviewerwidget"))
-              .invoke("css", "height")
+              .GetWidgetHeight(
+                _.locators._widgetInDeployed(
+                  _.draggableWidgets.DOCUMENT_VIEWER,
+                ),
+              )
               .then((dheight) => {
                 cy.log(aheight);
                 cy.log(bheight);
@@ -35,24 +39,25 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 _.agHelper
-                  .GetElement(
-                    _.locators._widgetInDeployed("audiorecorderwidget"),
+                  .GetWidgetHeight(
+                    _.locators._widgetInDeployed(
+                      _.draggableWidgets.AUDIORECORDER,
+                    ),
                   )
-                  .invoke("css", "height")
                   .then((a1height) => {
                     _.agHelper
-                      .GetElement(
-                        _.locators._widgetInDeployed("buttongroupwidget"),
+                      .GetWidgetHeight(
+                        _.locators._widgetInDeployed(
+                          _.draggableWidgets.BUTTON_GROUP,
+                        ),
                       )
-                      .invoke("css", "height")
                       .then((b1height) => {
                         _.agHelper
-                          .GetElement(
+                          .GetWidgetHeight(
                             _.locators._widgetInDeployed(
-                              "documentviewerwidget",
+                              _.draggableWidgets.DOCUMENT_VIEWER,
                             ),
                           )
-                          .invoke("css", "height")
                           .then((d1height) => {
                             expect(aheight).to.not.equal(a1height);
                             expect(bheight).to.not.equal(b1height);
@@ -61,28 +66,25 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             _.autoLayout.UseSnapshotFromBanner();
 
                             _.agHelper
-                              .GetElement(
+                              .GetWidgetHeight(
                                 _.locators._widgetInDeployed(
-                                  "audiorecorderwidget",
+                                  _.draggableWidgets.AUDIORECORDER,
                                 ),
                               )
-                              .invoke("css", "height")
                               .then((raheight) => {
                                 _.agHelper
-                                  .GetElement(
+                                  .GetWidgetHeight(
                                     _.locators._widgetInDeployed(
-                                      "buttongroupwidget",
+                                      _.draggableWidgets.BUTTON_GROUP,
                                     ),
                                   )
-                                  .invoke("css", "height")
                                   .then((rbheight) => {
                                     _.agHelper
-                                      .GetElement(
+                                      .GetWidgetHeight(
                                         _.locators._widgetInDeployed(
-                                          "documentviewerwidget",
+                                          _.draggableWidgets.DOCUMENT_VIEWER,
                                         ),
                                       )
-                                      .invoke("css", "height")
                                       .then((rdheight) => {
                                         expect(a1height).to.not.equal(raheight);
                                         expect(b1height).to.not.equal(rbheight);
@@ -105,21 +107,36 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
 
-    _.entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 300, 50);
-    _.entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 300, 200);
-    _.entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 300, 350);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      300,
+      50,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CURRENCY_INPUT,
+      300,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.MULTISELECT,
+      300,
+      350,
+    );
 
     _.agHelper
-      .GetElement(_.locators._widgetInDeployed("inputwidgetv2"))
-      .invoke("css", "height")
+      .GetWidgetHeight(
+        _.locators._widgetInDeployed(_.draggableWidgets.INPUT_V2),
+      )
       .then((aheight) => {
         _.agHelper
-          .GetElement(_.locators._widgetInDeployed("currencyinputwidget"))
-          .invoke("css", "height")
+          .GetWidgetHeight(
+            _.locators._widgetInDeployed(_.draggableWidgets.CURRENCY_INPUT),
+          )
           .then((bheight) => {
             _.agHelper
-              .GetElement(_.locators._widgetInDeployed("multiselectwidgetv2"))
-              .invoke("css", "height")
+              .GetWidgetHeight(
+                _.locators._widgetInDeployed(_.draggableWidgets.MULTISELECT),
+              )
               .then((dheight) => {
                 cy.log(aheight);
                 cy.log(bheight);
@@ -129,20 +146,23 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                 _.autoLayout.ConvertToAutoLayoutAndVerify();
 
                 _.agHelper
-                  .GetElement(_.locators._widgetInDeployed("inputwidgetv2"))
-                  .invoke("css", "height")
+                  .GetWidgetHeight(
+                    _.locators._widgetInDeployed(_.draggableWidgets.INPUT_V2),
+                  )
                   .then((a1height) => {
                     _.agHelper
-                      .GetElement(
-                        _.locators._widgetInDeployed("currencyinputwidget"),
+                      .GetWidgetHeight(
+                        _.locators._widgetInDeployed(
+                          _.draggableWidgets.CURRENCY_INPUT,
+                        ),
                       )
-                      .invoke("css", "height")
                       .then((b1height) => {
                         _.agHelper
-                          .GetElement(
-                            _.locators._widgetInDeployed("multiselectwidgetv2"),
+                          .GetWidgetHeight(
+                            _.locators._widgetInDeployed(
+                              _.draggableWidgets.MULTISELECT,
+                            ),
                           )
-                          .invoke("css", "height")
                           .then((d1height) => {
                             expect(aheight).to.not.equal(a1height);
                             expect(bheight).to.not.equal(b1height);
@@ -151,26 +171,25 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                             _.autoLayout.UseSnapshotFromBanner();
 
                             _.agHelper
-                              .GetElement(
-                                _.locators._widgetInDeployed("inputwidgetv2"),
+                              .GetWidgetHeight(
+                                _.locators._widgetInDeployed(
+                                  _.draggableWidgets.INPUT_V2,
+                                ),
                               )
-                              .invoke("css", "height")
                               .then((raheight) => {
                                 _.agHelper
-                                  .GetElement(
+                                  .GetWidgetHeight(
                                     _.locators._widgetInDeployed(
-                                      "currencyinputwidget",
+                                      _.draggableWidgets.CURRENCY_INPUT,
                                     ),
                                   )
-                                  .invoke("css", "height")
                                   .then((rbheight) => {
                                     _.agHelper
-                                      .GetElement(
+                                      .GetWidgetHeight(
                                         _.locators._widgetInDeployed(
-                                          "multiselectwidgetv2",
+                                          _.draggableWidgets.MULTISELECT,
                                         ),
                                       )
-                                      .invoke("css", "height")
                                       .then((rdheight) => {
                                         expect(a1height).to.not.equal(raheight);
                                         expect(b1height).to.not.equal(rbheight);
@@ -194,10 +213,10 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
     _.homePage.CreateNewApplication();
 
     const canvasTypeWidgets = [
-      "containerwidget",
-      "formwidget",
-      "listwidgetv2",
-      "tabswidget",
+      _.draggableWidgets.CONTAINER,
+      _.draggableWidgets.FORM,
+      _.draggableWidgets.LIST_V2,
+      _.draggableWidgets.TAB,
     ];
 
     let x = 300,
@@ -212,9 +231,9 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
         y += 400;
       }
     });
-    _.entityExplorer.DragDropWidgetNVerify("modalwidget");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MODAL);
     cy.wait(1000);
-    _.agHelper.GetElement(widgets.modalCloseButton).click({ force: true });
+    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
 
     _.autoLayout.ConvertToAutoLayoutAndVerify();
 
@@ -222,9 +241,9 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
       _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
     });
     _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-    _.autoLayout.VerifyCurrentWidgetIsAutolayout("modalwidget");
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.MODAL);
     cy.wait(1000);
-    _.agHelper.GetElement(widgets.modalCloseButton).click({ force: true });
+    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
 
     _.autoLayout.ConvertToFixedLayoutAndVerify("DESKTOP");
 
@@ -232,8 +251,8 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
       _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
     });
     _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-    _.autoLayout.VerifyCurrentWidgetIsFixedlayout("modalwidget");
+    _.autoLayout.VerifyCurrentWidgetIsFixedlayout(_.draggableWidgets.MODAL);
     cy.wait(1000);
-    _.agHelper.GetElement(widgets.modalCloseButton).click({ force: true });
+    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
   });
 });
