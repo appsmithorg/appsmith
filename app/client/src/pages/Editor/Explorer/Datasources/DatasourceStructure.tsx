@@ -12,7 +12,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
-import { SHOW_TEMPLATES, createMessage } from "ce/constants/messages";
+import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
 import styled from "styled-components";
 
 type DatasourceStructureProps = {

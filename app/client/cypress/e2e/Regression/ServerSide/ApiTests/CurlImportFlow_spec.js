@@ -63,4 +63,14 @@ describe("Test curl import flow", function () {
       });
     });
   });
+
+  it("3. Bug:19214 Test curl import flow for request without any headers", function () {
+    cy.fixture("datasources").then((datasourceFormData) => {
+      _.dataSources.FillCurlNImport(
+        "curl -X GET " + datasourceFormData["echoApiUrl"],
+      );
+      _.apiPage.AssertEmptyHeaderKeyValuePairsPresent(0);
+      _.apiPage.AssertEmptyHeaderKeyValuePairsPresent(1);
+    });
+  });
 });
