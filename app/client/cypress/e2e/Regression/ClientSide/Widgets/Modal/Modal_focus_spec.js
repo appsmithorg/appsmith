@@ -70,7 +70,6 @@ describe("Modal focus", function () {
   });
   it("2. Should not focus on the input field if autofocus is disabled", () => {
     cy.openPropertyPaneFromModal("inputwidgetv2");
-
     // autofocus for input field is disabled
     cy.get(".t--property-control-autofocus")
       .find(".ads-v2-switch")
