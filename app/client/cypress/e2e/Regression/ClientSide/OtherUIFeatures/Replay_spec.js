@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
+const { propPane } = require("../../../../support/Objects/ObjectsCore");
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -124,7 +125,7 @@ describe("Undo/Redo functionality", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
 
     cy.wait(100);
-    cy.get(widgetsPage.inputTextControl).type("1");
+    propPane.UpdatePropertyFieldValue("Text", "Label");
 
     cy.closePropertyPane();
 
@@ -140,9 +141,7 @@ describe("Undo/Redo functionality", function () {
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.wait(100);
     cy.get(widgetsPage.propertypaneText).should("exist");
-    cy.get(widgetsPage.inputTextControl).contains(
-      "Hello {{appsmi1th.user.name || appsmith.user.email}}",
-    );
+    cy.get(widgetsPage.inputTextControl).contains("Label");
     cy.deleteWidget(widgetsPage.textWidget);
   });
 
