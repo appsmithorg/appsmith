@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -166,8 +165,8 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping(Url.MOCKS)
-    public Mono<ResponseDTO<DatasourceDTO>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
-                                                              @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
+                                                           @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         return mockDataService.createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
