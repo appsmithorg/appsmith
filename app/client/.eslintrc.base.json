@@ -9,7 +9,8 @@
     "prettier",
     "react-hooks",
     "sort-destructure-keys",
-    "cypress"
+    "cypress",
+    "jest"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -38,6 +39,8 @@
     "cypress/no-unnecessary-waiting": "off",
     "cypress/no-assigning-return-values": "off",
     "@typescript-eslint/no-unused-vars": "error",
+    "jest/no-focused-tests": "error",
+    "jest/no-disabled-tests": "error",
     // enforce `import type` for all type-only imports so the bundler knows to erase them
     "@typescript-eslint/consistent-type-imports": "error",
     "react-hooks/rules-of-hooks": "error",
