@@ -65,7 +65,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
         onChange={this.selectOption}
         options={this.props.options}
         ref={this.componentRef}
-        value={this.props.propertyValue ?? this.props.defaultValue}
+        value={this.props.propertyValue || this.props.defaultValue}
       />
     );
   }
