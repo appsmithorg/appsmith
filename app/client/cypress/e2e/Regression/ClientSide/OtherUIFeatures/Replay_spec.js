@@ -131,14 +131,18 @@ describe("Undo/Redo functionality", function () {
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(100);
     cy.get(widgetsPage.propertypaneText).should("exist");
-    cy.get(widgetsPage.inputTextControl).contains("Label");
+    cy.get(widgetsPage.inputTextControl).contains(
+      "Hello {{appsmith.user.name || appsmith.user.email}}",
+    );
 
     cy.closePropertyPane();
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.wait(100);
     cy.get(widgetsPage.propertypaneText).should("exist");
-    cy.get(widgetsPage.inputTextControl).contains("Label1");
+    cy.get(widgetsPage.inputTextControl).contains(
+      "Hello {{appsmi1th.user.name || appsmith.user.email}}",
+    );
     cy.deleteWidget(widgetsPage.textWidget);
   });
 
