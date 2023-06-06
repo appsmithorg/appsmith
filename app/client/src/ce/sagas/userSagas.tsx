@@ -73,8 +73,10 @@ import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
-import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import {
+  USER_PROFILE_PICTURE_UPLOAD_FAILED,
+  UPDATE_USER_DETAILS_FAILED,
+} from "@appsmith/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
