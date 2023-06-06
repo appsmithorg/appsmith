@@ -9593,7 +9593,7 @@ __metadata:
     eslint-plugin-storybook: ^0.6.11
     factory.ts: ^0.5.1
     fast-deep-equal: ^3.1.3
-    fast-xml-parser: ^3.17.5
+    fast-xml-parser: ^4.2.4
     fastdom: ^1.0.11
     focus-trap-react: ^8.9.2
     fuse.js: ^3.4.5
@@ -15497,12 +15497,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^3.17.5":
-  version: 3.17.5
-  resolution: "fast-xml-parser@npm:3.17.5"
+"fast-xml-parser@npm:^4.2.4":
+  version: 4.2.4
+  resolution: "fast-xml-parser@npm:4.2.4"
+  dependencies:
+    strnum: ^1.0.5
   bin:
-    xml2js: cli.js
-  checksum: 6c436f540a4dcab67d395c0f6e8dc70090e6ced2ff73ed5fec181c1b25df755ed9fd9ba8271d6f70096fbe3add8b4eac130a5f4daeb12970427f72403a56934e
+    fxparser: src/cli/cli.js
+  checksum: d3b4d0c0152c09f98def792769fca6bb3fa1d597f9745d9564451c239089bd86bdf573c9263b4944860028cb7edb81752d64399c1aff8b87c9225ecef96905f7
   languageName: node
   linkType: hard
 
@@ -28403,6 +28405,13 @@ __metadata:
   version: 2.0.1
   resolution: "strip-json-comments@npm:2.0.1"
   checksum: 1074ccb63270d32ca28edfb0a281c96b94dc679077828135141f27d52a5a398ef5e78bcf22809d23cadc2b81dfbe345eb5fd8699b385c8b1128907dec4a7d1e1
+  languageName: node
+  linkType: hard
+
+"strnum@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "strnum@npm:1.0.5"
+  checksum: 651b2031db5da1bf4a77fdd2f116a8ac8055157c5420f5569f64879133825915ad461513e7202a16d7fec63c54fd822410d0962f8ca12385c4334891b9ae6dd2
   languageName: node
   linkType: hard
 
