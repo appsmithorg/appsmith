@@ -1,12 +1,11 @@
-import type { WidgetProps } from "@shared/dsl";
-import { DSL } from "@shared/dsl";
+import { flattenDSLByName, unflattenDSLByName } from "@shared/dsl";
 
-export const getDSLForGit = (request: WidgetProps) => {
-  const dsl = new DSL(request);
-  return dsl.asGitDSL();
+export const getDSLForGit = (nestedDSL) => {
+  const gitFlattenedDSL = flattenDSLByName(nestedDSL);
+  return gitFlattenedDSL;
 };
 
-export const getNestedDSLFromGit = (request: WidgetProps) => {
-  const dsl = new DSL(request);
-  return dsl.asNestedDSLFromGit("0", dsl);
+export const getNestedDSLFromGit = (flattenedDSLEntities) => {
+  const nestedDSL = unflattenDSLByName("0", flattenedDSLEntities);
+  return nestedDSL;
 };
