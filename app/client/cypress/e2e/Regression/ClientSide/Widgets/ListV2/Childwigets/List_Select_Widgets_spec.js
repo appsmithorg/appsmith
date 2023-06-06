@@ -5,9 +5,8 @@ import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
 const widgetLocators = require("../../../../../../locators/Widgets.json");
 
 let agHelper = ObjectsRegistry.AggregateHelper;
-
+let propPane = ObjectsRegistry.PropertyPane;
 const items = JSON.parse(dsl.dsl.children[0].listData);
-
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
@@ -100,10 +99,12 @@ describe("Select Widgets", function () {
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Select_Widget");
 
-    cy.testJsontext(
-      "text",
+    propPane.UpdatePropertyFieldValue("Text", "");
+    propPane.TypeTextIntoField(
+      "Text",
       "{{`${currentView.Select1.selectedOptionLabel}_${currentView.Select1.selectedOptionValue}_${currentView.Select1.isDirty}_${currentView.Select1.isValid}`}}",
     );
+
     cy.get(`${widgetSelector("Select_Widget")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
@@ -118,10 +119,13 @@ describe("Select Widgets", function () {
       "Text1",
       "MultiSelect_Widget",
     );
-    cy.testJsontext(
-      "text",
+
+    propPane.UpdatePropertyFieldValue("Text", "");
+    propPane.TypeTextIntoField(
+      "Text",
       "{{`${currentView.MultiSelect1.selectedOptionLabels[0]}_${currentView.MultiSelect1.selectedOptionValues[0]}_${currentView.MultiSelect1.isDirty}_${currentView.MultiSelect1.isValid}`}}",
     );
+
     cy.get(
       `${widgetSelector("MultiSelect_Widget")} ${commonlocators.bodyTextStyle}`,
     )
