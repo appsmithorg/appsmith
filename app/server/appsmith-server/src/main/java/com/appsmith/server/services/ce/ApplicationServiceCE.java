@@ -101,5 +101,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
 
-    Mono<Boolean> isPermissionPresentForCurrentUser(Application obj, String permission);
+    // Using AclPermission will make the method more restrict.
+    Mono<Boolean> isPermissionPresentForCurrentUser(Application application, AclPermission permission);
 }
