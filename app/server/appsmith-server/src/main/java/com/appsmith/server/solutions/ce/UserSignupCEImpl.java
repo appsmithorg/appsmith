@@ -296,6 +296,9 @@ public class UserSignupCEImpl implements UserSignupCE {
                      */
                     Mono<User> sendCreateSuperUserEvent = sendCreateSuperUserEventOnSeparateThreadMono(user);
 
+                    // In the past, we have seen "Installation Setup Complete" not getting triggered if subscribed within
+                    // secondary functions, hence subscribing this in a separate thread to avoid getting cancelled because
+                    // of any other secondary function mono throwing an exception
                     sendInstallationSetupAnalytics(userFromRequest, user, userData)
                             .subscribeOn(commonConfig.scheduler())
                             .subscribe();
