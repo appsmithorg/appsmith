@@ -3,7 +3,7 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
-} from "ce/constants/forms";
+} from "@appsmith/constants/forms";
 import { getCurrentEnvironment } from "ce/sagas/EnvironmentSagas";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";

@@ -754,7 +754,10 @@ class CodeEditor extends Component<Props, State> {
         .extractExpressionAtPosition(chIndex)
         .then((lineExpression: string) => {
           const paths = _.toPath(lineExpression);
-          if (!this.isPathLibrary(paths)) {
+          if (
+            !this.isPathLibrary(paths) &&
+            paths[0] in this.props.dynamicData
+          ) {
             this.showPeekOverlay(lineExpression, paths, tokenElement);
           } else {
             this.hidePeekOverlay();
