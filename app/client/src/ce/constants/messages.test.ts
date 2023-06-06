@@ -295,7 +295,7 @@ describe("messages without input", () => {
     {
       key: "DISCARD_CHANGES_WARNING",
       value:
-        "Discarding these changes will rebase the local branch onto the remote branch.",
+        "Discard will fetch and rebase to get your remote repository's latest changes.",
     },
     {
       key: "DISCARD_SUCCESS",
