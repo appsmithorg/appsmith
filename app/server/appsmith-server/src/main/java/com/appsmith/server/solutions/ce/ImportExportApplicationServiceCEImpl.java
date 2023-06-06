@@ -885,7 +885,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, permissionProvider.getWorkspacePermission());
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, permissionProvider.getWorkspacePermission())
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error("No workspace found with id: {} and permission: {}", workspaceId, permissionProvider.getWorkspacePermission());
+                    return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
+                }));
 
         /* We need to take care of the null case in case someone is trying to import an older app where JS libs did
         not exist */
@@ -935,10 +939,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(installedJSLibMono)
                 .then(workspaceMono)
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("No workspace found with id: {} and permission: {}", workspaceId, permissionProvider.getWorkspacePermission());
-                    return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
-                }))
                 .flatMap(workspace -> {
                     Mono<List<Datasource>> existingDatasourceMono;
                     // Check if the request is to hydrate the application to DB for particular branch
