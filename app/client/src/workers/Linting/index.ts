@@ -12,6 +12,7 @@ import lintTriggerPath from "./utils/lintTriggerPath";
 import lintJSObjectBody from "./utils/lintJSObjectBody";
 import sortLintingPathsByType from "./utils/sortLintingPathsByType";
 import lintJSObjectProperty from "./utils/lintJSObjectProperty";
+import setters from "workers/Evaluation/setters";
 
 export function getlintErrorsFromTree({
   asyncJSFunctionsInDataFields,
@@ -23,7 +24,10 @@ export function getlintErrorsFromTree({
 }: getlintErrorsFromTreeProps): getlintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const updatedJSEntities = new Set<string>();
+
+  setters.init(configTree);
   globalData.initialize(unEvalTree, configTree, cloudHosting);
+
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
     pathsToLint,
     unEvalTree,

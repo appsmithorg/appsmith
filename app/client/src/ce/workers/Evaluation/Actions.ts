@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import set from "lodash/set";
-import type {
-  ConfigTree,
-  DataTree,
-  DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
@@ -16,8 +12,7 @@ import {
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
 import { isEmpty } from "lodash";
-import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
-import { applySetterMethod } from "workers/Evaluation/setters";
+import setters from "workers/Evaluation/setters";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -35,25 +30,6 @@ declare global {
 export enum ExecutionType {
   PROMISE = "PROMISE",
   TRIGGER = "TRIGGER",
-}
-
-function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
-  const setterMethodMap: Record<string, any> = {};
-  if (!entityConfig) return setterMethodMap;
-
-  if (entityConfig.__setters) {
-    for (const setterMethodName of Object.keys(entityConfig.__setters)) {
-      const path = entityConfig.__setters[setterMethodName].path;
-
-      setterMethodMap[setterMethodName] = function (value: unknown) {
-        if (!dataTreeEvaluator) return;
-
-        return applySetterMethod(path, value, setterMethodName);
-      };
-    }
-  }
-
-  return setterMethodMap;
 }
 
 /**
@@ -76,9 +52,12 @@ export const addDataTreeToContext = (args: {
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
+  if (isTriggerBased && !removeEntityFunctions) setters.clear();
+
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = getEntityForEvalContext(entity, entityName);
 
+    // when we evaluate data field and removeEntityFunctions is true then we skip adding entity function to evalContext
     const skipEntityFunctions = !removeEntityFunctions && !isTriggerBased;
 
     if (skipEntityFunctions) continue;
@@ -94,7 +73,11 @@ export const addDataTreeToContext = (args: {
     if (removeEntityFunctions) continue;
 
     const entityConfig = configTree[entityName];
-    const entityMethodMap = getEntityMethodFromConfig(entityConfig);
+    const entityMethodMap = setters.getMethodFromConfig(
+      entityConfig,
+      entityName,
+    );
+
     if (isEmpty(entityMethodMap)) continue;
     EVAL_CONTEXT[entityName] = Object.assign(
       {},
@@ -129,7 +112,10 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
   }
 };
 
-export const getAllAsyncFunctions = (dataTree: DataTree) => {
+export const getAllAsyncFunctions = (
+  dataTree: DataTree,
+  configTree: ConfigTree,
+) => {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
@@ -137,6 +123,18 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
       if (!entityFn.qualifier(entity)) continue;
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       asyncFunctionNameMap[fullPath] = true;
+    }
+
+    const entityConfig = configTree[entityName];
+    const entityMethodMap = setters.getMethodFromConfig(
+      entityConfig,
+      entityName,
+    );
+
+    if (isEmpty(entityMethodMap)) continue;
+
+    for (const methodName of Object.keys(entityMethodMap)) {
+      asyncFunctionNameMap[`${entityName}.${methodName}`] = true;
     }
   }
   for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
