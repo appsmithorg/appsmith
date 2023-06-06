@@ -8,7 +8,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -77,16 +76,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         this.mongoConverter = mongoConverter;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
-    }
-
-    public Mono<Boolean> isPermissionPresentForCurrentUser(T baseDomain, String permission) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
-                .map(userPermissionGroupIds ->
-                        PolicyUtils.isPermissionPresentInPolicies(permission, baseDomain.getPolicies(), userPermissionGroupIds)
-                );
     }
 
     public static final String fieldName(Path<?> path) {

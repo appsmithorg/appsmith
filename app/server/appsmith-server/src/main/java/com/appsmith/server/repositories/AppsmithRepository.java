@@ -29,6 +29,4 @@ public interface AppsmithRepository<T> {
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
     Mono<T> setUserPermissionsInObject(T obj);
-
-    Mono<Boolean> isPermissionPresentForCurrentUser(T obj, String permission);
 }
