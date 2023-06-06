@@ -17,7 +17,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
       true,
     );
 
-    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(1);
+    _.agHelper.AssertElementLength(_.locators._selectedWidget, 1);
 
     //copying first button in first layer, which is center aligned
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
@@ -45,7 +45,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
       1,
       true,
     );
-    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(1);
+    _.agHelper.AssertElementLength(_.locators._selectedWidget, 1);
 
     //copying second button in first layer, which is end aligned
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
@@ -79,7 +79,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
       0,
       true,
     );
-    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(1);
+    _.agHelper.AssertElementLength(_.locators._selectedWidget, 1);
 
     //copying first button in first layer, which is center aligned
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
@@ -88,7 +88,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     //unselect all widgets
     _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
 
-    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(0);
+    _.agHelper.AssertElementLength(_.locators._selectedWidget, 0);
     //paste
     _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
@@ -131,14 +131,14 @@ describe("Copy paste widget related tests for Auto layout", () => {
       3,
       true,
     );
-    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(4);
+    _.agHelper.AssertElementLength(_.locators._selectedWidget, 4);
     _.agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
     _.agHelper.GetElement(_.locators._toastMsg).contains("Copied");
 
     //unselect all widgets
     _.agHelper.GetNClick(_.locators._selectionCanvas("0"), 0, true);
 
-    expect(_.agHelper.GetElementLength(_.locators._selectedWidget)).to.eq(0);
+    _.agHelper.AssertElementLength(_.locators._selectedWidget, 0);
     //paste
     _.agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
     cy.wait(1000);
