@@ -3,6 +3,7 @@ const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const { propPane } = require("../../../support/Objects/ObjectsCore");
 
 describe(" File Picker Widget", function () {
   before(() => {
@@ -54,10 +55,12 @@ describe(" File Picker Widget", function () {
     });
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "FilePicker_Widget");
-    cy.testJsontext(
-      "text",
+    propPane.UpdatePropertyFieldValue("Text", "");
+    propPane.TypeTextIntoField(
+      "Text",
       "{{currentView.FilePicker1.isDirty}}_{{currentView.FilePicker1.isValid}}_{{currentView.FilePicker1.files[0]?.name}}",
     );
+
     cy.get(
       `${widgetSelector("FilePicker_Widget")} ${commonlocators.bodyTextStyle}`,
     )
