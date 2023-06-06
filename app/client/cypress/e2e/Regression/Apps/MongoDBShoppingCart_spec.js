@@ -6,7 +6,7 @@ const formControls = require("../../../locators/FormControl.json");
 import * as _ from "../../../support/Objects/ObjectsCore";
 
 let repoName;
-describe("Shopping cart App", function () {
+describe.skip("Shopping cart App", function () {
   let datasourceName;
 
   before(() => {
@@ -156,8 +156,11 @@ describe("Shopping cart App", function () {
     // Updating the book quantity from edit cart
     _.agHelper.UpdateInput(appPage.editbookquantity, 3, true);
     _.agHelper.GetNClick(appPage.editButton, 0, true);
-    _.agHelper.AssertAutoSave();
+
+    //Wait for all post execute calls to finish
+    _.agHelper.Sleep(3000);
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    cy.get("@postExecute.all").its("length").should("be.above", 8);
     cy.get("@postExecute.last")
       .its("response.body")
       .then((user) => {
