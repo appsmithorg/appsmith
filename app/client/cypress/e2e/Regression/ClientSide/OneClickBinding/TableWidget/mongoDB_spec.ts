@@ -1,5 +1,4 @@
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
 
@@ -17,9 +16,7 @@ describe("one click binding mongodb datasource", function () {
     _.dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
-
-      (cy as any).openPropertyPane(WIDGET.TABLE);
+      _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
