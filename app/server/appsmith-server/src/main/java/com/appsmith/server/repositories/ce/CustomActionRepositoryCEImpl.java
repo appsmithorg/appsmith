@@ -19,8 +19,7 @@ import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class
-CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Action> implements CustomActionRepositoryCE {
+public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Action> implements CustomActionRepositoryCE {
 
     public CustomActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
