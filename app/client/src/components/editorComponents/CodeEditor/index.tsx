@@ -1283,6 +1283,14 @@ class CodeEditor extends Component<Props, State> {
     // Check if the user is trying to comment out the line, in that case we should not show autocomplete
     const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
 
+    const isAltKeyPressed = event.altKey;
+
+    // If alt key is pressed, do not show autocomplete
+    // Windows and Linux use Alt + Enter to add a new line
+    // Alt key is used to enter non-english characters which are invalid entity names
+    // So we can safely disable autocomplete when alt key is pressed
+    if (isAltKeyPressed) return;
+
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
