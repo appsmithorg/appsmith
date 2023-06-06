@@ -11,7 +11,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function () {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
@@ -19,7 +19,7 @@ describe("Git import flow ", function () {
     });
   });
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
@@ -36,22 +36,19 @@ describe("Git import flow ", function () {
       cy.get(reconnectDatasourceModal.Modal).should("be.visible");
       cy.ReconnectDatasource("TEDPostgres");
       cy.wait(1000);
-      cy.fillPostgresDatasourceForm();
-      cy.get(datasourceEditor.sectionAuthentication).click();
+      _.dataSources.FillPostgresDSForm();
       cy.testDatasource(true);
       cy.get(".t--save-datasource").click({ force: true });
       cy.wait(1000);
       cy.ReconnectDatasource("TEDMySQL");
       cy.wait(500);
-      cy.fillMySQLDatasourceForm();
-      cy.get(datasourceEditor.sectionAuthentication).click();
+      _.dataSources.FillMySqlDSForm();
       cy.testDatasource(true);
       cy.get(".t--save-datasource").click({ force: true });
       cy.wait(1000);
       cy.ReconnectDatasource("TEDMongo");
       cy.wait(1000);
-      cy.fillMongoDatasourceForm();
-      cy.get(datasourceEditor.sectionAuthentication).click();
+      _.dataSources.FillMongoDSForm();
       cy.testDatasource(true);
       cy.get(".t--save-datasource").click({ force: true });
       cy.wait(2000);
@@ -59,6 +56,7 @@ describe("Git import flow ", function () {
         "contain",
         "Application imported successfully",
       ); */
+      cy.wait("@getWorkspace");
       cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
       cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
         force: true,

@@ -257,6 +257,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.wait("@postLogout");
 
   cy.visit("/user/signup");
+  cy.wait("@signUp").its("response.body.responseMeta.status").should("eq", 200);
   cy.get(signupPage.username).should("be.visible");
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
@@ -1117,6 +1118,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postEnv");
 
   cy.intercept("GET", "/settings/general").as("getGeneral");
+  cy.intercept("GET", "/api/v1/tenants/current").as("signUp");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
