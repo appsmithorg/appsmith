@@ -17,10 +17,9 @@ export type TypographyVariantSource = {
   fontFamily?: FontFamilyTypes;
 };
 
-export type TypographySource =
-  | { body: TypographyVariantSource }
-  | { footnote: TypographyVariantSource }
-  | { heading: TypographyVariantSource };
+export type TypographySource = {
+  [key in TypographyVariants]: TypographyVariantSource;
+};
 
 export type TypographyVariant = {
   capHeight: number;
@@ -28,7 +27,6 @@ export type TypographyVariant = {
   fontFamily?: FontFamilyTypes;
 };
 
-export type Typography =
-  | { body: TypographyVariant }
-  | { footnote: TypographyVariant }
-  | { heading: TypographyVariant };
+export type Typography = {
+  [key in TypographyVariants]: TypographyVariant;
+};

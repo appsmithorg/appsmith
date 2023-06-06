@@ -20,14 +20,14 @@ export interface Token {
 }
 
 export interface TokenSource {
+  rootUnit: number;
+  typography: TypographySource;
   seedColor?: ColorTypes;
   colorMode?: ColorMode;
-  rootUnit: number;
   borderRadius?: TokenObj;
   boxShadow?: TokenObj;
   borderWidth?: TokenObj;
   opacity?: TokenObj;
-  typography?: TypographySource;
   fontFamily?: FontFamilyTypes;
 }
 

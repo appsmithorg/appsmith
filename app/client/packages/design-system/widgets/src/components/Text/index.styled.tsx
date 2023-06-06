@@ -43,16 +43,11 @@ export const StyledText = styled.div<StyledTextProp>`
   ${truncateStyles}
 
   ${({ typography, variant }) => {
-    switch (true) {
-      case variant === "heading":
-        return typography?.heading;
-      case variant === "footnote":
-        return typography?.footnote;
-      case variant === "body":
-        return typography?.body;
-      default:
-        return typography?.body;
+    if (variant && typography) {
+      return typography?.[variant];
     }
+
+    return typography?.body;
   }}
 
   color: ${({ type }) => {

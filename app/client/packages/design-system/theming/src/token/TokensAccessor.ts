@@ -10,13 +10,6 @@ import type {
 
 import type { ThemeTokens, TokenObj, TokenSource, TokenType } from "./types";
 
-const DEFAULT_TYPOGRAPHY = {
-  body: {
-    capHeightRatio: 2.5,
-    lineGapRatio: 2,
-  },
-};
-
 export class TokensAccessor {
   private seedColor?: ColorTypes;
   private colorMode?: ColorMode;
@@ -25,7 +18,7 @@ export class TokensAccessor {
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
-  private typography?: TypographySource;
+  private typography: TypographySource;
   private fontFamily?: FontFamilyTypes;
 
   constructor({
@@ -104,21 +97,16 @@ export class TokensAccessor {
   };
 
   getTypography = (): { typography: Typography } => {
-    const typography = this.typography ?? DEFAULT_TYPOGRAPHY;
+    const keys = Object.keys(this.typography) as Array<keyof TypographySource>;
 
     return {
-      typography: Object.keys(typography).reduce((prev, current) => {
-        const {
-          capHeightRatio,
-          fontFamily: fontFamily1,
-          lineGapRatio,
-        } = typography[current as keyof TypographySource];
+      typography: keys.reduce((prev, current) => {
         return {
           ...prev,
           [current]: {
-            capHeight: capHeightRatio * this.rootUnit,
-            lineGap: lineGapRatio * this.rootUnit,
-            fontFamily: fontFamily1 ?? this.fontFamily,
+            capHeight: this.typography[current].capHeightRatio * this.rootUnit,
+            lineGap: this.typography[current].lineGapRatio * this.rootUnit,
+            fontFamily: this.typography[current].fontFamily ?? this.fontFamily,
           },
         };
       }, {} as Typography),
@@ -191,28 +179,6 @@ export class TokensAccessor {
   private get isDarkMode() {
     return this.colorMode === "dark";
   }
-
-  // private updateTypography(
-  //   rootUnit: number,
-  //   typography: Typography,
-  //   fontFamily?: FontFamilyTypes,
-  // ) {
-  //   return Object.keys(typography).reduce((prev, current) => {
-  //     const {
-  //       capHeight,
-  //       fontFamily: fontFamily1,
-  //       lineGap,
-  //     } = typography[current as keyof Typography];
-  //     return {
-  //       ...prev,
-  //       [current]: {
-  //         capHeight: capHeight * rootUnit,
-  //         lineGap: lineGap * rootUnit,
-  //         fontFamily: fontFamily1 ?? fontFamily,
-  //       },
-  //     };
-  //   }, {} as Typography);
-  // }
 
   private createTokenObject = (
     tokenObj: TokenObj,

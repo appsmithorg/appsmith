@@ -4,6 +4,7 @@ import {
   TokensAccessor,
   LightModeTheme,
   DarkModeTheme,
+  defaultTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
 import { Text } from "../Text";
@@ -120,6 +121,7 @@ export const ColorComponent = (props: any) => {
             const tokensAccessor = new TokensAccessor({
               rootUnit: 4,
               typography: {
+                ...defaultTokens.typography,
                 footnote: {
                   capHeightRatio: 1.4,
                   lineGapRatio: 1,

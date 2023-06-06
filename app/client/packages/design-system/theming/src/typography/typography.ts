@@ -33,7 +33,7 @@ export const fontMetrics = {
 
 import type { FontFamilyTypes, Typography } from "./types";
 
-export const getTypography = (typography: Typography) => {
+export const createTypographyStylesMap = (typography: Typography) => {
   return Object.keys(typography).reduce((prev, current) => {
     const { capHeight, fontFamily, lineGap } =
       typography[current as keyof Typography];

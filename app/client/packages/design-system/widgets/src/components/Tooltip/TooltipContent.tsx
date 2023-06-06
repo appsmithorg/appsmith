@@ -16,10 +16,10 @@ export const TooltipContent = forwardRef(
 
     // We have to shift the arrow so that there is no empty space if the tooltip has rounding
     const theme = useThemeContext();
-    const isRounded =
-      // @ts-expect-error this is a string
-      theme?.borderRadius?.[1].value.replace("px", "") >
-      BORDER_RADIUS_THRESHOLD;
+    const borderRadius = Number(
+      (theme?.borderRadius?.[1].value as string).replace("px", ""),
+    );
+    const isRounded = borderRadius > BORDER_RADIUS_THRESHOLD;
 
     return (
       <StyledTooltipContent $isRounded={isRounded} ref={ref} {...rest}>

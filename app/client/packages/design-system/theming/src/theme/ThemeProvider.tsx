@@ -1,5 +1,8 @@
 import React from "react";
-import { createGlobalFontStack, getTypography } from "../typography";
+import {
+  createGlobalFontStack,
+  createTypographyStylesMap,
+} from "../typography";
 import { StyledProvider } from "./index.styled";
 import { ThemeContext } from "./ThemeContext";
 import { createGlobalStyle } from "styled-components";
@@ -20,7 +23,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
     <ThemeContext.Provider
       value={{
         ...rest,
-        typography: getTypography(typography),
+        typography: createTypographyStylesMap(typography),
       }}
     >
       <GlobalStyles />
