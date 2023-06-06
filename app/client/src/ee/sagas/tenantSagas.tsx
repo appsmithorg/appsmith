@@ -24,7 +24,7 @@ import type {
   License,
 } from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import {
   ADMIN_SETTINGS_PATH,
   BUILDER_PATH,

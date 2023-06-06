@@ -95,6 +95,7 @@ import {
 import { importSvg } from "design-system-old";
 import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -272,6 +273,7 @@ function WorkspaceInviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const instanceId = useSelector(getInstanceId);
   const groupSuggestions: any[] = useSelector(getGroupSuggestions);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
@@ -450,8 +452,13 @@ function WorkspaceInviteUsersForm(props: any) {
                 }
               : {}),
             ...(cloudHosting ? { users: usersStr } : {}),
+            ...(isAppLevelInviteOnSelfHost
+              ? { appId: props.applicationId }
+              : {}),
             numberOfUsersInvited: usersArray.length,
             role: roles,
+            orgId: props.workspaceId,
+            instanceId,
           });
           if (onSubmitHandler) {
             return onSubmitHandler({

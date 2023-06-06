@@ -12,7 +12,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { PAGE_NOT_FOUND_URL, SETUP, USER_AUTH_URL } from "constants/routes";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AxiosError } from "axios";
