@@ -422,7 +422,7 @@ describe("Autocomplete tests", () => {
     });
   });
 
-  it("10. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
+  it("10. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
     // create js object
     _.jsEditor.CreateJSObject(
       `export default 
