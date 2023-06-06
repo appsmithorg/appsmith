@@ -101,13 +101,6 @@ export class PropertyPane {
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
 
-  private getWidgetSelector = (widgetType: string) =>
-    `div.t--widget-${widgetType}`;
-
-  public openWidgetPropertyPane(widgetType: string) {
-    this.agHelper.GetNClick(this.getWidgetSelector(widgetType));
-  }
-
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
   }
@@ -463,20 +456,17 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public DeleteWidget() {
-    ObjectsRegistry.AggregateHelper.GetNClick(
-      `[data-testid="t--delete-widget"]`,
-    );
-  }
-
   public changeZoomLevel(zoomValue: string) {
-   this.agHelper.GetNClickLastOccurance(this.locator._changeZoomlevel,true);
-   this.agHelper.GetNClickByContains(this.locator._dropdownText,zoomValue);
-   cy.wait("@updateLayout").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  this.agHelper.AssertSelectedOptionText(this.locator._selectedZoomlevel,zoomValue);
+    this.agHelper.GetNClickLastOccurance(this.locator._changeZoomlevel, true);
+    this.agHelper.GetNClickByContains(this.locator._dropdownText, zoomValue);
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    this.agHelper.AssertSelectedOptionText(
+      this.locator._selectedZoomlevel,
+      zoomValue,
+    );
   }
 }
