@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
+import org.ff4j.conf.XmlParser;
 import org.ff4j.parser.yaml.YamlParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -86,7 +87,7 @@ public class FeatureFlagServiceTest {
 
         @Bean
         FF4j ff4j() {
-            FF4j ff4j = new FF4j(new YamlParser(), "features/init-flags-test.yml")
+            FF4j ff4j = new FF4j(new XmlParser(), "features/init-flags-test.xml")
                     .audit(true)
                     .autoCreate(false);
             return ff4j;
