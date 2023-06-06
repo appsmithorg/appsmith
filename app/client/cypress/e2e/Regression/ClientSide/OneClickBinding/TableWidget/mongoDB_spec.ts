@@ -31,7 +31,7 @@ describe("one click binding mongodb datasource", function () {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     _.agHelper.Sleep(2000);
     //#endregion

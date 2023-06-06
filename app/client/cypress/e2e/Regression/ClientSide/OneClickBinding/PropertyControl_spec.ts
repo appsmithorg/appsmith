@@ -9,7 +9,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe("One click binding control", () => {
   before(() => {
-    _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
   });
 
   it("1.should check the datasource selector and the form", () => {

@@ -15,7 +15,7 @@ describe("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       _.entityExplorer.NavigateToSwitcher("Widgets");
 
-      (cy as any).openPropertyPane(_.draggableWidgets.TABLE);
+      _.entityExplorer.SelectEntityByName(_.draggableWidgets.TABLE);
 
       oneClickBinding.ChooseAndAssertForm(
         `New from ${dsName}`,
@@ -27,7 +27,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     cy.wait(2000);
 
@@ -57,11 +57,11 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     _.agHelper.AssertElementExist(_.table._bodyCell("cypress@appsmith"));
 
@@ -79,9 +79,9 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).saveTableRow(12, 0);
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     (cy as any).wait(500);
 
@@ -89,7 +89,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.TypeText(_.table._searchInput, "automation@appsmith");
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     (cy as any).wait(2000);
 
@@ -99,7 +99,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
 
-    cy.wait("@postExecute");
+    _.agHelper.ValidateNetworkStatus("@postExecute");
 
     (cy as any).wait(2000);
 

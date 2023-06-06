@@ -32,11 +32,11 @@ export class OneClickBinding {
     _.agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
     _.agHelper.GetNClick(
-      `.t--one-click-binding-table-selector--table:contains(${table})`,
+      oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),
     );
 
     _.agHelper.AssertElementExist(
-      `${oneClickBindingLocator.tableOrSpreadsheetDropdown} .rc-select-selection-item:contains(${table})`,
+      oneClickBindingLocator.tableOrSpreadsheetSelectedOption(table),
     );
 
     _.agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
@@ -44,11 +44,11 @@ export class OneClickBinding {
     _.agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
 
     _.agHelper.GetNClick(
-      `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
+      oneClickBindingLocator.searchableColumnDropdownOption(column),
     );
 
     _.agHelper.AssertElementExist(
-      `${oneClickBindingLocator.searchableColumn} .rc-select-selection-item:contains(${column})`,
+      oneClickBindingLocator.searchableColumnSelectedOption(column),
     );
 
     _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);

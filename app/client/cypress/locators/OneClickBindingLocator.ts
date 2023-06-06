@@ -22,8 +22,24 @@ export default {
     }`,
   tableOrSpreadsheetDropdown:
     '[data-testid="t--one-click-binding-table-selector"]',
+  tableOrSpreadsheetDropdownOption: (table?: string) =>
+    `.t--one-click-binding-table-selector--table${
+      table ? `:contains(${table})` : ""
+    }`,
+  tableOrSpreadsheetSelectedOption: (table?: string) =>
+    `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item${
+      table ? `:contains(${table})` : ""
+    }`,
   searchableColumn:
     '[data-testid="t--one-click-binding-column-searchableColumn"]',
+  searchableColumnDropdownOption: (column?: string) =>
+    `.t--one-click-binding-column-searchableColumn--column${
+      column ? `:contains(${column})` : ""
+    }`,
+  searchableColumnSelectedOption: (column?: string) =>
+    `[data-testid="t--one-click-binding-column-searchableColumn"] .rc-select-selection-item${
+      column ? `:contains(${column})` : ""
+    }`,
   validTableRowData:
     '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
   tableError: (error: string) =>
