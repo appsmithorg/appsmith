@@ -229,15 +229,17 @@ export default function Merge() {
   return (
     <>
       <ModalBody>
-        <Container>
+        <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
           <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
             {createMessage(SELECT_BRANCH_TO_MERGE)}
           </Text>
           <Space size={2} />
-          <Row>
+          <Row style={{ overflow: "unset", paddingBottom: "4px" }}>
             <Select
               className="t--merge-branch-dropdown-destination"
               dropdownClassName={Classes.MERGE_DROPDOWN}
+              dropdownMatchSelectWidth
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
               isDisabled={
                 isFetchingBranches || isFetchingMergeStatus || isMerging
               }

@@ -6,9 +6,9 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
-  setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
+  updateDatasourceAuthState,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -49,12 +49,14 @@ interface Props {
   pluginType: PluginType;
   pluginName: string;
   pluginPackageName: string;
+  setDatasourceViewMode: (viewMode: boolean) => void;
   isSaving: boolean;
   isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
+  showFilterComponent: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -62,6 +64,7 @@ export type DatasourceFormButtonTypes = Record<string, string[]>;
 export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
+  ACCESS_DENIED = "access_denied",
 }
 
 export enum DatasourceButtonTypeEnum {
@@ -83,11 +86,13 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
+  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
+    // If filter component is present, then we need to push the button to the right
+    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
   }
 `;
 
@@ -131,10 +136,12 @@ function DatasourceAuth({
   isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
+  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
+  showFilterComponent,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
@@ -159,9 +166,6 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
 
-  const dsName = datasource?.name;
-  const orgId = datasource?.workspaceId;
-
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
@@ -179,27 +183,33 @@ function DatasourceAuth({
           !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const oauthReason = status;
-        AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
-          dsName,
-          oauthReason,
-          orgId,
-          pluginName,
-        });
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           toast.show(display_message || message, { kind: "error" });
+          AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+            applicationId: applicationId,
+            datasourceId: datasourceId,
+            pageId: pageId,
+            oAuthPassOrFailVerdict: status,
+            workspaceId: datasource?.workspaceId,
+            datasourceName: datasource?.name,
+            pluginName: pluginName,
+          });
+
+          if (status === AuthorizationStatus.ACCESS_DENIED) {
+            dispatch(
+              updateDatasourceAuthState(
+                datasource,
+                AuthenticationStatus.FAILURE_ACCESS_DENIED,
+              ),
+            );
+          }
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
-        AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
-          applicationId,
-          datasourceId,
-          pageId,
-        });
       }
     }
   }, [authType]);
@@ -279,10 +289,10 @@ function DatasourceAuth({
       );
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
-      dsName,
-      orgId,
-      pluginName,
-      scopeValue,
+      dsName: datasource?.name,
+      orgId: datasource?.workspaceId,
+      pluginName: pluginName,
+      scopeValue: scopeValue,
     });
   };
 
@@ -298,6 +308,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
+          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}
@@ -316,7 +327,7 @@ function DatasourceAuth({
                 params: getQueryParams(),
               });
               history.push(URL);
-            } else dispatch(setDatasourceViewMode(true));
+            } else setDatasourceViewMode(true);
           }}
           size="md"
         >

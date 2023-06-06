@@ -84,6 +84,9 @@ apply-env-vars() {
   )
   fs.writeFileSync("'"$served"'", content)
   '
+  pushd "$(dirname "$served")"
+  gzip --keep --force "$(basename "$served")"
+  popd
 }
 
 apply-env-vars /opt/appsmith/index.html.original /opt/appsmith/editor/index.html

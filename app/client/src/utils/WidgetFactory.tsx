@@ -14,6 +14,7 @@ import type {
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
+  WidgetMethods,
 } from "widgets/constants";
 import {
   addPropertyConfigIds,
@@ -82,6 +83,8 @@ class WidgetFactory {
   > = new Map();
 
   static autoLayoutConfigMap: Map<WidgetType, AutoLayoutConfig> = new Map();
+
+  static widgetMethodsMap: Map<WidgetType, Record<string, any>> = new Map();
 
   static registerWidgetBuilder(
     widgetType: string,
@@ -402,6 +405,24 @@ class WidgetFactory {
       return undefined;
     }
     return map;
+  }
+
+  static setWidgetMethods(
+    type: WidgetType,
+    methods: Record<string, WidgetMethods>,
+  ) {
+    this.widgetMethodsMap.set(type, methods);
+  }
+
+  static getWidgetMethods(type: WidgetType) {
+    const methods = this.widgetMethodsMap.get(type);
+
+    if (!methods) {
+      log.error("Widget methods are not defined: ", type);
+      return {};
+    }
+
+    return methods;
   }
 }
 
