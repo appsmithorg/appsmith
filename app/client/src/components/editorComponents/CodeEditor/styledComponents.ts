@@ -238,7 +238,6 @@ export const EditorWrapper = styled.div<{
       /* some sql fixes */
       .cm-m-sql.cm-keyword {
         font-weight: 400;
-        text-transform: uppercase;
       }
 
       .CodeMirror-activeline-background {
