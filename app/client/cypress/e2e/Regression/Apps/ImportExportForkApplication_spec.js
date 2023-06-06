@@ -1,13 +1,14 @@
 import homePage from "../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
-import * as _ from "../../../support/Objects/ObjectsCore";
+import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
+
 describe("Import, Export and Fork application and validate data binding", function () {
   let workspaceId;
   let newWorkspaceName;
   let appName;
   it("1. Import application from json and validate data on pageload", function () {
     // import application
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
@@ -32,7 +33,7 @@ describe("Import, Export and Fork application and validate data binding", functi
           "Application imported successfully",
         );
       }
-      const uuid = () => Cypress._.random(0, 1e4);
+      const uuid = () => Cypress.random(0, 1e4);
       const name = uuid();
       appName = `app${name}`;
       cy.get(homePage.applicationName).click({ force: true });
@@ -61,7 +62,7 @@ describe("Import, Export and Fork application and validate data binding", functi
 
   it("2. Fork application and validate data binding for the widgets", function () {
     // fork application
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.get(homePage.searchInput).type(`${appName}`);
     cy.wait(3000);
     // cy.get(homePage.applicationCard).first().trigger("mouseover");
@@ -78,7 +79,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   });
 
   it("3. Export and import application and validate data binding for the widgets", function () {
-    _.homePage.NavigateToHome();
+    homePage.NavigateToHome();
     cy.get(homePage.searchInput).clear().type(`${appName}`);
     cy.wait(2000);
     //cy.get(homePage.applicationCard).first().trigger("mouseover");
@@ -95,12 +96,12 @@ describe("Import, Export and Fork application and validate data binding", functi
           .that.includes("attachment;")
           .and.includes(`filename*=UTF-8''${appName}.json`);
         cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
-        _.agHelper.AssertContains("Successfully exported");
-        _.agHelper.WaitUntilAllToastsDisappear();
-        _.agHelper.GenerateUUID();
+        agHelper.AssertContains("Successfully exported");
+        agHelper.WaitUntilAllToastsDisappear();
+        agHelper.GenerateUUID();
         cy.get("@guid").then((uid) => {
           newWorkspaceName = uid;
-          _.homePage.CreateNewWorkspace(newWorkspaceName);
+          homePage.CreateNewWorkspace(newWorkspaceName);
           cy.get(homePage.workspaceImportAppOption).click({ force: true });
 
           cy.get(homePage.workspaceImportAppModal).should("be.visible");
@@ -108,7 +109,7 @@ describe("Import, Export and Fork application and validate data binding", functi
             "cypress/fixtures/exportedApp.json",
             { force: true },
           );
-          _.agHelper.ValidateNetworkStatus("@getReleaseItems");
+          agHelper.ValidateNetworkStatus("@getReleaseItems");
 
           // import exported application in new workspace
           // cy.get(homePage.workspaceImportAppButton).click({ force: true });

@@ -1,6 +1,11 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
-
-const { agHelper, apiPage, entityExplorer, jsEditor, locators, propPane } = _;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  apiPage,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("UI to Code", () => {
   before(() => {
@@ -39,7 +44,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -122,7 +127,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -206,7 +211,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",

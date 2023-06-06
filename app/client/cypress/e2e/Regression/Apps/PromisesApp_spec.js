@@ -1,19 +1,24 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  apiPage,
+} from "../../../support/Objects/ObjectsCore";
 import homePage from "../../../locators/HomePage";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
   before(() => {
     cy.fixture("promisesStoreValueDsl").then((val) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
     cy.fixture("datasources").then((datasourceFormData) => {
-      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
-      _.apiPage.RunAPI();
-      _.jsEditor.CreateJSObject(
+      apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
+      apiPage.RunAPI();
+      jsEditor.CreateJSObject(
         `export default {
         myFun1: async () => { //comment
           await this.clearStore()		//clear store value before running the case
@@ -48,7 +53,7 @@ describe("JSEditor tests", function () {
           shouldCreateNewJSObj: true,
         },
       );
-      _.entityExplorer.SelectEntityByName("Page1", "Pages");
+      entityExplorer.SelectEntityByName("Page1", "Pages");
       cy.wait(2000);
       // verify text in the text widget
       cy.get(".t--draggable-textwidget span")
@@ -117,9 +122,9 @@ describe("JSEditor tests", function () {
 
   //Skipping reason? to add
   it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.jsEditor.SelectFunctionDropdown("clearStore");
-    _.jsEditor.RunJSObj();
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    jsEditor.SelectFunctionDropdown("clearStore");
+    jsEditor.RunJSObj();
     cy.wait("@postExecute")
       .its("response.body.responseMeta.status")
       .should("eq", 200);
