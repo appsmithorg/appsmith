@@ -132,12 +132,14 @@ export class HomePage {
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
-    this.agHelper.AssertContains(
-      workspaceName,
-      "exist",
-      this._workspaceNameText,
-    );
-    this.agHelper.GetNClick(this._optionsIconInWorkspace(workspaceName));
+    this.agHelper
+      .GetElement(this._workSpaceByName(workspaceName))
+      .last()
+      .closest(this._workspaceCompleteSection)
+      .scrollIntoView()
+      .wait(1000) ///for scroll to finish & element to come to view
+      .find(this._optionsIcon)
+      .click({ force: true });
   }
 
   public OpenWorkspaceSettings(workspaceName: string) {
@@ -146,12 +148,7 @@ export class HomePage {
   }
 
   public RenameWorkspace(oldName: string, newWorkspaceName: string) {
-    cy.xpath(this._workSpaceByName(oldName))
-      .last()
-      .closest(this._workspaceCompleteSection)
-      .scrollIntoView()
-      .find(this._optionsIcon)
-      .click({ force: true });
+    this.OpenWorkspaceOptions(oldName);
     this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);

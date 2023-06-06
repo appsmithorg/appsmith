@@ -17,7 +17,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
         newWorkspaceName = createWorkspaceInterception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
         cy.get(homePage.workspaceImportAppOption).click({ force: true });
         cy.get(homePage.workspaceImportAppModal).should("be.visible");
         cy.xpath(homePage.uploadLogo)

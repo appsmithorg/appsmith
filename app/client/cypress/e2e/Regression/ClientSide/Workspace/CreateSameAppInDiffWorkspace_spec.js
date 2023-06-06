@@ -18,7 +18,7 @@ describe("Create app same name in different workspace", function () {
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
         cy.CreateAppForWorkspace(workspaceId, appid);
         _.homePage.NavigateToHome();
         cy.LogOut();
@@ -53,7 +53,7 @@ describe("Create app same name in different workspace", function () {
     cy.wait("@createWorkspace").then((interception) => {
       console.log("createWorkspace response: ", interception);
       newWorkspaceName = interception.response.body.data.name;
-      cy.renameWorkspace(newWorkspaceName, newWSName);
+      _.homePage.RenameWorkspace(newWorkspaceName, newWSName);
       cy.CreateAppForWorkspace(newWSName, appid);
     });
   });

@@ -1,11 +1,7 @@
 /// <reference types="Cypress" />
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
-
 const themelocators = require("../../../locators/ThemeLocators.json");
-
-let homePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetName = "currencyinputwidget";
 const wiggetClass = `.t--widget-${widgetName}`;

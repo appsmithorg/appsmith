@@ -24,26 +24,6 @@ Cypress.Commands.add("createWorkspace", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
-  cy.get(".t--applications-container")
-    .contains(workspaceName)
-    .closest(homePage.workspaceCompleteSection)
-    .scrollIntoView()
-    .find(homePage.optionsIcon)
-    .click({ force: true });
-  cy.get(homePage.renameWorkspaceInput)
-    .should("be.visible")
-    .type(newWorkspaceName.concat("{enter}"));
-  cy.wait(3000);
-  //cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.wait("@updateWorkspace").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.contains(newWorkspaceName);
-});
-
 Cypress.Commands.add("navigateToWorkspaceSettings", (workspaceName) => {
   cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
     .first()
