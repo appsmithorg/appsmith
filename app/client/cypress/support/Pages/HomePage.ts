@@ -103,7 +103,7 @@ export class HomePage {
   _inviteUserMembersPage = "[data-testid=t--page-header-input]";
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
-  _appRenameTooltip = "div.rc-tooltip span:contains('Rename application')";
+  _appRenameTooltip = "span:contains('Rename application')";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -550,6 +550,7 @@ export class HomePage {
       if ($body.find(this._appRenameTooltip).length > 0) {
         this.agHelper
           .GetElement(this._appRenameTooltip)
+          .parents("div.rc-tooltip")
           .then(($tooltipElement) => {
             $tooltipElement.remove();
             cy.log("Rename application tooltip removed");

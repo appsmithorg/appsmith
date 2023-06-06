@@ -287,6 +287,9 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
 
+  cy.wait("@updateLayout")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
   cy.get("#loading").should("not.exist");
   cy.get("#sidebar").should("be.visible");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -309,7 +312,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
    * To avoid race conditions between that update layout and this one
    * we wait for that to finish before updating layout here
    */
-  cy.wait("@updateLayout");
+  //cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {

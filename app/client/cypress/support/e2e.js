@@ -107,12 +107,7 @@ before(function () {
       cy.LogOut();
     }
   });
-});
 
-before(function () {
-  if (RapidMode.config.enabled) {
-    return;
-  }
   //console.warn = () => {};
   //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
@@ -131,6 +126,29 @@ before(function () {
     this.dataSet = data;
   });
 });
+
+// before(function () {
+//   if (RapidMode.config.enabled) {
+//     return;
+//   }
+//   // //console.warn = () => {};
+//   // //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+//   // const username = Cypress.env("USERNAME");
+//   // const password = Cypress.env("PASSWORD");
+//   // cy.LoginFromAPI(username, password);
+//   // cy.wait(3000);
+//   // cy.get(".t--applications-container .createnew")
+//   //   .should("be.visible")
+//   //   .should("be.enabled");
+//   // cy.generateUUID().then((id) => {
+//   //   cy.CreateAppInFirstListedWorkspace(id);
+//   //   localStorage.setItem("AppName", id);
+//   // });
+
+//   // cy.fixture("TestDataSet1").then(function (data) {
+//   //   this.dataSet = data;
+//   // });
+// });
 
 beforeEach(function () {
   //cy.window().then((win) => (win.onbeforeunload = undefined));
