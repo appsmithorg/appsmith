@@ -13,8 +13,62 @@ describe("PostgreSQL WidgetQueryGenerator", () => {
           limit: "data_table.pageSize",
           where: 'data_table.searchText || ""',
           offset: "(data_table.pageNo - 1) * data_table.pageSize",
-          orderBy: "data_table.sortOrder.column || 'genres'",
+          orderBy: "data_table.sortOrder.column",
           sortOrder: "data_table.sortOrder.order || 'ASC'",
+        },
+        totalRecord: false,
+      },
+      {
+        tableName: "someTable",
+        datasourceId: "someId",
+        aliases: [{ name: "someColumn1", alias: "someColumn1" }],
+        widgetId: "someWidgetId",
+        searchableColumn: "title",
+        columns: [],
+        primaryColumn: "genres",
+      },
+      initialValues,
+    );
+
+    const res = `SELECT
+  *
+FROM
+  someTable
+WHERE
+  \"title\" ilike '%{{data_table.searchText || \"\"}}%'
+ORDER BY
+  \"{{data_table.sortOrder.column || 'genres'}}\" {{data_table.sortOrder.order || 'ASC' ? \"\" : \"DESC\"}}
+LIMIT
+  {{data_table.pageSize}}
+OFFSET
+  {{(data_table.pageNo - 1) * data_table.pageSize}}`;
+
+    expect(expr).toEqual([
+      {
+        name: "Select_query",
+        type: "select",
+        dynamicBindingPathList: [
+          {
+            key: "body",
+          },
+        ],
+        payload: {
+          pluginSpecifiedTemplates: [{ value: false }],
+          body: res,
+        },
+      },
+    ]);
+  });
+
+  test("should build select form data correctly without primary column", () => {
+    const expr = PostgreSQL.build(
+      {
+        select: {
+          limit: "data_table.pageSize",
+          where: 'data_table.searchText || ""',
+          offset: "(data_table.pageNo - 1) * data_table.pageSize",
+          orderBy: "data_table.sortOrder.column",
+          sortOrder: `data_table.sortOrder.order !== "desc"`,
         },
         totalRecord: false,
       },
@@ -35,9 +89,7 @@ describe("PostgreSQL WidgetQueryGenerator", () => {
 FROM
   someTable
 WHERE
-  \"title\" ilike '%{{data_table.searchText || \"\"}}%'
-ORDER BY
-  \"{{data_table.sortOrder.column || 'genres' || ''}}\" {{data_table.sortOrder.order || 'ASC' ? \"\" : \"DESC\"}}
+  \"title\" ilike '%{{data_table.searchText || \"\"}}%' {{data_table.sortOrder.column ? "ORDER BY " + data_table.sortOrder.column + "  " + (data_table.sortOrder.order !== "desc" ? "" : "DESC") : ""}}
 LIMIT
   {{data_table.pageSize}}
 OFFSET

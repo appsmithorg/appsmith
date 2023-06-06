@@ -35,14 +35,22 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
           3: `'%{{${where}}}%'`,
         },
       },
-      {
-        isValuePresent: orderBy,
-        template: "ORDER BY $4 $5",
-        params: {
-          4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
-          5: `{{${sortOrder} ? "" : "DESC"}}`,
-        },
-      },
+      formConfig.primaryColumn
+        ? {
+            isValuePresent: orderBy,
+            template: `ORDER BY $4 $5`,
+            params: {
+              4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
+              5: `{{${sortOrder} ? "" : "DESC"}}`,
+            },
+          }
+        : {
+            isValuePresent: orderBy,
+            template: "$4",
+            params: {
+              4: `{{${orderBy} ? "ORDER BY " + ${orderBy} + "  " + (${sortOrder} ? "" : "DESC") : ""}}`,
+            },
+          },
       {
         isValuePresent: limit,
         template: "LIMIT $6",
