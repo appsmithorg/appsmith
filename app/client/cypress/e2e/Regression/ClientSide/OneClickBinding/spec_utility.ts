@@ -1,68 +1,62 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
-export function ChooseAndAssertForm(source, selectedSource, table, column) {
-  _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+export class OneClickBinding {
+  public ChooseAndAssertForm(
+    source?: string,
+    selectedSource?: any,
+    table?: string,
+    column?: string,
+  ) {
+    _.agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
-  _.agHelper.AssertElementAbsence(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    _.agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);
 
-  _.agHelper.GetNClick(
-    `[data-testid="t--one-click-binding-datasource-selector--datasource"]:contains(${source})`,
-  );
+    _.agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
 
-  cy.wait("@getDatasourceStructure").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-  _.agHelper.Sleep(500);
-  _.agHelper.AssertElementExist(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    _.agHelper.Sleep(500);
+    _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-  _.agHelper.AssertElementEnabledDisabled(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    _.agHelper.AssertElementEnabledDisabled(oneClickBindingLocator.connectData);
 
-  _.agHelper.AssertElementExist(
-    '[data-testid="t--one-click-binding-table-selector"]',
-  );
+    _.agHelper.AssertElementExist(
+      oneClickBindingLocator.tableOrSpreadsheetDropdown,
+    );
 
-  _.agHelper.GetNClick('[data-testid="t--one-click-binding-table-selector"]');
+    _.agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
 
-  _.agHelper.GetNClick(
-    `.t--one-click-binding-table-selector--table:contains(${table})`,
-  );
+    _.agHelper.GetNClick(
+      oneClickBindingLocator.tableOrSpreadsheetDropdownOption(table),
+    );
 
-  _.agHelper.AssertElementExist(
-    `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item:contains(${table})`,
-  );
+    _.agHelper.AssertElementExist(
+      oneClickBindingLocator.tableOrSpreadsheetSelectedOption(table),
+    );
 
-  _.agHelper.AssertElementExist(
-    '[data-testid="t--one-click-binding-column-searchableColumn"]',
-  );
+    _.agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
 
-  _.agHelper.GetNClick(
-    '[data-testid="t--one-click-binding-column-searchableColumn"]',
-  );
+    _.agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
 
-  _.agHelper.GetNClick(
-    `.t--one-click-binding-column-searchableColumn--column:contains(${column})`,
-  );
+    _.agHelper.GetNClick(
+      oneClickBindingLocator.searchableColumnDropdownOption(column),
+    );
 
-  _.agHelper.AssertElementExist(
-    `[data-testid="t--one-click-binding-column-searchableColumn"] .rc-select-selection-item:contains(${column})`,
-  );
+    _.agHelper.AssertElementExist(
+      oneClickBindingLocator.searchableColumnSelectedOption(column),
+    );
 
-  _.agHelper.AssertElementExist(
-    '[data-testId="t--one-click-binding-connect-data"]',
-  );
+    _.agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
-  _.agHelper.AssertElementEnabledDisabled(
-    '[data-testId="t--one-click-binding-connect-data"]',
-    0,
-    false,
-  );
+    _.agHelper.AssertElementEnabledDisabled(
+      oneClickBindingLocator.connectData,
+      0,
+      false,
+    );
+  }
 }
