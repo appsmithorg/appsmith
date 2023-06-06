@@ -37,8 +37,11 @@ export class DeployMode {
     // Stubbing window.open to open in the same tab
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
-        window.location.href = `${Cypress.config().baseUrl + url.substring(1)}${
-          addDebugFlag ? "debug=true" : ""
+        const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+        window.location.href = `${updatedUrl}${
+          addDebugFlag
+            ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+            : ""
         }`;
       });
     });
