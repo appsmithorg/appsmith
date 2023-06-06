@@ -28,11 +28,13 @@ export const CONFIG = {
     labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
-    options: [
-      { label: "Blue", value: "BLUE" },
-      { label: "Green", value: "GREEN" },
-      { label: "Red", value: "RED" },
+    sourceData: [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
     ],
+    optionLabel: "name",
+    optionValue: "code",
     serverSideFiltering: false,
     widgetName: "Select",
     defaultOptionValue: "GREEN",

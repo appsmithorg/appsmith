@@ -8,7 +8,14 @@ import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 import type { LoDashStatic } from "lodash";
-import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
+import {
+  findIndex,
+  isArray,
+  isNil,
+  isNumber,
+  isString,
+  isObject,
+} from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
@@ -123,6 +130,17 @@ export function defaultOptionValueValidation(
   };
 }
 
+function labelValueKeyOptions(widget: WidgetProps) {
+  if (isObject(widget.sourceData?.[0])) {
+    return Object.keys(widget.sourceData[0]).map((d) => ({
+      label: d,
+      value: d,
+    }));
+  } else {
+    return [];
+  }
+}
+
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
@@ -163,8 +181,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             helpText:
               "Allows users to select a single option. Values must be unique",
-            propertyName: "options",
-            label: "Options",
+            propertyName: "sourceData",
+            label: "Source Data",
             controlType: "INPUT_TEXT",
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
@@ -172,35 +190,38 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                unique: ["value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
                     required: true,
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                    ],
                   },
                 },
               },
             },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "",
+            propertyName: "optionLabel",
+            label: "Label",
+            controlType: "DROP_DOWN",
+            placeholderText: "",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            dependencies: ["sourceData"],
+            options: labelValueKeyOptions,
+          },
+          {
+            helpText: "",
+            propertyName: "optionValue",
+            label: "Value",
+            controlType: "DROP_DOWN",
+            placeholderText: "",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            dependencies: ["sourceData"],
+            options: labelValueKeyOptions,
           },
           {
             helpText: "Selects the option with value by default",
@@ -581,6 +602,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   // https://github.com/appsmithorg/appsmith/issues/13664#issuecomment-1120814337
   static getDerivedPropertiesMap() {
     return {
+      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
       selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
 
