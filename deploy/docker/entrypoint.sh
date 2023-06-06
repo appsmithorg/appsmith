@@ -99,6 +99,14 @@ setup_proxy_variables() {
   fi
 }
 
+setup_cdn_variable() {
+  # Ensure APPSMITH_CDN_URL always ends with a trailing /
+  if [[ -n "${APPSMITH_CDN_URL:-}" ]]; then
+    local cdn_url="$(echo "$APPSMITH_CDN_URL" | sed 's,//*$,,')"
+    export APPSMITH_CDN_URL="${cdn_url}/"
+  fi
+}
+
 unset_unused_variables() {
   # Check for enviroment vairalbes
   echo "Checking environment configuration"
@@ -506,6 +514,7 @@ init_loading_pages(){
 init_loading_pages
 init_env_file
 setup_proxy_variables
+setup_cdn_variable
 unset_unused_variables
 
 check_mongodb_uri
