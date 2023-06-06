@@ -199,7 +199,6 @@ export function gitChangeListData(
 
 export default function GitChangesList() {
   const status = useSelector(getGitStatus);
-  console.log({ status });
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
   const currentApplication = useSelector(getCurrentApplication);
