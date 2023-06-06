@@ -18,7 +18,8 @@ export class HomePage {
     "//span[text()='" +
     workspaceName +
     "']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--options-icon')]";
-  private _renameWorkspaceInput = ".editable-text-container";
+  private _renameWorkspaceContainer = ".editable-text-container";
+  private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
@@ -151,11 +152,10 @@ export class HomePage {
       .scrollIntoView()
       .find(this._optionsIcon)
       .click({ force: true });
-    cy.get(this._renameWorkspaceInput)
-      .should("be.visible")
-      .type(newWorkspaceName.concat("{enter}"), { delay: 0 });
+    this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
+    this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);
-    this, this.agHelper.ValidateNetworkStatus("@updateWorkspace");
+    this.agHelper.ValidateNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
   }
 
