@@ -189,7 +189,7 @@ describe("App Theming funtionality", function () {
     cy.get("button[type='submit']").click({ force: true });
 
     cy.wait(200);
-    cy.get(commonlocators.toastMsg).contains("Theme testtheme Saved");
+    cy.get(commonlocators.toastMsg).contains("Theme testtheme saved");
     appSettings.ClosePane();
   });
 
@@ -352,7 +352,7 @@ describe("App Theming funtionality", function () {
     cy.xpath("//span[text()='Save theme']/parent::div").click({ force: true });
 
     cy.wait(200);
-    cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme Saved");
+    cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme saved");
   });
 
   it("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
