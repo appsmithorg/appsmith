@@ -26,6 +26,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -168,12 +169,17 @@ public class GitFileUtils {
                             ? newPage.getUnpublishedPage().getName()
                             : newPage.getPublishedPage().getName();
                     removeUnwantedFieldsFromPage(newPage);
+                    JSONObject dsl = newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
+                    newPage.getUnpublishedPage().getLayouts().get(0).setDsl(null);
                     // pageName will be used for naming the json file
+                    resourceMapBody.put(pageName, dsl.toString());
                     resourceMap.put(pageName, newPage);
                 });
 
         applicationReference.setPages(new HashMap<>(resourceMap));
+        applicationReference.setPageDsl(new HashMap<>(resourceMapBody));
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Insert active actions and also assign the keys which later will be used for saving the resource in actual filepath
         // For actions, we are referring to validNames to maintain unique file names as just name

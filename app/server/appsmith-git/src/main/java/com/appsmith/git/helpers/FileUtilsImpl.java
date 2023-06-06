@@ -12,24 +12,33 @@ import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
+import com.appsmith.util.WebClientUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.resources.ConnectionProvider;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,6 +51,7 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -226,12 +236,27 @@ public class FileUtilsImpl implements FileInterface {
                     Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
 
                     Set<String> validPages = new HashSet<>();
+                    Set<String> validWidgets = new HashSet<>();
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+                            JSONObject normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
+                            JSONObject entities = new JSONObject(normalizedDSL.get("data").toString());
+                            JSONObject canvasWidgets = new JSONObject(entities.get("entities").toString());
+                            JSONObject widgetList = new JSONObject(canvasWidgets.get("canvasWidgets").toString());
+                            widgetList
+                                    .keySet()
+                                    .stream()
+                                    .forEach(stringObjectEntry -> {
+                                        String widgetName = new JSONObject(widgetList.get(stringObjectEntry).toString()).get("widgetName").toString();
+                                        saveWidgets(
+                                                new JSONObject(widgetList.get(stringObjectEntry).toString()),
+                                                widgetName,
+                                                pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                                    });
                         }
                         validPages.add(pageName);
                     }
@@ -369,6 +394,15 @@ public class FileUtilsImpl implements FileInterface {
             log.debug(e.getMessage());
         }
         return false;
+    }
+
+    private void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
+        try {
+            Files.createDirectories(path);
+            writeStringToFile(sourceEntity.toString(4), path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
+        } catch (IOException e) {
+            log.debug("Error while writings widgets data to file, {}", e.getMessage());
+        }
     }
 
     /**
@@ -802,5 +836,41 @@ public class FileUtilsImpl implements FileInterface {
 
     private boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
+    }
+
+    private final String RTS_BASE_URL = "http://localhost:8091";
+
+    private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
+            .maxConnections(100)
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofSeconds(40))
+            .pendingAcquireTimeout(Duration.ofSeconds(10))
+            .pendingAcquireMaxCount(-1)
+            .build());
+
+    public JSONObject getNormalizedDSL(String dsl) {
+
+        return webClient.post()
+                .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/normalize")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(dsl))
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(jsonString -> {
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    return jsonObject;
+
+                })
+                .block();
+
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    static class WidgetDSL {
+        JSONObject widgets;
     }
 }
