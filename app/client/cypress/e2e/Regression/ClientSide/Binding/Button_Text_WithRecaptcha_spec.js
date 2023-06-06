@@ -10,7 +10,7 @@ describe(
       cy.addDsl(dsl);
     });
 
-    it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {
+    it("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {
       _.agHelper.ClickButton("Submit");
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
@@ -66,7 +66,7 @@ describe(
         });
     });
 
-    it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
+    it("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
       _.entityExplorer.SelectEntityByName("Button1");
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
@@ -89,7 +89,7 @@ describe(
       _.agHelper.Sleep();
     });
 
-    it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
+    it("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
       _.entityExplorer.SelectEntityByName("Button1");
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
