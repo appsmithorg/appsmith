@@ -677,9 +677,4 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
     }
-
-    @Override
-    public Mono<Boolean> isPermissionPresentForCurrentUser(NewPage obj, String permission) {
-        return repository.isPermissionPresentForCurrentUser(obj, permission);
-    }
 }

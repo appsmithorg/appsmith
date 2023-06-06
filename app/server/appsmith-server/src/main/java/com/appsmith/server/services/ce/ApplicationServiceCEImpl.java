@@ -881,10 +881,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(assetService::remove);
     }
 
-    @Override
-    public Mono<Boolean> isPermissionPresentForCurrentUser(Application obj, String permission) {
-        return repository.isPermissionPresentForCurrentUser(obj, permission);
-    }
 
     @Override
     public Map<String, Object> getAnalyticsProperties(Application savedApplication) {

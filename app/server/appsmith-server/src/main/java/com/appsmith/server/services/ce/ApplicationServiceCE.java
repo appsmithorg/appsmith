@@ -100,7 +100,4 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
-
-    // Using AclPermission will make the method more restrict.
-    Mono<Boolean> isPermissionPresentForCurrentUser(Application application, AclPermission permission);
 }
