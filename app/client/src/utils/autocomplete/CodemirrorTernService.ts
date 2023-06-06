@@ -17,6 +17,8 @@ import {
   getCodeMirrorNamespaceFromDoc,
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { findIndex } from "lodash";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -298,9 +300,19 @@ class CodeMirrorTernService {
       to: to,
       list: completions,
       selectedHint: indexToBeSelected,
+      lineValue,
     };
     let tooltip: HTMLElement | undefined = undefined;
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
+
+    CodeMirror.on(obj, "shown", () => {
+      AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {
+        query: lineValue,
+        numberOfResults: completions.filter(
+          (completion) => !completion.isHeader,
+        ).length,
+      });
+    });
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
     CodeMirror.on(
@@ -339,7 +351,7 @@ class CodeMirrorTernService {
   }
 
   async getHint(cm: CodeMirror.Editor) {
-    const hints = await new Promise((resolve) => {
+    const hints: Record<string, any> = await new Promise((resolve) => {
       this.request(
         cm,
         {
@@ -359,6 +371,21 @@ class CodeMirrorTernService {
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+      const selectedResultIndex = findIndex(
+        hints.list,
+        (item: Record<string, unknown>) =>
+          item.displayText === selected.displayText,
+      );
+
+      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
+        selectedResult: selected.text,
+        query: hints.lineValue,
+        selectedResultIndex,
+        selectedResultType: selected.type,
+        isBestMatch:
+          selectedResultIndex <= AutocompleteSorter.bestMatchEndIndex,
+      });
+
       if (selected.type === AutocompleteDataType.FUNCTION) {
         cm.setCursor({
           line: cm.getCursor().line,
