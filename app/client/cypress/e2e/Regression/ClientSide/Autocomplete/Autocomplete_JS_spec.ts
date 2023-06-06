@@ -422,7 +422,7 @@ describe("Autocomplete tests", () => {
     });
   });
 
-  it.only("10. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
+  it("10. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
     // create js object
     _.jsEditor.CreateJSObject(
       `export default 
