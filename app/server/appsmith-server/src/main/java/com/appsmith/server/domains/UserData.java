@@ -70,6 +70,9 @@ public class UserData extends BaseDomain {
     AppsmithOidcAccessToken oidcAccessToken;
 
     @JsonView(Views.Public.class)
+    Map<String, Object> oidcIdTokenClaims;
+
+    @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
 
     // list of template ids that were recently forked by the user

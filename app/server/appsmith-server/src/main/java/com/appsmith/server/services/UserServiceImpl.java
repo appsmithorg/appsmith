@@ -4,6 +4,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -110,14 +111,22 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     final UserData userData = tuple.getT2();
                     SecurityContext context = tuple.getT3();
 
-                    // Check here if the user is logged in via OIDC.
+                    LoginSource loginSource = user.getSource();
+
+                    // Check here if the user is logged in via oauth, oidc or saml and add the user claims accordingly
                     Authentication authentication = context.getAuthentication();
                     if (authentication instanceof OAuth2AuthenticationToken) {
-                        // Add the ID claims here as metadata which can be exposed by the client to appsmith developers
-                        profile.setIdToken(userData.getUserClaims());
-                    } else {
-                        // Do not return the field metadata otherwise.
-                        profile.setIdToken(null);
+
+                        // Add the user claims which contain either :
+                        // 1. The OIDC user info claims if the user is logged in via OIDC
+                        // 2. The SAML attributes if the user is logged in via SAML
+                        profile.setUserClaims(userData.getUserClaims());
+
+                        if (LoginSource.OIDC.equals(loginSource)) {
+                            // Add the ID claims here as metadata which can be exposed by the client to appsmith developers
+                            profile.setIdToken(userData.getOidcIdTokenClaims());
+                        }
+
                     }
 
                     // Add checks to turn on super user mode if required

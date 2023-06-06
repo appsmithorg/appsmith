@@ -7,6 +7,7 @@ import java.util.Set;
 
 @Data
 public class UserProfileCE_DTO {
+
     String email;
 
     Set<String> workspaceIds;
@@ -54,4 +55,5 @@ public class UserProfileCE_DTO {
     public boolean isCredentialsNonExpired() {
         return this.isEnabled;
     }
+
 }

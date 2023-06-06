@@ -51,7 +51,9 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
         return super.checkAndCreateUser(oidcUser, userRequest)
                 .flatMap(user -> {
                     final UserData updates = new UserData();
+
                     OAuth2AccessToken accessToken = userRequest.getAccessToken();
+                    Map<String, Object> idTokenClaims = userRequest.getIdToken().getClaims();
                     Map<String, Object> userClaims = oidcUser.getUserInfo().getClaims();
 
                     updates.setOidcAccessToken(
@@ -62,7 +64,9 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
                                     accessToken.getIssuedAt(),
                                     accessToken.getExpiresAt())
                     );
+
                     updates.setUserClaims(userClaims);
+                    updates.setOidcIdTokenClaims(idTokenClaims);
 
                     return userDataService.updateForUser(user, updates)
                             .thenReturn(user);
