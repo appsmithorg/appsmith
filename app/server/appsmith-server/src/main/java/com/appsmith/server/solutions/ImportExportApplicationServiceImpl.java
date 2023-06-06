@@ -60,9 +60,9 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
-                newActionService, sequenceService, actionCollectionRepository,
-                actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
-                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator,
-                datasourceStorageService, permissionGroupRepository);
+                newActionService, sequenceService, actionCollectionRepository, actionCollectionService, themeService,
+                analyticsService, customJSLibService, datasourcePermission, workspacePermission, applicationPermission,
+                pagePermission, actionPermission, gson, transactionalOperator, datasourceStorageService,
+                permissionGroupRepository);
     }
 }
