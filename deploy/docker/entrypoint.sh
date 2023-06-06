@@ -435,7 +435,6 @@ init_postgres() {
         echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-
       mkdir -p $POSTGRES_DB_PATH
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -449,7 +448,6 @@ init_postgres() {
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
