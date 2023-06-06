@@ -8,7 +8,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   GOOGLE_SHEETS_FILE_PICKER_TITLE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 interface Props {
   datasourceId: string;
