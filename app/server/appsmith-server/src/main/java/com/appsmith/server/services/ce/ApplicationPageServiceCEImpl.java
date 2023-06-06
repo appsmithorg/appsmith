@@ -156,8 +156,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return addPageToApplication(application, savedPage, false)
                             .then(applicationService.saveLastEditInformation(application.getId()))
                             .thenReturn(savedPage);
-                })
-                 .as(transactionalOperator::transactional);
+                });
     }
 
     public Mono<PageDTO> createPageWithBranchName(PageDTO page, String branchName) {
