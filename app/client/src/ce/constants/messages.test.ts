@@ -294,7 +294,8 @@ describe("messages without input", () => {
     { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
     {
       key: "DISCARD_CHANGES_WARNING",
-      value: "Discarding these changes will pull previous changes from Git.",
+      value:
+        "Discarding these changes will rebase the local branch onto the remote branch.",
     },
     {
       key: "DISCARD_SUCCESS",
