@@ -17,6 +17,12 @@ export const fetchWorkspace = (
   };
 };
 
+export const resetCurrentWorkspace = () => {
+  return {
+    type: ReduxActionTypes.RESET_CURRENT_WORKSPACE,
+  };
+};
+
 export const deleteWorkspace = (workspaceId: string) => {
   return {
     type: ReduxActionTypes.DELETE_WORKSPACE_INIT,

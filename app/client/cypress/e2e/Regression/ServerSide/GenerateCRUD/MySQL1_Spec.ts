@@ -59,7 +59,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("2. Create new app and Generate CRUD page using a new datasource", () => {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
-    _.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);
+    _.entityExplorer.AddNewPage("Generate page with data");
+    //_.agHelper.GetNClick(_.homePage._buildFromDataTableActionCard);
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
