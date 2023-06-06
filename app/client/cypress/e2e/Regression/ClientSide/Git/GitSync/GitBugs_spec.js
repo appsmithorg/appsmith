@@ -21,7 +21,7 @@ describe("Git sync Bug #10773", function () {
   });
 
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -66,7 +66,7 @@ describe("Git sync Bug #10773", function () {
   });
 
   it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -152,7 +152,7 @@ describe("Git sync Bug #10773", function () {
   });
 
   it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -245,7 +245,7 @@ describe("Git sync Bug #10773", function () {
   });
 
   it("5. Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -280,7 +280,7 @@ describe("Git sync Bug #10773", function () {
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
       // verify app is visible and open
-      cy.NavigateToHome();
+      _.homePage.NavigateToHome();
       cy.reload();
       cy.wait(3000);
       cy.SearchApp(`${newWorkspaceName}app`);

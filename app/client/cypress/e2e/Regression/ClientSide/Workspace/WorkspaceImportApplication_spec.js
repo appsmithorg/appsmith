@@ -13,7 +13,7 @@ describe("Workspace Import Application", function () {
   });
 
   it("1. Can Import Application from json", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting

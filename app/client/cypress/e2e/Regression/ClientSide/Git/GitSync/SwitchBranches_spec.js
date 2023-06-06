@@ -10,7 +10,7 @@ let parentBranchKey = "ParentBranch",
 let repoName;
 describe("Git sync:", function () {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;

@@ -74,7 +74,7 @@ describe("Git import flow ", function () {
   });
 
   it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;

@@ -7,7 +7,7 @@ describe("Workspace name validation spec", function () {
   let workspaceId;
   let newWorkspaceName;
   it("1. create workspace with leading space validation", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
 
     cy.wait("@createWorkspace").then((interception) => {
@@ -51,7 +51,7 @@ describe("Workspace name validation spec", function () {
         );
       });
     });
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     // create workspace with special character
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {

@@ -13,7 +13,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
   });
 
   it("1. Create new app and Generate CRUD page using a new datasource", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.createNew).first().click({ force: true });
 
     cy.wait("@createNewApplication").should(

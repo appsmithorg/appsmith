@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 describe("Table Widget", function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.createNew).first().click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",

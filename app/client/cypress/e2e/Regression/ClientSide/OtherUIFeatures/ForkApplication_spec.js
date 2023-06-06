@@ -27,7 +27,7 @@ describe("Fork application across workspaces", function () {
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -52,7 +52,7 @@ describe("Fork application across workspaces", function () {
   });
 
   it("2. Non signed user should be able to fork a public forkable app", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });

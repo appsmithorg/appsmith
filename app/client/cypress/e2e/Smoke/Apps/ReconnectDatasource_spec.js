@@ -1,6 +1,7 @@
 import homePage from "../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 const datasource = require("../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Reconnect Datasource Modal validation while importing application", function () {
   let workspaceId;
@@ -8,7 +9,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
   let newWorkspaceName;
   let appName;
   it("1. Import application from json with one postgres and success modal", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     // import application
     cy.generateUUID().then((uid) => {
       workspaceId = uid;

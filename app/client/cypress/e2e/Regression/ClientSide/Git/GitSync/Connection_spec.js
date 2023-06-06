@@ -17,7 +17,7 @@ let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 describe("Git sync modal: connect tab", function () {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;

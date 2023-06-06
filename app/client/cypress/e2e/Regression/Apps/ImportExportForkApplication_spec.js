@@ -78,7 +78,7 @@ describe("Import, Export and Fork application and validate data binding", functi
   });
 
   it("3. Export and import application and validate data binding for the widgets", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.searchInput).clear().type(`${appName}`);
     cy.wait(2000);
     //cy.get(homePage.applicationCard).first().trigger("mouseover");

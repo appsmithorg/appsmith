@@ -365,7 +365,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get(homePage.createNew).first().click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",

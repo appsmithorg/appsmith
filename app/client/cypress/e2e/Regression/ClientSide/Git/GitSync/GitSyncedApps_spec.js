@@ -23,14 +23,14 @@ let repoName;
 
 describe("Git sync apps", function () {
   before(() => {
-    // cy.NavigateToHome();
+    // _.homePage.NavigateToHome();
     // cy.createWorkspace();
     //  cy.wait("@createWorkspace").then((interception) => {
     //    const newWorkspaceName = interception.response.body.data.name;
     //    cy.CreateAppForWorkspace(newWorkspaceName, "gitSyncApp");
   });
   it("1. Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
