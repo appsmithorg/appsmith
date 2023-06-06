@@ -83,9 +83,9 @@ eslintConfig.overrides = [
         "error",
         {
           selector:
-            'CallExpression[callee.object.name="it"][callee.property.name="only"]',
+            'CallExpression[callee.object.name="it"][callee.property.name="only"], CallExpression[callee.object.name="describe"][callee.property.name="only"]',
           message:
-            "Reason: Dangling it.only test skips other tests in the file and reduces test coverage.",
+            "Reason: Dangling *.only tests skip other tests in the file and reduce test coverage.",
         },
       ],
     },
