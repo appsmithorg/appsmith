@@ -307,14 +307,18 @@ export class AggregateHelper {
   }
 
   public WaitUntilAllToastsDisappear() {
-    cy.get(this.locator._toastContainer).waitUntil(
-      ($ele) => cy.wrap($ele).should("have.length", 0),
-      {
-        errorMsg: "Toasts did not disappear even after 10 seconds",
-        timeout: 10000,
-        interval: 1000,
-      },
-    );
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locator._toastContainer).length > 0) {
+        this.GetElement(this.locator._toastContainer).waitUntil(
+          ($ele) => cy.wrap($ele).should("have.length", 0),
+          {
+            errorMsg: "Toasts did not disappear even after 10 seconds",
+            timeout: 10000,
+            interval: 1000,
+          },
+        );
+      }
+    });
   }
 
   public WaitUntilEleAppear(selector: string) {
