@@ -800,14 +800,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     @Override
     public Mono<Application> restoreSnapshot(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
-                    .workspacePermission(workspacePermission.getReadPermission())
-                    .applicationPermission(applicationPermission.getEditPermission())
-                    .userPermissionGroups(userPermissionGroups)
-                    .build();
-            return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
-        });
+        return permissionGroupRepository.getCurrentUserPermissionGroups()
+                .flatMap(userPermissionGroups -> {
+                    ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder()
+                            .workspacePermission(workspacePermission.getReadPermission())
+                            .applicationPermission(applicationPermission.getEditPermission())
+                            .userPermissionGroups(userPermissionGroups)
+                            .build();
+                    return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
+                });
     }
 
     /**
