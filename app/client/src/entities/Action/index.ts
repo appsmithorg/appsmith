@@ -116,6 +116,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
   return true;
 };
 export interface StoredDatasource {
+  name: string;
   id: string;
   pluginId?: string;
   datasourceConfiguration?: { url?: string };
