@@ -1,3 +1,4 @@
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
@@ -28,7 +29,7 @@ describe("one click binding mongodb datasource", function () {
       );
     });
 
-    _.agHelper.GetNClick(oneClickBinding.locator.connectData);
+    _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
     cy.wait("@postExecute");
 
@@ -42,7 +43,7 @@ describe("one click binding mongodb datasource", function () {
     _.agHelper.Sleep();
     // check if the table rows are present for the given search entry
     _.agHelper.GetNAssertContains(
-      oneClickBinding.locator.validTableRowData,
+      oneClickBindingLocator.validTableRowData,
       rowWithAValidText,
     );
     //#endregion
@@ -95,7 +96,7 @@ describe("one click binding mongodb datasource", function () {
 
     //check if that row is present
     _.agHelper.GetNAssertContains(
-      oneClickBinding.locator.validTableRowData,
+      oneClickBindingLocator.validTableRowData,
       someText,
     );
     //#endregion
