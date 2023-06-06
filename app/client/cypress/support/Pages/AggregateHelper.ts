@@ -808,7 +808,7 @@ export class AggregateHelper {
       this.AssertDocumentReady();
     });
     this.Sleep(2000);
-    this.ValidateNetworkStatus("@" + networkCall);
+    this.ValidateNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane(

@@ -246,6 +246,7 @@ export class DataSources {
     );
     this.agHelper.GetNClick(this._mockDB("Users"));
     this.agHelper.Sleep(500);
+    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
