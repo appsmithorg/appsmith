@@ -3,6 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Autocomplete bug fixes", function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
+    _.table.AddSampleTableData();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 200, 600);
     _.entityExplorer.SelectEntityByName("Text1");
     _.propPane.TypeTextIntoField("Text", "{{Table1.");
@@ -158,6 +159,39 @@ describe("Autocomplete bug fixes", function () {
     _.agHelper.GetNAssertContains(
       _.jsEditor._lineinJsEditor(3),
       "console.log('hello')",
+    );
+  });
+
+  it("11. Bug #23641 Verifies if 'children' shows up in autocomplete list", function () {
+    _.entityExplorer.NavigateToSwitcher("Widgets");
+    _.agHelper.SelectAllWidgets();
+    _.agHelper.PressDelete();
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.MULTITREESELECT,
+      200,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.TREESELECT,
+      200,
+      400,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 200, 600);
+    _.entityExplorer.SelectEntityByName("Text1");
+    _.propPane.TypeTextIntoField("Text", "{{TreeSelect1.options[0].c");
+    _.agHelper.AssertElementExist(_.locators._hints);
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
+      "children",
+      "contain.text",
+    );
+
+    _.propPane.TypeTextIntoField("Text", "{{MultiTreeSelect1.options[0].c");
+    _.agHelper.AssertElementExist(_.locators._hints);
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
+      "children",
+      "contain.text",
     );
   });
 });

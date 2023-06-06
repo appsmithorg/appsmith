@@ -36,7 +36,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
-import { Callout } from "design-system";
+import { Callout, Checkbox } from "design-system";
 import {
   Avatar,
   Button,
@@ -62,6 +62,7 @@ import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -185,6 +186,14 @@ export const CustomRoleRampTooltip = styled(Tooltip)`
 `;
 export const RampLink = styled(Link)`
   display: inline;
+`;
+
+export const StyledCheckbox = styled(Checkbox)`
+  height: 16px;
+
+  .ads-v2-checkbox {
+    padding: 0;
+  }
 `;
 
 const validateFormValues = (values: {
@@ -358,6 +367,7 @@ function WorkspaceInviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const instanceId = useSelector(getInstanceId);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
@@ -461,6 +471,8 @@ function WorkspaceInviteUsersForm(props: any) {
             ...(cloudHosting ? { users: usersAsStringsArray } : {}),
             role: roles,
             numberOfUsersInvited: usersAsStringsArray.length,
+            orgId: props.workspaceId,
+            instanceId,
           });
           return inviteUsersToWorkspace(
             {
@@ -511,16 +523,25 @@ function WorkspaceInviteUsersForm(props: any) {
             >
               {styledRoles.map((role: any) => (
                 <Option key={role.key} label={role.value} value={role.key}>
-                  <div className="flex flex-col gap-1">
-                    <Text
-                      color="var(--ads-v2-color-fg-emphasis)"
-                      kind={role.description && "heading-xs"}
-                    >
-                      {role.value}
-                    </Text>
-                    {role.description && (
-                      <Text kind="body-s">{role.description}</Text>
+                  <div className="flex gap-1 items-center">
+                    {isMultiSelectDropdown && (
+                      <StyledCheckbox
+                        isSelected={selectedOption.find(
+                          (v) => v.key == role.key,
+                        )}
+                      />
                     )}
+                    <div className="flex flex-col gap-1">
+                      <Text
+                        color="var(--ads-v2-color-fg-emphasis)"
+                        kind={role.description && "heading-xs"}
+                      >
+                        {role.value}
+                      </Text>
+                      {role.description && (
+                        <Text kind="body-s">{role.description}</Text>
+                      )}
+                    </div>
                   </div>
                 </Option>
               ))}

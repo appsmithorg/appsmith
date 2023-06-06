@@ -214,26 +214,34 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return Boolean.TRUE;
     }
 
+    private PageDTO getDslEscapedPage(PageDTO page) {
+        List<Layout> layouts = page.getLayouts();
+        if (layouts == null || layouts.isEmpty()) {
+            return page;
+        }
+        for (Layout layout : layouts) {
+            if (layout.getDsl() == null ||
+                    layout.getMongoEscapedWidgetNames() == null ||
+                    layout.getMongoEscapedWidgetNames().isEmpty()) {
+                continue;
+            }
+            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+        }
+        page.setLayouts(layouts);
+        return page;
+    }
+
+    @Override
+    public Mono<PageDTO> getPage(NewPage newPage, boolean viewMode) {
+        return newPageService.getPageByViewMode(newPage, viewMode)
+                .map(page -> getDslEscapedPage(page));
+    }
+
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
         AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findPageById(pageId, permission, viewMode)
-                .map(newPage -> {
-                    List<Layout> layouts = newPage.getLayouts();
-                    if (layouts == null || layouts.isEmpty()) {
-                        return newPage;
-                    }
-                    for (Layout layout : layouts) {
-                        if (layout.getDsl() == null ||
-                                layout.getMongoEscapedWidgetNames() == null ||
-                                layout.getMongoEscapedWidgetNames().isEmpty()) {
-                            continue;
-                        }
-                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                    }
-                    newPage.setLayouts(layouts);
-                    return newPage;
-                })
+                .map(newPage -> getDslEscapedPage(newPage))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
     }
 
@@ -244,7 +252,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> {
-                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
+                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
