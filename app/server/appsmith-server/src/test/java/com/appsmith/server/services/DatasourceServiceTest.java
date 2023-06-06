@@ -1586,6 +1586,7 @@ public class DatasourceServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("NPE check");
         datasource.setWorkspaceId(workspaceId);
+
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         Endpoint nullEndpoint = null;
@@ -1593,10 +1594,9 @@ public class DatasourceServiceTest {
         Endpoint nullHost = new Endpoint(null, 0L);
         datasourceConfiguration.getEndpoints().add(nullHost);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId,
+                new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Mono<Datasource> datasourceMono = pluginMono
@@ -1606,10 +1606,11 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasourceService::create);
 
-        StepVerifier
-                .create(datasourceMono)
+        StepVerifier.create(datasourceMono)
                 .assertNext(createdDatasource -> {
-                    assertThat(createdDatasource.getMessages()).isEmpty();
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    assertThat(datasourceStorageDTO.getMessages()).isEmpty();
                 })
                 .verifyComplete();
     }

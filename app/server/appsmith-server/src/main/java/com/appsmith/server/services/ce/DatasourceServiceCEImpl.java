@@ -116,14 +116,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.repository = repository;
     }
 
-    // TODO: Remove the following snippet after client side API changes
-    @Override
-    public Mono<DatasourceDTO> create(DatasourceDTO datasourceDTO, String environmentId) {
-        return convertToDatasource(datasourceDTO, environmentId)
-                .flatMap(datasource -> this.create(datasource))
-                .flatMap(this::convertToDatasourceDTO);
-    }
-
     @Override
     public Mono<Datasource> create(Datasource datasource) {
         return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));

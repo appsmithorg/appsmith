@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class OAuth2ResponseDTO {
-    DatasourceDTO datasource;
+    Datasource datasource;
     String token;
     String projectID;
 }

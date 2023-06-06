@@ -70,8 +70,6 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
-    Mono<DatasourceDTO> create(DatasourceDTO resource, String environmentId);
-
     Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId);
 
     Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);

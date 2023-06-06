@@ -550,17 +550,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     OAuth2ResponseDTO response = new OAuth2ResponseDTO();
                     response.setToken(accessToken);
                     response.setProjectID(projectID);
+                    response.setDatasource(datasource);
+
                     //since we are fetching our datasource fresh from db we are guaranteed that datasource won't have any storages
                     datasource.getDatasourceStorages()
                             .put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
 
-                    return datasourceService
-                            .convertToDatasourceDTO(datasource)
-                            .flatMap(datasourceDTO -> {
-                                response.setDatasource(datasourceDTO);
-                                return datasourceStorageService.save(datasourceStorage)
-                                        .thenReturn(response);
-                            });
+                    return datasourceStorageService.save(datasourceStorage).thenReturn(response);
+
                 })
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
