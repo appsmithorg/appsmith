@@ -14,14 +14,12 @@
     "@capsizecss/metrics": "^1.0.1",
     "@design-system/headless": "workspace:^",
     "@design-system/theming": "workspace:^",
-    "@design-system/widgets-old": "workspace:^",
     "@react-aria/utils": "^3.16.0",
     "@react-aria/visually-hidden": "^3.8.0",
     "colorjs.io": "^0.4.3"
   },
   "devDependencies": {
-    "eslint-plugin-storybook": "^0.6.10",
-    "identity-obj-proxy": "^3.0.0"
+    "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
