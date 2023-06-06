@@ -659,7 +659,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.eq(index).click().wait(100).type(value, {
+    return locator.eq(index).focus().wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       //delay: 3,
       force: true,
