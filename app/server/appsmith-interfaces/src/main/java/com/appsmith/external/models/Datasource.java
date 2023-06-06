@@ -52,7 +52,8 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
     @JsonView(Views.Public.class)
     String templateName;
 
-    @JsonView(Views.Internal.class)
+    // This is only kept public for embedded datasource
+    @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
     @Transient
@@ -181,5 +182,16 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
         newDs.setInvalids(null);
 
         return newDs;
+    }
+
+    /**
+     * This method sets datasourceConfiguration, messages and isConfigured to null to avoid polluting db.
+     * These fields are also maintained in datasource storage in a separate collection, which is being currently used.
+     * Since these fields have some use cases which is not yet deprecated, hence these can't be set to transient
+     */
+    public void nullifyStorageReplicaFields() {
+        this.setDatasourceConfiguration(null);
+        this.setIsConfigured(null);
+        this.setMessages(null);
     }
 }

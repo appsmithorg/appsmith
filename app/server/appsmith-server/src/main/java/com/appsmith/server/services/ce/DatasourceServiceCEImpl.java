@@ -156,7 +156,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         // Set this to null, datasource configuration has moved to datasourceStorage, we will stop storing this.
-        datasource.setDatasourceConfiguration(null);
+        datasource.nullifyStorageReplicaFields();
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         // First check if this is an existing datasource or whether we need to create one

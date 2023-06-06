@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -285,8 +285,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @GetMapping("/import/{workspaceId}/datasources")
-    public Mono<ResponseDTO<List<DatasourceDTO>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
-        return importExportApplicationService.findDatasourceDTOByApplicationId(defaultApplicationId, workspaceId)
+    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, workspaceId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
