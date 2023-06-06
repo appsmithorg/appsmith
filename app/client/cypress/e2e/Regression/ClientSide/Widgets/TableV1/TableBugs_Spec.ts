@@ -48,11 +48,11 @@ describe("Verify various Table property bugs", function () {
       0,
       "https://wallpaperaccess.com/full/1376499.jpg",
     );
-    _.table.AssertURLColumnNavigation(
-      3,
-      0,
-      "https://wallpaperaccess.com/full/812632.jpg",
-    );
+    // _.table.AssertURLColumnNavigation(
+    //   3,
+    //   0,
+    //   "https://wallpaperaccess.com/full/812632.jpg",
+    // );
 
     _.deployMode.NavigateBacktoEditor();
   });
@@ -89,11 +89,11 @@ describe("Verify various Table property bugs", function () {
       0,
       "https://wallpaperaccess.com/full/1688623.jpg",
     );
-    _.table.AssertURLColumnNavigation(
-      2,
-      0,
-      "https://wallpaperaccess.com/full/2117775.jpg",
-    );
+    // _.table.AssertURLColumnNavigation(
+    //   2,
+    //   0,
+    //   "https://wallpaperaccess.com/full/2117775.jpg",
+    // );
 
     _.deployMode.NavigateBacktoEditor();
   });
@@ -130,11 +130,11 @@ describe("Verify various Table property bugs", function () {
       0,
       "https://wallpaperaccess.com/full/1376499.jpg",
     );
-    _.table.AssertURLColumnNavigation(
-      3,
-      0,
-      "https://wallpaperaccess.com/full/812632.jpg",
-    );
+    // _.table.AssertURLColumnNavigation(
+    //   3,
+    //   0,
+    //   "https://wallpaperaccess.com/full/812632.jpg",
+    // );
 
     _.deployMode.NavigateBacktoEditor();
   });

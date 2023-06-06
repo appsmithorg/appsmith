@@ -65,7 +65,7 @@ describe("Slug URLs", () => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);
       cy.NavigateToHome();
-      cy.reload();
+      //_.agHelper.RefreshPage(true, "getReleaseItems");
 
       cy.SearchApp(applicationName);
 
@@ -94,10 +94,12 @@ describe("Slug URLs", () => {
             `{{appsmith.URL.pathname}}`,
           );
 
-          cy.get(".t--draggable-textwidget .bp3-ui-text").should(
-            "contain.text",
-            `/applications/${application.id}/pages/${currentPageId}/edit`,
-          );
+          cy.get(".t--draggable-textwidget .bp3-ui-text")
+            .should(
+              "contain.text",
+              `/applications/${application.id}/pages/${currentPageId}/edit`,
+            )
+            .wait(2000);
 
           cy.get(".t--upgrade").click({ force: true });
 
