@@ -25,7 +25,7 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
