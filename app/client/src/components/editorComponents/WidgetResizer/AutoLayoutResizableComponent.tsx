@@ -12,8 +12,8 @@ import { get, omit } from "lodash";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ReflowResizable as AutoLayoutResizable } from "resizable/autolayoutresize";
-import { ReflowResizable as FixedLayoutResizable } from "resizable/resizenreflow";
+import { ReflowResizable as AutoLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/autolayoutresize";
+import { ReflowResizable as FixedLayoutResizable } from "components/editorComponents/WidgetResizer/resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -47,7 +47,7 @@ import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import { DropTargetContext } from "./DropTargetComponent";
+import { DropTargetContext } from "../DropTargetComponent";
 import type { UIElementSize } from "./ResizableUtils";
 import { computeFinalRowCols } from "./ResizableUtils";
 import { computeFinalAutoLayoutRowCols } from "./ResizableUtils";
@@ -68,7 +68,7 @@ export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
 };
 
-export const ResizableComponent = memo(function ResizableComponent(
+export const AutoLayoutResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
 ) {
   // Fetch information from the context
@@ -114,13 +114,15 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
+      props.componentWidth ||
       getWidgetWidth(props, !!props.isFlexChild ? !!props.isMobile : false) *
         props.parentColumnSpace -
-      2 * props.paddingOffset,
+        2 * props.paddingOffset,
     height:
+      props.componentHeight ||
       getWidgetHeight(props, !!props.isFlexChild ? !!props.isMobile : false) *
         props.parentRowSpace -
-      2 * props.paddingOffset,
+        2 * props.paddingOffset,
   };
   // onResize handler
   const getResizedPositions = (resizedPositions: OccupiedSpace) => {
@@ -346,13 +348,10 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
-  const snapGrid = useMemo(
-    () => ({
-      x: props.parentColumnSpace,
-      y: props.parentRowSpace,
-    }),
-    [props.parentColumnSpace, props.parentRowSpace],
-  );
+  const snapGrid = {
+    x: 1,
+    y: 1,
+  };
 
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
@@ -426,4 +425,4 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
-export default ResizableComponent;
+export default AutoLayoutResizableComponent;

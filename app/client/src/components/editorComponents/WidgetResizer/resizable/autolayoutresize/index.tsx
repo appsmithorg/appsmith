@@ -2,7 +2,7 @@ import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import {
   isHandleResizeAllowed,
   isResizingDisabled,
-} from "components/editorComponents/ResizableUtils";
+} from "components/editorComponents/WidgetResizer/ResizableUtils";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -14,8 +14,11 @@ import {
   ResizableHandle,
   ResizeWrapper,
   getWrapperStyle,
-} from "resizable/common";
-import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
+} from "components/editorComponents/WidgetResizer/resizable/common";
+import type {
+  DimensionUpdateProps,
+  ResizableProps,
+} from "components/editorComponents/WidgetResizer/resizable/common";
 import { getWidget, getWidgets } from "sagas/selectors";
 import {
   getContainerOccupiedSpacesSelectorWhileResizing,
@@ -712,7 +715,13 @@ function AutoLayoutResizable(props: ResizableProps) {
       className={wrapperClassName}
       id={`resize-${props.widgetId}`}
       ref={resizableRef}
-      style={{ ...resizeWrapperStyle, ...{ width: "100%" } }}
+      style={{
+        ...resizeWrapperStyle,
+        ...{
+          width: `${props.componentWidth}%`,
+          height: `${props.componentHeight}px`,
+        },
+      }}
     >
       {props.children}
       {props.enableHorizontalResize && renderHandles}

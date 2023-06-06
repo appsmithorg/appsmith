@@ -8,20 +8,20 @@ import styled from "styled-components";
 
 import type { AppState } from "@appsmith/reducers";
 import { closeTableFilterPane } from "actions/widgetActions";
-import type { UIElementSize } from "components/editorComponents/ResizableUtils";
+import type { UIElementSize } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-} from "components/editorComponents/ResizeStyledComponents";
+} from "components/editorComponents/WidgetResizer/ResizeStyledComponents";
 import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
-import Resizable from "resizable/modalresize";
+import Resizable from "components/editorComponents/WidgetResizer/resizable/modalresize";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 

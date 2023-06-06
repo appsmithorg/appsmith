@@ -13,7 +13,7 @@ import DraggableComponent from "components/editorComponents/DraggableComponent";
 import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import ResizableComponent from "components/editorComponents/ResizableComponent";
+import ResizableComponent from "components/editorComponents/WidgetResizer/ResizableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -39,7 +39,7 @@ import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
@@ -72,6 +72,7 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import AutoLayoutResizableComponent from "components/editorComponents/WidgetResizer/AutoLayoutResizableComponent";
 
 /***
  * BaseWidget
@@ -343,6 +344,17 @@ abstract class BaseWidget<
     return this.props.referencedWidgetId || this.props.widgetId;
   };
 
+  getAutoLayoutComponentDimensions = () => {
+    return {
+      componentWidth:
+        (this.props.isMobile ? this.props.mobileWidth : this.props.width) ||
+        100,
+      componentHeight:
+        (this.props.isMobile ? this.props.mobileHeight : this.props.height) ||
+        100,
+    };
+  };
+
   getComponentDimensions = () => {
     return this.calculateWidgetBounds(
       this.props.rightColumn,
@@ -413,6 +425,10 @@ abstract class BaseWidget<
     );
   }, JSON.stringify);
 
+  get isAutoLayoutMode() {
+    return this.props.appPositioningType === AppPositioningTypes.AUTO;
+  }
+
   render() {
     return this.getWidgetView();
   }
@@ -424,10 +440,20 @@ abstract class BaseWidget<
    * @param content
    */
   makeResizable(content: ReactNode) {
+    const { componentHeight, componentWidth } = this.isAutoLayoutMode
+      ? this.getAutoLayoutComponentDimensions()
+      : this.getComponentDimensions();
+    const Resizer = this.isAutoLayoutMode
+      ? AutoLayoutResizableComponent
+      : ResizableComponent;
     return (
-      <ResizableComponent {...this.props} paddingOffset={WIDGET_PADDING}>
+      <Resizer
+        {...this.props}
+        {...{ componentHeight, componentWidth }}
+        paddingOffset={WIDGET_PADDING}
+      >
         {content}
-      </ResizableComponent>
+      </Resizer>
     );
   }
 
@@ -565,7 +591,8 @@ abstract class BaseWidget<
   }
 
   makeFlex(content: ReactNode) {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } =
+      this.getAutoLayoutComponentDimensions();
     return (
       <FlexComponent
         alignment={this.props.alignment}

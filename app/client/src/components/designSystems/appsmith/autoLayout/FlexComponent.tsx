@@ -123,6 +123,7 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isPreviewMode = useSelector(previewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
+  const isCurrentWidgetResizing = isResizing && props.selected;
   // const widgetDimensionsViewCss = {
   //   width: props.componentWidth - WIDGET_PADDING * 2,
   //   height: props.componentHeight - WIDGET_PADDING * 2,
@@ -159,6 +160,8 @@ export function FlexComponent(props: AutoLayoutProps) {
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
+      width: isCurrentWidgetResizing ? `${props.componentWidth}%` : "auto",
+      height: isCurrentWidgetResizing ? `${props.componentHeight}px` : "auto",
       minWidth:
         props.responsiveBehavior === ResponsiveBehavior.Fill && props.isMobile
           ? "calc(100% - 8px)"
