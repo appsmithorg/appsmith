@@ -171,6 +171,7 @@ export default function ActionTree(props: {
       {areCallbacksApplicable ? (
         <CallbackButton
           className="callback-collapse flex w-full justify-between px-2 py-1 border-t-transparent t--action-callbacks"
+          data-testid={`t--callback-btn-${id}`}
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
           }}
