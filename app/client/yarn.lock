@@ -5181,6 +5181,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@shared/dsl@workspace:packages/dsl":
+  version: 0.0.0-use.local
+  resolution: "@shared/dsl@workspace:packages/dsl"
+  dependencies:
+    normalizr: ^3.6.2
+  peerDependencies:
+    react: ^17.0.2
+  languageName: unknown
+  linkType: soft
+
 "@sideway/address@npm:^4.1.3":
   version: 4.1.4
   resolution: "@sideway/address@npm:4.1.4"
@@ -21950,10 +21960,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"normalizr@npm:^3.3.0":
-  version: 3.6.0
-  resolution: "normalizr@npm:3.6.0"
-  checksum: bad907e2ad25109b7f0751819f01ca1d04a3b5d86639a766425ea1437cfc094ecfd708bce24cf130e9723eb261e1f75ce22496e210244bd88d87209b149d86b6
+"normalizr@npm:^3.3.0, normalizr@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "normalizr@npm:3.6.2"
+  checksum: 40cea88ba95bf72f6819d9369e0f877782ed53201651740788849c8049178d7558561b146fc1788f1aefcce9a6b01ed8fdcf3fd406e2054514f6779fe069b5b9
   languageName: node
   linkType: hard
 
