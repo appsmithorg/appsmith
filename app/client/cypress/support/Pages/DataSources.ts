@@ -62,6 +62,7 @@ export class DataSources {
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-testid=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
+  _skipToAppBtn = ".t--skip-to-application-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
@@ -1279,5 +1280,13 @@ export class DataSources {
         );
         break;
     }
+  }
+
+  public skipReconnectModal() {
+    this.agHelper.Sleep();
+    this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._skipToAppBtn);
+    this.agHelper.GetNClick(this._skipToAppBtn);
+    this.agHelper.Sleep(2000);
   }
 }

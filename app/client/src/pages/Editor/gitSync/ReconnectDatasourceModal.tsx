@@ -572,22 +572,24 @@ function ReconnectDatasourceModal() {
                 <Text>
                   {createMessage(SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION)}
                 </Text>
-                <Button
-                  UNSAFE_width={"100px"}
-                  className="t--skip-to-application-btn mt-5"
-                  href={appURL}
-                  kind="secondary"
-                  onClick={() => {
-                    AnalyticsUtil.logEvent(
-                      "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
-                    );
-                    localStorage.setItem("importedAppPendingInfo", "null");
-                  }}
-                  renderAs="a"
-                  size="md"
-                >
-                  {createMessage(SKIP_TO_APPLICATION)}
-                </Button>
+                {appURL && (
+                  <Button
+                    UNSAFE_width={"100px"}
+                    className="t--skip-to-application-btn mt-5"
+                    href={appURL}
+                    kind="secondary"
+                    onClick={() => {
+                      AnalyticsUtil.logEvent(
+                        "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
+                      );
+                      localStorage.setItem("importedAppPendingInfo", "null");
+                    }}
+                    renderAs="a"
+                    size="md"
+                  >
+                    {createMessage(SKIP_TO_APPLICATION)}
+                  </Button>
+                )}
               </SkipToAppWrapper>
             </ContentWrapper>
           </BodyContainer>

@@ -69,6 +69,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.forkAppFromMenu).click({ force: true });
     cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
     cy.wait(4000);
+    _.dataSources.skipReconnectModal();
     // validating data binding for the forked application
     cy.xpath("//input[@value='Submit']").should("be.visible");
     cy.xpath("//span[text()='schema_name']").should("be.visible");
@@ -112,12 +113,7 @@ describe("Import, Export and Fork application and validate data binding", functi
           cy.wait("@importNewApplication").then((interception) => {
             const { isPartialImport } = interception.response.body.data;
             if (isPartialImport) {
-              // should reconnect button
-              cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-              cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
-                force: true,
-              });
-              cy.wait(2000);
+              _.dataSources.skipReconnectModal();
             } else {
               cy.get(homePage.toastMessage).should(
                 "contain",
