@@ -20,7 +20,7 @@ import {
   GOOGLE_SHEETS_ASK_FOR_SUPPORT,
   DATASOURCE_INTERCOM_TEXT,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
