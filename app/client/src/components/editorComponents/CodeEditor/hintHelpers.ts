@@ -94,6 +94,10 @@ class SqlHintHelper {
         if (!showHints) return false;
         editor.showHint({
           hint: () => {
+            editor.on("mousedown", () => {
+              // @ts-expect-error: Types are not available
+              editor.closeHint();
+            });
             return completions;
           },
           completeSingle: false,
