@@ -70,6 +70,20 @@ eslintConfig.overrides = [
         getRestrictedSyntaxOverrideForCodeEditor(eslintConfig),
     },
   },
+  {
+    files: ["**/*.test.js", "*.test.ts", "*.test.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            'CallExpression[callee.object.name="it"][callee.property.name="only"], CallExpression[callee.object.name="describe"][callee.property.name="only"]',
+          message:
+            "Reason: Dangling *.only tests skip other tests in the file and reduce test coverage.",
+        },
+      ],
+    },
+  },
 ];
 
 function getRestrictedImportsOverrideForCodeEditor(eslintConfig) {
