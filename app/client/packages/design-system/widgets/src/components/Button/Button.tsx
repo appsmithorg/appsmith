@@ -18,7 +18,7 @@ export const BUTTON_VARIANTS = {
   tertiary: "tertiary",
 } as const;
 
-// Note(Pawan): Should we use ts-toolbelt?
+// Note(Pawan): Should we use ts-toolbelt ( Object.UnionOf<BUTTON_VARIANTS> ) ?
 export type ButtonVariant =
   (typeof BUTTON_VARIANTS)[keyof typeof BUTTON_VARIANTS];
 export type ButtonIconPosition = (typeof BUTTON_ICON_POSITIONS)[number];
