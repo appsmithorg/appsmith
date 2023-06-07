@@ -225,6 +225,7 @@ describe("Canvas Hot Keys", () => {
 
       expect(spyPaste).toHaveBeenCalled();
     });
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip("Cmd + A - select all widgets inside last selected container", async () => {
       const containerId = generateReactKey();
       const canvasId = generateReactKey();
@@ -306,6 +307,7 @@ describe("Canvas Hot Keys", () => {
       );
       spyWidgetSelection.mockClear();
     });
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip("Cmd + A - select all widgets inside a form", async () => {
       spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
       const children: any = buildChildren([
@@ -354,6 +356,7 @@ describe("Canvas Hot Keys", () => {
       const selectedWidgets = component.queryAllByTestId("t--selected");
       expect(selectedWidgets.length).toBe(3);
     });
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip("Cmd + A - select all widgets inside a list", async () => {
       const listId = generateReactKey();
       const containerId = generateReactKey();
