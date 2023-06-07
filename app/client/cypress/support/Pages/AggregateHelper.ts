@@ -560,7 +560,7 @@ export class AggregateHelper {
       .click({ force: force })
       .wait(waitTimeInterval);
   }
-  
+
   public GetSiblingNClick(
     selector: string,
     siblingSelector: string,
