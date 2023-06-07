@@ -20,7 +20,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         "Default value",
         dataSet.atobInput + "}}",
       );
-      agHelper.ValidateNetworkStatus("@updateLayout");
+      agHelper.AssertNetworkStatus("@updateLayout");
       cy.get(locator._inputWidget)
         .first()
         .invoke("attr", "value")
@@ -32,7 +32,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         dataSet.btoaInput + "}}",
       );
     });
-    agHelper.ValidateNetworkStatus("@updateLayout");
+    agHelper.AssertNetworkStatus("@updateLayout");
     cy.get(locator._inputWidget)
       .last()
       .invoke("attr", "value")

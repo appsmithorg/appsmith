@@ -152,7 +152,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.agHelper.Sleep(2000);
-    this.agHelper.ValidateNetworkStatus("@updateWorkspace");
+    this.agHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
   }
 
@@ -224,14 +224,14 @@ export class HomePage {
   public NavigateToHome() {
     cy.get(this._homeIcon).click({ force: true });
     this.agHelper.Sleep(2000);
-    this.agHelper.ValidateNetworkStatus("@getReleaseItems");
+    this.agHelper.AssertNetworkStatus("@getReleaseItems");
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
+    this.agHelper.AssertNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
 
     if (skipSignposting) {
@@ -247,11 +247,11 @@ export class HomePage {
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
+    this.agHelper.AssertNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
-    //this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+    //this.agHelper.AssertNetworkStatus("@updateApplication", 200);
   }
 
   //Maps to AppSetupForRename in command.js
@@ -287,7 +287,7 @@ export class HomePage {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.agHelper.ValidateNetworkStatus("@postLogout");
+    this.agHelper.AssertNetworkStatus("@postLogout");
     this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -527,7 +527,7 @@ export class HomePage {
     this.OpenWorkspaceOptions(workspaceName);
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
-    this.agHelper.ValidateNetworkStatus("@leaveWorkspaceApiCall");
+    this.agHelper.AssertNetworkStatus("@leaveWorkspaceApiCall");
 
     this.agHelper.ValidateToastMessage(
       "You have successfully left the workspace",

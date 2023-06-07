@@ -167,7 +167,7 @@ describe.skip("Shopping cart App", function () {
 
     //Wait for all post execute calls to finish
     agHelper.Sleep(3000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    agHelper.AssertNetworkExecutionSuccess("@postExecute");
     cy.get("@postExecute.all").its("length").should("be.above", 8);
     cy.get("@postExecute.last")
       .its("response.body")

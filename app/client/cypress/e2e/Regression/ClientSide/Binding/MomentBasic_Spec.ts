@@ -15,7 +15,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         "Default value",
         dataSet.defaultInputBinding + "}}",
       );
-      _.agHelper.ValidateNetworkStatus("@updateLayout");
+      _.agHelper.AssertNetworkStatus("@updateLayout");
       //Binding second input widget with first input widget and validating
       _.entityExplorer.SelectEntityByName("Input2");
       _.propPane.UpdatePropertyFieldValue(
@@ -23,7 +23,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         dataSet.momentInput + "}}",
       );
     });
-    _.agHelper.ValidateNetworkStatus("@updateLayout");
+    _.agHelper.AssertNetworkStatus("@updateLayout");
     //Publish widget and validate the data displayed in input widgets
     let currentTime = new Date();
     _.deployMode.DeployApp(_.locators._widgetInputSelector("inputwidgetv2"));

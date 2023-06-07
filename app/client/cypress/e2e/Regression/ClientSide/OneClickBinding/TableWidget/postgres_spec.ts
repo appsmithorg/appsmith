@@ -27,7 +27,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     cy.wait(2000);
 
@@ -57,11 +57,11 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.GetNClick(_.table._saveNewRow, 0, true);
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     _.agHelper.AssertElementExist(_.table._bodyCell("cypress@appsmith"));
 
@@ -79,9 +79,9 @@ describe("Table widget one click binding feature", () => {
 
     (cy as any).saveTableRow(12, 0);
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     (cy as any).wait(500);
 
@@ -89,7 +89,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.TypeText(_.table._searchInput, "automation@appsmith");
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     (cy as any).wait(2000);
 
@@ -99,7 +99,7 @@ describe("Table widget one click binding feature", () => {
 
     _.agHelper.TypeText(_.table._searchInput, "cypress@appsmith");
 
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
 
     (cy as any).wait(2000);
 

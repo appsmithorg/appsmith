@@ -114,7 +114,7 @@ describe("Import, Export and Fork application and validate data binding", functi
             "cypress/fixtures/exportedApp.json",
             { force: true },
           );
-          agHelper.ValidateNetworkStatus("@getReleaseItems");
+          agHelper.AssertNetworkStatus("@getReleaseItems");
 
           // import exported application in new workspace
           // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });

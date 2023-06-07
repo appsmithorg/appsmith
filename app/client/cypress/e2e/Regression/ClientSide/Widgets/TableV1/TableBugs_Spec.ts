@@ -13,7 +13,7 @@ describe("Verify various Table property bugs", function () {
       "Table data",
       JSON.stringify(this.dataSet.TableURLColumnType),
     );
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     _.agHelper.PressEscape();
     //Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");

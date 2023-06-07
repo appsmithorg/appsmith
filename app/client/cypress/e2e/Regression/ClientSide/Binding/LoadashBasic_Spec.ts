@@ -14,7 +14,7 @@ describe("Loadash basic test with input Widget", () => {
         "Default value",
         dataSet.defaultInputBinding + "}}",
       );
-      _.agHelper.ValidateNetworkStatus("@updateLayout");
+      _.agHelper.AssertNetworkStatus("@updateLayout");
       //Input widget test with default value for btoa method
       _.entityExplorer.SelectEntityByName("Input2");
       _.propPane.UpdatePropertyFieldValue(
@@ -22,7 +22,7 @@ describe("Loadash basic test with input Widget", () => {
         dataSet.loadashInput + "}}",
       );
     });
-    _.agHelper.ValidateNetworkStatus("@updateLayout");
+    _.agHelper.AssertNetworkStatus("@updateLayout");
     //Publish and validate the data displayed in input widgets value for aToB and bToa
     _.deployMode.DeployApp(_.locators._widgetInputSelector("inputwidgetv2"));
     cy.get(_.locators._widgetInputSelector("inputwidgetv2"))

@@ -235,8 +235,8 @@ describe("DateTime Datatype tests", function () {
 
   it("8. Deleting records - datetimetypes", () => {
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     agHelper
       .GetText(table._showPageItemsCount)

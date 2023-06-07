@@ -121,7 +121,7 @@ export class PropertyPane {
     this.OpenJsonFormFieldSettings(fieldName);
     this.agHelper.SelectDropdownList("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
-    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    this.agHelper.AssertNetworkStatus("@updateLayout");
   }
 
   public NavigateBackToPropertyPane() {
@@ -496,7 +496,7 @@ export class PropertyPane {
       .should("have.value", newName)
       .blur();
     this.agHelper.PressEnter();
-    this.agHelper.ValidateNetworkStatus("@updateWidgetName");
+    this.agHelper.AssertNetworkStatus("@updateWidgetName");
     this.agHelper.Sleep();
   }
 

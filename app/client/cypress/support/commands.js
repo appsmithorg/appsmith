@@ -1264,7 +1264,7 @@ Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
       timeout: 30000,
     });
   }
-  //agHelper.ValidateNetworkStatus("@sucessSave", 200);
+  //agHelper.AssertNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(

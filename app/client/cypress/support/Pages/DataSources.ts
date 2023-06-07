@@ -233,7 +233,7 @@ export class DataSources {
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -246,11 +246,11 @@ export class DataSources {
     );
     this.agHelper.GetNClick(this._mockDB("Users"));
     this.agHelper.Sleep(500);
-    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    this.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -550,7 +550,7 @@ export class DataSources {
   public FillUnAuthenticatedGraphQLDSForm() {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     this.apiPage.EnterURL(this.hp.GraphqlApiUrl_TED);
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.agHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -587,7 +587,7 @@ export class DataSources {
 
   public TestDatasource(expectedRes = true) {
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
-    this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
+    this.agHelper.AssertNetworkDataSuccess("@testDatasource", expectedRes);
     if (expectedRes) {
       this.agHelper.AssertContains("datasource is valid");
     }
@@ -595,7 +595,7 @@ export class DataSources {
 
   public SaveDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
     this.agHelper.AssertContains("datasource created");
 
     // cy.wait("@saveDatasource")
@@ -606,12 +606,12 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
+    // this.agHelper.AssertNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
   }
 
@@ -675,7 +675,7 @@ export class DataSources {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.agHelper.ValidateNetworkStatus(
+      this.agHelper.AssertNetworkStatus(
         "@deleteDatasource",
         expectedRes as number,
       );
@@ -789,7 +789,7 @@ export class DataSources {
         10000,
       ); //For the run to give response
       this.agHelper.Sleep();
-      this.agHelper.ValidateNetworkExecutionSuccess(
+      this.agHelper.AssertNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
       );
@@ -1040,7 +1040,7 @@ export class DataSources {
         true,
         0,
       );
-      this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+      this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
@@ -1164,7 +1164,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._consentSubmit);
 
     //Validate save
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.agHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public FillAPIOAuthForm(

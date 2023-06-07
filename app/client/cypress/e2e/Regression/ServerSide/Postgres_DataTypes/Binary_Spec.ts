@@ -186,8 +186,8 @@ describe.skip("Binary Datatype tests", function () {
     _.table.WaitUntilTableLoad();
     _.table.SelectTableRow(1);
     _.agHelper.ClickButton("DeleteQuery", 1);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.agHelper.AssertElementAbsence(_.locators._spinner, 20000); //Allowing time for delete to be success
     _.agHelper.Sleep(6000); //Allwowing time for delete to be success
     _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {

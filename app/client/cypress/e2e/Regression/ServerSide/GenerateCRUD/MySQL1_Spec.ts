@@ -20,7 +20,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, dsName);
     });
 
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
@@ -38,7 +38,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.AssertNetworkStatus("@deletePage", 200);
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
@@ -70,7 +70,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     _.dataSources.CreateDataSource("MySql", false);
 
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "customers");
 
@@ -89,7 +89,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
     _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "employees");
 
@@ -109,7 +109,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.AssertNetworkStatus("@deletePage", 200);
   });
 
   it("4. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
@@ -158,7 +158,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
     _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
@@ -166,11 +166,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
     _.agHelper.GetNClick(_.dataSources._generatePageBtn);
     _.agHelper.AssertContains("Successfully generated a page");
-    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    _.agHelper.ValidateNetworkStatus("@getActions", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    _.agHelper.AssertNetworkStatus("@getActions", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
 
     //Validating loaded table
@@ -235,7 +235,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
     _.agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     _.agHelper.AssertElementAbsence(_.locators._toastMsg); //Validating fix for Bug 14063
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.table.AssertSelectedRow(3);
 
     //validating update happened fine!
@@ -259,7 +259,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.AssertNetworkStatus("@deletePage", 200);
   });
 
   it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
@@ -306,12 +306,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     _.agHelper.GetNClick(_.dataSources._generatePageBtn);
-    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    _.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     _.agHelper.AssertContains("Successfully generated a page");
-    //_.agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    //_.agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
     _.table.WaitUntilTableLoad();
 

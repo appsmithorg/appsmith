@@ -10,7 +10,7 @@ describe("Verify various Table_Filter combinations", function () {
       "Table data",
       JSON.stringify(this.dataSet.TableInput),
     );
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     cy.get("body").type("{esc}");
     /*
       Changing id and orderAmount to "Plain Text" column type

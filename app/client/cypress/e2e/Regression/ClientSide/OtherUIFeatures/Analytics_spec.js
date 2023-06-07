@@ -23,7 +23,7 @@ describe(
 
     it("1. Should check analytics is not initialised when enableTelemtry is false", function () {
       cy.visit("/applications");
-      _.agHelper.ValidateNetworkStatus("@getReleaseItems");
+      _.agHelper.AssertNetworkStatus("@getReleaseItems");
       // _.agHelper.RefreshPage();
       // cy.wait(3000);
       // cy.wait("@getMe")

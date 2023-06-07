@@ -57,7 +57,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -73,7 +73,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -89,7 +89,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -105,7 +105,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -121,7 +121,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -137,7 +137,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -153,7 +153,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -169,7 +169,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("8");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
@@ -185,7 +185,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -205,7 +205,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
       () => cy.get(_.locators._crossBtn).click(),
     );
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -220,7 +220,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     );
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.ClickButton("Submit");
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
@@ -235,7 +235,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deleteAction", 200);
+    _.agHelper.AssertNetworkStatus("@deleteAction", 200);
     _.entityExplorer.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
@@ -245,6 +245,6 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     // //Bug 12532
     // _.entityExplorer.ExpandCollapseEntity('Datasources')
     // _.entityExplorer.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
-    // _.agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    // _.agHelper.AssertNetworkStatus("@deleteAction", 200)
   });
 });

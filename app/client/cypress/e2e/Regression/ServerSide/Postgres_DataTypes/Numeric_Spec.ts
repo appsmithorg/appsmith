@@ -187,8 +187,8 @@ describe("Numeric Datatype tests", function () {
   it("8. Deleting records - numerictypes", () => {
     _.table.SelectTableRow(1);
     _.agHelper.ClickButton("DeleteQuery", 1);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.agHelper.Sleep(2500); //Allwowing time for delete to be success
     _.table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted

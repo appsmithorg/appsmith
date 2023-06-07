@@ -111,7 +111,7 @@ export class EntityExplorer {
     this.agHelper.GetNClick(this.locator._newPage);
     this.agHelper.GetNClick(this._newPageOptions(option));
     if (option === "New blank page") {
-      this.agHelper.ValidateNetworkStatus("@createPage", 201);
+      this.agHelper.AssertNetworkStatus("@createPage", 201);
     }
   }
 
@@ -224,7 +224,7 @@ export class EntityExplorer {
       this.agHelper.Sleep(300);
     }
     if (action == "Delete") {
-      jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.agHelper.AssertNetworkStatus("@deleteJSCollection");
       jsDelete && this.agHelper.AssertContains("deleted successfully");
     }
   }
@@ -235,7 +235,7 @@ export class EntityExplorer {
       .click({ force: true });
     cy.xpath(this.locator._contextMenuItem("Delete")).click({ force: true });
     this.agHelper.Sleep(500);
-    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    this.agHelper.AssertNetworkStatus("@updateLayout");
     this.AssertEntityAbsenceInExplorer(widgetNameinLeftSidebar);
   }
 
@@ -317,7 +317,7 @@ export class EntityExplorer {
   public ClonePage(pageName = "Page1") {
     this.SelectEntityByName(pageName, "Pages");
     this.ActionContextMenuByEntityName(pageName, "Clone");
-    this.agHelper.ValidateNetworkStatus("@clonePage", 201);
+    this.agHelper.AssertNetworkStatus("@clonePage", 201);
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {

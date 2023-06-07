@@ -78,16 +78,16 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    agHelper.AssertNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "vessels");
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateToastMessage("Successfully generated a page");
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.AssertNetworkStatus("@getActions", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    agHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table
@@ -139,7 +139,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
     // //Delete the test data
     // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
-    // agHelper.ValidateNetworkStatus("@deletePage" , 200);
+    // agHelper.AssertNetworkStatus("@deletePage" , 200);
   });
 
   it("5. Update the UpdateQuery to update all columns from UI", () => {
@@ -345,8 +345,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       ),
     );
     agHelper.ClickButton("Confirm");
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); // for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
@@ -545,8 +545,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Submit");
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Insert to reflect!
     // agHelper
     //   .GetElementLength(locator._jsonFormWidget)
@@ -585,8 +585,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       ),
     );
     agHelper.ClickButton("Confirm");
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(0); //Control going back to 1st row in table
 
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
@@ -603,7 +603,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "Delete",
       "Are you sure?",
     );
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    agHelper.AssertNetworkStatus("@deletePage", 200);
   });
 
   it("17. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
@@ -646,12 +646,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    //agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    agHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table
@@ -712,8 +712,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
     agHelper.AssertElementAbsence(locator._spinner, 10000); //10 secs for update to reflect!
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection
 
     //validating update happened fine!

@@ -34,7 +34,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
@@ -49,7 +49,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    agHelper.AssertNetworkStatus("@deletePage", 200);
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
@@ -64,7 +64,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
   it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    agHelper.AssertNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
@@ -73,7 +73,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    agHelper.AssertNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -88,12 +88,12 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     idIndex: number,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@getActions", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    agHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
 
     //Validating loaded table

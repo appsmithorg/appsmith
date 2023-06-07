@@ -295,6 +295,6 @@ describe("Validate Firestore DS", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    _.agHelper.AssertNetworkStatus("@deleteDatasource", 200);
   });
 });

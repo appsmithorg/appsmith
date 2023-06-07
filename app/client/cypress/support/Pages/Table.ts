@@ -485,7 +485,7 @@ export class Table {
 
     this.agHelper.GetNClick(colSettings);
     this.agHelper.SelectDropdownList("Column type", newDataType);
-    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    this.agHelper.AssertNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
 
@@ -508,7 +508,7 @@ export class Table {
       cy.url().should("eql", expectedURL);
       this.agHelper.AssertDocumentReady();
       cy.visit($currentUrl);
-      this.agHelper.ValidateNetworkStatus("@" + networkCall);
+      this.agHelper.AssertNetworkStatus("@" + networkCall);
       this.WaitUntilTableLoad(0, 0, tableVersion);
     });
   }

@@ -84,7 +84,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
     GenerateCRUDNValidateDeployPage(
@@ -173,8 +173,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       ),
     );
     agHelper.ClickButton("Confirm");
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); // for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "store_id");
@@ -270,8 +270,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
     agHelper.Sleep(2000); //for Insert to reflect!
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Insert to reflect!
     agHelper
       .GetElementLength(locator._jsonFormWidget)
@@ -327,8 +327,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       ),
     );
     agHelper.ClickButton("Confirm");
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     table.ReadTableRowColumnData(0, 0, "v1", 200).then(($cellData) => {
@@ -341,7 +341,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Stores", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    agHelper.AssertNetworkStatus("@deletePage", 200);
     agHelper.RefreshPage();
   });
 
@@ -375,12 +375,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    //agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    agHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
 
@@ -434,8 +434,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
     agHelper.Sleep(2000); //for update to reflect!
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.AssertNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex);
 
     //validating update happened fine!

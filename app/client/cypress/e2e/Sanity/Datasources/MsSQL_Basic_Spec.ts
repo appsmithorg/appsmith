@@ -119,7 +119,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    _.agHelper.AssertNetworkStatus("@deleteDatasource", 200);
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {

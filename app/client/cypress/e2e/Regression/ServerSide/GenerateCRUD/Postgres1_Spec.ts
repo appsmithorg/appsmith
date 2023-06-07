@@ -13,7 +13,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
       _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, dsName);
     });
 
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "film");
 
@@ -33,7 +33,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.AssertNetworkStatus("@deletePage", 200);
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
@@ -62,7 +62,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
       "Connect new datasource",
     );
     _.dataSources.CreateDataSource("Postgres", false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "suppliers");
 
@@ -82,7 +82,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
     _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "orders");
 
@@ -102,7 +102,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.AssertNetworkStatus("@deletePage", 200);
   });
 
   it("4. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
@@ -118,12 +118,12 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     jsonFromHeader: string,
   ) {
     _.agHelper.GetNClick(_.dataSources._generatePageBtn);
-    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    _.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     _.agHelper.AssertContains("Successfully generated a page");
-    //_.agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
+    //_.agHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     _.deployMode.DeployApp();
 
     //Validating loaded table

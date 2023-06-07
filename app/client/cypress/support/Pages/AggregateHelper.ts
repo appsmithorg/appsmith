@@ -176,7 +176,7 @@ export class AggregateHelper {
         "not.exist",
       ); //adding timeout since waiting more time is not worth it!
 
-    //this.ValidateNetworkStatus("@sucessSave", 200);
+    //this.AssertNetworkStatus("@sucessSave", 200);
   }
 
   public PopupClose(popUpName: string) {
@@ -350,24 +350,21 @@ export class AggregateHelper {
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
   }
 
-  public ValidateNetworkExecutionSuccess(
-    aliasName: string,
-    expectedRes = true,
-  ) {
+  public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
     cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
     cy.get(aliasName)
       .its("response.body.data.isExecutionSuccess")
       .should("eq", expectedRes);
   }
 
-  public ValidateNetworkDataSuccess(aliasName: string, expectedRes = true) {
+  public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
     cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
     cy.get(aliasName)
       .its("response.body.data.success")
       .should("eq", expectedRes);
   }
 
-  public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
+  public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });
@@ -836,7 +833,7 @@ export class AggregateHelper {
       this.AssertDocumentReady();
     });
     this.Sleep(2000);
-    this.ValidateNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
+    this.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane(
@@ -855,8 +852,8 @@ export class AggregateHelper {
       this.Sleep(1000);
     }
     if (action == "Delete") {
-      !jsDelete && this.ValidateNetworkStatus("@deleteAction");
-      jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
+      !jsDelete && this.AssertNetworkStatus("@deleteAction");
+      jsDelete && this.AssertNetworkStatus("@deleteJSCollection");
       jsDelete && this.AssertContains("deleted successfully");
     }
   }

@@ -55,7 +55,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       _.jsEditor.ConfirmationClick("Yes");
       _.agHelper.Sleep(1000);
     });
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
@@ -92,7 +92,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     _.jsEditor.ConfirmationClick("Yes");
-    // _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    // _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
@@ -120,7 +120,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.AssertElementAbsence(
       _.locators._specificToast("ran successfully"),
     ); //failed toast is appearing hence skipping
-    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
@@ -154,7 +154,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
     //   expect(cellData).to.be.equal("2");
     // });
-    // //_.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    // //_.agHelper.AssertNetworkExecutionSuccess("@postExecute");
     // _.deployMode.NavigateBacktoEditor();
     // _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     // _.agHelper.AssertElementVisible(

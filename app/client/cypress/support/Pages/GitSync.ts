@@ -117,7 +117,7 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("Connect");
       if (assertConnect) {
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
@@ -204,7 +204,7 @@ export class GitSync {
         // cy.intercept("POST", "/api/v1/git/connect/app/*", {
         //   fixture: "/Bugs/GitConnectResponse.json",
         // });
-        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.AssertNetworkStatus("@connectGitLocalRepo");
       }
       this.CloseGitSyncModal();
     });

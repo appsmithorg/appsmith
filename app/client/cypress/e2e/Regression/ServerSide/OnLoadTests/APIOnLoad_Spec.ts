@@ -26,7 +26,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       "[PageLoadApi] will be executed automatically on page load",
     );
     _.agHelper.RefreshPage();
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
   });
 
   it("2. Shows when API failed to load on page load.", function () {

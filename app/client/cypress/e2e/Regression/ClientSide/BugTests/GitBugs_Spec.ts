@@ -20,7 +20,7 @@ describe("Git Bugs", function () {
     cy.get("@postExecute").should("not.exist");
     _.gitSync.CloseGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    _.agHelper.AssertNetworkStatus("@postExecute");
   });
 
   it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {

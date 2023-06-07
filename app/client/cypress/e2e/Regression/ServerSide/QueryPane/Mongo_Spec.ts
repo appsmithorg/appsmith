@@ -27,7 +27,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
     _.dataSources.CreateDataSource("Mongo", false);
 
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(_.dataSources._dropdownOption, "friends");
 
@@ -612,7 +612,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
     _.dataSources.NavigateFromActiveDS(dsName, false);
-    _.agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    _.agHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     _.agHelper.GetNClick(_.dataSources._selectTableDropdown, 0, true);
     _.agHelper.GetNClickByContains(
       _.dataSources._dropdownOption,
@@ -638,7 +638,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       "Delete",
       "Are you sure?",
     );
-    _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    _.agHelper.AssertNetworkStatus("@deletePage", 200);
   });
 
   it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
@@ -800,7 +800,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     //Delete the test data
     // _.entityExplorer.expandCollapseEntity("Pages")
     // _.entityExplorer.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
-    // _.agHelper.ValidateNetworkStatus("@deletePage", 200);
+    // _.agHelper.AssertNetworkStatus("@deletePage", 200);
     _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();
     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
@@ -813,11 +813,11 @@ describe("Validate Mongo Query Pane Validations", () => {
     idIndex: number,
   ) {
     _.agHelper.GetNClick(_.dataSources._generatePageBtn);
-    _.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    _.agHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     _.agHelper.AssertContains("Successfully generated a page");
-    _.agHelper.ValidateNetworkStatus("@getActions", 200);
-    _.agHelper.ValidateNetworkStatus("@postExecute", 200);
-    _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+    _.agHelper.AssertNetworkStatus("@getActions", 200);
+    _.agHelper.AssertNetworkStatus("@postExecute", 200);
+    _.agHelper.AssertNetworkStatus("@updateLayout", 200);
 
     _.agHelper.GetNClick(_.dataSources._visibleTextSpan("Got it"));
     _.deployMode.DeployApp();

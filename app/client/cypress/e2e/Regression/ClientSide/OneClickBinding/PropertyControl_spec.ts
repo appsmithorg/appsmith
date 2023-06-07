@@ -157,7 +157,7 @@ describe("One click binding control", () => {
       oneClickBindingLocator.datasourceSelector("myinvalidds"),
     );
 
-    _.agHelper.ValidateNetworkStatus("@ValidateNetworkStatus");
+    _.agHelper.AssertNetworkStatus("@postExecute");
     _.agHelper.AssertElementExist(
       oneClickBindingLocator.tableError(
         "Appsmith server timed out when fetching structure. Please reach out to appsmith customer support to resolve this.",

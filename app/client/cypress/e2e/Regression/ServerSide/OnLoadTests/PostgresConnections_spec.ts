@@ -79,7 +79,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
         "Default selected value",
         "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
-      _.agHelper.ValidateNetworkStatus("@updateLayout", 200);
+      _.agHelper.AssertNetworkStatus("@updateLayout", 200);
     }
   });
 

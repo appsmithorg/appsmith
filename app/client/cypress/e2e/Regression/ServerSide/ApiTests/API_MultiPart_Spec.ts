@@ -142,7 +142,7 @@ describe("Validate API request body panel", () => {
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
+    agHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
     agHelper.Sleep();
     cy.xpath(apiPage._imageSrc)
@@ -168,12 +168,12 @@ describe("Validate API request body panel", () => {
     ee.SelectEntityByName("FilePicker1", "Widgets");
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
+    agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
 
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
+    agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
     agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset in case of failure!
   });

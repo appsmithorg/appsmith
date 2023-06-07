@@ -18,7 +18,7 @@ describe("Dynamic Height Width validation for text widget", function () {
       _.propPane.UpdatePropertyFieldValue("Text", textMsg);
       _.propPane.MoveToTab("Style");
       _.propPane.SelectPropertiesDropDown("Font size", "L");
-      _.agHelper.ValidateNetworkStatus("@updateLayout"); //for textMsg update
+      _.agHelper.AssertNetworkStatus("@updateLayout"); //for textMsg update
       _.agHelper.GetWidgetHeight(
         _.locators._widgetInDeployed(_.draggableWidgets.TEXT),
       );
