@@ -29,6 +29,9 @@ import java.nio.charset.StandardCharsets;
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
+    public static final String ERROR = "error";
+    public static final String CHARACTER_QUESTION_MARK = "?";
+    public static final String CHARACTER_EQUALS = "=";
     public static final String SIGNUP_SUCCESS_URL = "/signup-success";
     public static final String APPLICATION_PAGE_URL = "/applications/%s/pages/%s/edit";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
@@ -234,5 +237,31 @@ public class RedirectHelper {
             url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
         }
         return url;
+    }
+
+    /**
+     * To build failure URL
+     * @param redirectPrefix Redirect URL prefix
+     * @param failureMessage Failure message to be added to redirect URL
+     * @return Redirect URL
+     */
+    private String buildFailureUrl(String redirectPrefix, String failureMessage) {
+        String url = redirectPrefix + CHARACTER_QUESTION_MARK + ERROR + CHARACTER_EQUALS + URLEncoder.encode(failureMessage, StandardCharsets.UTF_8);
+
+        return url;
+    }
+
+    /**
+     * To redirect in error cases
+     * @param webFilterExchange WebFilterExchange
+     * @param redirectPrefix Redirect URL prefix
+     * @param failureMessage Failure message to be added to redirect URL
+     * @return Mono of void
+     */
+    public Mono<Void> handleErrorRedirect(WebFilterExchange webFilterExchange, String redirectPrefix, String failureMessage) {
+        ServerWebExchange exchange = webFilterExchange.getExchange();
+        URI redirectURI = URI.create(buildFailureUrl(redirectPrefix, failureMessage));
+
+        return redirectStrategy.sendRedirect(exchange, redirectURI);
     }
 }
