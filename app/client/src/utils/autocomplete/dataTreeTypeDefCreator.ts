@@ -135,6 +135,7 @@ export function generateTypeDef(
       }
       return `[${arrayElementType}]`;
     }
+
     case Types.OBJECT: {
       const objType: Def = {};
       const object = value as Record<string, unknown>;
@@ -143,12 +144,16 @@ export function generateTypeDef(
       });
       return objType;
     }
+
     case Types.STRING:
       return "string";
+
     case Types.NUMBER:
       return "number";
+
     case Types.BOOLEAN:
       return "bool";
+
     case Types.NULL:
     case Types.UNDEFINED:
       return "?";

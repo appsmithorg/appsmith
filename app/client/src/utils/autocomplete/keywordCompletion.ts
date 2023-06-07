@@ -79,6 +79,7 @@ export const getCompletionsForKeyword = (
       });
 
       break;
+
     case "switch":
       completions.push({
         ...completion,
@@ -91,6 +92,7 @@ export const getCompletionsForKeyword = (
       });
 
       break;
+
     case "function":
       completions.push({
         ...completion,
@@ -103,6 +105,7 @@ export const getCompletionsForKeyword = (
       });
 
       break;
+
     case "try":
       completions.push({
         ...completion,
@@ -126,6 +129,7 @@ export const getCompletionsForKeyword = (
         },
       });
       break;
+
     case "new":
       completions.push({
         ...completion,
@@ -137,6 +141,7 @@ export const getCompletionsForKeyword = (
         },
       });
       break;
+
     case "async":
       completions.push(
         {

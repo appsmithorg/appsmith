@@ -64,6 +64,9 @@ import {
 import type { PeekOverlayExpressionIdentifierOptions } from "./src/peekOverlay";
 import { PeekOverlayExpressionIdentifier } from "./src/peekOverlay";
 
+// autocomplete
+import { isBracketOrDotNotation } from "./src/autocomplete";
+
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
   ObjectExpression,
@@ -124,4 +127,5 @@ export {
   isJSFunctionProperty,
   isFunctionPresent,
   PeekOverlayExpressionIdentifier,
+  isBracketOrDotNotation,
 };

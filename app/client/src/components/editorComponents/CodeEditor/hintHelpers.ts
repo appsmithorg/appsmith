@@ -87,6 +87,7 @@ class SqlHintHelper {
     this.datasourceTableKeys = datasourceTableKeys || {};
     this.tables = this.generateTables(this.datasourceTableKeys);
   }
+
   hinter() {
     return {
       showHint: (editor: CodeMirror.Editor): boolean => {
@@ -109,7 +110,9 @@ class SqlHintHelper {
     };
   }
 
-  generateTables(tableKeys: typeof this.datasourceTableKeys) {
+  generateTables(
+    tableKeys: NonNullable<ReturnType<typeof getAllDatasourceTableKeys>>,
+  ) {
     const tables: Record<string, string[]> = {};
     for (const tableKey of Object.keys(tableKeys)) {
       tables[`${tableKey}`] = [];

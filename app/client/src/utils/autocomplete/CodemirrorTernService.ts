@@ -17,6 +17,7 @@ import {
   getCodeMirrorNamespaceFromDoc,
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
+import { transformBlankSpacedObjectKeyToBracketNotation } from "./bracketNotationTransformation";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -191,12 +192,17 @@ class CodeMirrorTernService {
   }
 
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
-    if (error) return this.showError(cm, error);
+    if (error) {
+      return this.showError(cm, error);
+    }
+
+    const doc = this.findDoc(cm.getDoc());
+    const lineValue = this.lineValue(doc);
+    transformBlankSpacedObjectKeyToBracketNotation(lineValue, data.completions);
+
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
     }
-    const doc = this.findDoc(cm.getDoc());
-    const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
