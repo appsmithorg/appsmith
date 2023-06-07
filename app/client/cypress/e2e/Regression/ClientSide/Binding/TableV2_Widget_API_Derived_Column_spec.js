@@ -45,9 +45,7 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("2. Check Image alignment is working as expected", function () {
     _.entityExplorer.SelectEntityByName("Table1");
-
-    cy.editColumn("avatar");
-    cy.changeColumnType("Image");
+    _.table.ChangeColumnType("avatar", "Image", "v2");
     cy.closePropertyPane();
     _.entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();

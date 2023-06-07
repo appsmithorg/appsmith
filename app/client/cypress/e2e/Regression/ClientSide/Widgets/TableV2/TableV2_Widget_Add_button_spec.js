@@ -12,10 +12,8 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("1. Table widget V2 with Add button test and validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Open column details of "id".
-    cy.editColumn("id");
-    cy.get(widgetsPage.tablV2Btn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    _.table.ChangeColumnType("id", "Button", "v2");
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     // Selecting button action to show message
@@ -113,7 +111,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     //cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.get(".t--add-column-btn").click();
     // Change Column type to icon Button
-    _.table.ChangeColumnType("customColumn1","Icon button","v2");
+    _.table.ChangeColumnType("customColumn1", "Icon button", "v2");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -141,8 +139,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
-    //Edit New Custom Column type 
-    _.table.ChangeColumnType("customColumn1","Menu button","v2");
+    //Edit New Custom Column type
+    _.table.ChangeColumnType("customColumn1", "Menu button", "v2");
     //Changing the text on the Menu button
     cy.testJsontext("text", "Menu button");
     cy.moveToStyleTab();

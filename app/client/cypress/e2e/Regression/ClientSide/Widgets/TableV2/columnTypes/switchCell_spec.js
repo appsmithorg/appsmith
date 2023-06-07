@@ -38,8 +38,7 @@ describe("Switch column type funtionality test", () => {
     cy.openPropertyPane("tablewidgetv2");
     _.propPane.RemoveText("tabledata");
     _.propPane.UpdatePropertyFieldValue("Table data", tableData);
-        _.table.ChangeColumnType("completed","Switch","v2")
-
+    _.table.ChangeColumnType("completed", "Switch", "v2");
   });
 
   it("1. Check if the column type switch appears", () => {
@@ -165,7 +164,7 @@ describe("Switch column type funtionality test", () => {
   it("5. Verify if onChange is hidden on custom columns", () => {
     cy.get(commonLocators.editPropBackButton).click();
     cy.get(widgetsJson.addColumn).click();
-    _.table.ChangeColumnType("customColumn1","Switch","v2")
+    _.table.ChangeColumnType("customColumn1", "Switch", "v2");
     _.propPane.UpdatePropertyFieldValue(
       "Computed value",
       '{{currentRow["completed"]}}',

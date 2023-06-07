@@ -2,6 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const color = "rgb(151, 0, 0)";
 
 describe("Table Widget property pane feature validation", function () {
@@ -27,10 +28,8 @@ describe("Table Widget property pane feature validation", function () {
   it("Table widget with button colour change validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
-    cy.editColumn("id");
-    cy.get(widgetsPage.tableBtn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button", false);
+    _.table.ChangeColumnType("id", "Button", "v1");
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.changeColumnType("Button", false);
@@ -46,9 +45,8 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.get(commonlocators.editPropBackButton).click({ force: true });
-    cy.editColumn("id");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon button", false);
+    _.table.ChangeColumnType("id", "Icon button", "v1");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,

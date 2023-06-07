@@ -517,7 +517,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("15. Verify default prompt message for min field", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
-    _.table.ChangeColumnType("orderAmount","Number","v2");
+    _.table.ChangeColumnType("orderAmount", "Number", "v2");
     _.propPane.UpdatePropertyFieldValue("Min", "test");
     cy.get(".t--property-control-min .t--no-binding-prompt > span").should(
       "have.text",

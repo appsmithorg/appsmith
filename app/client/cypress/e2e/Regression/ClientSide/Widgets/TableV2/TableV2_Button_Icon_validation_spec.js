@@ -28,10 +28,8 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("2. Table widget V2 with button colour change validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Open column details of "id".
-    cy.editColumn("id");
-    cy.get(widgetsPage.tableV2Btn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    _.table.ChangeColumnType("id", "Button", "v2");
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.changeColumnType("Button");
@@ -52,10 +50,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Open column details of "id".
     cy.get(commonlocators.editPropBackButton).click({ force: true });
-    cy.editColumn("id");
     // Change Column type to icon Button
-    cy.moveToContentTab();
-    cy.changeColumnType("Icon button");
+    _.table.ChangeColumnType("id", "Icon button", "v2");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,

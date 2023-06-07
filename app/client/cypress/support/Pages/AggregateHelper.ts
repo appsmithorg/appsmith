@@ -560,19 +560,7 @@ export class AggregateHelper {
       .click({ force: force })
       .wait(waitTimeInterval);
   }
-
-  public GetNClickLastOccurance(
-    selector: string,
-    force = false,
-    waitTimeInterval = 500,
-  ) {
-    return this.GetElement(selector)
-      .last()
-      .scrollIntoView()
-      .click({ force: force })
-      .wait(waitTimeInterval);
-  }
-
+  
   public GetSiblingNClick(
     selector: string,
     siblingSelector: string,

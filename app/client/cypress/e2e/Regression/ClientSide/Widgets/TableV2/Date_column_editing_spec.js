@@ -345,10 +345,8 @@ describe("Table widget date column inline editing functionality", () => {
     });
     cy.wait(500);
 
-    cy.editColumn("dateValue");
     //change format of column to date
-    cy.changeColumnType("Date");
-
+    _.table.ChangeColumnType("dateValue", "Date", "v1");
     cy.get(".t--property-control-dateformat").click();
     cy.contains("ISO 8601").click();
     // we should not see an error after selecting the ISO 8061 format

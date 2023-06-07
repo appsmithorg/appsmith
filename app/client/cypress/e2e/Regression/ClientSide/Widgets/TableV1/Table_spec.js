@@ -3,6 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Functionality", function () {
   before(() => {
@@ -51,10 +52,8 @@ describe("Table Widget Functionality", function () {
 
   it("Table Widget Functionality To Show a Base64 Image", function () {
     cy.openPropertyPane("tablewidget");
-    cy.editColumn("image");
-    cy.changeColumnType("Image", false);
+    _.table.ChangeColumnType("image", "Image", "v1");
     cy.isSelectRow(1);
-
     const index = 1;
     const imageVal = this.data.TableInput[index].image;
     cy.readTableLinkPublish(index, "1").then((hrefVal) => {

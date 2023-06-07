@@ -4,6 +4,7 @@ const { modifierKey } = require("../../../../../support/Constants");
 const firstButton = ".t--buttongroup-widget > div > button > div";
 const menuButton =
   ".t--buttongroup-widget .bp3-popover2-target > div > button > div";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Group Widget Functionality", function () {
   before(() => {
@@ -66,19 +67,13 @@ describe("Button Group Widget Functionality", function () {
 
   it("Update Placement and Verify buttons alignments", function () {
     // check first button placement
-    cy.selectDropdownValue(
-      ".t--property-control-placement .rc-select-selection-item",
-      "Between",
-    );
+    _.agHelper.SelectDropdownList("Placement", "Between");
     // 1st btn
     cy.get(firstButton)
       .last()
       .should("have.css", "justify-content", "space-between");
     // update dropdown value
-    cy.selectDropdownValue(
-      ".t--property-control-placement .rc-select-selection-item",
-      "Start",
-    );
+    _.agHelper.SelectDropdownList("Placement", "Start");
     cy.get(firstButton).last().should("have.css", "justify-content", "start");
     // other button style stay same
     cy.get(menuButton).should("have.css", "justify-content", "center");

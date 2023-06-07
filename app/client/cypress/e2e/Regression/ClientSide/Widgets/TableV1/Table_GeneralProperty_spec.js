@@ -135,9 +135,9 @@ describe("Table Widget property pane feature validation", function () {
     // go back to 1st
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     // Open email property pane
-    cy.editColumn("email");
     // Change column type to url
-    cy.changeColumnType("URL", false);
+    _.table.ChangeColumnType("email", "URL", "v1");
+
     //Check all the occurance
     cy.get(".link-text").should("have.length", "3");
     /*

@@ -2,6 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
@@ -11,10 +12,8 @@ describe("Table Widget property pane feature validation", function () {
   it("1. Table widget with Add button test and validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
-    cy.editColumn("id");
-    cy.get(widgetsPage.tableBtn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button", false);
+    _.table.ChangeColumnType("id", "Button", "v1");
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     // Selecting button action to show message
@@ -115,9 +114,8 @@ describe("Table Widget property pane feature validation", function () {
     //cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.get(".t--add-column-btn").click();
     //Open New Custom Column
-    cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon button", false);
+    _.table.ChangeColumnType("customColumn1", "Icon button", "v1");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -152,9 +150,8 @@ describe("Table Widget property pane feature validation", function () {
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
     //Open New Custom Column
-    cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Menu button", false);
+    _.table.ChangeColumnType("customColumn1", "Menu button", "v1");
     //Changing the text on the Menu button
     cy.testJsontext("label", "Menu button");
     // Select Icon from Icon Control
