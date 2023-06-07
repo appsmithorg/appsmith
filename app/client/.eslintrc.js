@@ -42,6 +42,10 @@ const eslintConfig = {
             message:
               "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star'))).",
           },
+          {
+            group: ["**/ce/*"],
+            message: "Reason: Please use @appsmith import instead.",
+          },
         ],
       },
     ],
