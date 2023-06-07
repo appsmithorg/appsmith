@@ -39,6 +39,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             propertyName: "mode",
             label: "Mode",
             controlType: "ICON_TABS",
+            defaultValue: "CAMERA",
             fullWidth: true,
             helpText: "Whether a picture is taken or a video is recorded",
             options: [
