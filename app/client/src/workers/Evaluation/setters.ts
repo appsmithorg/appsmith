@@ -110,7 +110,7 @@ class Setters {
     });
   }
   /** Generates a new setter method */
-  factory(path: string, setterMethodName: string, entityName: string) {
+  private factory(path: string, setterMethodName: string, entityName: string) {
     /** register the setter method in the lookup */
     set(this.setterMethodLookup, [entityName, setterMethodName], true);
 
