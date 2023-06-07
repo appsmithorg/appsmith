@@ -542,18 +542,4 @@ export class HomePage {
       }
     });
   }
-
-  public RemoveAppRenameTooltip() {
-    cy.get("body").then(($body) => {
-      if ($body.find(this._appRenameTooltip).length > 0) {
-        this.agHelper
-          .GetElement(this._appRenameTooltip)
-          .parents("div.rc-tooltip")
-          .then(($tooltipElement) => {
-            $tooltipElement.remove();
-            cy.log("Rename application tooltip removed");
-          });
-      }
-    });
-  }
 }

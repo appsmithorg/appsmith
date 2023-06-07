@@ -219,4 +219,5 @@ export class CommonLocators {
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
   _errorToolTip = ".bp3-popover-content";
   _sqlKeyword = ".cm-m-sql.cm-keyword";
+  _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
 }

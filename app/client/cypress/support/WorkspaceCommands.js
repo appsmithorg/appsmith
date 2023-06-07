@@ -8,7 +8,7 @@ import homePage from "../locators/HomePage";
 import explorer from "../locators/explorerlocators";
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
-const homePageOR = ObjectsRegistry.HomePage;
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -251,7 +251,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     "response.body.responseMeta.status",
     200,
   );
-  homePageOR.RemoveAppRenameTooltip();
+  agHelper.RemoveTooltip("Rename application");
 });
 
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
@@ -286,7 +286,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     200,
   );
   // Remove tooltip on the Application Name
-  homePageOR.RemoveAppRenameTooltip();
+  agHelper.RemoveTooltip("Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

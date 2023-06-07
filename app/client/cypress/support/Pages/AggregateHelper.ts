@@ -242,6 +242,19 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
+  public RemoveTooltip(toolTip: string) {
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locator._appLeveltooltip(toolTip)).length > 0) {
+        this.GetElement(this.locator._appLeveltooltip(toolTip))
+          .parents("div.rc-tooltip")
+          .then(($tooltipElement) => {
+            $tooltipElement.remove();
+            cy.log(toolTip + " tooltip removed");
+          });
+      }
+    });
+  }
+
   public ClickButton(
     btnVisibleText: string,
     index = 0,
@@ -595,6 +608,20 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
+  public GetHoverNClick(
+    selector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .scrollIntoView()
+      .realHover()
       .click({ force: force })
       .wait(waitTimeInterval);
   }

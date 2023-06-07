@@ -123,7 +123,7 @@ describe("One click binding control", () => {
     _.propPane.MoveToTab("Content");
 
     oneClickBinding.ChooseAndAssertForm(
-      "New from movies",
+      "New from Movies",
       "movies",
       "movies",
       "status",
