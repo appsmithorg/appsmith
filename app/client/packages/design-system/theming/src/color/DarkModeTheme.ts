@@ -102,6 +102,10 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.3;
     }
 
+    if (this.seedLightness < 0.2) {
+      color.oklch.l = 0.2;
+    }
+
     if (this.seedChroma > 0.112 && !this.seedIsAchromatic) {
       color.oklch.c = 0.112;
     }
@@ -110,11 +114,19 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentSubtleHover() {
-    return this.bgAccentSubtle.clone().lighten(0.06);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgAccentSubtleActive() {
-    return this.bgAccentSubtleHover.clone().darken(0.1);
+    const color = this.bgAccentSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
   private get bgAssistive() {
