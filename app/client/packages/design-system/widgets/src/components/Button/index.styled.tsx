@@ -10,9 +10,10 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   outline: 0;
   gap: var(--spacing-1);
   padding: var(--spacing-2) var(--spacing-4);
-  height: calc(var(--sizing-root-unit) * 8);
+  height: calc(var(--root-unit) * 8);
   border-radius: var(--border-radius-1);
   user-select: none;
+  min-width: calc(var(--root-unit) * 7.5);
 
   // TODO: remove this when we use only flex layout
   &[data-fit-container] {
@@ -80,8 +81,8 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   }
 
   & [data-icon] {
-    height: calc(var(--sizing-root-unit) * 5);
-    width: calc(var(--sizing-root-unit) * 5);
+    height: calc(var(--root-unit) * 5);
+    width: calc(var(--root-unit) * 5);
   }
 
   &[data-icon-position="end"] {
