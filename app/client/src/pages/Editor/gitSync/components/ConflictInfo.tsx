@@ -49,9 +49,10 @@ export default function ConflictInfo({
       <Space size={3} />
       <Row>
         <StyledButton
-          className="t--commit-button"
+          className="t--git-repo-button"
           href={browserSupportedRemoteUrl}
           kind="secondary"
+          renderAs="a"
         >
           {createMessage(OPEN_REPO)}
         </StyledButton>
