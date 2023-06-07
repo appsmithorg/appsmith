@@ -30,9 +30,9 @@ export const CompareTokens = () => {
           style={{
             width: "300px",
             height: "300px",
-            background: `${leftBg}`,
-            color: `${leftFg}`,
-            border: `5px solid ${leftBd}`,
+            background: `var(--color-${leftBg})`,
+            color: `var(--color-${leftFg})`,
+            border: `5px solid var(--color-${leftBd})`,
             fontSize: "20px",
             display: "flex",
             alignItems: "center",
@@ -52,7 +52,7 @@ export const CompareTokens = () => {
             {Object.keys(color)
               .filter((key) => key.includes("bg"))
               .map((key) => (
-                <option key={key} value={color[key].value}>
+                <option key={key} value={key}>
                   {key}
                 </option>
               ))}
@@ -61,7 +61,7 @@ export const CompareTokens = () => {
             {Object.keys(color)
               .filter((key) => key.includes("fg"))
               .map((key) => (
-                <option key={key} value={color[key].value}>
+                <option key={key} value={key}>
                   {key}
                 </option>
               ))}
@@ -70,7 +70,7 @@ export const CompareTokens = () => {
             {Object.keys(color)
               .filter((key) => key.includes("bd"))
               .map((key) => (
-                <option key={key} value={color[key].value}>
+                <option key={key} value={key}>
                   {key}
                 </option>
               ))}
@@ -88,9 +88,9 @@ export const CompareTokens = () => {
           style={{
             width: "300px",
             height: "300px",
-            background: `${rightBg}`,
-            color: `${rightFg}`,
-            border: `5px solid ${rightBd}`,
+            background: `var(--color-${rightBg})`,
+            color: `var(--color-${rightFg})`,
+            border: `5px solid var(--color-${rightBd})`,
             fontSize: "20px",
             display: "flex",
             alignItems: "center",
@@ -110,7 +110,7 @@ export const CompareTokens = () => {
             {Object.keys(color)
               .filter((key) => key.includes("bg"))
               .map((key) => (
-                <option key={key} value={color[key].value}>
+                <option key={key} value={key}>
                   {key}
                 </option>
               ))}
@@ -119,7 +119,7 @@ export const CompareTokens = () => {
             {Object.keys(color)
               .filter((key) => key.includes("fg"))
               .map((key) => (
-                <option key={key} value={color[key].value}>
+                <option key={key} value={key}>
                   {key}
                 </option>
               ))}
@@ -128,7 +128,7 @@ export const CompareTokens = () => {
             {Object.keys(color)
               .filter((key) => key.includes("bd"))
               .map((key) => (
-                <option key={key} value={color[key].value}>
+                <option key={key} value={key}>
                   {key}
                 </option>
               ))}
