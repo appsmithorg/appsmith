@@ -35,6 +35,8 @@ export function AppPage(props: AppPageProps) {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
+  const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
 
   useDynamicAppLayout();
 
@@ -55,7 +57,9 @@ export function AppPage(props: AppPageProps) {
         isAppSidebarPinned
       }
       isPublished={isPublished}
-      sidebarWidth={isMobile || isEmbed ? 0 : sidebarWidth}
+      sidebarWidth={
+        isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
+      }
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
         {props.widgetsStructure.widgetId &&

@@ -73,6 +73,7 @@ export const useDynamicAppLayout = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
+  const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
 
   // /**
   //  * calculates min height
@@ -158,12 +159,13 @@ export const useDynamicAppLayout = () => {
      * 2. App settings open with navigation tab
      * 3. Published
      */
+    const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
     if (
       (appMode === APP_MODE.PUBLISHED ||
         isPreviewMode ||
         isAppSettingsPaneWithNavigationTabOpen) &&
       !isMobile &&
-      !isEmbed &&
+      (!isEmbed || isEmbeddedAppWithNavVisible) &&
       sidebarWidth
     ) {
       calculatedWidth -= sidebarWidth;
