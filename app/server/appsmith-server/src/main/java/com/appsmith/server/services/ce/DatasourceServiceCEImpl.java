@@ -366,7 +366,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // however since we are falling back to default this step is not required here.
 
         // Cases where the datasource hasn't been saved yet
-        if (datasourceStorage.getDatasourceId() == null) {
+        if (!hasText(datasourceStorage.getDatasourceId())) {
 
             if (!hasText(datasourceStorage.getWorkspaceId())) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
