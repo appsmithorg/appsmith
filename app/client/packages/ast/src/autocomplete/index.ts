@@ -1,4 +1,4 @@
-import { getAST, isMemberExpressionNode } from "../index";
+import { getAST, isIdentifierNode, isMemberExpressionNode } from "../index";
 import { simple } from "acorn-walk";
 import type { Node } from "acorn";
 
@@ -19,4 +19,23 @@ export const isBracketOrDotNotation = (value: string): boolean | null => {
     },
   });
   return isObj;
+};
+
+export const isIdentifier = (value: string): boolean | null => {
+  let ast: Node = { end: 0, start: 0, type: "" };
+  let isIdentifier = false;
+  try {
+    ast = getAST(value);
+  } catch (e) {
+    return null;
+  }
+
+  simple(ast, {
+    Identifier(node) {
+      if (isIdentifierNode(node)) {
+        isIdentifier = true;
+      }
+    },
+  });
+  return isIdentifier;
 };
