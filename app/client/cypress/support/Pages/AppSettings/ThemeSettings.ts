@@ -77,10 +77,6 @@ export class ThemeSettings {
     this.agHelper.GetNClick(color);
   }
 
-  public AssertBorderTypeCount(expectedcount: number) {
-    cy.get(this.locators._border).should("have.length", expectedcount);
-  }
-
   public AssertBorderPopoverText(
     index: number,
     text: string,

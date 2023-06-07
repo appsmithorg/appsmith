@@ -9,7 +9,7 @@ describe("Theme validation usecase for multi-select widget", function () {
     _.appSettings.GoToThemeSettings();
   });
   it("2. validate Border type selection", function () {
-    _.theme.AssertBorderTypeCount(3);
+    _.agHelper.AssertElementLength(_.theme.locators._border, 3);
     _.theme.AssertBorderPopoverText(0, "none", 1);
     _.theme.AssertBorderPopoverText(1, "M", 2);
     _.theme.AssertBorderPopoverText(2, "L", 3);

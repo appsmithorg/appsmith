@@ -29,7 +29,7 @@ describe("Theme validation usecases", function () {
     _.appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
-    _.theme.AssertBorderTypeCount(3);
+    _.agHelper.AssertElementLength(_.theme.locators._border, 3);
     _.theme.AssertBorderPopoverText(0, "none", 1);
     _.theme.AssertBorderPopoverText(1, "M", 2);
     _.theme.AssertBorderPopoverText(2, "L", 3);
@@ -84,48 +84,20 @@ describe("Theme validation usecases", function () {
           //themeFont = `${$childElem.children().last().text()}, sans-serif`;
           themeFont = `Poppins, sans-serif`;
 
-          cy.contains("Font").click({ force: true });
-
-          //Color
-          //cy.contains("Color").click({ force: true });
-          cy.wait(2000);
-          // cy.colorMouseover(0, "Primary color");
-          // cy.validateColor("Primary", "#553DE9");
+          _.agHelper.ContainsNClick("Font");
+          _.agHelper.Sleep();
           _.theme.ChooseColorType("Primary");
           _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#553DE9");
           _.agHelper.Sleep();
           _.theme.ChooseColorType("Background");
           _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#F8FAFC");
-
           _.agHelper.Sleep();
-
-          cy.get(themelocator.inputColor).click({ force: true });
-          //cy.chooseColor(0, themelocator.greenColor);
-          _.theme.ChooseColorFromColorPicker(themelocator.greenColor);
-
-          cy.get(themelocator.inputColor).should("have.value", "#15803d");
-          cy.get(themelocator.inputColor).clear({ force: true });
-          cy.wait(2000);
-          cy.get(themelocator.inputColor).type("red");
-          cy.get(themelocator.inputColor).should("have.value", "red");
-          cy.wait(2000);
-
-          cy.get(themelocator.inputColor).eq(0).click({ force: true });
-          cy.get(themelocator.inputColor).click({ force: true });
-          cy.get('[data-testid="color-picker"]').first().click({ force: true });
-          cy.get("[style='background-color: rgb(21, 128, 61);']")
-            .last()
-            .click();
-          cy.wait(2000);
-          cy.get(themelocator.inputColor).should("have.value", "#15803d");
-          cy.get(themelocator.inputColor).clear({ force: true });
-          cy.wait(2000);
-          cy.get(themelocator.inputColor).click().type("Black");
-          cy.get(themelocator.inputColor).should("have.value", "Black");
-          cy.wait(2000);
-          cy.contains("Color").click({ force: true });
+          _.theme.ChangeThemeColor(3, "Background");
+          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#d4d4d8");
+          _.theme.ChangeThemeColor(3, "Primary");
+          _.agHelper.AssertText(_.theme.locators._inputColor, "val", "#d4d4d8");
+          _.agHelper.ContainsNClick("Color");
           _.appSettings.ClosePane();
-
           //Publish the App and validate Font across the app
           cy.PublishtheApp();
           cy.get(".bp3-button:contains('Sub')").should(
