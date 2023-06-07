@@ -236,27 +236,24 @@ public class FileUtilsImpl implements FileInterface {
                     Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
 
                     Set<String> validPages = new HashSet<>();
-                    Set<String> validWidgets = new HashSet<>();
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
-                            Map<String, Object> normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
-                            JSONObject entities = new JSONObject(normalizedDSL.get("data").toString());
-                            JSONObject canvasWidgets = new JSONObject(entities.get("entities").toString());
-                            JSONObject widgetList = new JSONObject(canvasWidgets.get("canvasWidgets").toString());
-                            widgetList
-                                    .keySet()
-                                    .stream()
-                                    .forEach(stringObjectEntry -> {
-                                        String widgetName = new JSONObject(widgetList.get(stringObjectEntry).toString()).get("widgetName").toString();
-                                        saveWidgets(
-                                                new JSONObject(widgetList.get(stringObjectEntry).toString()),
-                                                widgetName,
-                                                pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
-                                    });
+                            Map normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
+                            HashMap<String, Object> hashmap = (HashMap<String, Object>) normalizedDSL.get("entities");
+                            HashMap<String, Object> widgetsFlattened = (HashMap<String, Object>) hashmap.get("canvasWidgets");
+                            widgetsFlattened.keySet().stream().map(key -> {
+                                saveWidgets(
+                                        new JSONObject(widgetsFlattened.get(key).toString()),
+                                        key,
+                                        pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                                return null;
+                            });
+                            // Remove deleted widgets from the file system
+                            scanAndDeleteFileForDeletedResources(widgetsFlattened.keySet(), pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
                         }
                         validPages.add(pageName);
                     }
@@ -901,18 +898,17 @@ public class FileUtilsImpl implements FileInterface {
             .pendingAcquireMaxCount(-1)
             .build());
 
-    public Map<String, Object> getNormalizedDSL(String dsl) {
+    public Map getNormalizedDSL(String dsl) {
 
         return webClient.post()
-                .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/normalize ")
+                .uri(RTS_BASE_URL+ "/rts-api/v1/dsl/git/normalize")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(dsl))
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(map -> {
-                    Map<String, Object> widgets = (Map<String, Object>) map.get("widgets");
-                    return widgets;
+                    return (Map)map.get("data");
                 })
                 .block();
 
