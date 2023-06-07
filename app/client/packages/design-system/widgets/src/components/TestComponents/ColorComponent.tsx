@@ -4,6 +4,7 @@ import {
   TokensAccessor,
   LightModeTheme,
   DarkModeTheme,
+  defaultTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
 import { Text } from "../Text";
@@ -50,7 +51,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
   return obj;
 };
 
-export const TestColorComponent = (props: any) => {
+export const ColorComponent = (props: any) => {
   const {
     children,
     colorMode,
@@ -118,6 +119,14 @@ export const TestColorComponent = (props: any) => {
             const seedColor = COLORS[colorKey][colorNestedKey];
 
             const tokensAccessor = new TokensAccessor({
+              rootUnit: 4,
+              typography: {
+                ...defaultTokens.typography,
+                footnote: {
+                  capHeightRatio: 1.4,
+                  lineGapRatio: 1,
+                },
+              },
               seedColor,
               colorMode: colorMode,
             });
@@ -181,7 +190,7 @@ export const TestColorComponent = (props: any) => {
                     data-hovered={isHovered ? "" : undefined}
                     data-variant={variant}
                   >
-                    <Text capHeight={6.5} lineClamp={2}>
+                    <Text lineClamp={2} textAlign="center" variant="footnote">
                       {children({
                         seed: getSeed(),
                         derived: getDerived(),
