@@ -21,7 +21,7 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
     || true
 fi
 
-if [[ -n "$FILESTORE_IP_ADDRESS" ]]; then
+if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
 
   ## Trim APPSMITH_FILESTORE_IP and FILE_SHARE_NAME
   FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
