@@ -277,13 +277,14 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!datasource.datasourceStorages[currentEnvironment].isConfigured ||
+            {(!datasource.datasourceStorages[currentEnvironment]
+              ?.isConfigured ||
               supportTemplateGeneration) &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
                 <Button
                   className={
                     datasource.datasourceStorages[currentEnvironment]
-                      .isConfigured
+                      ?.isConfigured
                       ? "t--generate-template"
                       : "t--reconnect-btn"
                   }
@@ -292,19 +293,20 @@ function DatasourceCard(props: DatasourceCardProps) {
                     e.stopPropagation();
                     e.preventDefault();
                     datasource.datasourceStorages[currentEnvironment]
-                      .isConfigured
+                      ?.isConfigured
                       ? routeToGeneratePage()
                       : editDatasource();
                   }}
                   size="md"
                 >
                   {datasource.datasourceStorages[currentEnvironment]
-                    .isConfigured
+                    ?.isConfigured
                     ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
                     : createMessage(RECONNECT_BUTTON_TEXT)}
                 </Button>
               )}
-            {datasource.datasourceStorages[currentEnvironment].isConfigured && (
+            {datasource.datasourceStorages[currentEnvironment]
+              ?.isConfigured && (
               <NewActionButton
                 datasource={datasource}
                 disabled={

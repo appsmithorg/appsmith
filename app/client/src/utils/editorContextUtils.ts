@@ -88,15 +88,16 @@ export function isDatasourceAuthorizedForQueryCreation(
   if (!datasource) return false;
   const authType =
     datasource &&
-    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       ?.authentication?.authenticationType;
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
   if (isGoogleSheetPlugin) {
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
-      datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
-        ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
+      datasource?.datasourceStorages[currentEnvironment]
+        ?.datasourceConfiguration?.authentication?.authenticationStatus ===
+        AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
@@ -128,7 +129,7 @@ export function getDatasourcePropertyValue(
   }
 
   const properties =
-    datasource?.datasourceStorages[currentEnvironment].datasourceConfiguration
+    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
       ?.properties;
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
