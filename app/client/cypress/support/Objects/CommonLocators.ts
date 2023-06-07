@@ -137,6 +137,7 @@ export class CommonLocators {
   _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
+  _evalPopup = ".evaluated-value-popup";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>

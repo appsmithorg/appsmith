@@ -29,10 +29,11 @@ type columnTypeValues =
   | "Icon button";
 
 export class Table {
-  public agHelper = ObjectsRegistry.AggregateHelper;
-  public deployMode = ObjectsRegistry.DeployMode;
-  public locator = ObjectsRegistry.CommonLocators;
-  public propPane = ObjectsRegistry.PropertyPane;
+  private agHelper = ObjectsRegistry.AggregateHelper;
+  private deployMode = ObjectsRegistry.DeployMode;
+  private locator = ObjectsRegistry.CommonLocators;
+  private propPane = ObjectsRegistry.PropertyPane;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _tableWrap = "//div[contains(@class,'tableWrap')]";
   private _tableHeader =
@@ -506,7 +507,7 @@ export class Table {
       ); //timeout new url to settle loading
       cy.get("@windowStub").should("be.calledOnce");
       cy.url().should("eql", expectedURL);
-      this.agHelper.AssertDocumentReady();
+      this.assertHelper.AssertDocumentReady();
       cy.visit($currentUrl);
       this.agHelper.AssertNetworkStatus("@" + networkCall);
       this.WaitUntilTableLoad(0, 0, tableVersion);

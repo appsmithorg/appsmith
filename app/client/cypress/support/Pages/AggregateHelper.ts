@@ -1,5 +1,5 @@
 import "cypress-wait-until";
-const uuid = require("uuid");
+import { v4 as uuidv4 } from "uuid";
 import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
 
@@ -20,6 +20,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
@@ -70,16 +71,6 @@ export class AggregateHelper {
       shiftKey: shiftKey,
       ctrlKey: ctrlKey,
     });
-  }
-
-  public AssertDocumentReady() {
-    cy.waitUntil(() =>
-      //cy.document().then((doc) => doc.readyState === "complete"),
-      cy.document().should((doc) => {
-        expect(doc.readyState).to.equal("complete");
-      }),
-    );
-    cy.window().should("have.property", "onload");
   }
 
   public AddDsl(
@@ -251,6 +242,17 @@ export class AggregateHelper {
             $tooltipElement.remove();
             cy.log(toolTip + " tooltip removed");
           });
+      }
+    });
+  }
+
+  public RemoveEvaluatedPopUp() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locator._evalPopup).length > 0) {
+        this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
+          $evalPopUp.remove();
+          cy.log("Eval pop up removed");
+        });
       }
     });
   }
@@ -801,7 +803,7 @@ export class AggregateHelper {
   }
 
   public GenerateUUID() {
-    let id = uuid.v4();
+    let id = uuidv4();
     id = id.split("-")[0];
     cy.wrap(id).as("guid");
   }
@@ -824,13 +826,13 @@ export class AggregateHelper {
 
   public RefreshPage(reloadWithoutCache = true, networkCall = "getWorkspace") {
     this.Sleep(2000);
-    this.AssertDocumentReady();
+    this.assertHelper.AssertDocumentReady();
     // cy.window()
     //   .then((win) => {
     //     win.location.reload();
     //   })
     cy.reload(reloadWithoutCache).then(() => {
-      this.AssertDocumentReady();
+      this.assertHelper.AssertDocumentReady();
     });
     this.Sleep(2000);
     this.AssertNetworkStatus("@" + networkCall); //getWorkspace for Edit page!

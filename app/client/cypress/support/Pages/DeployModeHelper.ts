@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _jsonFieldName = (fieldName: string) => `//p[text()='${fieldName}']`;
   _jsonFormFieldByName = (fieldName: string, input = true) =>
@@ -35,12 +36,12 @@ export class DeployMode {
     this.agHelper.Sleep(3000); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    this.agHelper.AssertDocumentReady();
+    this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage();
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._runBtnSpinner, 10000); //to make sure we have started navigation from Edit page
     cy.get("@windowDeployStub").should("be.calledOnce");
-    this.agHelper.AssertDocumentReady();
+    this.assertHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -81,11 +82,11 @@ export class DeployMode {
   }
 
   public NavigateBacktoEditor() {
-    this.agHelper.AssertDocumentReady();
+    this.assertHelper.AssertDocumentReady();
     cy.get(this.locator._backToEditor).click({ force: true });
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
-    this.agHelper.AssertDocumentReady();
+    this.assertHelper.AssertDocumentReady();
     this.agHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
   }

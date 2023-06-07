@@ -2,6 +2,7 @@ import { WIDGET } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export const agHelper = ObjectsRegistry.AggregateHelper;
+export const assertHelper = ObjectsRegistry.AssertHelper;
 export const locators = ObjectsRegistry.CommonLocators;
 export const entityExplorer = ObjectsRegistry.EntityExplorer;
 export const jsEditor = ObjectsRegistry.JSEditor;

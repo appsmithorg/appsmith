@@ -24,6 +24,7 @@ import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
 import { DefaultHostPort } from "./Hostport";
+import { AssertHelper } from "../Pages/AssertHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -32,6 +33,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.aggregateHelper__ = new AggregateHelper();
     }
     return ObjectsRegistry.aggregateHelper__;
+  }
+
+  private static assertHelper__: AssertHelper;
+  static get AssertHelper(): AssertHelper {
+    if (ObjectsRegistry.assertHelper__ === undefined) {
+      ObjectsRegistry.assertHelper__ = new AssertHelper();
+    }
+    return ObjectsRegistry.assertHelper__;
   }
 
   private static jsEditor__: JSEditor;

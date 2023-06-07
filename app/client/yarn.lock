@@ -9786,6 +9786,7 @@ __metadata:
     typescript: 4.9.5
     unescape-js: ^1.1.4
     url-search-params-polyfill: ^8.0.0
+    uuid: ^9.0.0
     webfontloader: ^1.6.28
     webpack-merge: ^5.8.0
     webpack-retry-chunk-load-plugin: ^3.1.1
@@ -30352,6 +30353,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 5575a8a75c13120e2f10e6ddc801b2c7ed7d8f3c8ac22c7ed0c7b2ba6383ec0abda88c905085d630e251719e0777045ae3236f04c812184b7c765f63a70e58df
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "uuid@npm:9.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
   languageName: node
   linkType: hard
 

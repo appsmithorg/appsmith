@@ -265,6 +265,7 @@ export class HomePage {
       }
     });
     cy.get(this._applicationName).type(appName + "{enter}");
+    this.agHelper.RemoveTooltip("Rename application");
   }
 
   public GetAppName() {
