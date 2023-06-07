@@ -2,13 +2,9 @@ import kebabCase from "lodash/kebabCase";
 import range from "lodash/range";
 import type { ColorMode, ColorTypes } from "../color";
 import { DarkModeTheme, LightModeTheme } from "../color";
-import type {
-  FontFamilyTypes,
-  Typography,
-  TypographySource,
-} from "../typography";
+import type { FontFamily, Typography, TypographySource } from "../typography";
 
-import type { ThemeTokens, TokenObj, TokenSource, TokenType } from "./types";
+import type { ThemeToken, TokenObj, TokenSource, TokenType } from "./types";
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;
@@ -19,7 +15,7 @@ export class TokensAccessor {
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
   private typography: TypographySource;
-  private fontFamily?: FontFamilyTypes;
+  private fontFamily?: FontFamily;
 
   constructor({
     borderRadius,
@@ -47,7 +43,7 @@ export class TokensAccessor {
     this.rootUnit = rootUnit;
   };
 
-  updateFontFamily = (fontFamily: FontFamilyTypes) => {
+  updateFontFamily = (fontFamily: FontFamily) => {
     this.fontFamily = fontFamily;
   };
 
@@ -114,7 +110,7 @@ export class TokensAccessor {
   };
 
   getColors = () => {
-    if (this.seedColor == null) return {} as ThemeTokens;
+    if (this.seedColor == null) return {} as ThemeToken;
 
     switch (true) {
       case this.isLightMode:
@@ -136,7 +132,7 @@ export class TokensAccessor {
   };
 
   getSpacing = (count = 6) => {
-    if (this.rootUnit == null) return {} as ThemeTokens;
+    if (this.rootUnit == null) return {} as ThemeToken;
 
     const spacing = range(count).reduce((acc, value, index) => {
       return {
@@ -149,25 +145,25 @@ export class TokensAccessor {
   };
 
   getBorderRadius = () => {
-    if (this.borderRadius == null) return {} as ThemeTokens;
+    if (this.borderRadius == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.borderRadius, "borderRadius");
   };
 
   getBoxShadow = () => {
-    if (this.boxShadow == null) return {} as ThemeTokens;
+    if (this.boxShadow == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.boxShadow, "boxShadow");
   };
 
   getBorderWidth = () => {
-    if (this.borderWidth == null) return {} as ThemeTokens;
+    if (this.borderWidth == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.borderWidth, "borderWidth");
   };
 
   getOpacity = () => {
-    if (this.opacity == null) return {} as ThemeTokens;
+    if (this.opacity == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.opacity, "opacity");
   };
@@ -183,8 +179,8 @@ export class TokensAccessor {
   private createTokenObject = (
     tokenObj: TokenObj,
     tokenType: TokenType,
-  ): ThemeTokens => {
-    const themeTokens = {} as ThemeTokens;
+  ): ThemeToken => {
+    const themeTokens = {} as ThemeToken;
 
     Object.keys(tokenObj).forEach((key) => {
       themeTokens[tokenType] = {

@@ -2,14 +2,11 @@ import type { Ref } from "react";
 import React, { forwardRef } from "react";
 import { StyledText } from "./index.styled";
 import { useThemeContext } from "@design-system/theming";
-import type {
-  TypographyVariants,
-  TypographyTypes,
-} from "@design-system/theming";
+import type { TypographyVariant, TypographyType } from "@design-system/theming";
 
 export interface TextProps {
-  variant?: TypographyVariants;
-  type?: TypographyTypes;
+  variant?: TypographyVariant;
+  type?: TypographyType;
   isBold?: boolean;
   isItalic?: boolean;
   textAlign?: "left" | "center" | "right";

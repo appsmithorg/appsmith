@@ -1,7 +1,7 @@
 import type { ColorMode, ColorTypes } from "../color";
-import type { FontFamilyTypes, TypographySource } from "../typography";
+import type { FontFamily, TypographySource } from "../typography";
 
-export type ThemeTokens = {
+export type ThemeToken = {
   [key in TokenType]?: { [key: string]: Token };
 };
 
@@ -28,7 +28,7 @@ export interface TokenSource {
   boxShadow?: TokenObj;
   borderWidth?: TokenObj;
   opacity?: TokenObj;
-  fontFamily?: FontFamilyTypes;
+  fontFamily?: FontFamily;
 }
 
 export type TokenObj = { [key: string]: string | number };

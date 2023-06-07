@@ -31,7 +31,7 @@ export const fontMetrics = {
   "Segoe UI": segoeUI,
 } as const;
 
-import type { FontFamilyTypes, Typography } from "./types";
+import type { FontFamily, Typography } from "./types";
 
 export const createTypographyStylesMap = (typography: Typography) => {
   return Object.keys(typography).reduce((prev, current) => {
@@ -49,7 +49,7 @@ export const createTypographyStylesMap = (typography: Typography) => {
 export const createTypographyStyles = (
   capHeight: number,
   lineGap: number,
-  fontFamily?: FontFamilyTypes,
+  fontFamily?: FontFamily,
 ) => {
   // if there is no font family, use the default font stack
   if (!fontFamily) {

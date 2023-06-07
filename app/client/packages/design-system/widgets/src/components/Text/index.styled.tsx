@@ -1,12 +1,12 @@
 import styled, { css } from "styled-components";
 
-import type { TypographyVariants } from "@design-system/theming";
+import type { TypographyVariant } from "@design-system/theming";
 import type { FlattenSimpleInterpolation } from "styled-components";
 import type { TextProps } from "./Text";
 
 type StyledTextProp = TextProps & {
   typography?: {
-    [key in TypographyVariants]?: FlattenSimpleInterpolation;
+    [key in TypographyVariant]?: FlattenSimpleInterpolation;
   };
 };
 

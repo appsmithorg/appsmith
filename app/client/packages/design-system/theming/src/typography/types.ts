@@ -1,32 +1,32 @@
 import type { fontMetrics } from "./typography";
 
-export type TypographyVariants = "body" | "footnote" | "heading";
+export type TypographyVariant = "body" | "footnote" | "heading";
 
-export type TypographyTypes =
+export type TypographyType =
   | "default"
   | "neutral"
   | "positive"
   | "negative"
   | "warn";
 
-export type FontFamilyTypes = keyof typeof fontMetrics;
+export type FontFamily = keyof typeof fontMetrics;
 
-export type TypographyVariantSource = {
+export type TypographyVariantSourceMetric = {
   capHeightRatio: number;
   lineGapRatio: number;
-  fontFamily?: FontFamilyTypes;
+  fontFamily?: FontFamily;
 };
 
 export type TypographySource = {
-  [key in TypographyVariants]: TypographyVariantSource;
+  [key in TypographyVariant]: TypographyVariantSourceMetric;
 };
 
-export type TypographyVariant = {
+export type TypographyVariantMetric = {
   capHeight: number;
   lineGap: number;
-  fontFamily?: FontFamilyTypes;
+  fontFamily?: FontFamily;
 };
 
 export type Typography = {
-  [key in TypographyVariants]: TypographyVariant;
+  [key in TypographyVariant]: TypographyVariantMetric;
 };
