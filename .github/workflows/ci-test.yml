@@ -154,7 +154,7 @@ jobs:
           cd oldstack
           chmod 600 keypair.pem
           line=$(head -n 1 connection_string.txt)
-          ssh -i "keypair.pem" -L 29017:$line -N &
+          ssh -o StrictHostKeyChecking=no -i "keypair.pem" -L 29017:$line -N &
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
