@@ -3,21 +3,29 @@ name: Build Client, Server & Run only Cypress
 on:
   # This workflow can be triggered manually from the GitHub Actions page
   workflow_dispatch:
-    inputs:
-      previous_run_id:
-        description: 'Run id to download the docker image artifact:'
-        required: false
-        type: string
-        default: "0"
 
 jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to workflow run
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: 23980
+          body: |
+            Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Workflow: `${{ github.workflow }}`.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            PR: 23980.
+
   server-build:
     name: server-build
     if: inputs.previous_run_id == '0'
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 23980
       skip-tests: "true"
 
   client-build:
@@ -26,7 +34,7 @@ jobs:
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 23980
       skip-tests: "true"
 
   rts-build:
@@ -35,7 +43,7 @@ jobs:
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 23980
       
   build-docker-image:
     needs: [ client-build, server-build, rts-build ]
@@ -45,9 +53,9 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 23980
 
-  ci-test-limited:
+  ci-test:
     needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success() && inputs.previous_run_id == '0'
@@ -55,14 +63,91 @@ jobs:
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: 23980
 
-  ci-test-limited-existing-docker-image:
-    # Only run if the previous run-id is provided
-    if: inputs.previous_run_id != '0'
-    name: ci-test-limited
-    uses: ./.github/workflows/ci-test-limited.yml
-    secrets: inherit
-    with:
-      pr: 0
-      previous-workflow-run-id: ${{ fromJson(github.event.inputs.previous_run_id) }}
+  ci-test-result:
+    needs: [ ci-test ]
+    # Only run if the ci-test with matrices step is successful
+    if: always()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
+      # Download failed_spec list for all jobs
+      - uses: actions/download-artifact@v3
+        if: needs.ci-test.result != 'success'
+        id: download_ci
+        with:
+          name: failed-spec-ci
+          path: ~/failed_spec_ci
+          
+      # In case for any ci job failure, create combined failed spec
+      - name: "combine all specs for CI"
+        if: needs.ci-test.result != 'success'
+        run: |
+          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
+          cat ~/failed_spec_ci/failed_spec_ci*
+          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+
+      # Force save the CI failed spec list into a cache
+      - name: Store the combined run result for CI
+        if: needs.ci-test.result != 'success'
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+            
+      # Upload combined failed CI spec list to a file
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ci-test.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
+      - name: Add a comment on the PR with new CI failures
+        if: needs.ci-test.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: 23980
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+
+      - name: Add a comment on the PR when ci-test is success
+        if: needs.ci-test.result == 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: 23980
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            All cypress tests have passed 🎉
+          
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
+      - name: Check ci-test set status
+        if: needs.ci-test.result != 'success' || needs.perf-test.result != 'success'
+        run: exit 1
+

@@ -128,6 +128,23 @@ jobs:
           gunzip cicontainer.tar.gz
           docker load -i cicontainer.tar
 
+
+      - name: Download the oldstack
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          repository: appsmithorg/ci-oldstack
+          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          submodules: 'recursive'
+          path: oldstack
+
+      - name: Start SSH connection for the document db
+        run: |
+          cd oldstack
+          chmod 600 keypair.pem
+          line=$(head -n 1 connection_string.txt)
+          ssh -i "keypair.pem" -L 29017:$line -N &
+
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
@@ -150,6 +167,7 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_MONGODB_URI=mongodb://host.docker.internal:29017/appsmith \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
