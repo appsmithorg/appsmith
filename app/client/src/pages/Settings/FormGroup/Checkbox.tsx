@@ -4,12 +4,12 @@ import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Button, Checkbox, Text } from "design-system";
+import { Checkbox, Tag, Text } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import type { EventName } from "utils/AnalyticsUtil";
 import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -40,10 +40,6 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
   ) {
     const { isPropertyDisabled, labelSuffix } = props;
     const val = componentProps.input.value;
-    const { onUpgrade } = useOnUpgrade({
-      logEventName: props.upgradeLogEventName,
-      intercomMessage: props.upgradeIntercomMessage,
-    });
 
     function onCheckbox(value?: boolean) {
       const CheckboxValue = isPropertyDisabled ? !value : value;
@@ -66,11 +62,6 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
           {props.text}
         </Checkbox>
         <div>{labelSuffix}</div>
-        {props.needsUpgrade && (
-          <Button kind="secondary" onClick={onUpgrade}>
-            Upgrade
-          </Button>
-        )}
       </CheckboxWrapper>
     );
   };
@@ -87,15 +78,20 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
 
   return (
     <StyledFieldCheckboxGroup>
-      <Text
-        className="admin-settings-form-group-label pt-2 pb-2"
-        color="var(--ads-v2-color-fg)"
-        data-testid="admin-settings-form-group-label"
-        kind="heading-xs"
-        renderAs="p"
-      >
-        {setting.label}
-      </Text>
+      <div className="flex gap-1 items-center">
+        <Text
+          className="admin-settings-form-group-label pt-2 pb-2"
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-form-group-label"
+          kind="heading-xs"
+          renderAs="p"
+        >
+          {setting.label}
+        </Text>
+        {setting.needsUpgrade && (
+          <Tag isClosable={false}>{createMessage(BUSINESS_TAG)}</Tag>
+        )}
+      </div>
       <Field
         component={FieldCheckboxWithCheckboxText({
           label: setting.label,
