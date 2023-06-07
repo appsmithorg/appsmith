@@ -14,9 +14,13 @@ import type {
   ConfigTree,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 
 class Setters {
-  /** stores the setter accessor as key and true as value */
+  /** stores the setter accessor as key and true as value
+   *
+   * example - ```{ "Table1.setVisibility": true, "Table1.setData": true }```
+   */
   private setterMethodLookup: Record<string, true> = {};
 
   private applySetterMethod(
@@ -107,11 +111,15 @@ class Setters {
   }
   /** Generates a new setter method */
   factory(path: string, setterMethodName: string, entityName: string) {
+    /** register the setter method in the lookup */
     set(this.setterMethodLookup, [entityName, setterMethodName], true);
-    return (value: unknown) => {
+
+    const fn = async (value: unknown) => {
       if (!dataTreeEvaluator) return;
       return this.applySetterMethod(path, value, setterMethodName);
     };
+
+    return getFnWithGuards(fn, setterMethodName, [isAsyncGuard]);
   }
 
   clear() {
