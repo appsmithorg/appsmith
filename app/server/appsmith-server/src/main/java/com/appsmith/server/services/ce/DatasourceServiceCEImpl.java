@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
@@ -437,72 +438,64 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
      * the password from the db if its a saved datasource before testing.
      */
     @Override
-    public Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId) {
-        // the datasource has been created with datasourceStorageKey as output of getTrueEnvironmentId
-        Mono<DatasourceStorage> datasourceStorageMono = this
-                .getTrueEnvironmentId(datasourceDTO.getWorkspaceId(), environmentId)
-                .zipWhen(trueEnvironmentId -> convertToDatasource(datasourceDTO, trueEnvironmentId))
-                .flatMap(tuple2 -> {
-                    String trueEnvironmentId = tuple2.getT1();
-                    Datasource datasource = tuple2.getT2();
-
-                    DatasourceStorage datasourceStorage = datasourceStorageService
-                            .getDatasourceStorageFromDatasource(datasource, trueEnvironmentId);
-
-                    if (datasource.getId() == null) {
-                        return Mono.just(datasourceStorage);
-                    }
-                    // Check if we have execute access on this datasource
-                    return this.findById(datasource.getId(), datasourcePermission.getExecutePermission())
-                            .flatMap(dbDatasource -> {
-                                // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
-                                // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
-                                // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
-                                if (datasourceStorage.getDatasourceId() != null
-                                        && datasourceStorage.getDatasourceConfiguration() != null
-                                        && datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
-                                    return datasourceStorageService.findByDatasourceAndEnvironmentId(dbDatasource, trueEnvironmentId)
-                                            .map(datasourceStorage1 -> {
-                                                copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
-                                                return datasourceStorage1;
-                                            });
-                                }
-                                return Mono.just(datasourceStorage);
-                            })
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
-                })
-                .flatMap(datasourceStorageService::checkEnvironment);
-
-        return datasourceStorageMono
-                .flatMap(this::verifyDatasourceAndTest);
-    }
-
-    @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
 
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        Mono<DatasourceStorage> datasourceStorageMono;
 
-        Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage)
-                .flatMap(datasourceStorageService::checkEnvironment);
-        // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
-        // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
-        // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
-        if (datasourceStorage.getDatasourceId() != null && datasourceStorage.getEnvironmentId() != null
-                && datasourceStorage.getDatasourceConfiguration() != null
-                && datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
-            datasourceStorageMono = this.findById(datasourceStorage.getDatasourceId(),
-                            datasourcePermission.getExecutePermission())
-                            .flatMap(datasource1 -> datasourceStorageService
-                                    .findByDatasourceAndEnvironmentId(datasource1,
-                                            datasourceStorage.getEnvironmentId()))
-                            .map(datasourceStorage1 -> {
-                                copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
-                                return datasourceStorage1;
-                            })
-                            .switchIfEmpty(datasourceStorageMono);
+        // Could we also treat this as a case for default environmentId ?
+        if (!hasText(datasourceStorage.getEnvironmentId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT_ID));
+        }
+
+        // Cases where the datasource hasn't been saved yet
+        if (datasourceStorage.getDatasourceId() == null) {
+
+            if (!hasText(datasourceStorage.getWorkspaceId())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            }
+
+            datasourceStorageMono = getTrueEnvironmentId(datasourceStorage.getWorkspaceId(), datasourceStorage.getEnvironmentId())
+                    .map(trueEnvironmentId -> {
+                        datasourceStorage.setEnvironmentId(trueEnvironmentId);
+                        return datasourceStorage;
+                    });
+        } else {
+
+            datasourceStorageMono = findById(datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
+                    .zipWhen(dbDatasource -> getTrueEnvironmentId(dbDatasource.getWorkspaceId(),  datasourceStorage.getEnvironmentId()))
+                    .map(tuple2 -> {
+                        Datasource datasource = tuple2.getT1();
+                        String trueEnvironmentId = tuple2.getT2();
+
+                        datasourceStorage.setEnvironmentId(trueEnvironmentId);
+                        datasourceStorage.prepareTransientFields(datasource);
+                        return datasourceStorage;
+                    })
+                    .flatMap(datasourceStorage1 -> {
+
+                        DatasourceConfiguration datasourceConfiguration = datasourceStorage1.getDatasourceConfiguration();
+                        if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
+                            return Mono.just(datasourceStorage);
+                        }
+
+                        String datasourceId = datasourceStorage1.getDatasourceId();
+                        String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
+                        // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
+                        // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
+                        // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
+
+                        return datasourceStorageService.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, trueEnvironmentId)
+                                .map(dbDatasourceStorage ->  {
+                                    copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
+                                    return dbDatasourceStorage;
+                                });
+                    })
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
         }
 
         return datasourceStorageMono
+                .flatMap(datasourceStorageService::checkEnvironment)
                 .flatMap(this::verifyDatasourceAndTest);
     }
 

@@ -1,8 +1,11 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Set;
 
@@ -19,6 +22,9 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
     Boolean isConfigured;
     Set<String> invalids;
     Set<String> messages;
+
+    String pluginId;
+    String workspaceId;
 
     public DatasourceStorageDTO(DatasourceStorage datasourceStorage) {
         this.id = datasourceStorage.getId();
@@ -51,6 +57,11 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
         this.environmentId = environmentId;
         this.datasourceConfiguration = datasourceConfiguration;
         this.isConfigured = Boolean.TRUE;
+    }
+
+    @JsonView(Views.Public.class)
+    public boolean getIsValid() {
+        return CollectionUtils.isEmpty(invalids);
     }
 
     /**
