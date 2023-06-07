@@ -1468,7 +1468,6 @@ Cypress.Commands.add("makeColumnEditable", (column) => {
 });
 
 Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
-  cy.wait(500);
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
   )
