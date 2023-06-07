@@ -924,7 +924,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.ClickOutside(); //to close the evaluated pop-up
+    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
       this.agHelper.GetNClick(this._templateMenu);
